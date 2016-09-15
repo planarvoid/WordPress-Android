@@ -10,7 +10,6 @@ import com.squareup.okhttp.OkHttpClient;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 public abstract class TrackingActivityTest<T extends Activity> extends ActivityTest<T> {
@@ -87,8 +86,10 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     }
 
     private void enableEventLoggerInstantFlush(Context context) {
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        sharedPreferences.edit().putBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, true).apply();
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, true)
+                .apply();
     }
 
 }

@@ -29,8 +29,6 @@ public abstract class ResolveBaseTest extends TrackingActivityTest<ResolveActivi
     }
 
     public VisualPlayerElement getPlayerElement() {
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(solo);
-        visualPlayerElement.waitForExpandedPlayer();
-        return visualPlayerElement;
+        return new VisualPlayerElement(solo).waitForExpandedPlayer();
     }
 }
