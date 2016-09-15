@@ -6,13 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:background="@color/page_background"
-        android:clickable="false"
-        android:focusable="false" />
-
+    <View style="@style/Divider.Background" />
     <View style="@style/Divider.Section" />
 
     <com.soundcloud.android.collection.CollectionPreviewView

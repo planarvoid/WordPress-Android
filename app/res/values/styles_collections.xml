@@ -130,6 +130,8 @@
         <item name="android:paddingLeft">@dimen/collection_default_margin</item>
         <item name="android:paddingRight">@dimen/collection_default_margin</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">false</item>
     </style>
 
     <style name="Collections.BucketCarousel">
@@ -150,6 +152,5 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/collections_empty_text_color</item>
     </style>
-
 
 </resources>
