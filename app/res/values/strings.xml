@@ -807,9 +807,9 @@
     <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
     <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalog and ad-free offline listening.</string>
     <string name="go_onboarding_title_2">Play full tracks</string>
-    <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud Go.</string>
+    <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud\u00A0Go.</string>
     <string name="go_onboarding_title_3">Listen offline</string>
-    <string name="go_onboarding_body_3">Download playlists, albums, and all your liked tracks.</string>
+    <string name="go_onboarding_body_3">Download playlists, albums, and all your liked\u00A0tracks.</string>
     <string name="go_onboarding_title_4">Start exploring</string>
     <string name="go_onboarding_body_4">Don’t wait — find old favorites and look for new ones in your massive new catalog of tracks.</string>
 
