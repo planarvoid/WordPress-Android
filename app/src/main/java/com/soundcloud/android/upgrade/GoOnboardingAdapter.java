@@ -35,10 +35,11 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
 
     private static final int BG_SAMPLE_SIZE = 2;
 
-    private Context context;
-    private DeviceHelper deviceHelper;
+    private final Context context;
+    private final DeviceHelper deviceHelper;
 
-    private WeakHashMap<Integer, AnimationDrawable> pendingAnimationMap = new WeakHashMap<>(3);
+    private WeakHashMap<Integer, AnimationDrawable> pendingAnimationMap =
+            new WeakHashMap<>(OnboardingPage.values().length - 1); // No animation on title page
 
     @Inject
     public GoOnboardingAdapter(Context context, DeviceHelper deviceHelper) {

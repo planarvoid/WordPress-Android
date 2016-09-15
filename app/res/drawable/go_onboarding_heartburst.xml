@@ -7,27 +7,27 @@
         android:drawable="@drawable/heartburst_0" />
 
     <item
-        android:duration="50"
+        android:duration="@integer/frame_20fps"
         android:drawable="@drawable/heartburst_1" />
 
     <item
-        android:duration="50"
+        android:duration="@integer/frame_20fps"
         android:drawable="@drawable/heartburst_2" />
 
     <item
-        android:duration="50"
+        android:duration="@integer/frame_20fps"
         android:drawable="@drawable/heartburst_3" />
 
     <item
-        android:duration="50"
+        android:duration="@integer/frame_20fps"
         android:drawable="@drawable/heartburst_4" />
 
     <item
-        android:duration="50"
+        android:duration="@integer/frame_20fps"
         android:drawable="@drawable/heartburst_5" />
 
     <item
-        android:duration="50"
+        android:duration="@integer/frame_20fps"
         android:drawable="@drawable/heartburst_6" />
 
 </animation-list>
