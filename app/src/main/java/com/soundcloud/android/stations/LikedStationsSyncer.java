@@ -1,9 +1,11 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.stations.ApiStationMetadata.TO_URN;
 import static com.soundcloud.android.stations.LikedStationsPostBody.create;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DiffUtils;
+import com.soundcloud.java.collections.Lists;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -33,12 +35,25 @@ class LikedStationsSyncer implements Callable<Boolean> {
         final List<Urn> remoteLikedStations = api.updateLikedStations(likedStationsPostBody).getCollection();
         final List<Urn> toSync = DiffUtils.minus(remoteLikedStations, knownStations);
 
-        final List<ApiStationMetadata> newStationsMetaData = toSync.isEmpty() ?
-                                                             Collections.<ApiStationMetadata>emptyList() :
-                                                             api.fetchStations(toSync);
+        final List<ApiStationMetadata> stationsFromApi = toSync.isEmpty() ?
+                                                         Collections.<ApiStationMetadata>emptyList() :
+                                                         api.fetchStations(toSync);
 
-        storage.setLikedStationsAndAddNewMetaData(remoteLikedStations, newStationsMetaData);
+        final List<Urn> likedStationsUrns = removeUrnsOfStationsWithoutMetadata(remoteLikedStations,
+                                                                                toSync,
+                                                                                stationsFromApi);
+
+        storage.setLikedStationsAndAddNewMetaData(likedStationsUrns, stationsFromApi);
         return true;
+    }
+
+    private List<Urn> removeUrnsOfStationsWithoutMetadata(List<Urn> remoteLikedStations,
+                                                          List<Urn> toSync,
+                                                          List<ApiStationMetadata> stationsFromApi) {
+
+        final List<Urn> stationsWithKnownMetadata = Lists.transform(stationsFromApi, TO_URN);
+        final List<Urn> urnsOfStationsMissingMetadata = DiffUtils.minus(toSync, stationsWithKnownMetadata);
+        return DiffUtils.minus(remoteLikedStations, urnsOfStationsMissingMetadata);
     }
 
 }
