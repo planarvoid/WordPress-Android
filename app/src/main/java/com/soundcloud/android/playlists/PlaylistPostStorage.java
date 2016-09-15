@@ -1,20 +1,8 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_UNAVAILABLE_TRACKS;
-import static com.soundcloud.android.playlists.PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER;
-import static com.soundcloud.android.playlists.PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY;
-import static com.soundcloud.android.playlists.PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER;
-import static com.soundcloud.android.playlists.PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY;
-import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Posts;
-import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.Table.Sounds;
-import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
-import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
 import static com.soundcloud.android.storage.TableColumns.SoundView.CREATED_AT;
-import static com.soundcloud.android.storage.Tables.TrackDownloads;
-import static com.soundcloud.propeller.query.ColumnFunctions.count;
-import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
@@ -23,8 +11,8 @@ import static com.soundcloud.propeller.query.Query.on;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -41,53 +29,33 @@ public class PlaylistPostStorage {
     private final PropellerRx propellerRx;
     private final CurrentDateProvider dateProvider;
     private final RemovePlaylistCommand removePlaylistCommand;
+    private final PlaylistAssociationMapper playlistAssociationMapper;
 
     @Inject
     public PlaylistPostStorage(PropellerRx propellerRx,
                                CurrentDateProvider dateProvider,
-                               RemovePlaylistCommand removePlaylistCommand) {
+                               RemovePlaylistCommand removePlaylistCommand,
+                               PlaylistAssociationMapperFactory mapperFactory) {
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
         this.removePlaylistCommand = removePlaylistCommand;
+        this.playlistAssociationMapper = mapperFactory.create(TableColumns.Posts.CREATED_AT);
     }
 
-    public Observable<List<PropertySet>> loadPostedPlaylists(int limit, long fromTimestamp) {
+    public Observable<List<PlaylistAssociation>> loadPostedPlaylists(int limit, long fromTimestamp) {
         return propellerRx.query(buildLoadPostedPlaylistsQuery(limit, fromTimestamp))
-                          .map(new PostedPlaylistMapper())
+                          .map(playlistAssociationMapper)
                           .toList();
     }
 
     protected Query buildLoadPostedPlaylistsQuery(int limit, long fromTimestamp) {
-        return Query.from(SoundView.name())
-                    .select(
-                            field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
-                            field(SoundView.field(TableColumns.SoundView.TITLE)).as(TableColumns.SoundView.TITLE),
-                            field(SoundView.field(TableColumns.SoundView.USERNAME)).as(TableColumns.SoundView.USERNAME),
-                            field(SoundView.field(TableColumns.SoundView.USER_ID)).as(TableColumns.SoundView.USER_ID),
-                            field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
-                            field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
-                            field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
-                            field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(TableColumns.SoundView.ARTWORK_URL),
-                            field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT),
-                            count(PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
-                            exists(likeQuery()).as(TableColumns.SoundView.USER_LIKE),
-                            exists(HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
-                            exists(HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(PostedPlaylistMapper.HAS_DOWNLOADED_TRACKS),
-                            exists(HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS),
-                            exists(IS_MARKED_FOR_OFFLINE_QUERY).as(PostedPlaylistMapper.IS_MARKED_FOR_OFFLINE))
-                    .leftJoin(Table.PlaylistTracks.name(), SoundView.field(TableColumns.SoundView._ID), PLAYLIST_ID)
-                    .innerJoin(Table.Posts.name(),
-                               on(Table.Posts.field(TableColumns.Posts.TARGET_ID),
-                                  SoundView.field(TableColumns.SoundView._ID))
-                                       .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE),
-                                                SoundView.field(TableColumns.SoundView._TYPE)))
-                    .leftJoin(TrackDownloads.TABLE.name(),
-                              PlaylistTracks.field(TRACK_ID),
-                              TrackDownloads._ID.qualifiedName())
-                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
+        return Query.from(Tables.PlaylistView.TABLE.name())
+                    .select(Tables.PlaylistView.TABLE.name() + ".*",
+                            field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT))
+                    .innerJoin(Table.Posts.name(), on(Table.Posts.field(TableColumns.Posts.TARGET_ID), Tables.PlaylistView.ID.fullName())
+                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), "\"" + TableColumns.Posts.TYPE_POST + "\"")
                     .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                    .whereLt(Posts.field(TableColumns.Posts.CREATED_AT), fromTimestamp)
-                    .groupBy(SoundView.field(TableColumns.SoundView._ID))
+                    .whereLt(Posts.field(TableColumns.Posts.CREATED_AT), fromTimestamp))
                     .order(CREATED_AT, DESC)
                     .limit(limit);
     }

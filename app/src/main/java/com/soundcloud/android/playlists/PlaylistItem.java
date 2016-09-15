@@ -9,6 +9,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
@@ -171,5 +172,10 @@ public class PlaylistItem extends PlayableItem {
     @Override
     public int hashCode() {
         return source.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).addValue(source).toString();
     }
 }

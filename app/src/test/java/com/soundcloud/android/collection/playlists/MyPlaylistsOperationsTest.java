@@ -7,13 +7,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.CollectionOptionsStorage;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -45,11 +43,17 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
     private TestSubscriber<List<PlaylistItem>> subscriber = new TestSubscriber<>();
 
-    private PropertySet postedPlaylist1;
-    private PropertySet postedPlaylist2;
-    private PropertySet likedPlaylist1;
-    private PropertySet likedPlaylist2;
-    private PropertySet likedPlaylist3Offline;
+    private PlaylistItem postedPlaylist1;
+    private PlaylistItem postedPlaylist2;
+    private PlaylistItem likedPlaylist1;
+    private PlaylistItem likedPlaylist2;
+    private PlaylistItem likedPlaylist3Offline;
+
+    private PlaylistAssociation postedPlaylistAssociation1;
+    private PlaylistAssociation postedPlaylistAssociation2;
+    private PlaylistAssociation likedPlaylistAssociation1;
+    private PlaylistAssociation likedPlaylistAssociation2;
+    private PlaylistAssociation likedPlaylistAssociation3Offline;
 
     @Before
     public void setUp() throws Exception {
@@ -61,20 +65,36 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Observable.just(true));
         when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
-        postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
-        postedPlaylist2 = getPostedPlaylist(Urn.forPlaylist(2L), new Date(3), "banana");
-        likedPlaylist1 = getLikedPlaylist(Urn.forPlaylist(3L), new Date(2), "cherry");
-        likedPlaylist2 = getLikedPlaylist(Urn.forPlaylist(4L), new Date(4), "doughnut");
+
+
+        postedPlaylist1 = getPlaylistItem(Urn.forPlaylist(1L), "apple");
+        postedPlaylist2 = getPlaylistItem(Urn.forPlaylist(2L), "banana");
+        likedPlaylist1 = getPlaylistItem(Urn.forPlaylist(3L), "cherry");
+        likedPlaylist2 = getPlaylistItem(Urn.forPlaylist(4L), "doughnut");
         likedPlaylist3Offline = getLikedPlaylistOffline(Urn.forPlaylist(5L),
-                                                        new Date(5),
                                                         "eclair",
                                                         OfflineState.DOWNLOADED);
 
+        postedPlaylistAssociation1 = getAssociatedPlaylist(postedPlaylist1, new Date(1));
+        postedPlaylistAssociation2 = getAssociatedPlaylist(postedPlaylist2, new Date(3));
+        likedPlaylistAssociation1 = getAssociatedPlaylist(likedPlaylist1, new Date(2));
+        likedPlaylistAssociation2 = getAssociatedPlaylist(likedPlaylist2, new Date(4));
+        likedPlaylistAssociation3Offline = getAssociatedPlaylist(likedPlaylist3Offline, new Date(5));
+
         when(playlistPostStorage.loadPostedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
-                .thenReturn(Observable.just(Arrays.asList(postedPlaylist1, postedPlaylist2)));
+                .thenReturn(Observable.just(
+                        Arrays.asList(
+                                postedPlaylistAssociation1,
+                                postedPlaylistAssociation2
+                        )));
 
         when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
-                .thenReturn(Observable.just(Arrays.asList(likedPlaylist1, likedPlaylist2, likedPlaylist3Offline)));
+                .thenReturn(Observable.just(
+                        Arrays.asList(
+                                likedPlaylistAssociation1,
+                                likedPlaylistAssociation2,
+                                likedPlaylistAssociation3Offline
+                        )));
     }
 
     @Test
@@ -84,8 +104,8 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(postedPlaylist2),
-                PlaylistItem.from(postedPlaylist1)
+                postedPlaylist2,
+                postedPlaylist1
         ));
     }
 
@@ -96,9 +116,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(likedPlaylist3Offline),
-                PlaylistItem.from(likedPlaylist2),
-                PlaylistItem.from(likedPlaylist1)
+                likedPlaylist3Offline,
+                likedPlaylist2,
+                likedPlaylist1
         ));
     }
 
@@ -109,21 +129,22 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(likedPlaylist3Offline),
-                PlaylistItem.from(likedPlaylist2),
-                PlaylistItem.from(postedPlaylist2),
-                PlaylistItem.from(likedPlaylist1),
-                PlaylistItem.from(postedPlaylist1)
+                likedPlaylist3Offline,
+                likedPlaylist2,
+                postedPlaylist2,
+                likedPlaylist1,
+                postedPlaylist1
         ));
     }
 
     @Test
     public void myPlaylistsReturnsUniquePostedAndLikedPlaylists() throws Exception {
-        PropertySet likedPlaylist3 = getLikedPlaylist(postedPlaylist1.get(EntityProperty.URN), new Date(6), "pepper");
-        final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1,
-                                                                                           likedPlaylist2,
-                                                                                           likedPlaylist3,
-                                                                                           likedPlaylist3Offline));
+        final PlaylistItem likedPlaylist3 = getPlaylistItem(postedPlaylist1.getUrn(), "pepper");
+        PlaylistAssociation likedPlaylistAssociation3 = getAssociatedPlaylist(likedPlaylist3, new Date(6));
+        final Observable<List<PlaylistAssociation>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylistAssociation1,
+                                                                                                   likedPlaylistAssociation2,
+                                                                                                   likedPlaylistAssociation3,
+                                                                                                   likedPlaylistAssociation3Offline));
         when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
                 .thenReturn(likedPlaylists);
 
@@ -132,11 +153,11 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(likedPlaylist3),
-                PlaylistItem.from(likedPlaylist3Offline),
-                PlaylistItem.from(likedPlaylist2),
-                PlaylistItem.from(postedPlaylist2),
-                PlaylistItem.from(likedPlaylist1)
+                likedPlaylist3,
+                likedPlaylist3Offline,
+                likedPlaylist2,
+                postedPlaylist2,
+                likedPlaylist1
         ));
     }
 
@@ -148,11 +169,11 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(likedPlaylist3Offline),
-                PlaylistItem.from(likedPlaylist2),
-                PlaylistItem.from(postedPlaylist2),
-                PlaylistItem.from(likedPlaylist1),
-                PlaylistItem.from(postedPlaylist1)
+                likedPlaylist3Offline,
+                likedPlaylist2,
+                postedPlaylist2,
+                likedPlaylist1,
+                postedPlaylist1
         ));
     }
 
@@ -165,11 +186,11 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(postedPlaylist1),
-                PlaylistItem.from(postedPlaylist2),
-                PlaylistItem.from(likedPlaylist1),
-                PlaylistItem.from(likedPlaylist2),
-                PlaylistItem.from(likedPlaylist3Offline)
+                postedPlaylist1,
+                postedPlaylist2,
+                likedPlaylist1,
+                likedPlaylist2,
+                likedPlaylist3Offline
         ));
     }
 
@@ -180,7 +201,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(singletonList(
-                PlaylistItem.from(likedPlaylist3Offline)));
+                likedPlaylist3Offline));
     }
 
     @Test
@@ -200,11 +221,11 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(likedPlaylist3Offline),
-                PlaylistItem.from(likedPlaylist2),
-                PlaylistItem.from(postedPlaylist2),
-                PlaylistItem.from(likedPlaylist1),
-                PlaylistItem.from(postedPlaylist1)
+                likedPlaylist3Offline,
+                likedPlaylist2,
+                postedPlaylist2,
+                likedPlaylist1,
+                postedPlaylist1
         ));
     }
 
@@ -223,33 +244,27 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
 
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
-                PlaylistItem.from(likedPlaylist3Offline),
-                PlaylistItem.from(likedPlaylist2),
-                PlaylistItem.from(postedPlaylist2),
-                PlaylistItem.from(likedPlaylist1),
-                PlaylistItem.from(postedPlaylist1)
+                likedPlaylist3Offline,
+                likedPlaylist2,
+                postedPlaylist2,
+                likedPlaylist1,
+                postedPlaylist1
         ));
     }
 
-    private PropertySet getPostedPlaylist(Urn urn, Date postedAt, String title) {
-        return PropertySet.from(
+    private PlaylistItem getPlaylistItem(Urn urn, String title) {
+        return PlaylistItem.from(PropertySet.from(
                 PlaylistProperty.URN.bind(urn),
-                PlaylistProperty.TITLE.bind(title),
-                PostProperty.CREATED_AT.bind(postedAt)
-        );
+                PlaylistProperty.TITLE.bind(title)));
     }
 
-    private PropertySet getLikedPlaylist(Urn urn, Date likedAt, String title) {
-        return PropertySet.from(
-                PlaylistProperty.URN.bind(urn),
-                PlaylistProperty.TITLE.bind(title),
-                LikeProperty.CREATED_AT.bind(likedAt)
-        );
+    private PlaylistAssociation getAssociatedPlaylist(PlaylistItem playlistItem, Date postedAt) {
+        return PlaylistAssociation.create(playlistItem, postedAt);
     }
 
-    private PropertySet getLikedPlaylistOffline(Urn urn, Date date, String title, OfflineState state) {
-        return getLikedPlaylist(urn, date, title)
-                .put(OfflineProperty.OFFLINE_STATE, state);
+    private PlaylistItem getLikedPlaylistOffline(Urn urn, String title, OfflineState state) {
+        final PlaylistItem playlist = getPlaylistItem(urn, title);
+        playlist.getSource().put(OfflineProperty.OFFLINE_STATE, state);
+        return playlist;
     }
-
 }

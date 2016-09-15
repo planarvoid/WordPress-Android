@@ -27,7 +27,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 88;
+    public static final int DATABASE_VERSION = 89;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -77,6 +77,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             // views
             db.execSQL(Tables.SearchSuggestions.SQL);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
+            db.execSQL(Tables.PlaylistView.SQL);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -106,7 +107,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             SchemaMigrationHelper.drop(t, db);
         }
         dropView(Tables.SearchSuggestions.TABLE.name(), db);
-
+        dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
+        dropView(Tables.PlaylistView.TABLE.name(), db);
         onCreate(db);
     }
 
@@ -283,6 +285,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 88:
                             success = upgradeTo88(db, oldVersion);
+                            break;
+                        case 89:
+                            success = upgradeTo89(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1050,6 +1055,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Create PlaylistView
+     */
+    private boolean upgradeTo89(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.PlaylistView.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 89);
+        }
+        return false;
+    }
+
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
             db.execSQL(Tables.RecentlyPlayed.MIGRATE_SQL);
@@ -1097,5 +1115,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
         db.execSQL(Tables.OfflinePlaylistTracks.SQL);
+
+        SchemaMigrationHelper.dropView(Tables.PlaylistView.TABLE.name(), db);
+        db.execSQL(Tables.PlaylistView.SQL);
     }
 }

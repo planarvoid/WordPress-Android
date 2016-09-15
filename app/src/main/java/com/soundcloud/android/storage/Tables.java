@@ -1,6 +1,19 @@
 package com.soundcloud.android.storage;
 
+import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.storage.Table.PlaylistTracks;
+import static com.soundcloud.android.storage.Table.SoundView;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
+import static com.soundcloud.propeller.query.ColumnFunctions.count;
+import static com.soundcloud.propeller.query.ColumnFunctions.exists;
+import static com.soundcloud.propeller.query.Field.field;
+import static com.soundcloud.propeller.query.Filter.filter;
+
+import com.soundcloud.android.playlists.PlaylistQueries;
 import com.soundcloud.android.storage.TableColumns.Sounds;
+import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.schema.BaseTable;
 import com.soundcloud.propeller.schema.Column;
 
@@ -91,7 +104,7 @@ public interface Tables {
                 ");";
 
         protected PlayQueue() {
-            super("PlayQueue", PrimaryKey.of(BaseColumns._ID));
+            super("PlayQueue", PrimaryKey.of(_ID));
         }
     }
 
@@ -422,4 +435,62 @@ public interface Tables {
         }
     }
 
+    class PlaylistView extends BaseTable {
+
+        public static final PlaylistView TABLE = new PlaylistView();
+
+        protected PlaylistView() {
+            super("PlaylistView", PrimaryKey.of(_ID));
+        }
+
+        public static final Column ID = Column.create(TABLE, "_id");
+        public static final Column TITLE = Column.create(TABLE, "title");
+        public static final Column USERNAME = Column.create(TABLE, "username");
+        public static final Column USER_ID = Column.create(TABLE, "user_id");
+        public static final Column TRACK_COUNT = Column.create(TABLE, "track_count");
+        public static final Column LIKES_COUNT = Column.create(TABLE, "likes_count");
+        public static final Column SHARING = Column.create(TABLE, "sharing");
+        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
+        public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "local_track_count");
+        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE, "has_pending_download_request");
+        public static final Column HAS_DOWNLOADED_TRACKS = Column.create(TABLE, "has_downloaded_tracks");
+        public static final Column HAS_UNAVAILABLE_TRACKS = Column.create(TABLE, "has_unavailable_tracks");
+        public static final Column IS_MARKED_FOR_OFFLINE = Column.create(TABLE, "is_marked_for_offline");
+        public static final Column IS_USER_LIKE = Column.create(TABLE, "is_user_like");
+
+        static final String SQL = "CREATE VIEW IF NOT EXISTS PlaylistView AS " +
+                Query.from(SoundView.name())
+                     .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.fullName()),
+                             field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.fullName()),
+                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(USERNAME.fullName()),
+                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(USER_ID.fullName()),
+                             field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TRACK_COUNT.fullName()),
+                             field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.fullName()),
+                             field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.fullName()),
+                             field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.fullName()),
+                             count(PLAYLIST_ID).as(LOCAL_TRACK_COUNT.fullName()),
+                             exists(likeQuery()).as(IS_USER_LIKE.fullName()),
+                             exists(PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST.fullName()),
+                             exists(PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_DOWNLOADED_TRACKS.fullName()),
+                             exists(PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS.fullName()),
+                             exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE.fullName()))
+                     .leftJoin(Table.PlaylistTracks.name(), SoundView.field(_ID), PLAYLIST_ID)
+                     .leftJoin(TrackDownloads.TABLE.name(),
+                               PlaylistTracks.field(TRACK_ID),
+                               TrackDownloads._ID.qualifiedName())
+                     .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Sounds.TYPE_PLAYLIST)
+                     .groupBy(SoundView.field(_ID));
+
+
+        static Query likeQuery() {
+            final Where joinConditions = filter()
+                    .whereEq(Table.SoundView.field(Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
+                    .whereEq(Table.SoundView.field(Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
+
+            return Query.from(Table.Likes.name())
+                        // do not use SoundView here. The exists query will fail, in spite of passing tests
+                        .innerJoin(Table.Sounds.name(), joinConditions)
+                        .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+        }
+    }
 }

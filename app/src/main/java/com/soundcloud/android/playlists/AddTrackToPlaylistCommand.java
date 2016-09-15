@@ -2,11 +2,13 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
+import static com.soundcloud.propeller.query.Field.field;
 
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -46,8 +48,8 @@ class AddTrackToPlaylistCommand
     private int getCurrentTrackCount(PropellerDatabase propeller, Urn playlistUrn) {
         return propeller.query(Query.from(Table.SoundView.name())
                                     .select(
-                                            SoundView.TRACK_COUNT,
-                                            count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
+                                            field(SoundView.TRACK_COUNT).as(Tables.PlaylistView.TRACK_COUNT.fullName()),
+                                            count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(Tables.PlaylistView.LOCAL_TRACK_COUNT.fullName()))
                                     .whereEq(SoundView._ID, playlistUrn.getNumericId())
                                     .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                                     .leftJoin(Table.PlaylistTracks.name(),
@@ -83,7 +85,7 @@ class AddTrackToPlaylistCommand
     private static final class TrackCountMapper extends RxResultMapper<Integer> {
         @Override
         public Integer map(CursorReader cursorReader) {
-            return PlaylistMapper.readTrackCount(cursorReader);
+            return NewPlaylistMapper.readTrackCount(cursorReader);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_ID;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_TYPE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.propeller.query.Query.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -13,7 +14,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
@@ -24,7 +24,6 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.assertions.QueryAssertions;
 import org.junit.Before;
@@ -46,7 +45,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     private PlaylistPostStorage storage;
     private ApiUser user;
 
-    private TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
+    private TestSubscriber<List<PlaylistAssociation>> subscriber = new TestSubscriber<>();
 
     @Mock private AccountOperations accountOperations;
     @Mock private RemovePlaylistCommand removePlaylistCommand;
@@ -55,15 +54,18 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     public void setUp() throws Exception {
         user = testFixtures().insertUser();
 
-        storage = new PlaylistPostStorage(propellerRx(), new TestDateProvider(), removePlaylistCommand);
+        storage = new PlaylistPostStorage(propellerRx(),
+                                          new TestDateProvider(),
+                                          removePlaylistCommand,
+                                          new PlaylistAssociationMapperFactory(providerOf(new NewPlaylistMapper())));
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(user.getUrn());
     }
 
     @Test
     public void shouldLoadAllPlaylistPosts() throws Exception {
-        final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        final PropertySet playlist2 = createPlaylistPostAt(POSTED_DATE_2);
+        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -72,38 +74,38 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void markPendingRemovalShouldFilterOutPlaylistWhenLoading() {
-        final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        final PropertySet playlist2 = createPlaylistPostAt(POSTED_DATE_2);
+        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
 
-        storage.markPendingRemoval(playlist1.get(PlaylistProperty.URN)).subscribe();
+        storage.markPendingRemoval(playlist1.getPlaylistItem().getUrn()).subscribe();
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
-        databaseAssertions().assertPlaylistInserted(playlist1.get(PlaylistProperty.URN));
+        databaseAssertions().assertPlaylistInserted(playlist1.getPlaylistItem().getUrn());
         subscriber.assertValue(Collections.singletonList(playlist2));
     }
 
     @Test
     public void shouldReturnTrackCountAsMaximumOfRemoteAndLocalCounts() throws Exception {
-        final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         createPlaylistPostAt(POSTED_DATE_2);
-        assertThat(playlist1.get(PlaylistProperty.TRACK_COUNT)).isEqualTo(2);
+        assertThat(playlist1.getPlaylistItem().getTrackCount()).isEqualTo(2);
 
-        final Urn playlistUrn = playlist1.get(PlaylistProperty.URN);
+        final Urn playlistUrn = playlist1.getPlaylistItem().getUrn();
         testFixtures().insertPlaylistTrack(playlistUrn, 0);
         testFixtures().insertPlaylistTrack(playlistUrn, 1);
         testFixtures().insertPlaylistTrack(playlistUrn, 2);
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
-        final List<PropertySet> result = subscriber.getOnNextEvents().get(0);
-        assertThat(result.get(1).get(PlaylistProperty.URN)).isEqualTo(playlistUrn);
-        assertThat(result.get(1).get(PlaylistProperty.TRACK_COUNT)).isEqualTo(3);
+        final List<PlaylistAssociation> result = subscriber.getOnNextEvents().get(0);
+        assertThat(result.get(1).getPlaylistItem().getUrn()).isEqualTo(playlistUrn);
+        assertThat(result.get(1).getPlaylistItem().getTrackCount()).isEqualTo(3);
     }
 
     @Test
     public void shouldAdhereToLimit() throws Exception {
         createPlaylistPostAt(POSTED_DATE_1);
-        final PropertySet playlist2 = createPlaylistPostAt(POSTED_DATE_2);
+        final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
         storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValue(Collections.singletonList(playlist2));
@@ -111,7 +113,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldAdhereToPostedTime() throws Exception {
-        final PropertySet playlist1 = createPlaylistRepostAt(POSTED_DATE_1, POSTED_DATE_1);
+        final PlaylistAssociation playlist1 = createPlaylistRepostAt(POSTED_DATE_1, POSTED_DATE_1);
         createPlaylistRepostAt(POSTED_DATE_3, POSTED_DATE_1);
 
         storage.loadPostedPlaylists(2, POSTED_DATE_2.getTime()).subscribe(subscriber);
@@ -121,9 +123,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldIncludeLikedStatus() throws Exception {
-        final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        testFixtures().insertLike(new ApiLike(playlist1.get(PlaylistProperty.URN), new Date()));
-        playlist1.put(PlayableProperty.IS_USER_LIKE, true);
+        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        testFixtures().insertLike(new ApiLike(playlist1.getPlaylistItem().getUrn(), new Date()));
+        playlist1.getPlaylistItem().getSource().put(PlayableProperty.IS_USER_LIKE, true);
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -133,8 +135,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldIncludeUnlikedStatus() throws Exception {
-        final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        playlist1.put(PlayableProperty.IS_USER_LIKE, false);
+        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        playlist1.getPlaylistItem().getSource().put(PlayableProperty.IS_USER_LIKE, false);
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -143,8 +145,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldNotIncludePlaylistsNotPresentInTheCollectionItemsTable() throws Exception {
-        final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        final PropertySet playlist2 = createPlaylistPostAt(POSTED_DATE_2);
+        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
         createPlaylistAt(POSTED_DATE_3); // deleted
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
@@ -154,8 +156,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldNotConfuseTracksForPlaylists() throws Exception {
-        final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        final PropertySet playlist2 = createPlaylistPostAt(POSTED_DATE_2);
+        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
         createTrackWithId(9999);
         createPlaylistCollectionWithId(9999, new Date());
 
@@ -172,7 +174,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.REQUESTED)));
+                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.REQUESTED)));
     }
 
     @Test
@@ -184,7 +186,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.DOWNLOADED)));
+                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.DOWNLOADED)));
     }
 
     @Test
@@ -195,7 +197,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.UNAVAILABLE)));
+                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.UNAVAILABLE)));
     }
 
     @Test
@@ -208,7 +210,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.DOWNLOADED)));
+                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.DOWNLOADED)));
     }
 
     @Test
@@ -216,13 +218,13 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final ApiPlaylist postedPlaylistDownloaded = insertPlaylistWithDownloadedTrack(POSTED_DATE_1,
                                                                                        123L,
                                                                                        System.currentTimeMillis());
-        final PropertySet downloadedPlaylist = createPostedPlaylistPropertySet(postedPlaylistDownloaded,
-                                                                               OfflineState.DOWNLOADED);
+        final PlaylistAssociation downloadedPlaylist = createPostedPlaylist(postedPlaylistDownloaded,
+                                                                    OfflineState.DOWNLOADED);
 
         final ApiPlaylist postedPlaylistRequested = insertPlaylistWithRequestedDownload(POSTED_DATE_2,
                                                                                         System.currentTimeMillis());
-        final PropertySet requestedPlaylist = createPostedPlaylistPropertySet(postedPlaylistRequested,
-                                                                              OfflineState.REQUESTED);
+        final PlaylistAssociation requestedPlaylist = createPostedPlaylist(postedPlaylistRequested,
+                                                                   OfflineState.REQUESTED);
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -258,10 +260,12 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         QueryAssertions.assertThat(select(query)).isEmpty();
     }
 
-    private PropertySet createPostedPlaylistPropertySet(ApiPlaylist apiPlaylist, OfflineState offlineState) {
-        return createPostPropertySet(apiPlaylist)
-                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
-                .put(OfflineProperty.OFFLINE_STATE, offlineState);
+    private PlaylistAssociation createPostedPlaylist(ApiPlaylist apiPlaylist, OfflineState offlineState) {
+        final PlaylistAssociation postedPlaylist = createPostedPlaylist(apiPlaylist);
+        postedPlaylist.getPlaylistItem().getSource()
+                      .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
+                      .put(OfflineProperty.OFFLINE_STATE, offlineState);
+        return postedPlaylist;
     }
 
     private ApiPlaylist insertPlaylistWithRequestedDownload(Date postedDate, long requestedAt) {
@@ -295,28 +299,31 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         return postedPlaylistDownloaded;
     }
 
-    private PropertySet createPlaylistPostAt(Date postedAt) {
+    private PlaylistAssociation createPlaylistPostAt(Date postedAt) {
         return createPlaylistRepostAt(postedAt, postedAt);
     }
 
-    private PropertySet createPlaylistRepostAt(Date postedAt, Date createdAt) {
+    private PlaylistAssociation createPlaylistRepostAt(Date postedAt, Date createdAt) {
         ApiPlaylist playlist = createPlaylistAt(createdAt);
         createPlaylistCollectionWithId(playlist.getUrn().getNumericId(), postedAt);
-        return createPostPropertySet(playlist).put(OfflineProperty.IS_MARKED_FOR_OFFLINE, false);
+        final PlaylistAssociation playlistAssociation = createPostedPlaylist(playlist);
+        playlistAssociation.getPlaylistItem().getSource().put(OfflineProperty.IS_MARKED_FOR_OFFLINE, false);
+        return playlistAssociation;
     }
 
-    private PropertySet createPostPropertySet(ApiPlaylist playlist) {
-        return playlist.toPropertySet().slice(
-                PlaylistProperty.URN,
-                PlaylistProperty.TITLE,
-                EntityProperty.IMAGE_URL_TEMPLATE,
-                PlaylistProperty.CREATOR_URN,
-                PlaylistProperty.CREATOR_NAME,
-                PlaylistProperty.TRACK_COUNT,
-                PlaylistProperty.LIKES_COUNT,
-                PlaylistProperty.IS_PRIVATE
-        ).put(PostProperty.CREATED_AT, playlist.getCreatedAt())
-                       .put(PlayableProperty.IS_USER_LIKE, false);
+    private PlaylistAssociation createPostedPlaylist(ApiPlaylist playlist) {
+        return PlaylistAssociation.create(
+                PlaylistItem.from(playlist.toPropertySet().slice(
+                        PlaylistProperty.URN,
+                        PlaylistProperty.TITLE,
+                        EntityProperty.IMAGE_URL_TEMPLATE,
+                        PlaylistProperty.CREATOR_URN,
+                        PlaylistProperty.CREATOR_NAME,
+                        PlaylistProperty.TRACK_COUNT,
+                        PlaylistProperty.LIKES_COUNT,
+                        PlaylistProperty.IS_PRIVATE
+                ).put(PlayableProperty.IS_USER_LIKE, false)),
+                playlist.getCreatedAt());
     }
 
     private ApiPlaylist createPlaylistAt(Date creationDate) {
