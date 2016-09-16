@@ -8,12 +8,15 @@ import com.soundcloud.android.view.LoadingButton;
 import com.soundcloud.android.view.pageindicator.CirclePageIndicator;
 
 import android.app.Activity;
+import android.graphics.drawable.TransitionDrawable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 
 import javax.inject.Inject;
 
 class GoOnboardingView implements ViewPager.OnPageChangeListener {
+
+    private static final int BUTTON_TRANSITION_MS = 200;
 
     @Bind(R.id.go_onboarding_pager) ViewPager pager;
     @Bind(R.id.go_onboarding_indicator) CirclePageIndicator indicator;
@@ -70,9 +73,13 @@ class GoOnboardingView implements ViewPager.OnPageChangeListener {
 
     @Override
     public void onPageSelected(int position) {
-        doneButton.setBackgroundResource(isLastPage(position)
-                ? R.drawable.btn_primary
-                : R.drawable.btn_primary_transparent);
+        if (isLastPage(position)) {
+            doneButton.setBackgroundResource(R.drawable.btn_primary_transition);
+            final TransitionDrawable transition = (TransitionDrawable) doneButton.getBackground();
+            transition.startTransition(BUTTON_TRANSITION_MS);
+        } else {
+            doneButton.setBackgroundResource(R.drawable.btn_primary_transparent);
+        }
     }
 
     private boolean isLastPage(int position) {

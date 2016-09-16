@@ -30,4 +30,20 @@
         android:duration="@integer/frame_20fps"
         android:drawable="@drawable/heartburst_6" />
 
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_7" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_8" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_9" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_10" />
+
 </animation-list>

@@ -58,7 +58,7 @@
     <!-- Play Queue -->
     <color name="play_queue_remove">#ff3300</color>
     <color name="play_queue_playing_background">#37ffffff</color>
-    <color name="play_queue_higlighted_background">#1Effffff</color>
+    <color name="play_queue_higlighted_background">#1effffff</color>
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>
@@ -72,6 +72,7 @@
     <!-- Onboarding -->
     <color name="tour_overlay">#cc000000</color>
     <color name="signup_separator">@color/ak_medium_dark_gray</color>
+    <color name="go_onboarding_page_indicator">#80ffffff</color>
 
     <!-- Search -->
     <color name="tag_text">@color/ak_dark_gray</color>
