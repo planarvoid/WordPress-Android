@@ -112,6 +112,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         final Predicate<PlayQueueItem> predicate = predicateCaptor.getValue();
         assertThat(predicate.apply(TestPlayQueueItem.createTrack(Urn.forTrack(1)))).isTrue();
         assertThat(predicate.apply(TestPlayQueueItem.createPlaylist(Urn.forPlaylist(1)))).isFalse();
+        assertThat(predicate.apply(TestPlayQueueItem.createTrack(Urn.forAd("dfs:ads", "something")))).isFalse();
+        assertThat(predicate.apply(null)).isFalse();
     }
 
     @Test

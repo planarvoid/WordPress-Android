@@ -12,6 +12,7 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.DiffUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func0;
@@ -27,8 +28,8 @@ public class PlayQueueOperations {
 
     private static final Predicate<PlayQueueItem> IS_TRACK = new Predicate<PlayQueueItem>() {
         @Override
-        public boolean apply(PlayQueueItem input) {
-            return input.isTrack();
+        public boolean apply(@Nullable PlayQueueItem input) {
+            return input != null && input.isTrack() && input.getUrn().isTrack();
         }
     };
 
