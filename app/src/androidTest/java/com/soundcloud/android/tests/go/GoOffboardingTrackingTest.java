@@ -2,8 +2,6 @@ package com.soundcloud.android.tests.go;
 
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
-import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.go.GoOffboardingScreen;
@@ -39,8 +37,6 @@ public class GoOffboardingTrackingTest extends TrackingActivityTest<GoOffboardin
         startEventTracking();
     }
 
-    @Ignore
-    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/6039")
     public void testTrackResubscribeButtonClickAndImpression() throws Exception {
         screen.clickResubscribe();
 
