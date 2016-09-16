@@ -22,6 +22,7 @@
     <!-- Grids -->
     <integer name="grids_num_columns">1</integer>
 
-
+    <!-- Animations -->
+    <integer name="frame_20fps">50</integer>
 
 </resources>

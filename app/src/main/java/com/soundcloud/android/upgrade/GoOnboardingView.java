@@ -34,6 +34,7 @@ class GoOnboardingView implements ViewPager.OnPageChangeListener {
         pager.setAdapter(adapter);
         indicator.setViewPager(pager);
         pager.addOnPageChangeListener(this);
+        pager.addOnPageChangeListener(adapter);
     }
 
     @OnClick(R.id.btn_go_setup_start)

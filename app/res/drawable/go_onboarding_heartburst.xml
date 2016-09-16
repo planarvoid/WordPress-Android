@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+
+    <item
+        android:duration="550"
+        android:drawable="@drawable/heartburst_0" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_1" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_2" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_3" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_4" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_5" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/heartburst_6" />
+
+</animation-list>
