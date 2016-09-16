@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.main.Screen;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,24 +26,24 @@ public final class FacebookInvitesEvent extends TrackingEvent {
         super(kind, timeStamp);
     }
 
-    public static FacebookInvitesEvent forListenerShown(FacebookInvitesItem item) {
-        return baseImpressionEvent(withListenerImages(item));
+    public static FacebookInvitesEvent forListenerShown(boolean hasPictures) {
+        return baseImpressionEvent(withListenerImages(hasPictures));
     }
 
     public static TrackingEvent forCreatorShown() {
         return baseImpressionEvent(TYPE_CREATOR_WITH_IMAGES);
     }
 
-    public static FacebookInvitesEvent forListenerClick(FacebookInvitesItem item) {
-        return baseClickEvent(withListenerImages(item));
+    public static FacebookInvitesEvent forListenerClick(boolean hasPictures) {
+        return baseClickEvent(withListenerImages(hasPictures));
     }
 
     public static FacebookInvitesEvent forCreatorClick() {
         return baseClickEvent(TYPE_CREATOR_WITH_IMAGES);
     }
 
-    public static FacebookInvitesEvent forListenerDismiss(FacebookInvitesItem item) {
-        return baseClickEvent(dismissWithListenerImages(item));
+    public static FacebookInvitesEvent forListenerDismiss(boolean hasPictures) {
+        return baseClickEvent(dismissWithListenerImages(hasPictures));
     }
 
     public static FacebookInvitesEvent forCreatorDismiss() {
@@ -68,11 +67,11 @@ public final class FacebookInvitesEvent extends TrackingEvent {
                 .put(KEY_IMPRESSION_NAME, impressionName);
     }
 
-    private static String withListenerImages(FacebookInvitesItem item) {
-        return item.hasPictures() ? TYPE_LISTENER_WITH_IMAGES : TYPE_LISTENER_WITHOUT_IMAGES;
+    private static String withListenerImages(boolean hasPictures) {
+        return hasPictures ? TYPE_LISTENER_WITH_IMAGES : TYPE_LISTENER_WITHOUT_IMAGES;
     }
 
-    private static String dismissWithListenerImages(FacebookInvitesItem item) {
-        return item.hasPictures() ? TYPE_LISTENER_DISMISS_WITH_IMAGES : TYPE_LISTENER_DISMISS_WITHOUT_IMAGES;
+    private static String dismissWithListenerImages(boolean hasPictures) {
+        return hasPictures ? TYPE_LISTENER_DISMISS_WITH_IMAGES : TYPE_LISTENER_DISMISS_WITHOUT_IMAGES;
     }
 }

@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
+class StreamPlaylistItemRenderer implements CellRenderer<SoundStreamItem.Playlist> {
 
     private final Resources resources;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
@@ -53,8 +53,8 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     @Override
-    public void bindItemView(int position, View view, List<PlaylistItem> playlistItems) {
-        final PlaylistItem playlistItem = playlistItems.get(position);
+    public void bindItemView(int position, View view, List<SoundStreamItem.Playlist> playlistItems) {
+        final PlaylistItem playlistItem = playlistItems.get(position).playlistItem();
         StreamPlaylistViewHolder itemView = (StreamPlaylistViewHolder) view.getTag();
         itemView.resetAdditionalInformation();
 

@@ -13,18 +13,16 @@ import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.profile.MyProfileOperations;
-import com.soundcloud.android.stream.NotificationItem;
+import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
 import rx.observers.TestSubscriber;
 
 import java.util.concurrent.TimeUnit;
@@ -34,7 +32,6 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
     private FacebookInvitesOperations operations;
 
     @Mock private FacebookInvitesStorage storage;
-    @Mock private Observer<Optional<FacebookInvitesItem>> observer;
     @Mock private FacebookApi facebookApi;
     @Mock private FacebookApiHelper facebookApiHelper;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
@@ -161,16 +158,15 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadForCreatorsWhenRecentPost() throws Exception {
-        final TestSubscriber<NotificationItem> subscriber = new TestSubscriber<>();
+        final TestSubscriber<SoundStreamItem> subscriber = new TestSubscriber<>();
         PropertySet track = TestPropertySets.expectedPostedTrackForPostsScreen();
         when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(track));
 
         operations.creatorInvites().subscribe(subscriber);
 
-        final FacebookInvitesItem invitesItem = (FacebookInvitesItem) subscriber.getOnNextEvents().get(0);
-        assertThat(invitesItem.getUrn()).isEqualTo(FacebookInvitesItem.CREATOR_URN);
-        assertThat(invitesItem.getTrackUrn()).isEqualTo(track.get(PlayableProperty.URN));
-        assertThat(invitesItem.getTrackUrl()).isEqualTo(track.get(PlayableProperty.PERMALINK_URL));
+        final SoundStreamItem.FacebookCreatorInvites invitesItem = (SoundStreamItem.FacebookCreatorInvites) subscriber.getOnNextEvents()
+                                                                                                                      .get(0);
+        assertThat(invitesItem.trackUrn()).isEqualTo(track.get(PlayableProperty.URN));
     }
 
 }

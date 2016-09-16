@@ -9,6 +9,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -262,10 +263,10 @@ public class StationsOperations {
         stationsStorage.clear();
     }
 
-    public Observable<StationOnboardingStreamItem> onboardingStreamItem() {
+    public Observable<SoundStreamItem> onboardingStreamItem() {
         return shouldShowOnboardingStreamItem()
                 .filter(IS_TRUE)
-                .flatMap(continueWith(Observable.just(new StationOnboardingStreamItem())));
+                .flatMap(continueWith(Observable.just(SoundStreamItem.forStationOnboarding())));
     }
 
     private Observable<Boolean> shouldShowOnboardingStreamItem() {

@@ -5,7 +5,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.view.LayoutInflater;
@@ -16,7 +18,7 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class FacebookCreatorInvitesItemRenderer implements CellRenderer<FacebookInvitesItem> {
+public class FacebookCreatorInvitesItemRenderer implements CellRenderer<SoundStreamItem.FacebookCreatorInvites> {
 
     private final ImageOperations imageOperations;
     private final FacebookInvitesStorage facebookInvitesStorage;
@@ -46,12 +48,12 @@ public class FacebookCreatorInvitesItemRenderer implements CellRenderer<Facebook
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<FacebookInvitesItem> notifications) {
+    public void bindItemView(int position, View itemView, List<SoundStreamItem.FacebookCreatorInvites> items) {
         ImageView artwork = (ImageView) itemView.findViewById(R.id.artwork);
-        FacebookInvitesItem item = notifications.get(position);
+        Urn trackUrn = items.get(position).trackUrn();
         itemView.setEnabled(false);
         setClickListeners(itemView, position);
-        imageOperations.displayWithPlaceholder(item.getTrackUrn(), ApiImageSize.T300, artwork);
+        imageOperations.displayWithPlaceholder(trackUrn, ApiImageSize.T300, artwork);
     }
 
     public void setOnFacebookInvitesClickListener(Listener listener) {

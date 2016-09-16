@@ -59,7 +59,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadInitialItemsInOnCreate() {
-        ActivityItem activityItem = new ActivityItem(TestPropertySets.activityTrackLike());
+        ActivityItem activityItem = ActivityItem.fromPropertySet(TestPropertySets.activityTrackLike());
         when(operations.initialActivities()).thenReturn(Observable.just(singletonList(activityItem)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -70,7 +70,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldGoToUserProfileWhenClickingFollower() {
         final PropertySet activity = TestPropertySets.activityUserFollow();
-        when(adapter.getItem(0)).thenReturn(new ActivityItem(activity));
+        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
 
         presenter.onItemClicked(itemView, 0);
 
@@ -80,7 +80,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldGoToUserProfileWhenClickingTrackLike() {
         final PropertySet activity = TestPropertySets.activityTrackLike();
-        when(adapter.getItem(0)).thenReturn(new ActivityItem(activity));
+        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
 
         presenter.onItemClicked(itemView, 0);
 
@@ -90,7 +90,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldGoToUserProfileWhenClickingTrackRepost() {
         final PropertySet activity = TestPropertySets.activityTrackRepost();
-        when(adapter.getItem(0)).thenReturn(new ActivityItem(activity));
+        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
 
         presenter.onItemClicked(itemView, 0);
 
@@ -100,7 +100,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistLike() {
         final PropertySet activity = TestPropertySets.activityPlaylistLike();
-        when(adapter.getItem(0)).thenReturn(new ActivityItem(activity));
+        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
 
         presenter.onItemClicked(itemView, 0);
 
@@ -110,7 +110,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistRepost() {
         final PropertySet activity = TestPropertySets.activityPlaylistRepost();
-        when(adapter.getItem(0)).thenReturn(new ActivityItem(activity));
+        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
 
         presenter.onItemClicked(itemView, 0);
 
@@ -123,7 +123,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
         final PropertySet activity = TestPropertySets.activityTrackComment();
         when(trackRepository.track(activity.get(ActivityProperty.COMMENTED_TRACK_URN)))
                 .thenReturn(Observable.just(track));
-        when(adapter.getItem(0)).thenReturn(new ActivityItem(activity));
+        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
 
         presenter.onItemClicked(itemView, 0);
 

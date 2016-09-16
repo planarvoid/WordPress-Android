@@ -1,72 +1,26 @@
 package com.soundcloud.android.activities;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
-import java.util.Date;
+@AutoValue
+abstract class ActivityItem implements Timestamped {
+    abstract ActivityKind getKind();
+    abstract String getUserName();
+    abstract String getPlayableTitle();
+    abstract Optional<Urn> getCommentedTrackUrn();
+    abstract Urn getUrn();
 
-class ActivityItem implements ListItem, Timestamped {
-
-    private final PropertySet sourceSet;
-
-    ActivityItem(PropertySet sourceSet) {
-        this.sourceSet = sourceSet;
-    }
-
-    @Override
-    public ActivityItem update(PropertySet updatedProperties) {
-        this.sourceSet.update(updatedProperties);
-        return this;
-    }
-
-    ActivityKind getKind() {
-        return sourceSet.get(ActivityProperty.KIND);
-    }
-
-    String getUserName() {
-        return sourceSet.get(ActivityProperty.USER_NAME);
-    }
-
-    @Override
-    public Date getCreatedAt() {
-        return sourceSet.get(ActivityProperty.DATE);
-    }
-
-    String getPlayableTitle() {
-        return sourceSet.getOrElse(ActivityProperty.PLAYABLE_TITLE, Strings.EMPTY);
-    }
-
-    Optional<Urn> getCommentedTrackUrn() {
-        return Optional.fromNullable(sourceSet.getOrElseNull(ActivityProperty.COMMENTED_TRACK_URN));
-    }
-
-    @Override
-    public Urn getUrn() {
-        return sourceSet.get(ActivityProperty.USER_URN);
-    }
-
-    @Override
-    public Optional<String> getImageUrlTemplate() {
-        return Optional.absent();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof ActivityItem && ((ActivityItem) o).sourceSet.equals(this.sourceSet);
-    }
-
-    @Override
-    public int hashCode() {
-        return sourceSet.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("sourceSet", sourceSet).toString();
+    static ActivityItem fromPropertySet(PropertySet sourceSet) {
+        return new AutoValue_ActivityItem(sourceSet.get(ActivityProperty.DATE),
+                                          sourceSet.get(ActivityProperty.KIND),
+                                          sourceSet.get(ActivityProperty.USER_NAME),
+                                          sourceSet.getOrElse(ActivityProperty.PLAYABLE_TITLE, Strings.EMPTY),
+                                          Optional.fromNullable(sourceSet.getOrElseNull(ActivityProperty.COMMENTED_TRACK_URN)),
+                                          sourceSet.get(ActivityProperty.USER_URN));
     }
 }

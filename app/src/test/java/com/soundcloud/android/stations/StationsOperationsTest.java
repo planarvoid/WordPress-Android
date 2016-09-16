@@ -15,7 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.stream.NotificationItem;
+import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -264,16 +264,16 @@ public class StationsOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnOnboardingStreamItemWhenPreferenceIsEnabled() {
         when(stationsStorage.isOnboardingStreamItemDisabled()).thenReturn(false);
-        final TestSubscriber<NotificationItem> subscriber = new TestSubscriber<>();
+        final TestSubscriber<SoundStreamItem> subscriber = new TestSubscriber<>();
         operations.onboardingStreamItem().subscribe(subscriber);
         subscriber.assertValueCount(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getUrn()).isEqualTo(StationOnboardingStreamItem.URN);
+        assertThat(subscriber.getOnNextEvents().get(0).kind()).isEqualTo(SoundStreamItem.Kind.STATIONS_ONBOARDING);
     }
 
     @Test
     public void shouldNotReturnOnboardingStreamItemWhenPreferenceIsDisabled() {
         when(stationsStorage.isOnboardingStreamItemDisabled()).thenReturn(true);
-        final TestSubscriber<NotificationItem> subscriber = new TestSubscriber<>();
+        final TestSubscriber<SoundStreamItem> subscriber = new TestSubscriber<>();
         operations.onboardingStreamItem().subscribe(subscriber);
         subscriber.assertNoValues();
     }

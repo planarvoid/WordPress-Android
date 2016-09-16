@@ -40,6 +40,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
 
     private final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+    private final SoundStreamItem.Playlist playlistSoundStreamItem = SoundStreamItem.Playlist.create(playlistItem);
 
     private StreamPlaylistItemRenderer renderer;
     private View itemView;
@@ -56,7 +57,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsCardViewPresenter() {
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistSoundStreamItem));
 
         verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class));
     }
@@ -75,7 +76,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsTrackCount() {
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistSoundStreamItem));
 
         verify(viewHolder).setTrackCount(
                 String.valueOf(playlistItem.getTrackCount()),
@@ -84,7 +85,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsEngagementsPresenter() {
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistSoundStreamItem));
 
         ArgumentCaptor<EventContextMetadata> eventContextCaptor = ArgumentCaptor.forClass(EventContextMetadata.class);
         verify(engagementsPresenter).bind(eq(viewHolder), eq(playlistItem), eventContextCaptor.capture());
@@ -97,7 +98,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsDurationAndOverflow() {
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistSoundStreamItem));
 
         verify(viewHolder).showDuration(formattedTime(playlistItem.getDuration()));
         verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));

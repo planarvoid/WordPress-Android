@@ -1,10 +1,13 @@
 package com.soundcloud.android.facebookinvites;
 
+import static com.soundcloud.android.stream.SoundStreamItem.forFacebookListenerInvites;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.stream.SoundStreamItem;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.view.LayoutInflater;
@@ -13,16 +16,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class FacebookListenerInvitesItemRenderer implements CellRenderer<FacebookInvitesItem> {
+public class FacebookListenerInvitesItemRenderer implements CellRenderer<SoundStreamItem> {
 
     private final ImageOperations imageOperations;
     private final FacebookInvitesStorage facebookInvitesStorage;
     private final FacebookApi facebookApi;
 
     public interface Listener {
-        void onListenerInvitesLoaded(FacebookInvitesItem item);
+        void onListenerInvitesLoaded(boolean hasPictures);
 
         void onListenerInvitesDismiss(int position);
 
@@ -47,18 +51,18 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
     }
 
     @Override
-    public void bindItemView(int position, final View itemView, List<FacebookInvitesItem> notifications) {
-        final FacebookInvitesItem item = notifications.get(position);
+    public void bindItemView(int position, View itemView, List<SoundStreamItem> items) {
+        final SoundStreamItem.FacebookListenerInvites item = (SoundStreamItem.FacebookListenerInvites) items.get(position);
         itemView.setEnabled(false);
         setClickListeners(itemView, position);
 
-        if (item.getFacebookFriendPictureUrls().isPresent()) {
+        if (item.friendPictureUrls().isPresent()) {
             setContent(itemView, item);
         } else {
             setLoading(itemView);
             facebookApi.friendPictureUrls()
                        .observeOn(AndroidSchedulers.mainThread())
-                       .subscribe(new PictureLoadedSubscriber(itemView, item));
+                       .subscribe(new PictureLoadedSubscriber(itemView, position, items));
         }
     }
 
@@ -67,12 +71,12 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
         itemView.findViewById(R.id.content).setVisibility(View.INVISIBLE);
     }
 
-    private void setContent(View itemView, FacebookInvitesItem item) {
+    private void setContent(View itemView, SoundStreamItem.FacebookListenerInvites item) {
         itemView.findViewById(R.id.loading).setVisibility(View.GONE);
         itemView.findViewById(R.id.content).setVisibility(View.VISIBLE);
 
         if (item.hasPictures()) {
-            List<String> friendImageUrls = item.getFacebookFriendPictureUrls().get();
+            List<String> friendImageUrls = item.friendPictureUrls().get();
             itemView.findViewById(R.id.friends).setVisibility(View.VISIBLE);
             itemView.findViewById(R.id.facebook_invite_introduction_text).setVisibility(View.GONE);
             setFriendImage(itemView, R.id.friend_1, friendImageUrls, 0);
@@ -123,25 +127,38 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
 
     class PictureLoadedSubscriber extends DefaultSubscriber<List<String>> {
 
-        private final View itemView;
-        private final FacebookInvitesItem item;
+        private final WeakReference<View> itemView;
+        private final int position;
+        private final List<SoundStreamItem> items;
 
-        PictureLoadedSubscriber(final View itemView, final FacebookInvitesItem item) {
-            this.itemView = itemView;
-            this.item = item;
+        PictureLoadedSubscriber(final View itemView,
+                                final int position,
+                                final List<SoundStreamItem> items) {
+            this.itemView = new WeakReference<>(itemView);
+            this.position = position;
+            this.items = items;
         }
 
         @Override
         public void onNext(List<String> friendPictureUrls) {
-            item.setFacebookFriendPictureUrls(friendPictureUrls);
-            listener.onListenerInvitesLoaded(item);
-            setContent(itemView, item);
+            if (itemView.get() != null && listContainsInvitesItem()) {
+                final SoundStreamItem.FacebookListenerInvites item = forFacebookListenerInvites(friendPictureUrls);
+                items.set(position, item);
+                listener.onListenerInvitesLoaded(item.hasPictures());
+                setContent(itemView.get(), item);
+            }
         }
 
         @Override
         public void onError(Throwable e) {
-            setContent(itemView, item);
+            if (itemView.get() != null && listContainsInvitesItem()) {
+                setContent(itemView.get(), (SoundStreamItem.FacebookListenerInvites) items.get(position));
+            }
         }
 
+        private boolean listContainsInvitesItem() {
+            return items.size() > position && items.get(position)
+                                                   .kind() == SoundStreamItem.Kind.FACEBOOK_LISTENER_INVITES;
+        }
     }
 }

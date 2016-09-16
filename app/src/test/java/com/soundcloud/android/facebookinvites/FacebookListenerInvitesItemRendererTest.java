@@ -7,8 +7,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.CircularBorderImageView;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -42,9 +44,9 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetFriendPictures() {
-        FacebookInvitesItem invitesItem = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
+        SoundStreamItem invitesItem = SoundStreamItem.forFacebookListenerInvites();
         when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(Collections.singletonList("url1")));
-        renderer.bindItemView(0, itemView, Collections.singletonList(invitesItem));
+        renderer.bindItemView(0, itemView, Lists.newArrayList(invitesItem));
 
         assertThat(getFriendsLayoutVisibility()).isEqualTo(View.VISIBLE);
         assertThat(getIntroductionTextVisibility()).isEqualTo(View.GONE);
@@ -53,7 +55,7 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideFriendPictures() {
-        FacebookInvitesItem invitesItem = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
+        SoundStreamItem invitesItem = SoundStreamItem.forFacebookListenerInvites();
         when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(Collections.<String>emptyList()));
         renderer.bindItemView(0, itemView, Collections.singletonList(invitesItem));
 

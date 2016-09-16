@@ -44,7 +44,7 @@ public class ActivitiesOperationsTest extends TimelineOperationsTest<ActivityIte
     protected List<ActivityItem> viewModelsFromPropertySets(List<PropertySet> source) {
         List<ActivityItem> items = new ArrayList<>(source.size());
         for (PropertySet item : source) {
-            items.add(new ActivityItem(item));
+            items.add(ActivityItem.fromPropertySet(item));
         }
         return items;
     }

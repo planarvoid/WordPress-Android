@@ -1,7 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.presentation.TypedListItem.Kind.PLAYABLE;
-import static com.soundcloud.android.presentation.TypedListItem.Kind.PROMOTED;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
@@ -11,23 +9,21 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.presentation.TypedListItem;
-import com.soundcloud.android.presentation.TypedListItem.Kind;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.suggestedcreators.SuggestedCreatorsNotificationItem;
+import com.soundcloud.android.stream.SoundStreamItem.Kind;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
-import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
-import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -46,7 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
-public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
+public class SoundStreamOperations extends TimelineOperations<SoundStreamItem> {
 
     private final SoundStreamStorage soundStreamStorage;
     private final EventBus eventBus;
@@ -58,64 +54,68 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
 
-    private static final Func1<List<PropertySet>, List<TypedListItem>> TO_STREAM_ITEMS =
-            new Func1<List<PropertySet>, List<TypedListItem>>() {
+    private static final Func1<List<PropertySet>, List<SoundStreamItem>> TO_STREAM_ITEMS =
+            new Func1<List<PropertySet>, List<SoundStreamItem>>() {
                 @Override
-                public List<TypedListItem> call(List<PropertySet> bindings) {
-                    final List<TypedListItem> items = new ArrayList<>(bindings.size());
+                public List<SoundStreamItem> call(List<PropertySet> bindings) {
+                    final List<SoundStreamItem> items = new ArrayList<>(bindings.size());
 
                     for (PropertySet source : bindings) {
                         if (source.get(EntityProperty.URN).isPlayable()) {
-                            items.add(PlayableItem.from(source));
+                            items.add(SoundStreamItem.fromPlayableItem(PlayableItem.from(source)));
                         }
                     }
                     return items;
                 }
             };
 
-    private final Action1<List<TypedListItem>> promotedImpressionAction = new Action1<List<TypedListItem>>() {
+    private final Action1<List<SoundStreamItem>> promotedImpressionAction = new Action1<List<SoundStreamItem>>() {
         @Override
-        public void call(List<TypedListItem> streamItems) {
-            Optional<TypedListItem> promotedListItemOpt = getFirstOfKind(streamItems, PROMOTED);
-
+        public void call(List<SoundStreamItem> streamItems) {
+            final Optional<PromotedListItem> promotedListItemOpt = getFirstPromotedListItem(streamItems);
             if (promotedListItemOpt.isPresent()) {
-                PromotedListItem promotedListItem = (PromotedListItem) promotedListItemOpt.get();
-                markPromotedItemAsStaleCommand.call(promotedListItem);
-                publishTrackingEvent(promotedListItem);
+                handlePromotedItem(promotedListItemOpt.get());
             }
         }
 
-        private void publishTrackingEvent(PromotedListItem item) {
-            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(item, Screen.STREAM.get()));
+        private void handlePromotedItem(PromotedListItem promotedListItem) {
+            markPromotedItemAsStaleCommand.call(promotedListItem);
+            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(promotedListItem, Screen.STREAM.get()));
         }
     };
 
-    private final Func1<List<TypedListItem>, List<TypedListItem>> appendUpsellAfterSnippet = new Func1<List<TypedListItem>, List<TypedListItem>>() {
+    private final Func1<List<SoundStreamItem>, List<SoundStreamItem>> appendUpsellAfterSnippet = new Func1<List<SoundStreamItem>, List<SoundStreamItem>>() {
         @Override
-        public List<TypedListItem> call(List<TypedListItem> streamItems) {
+        public List<SoundStreamItem> call(List<SoundStreamItem> streamItems) {
             if (upsellOperations.shouldDisplayInStream()) {
-                Optional<TypedListItem> upsellable = getFirstUpsellable(streamItems);
+                Optional<SoundStreamItem> upsellable = getFirstUpsellable(streamItems);
                 if (upsellable.isPresent()) {
-                    streamItems.add(streamItems.indexOf(upsellable.get()) + 1, UpsellListItem.forStream());
+                    streamItems.add(streamItems.indexOf(upsellable.get()) + 1, SoundStreamItem.forUpsell());
                 }
             }
             return streamItems;
         }
     };
 
-    private final Func2<List<TypedListItem>, Optional<NotificationItem>, List<TypedListItem>> addNotificationItemToStream = new Func2<List<TypedListItem>, Optional<NotificationItem>, List<TypedListItem>>() {
+    private static final Func2<List<SoundStreamItem>, Optional<SoundStreamItem>, List<SoundStreamItem>> addNotificationItemToStream = new Func2<List<SoundStreamItem>, Optional<SoundStreamItem>, List<SoundStreamItem>>() {
         @Override
-        public List<TypedListItem> call(List<TypedListItem> typedListItems, Optional<NotificationItem> notificationItemOptional) {
-            List<TypedListItem> result = Lists.newArrayList(typedListItems);
-            if (isSuggestedCreatorsNotification(notificationItemOptional) || !typedListItems.isEmpty()) {
+        public List<SoundStreamItem> call(List<SoundStreamItem> SoundStreamItems, Optional<SoundStreamItem> notificationItemOptional) {
+            List<SoundStreamItem> result = Lists.newArrayList(SoundStreamItems);
+            if (isSuggestedCreatorsNotification(notificationItemOptional) || !SoundStreamItems.isEmpty()) {
                 result.addAll(0, notificationItemOptional.asSet());
             }
             return result;
         }
     };
 
-    private boolean isSuggestedCreatorsNotification(Optional<NotificationItem> notificationItemOptional) {
-        return notificationItemOptional.isPresent() && notificationItemOptional.get().getUrn() == SuggestedCreatorsNotificationItem.URN;
+    private static final Function<ListItem, PromotedListItem> listItemToPromoted = new Function<ListItem, PromotedListItem>() {
+        public PromotedListItem apply(ListItem input) {
+            return (PromotedListItem) input;
+        }
+    };
+
+    private static boolean isSuggestedCreatorsNotification(Optional<SoundStreamItem> notificationItemOptional) {
+        return notificationItemOptional.isPresent() && notificationItemOptional.get().kind() == Kind.SUGGESTED_CREATORS;
     }
 
     @Inject
@@ -144,11 +144,11 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
     }
 
     @Override
-    protected Func1<List<PropertySet>, List<TypedListItem>> toViewModels() {
+    protected Func1<List<PropertySet>, List<SoundStreamItem>> toViewModels() {
         return TO_STREAM_ITEMS;
     }
 
-    public Observable<List<TypedListItem>> initialStreamItems() {
+    public Observable<List<SoundStreamItem>> initialStreamItems() {
         return removeStalePromotedItemsCommand.toObservable(null)
                                               .subscribeOn(scheduler)
                                               .flatMap(continueWith(initialTimelineItems(false)))
@@ -157,16 +157,16 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
                                               .doOnNext(promotedImpressionAction);
     }
 
-    private Observable<Optional<NotificationItem>> notificationItem() {
+    private Observable<Optional<SoundStreamItem>> notificationItem() {
         return suggestedCreatorsOperations.suggestedCreators()
                                           .switchIfEmpty(facebookInvites.creatorInvites())
                                           .switchIfEmpty(facebookInvites.listenerInvites())
                                           .switchIfEmpty(stationsOperations.onboardingStreamItem())
-                                          .map(RxUtils.<NotificationItem>toOptional())
-                                          .switchIfEmpty(Observable.just(Optional.<NotificationItem>absent()));
+                                          .map(RxUtils.<SoundStreamItem>toOptional())
+                                          .switchIfEmpty(Observable.just(Optional.<SoundStreamItem>absent()));
     }
 
-    public Observable<List<TypedListItem>> updatedStreamItems() {
+    public Observable<List<SoundStreamItem>> updatedStreamItems() {
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
                     .doOnNext(promotedImpressionAction);
@@ -188,31 +188,45 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
     }
 
     @Override
-    protected boolean isEmptyResult(List<TypedListItem> result) {
+    protected boolean isEmptyResult(List<SoundStreamItem> result) {
         return result.isEmpty() || containsOnlyPromotedTrack(result);
     }
 
-    private boolean containsOnlyPromotedTrack(List<TypedListItem> result) {
-        return result.size() == 1 && result.get(0).getKind() == PROMOTED;
+    private boolean containsOnlyPromotedTrack(List<SoundStreamItem> result) {
+        return result.size() == 1 && result.get(0).isPromoted();
     }
 
     @NonNull
-    private Optional<TypedListItem> getFirstOfKind(List<TypedListItem> streamItems, Kind kind) {
-        for (TypedListItem streamItem : streamItems) {
-            if (kind.equals(streamItem.getKind())) {
-                return Optional.of(streamItem);
+    private Optional<SoundStreamItem> getFirstOfKind(List<SoundStreamItem> streamItems, Kind... kinds) {
+        for (SoundStreamItem streamItem : streamItems) {
+            for (Kind kind : kinds) {
+                if (kind.equals(streamItem.kind())) {
+                    return Optional.of(streamItem);
+                }
             }
         }
         return Optional.absent();
     }
 
     @NonNull
-    private Optional<TypedListItem> getLastOfKind(List<TypedListItem> streamItems, Kind kind) {
-        final ListIterator<TypedListItem> iterator = streamItems.listIterator(streamItems.size());
+    private Optional<PromotedListItem> getFirstPromotedListItem(List<SoundStreamItem> streamItems) {
+        for (SoundStreamItem streamItem : streamItems) {
+            if (streamItem.isPromoted()) {
+                return streamItem.getListItem().transform(listItemToPromoted);
+            }
+        }
+        return Optional.absent();
+    }
+
+    @NonNull
+    private Optional<SoundStreamItem> getLastOfKind(List<SoundStreamItem> streamItems, Kind... kinds) {
+        final ListIterator<SoundStreamItem> iterator = streamItems.listIterator(streamItems.size());
         while (iterator.hasPrevious()) {
-            final TypedListItem streamItem = iterator.previous();
-            if (kind.equals(streamItem.getKind())) {
-                return Optional.of(streamItem);
+            final SoundStreamItem streamItem = iterator.previous();
+            for (Kind kind : kinds) {
+                if (kind.equals(streamItem.kind())) {
+                    return Optional.of(streamItem);
+                }
             }
         }
         return Optional.absent();
@@ -220,27 +234,29 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
 
     @Nullable
     @Override
-    public Date getFirstItemTimestamp(List<TypedListItem> items) {
-        final Optional<TypedListItem> streamItem = getFirstOfKind(items, PLAYABLE);
+    public Date getFirstItemTimestamp(List<SoundStreamItem> items) {
+        final Optional<SoundStreamItem> streamItem = getFirstOfKind(items, Kind.TRACK, Kind.PLAYLIST);
         if (streamItem.isPresent()) {
             return streamItem.get().getCreatedAt();
         }
         return null;
     }
 
-    private Optional<TypedListItem> getFirstUpsellable(List<TypedListItem> streamItems) {
-        for (TypedListItem streamItem : streamItems) {
-            if (streamItem instanceof TieredTrack && isHighTierPreview((TieredTrack) streamItem)) {
+    private Optional<SoundStreamItem> getFirstUpsellable(List<SoundStreamItem> streamItems) {
+        for (SoundStreamItem streamItem : streamItems) {
+            if (streamItem.kind() == Kind.TRACK
+                    && isHighTierPreview(((SoundStreamItem.Track) streamItem).trackItem())) {
                 return Optional.of(streamItem);
             }
+
         }
         return Optional.absent();
     }
 
     @Nullable
     @Override
-    protected Date getLastItemTimestamp(List<TypedListItem> items) {
-        final Optional<TypedListItem> streamItem = getLastOfKind(items, PLAYABLE);
+    protected Date getLastItemTimestamp(List<SoundStreamItem> items) {
+        final Optional<SoundStreamItem> streamItem = getLastOfKind(items, Kind.TRACK, Kind.PLAYLIST);
         if (streamItem.isPresent()) {
             return streamItem.get().getCreatedAt();
         }

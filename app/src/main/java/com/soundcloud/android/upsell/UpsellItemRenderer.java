@@ -11,9 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import javax.inject.Inject;
 import java.util.List;
 
-public abstract class UpsellItemRenderer implements CellRenderer<TypedListItem> {
+public class UpsellItemRenderer implements CellRenderer<TypedListItem> {
 
     private final FeatureOperations featureOperations;
 
@@ -25,6 +26,7 @@ public abstract class UpsellItemRenderer implements CellRenderer<TypedListItem> 
 
     private Listener listener;
 
+    @Inject
     UpsellItemRenderer(FeatureOperations featureOperations) {
         this.featureOperations = featureOperations;
     }
@@ -39,6 +41,10 @@ public abstract class UpsellItemRenderer implements CellRenderer<TypedListItem> 
 
     @Override
     public void bindItemView(final int position, final View view, final List<TypedListItem> items) {
+        bindItemView(position, view);
+    }
+
+    public void bindItemView(final int position, View view) {
         view.setEnabled(false);
         if (listener != null) {
             ButterKnife.findById(view, R.id.close_button).setOnClickListener(new View.OnClickListener() {

@@ -38,6 +38,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final TrackItem postedTrack = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+    private final SoundStreamItem.Track postedTrackStreamItem = SoundStreamItem.Track.create(postedTrack);
 
     private StreamTrackItemRenderer renderer;
     private View itemView;
@@ -53,14 +54,14 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsHeaderViewPresenter() {
-        renderer.bindItemView(0, itemView, singletonList(postedTrack));
+        renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
 
         verify(headerViewPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.Builder.class));
     }
 
     @Test
     public void bindsPlayCountAndOverflow() {
-        renderer.bindItemView(0, itemView, singletonList(postedTrack));
+        renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
 
         verify(viewHolder).showPlayCount(formattedStats(postedTrack.getPlayCount()));
         verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));
@@ -68,7 +69,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsEngagementsPresenter() {
-        renderer.bindItemView(0, itemView, singletonList(postedTrack));
+        renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
 
         verify(engagementsPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.class));
     }
@@ -89,7 +90,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     public void bindsNowPlaying() {
         postedTrack.setIsPlaying(true);
 
-        renderer.bindItemView(0, itemView, singletonList(postedTrack));
+        renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
 
         verify(viewHolder).showNowPlaying();
     }

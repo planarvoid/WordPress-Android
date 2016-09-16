@@ -23,7 +23,7 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
                 public List<ActivityItem> call(List<PropertySet> propertySets) {
                     final List<ActivityItem> items = new ArrayList<>(propertySets.size());
                     for (PropertySet sourceSet : propertySets) {
-                        items.add(new ActivityItem(sourceSet));
+                        items.add(ActivityItem.fromPropertySet(sourceSet));
                     }
                     return items;
                 }

@@ -6,7 +6,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.stream.NotificationItem;
+import com.soundcloud.android.stream.SoundStreamItem;
+import com.soundcloud.android.stream.SoundStreamItem.Kind;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +22,7 @@ public class SuggestedCreatorsOperationsTest {
     @Mock private MyProfileOperations myProfileOperations;
 
     private SuggestedCreatorsOperations operations;
-    private TestSubscriber<NotificationItem> subscriber;
+    private TestSubscriber<SoundStreamItem> subscriber;
 
     @Before
     public void setup() {
@@ -37,9 +38,9 @@ public class SuggestedCreatorsOperationsTest {
         operations.suggestedCreators().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final NotificationItem notificationItem = subscriber.getOnNextEvents().get(0);
+        final SoundStreamItem notificationItem = subscriber.getOnNextEvents().get(0);
 
-        assertThat(notificationItem.getUrn()).isEqualTo(SuggestedCreatorsNotificationItem.URN);
+        assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
     }
 
     @Test

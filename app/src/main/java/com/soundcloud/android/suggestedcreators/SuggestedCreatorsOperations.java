@@ -3,7 +3,7 @@ package com.soundcloud.android.suggestedcreators;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.stream.NotificationItem;
+import com.soundcloud.android.stream.SoundStreamItem;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -22,13 +22,13 @@ public class SuggestedCreatorsOperations {
         this.myProfileOperations = myProfileOperations;
     }
 
-    public Observable<NotificationItem> suggestedCreators() {
+    public Observable<SoundStreamItem> suggestedCreators() {
         if (featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)) {
-            return myProfileOperations.numberOfFollowings().flatMap(new Func1<Integer, Observable<NotificationItem>>() {
+            return myProfileOperations.numberOfFollowings().flatMap(new Func1<Integer, Observable<SoundStreamItem>>() {
                 @Override
-                public Observable<NotificationItem> call(Integer integer) {
+                public Observable<SoundStreamItem> call(Integer integer) {
                     if (integer <= FOLLOWINGS_LIMIT) {
-                        return Observable.<NotificationItem>just(new SuggestedCreatorsNotificationItem());
+                        return Observable.just(SoundStreamItem.forSuggestedCreators());
                     }
                     return Observable.empty();
                 }

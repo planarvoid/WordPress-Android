@@ -35,7 +35,7 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindFollowActivity() {
         final Date oneHourAgo = new Date(System.currentTimeMillis() - 60 * 60 * 1000);
-        final ActivityItem activityItem = new ActivityItem(PropertySet.from(
+        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.USER_FOLLOW),
                 ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
                 ActivityProperty.USER_NAME.bind("follower"),
@@ -51,7 +51,7 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindLikeActivity() {
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
-        final ActivityItem activityItem = new ActivityItem(PropertySet.from(
+        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.TRACK_LIKE),
                 ActivityProperty.USER_NAME.bind("User name"),
                 ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
@@ -68,7 +68,7 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindRepostActivity() {
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
-        final ActivityItem activityItem = new ActivityItem(PropertySet.from(
+        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.TRACK_REPOST),
                 ActivityProperty.USER_NAME.bind("User name"),
                 ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
@@ -85,7 +85,7 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindCommentActivity() {
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
-        final ActivityItem activityItem = new ActivityItem(PropertySet.from(
+        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.TRACK_COMMENT),
                 ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
                 ActivityProperty.USER_NAME.bind("User name"),
