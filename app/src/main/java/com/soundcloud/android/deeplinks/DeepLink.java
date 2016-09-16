@@ -15,7 +15,7 @@ public enum DeepLink {
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
     private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
-            EnumSet.of(EXPLORE, DISCOVERY, SEARCH, RECORD, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
+            EnumSet.of(EXPLORE, DISCOVERY, SEARCH, RECORD, ENTITY, TRACK_ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
                        NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
@@ -32,7 +32,7 @@ public enum DeepLink {
     }
 
     public boolean requiresResolve() {
-        return this == ENTITY;
+        return this == ENTITY || this == TRACK_ENTITY;
     }
 
     @NonNull
