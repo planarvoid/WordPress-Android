@@ -20,7 +20,7 @@ import com.soundcloud.android.screens.stations.StationHomeScreen;
  */
 public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> {
 
-    private static final String START_STATION_FROM_PLAYLIST = "audio-events-v1-open_station_from_playlist";
+    private static final String START_STATION_FROM_TRACK_ITEM = "audio-events-v1-open_station_from_playlist";
 
     private PlaylistDetailsScreen playlistDetailsScreen;
 
@@ -59,7 +59,7 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
         assertTrue(player.isExpandedPlayerPlaying());
         player.clickArtwork();
 
-        finishEventTracking(START_STATION_FROM_PLAYLIST);
+        finishEventTracking(START_STATION_FROM_TRACK_ITEM);
     }
 
     public void testOpenStationFromPlayer() {
