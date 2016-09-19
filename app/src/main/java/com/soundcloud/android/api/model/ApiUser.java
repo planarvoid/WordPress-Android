@@ -17,6 +17,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
 
     private Urn urn;
     @Nullable private String country;
+    @Nullable private String city;
     private int followersCount;
     private String permalink;
     private String username;
@@ -89,6 +90,16 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
 
     public void setCountry(@Nullable String country) {
         this.country = country;
+    }
+
+    @Nullable
+    @Override
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(@Nullable String city) {
+        this.city = city;
     }
 
     public int getFollowersCount() {

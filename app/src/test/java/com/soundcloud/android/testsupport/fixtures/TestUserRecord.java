@@ -50,6 +50,11 @@ public class TestUserRecord implements UserRecord {
     }
 
     @Override
+    public String getCity() {
+        return apiUser.getCity();
+    }
+
+    @Override
     public int getFollowersCount() {
         return apiUser.getFollowersCount();
     }

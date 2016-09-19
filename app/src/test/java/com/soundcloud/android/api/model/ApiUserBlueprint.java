@@ -40,4 +40,7 @@ public class ApiUserBlueprint {
     @Default
     String country = "Country";
 
+    @Default
+    String city = "City";
+
 }

@@ -493,4 +493,51 @@ public interface Tables {
                         .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
     }
+
+    class UsersView extends BaseTable {
+
+        public static final UsersView TABLE = new UsersView();
+
+        protected UsersView() {
+            super("UsersView", PrimaryKey.of(_ID));
+        }
+
+        public static final Column ID = Column.create(TABLE, "_id");
+        public static final Column USERNAME = Column.create(TABLE, "username");
+        public static final Column COUNTRY = Column.create(TABLE, "country");
+        public static final Column CITY = Column.create(TABLE, "city");
+        public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "followers_count");
+        public static final Column DESCRIPTION = Column.create(TABLE, "description");
+        public static final Column AVATAR_URL = Column.create(TABLE, "avatar_url");
+        public static final Column WEBSITE_URL = Column.create(TABLE, "website_url");
+        public static final Column WEBSITE_NAME = Column.create(TABLE, "website_name");
+        public static final Column MYSPACE_NAME = Column.create(TABLE, "myspace_name");
+        public static final Column DISCOGS_NAME = Column.create(TABLE, "discogs_name");
+        public static final Column ARTIST_STATION = Column.create(TABLE, "artist_station");
+        public static final Column IS_FOLLOWING = Column.create(TABLE, "is_following");
+
+        static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
+                Query.from(Table.Users)
+                     .select(
+                             field(Table.Users.field(TableColumns.Users._ID)).as(ID.fullName()),
+                             field(Table.Users.field(TableColumns.Users.USERNAME)).as(USERNAME.fullName()),
+                             field(Table.Users.field(TableColumns.Users.COUNTRY)).as(COUNTRY.fullName()),
+                             field(Table.Users.field(TableColumns.Users.CITY)).as(CITY.fullName()),
+                             field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.fullName()),
+                             field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.fullName()),
+                             field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.fullName()),
+                             field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.fullName()),
+                             field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.fullName()),
+                             field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.fullName()),
+                             field(Table.Users.field(TableColumns.Users.DISCOGS_NAME)).as(DISCOGS_NAME.fullName()),
+                             field(Table.Users.field(TableColumns.Users.ARTIST_STATION)).as(ARTIST_STATION.fullName()),
+                             exists(followingQuery()).as(IS_FOLLOWING.fullName())
+                     );
+
+        static Query followingQuery() {
+            return Query.from(Table.UserAssociations.name())
+                        .whereEq(Table.Users.field(TableColumns.Users._ID), Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
+                        .whereNull(TableColumns.UserAssociations.REMOVED_AT);
+        }
+    }
 }

@@ -27,7 +27,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 89;
+    public static final int DATABASE_VERSION = 90;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -78,6 +78,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.SearchSuggestions.SQL);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
             db.execSQL(Tables.PlaylistView.SQL);
+            db.execSQL(Tables.UsersView.SQL);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -109,6 +110,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropView(Tables.SearchSuggestions.TABLE.name(), db);
         dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
         dropView(Tables.PlaylistView.TABLE.name(), db);
+        dropView(Tables.UsersView.TABLE.name(), db);
         onCreate(db);
     }
 
@@ -288,6 +290,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 89:
                             success = upgradeTo89(db, oldVersion);
+                            break;
+                        case 90:
+                            success = upgradeTo90(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1061,6 +1066,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo89(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.PlaylistView.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 89);
+        }
+        return false;
+    }
+
+    /**
+     * Create UsersView
+     */
+    private boolean upgradeTo90(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.UsersView.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 89);

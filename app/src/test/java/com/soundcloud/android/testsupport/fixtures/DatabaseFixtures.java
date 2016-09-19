@@ -362,6 +362,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Users._ID, user.getUrn().getNumericId());
         cv.put(TableColumns.Users.USERNAME, user.getUsername());
         cv.put(TableColumns.Users.COUNTRY, user.getCountry());
+        cv.put(TableColumns.Users.CITY, user.getCity());
         cv.put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
         cv.put(TableColumns.Users.AVATAR_URL, user.getImageUrlTemplate().orNull());
         return cv;

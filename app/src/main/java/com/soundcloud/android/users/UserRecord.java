@@ -12,6 +12,8 @@ public interface UserRecord extends ImageResource {
 
     String getCountry();
 
+    String getCity();
+
     int getFollowersCount();
 
     Optional<String> getDescription();

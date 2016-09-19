@@ -189,6 +189,12 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return country;
     }
 
+    @Nullable
+    @Override
+    public String getCity() {
+        return city;
+    }
+
     @Override
     public int getFollowersCount() {
         return followers_count;
@@ -282,6 +288,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         apiUser.setPermalink(getPermalink());
         apiUser.setAvatarUrlTemplate(imageUrlToTemplate(avatar_url).orNull());
         apiUser.setCountry(country);
+        apiUser.setCity(city);
         apiUser.setFollowersCount(followers_count);
         apiUser.setUsername(username);
         apiUser.setDescription(description);

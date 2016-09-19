@@ -35,9 +35,10 @@ public class UserStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsUserWithoutCountry() {
+    public void loadsUserWithoutCountryOrCity() {
         ApiUser apiUser = ModelFixtures.create(ApiUser.class);
         apiUser.setCountry(null);
+        apiUser.setCity(null);
         testFixtures().insertUser(apiUser);
 
         PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
@@ -91,6 +92,7 @@ public class UserStorageTest extends StorageIntegrationTest {
     private PropertySet getExtendedUserProperties(ApiUser apiUser) {
         return getBaseApiUserProperties(apiUser)
                 .put(UserProperty.COUNTRY, apiUser.getCountry())
+                .put(UserProperty.CITY, apiUser.getCity())
                 .put(UserProperty.DESCRIPTION, DESCRIPTION)
                 .put(UserProperty.WEBSITE_URL, WEBSITE_URL)
                 .put(UserProperty.WEBSITE_NAME, WEBSITE_NAME)
@@ -100,7 +102,8 @@ public class UserStorageTest extends StorageIntegrationTest {
 
     private PropertySet getApiUserProperties(ApiUser apiUser) {
         return getBaseApiUserProperties(apiUser)
-                .put(UserProperty.COUNTRY, apiUser.getCountry());
+                .put(UserProperty.COUNTRY, apiUser.getCountry())
+                .put(UserProperty.CITY, apiUser.getCity());
     }
 
     private PropertySet getBaseApiUserProperties(ApiUser apiUser) {
