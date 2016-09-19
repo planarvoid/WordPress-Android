@@ -10,25 +10,41 @@
         android:duration="@integer/frame_20fps"
         android:drawable="@drawable/offline_1" />
 
-    <!-- 3 duplicate frames -->
     <item
-        android:duration="150"
+        android:duration="@integer/frame_20fps"
         android:drawable="@drawable/offline_2" />
 
+    <!-- 5 identical frames -->
     <item
-        android:duration="@integer/frame_20fps"
-        android:drawable="@drawable/offline_5" />
-
-    <item
-        android:duration="@integer/frame_20fps"
-        android:drawable="@drawable/offline_6" />
-
-    <item
-        android:duration="@integer/frame_20fps"
-        android:drawable="@drawable/offline_7" />
+        android:duration="250"
+        android:drawable="@drawable/offline_3" />
 
     <item
         android:duration="@integer/frame_20fps"
         android:drawable="@drawable/offline_8" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/offline_9" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/offline_10" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/offline_11" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/offline_12" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/offline_13" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/offline_14" />
     
 </animation-list>
