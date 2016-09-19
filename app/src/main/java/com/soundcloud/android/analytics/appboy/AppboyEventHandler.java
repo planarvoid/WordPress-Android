@@ -16,6 +16,7 @@ import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.events.AttributionEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -39,6 +40,8 @@ class AppboyEventHandler {
                                                                                       CREATOR_URN);
 
     private static final List<AppboyAttributeName> PLAYLIST_ATTRIBUTES = Arrays.asList(PLAYLIST_TITLE, PLAYLIST_URN);
+
+    private static final String ENABLED_PROPERTY = "enabled";
 
     private final AppboyWrapper appboy;
     private final AppboyPlaySessionState appboyPlaySessionState;
@@ -70,6 +73,31 @@ class AppboyEventHandler {
                 break;
             case UIEvent.KIND_START_STATION:
                 tagEvent(AppboyEvents.START_STATION);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void handleEvent(OfflineInteractionEvent event) {
+        switch (event.getKind()) {
+            case OfflineInteractionEvent.KIND_OFFLINE_LIKES_ADD:
+                tagEvent(AppboyEvents.OFFLINE_LIKES, buildEnabledProperty(true));
+                break;
+            case OfflineInteractionEvent.KIND_OFFLINE_LIKES_REMOVE:
+                tagEvent(AppboyEvents.OFFLINE_LIKES, buildEnabledProperty(false));
+                break;
+            case OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_ADD:
+                tagEvent(AppboyEvents.OFFLINE_PLAYLIST, buildEnabledProperty(true));
+                break;
+            case OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
+                tagEvent(AppboyEvents.OFFLINE_PLAYLIST, buildEnabledProperty(false));
+                break;
+            case OfflineInteractionEvent.KIND_COLLECTION_SYNC_ENABLE:
+                tagEvent(AppboyEvents.OFFLINE_ALL, buildEnabledProperty(true));
+                break;
+            case OfflineInteractionEvent.KIND_COLLECTION_SYNC_DISABLE:
+                tagEvent(AppboyEvents.OFFLINE_ALL, buildEnabledProperty(false));
                 break;
             default:
                 break;
@@ -134,6 +162,10 @@ class AppboyEventHandler {
 
     private AppboyProperties buildCreatorProperties(UIEvent event) {
         return buildProperties(CREATOR_ATTRIBUTES, event);
+    }
+
+    private AppboyProperties buildEnabledProperty(boolean isEnabled) {
+        return new AppboyProperties().addProperty(ENABLED_PROPERTY, isEnabled);
     }
 
     private AppboyProperties buildProperties(List<AppboyAttributeName> fields, TrackingEvent event) {

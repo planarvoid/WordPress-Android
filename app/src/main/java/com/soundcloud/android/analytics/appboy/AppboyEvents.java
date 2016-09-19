@@ -11,4 +11,7 @@ abstract class AppboyEvents {
     static final String REPOST = "repost";
     static final String CREATE_PLAYLIST = "create_playlist";
     static final String START_STATION = "start_station";
+    static final String OFFLINE_LIKES = "offline_likes";
+    static final String OFFLINE_PLAYLIST = "offline_playlist";
+    static final String OFFLINE_ALL = "offline_all";
 }
