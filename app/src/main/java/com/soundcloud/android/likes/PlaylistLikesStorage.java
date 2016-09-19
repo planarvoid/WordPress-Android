@@ -36,7 +36,7 @@ public class PlaylistLikesStorage {
                                  .select(Tables.PlaylistView.TABLE.name() + ".*",
                                          field(Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT))
                                  .innerJoin(Table.Likes.name(),
-                                            on(Table.Likes.field(TableColumns.Likes._ID), Tables.PlaylistView.ID.fullName())
+                                            on(Table.Likes.field(TableColumns.Likes._ID), Tables.PlaylistView.ID.name())
                                                     .whereEq(Table.Likes.field(TableColumns.Likes._TYPE),
                                                              TableColumns.Sounds.TYPE_PLAYLIST))
                                  .whereLt(Table.Likes.field(TableColumns.Likes.CREATED_AT), fromTimestamp)

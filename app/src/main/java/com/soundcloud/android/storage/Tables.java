@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
+import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
@@ -12,6 +13,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.playlists.PlaylistQueries;
 import com.soundcloud.android.storage.TableColumns.Sounds;
+import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.schema.BaseTable;
@@ -443,37 +445,37 @@ public interface Tables {
             super("PlaylistView", PrimaryKey.of(_ID));
         }
 
-        public static final Column ID = Column.create(TABLE, "_id");
-        public static final Column TITLE = Column.create(TABLE, "title");
-        public static final Column USERNAME = Column.create(TABLE, "username");
-        public static final Column USER_ID = Column.create(TABLE, "user_id");
-        public static final Column TRACK_COUNT = Column.create(TABLE, "track_count");
-        public static final Column LIKES_COUNT = Column.create(TABLE, "likes_count");
-        public static final Column SHARING = Column.create(TABLE, "sharing");
-        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
-        public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "local_track_count");
-        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE, "has_pending_download_request");
-        public static final Column HAS_DOWNLOADED_TRACKS = Column.create(TABLE, "has_downloaded_tracks");
-        public static final Column HAS_UNAVAILABLE_TRACKS = Column.create(TABLE, "has_unavailable_tracks");
-        public static final Column IS_MARKED_FOR_OFFLINE = Column.create(TABLE, "is_marked_for_offline");
-        public static final Column IS_USER_LIKE = Column.create(TABLE, "is_user_like");
+        public static final Column ID = Column.create(TABLE, "pv_id");
+        public static final Column TITLE = Column.create(TABLE, "pv_title");
+        public static final Column USERNAME = Column.create(TABLE, "pv_username");
+        public static final Column USER_ID = Column.create(TABLE, "pv_user_id");
+        public static final Column TRACK_COUNT = Column.create(TABLE, "pv_track_count");
+        public static final Column LIKES_COUNT = Column.create(TABLE, "pv_likes_count");
+        public static final Column SHARING = Column.create(TABLE, "pv_sharing");
+        public static final Column ARTWORK_URL = Column.create(TABLE, "pv_artwork_url");
+        public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "pv_local_track_count");
+        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE, "pv_has_pending_download_request");
+        public static final Column HAS_DOWNLOADED_TRACKS = Column.create(TABLE, "pv_has_downloaded_tracks");
+        public static final Column HAS_UNAVAILABLE_TRACKS = Column.create(TABLE, "pv_has_unavailable_tracks");
+        public static final Column IS_MARKED_FOR_OFFLINE = Column.create(TABLE, "pv_is_marked_for_offline");
+        public static final Column IS_USER_LIKE = Column.create(TABLE, "pv_is_user_like");
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS PlaylistView AS " +
                 Query.from(SoundView.name())
-                     .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.fullName()),
-                             field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.fullName()),
-                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(USERNAME.fullName()),
-                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(USER_ID.fullName()),
-                             field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TRACK_COUNT.fullName()),
-                             field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.fullName()),
-                             field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.fullName()),
-                             field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.fullName()),
-                             count(PLAYLIST_ID).as(LOCAL_TRACK_COUNT.fullName()),
-                             exists(likeQuery()).as(IS_USER_LIKE.fullName()),
-                             exists(PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST.fullName()),
-                             exists(PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_DOWNLOADED_TRACKS.fullName()),
-                             exists(PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS.fullName()),
-                             exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE.fullName()))
+                     .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.name()),
+                             field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(USERNAME.name()),
+                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(USER_ID.name()),
+                             field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TRACK_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.name()),
+                             field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
+                             count(PLAYLIST_ID).as(LOCAL_TRACK_COUNT.name()),
+                             exists(likeQuery()).as(IS_USER_LIKE.name()),
+                             exists(PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST.name()),
+                             exists(PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_DOWNLOADED_TRACKS.name()),
+                             exists(PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS.name()),
+                             exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE.name()))
                      .leftJoin(Table.PlaylistTracks.name(), SoundView.field(_ID), PLAYLIST_ID)
                      .leftJoin(TrackDownloads.TABLE.name(),
                                PlaylistTracks.field(TRACK_ID),
@@ -536,8 +538,110 @@ public interface Tables {
 
         static Query followingQuery() {
             return Query.from(Table.UserAssociations.name())
-                        .whereEq(Table.Users.field(TableColumns.Users._ID), Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
+                        .whereEq(Table.Users.field(TableColumns.Users._ID),
+                                 Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
                         .whereNull(TableColumns.UserAssociations.REMOVED_AT);
+        }
+    }
+
+    class TrackView extends BaseTable {
+
+        public static final TrackView TABLE = new TrackView();
+
+        protected TrackView() {
+            super("TrackView", PrimaryKey.of(_ID));
+        }
+
+
+        public static final Column ID = Column.create(TABLE, "tv_id");
+        public static final Column CREATED_AT = Column.create(TABLE, "tv_created_at");
+        public static final Column TITLE = Column.create(TABLE, "tv_title");
+        public static final Column USERNAME = Column.create(TABLE, "tv_username");
+        public static final Column USER_ID = Column.create(TABLE, "tv_user_id");
+        public static final Column PERMALINK_URL = Column.create(TABLE, "tv_permalink_url");
+        public static final Column WAVEFORM_URL = Column.create(TABLE, "tv_waveform_url");
+
+        public static final Column SNIPPET_DURATION = Column.create(TABLE, "tv_snippet_duration");
+        public static final Column FULL_DURATION = Column.create(TABLE, "tv_full_duration");
+
+        public static final Column PLAY_COUNT = Column.create(TABLE, "tv_play_count");
+        public static final Column LIKES_COUNT = Column.create(TABLE, "tv_likes_count");
+        public static final Column REPOSTS_COUNT = Column.create(TABLE, "tv_reposts_count");
+        public static final Column COMMENTS_COUNT = Column.create(TABLE, "tv_comments_count");
+        public static final Column IS_COMMENTABLE = Column.create(TABLE, "tv_is_commentable");
+        public static final Column SHARING = Column.create(TABLE, "tv_sharing");
+        public static final Column POLICY = Column.create(TABLE, "tv_policy");
+        public static final Column MONETIZABLE = Column.create(TABLE, "tv_monetizable");
+        public static final Column MONETIZATION_MODEL = Column.create(TABLE, "tv_monetization_model");
+        public static final Column BLOCKED = Column.create(TABLE, "tv_blocked");
+        public static final Column SNIPPED = Column.create(TABLE, "tv_snipped");
+        public static final Column SUB_HIGH_TIER = Column.create(TABLE, "tv_sub_high_tier");
+
+        public static final Column ARTWORK_URL = Column.create(TABLE, "tv_artwork_url");
+        public static final Column IS_USER_LIKE = Column.create(TABLE, "tv_is_user_like");
+        public static final Column IS_USER_REPOST = Column.create(TABLE, "tv_is_user_repost");
+
+        public static final Column OFFLINE_REMOVED_AT = Column.create(TABLE, "tv_offline_removed_at");
+        public static final Column OFFLINE_DOWNLOADED_AT = Column.create(TABLE, "tv_offline_downloaded_at");
+
+        static final String SQL = "CREATE VIEW IF NOT EXISTS TrackView AS " +
+                Query.from(SoundView.name())
+                     .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.name()),
+                             field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(CREATED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(USERNAME.name()),
+                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(USER_ID.name()),
+                             field(SoundView.field(TableColumns.SoundView.PERMALINK_URL)).as(PERMALINK_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.WAVEFORM_URL)).as(WAVEFORM_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.SNIPPET_DURATION)).as(SNIPPET_DURATION.name()),
+                             field(SoundView.field(TableColumns.SoundView.FULL_DURATION)).as(FULL_DURATION.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(PLAY_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.REPOSTS_COUNT)).as(REPOSTS_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.COMMENT_COUNT)).as(COMMENTS_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.COMMENTABLE)).as(IS_COMMENTABLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_POLICY)).as(POLICY.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZABLE)).as(MONETIZABLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZATION_MODEL)).as(MONETIZATION_MODEL.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(BLOCKED.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(SNIPPED.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(OFFLINE_DOWNLOADED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
+
+                             exists(likeQuery()).as(IS_USER_LIKE.name()),
+                             exists(repostQuery()).as(IS_USER_REPOST.name()))
+
+                     .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Sounds.TYPE_TRACK);
+
+        static Query likeQuery() {
+            final Where joinConditions = filter()
+                    .whereEq(Table.SoundView.field(Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
+                    .whereEq(Table.SoundView.field(Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
+
+            return Query.from(Table.Likes.name())
+                        .innerJoin(Table.Sounds.name(), joinConditions)
+                        .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+        }
+
+        static Query repostQuery() {
+            final Where joinConditions = Filter.filter()
+                                               .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
+                                               .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE);
+
+            return Query.from(Table.Posts.name())
+                        .innerJoin(Table.Sounds.name(), joinConditions)
+                        .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
+        }
+
+        private static String typeRepostDelimited() {
+            return "'" + TableColumns.Posts.TYPE_REPOST + "'";
         }
     }
 }

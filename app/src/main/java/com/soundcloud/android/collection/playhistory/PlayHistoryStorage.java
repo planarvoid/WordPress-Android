@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static com.soundcloud.android.tracks.TrackItemMapper.BASE_TRACK_FIELDS;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.Field.field;
@@ -8,9 +7,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns.SoundView;
-import com.soundcloud.android.storage.TableColumns.Sounds;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.PlayHistory;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMapper;
@@ -28,7 +25,6 @@ import rx.functions.Func1;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -102,19 +98,11 @@ public class PlayHistoryStorage {
     }
 
     private Query loadTracksQuery(int limit) {
-        List<Object> fields = new ArrayList<>(BASE_TRACK_FIELDS.size() + 2);
-        fields.addAll(BASE_TRACK_FIELDS);
-        // These fields are required by TrackItemMapper but not needed by the ItemRenderer
-        // field("0").as(...) sets the field to false
-        fields.add(field("0").as(SoundView.USER_LIKE));
-        fields.add(field("0").as(SoundView.USER_REPOST));
-        fields.add(field("max("+PlayHistory.TIMESTAMP.name()+")").as("max_timestamp"));
-
         return Query.from(PlayHistory.TABLE)
-                    .select(fields.toArray())
-                    .innerJoin(Table.SoundView, filter()
-                            .whereEq(Sounds._ID, PlayHistory.TRACK_ID)
-                            .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
+                    .select(Tables.TrackView.TABLE.name() + ".*",
+                            field("max("+PlayHistory.TIMESTAMP.name()+")").as("max_timestamp"))
+                    .innerJoin(Tables.TrackView.TABLE, filter()
+                            .whereEq(Tables.TrackView.ID, PlayHistory.TRACK_ID))
                     .groupBy(PlayHistory.TRACK_ID)
                     .order("max_timestamp", Query.Order.DESC)
                     .limit(limit);

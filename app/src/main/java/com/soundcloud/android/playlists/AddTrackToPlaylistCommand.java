@@ -48,8 +48,8 @@ class AddTrackToPlaylistCommand
     private int getCurrentTrackCount(PropellerDatabase propeller, Urn playlistUrn) {
         return propeller.query(Query.from(Table.SoundView.name())
                                     .select(
-                                            field(SoundView.TRACK_COUNT).as(Tables.PlaylistView.TRACK_COUNT.fullName()),
-                                            count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(Tables.PlaylistView.LOCAL_TRACK_COUNT.fullName()))
+                                            field(SoundView.TRACK_COUNT).as(Tables.PlaylistView.TRACK_COUNT.name()),
+                                            count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(Tables.PlaylistView.LOCAL_TRACK_COUNT.name()))
                                     .whereEq(SoundView._ID, playlistUrn.getNumericId())
                                     .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                                     .leftJoin(Table.PlaylistTracks.name(),

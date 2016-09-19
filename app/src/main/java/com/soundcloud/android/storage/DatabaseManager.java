@@ -79,6 +79,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
             db.execSQL(Tables.PlaylistView.SQL);
             db.execSQL(Tables.UsersView.SQL);
+            db.execSQL(Tables.TrackView.SQL);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -111,6 +112,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
         dropView(Tables.PlaylistView.TABLE.name(), db);
         dropView(Tables.UsersView.TABLE.name(), db);
+        dropView(Tables.TrackView.TABLE.name(), db);
         onCreate(db);
     }
 
@@ -293,6 +295,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 90:
                             success = upgradeTo90(db, oldVersion);
+                            break;
+                        case 91:
+                            success = upgradeTo91(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1086,6 +1091,23 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Create TrackView
+     * Create TrackView, recreate PlaylistView after changing column names
+     */
+    private boolean upgradeTo91(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.TrackView.SQL);
+
+            SchemaMigrationHelper.dropView(Tables.PlaylistView.TABLE.name(), db);
+            db.execSQL(Tables.PlaylistView.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 91);
+        }
+        return false;
+    }
+
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
             db.execSQL(Tables.RecentlyPlayed.MIGRATE_SQL);
@@ -1136,5 +1158,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         SchemaMigrationHelper.dropView(Tables.PlaylistView.TABLE.name(), db);
         db.execSQL(Tables.PlaylistView.SQL);
+
+        SchemaMigrationHelper.dropView(Tables.TrackView.TABLE.name(), db);
+        db.execSQL(Tables.TrackView.SQL);
     }
 }

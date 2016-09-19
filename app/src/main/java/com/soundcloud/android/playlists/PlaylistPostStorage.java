@@ -52,7 +52,7 @@ public class PlaylistPostStorage {
         return Query.from(Tables.PlaylistView.TABLE.name())
                     .select(Tables.PlaylistView.TABLE.name() + ".*",
                             field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT))
-                    .innerJoin(Table.Posts.name(), on(Table.Posts.field(TableColumns.Posts.TARGET_ID), Tables.PlaylistView.ID.fullName())
+                    .innerJoin(Table.Posts.name(), on(Table.Posts.field(TableColumns.Posts.TARGET_ID), Tables.PlaylistView.ID.name())
                     .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), "\"" + TableColumns.Posts.TYPE_POST + "\"")
                     .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                     .whereLt(Posts.field(TableColumns.Posts.CREATED_AT), fromTimestamp))
