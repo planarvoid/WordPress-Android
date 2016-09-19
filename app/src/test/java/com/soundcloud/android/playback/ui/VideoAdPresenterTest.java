@@ -18,6 +18,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.assertj.core.data.Offset;
 import org.junit.Before;
@@ -368,7 +369,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
-        return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
+        return TestPlaybackProgress.getPlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
     }
 
     private TextView timeUntilSkip() {

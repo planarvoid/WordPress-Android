@@ -67,7 +67,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         playTransition();
-        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100),
+        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100, TRACK_URN),
                                                                 Urn.forAd("dfp", "809")));
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
@@ -83,9 +83,9 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         playTransition();
-        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100),
+        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100, TRACK_URN),
                                                                 Urn.forAd("dfp", "809")));
-        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100),
+        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100, TRACK_URN),
                                                                 Urn.forAd("dfp", "809")));
 
         assertThat(eventBus.firstEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
@@ -170,7 +170,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         final PlaybackStateTransition transition = playTransition();
         dispatcher.onProgressCheckpoint(wrap(transition),
-                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L, TRACK_URN),
                                                                      transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
@@ -188,7 +188,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition transition = playTransition();
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE);
         dispatcher.onProgressCheckpoint(wrap(transition),
-                                        PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000),
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000, TRACK_URN),
                                                                      transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
@@ -204,7 +204,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         final PlaybackStateTransition transition = playTransition();
         dispatcher.onProgressCheckpoint(wrap(transition),
-                                        PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000),
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000, TRACK_URN),
                                                                      Urn.forTrack(101L)));
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);

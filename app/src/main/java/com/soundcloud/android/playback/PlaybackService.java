@@ -4,7 +4,6 @@ import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -44,7 +43,6 @@ public class PlaybackService extends Service
     @Inject StreamPlayer streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject PlaybackAnalyticsController analyticsDispatcher;
-    @Inject AdsOperations adsOperations;
     @Inject VolumeControllerFactory volumeControllerFactory;
     @Inject MediaSessionControllerFactory mediaSessionControllerFactory;
     @Inject PlaySessionStateProvider playSessionStateProvider;
@@ -68,7 +66,6 @@ public class PlaybackService extends Service
                     StreamPlayer streamPlayer,
                     PlaybackReceiver.Factory playbackReceiverFactory,
                     PlaybackAnalyticsController analyticsDispatcher,
-                    AdsOperations adsOperations,
                     VolumeControllerFactory volumeControllerFactory,
                     MediaSessionControllerFactory mediaSessionControllerFactory,
                     PlaySessionStateProvider playSessionStateProvider,
@@ -78,7 +75,6 @@ public class PlaybackService extends Service
         this.streamPlayer = streamPlayer;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.analyticsDispatcher = analyticsDispatcher;
-        this.adsOperations = adsOperations;
         this.volumeControllerFactory = volumeControllerFactory;
         this.mediaSessionControllerFactory = mediaSessionControllerFactory;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -219,7 +215,8 @@ public class PlaybackService extends Service
         if (currentPlaybackItem.isPresent()) {
             final PlaybackItem playbackItem = currentPlaybackItem.get();
             final PlaybackProgressEvent playbackProgress = PlaybackProgressEvent.create(new PlaybackProgress(position,
-                                                                                                             duration),
+                                                                                                             duration,
+                                                                                                             playbackItem.getUrn()),
                                                                                         playbackItem.getUrn());
 
             if (currentPlaybackItem.isPresent()) {

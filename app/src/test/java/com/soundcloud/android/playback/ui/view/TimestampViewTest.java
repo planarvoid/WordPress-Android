@@ -7,9 +7,9 @@ import static org.robolectric.Shadows.shadowOf;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -48,7 +48,7 @@ public class TimestampViewTest extends AndroidUnitTest {
     @Test
     public void updatesProgressWhenNotScrubbing() {
         timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
-        timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_10));
+        timestampView.setProgress(TestPlaybackProgress.getPlaybackProgress(SECONDS_5, MINUTES_10));
 
         assertThat(progressView).hasText("0:05");
         assertThat(durationView).hasText("11:00");
@@ -58,7 +58,7 @@ public class TimestampViewTest extends AndroidUnitTest {
     public void doesNotUpdateProgressWhenScrubbing() {
         timestampView.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
 
-        timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_10));
+        timestampView.setProgress(TestPlaybackProgress.getPlaybackProgress(SECONDS_5, MINUTES_10));
 
         assertThat(progressView).hasText("");
         assertThat(durationView).hasText("");
@@ -85,7 +85,7 @@ public class TimestampViewTest extends AndroidUnitTest {
     @Test
     public void clearProgressSetsTimeToZero() {
         timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
-        timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_10));
+        timestampView.setProgress(TestPlaybackProgress.getPlaybackProgress(SECONDS_5, MINUTES_10));
         timestampView.clearProgress();
 
         assertThat(progressView).hasText("0:00");

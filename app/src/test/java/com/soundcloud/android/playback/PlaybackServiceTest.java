@@ -77,7 +77,6 @@ public class PlaybackServiceTest extends AndroidUnitTest {
                                               streamPlayer,
                                               playbackReceiverFactory,
                                               analyticsDispatcher,
-                                              adsOperations,
                                               volumeControllerFactory,
                                               mediaSessionControllerFactory,
                                               playSessionStateProvider,
@@ -349,7 +348,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.stop();
         playbackService.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE,
                                                                        PlayStateReason.NONE,
-                                                                       track));
+                                                                       track, 0, 0));
 
         assertThat(playbackService).doesNotHaveLastForegroundNotification();
     }

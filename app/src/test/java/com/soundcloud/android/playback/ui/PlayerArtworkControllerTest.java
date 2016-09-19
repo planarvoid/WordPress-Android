@@ -103,7 +103,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     public void scrubStateCancelledStartsProgressAnimationFromLastPositionIfPlaying() {
         playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.setPlayState(TestPlayStates.playing(), true);
-        PlaybackProgress latest = new PlaybackProgress(5, 10);
+        PlaybackProgress latest = new PlaybackProgress(5, 10, TestPlayStates.URN);
 
         playerArtworkController.setProgress(latest);
         playerArtworkController.scrubStateChanged(SCRUB_STATE_CANCELLED);
@@ -135,7 +135,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     public void showIdleStateWithProgressSetsProgressIfDurationSet() {
         playerArtworkController.setFullDuration(FULL_DURATION);
 
-        final PlaybackProgress playbackProgress = new PlaybackProgress(1, 2);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(1, 2, TestPlayStates.URN);
         playerArtworkController.setProgress(playbackProgress);
 
         verify(progressController).setPlaybackProgress(playbackProgress, FULL_DURATION);

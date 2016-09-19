@@ -248,7 +248,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
                          CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_PLAY_QUEUE_ITEM, Urn.NOT_SET, 0));
         Mockito.reset(viewPager);
 
-        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 1L);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 1L, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, Urn.NOT_SET));
 
         verifyZeroInteractions(viewPager);
@@ -276,7 +276,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
                          CurrentPlayQueueItemEvent.fromPositionChanged(AUDIO_AD_PLAY_QUEUE_ITEM, Urn.NOT_SET, 1));
         InOrder inOrder = inOrder(playerPagerPresenter);
         inOrder.verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyList(), anyInt());
-        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1, 1L);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1, 1L, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                          PlaybackProgressEvent.create(playbackProgress, AUDIO_AD_PLAY_QUEUE_ITEM.getUrn()));
 
@@ -295,7 +295,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
                 CurrentPlayQueueItemEvent.fromPositionChanged(audioItem, Urn.NOT_SET, 1));
         InOrder inOrder = inOrder(playerPagerPresenter);
         inOrder.verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyList(), anyInt());
-        final PlaybackProgress playbackProgress = new PlaybackProgress(16000L, 30000L);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(16000L, 30000L, audioItem.getUrn());
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                 PlaybackProgressEvent.create(playbackProgress, audioItem.getUrn()));
 
@@ -313,7 +313,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
                 CurrentPlayQueueItemEvent.fromPositionChanged(audioItem, Urn.NOT_SET, 1));
         InOrder inOrder = inOrder(playerPagerPresenter);
         inOrder.verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyList(), anyInt());
-        final PlaybackProgress playbackProgress = new PlaybackProgress(29900L, 30000L);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(29900L, 30000L, audioItem.getUrn());
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                 PlaybackProgressEvent.create(playbackProgress, audioItem.getUrn()));
 

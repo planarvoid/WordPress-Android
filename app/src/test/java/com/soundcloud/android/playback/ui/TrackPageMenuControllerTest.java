@@ -17,11 +17,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -172,14 +172,14 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void setProgressSetsCommentTimeInMenu() {
-        controller.setProgress(new PlaybackProgress(20000, 40000));
+        controller.setProgress(TestPlaybackProgress.getPlaybackProgress(20000, 40000));
 
         verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
     }
 
     @Test
     public void clearProgressSetsCommentTimeToZeroInMenu() {
-        controller.setProgress(new PlaybackProgress(20000, 40000));
+        controller.setProgress(TestPlaybackProgress.getPlaybackProgress(20000, 40000));
         controller.clearProgress();
 
         verify(popupMenuWrapper, times(2)).setItemText(R.id.comment, "Comment at 0:00");
@@ -187,7 +187,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void displayScrubPositionSetsCommentTimeInMenu() {
-        controller.setProgress(new PlaybackProgress(20000, 40000));
+        controller.setProgress(TestPlaybackProgress.getPlaybackProgress(20000, 40000));
 
         controller.displayScrubPosition(0.75f, 1.1f);
 

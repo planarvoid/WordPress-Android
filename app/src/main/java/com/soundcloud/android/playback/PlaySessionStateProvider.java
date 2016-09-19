@@ -32,29 +32,24 @@ public class PlaySessionStateProvider {
     }
 
     public PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
-        if (!PlaybackStateTransition.DEFAULT.equals(stateTransition)) {
-
-            final boolean isNewTrack = !isLastPlayed(stateTransition.getUrn());
-            if (isNewTrack) {
-                playSessionStateStorage.savePlayInfo(stateTransition.getUrn());
-            }
-
-            PlayStateEvent playStateEvent = getPlayStateEvent(stateTransition, duration);
-            if (playStateEvent.isFirstPlay()) {
-                playSessionStateStorage.savePlayId(playStateEvent.getPlayId());
-            }
-
-            currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : stateTransition.getUrn();
-            lastStateEvent = playStateEvent;
-            lastProgress = playStateEvent.getProgress();
-
-            if (isNewTrack || playStateEvent.getTransition().isPlayerIdle()) {
-                playSessionStateStorage.saveProgress(getPositionOfPlayingTrack());
-            }
-            return playStateEvent;
-
+        final boolean isNewTrack = !isLastPlayed(stateTransition.getUrn());
+        if (isNewTrack) {
+            playSessionStateStorage.savePlayInfo(stateTransition.getUrn());
         }
-        return PlayStateEvent.DEFAULT;
+
+        PlayStateEvent playStateEvent = getPlayStateEvent(stateTransition, duration);
+        if (playStateEvent.isFirstPlay()) {
+            playSessionStateStorage.savePlayId(playStateEvent.getPlayId());
+        }
+
+        currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : stateTransition.getUrn();
+        lastStateEvent = playStateEvent;
+        lastProgress = playStateEvent.getProgress();
+
+        if (isNewTrack || playStateEvent.getTransition().isPlayerIdle()) {
+            playSessionStateStorage.saveProgress(getPositionOfPlayingTrack());
+        }
+        return playStateEvent;
     }
 
     @NonNull
@@ -78,7 +73,7 @@ public class PlaySessionStateProvider {
         if (currentPlayingUrn.equals(urn) && lastProgress.isDurationValid()) {
             return lastProgress;
         } else if (isLastPlayed(urn)) {
-            return new PlaybackProgress(getLastSavedProgressPosition(), Consts.NOT_SET);
+            return new PlaybackProgress(getLastSavedProgressPosition(), Consts.NOT_SET, urn);
         } else {
             return PlaybackProgress.empty();
         }

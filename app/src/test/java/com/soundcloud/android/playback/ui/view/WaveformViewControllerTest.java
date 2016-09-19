@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.view.WaveformScrollView;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -37,7 +38,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     private static final float WAVEFORM_WIDTH_RATIO = 2.0f;
     private static final long PLAYABLE_DURATION = 1000;
     private static final long FULL_DURATION = 2000;
-    private final PlaybackProgress playbackProgress = new PlaybackProgress(10, 100);
+    private final PlaybackProgress playbackProgress = TestPlaybackProgress.getPlaybackProgress(10, 100);
 
     private WaveformViewController waveformViewController;
 
@@ -109,7 +110,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void scrubStateCancelledStartsProgressAnimationsFromLastPositionIfPlaying() {
         waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
         waveformViewController.showPlayingState(playbackProgress);
-        PlaybackProgress latest = new PlaybackProgress(5, 10);
+        PlaybackProgress latest = TestPlaybackProgress.getPlaybackProgress(5, 10);
 
         waveformViewController.setProgress(latest);
         waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
@@ -123,7 +124,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void scrubStateCancelledDoesntStartProgressAnimationsFromLastPositionIfBuffering() {
         waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
         waveformViewController.showBufferingState();
-        PlaybackProgress latest = new PlaybackProgress(5, 10);
+        PlaybackProgress latest = TestPlaybackProgress.getPlaybackProgress(5, 10);
 
         waveformViewController.setProgress(latest);
         waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);

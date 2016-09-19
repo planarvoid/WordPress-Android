@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.mediaplayer;
 import static com.soundcloud.android.playback.PlaybackState.BUFFERING;
 import static com.soundcloud.android.playback.PlaybackState.IDLE;
 import static com.soundcloud.android.playback.PlaybackState.PLAYING;
-import static com.soundcloud.android.playback.PlaybackType.AUDIO_AD;
 import static com.soundcloud.android.playback.PlaybackType.VIDEO_AD;
 
 import com.soundcloud.android.Consts;
@@ -27,7 +26,6 @@ import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
-import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -455,9 +453,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         if (currentVideoSource.isPresent()) {
             return currentVideoSource.get().getType();
         } else if (currentItem != null && currentItem.getPlaybackType() == PlaybackType.AUDIO_AD) {
-            return PlaybackConstants.MIME_TYPE_MP3;
+            return PlaybackConstants.MediaType.AUDIO_AD;
         } else {
-            return Skippy.SkippyMediaType.UNKNOWN.name();
+            return PlaybackConstants.MediaType.UNKNOWN;
         }
     }
 

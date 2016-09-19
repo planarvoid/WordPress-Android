@@ -105,7 +105,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
 
@@ -121,7 +121,8 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
         when(playSessionStateProvider.getLastProgressForItem(videoAd.getAdUrn())).thenReturn(new PlaybackProgress(123L,
-                                                                                                                  456L));
+                                                                                                                  456L,
+                                                                                                                  videoAd.getAdUrn()));
 
         defaultPlaybackStrategy.resume();
 
@@ -133,7 +134,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
 
@@ -145,7 +146,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     @Test
     public void playCurrentPlaysNormalTrackSuccessfully() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
 
@@ -159,7 +160,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playCurrentPlaysOfflineTrackSuccessfully() {
         final PropertySet offlineTrack = offlineTrack();
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
 
@@ -173,7 +174,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playCurrentPlaysSnippetTrackSuccessfully() {
         final PropertySet offlineTrack = onlineSnippedTrack();
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(false);
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
 

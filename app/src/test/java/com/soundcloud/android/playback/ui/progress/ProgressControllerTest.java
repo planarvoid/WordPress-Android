@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class ProgressControllerTest extends AndroidUnitTest {
     @Test
     public void startAnimationSetsDurationToTimeLeftThenSetsCurrentPlayTimeToTimeSinceCreation() {
         final TestDateProvider dateProvider = new TestDateProvider(0);
-        progress = getPlaybackProgress(0, 1, dateProvider);
+        progress = TestPlaybackProgress.getPlaybackProgress(0, 1, dateProvider);
 
         dateProvider.setTime(20, TimeUnit.MILLISECONDS);
 
@@ -79,14 +80,6 @@ public class ProgressControllerTest extends AndroidUnitTest {
         inOrder.verify(progressAnimator).setDuration(10L);
         inOrder.verify(progressAnimator).start();
         inOrder.verify(progressAnimator).setCurrentPlayTime(20L);
-    }
-
-    private PlaybackProgress getPlaybackProgress(int position, int duration) {
-        return getPlaybackProgress(position, duration, new TestDateProvider());
-    }
-
-    private PlaybackProgress getPlaybackProgress(int position, int duration, TestDateProvider dateProvider) {
-        return new PlaybackProgress(position, duration, dateProvider);
     }
 
     @Test
@@ -105,14 +98,14 @@ public class ProgressControllerTest extends AndroidUnitTest {
 
     @Test
     public void setProgressSetsValueOnHelperIfAnimationIsNull() {
-        controller.setPlaybackProgress(getPlaybackProgress(2, 8), 10);
+        controller.setPlaybackProgress(TestPlaybackProgress.getPlaybackProgress(2, 8), 10);
         verify(helper).setValueFromProportion(progressView, .2f);
     }
 
     @Test
     public void setProgressSetsValueOnHelperIfAnimationIsNotRunning() {
         when(progressAnimator.isRunning()).thenReturn(false);
-        progress = getPlaybackProgress(2, 8);
+        progress = TestPlaybackProgress.getPlaybackProgress(2, 8);
 
         controller.startProgressAnimation(progress, FULL_DURATION);
         controller.setPlaybackProgress(this.progress, 10);
@@ -124,7 +117,7 @@ public class ProgressControllerTest extends AndroidUnitTest {
     public void setProgressRestartsAnimationIfStrayedMoreThanTolerance() {
         when(progressAnimator.isRunning()).thenReturn(true);
         controller.startProgressAnimation(progress, FULL_DURATION);
-        progress = getPlaybackProgress(3, 8);
+        progress = TestPlaybackProgress.getPlaybackProgress(3, 8);
 
         when(helper.getValueFromProportion(AdditionalMatchers.eq(.3f, FLOAT_DELTA))).thenReturn(100f);
         when(progressAnimator.getDifferenceFromCurrentValue(AdditionalMatchers.eq(100f, FLOAT_DELTA))).thenReturn(2f);
@@ -140,7 +133,7 @@ public class ProgressControllerTest extends AndroidUnitTest {
     public void setProgressCancelsOldAnimationIfStrayedMoreThanTolerance() {
         when(progressAnimator.isRunning()).thenReturn(true);
         controller.startProgressAnimation(progress, FULL_DURATION);
-        progress = getPlaybackProgress(3, 8);
+        progress = TestPlaybackProgress.getPlaybackProgress(3, 8);
 
         when(helper.getValueFromProportion(AdditionalMatchers.eq(.3f, FLOAT_DELTA))).thenReturn(100f);
         when(progressAnimator.getDifferenceFromCurrentValue(AdditionalMatchers.eq(100f, FLOAT_DELTA))).thenReturn(2f);
@@ -155,7 +148,7 @@ public class ProgressControllerTest extends AndroidUnitTest {
     public void setProgressDoesNothingIfStrayedLessThanTolerance() {
         when(progressAnimator.isRunning()).thenReturn(true);
         controller.startProgressAnimation(progress, FULL_DURATION);
-        progress = getPlaybackProgress(3, 8);
+        progress = TestPlaybackProgress.getPlaybackProgress(3, 8);
 
         when(progressAnimator.getDifferenceFromCurrentValue(30)).thenReturn(.9f);
 

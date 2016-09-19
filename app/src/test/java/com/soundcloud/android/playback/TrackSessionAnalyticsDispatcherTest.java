@@ -224,7 +224,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition transition = playTransition();
 
         dispatcher.onProgressCheckpoint(wrap(transition),
-                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L, TRACK_URN),
                                                                      transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
@@ -240,7 +240,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         dispatcher.onProgressCheckpoint(wrap(transition),
-                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L, TRACK_URN),
                                                                      transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
@@ -254,7 +254,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition transition = playTransition();
 
         dispatcher.onProgressCheckpoint(wrap(transition),
-                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L, TRACK_URN),
                                                                      Urn.forTrack(101L)));
 
         assertThat(((PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING)).isPlayOrPlayStartEvent()).isTrue();

@@ -29,7 +29,7 @@ public class TestPlayerTransitions {
     }
 
     public static PlaybackStateTransition buffering() {
-        return withExtras(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN));
+        return withExtras(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, 0, 0));
     }
 
     public static PlaybackStateTransition playing() {
@@ -37,7 +37,7 @@ public class TestPlayerTransitions {
     }
 
     public static PlaybackStateTransition playing(Urn urn) {
-        return withExtras(new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, urn));
+        return withExtras(new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, urn, 0, 0));
     }
 
     public static PlaybackStateTransition playing(long position, long duration) {
@@ -66,7 +66,7 @@ public class TestPlayerTransitions {
     }
 
     public static PlaybackStateTransition complete(Urn urn) {
-        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn));
+        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn, 0, 0));
     }
 
     public static PlaybackStateTransition error(PlayStateReason REASON) {

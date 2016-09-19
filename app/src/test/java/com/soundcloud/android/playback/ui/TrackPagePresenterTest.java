@@ -36,6 +36,7 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -222,7 +223,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20, dateProvider), true, true);
 
-        verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20, dateProvider)));
+        verify(waveformViewController).showPlayingState(eq(TestPlaybackProgress.getPlaybackProgress(10, 20, dateProvider)));
     }
 
     @Test

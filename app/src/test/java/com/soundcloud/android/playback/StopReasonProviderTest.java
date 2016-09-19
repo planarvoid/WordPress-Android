@@ -76,7 +76,7 @@ public class StopReasonProviderTest {
 
     @NonNull
     private PlaybackStateTransition getStateTransition(PlaybackState state, PlayStateReason reason) {
-        return new PlaybackStateTransition(state, reason, Urn.forTrack(123));
+        return new PlaybackStateTransition(state, reason, Urn.forTrack(123), 0, 0);
     }
 
 }

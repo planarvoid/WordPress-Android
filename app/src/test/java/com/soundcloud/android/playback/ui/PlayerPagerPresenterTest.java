@@ -263,7 +263,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         View currentPageView = getVideoAdPageView();
 
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), videoAd.getAdUrn());
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, videoAd.getAdUrn()), videoAd.getAdUrn());
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -279,8 +279,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         View currentPageView = getVideoAdPageView();
 
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L),
-                                                                   Urn.forAd("dfp", "other-ad-urn"));
+        final Urn urn = Urn.forAd("dfp", "other-ad-urn");
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, urn),
+                                                                   urn);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -292,7 +293,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1_URN));
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, TRACK1_URN), TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -303,7 +304,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void onPlaybackProgressEventDoNotSetsProgressForPausedAdapter() {
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, TRACK1_URN), TRACK1_URN);
         presenter.onPause(playerFragment);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
@@ -314,7 +315,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlaybackProgressEventDoNotSetProgressOnOtherTrackPage() {
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), Urn.forTrack(234L));
+        final Urn itemUrn = Urn.forTrack(234L);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, itemUrn),
+                                                                   itemUrn);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -324,7 +327,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlaybackProgressEventDoesNotSetProgressOnNotPlayingTrackPage() {
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), Urn.forTrack(999L));
+        final Urn urn = Urn.forTrack(999L);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, urn),
+                                                                   urn);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -498,8 +503,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackChangeSetsProgressOnAllTrackViews() {
-        PlaybackProgress firstProgress = new PlaybackProgress(100, 200);
-        PlaybackProgress secondProgress = new PlaybackProgress(50, 100);
+        PlaybackProgress firstProgress = new PlaybackProgress(100, 200, TRACK1_URN);
+        PlaybackProgress secondProgress = new PlaybackProgress(50, 100, TRACK2_URN);
 
         View firstTrack = getPageView(0);
         View secondTrack = getPageView(1);

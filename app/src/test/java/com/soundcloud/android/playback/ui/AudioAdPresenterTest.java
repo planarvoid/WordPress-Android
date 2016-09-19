@@ -367,7 +367,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     }
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
-        return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
+        return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration), TRACK_URN);
     }
 
     private TextView timeUntilSkip() {

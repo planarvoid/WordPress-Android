@@ -10,7 +10,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -172,7 +171,7 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         createAndProcessStateTransition(track,
                                         player,
                                         newState,
-                                        Skippy.SkippyMediaType.UNKNOWN.name(),
+                                        PlaybackConstants.MediaType.UNKNOWN,
                                         0,
                                         transitionTime,
                                         isBufferUnderrun);

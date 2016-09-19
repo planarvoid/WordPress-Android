@@ -27,6 +27,7 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
@@ -351,12 +352,13 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
             final PlaybackState translatedState = getTranslatedState(state, reason);
             final PlayStateReason translatedReason = getTranslatedReason(reason, errorCode);
+            final String translatedFormat = getTranslatedFormat(format);
             final PlaybackStateTransition transition = new PlaybackStateTransition(translatedState,
                                                                                    translatedReason,
                                                                                    currentPlaybackItem.getUrn(),
                                                                                    adjustedPosition,
                                                                                    duration,
-                                                                                   format.name(),
+                                                                                   translatedFormat,
                                                                                    bitrate,
                                                                                    dateProvider);
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL,
@@ -376,6 +378,17 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                 currentPlaybackItem = null;
                 currentStreamUrl = null;
             }
+        }
+    }
+
+    private String getTranslatedFormat(Skippy.SkippyMediaType format) {
+        switch (format) {
+            case OPUS:
+                return PlaybackConstants.MediaType.OPUS;
+            case MP3:
+                return PlaybackConstants.MediaType.MP3;
+            default:
+                return PlaybackConstants.MediaType.UNKNOWN;
         }
     }
 

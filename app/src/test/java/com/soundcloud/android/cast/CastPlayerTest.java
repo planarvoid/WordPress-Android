@@ -41,6 +41,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -83,7 +84,7 @@ public class CastPlayerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         castPlayer = new CastPlayer(castOperations, castManager, progressReporter, playQueueManager, eventBus,
-                                    playStatePublisher);
+                                    playStatePublisher, new CurrentDateProvider());
         observer = new TestObserver<>();
     }
 

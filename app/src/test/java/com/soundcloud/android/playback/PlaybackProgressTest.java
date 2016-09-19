@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Test;
@@ -17,7 +18,7 @@ public class PlaybackProgressTest {
     @Test
     public void getTimeSinceCreatedReturnsTheTimeSinceCreation() {
         final TestDateProvider dateProvider = new TestDateProvider(1000L);
-        PlaybackProgress event = new PlaybackProgress(31L, 100L, dateProvider);
+        PlaybackProgress event = new PlaybackProgress(31L, 100L, dateProvider, Urn.forTrack(123));
 
         dateProvider.advanceBy(1000L, TimeUnit.MILLISECONDS);
         assertThat(event.getTimeSinceCreation()).isEqualTo(1000L);
@@ -96,7 +97,7 @@ public class PlaybackProgressTest {
     }
 
     private PlaybackProgress createPlaybackProgress(long position, long duration) {
-        return new PlaybackProgress(position, duration, new CurrentDateProvider());
+        return new PlaybackProgress(position, duration, new CurrentDateProvider(), Urn.forTrack(123));
     }
 
 }

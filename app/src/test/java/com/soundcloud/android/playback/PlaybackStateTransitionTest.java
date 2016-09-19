@@ -14,14 +14,14 @@ public class PlaybackStateTransitionTest extends AndroidUnitTest {
     @Test
     public void isForTrackIsFalseWithDifferentTrackUrn() {
         final PlaybackStateTransition stateTransition =
-                new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.forTrack(2L));
+                new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.forTrack(2L), 0, 0);
         assertThat(stateTransition.isForUrn(Urn.forTrack(1L))).isFalse();
     }
 
     @Test
     public void isForTrackIsTrueWithSameTrackUrn() {
         final PlaybackStateTransition stateTransition =
-                new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.forTrack(1L));
+                new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.forTrack(1L), 0, 0);
         assertThat(stateTransition.isForUrn(Urn.forTrack(1L))).isTrue();
     }
 

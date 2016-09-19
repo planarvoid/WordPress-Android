@@ -333,7 +333,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void previousTrackCallsMoveToPreviousTrackOnPlayQueueManagerIfProgressLessThanTolerance() {
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(2999L, 5000));
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(2999L, 5000, trackUrn));
 
         controller.previousTrack();
 
@@ -352,7 +352,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void previousTrackSeeksToZeroIfProgressEqualToTolerance() {
         when(playSessionStateProvider.isCurrentlyPlaying(trackUrn)).thenReturn(true);
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000, trackUrn));
 
         controller.previousTrack();
 
@@ -362,7 +362,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void previousTrackSeeksToZeroIfProgressGreaterThanTolerance() {
         when(playSessionStateProvider.isCurrentlyPlaying(trackUrn)).thenReturn(true);
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3001L, 5000));
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3001L, 5000, trackUrn));
 
         controller.previousTrack();
 
@@ -439,7 +439,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void previousTrackDoesNotPublishAdSkippedTrackingEventWhenTrackNotAnAd() {
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000, trackUrn));
 
         controller.previousTrack();
 
@@ -735,7 +735,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     private void setupAdInProgress(long currentProgress, PlayQueueItem playQueueItem) {
-        final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
+        final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000, trackUrn);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(playQueueItem);
         when(playSessionStateProvider.isCurrentlyPlaying(playQueueItem.getUrn())).thenReturn(true);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(progress);

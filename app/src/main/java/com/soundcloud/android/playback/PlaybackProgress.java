@@ -1,34 +1,35 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.SystemClockDateProvider;
 
-import android.support.annotation.VisibleForTesting;
-
 public class PlaybackProgress {
+    private final Urn urn;
     private final DateProvider dateProvider;
     private final long createdAt;
     private final long position;
     private long duration;
 
     public static PlaybackProgress empty() {
-        return new PlaybackProgress(0, 0);
+        return new PlaybackProgress(0, 0, Urn.NOT_SET);
     }
 
     public static PlaybackProgress withDuration(PlaybackProgress progress, long duration) {
-        return new PlaybackProgress(progress.getPosition(), duration, progress.getCreatedAt(), new SystemClockDateProvider());
+        return new PlaybackProgress(progress.getPosition(), duration, progress.getCreatedAt(), new SystemClockDateProvider(),
+                                    progress.getUrn());
     }
 
-    public PlaybackProgress(long position, long duration) {
-        this(position, duration, new SystemClockDateProvider());
+    public PlaybackProgress(long position, long duration, Urn urn) {
+        this(position, duration, new SystemClockDateProvider(), urn);
     }
 
-    @VisibleForTesting
-    public PlaybackProgress(long position, long duration, DateProvider dateProvider) {
-        this(position, duration, dateProvider.getCurrentTime(), dateProvider);
+    public PlaybackProgress(long position, long duration, DateProvider dateProvider, Urn urn) {
+        this(position, duration, dateProvider.getCurrentTime(), dateProvider, urn);
     }
 
-    private PlaybackProgress(long position, long duration, long createdAt, DateProvider dateProvider) {
+    private PlaybackProgress(long position, long duration, long createdAt, DateProvider dateProvider, Urn urn) {
+        this.urn = urn;
         this.position = position;
         this.duration = duration;
         this.createdAt = createdAt;
@@ -65,6 +66,10 @@ public class PlaybackProgress {
 
     public boolean isPastThirdQuartile() {
         return isPastPercentile(0.75f);
+    }
+
+    public Urn getUrn() {
+        return urn;
     }
 
     private boolean isPastPercentile(float percentile) {

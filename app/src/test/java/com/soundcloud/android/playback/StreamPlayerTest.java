@@ -546,7 +546,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private PlaybackStateTransition idleTransition(PlayStateReason errorFailed, Urn urn) {
-        return new PlaybackStateTransition(PlaybackState.IDLE, errorFailed, urn);
+        return new PlaybackStateTransition(PlaybackState.IDLE, errorFailed, urn, 0, 0);
     }
 
     private void startPlaybackOnSkippy() {

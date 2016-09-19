@@ -27,6 +27,8 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +37,8 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,6 +54,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final PlayStatePublisher playStatePublisher;
+    private final DateProvider dateProvider;
 
     private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
 
@@ -58,13 +63,16 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                       VideoCastManager castManager,
                       ProgressReporter progressReporter,
                       PlayQueueManager playQueueManager,
-                      EventBus eventBus, PlayStatePublisher playStatePublisher) {
+                      EventBus eventBus,
+                      PlayStatePublisher playStatePublisher,
+                      CurrentDateProvider dateProvider) {
         this.castOperations = castOperations;
         this.castManager = castManager;
         this.progressReporter = progressReporter;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.playStatePublisher = playStatePublisher;
+        this.dateProvider = dateProvider;
 
         castManager.addVideoCastConsumer(this);
         progressReporter.setProgressPuller(this);
@@ -129,7 +137,8 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public void pullProgress() {
         try {
             final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(),
-                                                                           castManager.getMediaDuration());
+                                                                           castManager.getMediaDuration(),
+                                                                           castOperations.getRemoteCurrentTrackUrn());
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                              PlaybackProgressEvent.create(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
@@ -142,7 +151,8 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                                            reason,
                                            castOperations.getRemoteCurrentTrackUrn(),
                                            getProgress(),
-                                           getDuration());
+                                           getDuration(),
+                                           dateProvider);
     }
 
     @Nullable
@@ -190,9 +200,9 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                 if (localPlayQueue.isEmpty() || isInitialTrackDifferent(localPlayQueue)) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_CAST));
                 } else {
-                    reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING,
-                                                                  PlayStateReason.NONE,
-                                                                  localPlayQueue.currentTrackUrn));
+                    reportStateChange(createStateTransition(localPlayQueue.currentTrackUrn,
+                                                            PlaybackState.BUFFERING,
+                                                            PlayStateReason.NONE));
                     setNewPlayQueue(localPlayQueue, playSessionSource);
                     return Observable.just(PlaybackResult.success());
                 }
@@ -215,9 +225,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
             reconnectToExistingSession();
         } else {
-            reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING,
-                                                          PlayStateReason.NONE,
-                                                          currentTrackUrn));
+            reportStateChange(createStateTransition(currentTrackUrn, PlaybackState.BUFFERING, PlayStateReason.NONE));
             playCurrentSubscription.unsubscribe();
             playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn,
                                                                         playQueueManager.getCurrentQueueTrackUrns())
@@ -242,9 +250,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
         @Override
         public void onError(Throwable e) {
-            reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE,
-                                                          PlayStateReason.ERROR_FAILED,
-                                                          currentTrackUrn));
+            reportStateChange(createStateTransition(currentTrackUrn, PlaybackState.IDLE, PlayStateReason.ERROR_FAILED));
         }
     }
 
@@ -273,11 +279,16 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE,
-                                                              PlayStateReason.ERROR_FAILED,
-                                                              initialTrackUrnCandidate));
+                reportStateChange(createStateTransition(initialTrackUrnCandidate, PlaybackState.IDLE,
+                                                        PlayStateReason.ERROR_FAILED));
             }
         };
+    }
+
+    @NonNull
+    public PlaybackStateTransition createStateTransition(Urn initialTrackUrnCandidate,
+                                                         PlaybackState newState, PlayStateReason reason) {
+        return new PlaybackStateTransition(newState, reason, initialTrackUrnCandidate, 0, 0, dateProvider);
     }
 
     private List<Urn> getCurrentQueueUrnsWithoutAds() {

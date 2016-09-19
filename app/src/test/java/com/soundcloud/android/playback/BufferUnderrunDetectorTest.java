@@ -64,10 +64,10 @@ public class BufferUnderrunDetectorTest {
     }
 
     private PlaybackStateTransition playEvent(Urn track) {
-        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
+        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track, 0, 0);
     }
 
     private PlaybackStateTransition idleEvent(Urn track) {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, track);
+        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, track, 0, 0);
     }
 }

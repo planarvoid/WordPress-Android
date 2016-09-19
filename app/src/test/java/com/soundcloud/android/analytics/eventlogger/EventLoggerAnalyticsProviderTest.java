@@ -39,12 +39,12 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -106,7 +106,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                              PlayerType.MEDIA_PLAYER,
                                                                              ConnectionType.FOUR_G,
                                                                              "uri",
-                                                                             Skippy.SkippyMediaType.UNKNOWN.name(),
+                                                                             PlaybackConstants.MediaType.UNKNOWN,
                                                                              0,
                                                                              userUrn,
                                                                              PlaybackType.AUDIO_DEFAULT);
@@ -146,7 +146,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PlaybackErrorEvent event = new PlaybackErrorEvent("category",
                                                           PlaybackProtocol.HLS,
                                                           "uri",
-                                                          Skippy.SkippyMediaType.MP3.name(),
+                                                          PlaybackConstants.MediaType.MP3,
                                                           128000,
                                                           ConnectionType.FOUR_G);
         when(dataBuilderv0.build(event)).thenReturn("url");

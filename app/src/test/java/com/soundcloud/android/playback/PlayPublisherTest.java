@@ -53,7 +53,9 @@ public class PlayPublisherTest extends AndroidUnitTest {
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(null, 200, "body"));
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN)));
+                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         TRACK_URN, 0, 0)));
 
         verify(apiClient).fetchResponse(argThat(isPublicApiRequestTo("POST",
                                                                      "/tpub").withContent(new PlayPublisher.Payload(
@@ -66,7 +68,9 @@ public class PlayPublisherTest extends AndroidUnitTest {
     @Test
     public void bufferingEventDoesNotCausePlayPublishApiRequest() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN)));
+                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                         PlayStateReason.NONE,
+                                                                         TRACK_URN, 0, 0)));
 
         verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }
@@ -74,7 +78,9 @@ public class PlayPublisherTest extends AndroidUnitTest {
     @Test
     public void idleEventDoesNotCausePlayPublishApiRequest() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN)));
+                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.NONE,
+                                                                         TRACK_URN, 0, 0)));
 
         verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }

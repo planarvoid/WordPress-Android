@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.objects.MoreObjects;
@@ -27,11 +26,7 @@ public class PlaybackStateTransition {
 
     public static final PlaybackStateTransition DEFAULT = new PlaybackStateTransition(PlaybackState.IDLE,
                                                                                       PlayStateReason.NONE,
-                                                                                      Urn.NOT_SET);
-
-    public PlaybackStateTransition(PlaybackState newState, PlayStateReason reason, Urn itemUrn) {
-        this(newState, reason, itemUrn, 0, 0);
-    }
+                                                                                      Urn.NOT_SET, 0, 0);
 
     public PlaybackStateTransition(PlaybackState newState,
                                    PlayStateReason reason,
@@ -52,7 +47,7 @@ public class PlaybackStateTransition {
              itemUrn,
              currentProgress,
              duration,
-             Skippy.SkippyMediaType.UNKNOWN.name(),
+             PlaybackConstants.MediaType.UNKNOWN,
              0,
              dateProvider);
     }
@@ -70,7 +65,7 @@ public class PlaybackStateTransition {
         this.itemUrn = itemUrn;
         this.format = format;
         this.bitrate = bitrate;
-        this.progress = new PlaybackProgress(currentProgress, duration, dateProvider);
+        this.progress = new PlaybackProgress(currentProgress, duration, dateProvider, itemUrn);
     }
 
     public Urn getUrn() {

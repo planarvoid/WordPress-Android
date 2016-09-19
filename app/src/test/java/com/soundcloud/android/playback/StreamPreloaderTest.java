@@ -71,7 +71,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         final int position = 1000;
         final long duration = position + StreamPreloader.MOBILE_TIME_TOLERANCE - 1;
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
-                         PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
+                         PlaybackProgressEvent.create(new PlaybackProgress(position, duration, Urn.forTrack(123)), Urn.NOT_SET));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
@@ -165,7 +165,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         final int position = 1000;
         final long duration = position + StreamPreloader.MOBILE_TIME_TOLERANCE;
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
-                         PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
+                         PlaybackProgressEvent.create(new PlaybackProgress(position, duration, Urn.forTrack(123)), Urn.NOT_SET));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 

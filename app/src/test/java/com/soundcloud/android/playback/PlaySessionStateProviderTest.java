@@ -91,13 +91,6 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stateListenerIgnoresDefaultEvent() {
-        provider.onPlayStateTransition(TestPlayerTransitions.playing(), DURATION);
-        provider.onPlayStateTransition(PlaybackStateTransition.DEFAULT, DURATION);
-        assertThat(provider.isPlaying()).isTrue();
-    }
-
-    @Test
     public void isInErrorStateReturnsTrueIfLastTransitionWasError() {
         provider.onPlayStateTransition(TestPlayerTransitions.error(PlayStateReason.ERROR_FAILED), DURATION);
 
@@ -150,7 +143,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Test
     public void returnsSavedProgressByUrnIfNoProgressReceivedYet() throws Exception {
         when(playSessionStateStorage.getLastStoredProgress()).thenReturn(123L);
-        assertThat(provider.getLastProgressForItem(TRACK_URN)).isEqualTo(new PlaybackProgress(123, Consts.NOT_SET));
+        assertThat(provider.getLastProgressForItem(TRACK_URN)).isEqualTo(new PlaybackProgress(123, Consts.NOT_SET, TRACK_URN));
     }
 
     @Test
@@ -209,7 +202,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     private PlaybackProgress createPlaybackProcess(long position, long duration) {
-        return new PlaybackProgress(position, duration, dateProvider);
+        return new PlaybackProgress(position, duration, dateProvider, TRACK_URN);
     }
 
 }

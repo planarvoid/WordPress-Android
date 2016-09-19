@@ -22,7 +22,7 @@ public class PlayStateEventTest {
                                                                                TestPlayStates.URN, 123, 456, dateProvider);
         final PlayStateEvent event = PlayStateEvent.create(transition, 789L, true, "play-id");
 
-        assertThat(event.getProgress()).isEqualTo(new PlaybackProgress(123, 456, dateProvider));
+        assertThat(event.getProgress()).isEqualTo(new PlaybackProgress(123, 456, dateProvider, TestPlayStates.URN));
         assertThat(event.getTransition()).isEqualTo(transition);
         assertThat(event.isFirstPlay()).isEqualTo(true);
         assertThat(event.getPlayId()).isEqualTo("play-id");
@@ -34,7 +34,7 @@ public class PlayStateEventTest {
                                                                                TestPlayStates.URN, 123, 0, dateProvider);
         final PlayStateEvent event = getPlayStateEvent(transition);
 
-        assertThat(event.getProgress()).isEqualTo(new PlaybackProgress(123, 456, dateProvider));
+        assertThat(event.getProgress()).isEqualTo(new PlaybackProgress(123, 456, dateProvider, TestPlayStates.URN));
         assertThat(event.getTransition()).isEqualTo(transition);
         assertThat(event.isFirstPlay()).isEqualTo(true);
         assertThat(event.getPlayId()).isEqualTo("play-id");

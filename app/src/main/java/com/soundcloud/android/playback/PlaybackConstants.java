@@ -17,4 +17,11 @@ public interface PlaybackConstants {
     int RESOLUTION_PX_720P = 720;
     int RESOLUTION_PX_480P = 480;
     int RESOLUTION_PX_360P = 360;
+
+    interface MediaType {
+        String UNKNOWN = "UNKNOWN";
+        String MP3 ="MP3";
+        String OPUS = "OPUS";
+        String AUDIO_AD = MIME_TYPE_MP3; // this is just for legacy purposes. Maybe we can just make this mp3
+    }
 }

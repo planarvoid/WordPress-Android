@@ -105,7 +105,7 @@ public class CastSessionControllerTest extends AndroidUnitTest {
     public void onConnectedToReceiverAppExpandsPlayerWhenLocalQueueIsPopulated() throws Exception {
         castSessionController.startListening();
         PlaybackResult playbackResult = PlaybackResult.success();
-        when(playSessionStateProvider.getLastProgressForItem(URN)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(URN)).thenReturn(new PlaybackProgress(123L, 456L, URN));
         when(castPlayer.reloadCurrentQueue()).thenReturn(Observable.just(playbackResult));
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(URN));
