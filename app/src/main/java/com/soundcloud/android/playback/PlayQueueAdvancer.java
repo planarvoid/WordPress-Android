@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 
@@ -14,7 +14,7 @@ public class PlayQueueAdvancer {
     private final NetworkConnectionHelper connectionHelper;
     private final PlaySessionController playSessionController;
     private final AdsController adsController;
-    private final PlaybackServiceInitiator serviceInitiator;
+    private final PlaybackServiceController serviceController;
 
     public enum Result {
         NO_OP, ADVANCED, QUEUE_COMPLETE
@@ -24,12 +24,12 @@ public class PlayQueueAdvancer {
     public PlayQueueAdvancer(PlayQueueManager playQueueManager,
                              NetworkConnectionHelper connectionHelper,
                              PlaySessionController playSessionController,
-                             AdsController adsController, PlaybackServiceInitiator serviceInitiator) {
+                             AdsController adsController, PlaybackServiceController serviceController) {
         this.playQueueManager = playQueueManager;
         this.connectionHelper = connectionHelper;
         this.playSessionController = playSessionController;
         this.adsController = adsController;
-        this.serviceInitiator = serviceInitiator;
+        this.serviceController = serviceController;
     }
 
     public Result onPlayStateChanged(PlayStateEvent playStateEvent) {
@@ -42,7 +42,7 @@ public class PlayQueueAdvancer {
                 }
                 return Result.ADVANCED;
             } else {
-                serviceInitiator.stopPlaybackService();
+                serviceController.stopPlaybackService();
                 return Result.QUEUE_COMPLETE;
             }
         }

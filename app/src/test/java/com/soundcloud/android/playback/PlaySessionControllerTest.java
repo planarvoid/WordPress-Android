@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
@@ -62,7 +62,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
-    @Mock private PlaybackServiceInitiator playbackServiceInitiator;
+    @Mock private PlaybackServiceController playbackServiceController;
 
     private PlaySessionController controller;
     private PublishSubject<Void> playCurrentSubject;
@@ -78,7 +78,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                                                InjectionSupport.providerOf(playbackStrategy),
                                                playbackToastHelper,
                                                accountOperations,
-                                               playbackServiceInitiator);
+                                               playbackServiceController);
         controller.subscribe();
 
         trackUrn = Urn.forTrack(123);
@@ -687,7 +687,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void resetsPlaySession() {
         controller.resetPlaySession();
 
-        verify(playbackServiceInitiator).resetPlaybackService();
+        verify(playbackServiceController).resetPlaybackService();
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_UI, PlayerUIEvent.class).getKind())
                 .isEqualTo(PlayerUIEvent.fromPlayerCollapsed().getKind());
     }

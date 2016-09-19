@@ -229,7 +229,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public PlaybackStrategy providePlaybackStrategy(PlaybackServiceInitiator serviceInitiator,
+    public PlaybackStrategy providePlaybackStrategy(PlaybackServiceController serviceController,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
                                                     Lazy<CastPlayer> castPlayer,
@@ -241,7 +241,7 @@ public class ApplicationModule {
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
             return new DefaultPlaybackStrategy(playQueueManager,
-                                               serviceInitiator,
+                                               serviceController,
                                                trackRepository,
                                                offlinePlaybackOperations,
                                                playSessionStateProvider,

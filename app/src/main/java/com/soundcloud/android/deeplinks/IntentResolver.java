@@ -1,7 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
@@ -36,7 +36,7 @@ import javax.inject.Inject;
 public class IntentResolver {
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
-    private final PlaybackServiceInitiator serviceInitiator;
+    private final PlaybackServiceController serviceController;
     private final PlaybackInitiator playbackInitiator;
     private final PlayQueueManager playQueueManager;
     private final ReferrerResolver referrerResolver;
@@ -48,7 +48,7 @@ public class IntentResolver {
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
                    AccountOperations accountOperations,
-                   PlaybackServiceInitiator serviceInitiator,
+                   PlaybackServiceController serviceController,
                    PlaybackInitiator playbackInitiator,
                    PlayQueueManager playQueueManager,
                    ReferrerResolver referrerResolver,
@@ -58,7 +58,7 @@ public class IntentResolver {
                    Resources resources) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
-        this.serviceInitiator = serviceInitiator;
+        this.serviceController = serviceController;
         this.playbackInitiator = playbackInitiator;
         this.playQueueManager = playQueueManager;
         this.referrerResolver = referrerResolver;
@@ -357,7 +357,7 @@ public class IntentResolver {
 
     private void loginCrawler() {
         accountOperations.loginCrawlerUser();
-        serviceInitiator.resetPlaybackService();
+        serviceController.resetPlaybackService();
         playQueueManager.clearAll(); // do not leave previous played tracks visible for crawlers
     }
 

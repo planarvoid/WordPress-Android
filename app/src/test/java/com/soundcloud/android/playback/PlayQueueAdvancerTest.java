@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
@@ -38,7 +38,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlaySessionController playSessionController;
-    @Mock private PlaybackServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceController serviceInitiator;
 
     private PlayQueueAdvancer advancer;
 

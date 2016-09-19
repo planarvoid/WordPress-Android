@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.external;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.utils.Log;
@@ -12,15 +12,15 @@ public class PlaybackActionController {
     private static final String TAG = "PlaybackActionCtrl";
 
     private final PlaySessionController playSessionController;
-    private final PlaybackServiceInitiator serviceInitiator;
+    private final PlaybackServiceController serviceController;
     private final AdsController adsController;
 
     @Inject
     public PlaybackActionController(PlaySessionController playSessionController,
-                                    PlaybackServiceInitiator serviceInitiator,
+                                    PlaybackServiceController serviceController,
                                     AdsController adsController) {
         this.playSessionController = playSessionController;
-        this.serviceInitiator = serviceInitiator;
+        this.serviceController = serviceController;
         this.adsController = adsController;
     }
 
@@ -38,7 +38,7 @@ public class PlaybackActionController {
         } else if (PlaybackAction.TOGGLE_PLAYBACK.equals(action)) {
             playSessionController.togglePlayback();
         } else if (PlaybackAction.CLOSE.equals(action)) {
-            serviceInitiator.stopPlaybackService();
+            serviceController.stopPlaybackService();
         }
     }
 

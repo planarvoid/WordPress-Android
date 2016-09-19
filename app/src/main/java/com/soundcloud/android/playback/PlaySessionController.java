@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdData;
@@ -53,7 +53,7 @@ public class PlaySessionController {
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
     private final PlaybackToastHelper playbackToastHelper;
     private final AccountOperations accountOperations;
-    private final PlaybackServiceInitiator playbackServiceInitiator;
+    private final PlaybackServiceController playbackServiceController;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
@@ -95,7 +95,7 @@ public class PlaySessionController {
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
                                  AccountOperations accountOperations,
-                                 PlaybackServiceInitiator playbackServiceInitiator) {
+                                 PlaybackServiceController playbackServiceController) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.adsController = adsController;
@@ -103,7 +103,7 @@ public class PlaySessionController {
         this.playbackStrategyProvider = playbackStrategyProvider;
         this.playbackToastHelper = playbackToastHelper;
         this.accountOperations = accountOperations;
-        this.playbackServiceInitiator = playbackServiceInitiator;
+        this.playbackServiceController = playbackServiceController;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castConnectionHelper = castConnectionHelper;
     }
@@ -239,7 +239,7 @@ public class PlaySessionController {
     }
 
     public void resetPlaySession() {
-        playbackServiceInitiator.resetPlaybackService();
+        playbackServiceController.resetPlaybackService();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 

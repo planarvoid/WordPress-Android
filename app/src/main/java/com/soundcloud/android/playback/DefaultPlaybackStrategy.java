@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
@@ -24,7 +24,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     // https://github.com/soundcloud/SoundCloud-Android/issues/4503
     private static final String TAG_BUG_4503 = "BUG_4503";
     private final PlayQueueManager playQueueManager;
-    private final PlaybackServiceInitiator serviceInitiator;
+    private final PlaybackServiceController serviceController;
     private final TrackRepository trackRepository;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
@@ -34,7 +34,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         @Override
         public Observable<Void> call(PlayerLifeCycleEvent playerLifeCycleEvent) {
             if (playerLifeCycleEvent.isServiceRunning()) {
-                serviceInitiator.togglePlayback();
+                serviceController.togglePlayback();
                 return Observable.empty();
             } else {
                 return playCurrent();
@@ -46,7 +46,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         @Override
         public Observable<Void> call(PlayerLifeCycleEvent playerLifeCycleEvent) {
             if (playerLifeCycleEvent.isServiceRunning()) {
-                serviceInitiator.resume();
+                serviceController.resume();
                 return Observable.empty();
             } else {
                 return playCurrent();
@@ -62,22 +62,22 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 return Observable.error(new BlockedTrackException(trackUrn));
             } else {
                 if (offlinePlaybackOperations.shouldPlayOffline(track)) {
-                    serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
+                    serviceController.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
                 } else if (track.get(TrackProperty.SNIPPED)) {
-                    serviceInitiator.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
+                    serviceController.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
                 } else {
-                    serviceInitiator.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
+                    serviceController.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
                 }
                 return Observable.empty();
             }
         }
     };
 
-    public DefaultPlaybackStrategy(PlayQueueManager playQueueManager, PlaybackServiceInitiator serviceInitiator,
+    public DefaultPlaybackStrategy(PlayQueueManager playQueueManager, PlaybackServiceController serviceController,
                                    TrackRepository trackRepository, OfflinePlaybackOperations offlinePlaybackOperations,
                                    PlaySessionStateProvider playSessionStateProvider, EventBus eventBus) {
         this.playQueueManager = playQueueManager;
-        this.serviceInitiator = serviceInitiator;
+        this.serviceController = serviceController;
         this.trackRepository = trackRepository;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -101,7 +101,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
     @Override
     public void pause() {
-        serviceInitiator.pause();
+        serviceController.pause();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                                           ? VideoAdPlaybackItem.create((VideoAd) adData, position)
                                           : AudioAdPlaybackItem.create((AudioAd) adData);
 
-        serviceInitiator.play(playbackItem);
+        serviceController.play(playbackItem);
         return Observable.empty();
     }
 
@@ -169,11 +169,11 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
     @Override
     public void fadeAndPause() {
-        serviceInitiator.fadeAndPause();
+        serviceController.fadeAndPause();
     }
 
     @Override
     public void seek(long position) {
-        serviceInitiator.seek(position);
+        serviceController.seek(position);
     }
 }

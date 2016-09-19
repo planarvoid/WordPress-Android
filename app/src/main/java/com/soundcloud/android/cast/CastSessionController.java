@@ -7,7 +7,7 @@ import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
@@ -39,7 +39,7 @@ import java.util.Locale;
 public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
 
     private final CastOperations castOperations;
-    private final PlaybackServiceInitiator serviceInitiator;
+    private final PlaybackServiceController serviceController;
     private final CastPlayer castPlayer;
     private final PlayQueueManager playQueueManager;
     private final VideoCastManager videoCastManager;
@@ -49,7 +49,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     @Inject
     public CastSessionController(CastOperations castOperations,
-                                 PlaybackServiceInitiator serviceInitiator,
+                                 PlaybackServiceController serviceController,
                                  CastPlayer castPlayer,
                                  PlayQueueManager playQueueManager,
                                  VideoCastManager videoCastManager,
@@ -57,7 +57,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
                                  PlaySessionStateProvider playSessionStateProvider,
                                  Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.castOperations = castOperations;
-        this.serviceInitiator = serviceInitiator;
+        this.serviceController = serviceController;
         this.castPlayer = castPlayer;
         this.playQueueManager = playQueueManager;
         this.videoCastManager = videoCastManager;
@@ -74,7 +74,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
     @Override
     public void onApplicationConnected(ApplicationMetadata appMetadata, String sessionId, boolean wasLaunched) {
         Log.d(CastOperations.TAG, "On Application Connected, launched: " + wasLaunched);
-        serviceInitiator.stopPlaybackService();
+        serviceController.stopPlaybackService();
         if (wasLaunched && !playQueueManager.isQueueEmpty()) {
             playLocalPlayQueueOnRemote();
         }
