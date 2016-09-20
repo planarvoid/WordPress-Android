@@ -11,6 +11,7 @@ import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.ScreenEvent;
@@ -249,6 +250,68 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         eventHandler.handleEvent(event);
 
         verify(appboy).logCustomEvent("start_station");
+    }
+
+    @Test
+    public void shouldTrackOfflineLikesEnabled() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableOfflineLikes("ignored");
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("offline_likes", enabled());
+    }
+
+    @Test
+    public void shouldTrackOfflineLikesDisabled() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflineLikes("ignored");
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("offline_likes", disabled());
+    }
+
+    @Test
+    public void shouldTrackOfflinePlaylistEnabled() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("ignored", Urn.forPlaylist(123L), null);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("offline_playlist", enabled());
+    }
+
+    @Test
+    public void shouldTrackOfflinePlaylistDisabled() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist("ignored", Urn.forPlaylist(123L), null);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("offline_playlist", disabled());
+    }
+
+    @Test
+    public void shouldTrackOfflineCollectionEnabled() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableCollectionSync("ignored");
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("offline_all", enabled());
+    }
+
+    @Test
+    public void shouldTrackOfflineCollectionDisabled() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromDisableCollectionSync("ignored");
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("offline_all", disabled());
+    }
+
+    private AppboyProperties enabled() {
+        return new AppboyProperties().addProperty("enabled", true);
+    }
+
+    private AppboyProperties disabled() {
+        return new AppboyProperties().addProperty("enabled", false);
     }
 
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {
