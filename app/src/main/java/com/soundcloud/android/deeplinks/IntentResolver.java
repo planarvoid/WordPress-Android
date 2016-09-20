@@ -1,5 +1,6 @@
 package com.soundcloud.android.deeplinks;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
@@ -132,6 +133,9 @@ public class IntentResolver {
                 break;
             case COLLECTION:
                 showCollectionScreen(context, referrer);
+                break;
+            case TRACK_ENTITY:
+                showTrack(context, uri, referrer);
                 break;
             default:
                 resolve(context, uri, referrer);
@@ -279,6 +283,20 @@ public class IntentResolver {
     private void showCollectionScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openCollection(context);
+    }
+
+    private void showTrack(Context context, Uri uri, String referrer) {
+        final long id = getIdFromDeeplinkUri(uri);
+        final Urn trackUrn = (id != Consts.NOT_SET) ? Urn.forTrack(id) : Urn.NOT_SET;
+        startActivityForResource(context, trackUrn, referrer);
+    }
+
+    private long getIdFromDeeplinkUri(Uri uri) {
+        try {
+            return Long.valueOf(uri.getLastPathSegment());
+        } catch (NumberFormatException e) {
+            return Consts.NOT_SET;
+        }
     }
 
     private void startActivityForResource(Context context, Urn urn, String referrer) {

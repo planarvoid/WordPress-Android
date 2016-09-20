@@ -266,6 +266,10 @@ public class VisualPlayerElement extends Element {
         return adPage().isOnScreen();
     }
 
+    public void clickAdCTAButton() {
+        adCTAButton().click();
+    }
+
     public String getAdCTAButtonText() {
         return new TextElement(adCTAButton()).getText();
     }

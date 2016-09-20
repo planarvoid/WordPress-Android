@@ -111,6 +111,16 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldPlayTrackAfterResolvingTracksDeepLink() throws CreateModelException {
+        setupIntentForUrl("soundcloud://tracks/123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+
+        resolver.handleIntent(intent, context);
+
+        verify(playbackInitiator).startPlayback(Urn.forTrack(123), Screen.DEEPLINK);
+    }
+
+    @Test
     public void shouldShowTheStreamWithAnExpandedPlayer() throws CreateModelException {
         setupIntentForUrl("soundcloud://sounds:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
