@@ -17,8 +17,7 @@ enum Feature {
   EXPLORE,
   STATION_PAGE,
   LIKED_STATIONS,
-  SUGGESTED_CREATORS,
-  MOAT_ADS_VIEWABILITY;
+  SUGGESTED_CREATORS;
 }
 
 android {
@@ -36,7 +35,6 @@ android {
     buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.SUGGESTED_CREATORS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.MOAT_ADS_VIEWABILITY.name(), FALSE
   }
 
   buildTypes {
@@ -75,7 +73,6 @@ android {
       buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
       buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.MOAT_ADS_VIEWABILITY.name(), TRUE
     }
 
     release {

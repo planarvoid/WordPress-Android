@@ -3,7 +3,6 @@ package com.soundcloud.android.ads;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,7 +18,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -38,7 +36,6 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 public class AdOverlayControllerTest extends AndroidUnitTest {
 
@@ -54,19 +51,18 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
     @Mock private AdOverlayController.AdOverlayListener listener;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
-    @Mock private ApplicationProperties applicationProperties;
     @Mock private Context context;
     @Mock private Resources resources;
     @Mock private InterstitialPresenterFactory interstitialPresenterFactory;
     @Mock private LeaveBehindPresenterFactory leaveBehindPresenterFactory;
     @Mock private InterstitialPresenter interstitialPresenter;
     @Mock private LeaveBehindPresenter leaveBehindPresenter;
-    @Mock private AdViewabilityMoatController adViewabilityController;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
     @Captor private ArgumentCaptor<AdOverlayPresenter.Listener> adOverlayListenerCaptor;
 
     private InterstitialAd interstitialData;
     private LeaveBehindAd leaveBehindData;
+
 
     @Before
     public void setUp() throws Exception {
@@ -81,11 +77,10 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
                                              eventBus,
                                              playQueueManager,
                                              accountOperations,
-                                             applicationProperties,
                                              interstitialPresenterFactory,
-                                             leaveBehindPresenterFactory,
-                                             adViewabilityController);
-        when(applicationProperties.canUseMoatForAdViewability()).thenReturn(true);
+                                             leaveBehindPresenterFactory);
+
+
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackQueueItem);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
@@ -259,61 +254,6 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         verify(interstitialPresenter, never()).onAdVisible(any(PlayQueueItem.class),
                                                            any(OverlayAdData.class),
                                                            any(TrackSourceInfo.class));
-    }
-
-    @Test
-    public void adViewabilityControllerTracksOverlayImpressionWhenShouldDisplayOverlayIsTrue() {
-        when(interstitialPresenter.shouldDisplayOverlay(interstitialData, true, true, true)).thenReturn(true);
-
-        controller.initialize(interstitialData);
-        controller.setExpanded();
-        controller.show(true);
-
-        verify(adViewabilityController).startOverlayTracking(any(ImageView.class), eq(interstitialData));
-    }
-
-    @Test
-    public void adViewabilityControllerDoesntTrackOverlayImpressionWhenShouldDisplayOverlayIsFalse() {
-        when(interstitialPresenter.shouldDisplayOverlay(interstitialData, true, true, true)).thenReturn(false);
-
-        controller.initialize(interstitialData);
-        controller.setExpanded();
-        controller.show(true);
-
-        verify(adViewabilityController, never()).startOverlayTracking(any(ImageView.class), eq(interstitialData));
-    }
-
-    @Test
-    public void adViewabilityControllerDoesntTrackOverlayImpressionWhenApplicationDoesntSupportMoat() {
-        when(interstitialPresenter.shouldDisplayOverlay(interstitialData, true, true, true)).thenReturn(true);
-        when(applicationProperties.canUseMoatForAdViewability()).thenReturn(false);
-
-        controller.initialize(interstitialData);
-        controller.setExpanded();
-        controller.show(true);
-
-        verify(adViewabilityController, never()).startOverlayTracking(any(ImageView.class), eq(interstitialData));
-    }
-
-    @Test
-    public void adViewabilityControllerStopsTrackingOnClear() {
-        when(interstitialPresenter.shouldDisplayOverlay(interstitialData, true, true, true)).thenReturn(true);
-
-        controller.initialize(interstitialData);
-        controller.clear();
-
-        verify(adViewabilityController).stopOverlayTracking();
-    }
-
-    @Test
-    public void adViewabilityControllerDoesntStopTrackingOnClearWhenApplicationDoesntSupportMoat() {
-        when(interstitialPresenter.shouldDisplayOverlay(interstitialData, true, true, true)).thenReturn(true);
-        when(applicationProperties.canUseMoatForAdViewability()).thenReturn(false);
-
-        controller.initialize(interstitialData);
-        controller.clear();
-
-        verify(adViewabilityController, never()).stopOverlayTracking();
     }
 
     private AdOverlayPresenter.Listener captureLeaveBehindListener() {

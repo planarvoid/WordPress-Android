@@ -213,7 +213,6 @@ dependencies {
   compile libraries.undoBar
   compile libraries.appBoy
   compile libraries.krux
-  compile libraries.moat
 
   /* Android ... keep order! */
   compile libraries.androidMultidex

@@ -20,8 +20,7 @@ public enum Flag {
     PLAY_QUEUE(BuildConfig.PLAY_QUEUE),
     STATION_INFO_PAGE(BuildConfig.STATION_PAGE),
     LIKED_STATIONS(BuildConfig.LIKED_STATIONS),
-    SUGGESTED_CREATORS(BuildConfig.SUGGESTED_CREATORS),
-    MOAT_ADS_VIEWABILITY(BuildConfig.MOAT_ADS_VIEWABILITY);
+    SUGGESTED_CREATORS(BuildConfig.SUGGESTED_CREATORS);
 
     private final boolean value;
 

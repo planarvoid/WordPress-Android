@@ -12,7 +12,6 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-
 import rx.Subscription;
 
 import android.content.res.Resources;
