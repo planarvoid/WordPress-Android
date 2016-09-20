@@ -161,17 +161,20 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     protected void onItemClicked(View view, int position) {
         final List<UserSoundsItem> userSoundsItems = adapter.getItems();
         final UserSoundsItem clickedItem = adapter.getItem(position);
-        final List<PropertySet> playables = filterPlayableItems(userSoundsItems);
-        final int playablePosition = filterPlayableItems(userSoundsItems.subList(0, position)).size();
 
-        clickListener.onItemClick(Observable.just(playables),
-                                  view,
-                                  playablePosition,
-                                  clickedItem,
-                                  userUrn,
-                                  searchQuerySourceInfo,
-                                  fromModule(clickedItem.getCollectionType(),
-                                             getPositionInModule(userSoundsItems, clickedItem)));
+        if (FILTER_PLAYABLE_USER_SOUNDS_ITEMS.apply(clickedItem)) {
+            final List<PropertySet> playables = filterPlayableItems(userSoundsItems);
+            final int playablePosition = filterPlayableItems(userSoundsItems.subList(0, position)).size();
+
+            clickListener.onItemClick(Observable.just(playables),
+                                      view,
+                                      playablePosition,
+                                      clickedItem,
+                                      userUrn,
+                                      searchQuerySourceInfo,
+                                      fromModule(clickedItem.getCollectionType(),
+                                                 getPositionInModule(userSoundsItems, clickedItem)));
+        }
     }
 
     private void displaySecondaryTextForOtherUser() {

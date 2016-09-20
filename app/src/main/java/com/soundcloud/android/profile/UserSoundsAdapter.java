@@ -16,14 +16,15 @@ import javax.inject.Inject;
 
 public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder>
         implements PlayingTrackAware {
-    static final int TYPE_DIVIDER = 0;
-    static final int TYPE_HEADER = 1;
-    static final int TYPE_VIEW_ALL = 2;
-    static final int TYPE_TRACK_CARD = 3;
-    static final int TYPE_TRACK_ITEM = 4;
-    static final int TYPE_PLAYLIST_CARD = 5;
-    static final int TYPE_PLAYLIST_ITEM = 6;
-    static final int TYPE_END_OF_LIST_DIVIDER = 7;
+
+    private static final int TYPE_DIVIDER = 0;
+    private static final int TYPE_HEADER = 1;
+    private static final int TYPE_VIEW_ALL = 2;
+    private static final int TYPE_TRACK_CARD = 3;
+    private static final int TYPE_TRACK_ITEM = 4;
+    private static final int TYPE_PLAYLIST_CARD = 5;
+    private static final int TYPE_PLAYLIST_ITEM = 6;
+    private static final int TYPE_END_OF_LIST_DIVIDER = 7;
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
