@@ -96,6 +96,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(sharedPreferences.contains(PlayQueueOperations.Keys.PLAY_POSITION.name())).thenReturn(true);
         PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(123L))
                 .fromSource("source1", "version1")
+                .withPlaybackContext(PlaybackContext.create(playSessionSource))
                 .build();
 
         Observable<PlayQueueItem> itemObservable = Observable.just(playQueueItem);
@@ -123,9 +124,11 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(sharedPreferences.contains(PlayQueueOperations.Keys.PLAY_POSITION.name())).thenReturn(true);
         PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
                 .fromSource("source1", "version1")
+                .withPlaybackContext(PlaybackContext.create(playSessionSource))
                 .build();
         PlayQueueItem playQueueItem2 = new TrackQueueItem.Builder(Urn.forTrack(2L))
                 .fromSource("source2", "version2")
+                .withPlaybackContext(PlaybackContext.create(playSessionSource))
                 .build();
         Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
 
@@ -139,6 +142,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void shouldReturnEmptyQueueWhenPlayingTrackNotPresent() throws Exception {
         PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
                 .fromSource("source1", "version1")
+                .withPlaybackContext(PlaybackContext.create(playSessionSource))
                 .build();
         Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1));
 
@@ -222,19 +226,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                                                                             "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
-        playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false).subscribe(testSubscriber);
-
-        testSubscriber.assertValues(PlayQueue.empty());
-    }
-
-    @Test
-    public void getRelatedTracksPlayQueueWithSeedTrackShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(),
-                                                                            "version")));
-
-        TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
-        playQueueOperations.relatedTracksPlayQueueWithSeedTrack(Urn.forTrack(123)).subscribe(testSubscriber);
+        playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false, playSessionSource).subscribe(testSubscriber);
 
         testSubscriber.assertValues(PlayQueue.empty());
     }

@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
@@ -19,6 +21,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
     protected final Urn queryUrn;
     protected final boolean shouldPersist;
     protected final boolean blocked;
+    protected final PlaybackContext playbackContext;
 
     public PlayableQueueItem(Urn urn,
                              Urn reposter,
@@ -29,7 +32,8 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
                              boolean blocked,
                              boolean shouldPersist,
                              Urn sourceUrn,
-                             Optional<AdData> adData) {
+                             Optional<AdData> adData,
+                             PlaybackContext playbackContext) {
         this.sourceVersion = sourceVersion;
         this.source = source;
         this.queryUrn = queryUrn;
@@ -39,6 +43,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         this.reposter = reposter;
         this.relatedEntity = relatedEntity;
         this.urn = urn;
+        this.playbackContext = checkNotNull(playbackContext, "PlaybackContext can not be null");
         this.adData = adData;
     }
 
@@ -78,6 +83,10 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         return blocked;
     }
 
+    public PlaybackContext getPlaybackContext() {
+        return playbackContext;
+    }
+
     @Override
     public abstract Kind getKind();
 
@@ -92,6 +101,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         protected Urn sourceUrn = Urn.NOT_SET;
         protected Urn queryUrn = Urn.NOT_SET;
         protected boolean shouldPersist = true;
+        protected PlaybackContext playbackContext;
 
         public Builder(Urn entityUrn) {
             this(entityUrn, Urn.NOT_SET);
@@ -105,6 +115,11 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         public Builder(Urn playable, Urn reposter) {
             this.playable = playable;
             this.reposter = reposter;
+        }
+
+        public T withPlaybackContext(PlaybackContext playbackContext) {
+            this.playbackContext = playbackContext;
+            return getThis();
         }
 
         public T fromSource(String source, String sourceVersion) {
@@ -121,11 +136,12 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
             return getThis();
         }
 
-        public T copySource(PlayableQueueItem playableQueueItem) {
+        public T copySourceAndPlaybackContext(PlayableQueueItem playableQueueItem) {
             this.source = playableQueueItem.getSource();
             this.sourceVersion = playableQueueItem.getSourceVersion();
             this.sourceUrn = playableQueueItem.getSourceUrn();
             this.queryUrn = playableQueueItem.getQueryUrn();
+            this.playbackContext = playableQueueItem.playbackContext;
             return getThis();
         }
 

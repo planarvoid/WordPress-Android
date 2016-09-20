@@ -54,7 +54,7 @@ public class TabbedSearchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         searchTracker.init();
-        searchTracker.trackResultsScreenEvent(SearchType.ALL);
+        searchTracker.trackResultsScreenEvent(SearchType.ALL, getSearchQuery());
     }
 
     @Override
@@ -68,13 +68,12 @@ public class TabbedSearchFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String query = getArguments().getString(KEY_QUERY);
         boolean firstTime = savedInstanceState == null;
 
         SearchPagerAdapter searchPagerAdapter =
                 new SearchPagerAdapter(resources,
                                        this.getChildFragmentManager(),
-                                       query,
+                                       getSearchQuery(),
                                        firstTime,
                                        searchTypes.available());
 
@@ -85,7 +84,11 @@ public class TabbedSearchFragment extends Fragment {
 
         TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
-        pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker, searchTypes));
+        pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker, searchTypes, getSearchQuery()));
+    }
+
+    private String getSearchQuery() {
+        return getArguments().getString(KEY_QUERY);
     }
 
     @Override
@@ -98,10 +101,12 @@ public class TabbedSearchFragment extends Fragment {
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {
         private final SearchTracker searchTracker;
         private final SearchTypes searchTypes;
+        private final String searchQuery;
 
-        public SearchPagerScreenListener(SearchTracker searchTracker, SearchTypes searchTypes) {
+        public SearchPagerScreenListener(SearchTracker searchTracker, SearchTypes searchTypes, String searchQuery) {
             this.searchTracker = searchTracker;
             this.searchTypes = searchTypes;
+            this.searchQuery = searchQuery;
         }
 
         @Override
@@ -110,7 +115,7 @@ public class TabbedSearchFragment extends Fragment {
 
         @Override
         public void onPageSelected(int pageSelected) {
-            searchTracker.trackResultsScreenEvent(searchTypes.get(pageSelected));
+            searchTracker.trackResultsScreenEvent(searchTypes.get(pageSelected), searchQuery);
         }
 
         @Override

@@ -12,8 +12,11 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -147,13 +150,35 @@ public class StationsOperationsTest extends AndroidUnitTest {
         final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
         final List<StationTrack> tracks = stationApi.getTracks();
         final List<StationTrack> subTrackList = tracks.subList(2, tracks.size());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO, station);
 
         when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
         when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Observable.from(subTrackList));
 
-        operations.fetchUpcomingTracks(station, 2).subscribe(subscriber);
+        operations.fetchUpcomingTracks(station, 2, playSessionSource).subscribe(subscriber);
 
-        subscriber.assertValue(PlayQueue.fromStation(station, subTrackList));
+        subscriber.assertValue(PlayQueue.fromStation(station, subTrackList, playSessionSource));
+    }
+
+
+    @Test
+    public void fetchUpcomingTracksShouldHaveASuggestionsSource() {
+        final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
+        final Urn station = Urn.forTrackStation(123L);
+        final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
+        final List<StationTrack> tracks = stationApi.getTracks();
+        final List<StationTrack> subTrackList = tracks.subList(2, tracks.size());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO, station);
+
+        when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
+        when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Observable.from(subTrackList));
+
+        operations.fetchUpcomingTracks(station, 2, playSessionSource).subscribe(subscriber);
+
+        final TrackQueueItem playQueueItem = (TrackQueueItem) subscriber.getOnNextEvents()
+                                                                        .get(0)
+                                                                        .getPlayQueueItem(0);
+        assertThat(playQueueItem.getSource()).isEqualTo("stations:suggestions");
     }
 
     @Test

@@ -256,12 +256,12 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void playNext(Urn trackUrn) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
         if (playQueueManager.isQueueEmpty()) {
-            PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
             playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
                              .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         } else {
-            playQueueManager.insertNext(trackUrn);
+            playQueueManager.insertNext(trackUrn, playSessionSource);
         }
     }
 

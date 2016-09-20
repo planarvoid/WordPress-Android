@@ -130,7 +130,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     @Override
     protected void onItemClicked(View view, int position) {
         final Urn urn = adapter.getItem(position).getUrn();
-        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
+        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn, searchQuery);
         searchTracker.trackSearchPremiumItemClick(urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchTracker.getPremiumTrackingScreen(),
                                     searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);

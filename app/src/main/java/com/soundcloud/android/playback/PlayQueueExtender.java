@@ -71,12 +71,12 @@ public class PlayQueueExtender {
                 final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
                 if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
                     loadRecommendedSubscription = playQueueOperations
-                            .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(), fromContinuousPlay())
+                            .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(), fromContinuousPlay(), playQueueManager.getCurrentPlaySessionSource())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new UpcomingTracksSubscriber());
                 } else if (event.getCollectionUrn().isStation()) {
                     loadRecommendedSubscription = stationsOperations
-                            .fetchUpcomingTracks(event.getCollectionUrn(), playQueueManager.getQueueSize())
+                            .fetchUpcomingTracks(event.getCollectionUrn(), playQueueManager.getQueueSize(), playQueueManager.getCurrentPlaySessionSource())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new UpcomingTracksSubscriber());
                 }

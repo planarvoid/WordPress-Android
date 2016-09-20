@@ -195,7 +195,7 @@ public class NavigatorTest extends AndroidUnitTest {
         Urn playlistUrn = playlist.getUrn();
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
-        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn);
+        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
         final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
 
         navigator.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo, event);
@@ -216,7 +216,7 @@ public class NavigatorTest extends AndroidUnitTest {
         Urn playlistUrn = playlist.getUrn();
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
-        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn);
+        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
 
         navigator.legacyOpenPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo);
 
@@ -287,7 +287,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensProfileActivityWithSearchSourceInfo() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
 
         navigator.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK, searchSourceInfo);
 
@@ -516,7 +516,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensProfileReposts() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         navigator.openProfileReposts(activityContext, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
@@ -528,7 +528,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensProfileTracks() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         navigator.openProfileTracks(activityContext, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
@@ -540,7 +540,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openProfileAlbums() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         navigator.openProfileAlbums(activityContext, USER_URN, Screen.USER_ALBUMS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
@@ -552,7 +552,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensProfileLikes() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         navigator.openProfileLikes(activityContext, USER_URN, Screen.USER_LIKES, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
@@ -564,7 +564,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensProfilePlaylists() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         navigator.openProfilePlaylists(activityContext, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()

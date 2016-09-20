@@ -6,34 +6,43 @@ import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.PlaylistQueueItem;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 
+import android.support.annotation.NonNull;
+
 public class TestPlayQueueItem {
 
     public static PlaylistQueueItem createPlaylist(Urn itemUrn) {
-        return new PlaylistQueueItem.Builder(itemUrn).build();
+        return new PlaylistQueueItem.Builder(itemUrn).withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY)).build();
     }
 
     public static TrackQueueItem createTrack(Urn itemUrn) {
-        return new TrackQueueItem.Builder(itemUrn).build();
+        return builder(itemUrn).build();
+    }
+
+    @NonNull
+    private static TrackQueueItem.Builder builder(Urn itemUrn) {
+        return new TrackQueueItem.Builder(itemUrn).withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY));
     }
 
     public static TrackQueueItem createBlockedTrack(Urn itemUrn) {
-        return new TrackQueueItem.Builder(itemUrn).blocked(true).build();
+        return builder(itemUrn).blocked(true).build();
     }
 
     public static TrackQueueItem createTrack(Urn itemUrn, OverlayAdData adData) {
-        return new TrackQueueItem.Builder(itemUrn).withAdData(adData).build();
+        return builder(itemUrn).withAdData(adData).build();
     }
 
     public static TrackQueueItem createTrack(Urn itemUrn, AdData adData, Urn relatedEntity) {
-        return new TrackQueueItem.Builder(itemUrn).withAdData(adData).relatedEntity(relatedEntity).build();
+        return builder(itemUrn).withAdData(adData).relatedEntity(relatedEntity).build();
     }
 
     public static TrackQueueItem createTrack(Urn itemUrn, String source, String sourceVersion) {
-        return new TrackQueueItem.Builder(itemUrn).fromSource(source, sourceVersion).build();
+        return builder(itemUrn).fromSource(source, sourceVersion).build();
     }
 
     public static VideoAdQueueItem createVideo(VideoAd adData) {

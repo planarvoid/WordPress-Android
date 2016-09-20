@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -44,8 +45,6 @@ import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
-
-import java.util.Collections;
 
 public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
@@ -150,26 +149,27 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnPlayNextInsertsNextWhenQueueIsNotEmpty() {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
         when(menuItem.getItemId()).thenReturn(R.id.play_next);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
         presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(playQueueManager).insertNext(trackItem.getUrn());
+        verify(playQueueManager).insertNext(trackItem.getUrn(), playSessionSource);
     }
 
     @Test
     public void clickingOnPlayNextStartsPlaybackWhenQueueIsEmpty() {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
         when(menuItem.getItemId()).thenReturn(R.id.play_next);
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
         presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(playbackInitiator).playTracks(eq(Collections.singletonList(trackItem.getUrn())),
-                                             eq(0), any(PlaySessionSource.class));
-        verify(playQueueManager, never()).insertNext(trackItem.getUrn());
+        verify(playbackInitiator).playTracks(singletonList(trackItem.getUrn()), 0, playSessionSource);
+        verify(playQueueManager, never()).insertNext(trackItem.getUrn(), playSessionSource);
     }
 
     @Test

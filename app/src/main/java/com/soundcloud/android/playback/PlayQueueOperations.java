@@ -101,7 +101,9 @@ public class PlayQueueOperations {
                           .subscribeOn(scheduler);
     }
 
-    public Observable<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack, boolean continuousPlay) {
+    public Observable<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack,
+                                                        final boolean continuousPlay,
+                                                        final PlaySessionSource playSessionSource) {
         return relatedTracks(seedTrack, continuousPlay).map(new Func1<RecommendedTracksCollection, PlayQueue>() {
             @Override
             public PlayQueue call(RecommendedTracksCollection recommendedTracks) {
@@ -109,27 +111,9 @@ public class PlayQueueOperations {
                     return PlayQueue.empty();
                 }
 
-                return PlayQueue.fromRecommendations(seedTrack, recommendedTracks);
+                return PlayQueue.fromRecommendations(seedTrack, recommendedTracks, playSessionSource);
             }
         });
-    }
-
-    // this is only used to create radio, which never should have the continuousPlay flag
-    public Observable<PlayQueue> relatedTracksPlayQueueWithSeedTrack(final Urn seedTrack) {
-        return relatedTracks(seedTrack, false).map(toPlayQueue(seedTrack));
-    }
-
-    private Func1<RecommendedTracksCollection, PlayQueue> toPlayQueue(final Urn seedTrack) {
-        return new Func1<RecommendedTracksCollection, PlayQueue>() {
-            @Override
-            public PlayQueue call(RecommendedTracksCollection recommendedTracks) {
-                if (recommendedTracks.getCollection().isEmpty()) {
-                    return PlayQueue.empty();
-                }
-
-                return PlayQueue.fromRecommendationsWithPrependedSeed(seedTrack, recommendedTracks);
-            }
-        };
     }
 
     enum Keys {

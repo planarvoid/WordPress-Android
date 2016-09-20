@@ -50,7 +50,8 @@ import java.util.List;
 public class UserSoundsPresenterTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
-    private static final SearchQuerySourceInfo SEARCH_QUERY_SOURCE_INFO = new SearchQuerySourceInfo(Urn.forTrack(123L));
+    private static final SearchQuerySourceInfo SEARCH_QUERY_SOURCE_INFO = new SearchQuerySourceInfo(Urn.forTrack(123L),
+                                                                                                    "query");
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(default_recyclerview_with_refresh, new Bundle());
 

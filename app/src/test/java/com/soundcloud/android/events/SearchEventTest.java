@@ -15,7 +15,7 @@ public class SearchEventTest {
 
     @Before
     public void setup() throws Exception {
-        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 1, Urn.forTrack(456L));
+        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 1, Urn.forTrack(456L), "query");
     }
 
     @Test

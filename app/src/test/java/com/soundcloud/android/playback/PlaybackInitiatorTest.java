@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -40,7 +39,6 @@ import rx.observers.TestObserver;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class PlaybackInitiatorTest extends AndroidUnitTest {
 
@@ -81,7 +79,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         observer = new TestObserver<>();
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"),
                                                           0,
-                                                          new Urn("soundcloud:tracks:1"));
+                                                          new Urn("soundcloud:tracks:1"),
+                                                          "query");
     }
 
     @Test
@@ -211,30 +210,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                    any(Urn.class),
                                                    anyInt(),
                                                    any(PlaySessionSource.class));
-    }
-
-    @Test
-    public void playTrackWithRecommendationsReturnsAnErrorWhenNoRecommendation() {
-        when(playQueueOperations.relatedTracksPlayQueueWithSeedTrack(TRACK1)).thenReturn(Observable.<PlayQueue>error(new NoSuchElementException()));
-
-        playbackInitiator.playTrackWithRecommendations(TRACK1, new PlaySessionSource(ORIGIN_SCREEN), 0)
-                         .subscribe(observer);
-
-        assertThat(observer.getOnErrorEvents()).hasSize(1);
-    }
-
-    @Test
-    public void playTrackWithRecommendationsPlaysQueueWithSeedAtSpecifiedPosition() {
-        final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(singletonList(new ApiTrack()),
-                                                                                          "");
-        final PlayQueue relatedUrns = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
-        when(playQueueOperations.relatedTracksPlayQueueWithSeedTrack(TRACK1)).thenReturn(Observable.just(relatedUrns));
-
-        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
-        playbackInitiator.playTrackWithRecommendations(TRACK1, playSessionSource, 0).subscribe(observer);
-
-        final PlayQueue expectedQueue = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
-        assertPlayNewQueue(playSessionController, expectedQueue, TRACK1, 0, playSessionSource);
     }
 
     @Test

@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -93,7 +94,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Test
     public void doesNotPreloadWhenNoNextPlayQueueItem() {
         when(playQueueManager.hasNextItem()).thenReturn(false);
-        when(playQueueManager.getNextPlayQueueItem()).thenReturn(new TrackQueueItem.Builder(nextTrackUrn).build());
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(nextTrackUrn));
         setupValidSpaceRemaining();
 
         firePlayQueueItemChanged();
@@ -174,7 +175,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     private void setupValidNextTrack() {
         when(playQueueManager.hasNextItem()).thenReturn(true);
-        when(playQueueManager.getNextPlayQueueItem()).thenReturn(new TrackQueueItem.Builder(nextTrackUrn).build());
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(nextTrackUrn));
     }
 
     private void setupValidSpaceRemaining() {

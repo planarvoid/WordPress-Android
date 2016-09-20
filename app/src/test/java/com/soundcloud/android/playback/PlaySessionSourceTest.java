@@ -97,7 +97,8 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateQuerySourceInfoFromTrackSourceInfo() throws Exception {
-        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
+        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"),
+                                                                                "query");
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_EVERYTHING);
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
 
@@ -118,7 +119,8 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void playlistSessionSourceShouldBeParcelable() {
-        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
+        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"),
+                                                                                "query");
         PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123",
                                                                        Urn.forTrack(123L),
                                                                        Optional.<Urn>absent(),
@@ -164,7 +166,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void discoverySourceShouldBeParcelable() {
-        final PlaySessionSource source = PlaySessionSource.forHistory(Screen.PLAY_HISTORY.get());
+        final PlaySessionSource source = PlaySessionSource.forHistory(Screen.PLAY_HISTORY);
 
         Parcel parcel = Parcel.obtain();
         source.writeToParcel(parcel, 0);
@@ -241,7 +243,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaySessionSourceForPlayHistory() {
-        final PlaySessionSource playSessionSource = PlaySessionSource.forHistory(Screen.PLAY_HISTORY.get());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forHistory(Screen.PLAY_HISTORY);
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(Screen.PLAY_HISTORY.get());
         assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.HISTORY);
@@ -249,9 +251,14 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void getInitialSourceFallsbackToDiscoverySourceIfPresent() {
-        final PlaySessionSource playSessionSource = PlaySessionSource.forHistory("screen");
+        final PlaySessionSource playSessionSource = PlaySessionSource.forHistory(Screen.PLAY_HISTORY);
 
         assertThat(playSessionSource.getInitialSource()).isEqualTo(DiscoverySource.HISTORY.value());
         assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
+    }
+
+    @Test
+    public void isFromPlaylistHistory() {
+        assertThat(PlaySessionSource.forHistory(Screen.COLLECTIONS).isFromPlaylistHistory()).isTrue();
     }
 }

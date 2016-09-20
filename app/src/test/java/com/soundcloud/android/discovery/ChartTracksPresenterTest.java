@@ -96,10 +96,14 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
 
         chartTracksPresenter.onItemClicked(mock(View.class), chartItemPosition);
 
-        final int expectedPlayQueuePosition = expectedPlayQueue.indexOf(SECOND_TRACK_ITEM.chartTrackItem.getUrn());
+        final ChartTrackItem chartTrackItem = SECOND_TRACK_ITEM.chartTrackItem;
+        final int expectedPlayQueuePosition = expectedPlayQueue.indexOf(chartTrackItem.getUrn());
         final PlaySessionSource playSessionSource = PlaySessionSource.forChart(screenString,
                                                                                queryPosition,
-                                                                               QUERY_URN);
+                                                                               QUERY_URN,
+                                                                               chartTrackItem.chartType(),
+                                                                               chartTrackItem.chartCategory(),
+                                                                               chartTrackItem.genre());
         verify(playbackInitiator).playTracks(expectedPlayQueue, expectedPlayQueuePosition, playSessionSource);
     }
 

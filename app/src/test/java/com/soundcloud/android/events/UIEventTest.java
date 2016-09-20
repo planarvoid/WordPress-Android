@@ -7,6 +7,8 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ChartCategory;
+import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.discovery.ChartSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
@@ -1072,7 +1074,10 @@ public class UIEventTest extends AndroidUnitTest {
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.UNKNOWN.get(), false);
         final EventContextMetadata eventContextMetadata = EventContextMetadata.builder().trackSourceInfo(trackSourceInfo).build();
 
-        trackSourceInfo.setChartSourceInfo(ChartSourceInfo.create(QUERY_POSITION, QUERY_URN));
+        trackSourceInfo.setChartSourceInfo(ChartSourceInfo.create(QUERY_POSITION, QUERY_URN,
+                                                                  ChartType.TOP,
+                                                                  ChartCategory.MUSIC,
+                                                                  new Urn("genre")));
 
         final UIEvent event = UIEvent.fromToggleLike(true, Urn.NOT_SET, eventContextMetadata, null, EntityMetadata.EMPTY);
         assertThat(event.getQueryUrn()).isEqualTo(Optional.of(QUERY_URN));

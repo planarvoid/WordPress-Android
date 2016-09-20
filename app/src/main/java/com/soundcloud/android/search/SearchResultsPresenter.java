@@ -79,11 +79,11 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                     searchTracker.setTrackingData(searchType, queryUrn, searchResult.getPremiumContent().isPresent());
                     if (publishSearchSubmissionEvent || shouldSendTrackingState) {
                         //We need to send the event as soon as the fragment is loaded
-                        searchTracker.trackResultsScreenEvent(searchType);
+                        searchTracker.trackResultsScreenEvent(searchType, searchQuery);
                     }
                     if (publishSearchSubmissionEvent) {
                         publishSearchSubmissionEvent = false;
-                        searchTracker.trackSearchSubmission(searchType, queryUrn);
+                        searchTracker.trackSearchSubmission(searchType, queryUrn, searchQuery);
                     }
                 }
             };
@@ -188,7 +188,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         final List<ListItem> playQueue = premiumItems.isPresent() ?
                                          buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems();
         final Urn urn = adapter.getItem(position).getUrn();
-        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
+        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn, searchQuery);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(),
                                     searchQuerySourceInfo).onItemClick(playQueue, view, position);
@@ -198,7 +198,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     public void onPremiumItemClicked(View view, List<ListItem> premiumItemsList) {
         final Urn firstPremiumItemUrn = premiumItemsList.get(0).getUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo =
-                pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn);
+                pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn, searchQuery);
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo)
                             .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList),
@@ -215,7 +215,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Override
     public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource,
                                                Optional<Link> nextHref) {
-        searchTracker.trackPremiumResultsScreenEvent(queryUrn);
+        searchTracker.trackPremiumResultsScreenEvent(queryUrn, searchQuery);
         navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource,
                                                   nextHref, queryUrn);
     }

@@ -16,7 +16,8 @@ public class PlaylistQueueItem extends PlayableQueueItem {
                       boolean shouldPersist,
                       Urn sourceUrn,
                       Urn queryUrn,
-                      boolean blocked) {
+                      boolean blocked,
+                      PlaybackContext playbackContext) {
         super(playlistUrn,
               reposter,
               source,
@@ -26,7 +27,8 @@ public class PlaylistQueueItem extends PlayableQueueItem {
               blocked,
               shouldPersist,
               sourceUrn,
-              adData);
+              adData,
+              playbackContext);
     }
 
     @Override
@@ -59,7 +61,8 @@ public class PlaylistQueueItem extends PlayableQueueItem {
                                          shouldPersist,
                                          sourceUrn,
                                          queryUrn,
-                                         blocked);
+                                         blocked,
+                                         playbackContext);
         }
     }
 }

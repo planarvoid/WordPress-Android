@@ -56,10 +56,10 @@ public class SearchTracker {
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
     }
 
-    void trackSearchSubmission(SearchType searchType, Urn queryUrn) {
+    void trackSearchSubmission(SearchType searchType, Urn queryUrn, String searchQuery) {
         if (queryUrn != Urn.NOT_SET) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(searchType.getScreen(),
-                                                                          new SearchQuerySourceInfo(queryUrn)));
+                                                                          new SearchQuerySourceInfo(queryUrn, searchQuery)));
         }
     }
 
@@ -71,14 +71,14 @@ public class SearchTracker {
         publishItemClickEvent(getPremiumTrackingScreen(), urn, searchQuerySourceInfo);
     }
 
-    void trackResultsScreenEvent(SearchType searchType) {
+    void trackResultsScreenEvent(SearchType searchType, String searchQuery) {
         //We can only track the page event when the page has been already loaded
         if (screenDataMap.get(searchType).isTrackingDataLoaded()) {
             final Screen trackingScreen = searchType.getScreen();
             final ScreenData screenData = screenDataMap.get(searchType);
             final Urn queryUrn = screenData.queryUrn;
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(trackingScreen.get(),
-                                                                     new SearchQuerySourceInfo(queryUrn)));
+                                                                     new SearchQuerySourceInfo(queryUrn, searchQuery)));
             final boolean hasPremiumContent = screenData.hasPremiumContent;
             if (hasPremiumContent && featureOperations.upsellHighTier()) {
                 eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSearchResultsImpression(trackingScreen));
@@ -89,10 +89,10 @@ public class SearchTracker {
         }
     }
 
-    void trackPremiumResultsScreenEvent(Urn queryUrn) {
+    void trackPremiumResultsScreenEvent(Urn queryUrn, String searchQuery) {
         if (queryUrn != null && queryUrn != Urn.NOT_SET) {
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getPremiumTrackingScreen().get(),
-                                                                     new SearchQuerySourceInfo(queryUrn)));
+                                                                     new SearchQuerySourceInfo(queryUrn, searchQuery)));
         }
     }
 

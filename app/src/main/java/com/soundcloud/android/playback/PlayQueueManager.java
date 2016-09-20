@@ -208,7 +208,7 @@ public class PlayQueueManager implements OriginProvider {
 
             List<PlayQueueItem> items = new ArrayList<>(tracks.size());
             for (Urn track : tracks) {
-                items.add(new TrackQueueItem.Builder(track).copySource(playableQueueItem).build());
+                items.add(new TrackQueueItem.Builder(track).copySourceAndPlaybackContext(playableQueueItem).build());
             }
             playQueue.replaceItem(index, items);
         }
@@ -220,10 +220,11 @@ public class PlayQueueManager implements OriginProvider {
         publishQueueUpdate();
     }
 
-    public void insertNext(List<Urn> trackUrns) {
+    public void insertNext(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
         if (!playQueue.isEmpty()) {
             for (int i = 0; i < trackUrns.size(); i++) {
-                TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i)).build();
+                TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i)).withPlaybackContext(PlaybackContext.create(
+                        playSessionSource)).build();
                 playQueue.insertPlayQueueItem(currentPosition + (i + 1), queueItem);
             }
             publishQueueUpdate();
@@ -233,9 +234,10 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void insertNext(Urn trackUrn) {
+    public void insertNext(Urn trackUrn, PlaySessionSource playSessionSource) {
         if (!playQueue.isEmpty()) {
-            TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn).build();
+            TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn).withPlaybackContext(PlaybackContext.create(
+                    playSessionSource)).build();
             playQueue.insertPlayQueueItem(currentPosition + 1, queueItem);
             publishQueueUpdate();
             saveQueue();

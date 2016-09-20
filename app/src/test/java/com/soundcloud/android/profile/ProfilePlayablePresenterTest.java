@@ -70,7 +70,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
     private final Bundle arguments = new Bundle();
     private final Screen screen = Screen.USER_POSTS;
-    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
     private final Urn user = Urn.forUser(123L);
 
     @Before

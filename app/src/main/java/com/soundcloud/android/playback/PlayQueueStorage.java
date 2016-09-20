@@ -83,16 +83,18 @@ class PlayQueueStorage {
                     return new PlaylistQueueItem.Builder(playlist)
                             .relatedEntity(relatedEntity)
                             .fromSource(source, sourceVersion, sourceUrn, queryUrn)
+                            // TODO: Context will come from storage in an upcoming PR
+                            .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                             .build();
                 } else {
                     final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
                     return new TrackQueueItem.Builder(track, reposter)
                             .relatedEntity(relatedEntity)
+                            // TODO: Context will come from storage in an upcoming PR
+                            .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                             .fromSource(source, sourceVersion, sourceUrn, queryUrn)
                             .build();
                 }
-
-
             }
         });
     }

@@ -63,7 +63,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final Screen screen = Screen.ACTIVITIES;
-    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123));
+    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123), "query");
 
     @Before
     public void setUp() {

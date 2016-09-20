@@ -51,6 +51,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                                                     "existing_version",
                                                     new Urn("existing_sourceUrn"),
                                                     new Urn("existing_queryUrn"))
+                                        .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                                         .build());
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
@@ -58,11 +59,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         TestObserver<TxnResult> observer = new TestObserver<>();
         PlayableQueueItem playableQueueItem1 = new Builder(forTrack(123L))
                 .fromSource("source1", "version1", new Urn("sourceUrn1"), new Urn("queryUrn1"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
 
         PlayableQueueItem playableQueueItem2 = new Builder(forPlaylist(456L), forUser(456L))
                 .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .build();
 
         PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1, playableQueueItem2));
@@ -99,10 +102,12 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void shouldSavePersistantItems() {
         final PlayableQueueItem playableQueueItem1 = new Builder(forTrack(1), forUser(1))
                 .fromSource("source1", "version1", new Urn("sourceUrn1"), new Urn("queryUrn1"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .persist(true)
                 .build();
         final PlayableQueueItem playableQueueItem2 = new Builder(forPlaylist(2), forUser(2))
                 .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .persist(false)
                 .build();
         PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1, playableQueueItem2));
@@ -120,6 +125,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                                                     "source_version",
                                                     new Urn("sourceUrn"),
                                                     new Urn("queryUrn"))
+                                        .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                                         .build());
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
@@ -135,11 +141,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem1 = new Builder(forTrack(123L), forUser(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
 
         final PlayableQueueItem expectedItem2 = new PlaylistQueueItem.Builder(forPlaylist(456L))
                 .fromSource("source", "source_version 2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
 
@@ -157,6 +165,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem = new Builder(forTrack(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
         insertPlayableQueueItem(expectedItem);
@@ -172,6 +181,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem = new Builder(forTrack(123L), forTrack(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .build();
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
@@ -187,6 +197,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         final PlayableQueueItem expectedItem = new Builder(forTrack(123L), forTrack(123L))
                 // From a source with no source_urn or query_urn
                 .fromSource("source", "source_version")
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .build();
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);

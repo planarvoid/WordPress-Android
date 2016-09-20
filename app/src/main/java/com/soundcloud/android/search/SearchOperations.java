@@ -67,8 +67,8 @@ class SearchOperations {
             this.searchType = searchType;
         }
 
-        SearchQuerySourceInfo getSearchQuerySourceInfo(int clickPosition, Urn clickUrn) {
-            SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn, clickPosition, clickUrn);
+        SearchQuerySourceInfo getSearchQuerySourceInfo(int clickPosition, Urn clickUrn, String query) {
+            SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn, clickPosition, clickUrn, query);
             searchQuerySourceInfo.setQueryResults(allUrns);
             return searchQuerySourceInfo;
         }
@@ -108,11 +108,6 @@ class SearchOperations {
             return !propertySets.isEmpty() && propertySets.get(0)
                                                           .get(EntityProperty.URN)
                                                           .equals(SearchUpsellItem.UPSELL_URN);
-        }
-
-        @VisibleForTesting
-        SearchQuerySourceInfo getSearchQuerySourceInfo() {
-            return new SearchQuerySourceInfo(queryUrn);
         }
 
         @VisibleForTesting

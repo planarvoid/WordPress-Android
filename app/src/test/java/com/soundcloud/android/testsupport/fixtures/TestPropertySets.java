@@ -284,6 +284,11 @@ public abstract class TestPropertySets {
         );
     }
 
+
+    public static PropertySet fromApiPlaylist() {
+        return fromApiPlaylist(ModelFixtures.create(ApiPlaylist.class), false, false, false, false);
+    }
+
     public static PropertySet fromApiPlaylist(ApiPlaylist apiPlaylist,
                                               boolean isLiked,
                                               boolean isReposted,

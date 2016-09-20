@@ -71,7 +71,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenReposts() throws Exception {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         subject.onItemClick(null,
                             view,
                             0,
@@ -85,7 +85,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenTracks() throws Exception {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         subject.onItemClick(null,
                             view,
                             0,
@@ -99,7 +99,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenAlbums() throws Exception {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         subject.onItemClick(null,
                             view,
                             0,
@@ -113,7 +113,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenLikes() throws Exception {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         subject.onItemClick(null,
                             view,
                             0,
@@ -127,7 +127,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenPlaylists() throws Exception {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         subject.onItemClick(null,
                             view,
                             0,
@@ -142,7 +142,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldOpenPlaylist() throws Exception {
         final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         final UserSoundsItem item = UserSoundsItem.fromPlaylistItem(playlistItem, UserSoundsTypes.PLAYLISTS);
         final Module module = Module.create(Module.USER_PLAYLISTS, 1);
         final int position = 0;

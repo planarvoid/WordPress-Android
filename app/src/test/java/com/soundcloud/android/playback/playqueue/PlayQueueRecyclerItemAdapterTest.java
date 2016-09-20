@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -60,7 +62,10 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
 
     public PlayQueueUIItem getPlayQueueItem(int uniqueId) {
         final Urn track = Urn.forTrack(uniqueId);
-        final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version", Optional.<AdData>absent(), false, Urn.NOT_SET, Urn.NOT_SET, false);
+        final PlaybackContext playbackContext = PlaybackContext.create(PlaySessionSource.EMPTY);
+        final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version",
+                                                                 Optional.<AdData>absent(), false, Urn.NOT_SET,
+                                                                 Urn.NOT_SET, false, playbackContext);
         final TrackItem trackItem = new TrackItem(TestPropertySets.expectedTrackForListItem(track));
         final int someReourceId = 123;
         final int color = 321;

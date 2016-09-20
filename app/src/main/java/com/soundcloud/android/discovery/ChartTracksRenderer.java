@@ -37,7 +37,11 @@ class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
         Optional<TrackSourceInfo> trackSourceInfo = track.chartTrackItem.queryUrn().transform(new Function<Urn, TrackSourceInfo>() {
             public TrackSourceInfo apply(Urn queryUrn) {
                 TrackSourceInfo info = new TrackSourceInfo(screenProvider.getLastScreenTag(), true);
-                info.setChartSourceInfo(ChartSourceInfo.create(position - ChartTracksPresenter.NUM_EXTRA_ITEMS, queryUrn));
+                info.setChartSourceInfo(ChartSourceInfo.create(position - ChartTracksPresenter.NUM_EXTRA_ITEMS,
+                                                               queryUrn,
+                                                               track.chartTrackItem.chartType(),
+                                                               track.chartTrackItem.chartCategory(),
+                                                               track.chartTrackItem.genre()));
                 return info;
             }
         });

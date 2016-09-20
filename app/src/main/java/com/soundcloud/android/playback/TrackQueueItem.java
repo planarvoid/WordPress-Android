@@ -17,7 +17,8 @@ public class TrackQueueItem extends PlayableQueueItem {
                           boolean shouldPersist,
                           Urn sourceUrn,
                           Urn queryUrn,
-                          boolean blocked) {
+                          boolean blocked,
+                          PlaybackContext playbackContext) {
         super(trackUrn,
               reposter,
               source,
@@ -27,7 +28,8 @@ public class TrackQueueItem extends PlayableQueueItem {
               blocked,
               shouldPersist,
               sourceUrn,
-              adData);
+              adData,
+              playbackContext);
     }
 
     @Override
@@ -71,7 +73,8 @@ public class TrackQueueItem extends PlayableQueueItem {
             shouldPersist = monetizableItem.shouldPersist;
             blocked = monetizableItem.blocked;
             adData = monetizableItem.adData;
-            copySource(monetizableItem);
+            playbackContext = monetizableItem.playbackContext;
+            copySourceAndPlaybackContext(monetizableItem);
         }
 
         @Override
@@ -81,7 +84,7 @@ public class TrackQueueItem extends PlayableQueueItem {
 
         public TrackQueueItem build() {
             return new TrackQueueItem(playable, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist,
-                                      sourceUrn, queryUrn, blocked);
+                                      sourceUrn, queryUrn, blocked, playbackContext);
         }
     }
 }

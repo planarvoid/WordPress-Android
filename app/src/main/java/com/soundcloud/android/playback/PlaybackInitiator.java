@@ -78,14 +78,6 @@ public class PlaybackInitiator {
         return playTracksList(playQueue, track, 0, playSessionSource);
     }
 
-    public Observable<PlaybackResult> playTrackWithRecommendations(final Urn seedTrack,
-                                                                   final PlaySessionSource playSessionSource,
-                                                                   final int startPosition) {
-        return playQueueOperations
-                .relatedTracksPlayQueueWithSeedTrack(seedTrack)
-                .flatMap(toPlaybackResult(startPosition, playSessionSource));
-    }
-
     public Observable<PlaybackResult> playStation(Urn stationUrn,
                                                   List<StationTrack> stationTracks,
                                                   final PlaySessionSource playSessionSource,
@@ -95,8 +87,7 @@ public class PlaybackInitiator {
             return Observable.just(PlaybackResult.success());
         }
 
-        final DiscoverySource discoverySource = playSessionSource.getDiscoverySource();
-        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks, discoverySource);
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks, playSessionSource);
 
         return playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource);
     }

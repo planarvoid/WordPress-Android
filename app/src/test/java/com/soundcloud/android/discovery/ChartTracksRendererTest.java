@@ -44,7 +44,7 @@ public class ChartTracksRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldRenderPositionalTrack() {
-        TRACK_SOURCE_INFO.setChartSourceInfo(ChartSourceInfo.create(0, QUERY_URN.get()));
+        TRACK_SOURCE_INFO.setChartSourceInfo(ChartSourceInfo.create(0, QUERY_URN.get(), TOP, MUSIC, GENRE_URN));
 
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
 

@@ -49,6 +49,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
                     return new TrackQueueItem.Builder(playable)
                             .fromSource(playSessionSource.getInitialSource(),
                                         playSessionSource.getInitialSourceVersion())
+                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playable)))
                             .build();
 
@@ -56,6 +57,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
                     return new PlaylistQueueItem.Builder(playable)
                             .fromSource(playSessionSource.getInitialSource(),
                                         playSessionSource.getInitialSourceVersion())
+                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .build();
                 } else {
                     throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
@@ -72,9 +74,9 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
                                                                blockedTracks));
     }
 
-    public static List<PlayQueueItem> playQueueItemsFromPlayables(List<PropertySet> playables,
-                                                                  final PlaySessionSource playSessionSource,
-                                                                  final Map<Urn, Boolean> blockedTracks) {
+    private static List<PlayQueueItem> playQueueItemsFromPlayables(List<PropertySet> playables,
+                                                                   final PlaySessionSource playSessionSource,
+                                                                   final Map<Urn, Boolean> blockedTracks) {
         return newArrayList(Lists.transform(playables, new Function<PropertySet, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(PropertySet playable) {
@@ -83,6 +85,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
                     return new TrackQueueItem.Builder(playable)
                             .fromSource(playSessionSource.getInitialSource(),
                                         playSessionSource.getInitialSourceVersion())
+                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playable.get(TrackProperty.URN))))
                             .build();
 
@@ -90,6 +93,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
                     return new PlaylistQueueItem.Builder(playable)
                             .fromSource(playSessionSource.getInitialSource(),
                                         playSessionSource.getInitialSourceVersion())
+                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .build();
                 } else {
                     throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
@@ -122,48 +126,41 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
         return fromTrackUrnList(shuffled, playSessionSource, blockedTracks);
     }
 
-    public static PlayQueue fromStation(Urn stationUrn, List<StationTrack> stationTracks) {
-        return fromStation(stationUrn, stationTracks, DiscoverySource.STATIONS);
-    }
-
     public static PlayQueue fromStation(Urn stationUrn,
                                         List<StationTrack> stationTracks,
-                                        DiscoverySource discoverySource) {
+                                        PlaySessionSource playSessionSource) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         for (StationTrack stationTrack : stationTracks) {
             final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(stationTrack.getTrackUrn())
                     .relatedEntity(stationUrn)
                     .fromSource(
-                            discoverySource.value(),
+                            playSessionSource.getInitialSource(),
                             DEFAULT_SOURCE_VERSION,
                             stationUrn,
                             stationTrack.getQueryUrn()
-                    );
+                    )
+                    .withPlaybackContext(PlaybackContext.create(playSessionSource));
             playQueueItems.add(builder.build());
         }
         return new SimplePlayQueue(playQueueItems);
     }
 
-    public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
-        return new SimplePlayQueue(playQueueitemsForRecommendations(seedTrack, relatedTracks));
-    }
-
-    public static PlayQueue fromRecommendationsWithPrependedSeed(Urn seedTrack,
-                                                                 RecommendedTracksCollection relatedTracks) {
-
-        List<PlayQueueItem> playQueueItems = playQueueitemsForRecommendations(seedTrack, relatedTracks);
-        playQueueItems.add(0, new TrackQueueItem.Builder(seedTrack).build());
-        return new SimplePlayQueue(playQueueItems);
+    public static PlayQueue fromRecommendations(Urn seedTrack,
+                                                RecommendedTracksCollection relatedTracks,
+                                                PlaySessionSource playSessionSource) {
+        return new SimplePlayQueue(playQueueitemsForRecommendations(seedTrack, relatedTracks, playSessionSource));
     }
 
     private static List<PlayQueueItem> playQueueitemsForRecommendations(Urn seedTrack,
-                                                                        RecommendedTracksCollection relatedTracks) {
+                                                                        RecommendedTracksCollection relatedTracks,
+                                                                        PlaySessionSource playSessionSource) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         for (ApiTrack relatedTrack : relatedTracks) {
             final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(relatedTrack.getUrn())
                     .relatedEntity(seedTrack)
                     .fromSource(DiscoverySource.RECOMMENDER.value(),
-                                relatedTracks.getSourceVersion());
+                                relatedTracks.getSourceVersion())
+                    .withPlaybackContext(PlaybackContext.create(playSessionSource));
             playQueueItems.add(builder.build());
         }
         return playQueueItems;

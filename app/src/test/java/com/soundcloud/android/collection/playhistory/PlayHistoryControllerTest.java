@@ -15,6 +15,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -101,7 +102,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     private void publishStateEvents(PlayHistoryRecord record) {
         final Urn trackUrn = record.trackUrn();
         final Urn collectionUrn = record.contextUrn();
-        final TrackQueueItem item = new TrackQueueItem.Builder(trackUrn).build();
+        final TrackQueueItem item = TestPlayQueueItem.createTrack(trackUrn);
         final PlaybackState playbackState = PlaybackState.PLAYING;
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,

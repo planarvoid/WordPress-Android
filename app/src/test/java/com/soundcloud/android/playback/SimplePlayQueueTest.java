@@ -203,7 +203,8 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final List<StationTrack> tracks = station.getTracks();
-        PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO, Urn.forArtistStation(123L));
+        PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks, playSessionSource);
 
         assertThat(playQueue).hasSize(1);
         assertThat(playQueue.getTrackItemUrns()).containsExactly(tracks.get(0).getTrackUrn());
@@ -281,7 +282,8 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final List<StationTrack> tracks = station.getTracks();
-        PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks, DiscoverySource.STATIONS_SUGGESTIONS);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO.get(), Urn.forArtistStation(123L), DiscoverySource.STATIONS_SUGGESTIONS);
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks, playSessionSource);
 
         assertThat(playQueue).hasSize(1);
         assertThat(playQueue.getTrackItemUrns()).containsExactly(tracks.get(0).getTrackUrn());

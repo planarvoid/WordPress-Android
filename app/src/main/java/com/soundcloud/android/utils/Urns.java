@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.NonNull;
@@ -70,6 +71,10 @@ public final class Urns {
                 return urn.isPlaylist();
             }
         };
+    }
+
+    public static Optional<Urn> optionalFromNotSetUrn(Urn urn) {
+        return Urn.NOT_SET.equals(urn) ? Optional.<Urn>absent() : Optional.of(urn);
     }
 
     @NonNull

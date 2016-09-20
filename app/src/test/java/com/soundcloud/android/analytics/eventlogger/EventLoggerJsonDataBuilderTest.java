@@ -70,7 +70,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"),
                                                                                           5,
-                                                                                          new Urn("some:click:urn"));
+                                                                                          new Urn("some:click:urn"),
+                                                                                          "query");
 
     @Before
     public void setUp() throws Exception {
@@ -115,7 +116,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsScreenEventJsonWithQueryUrn() throws ApiMapperException {
         ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(),
-                                                     new SearchQuerySourceInfo(new Urn("soundcloud:search:123")));
+                                                     new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), "query"));
+
 
         jsonDataBuilder.build(screenEvent);
 

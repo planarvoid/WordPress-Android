@@ -84,7 +84,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                         InjectionSupport.lazyOf(dataBuilderv1),
                                                                         sharedPreferences, featureFlags);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
-        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
+        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"), "query");
     }
 
     @Test

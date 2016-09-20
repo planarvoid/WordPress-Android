@@ -23,7 +23,7 @@ public class PlaylistWithTracks implements ImageResource {
     @NotNull private final PropertySet sourceSet;
     @NotNull private final List<TrackItem> tracks;
 
-    PlaylistWithTracks(@NotNull PropertySet sourceSet, @NotNull List<TrackItem> tracks) {
+    public PlaylistWithTracks(@NotNull PropertySet sourceSet, @NotNull List<TrackItem> tracks) {
         this.sourceSet = sourceSet;
         this.tracks = tracks;
     }

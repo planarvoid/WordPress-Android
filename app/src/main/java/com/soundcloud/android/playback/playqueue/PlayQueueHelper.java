@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -9,6 +10,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -56,17 +58,30 @@ public class PlayQueueHelper {
                               .observeOn(AndroidSchedulers.mainThread())
                               .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         } else {
-            playlistOperations.trackUrnsForPlayback(playlistUrn)
+            playlistOperations.playlist(playlistUrn)
                               .observeOn(AndroidSchedulers.mainThread())
-                              .subscribe(new InsertSubscriber());
+                              .subscribe(new InsertSubscriber(screenProvider.getLastScreen(), playlistUrn));
         }
     }
 
-    private class InsertSubscriber extends DefaultSubscriber<List<Urn>> {
+    private class InsertSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
+
+        private final Screen screen;
+        private final Urn playlistUrn;
+
+        public InsertSubscriber(Screen screen, Urn playlistUrn) {
+            this.screen = screen;
+            this.playlistUrn = playlistUrn;
+        }
 
         @Override
-        public void onNext(List<Urn> trackUrns) {
-            playQueueManager.insertNext(trackUrns);
+        public void onNext(PlaylistWithTracks playlist) {
+            final List<Urn> trackUrns = playlist.getTracksUrn();
+            final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(screen,
+                                                                                      playlistUrn,
+                                                                                      playlist.getCreatorUrn(),
+                                                                                      trackUrns.size());
+            playQueueManager.insertNext(trackUrns, playSessionSource);
         }
 
     }

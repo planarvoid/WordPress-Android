@@ -2,13 +2,16 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromStationsUpdated;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -230,22 +233,28 @@ public class StationsOperations {
                               .subscribeOn(scheduler);
     }
 
-    public Observable<PlayQueue> fetchUpcomingTracks(final Urn station, final int currentSize) {
+    public Observable<PlayQueue> fetchUpcomingTracks(final Urn station,
+                                                     final int currentSize,
+                                                     final PlaySessionSource playSessionSource) {
+        final PlaySessionSource discoverySource = forStation(playSessionSource.getOriginScreen(),
+                                                             playSessionSource.getCollectionOwnerUrn(),
+                                                             DiscoverySource.STATIONS_SUGGESTIONS);
         return stationsApi
                 .fetchStation(station)
                 .doOnNext(storeTracks)
                 .doOnNext(storeStationCommand.toAction1())
                 .flatMap(loadPlayQueue(station, currentSize))
                 .toList()
-                .map(toPlayQueue(station))
+                .map(toPlayQueue(station, discoverySource))
                 .subscribeOn(scheduler);
     }
 
-    private Func1<List<StationTrack>, PlayQueue> toPlayQueue(final Urn station) {
+    private Func1<List<StationTrack>, PlayQueue> toPlayQueue(final Urn station,
+                                                             final PlaySessionSource playSessionSource) {
         return new Func1<List<StationTrack>, PlayQueue>() {
             @Override
             public PlayQueue call(List<StationTrack> tracks) {
-                return PlayQueue.fromStation(station, tracks);
+                return PlayQueue.fromStation(station, tracks, playSessionSource);
             }
         };
     }

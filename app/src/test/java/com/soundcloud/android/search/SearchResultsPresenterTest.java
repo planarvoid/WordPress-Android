@@ -90,7 +90,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
                                                clickListenerFactory, eventBus, navigator, searchTracker);
 
-        searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1));
+        searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1), SEARCH_QUERY);
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
 
 
@@ -98,7 +98,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                          any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchResult(anyString(), any(SearchType.class))).thenReturn(searchResultObservable);
         when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
-        when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class))).thenReturn(searchQuerySourceInfo);
+        when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class), any(String.class))).thenReturn(searchQuerySourceInfo);
     }
 
     @Test
@@ -129,8 +129,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupFragmentArguments(false);
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
-        verify(searchTracker, times(0)).trackSearchSubmission(any(SearchType.class), any(Urn.class));
-        verify(searchTracker, times(0)).trackResultsScreenEvent(any(SearchType.class));
+        verify(searchTracker, times(0)).trackSearchSubmission(any(SearchType.class), any(Urn.class), any(String.class));
+        verify(searchTracker, times(0)).trackResultsScreenEvent(any(SearchType.class), any(String.class));
     }
 
     @Test
@@ -138,8 +138,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
-        verify(searchTracker).trackSearchSubmission(SEARCH_TAB, QUERY_URN);
-        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB);
+        verify(searchTracker).trackSearchSubmission(SEARCH_TAB, QUERY_URN, SEARCH_QUERY);
+        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, SEARCH_QUERY);
     }
 
     @Test
@@ -226,7 +226,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
         when(adapter.getResultItems()).thenReturn(listItems);
-        when(searchPagingFunction.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
+        when(searchPagingFunction.getSearchQuerySourceInfo(eq(0), eq(TRACK_URN), any(String.class))).thenReturn(searchQuerySourceInfo);
         return listItems;
     }
 
@@ -244,7 +244,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(1)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
         when(adapter.getResultItems()).thenReturn(Collections.<ListItem>singletonList(trackItem));
-        when(searchPagingFunction.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
+        when(searchPagingFunction.getSearchQuerySourceInfo(eq(0), eq(TRACK_URN), any(String.class))).thenReturn(searchQuerySourceInfo);
     }
 
     private void setupFragmentArguments(boolean publishSearchSubmissionEvent) {

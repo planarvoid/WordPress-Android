@@ -26,18 +26,21 @@ public class SearchQuerySourceInfo implements Parcelable {
     };
 
     private final Urn queryUrn;
+    private final String queryString;
     private int clickPosition = Consts.NOT_SET;
     private Urn clickUrn = Urn.NOT_SET;
     private List<Urn> queryResults;
 
-    public SearchQuerySourceInfo(Urn queryUrn) {
+    public SearchQuerySourceInfo(Urn queryUrn, String queryString) {
         this.queryUrn = queryUrn;
+        this.queryString = queryString;
     }
 
-    public SearchQuerySourceInfo(Urn queryUrn, int position, Urn clickUrn) {
+    public SearchQuerySourceInfo(Urn queryUrn, int position, Urn clickUrn, String queryString) {
         this.queryUrn = queryUrn;
         this.clickPosition = position;
         this.clickUrn = clickUrn;
+        this.queryString = queryString;
     }
 
     public SearchQuerySourceInfo(Parcel in) {
@@ -45,6 +48,7 @@ public class SearchQuerySourceInfo implements Parcelable {
         clickPosition = in.readInt();
         clickUrn = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
         queryResults = in.readArrayList(getClass().getClassLoader());
+        queryString = in.readString();
     }
 
     @Nullable
@@ -54,6 +58,10 @@ public class SearchQuerySourceInfo implements Parcelable {
 
     public Urn getQueryUrn() {
         return queryUrn;
+    }
+
+    public String getQueryString() {
+        return queryString;
     }
 
     public void setQueryResults(@NotNull List<Urn> queryResults) {
@@ -84,6 +92,7 @@ public class SearchQuerySourceInfo implements Parcelable {
         dest.writeInt(clickPosition);
         dest.writeParcelable(clickUrn, 0);
         dest.writeList(queryResults);
+        dest.writeString(queryString);
     }
 
     @Override
@@ -100,12 +109,13 @@ public class SearchQuerySourceInfo implements Parcelable {
         return MoreObjects.equal(that.queryUrn, this.queryUrn)
                 && MoreObjects.equal(that.clickPosition, this.clickPosition)
                 && MoreObjects.equal(that.clickUrn, this.clickUrn)
-                && MoreObjects.equal(that.queryResults, this.queryResults);
+                && MoreObjects.equal(that.queryResults, this.queryResults)
+                && MoreObjects.equal(that.queryString, this.queryString);
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(queryUrn, clickPosition, clickUrn, queryResults);
+        return MoreObjects.hashCode(queryUrn, clickPosition, clickUrn, queryResults, queryString);
     }
 
     @Override

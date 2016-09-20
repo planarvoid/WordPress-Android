@@ -51,7 +51,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN,
-                                                        true)).thenReturn(Observable.just(recommendedPlayQueue));
+                                                        true,
+                                                        playQueueManager.getCurrentPlaySessionSource())).thenReturn(Observable.just(recommendedPlayQueue));
         when(playQueueManager.getLastPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(LAST_URN));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
@@ -59,7 +60,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.<Urn>newArrayList());
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN,
-                                                        true)).thenReturn(Observable.just(recommendedPlayQueue));
+                                                        true,
+                                                        playQueueManager.getCurrentPlaySessionSource())).thenReturn(Observable.just(recommendedPlayQueue));
         when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(true);
 
 
@@ -95,12 +97,14 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         final Urn station = Urn.forTrackStation(123L);
         final PlayQueue playQueue = PlayQueue.fromStation(station,
                                                           Collections.singletonList(StationTrack.create(TRACK_URN,
-                                                                                                        Urn.NOT_SET)));
+                                                                                                        Urn.NOT_SET)),
+                                                          playQueueManager.getCurrentPlaySessionSource());
         final int queueSize = PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE;
 
         when(playQueueManager.getQueueSize()).thenReturn(queueSize);
         when(playQueueManager.getCollectionUrn()).thenReturn(station);
-        when(stationsOperations.fetchUpcomingTracks(station, queueSize)).thenReturn(Observable.just(playQueue));
+        when(stationsOperations.fetchUpcomingTracks(station, queueSize,
+                                                    playQueueManager.getCurrentPlaySessionSource())).thenReturn(Observable.just(playQueue));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, station, 0));
@@ -122,7 +126,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     @Test
     public void appendsRecommendedTracksWhenAtEndForExplore() {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.EXPLORE_AUDIO_GENRE));
-        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false)).thenReturn(Observable.just(
+        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false,
+                                                        playQueueManager.getCurrentPlaySessionSource())).thenReturn(Observable.just(
                 recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE - 1);
@@ -135,7 +140,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     @Test
     public void appendsRecommendedTracksWhenAtEndForDeeplinks() {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.DEEPLINK));
-        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false)).thenReturn(Observable.just(
+        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false,
+                                                        playQueueManager.getCurrentPlaySessionSource())).thenReturn(Observable.just(
                 recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE - 1);
@@ -149,7 +155,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     public void appendsRecommendedTracksWhenAtEndForSearchSuggestions() {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.SEARCH_SUGGESTIONS));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false)).thenReturn(Observable.just(
+        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false,
+                                                        playQueueManager.getCurrentPlaySessionSource())).thenReturn(Observable.just(
                 recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE - 1);
@@ -187,7 +194,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
 
     @Test
     public void retriesToAppendRecommendedTracksAfterError() {
-        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true))
+        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true, playQueueManager.getCurrentPlaySessionSource()))
                 .thenReturn(Observable.<PlayQueue>error(new IOException()), Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE - 1);
@@ -205,8 +212,9 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         final Observable<PlayQueue> first = Observable.just(TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L),
                                                                                    PlaySessionSource.EMPTY));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true)).thenReturn(first,
-                                                                                    Observable.just(recommendedPlayQueue));
+        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true,
+                                                        playQueueManager.getCurrentPlaySessionSource())).thenReturn(first,
+                                                                                                                    Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE - 1);
 
@@ -222,7 +230,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     public void unsubscribesFromRecommendedTracksLoadWhenQueueChanges() {
         final PublishSubject<PlayQueue> recommendedSubject = PublishSubject.create();
         when(playQueueManager.getQueueSize()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE - 1);
-        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true)).thenReturn(recommendedSubject);
+        when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true,
+                                                        playQueueManager.getCurrentPlaySessionSource())).thenReturn(recommendedSubject);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 

@@ -631,7 +631,6 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         subscriber.assertValueCount(1);
         subscriber.assertCompleted();
-        assertThat(pagingFunction.getSearchQuerySourceInfo().getQueryUrn()).isEqualTo(queryUrn);
     }
 
     @Test
