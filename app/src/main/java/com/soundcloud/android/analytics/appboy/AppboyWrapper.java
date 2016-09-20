@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics.appboy;
 
-
 import com.appboy.Appboy;
 import com.appboy.AppboyUser;
 import com.appboy.IAppboyEndpointProvider;
@@ -27,7 +26,7 @@ public class AppboyWrapper {
         appboy.registerAppboyPushMessages(token);
     }
 
-    public void setAppboyEndpointProvider(final String authority) {
+    void setAppboyEndpointProvider(final String authority) {
         Appboy.setAppboyEndpointProvider(new IAppboyEndpointProvider() {
             @Override
             public Uri getApiEndpoint(Uri appboyEndpoint) {
@@ -42,7 +41,7 @@ public class AppboyWrapper {
         });
     }
 
-    public void setAttribution(String network, String campaign, String adGroup, String creative) {
+    void setAttribution(String network, String campaign, String adGroup, String creative) {
         AttributionData attributionData = new AttributionData(network, campaign, adGroup, creative);
         appboy.getCurrentUser().setAttributionData(attributionData);
     }
@@ -81,10 +80,6 @@ public class AppboyWrapper {
 
     boolean logCustomEvent(String eventName) {
         return appboy.logCustomEvent(eventName);
-    }
-
-    public boolean setCustomUserAttribute(String key, boolean value) {
-        return appboy.getCurrentUser().setCustomUserAttribute(key, value);
     }
 
     private String encodeUserId(String userId) {

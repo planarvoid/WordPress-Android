@@ -24,11 +24,13 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 class AppboyEventHandler {
+
     private static final List<AppboyAttributeName> PLAYABLE_ATTRIBUTES =
             Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN, PLAYABLE_TITLE, PLAYABLE_URN, PLAYABLE_TYPE);
 
@@ -46,6 +48,7 @@ class AppboyEventHandler {
     private final AppboyWrapper appboy;
     private final AppboyPlaySessionState appboyPlaySessionState;
 
+    @Inject
     AppboyEventHandler(AppboyWrapper appboy, AppboyPlaySessionState appboyPlaySessionState) {
         this.appboy = appboy;
         this.appboyPlaySessionState = appboyPlaySessionState;

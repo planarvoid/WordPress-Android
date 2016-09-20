@@ -24,10 +24,10 @@ public class AppboyAnalyticsProvider extends DefaultAnalyticsProvider {
 
     @Inject
     public AppboyAnalyticsProvider(AppboyWrapper appboy,
-                                   AccountOperations accountOperations,
-                                   AppboyPlaySessionState appboyPlaySessionState) {
+                                   AppboyEventHandler eventHandler,
+                                   AccountOperations accountOperations) {
         this.appboy = appboy;
-        this.eventHandler = new AppboyEventHandler(appboy, appboyPlaySessionState);
+        this.eventHandler = eventHandler;
         changeUser(accountOperations.getLoggedInUserUrn());
     }
 

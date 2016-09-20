@@ -20,7 +20,7 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
     @Mock private AppboyWrapper appboy;
     @Mock private AccountOperations accountOperations;
     @Mock private AppboyUser appboyUser;
-    @Mock private AppboyPlaySessionState appboyPlaySessionState;
+    @Mock private AppboyEventHandler eventHandler;
 
     private Urn userUrn = Urn.forUser(123L);
     private Urn otherUserUrn = Urn.forUser(234L);
@@ -30,14 +30,14 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         when(appboyUser.getUserId()).thenReturn(userUrn.toString());
 
-        appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, accountOperations, appboyPlaySessionState);
+        appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, eventHandler, accountOperations);
     }
 
     @Test
     public void shouldChangeUserIdWhenUserChangedOnConstructed() throws Exception {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(otherUserUrn);
 
-        appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, accountOperations, appboyPlaySessionState);
+        appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, eventHandler, accountOperations);
 
         verify(appboy).changeUser(otherUserUrn.toString());
     }
@@ -46,7 +46,7 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldNotChangeUserIdWhenUserLoggedOutOnConstructed() throws Exception {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(AccountOperations.ANONYMOUS_USER_URN);
 
-        appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, accountOperations, appboyPlaySessionState);
+        appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, eventHandler, accountOperations);
 
         verify(appboy, never()).changeUser(AccountOperations.ANONYMOUS_USER_URN.toString());
     }
