@@ -151,6 +151,7 @@ public final class AndroidUtils {
     /**
      * Returns emails from the account manager paired and sorted by their frequency of usage
      */
+    @SuppressWarnings("MissingPermission")
     public static String[] listEmails(Context context) {
         Map<String, Integer> map = new HashMap<>();
         Account[] accounts = AccountManager.get(context).getAccounts();
@@ -178,6 +179,7 @@ public final class AndroidUtils {
         return sortedMap.keySet().toArray(new String[map.size()]);
     }
 
+    @SuppressWarnings("MissingPermission")
     public static String[] getAccountsByType(Context context, String accountType) {
         Account[] accounts = AccountManager.get(context).getAccountsByType(accountType);
         final String[] names = new String[accounts.length];

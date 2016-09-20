@@ -59,6 +59,7 @@ public class AuthenticatorService extends Service {
         }
 
         @Override
+        @SuppressWarnings("MissingPermission")
         public Bundle addAccount(AccountAuthenticatorResponse response,
                                  String accountType,
                                  String authTokenType,

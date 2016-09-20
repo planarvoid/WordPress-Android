@@ -21,7 +21,6 @@ import rx.Subscription;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -219,7 +218,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         }
     }
 
-    private View createTabViewFor(@DrawableRes NavigationModel.Target target) {
+    private View createTabViewFor(NavigationModel.Target target) {
         ImageView view = new ImageView(activity);
         view.setImageResource(target.getIcon());
         view.setContentDescription(activity.getString(target.getName()));
