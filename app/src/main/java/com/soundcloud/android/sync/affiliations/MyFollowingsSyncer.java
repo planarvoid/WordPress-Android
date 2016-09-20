@@ -34,7 +34,6 @@ import org.apache.http.HttpResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -236,11 +235,9 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
 
     private Notification buildUnderAgeNotification(Urn userUrn, FollowErrors errors, String userName) {
         String title = context.getString(R.string.follow_age_restricted_title);
-        @SuppressLint("StringFormatMatches")
         String content = context.getString(R.string.follow_age_restricted_content_age_username,
                                            errors.getAge(),
                                            userName);
-        @SuppressLint("StringFormatMatches")
         String contentLong = context.getString(R.string.follow_age_restricted_content_long_age_username,
                                                errors.getAge(),
                                                userName);

@@ -203,7 +203,6 @@ public class AccountOperations {
     }
 
     @Nullable
-    @SuppressWarnings("MissingPermission")
     public Account getSoundCloudAccount() {
         Account[] accounts = accountManager.getAccountsByType(context.getString(R.string.account_type));
         return accounts != null && accounts.length == 1 ? accounts[0] : null;

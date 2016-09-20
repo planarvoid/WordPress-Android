@@ -199,7 +199,7 @@ public class SoundRecorderService extends Service {
 
         return ongoingNotificationBuilder(
                 getString(R.string.cloud_recorder_event_title),
-                getString(R.string.cloud_recorder_event_message_recordtime),
+                getString(R.string.cloud_recorder_event_message_recordtime, 0),
                 recordPendingIntent)
                 .build();
     }
