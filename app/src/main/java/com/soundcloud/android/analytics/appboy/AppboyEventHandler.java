@@ -23,6 +23,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.java.strings.Strings;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -44,6 +45,7 @@ class AppboyEventHandler {
     private static final List<AppboyAttributeName> PLAYLIST_ATTRIBUTES = Arrays.asList(PLAYLIST_TITLE, PLAYLIST_URN);
 
     private static final String ENABLED_PROPERTY = "enabled";
+    private static final String MONETIZATION_MODEL_PROPERTY = "monetization_model";
 
     private final AppboyWrapper appboy;
     private final AppboyPlaySessionState appboyPlaySessionState;
@@ -54,7 +56,7 @@ class AppboyEventHandler {
         this.appboyPlaySessionState = appboyPlaySessionState;
     }
 
-    public void handleEvent(UIEvent event) {
+    void handleEvent(UIEvent event) {
         switch (event.getKind()) {
             case UIEvent.KIND_LIKE:
                 tagEvent(AppboyEvents.LIKE, buildPlayableProperties(event));
@@ -82,7 +84,7 @@ class AppboyEventHandler {
         }
     }
 
-    public void handleEvent(OfflineInteractionEvent event) {
+    void handleEvent(OfflineInteractionEvent event) {
         switch (event.getKind()) {
             case OfflineInteractionEvent.KIND_OFFLINE_LIKES_ADD:
                 tagEvent(AppboyEvents.OFFLINE_LIKES, buildEnabledProperty(true));
@@ -107,7 +109,7 @@ class AppboyEventHandler {
         }
     }
 
-    public void handleEvent(AttributionEvent event) {
+    void handleEvent(AttributionEvent event) {
         appboy.setAttribution(
                 event.get(AttributionEvent.NETWORK),
                 event.get(AttributionEvent.CAMPAIGN),
@@ -115,7 +117,7 @@ class AppboyEventHandler {
                 event.get(AttributionEvent.CREATIVE));
     }
 
-    public void handleEvent(SearchEvent event) {
+    void handleEvent(SearchEvent event) {
         if (event.getKind().equals(SearchEvent.KIND_SUBMIT) && isSearchEverythingClick(event)) {
             tagEvent(AppboyEvents.SEARCH);
         }
@@ -126,18 +128,27 @@ class AppboyEventHandler {
                 && SEARCH_EVERYTHING.get().equals(event.get(KEY_PAGE_NAME));
     }
 
-    public void handleEvent(PlaybackSessionEvent event) {
+    void handleEvent(PlaybackSessionEvent event) {
         boolean sessionPlayed = appboyPlaySessionState.isSessionPlayed();
 
         if (!sessionPlayed && event.isPlayOrPlayStartEvent() && event.isMarketablePlay()) {
             appboyPlaySessionState.setSessionPlayed();
-            tagEvent(AppboyEvents.PLAY, buildPlayableProperties(event));
+            tagEvent(AppboyEvents.PLAY, buildPlaybackProperties(event));
             appboy.requestInAppMessageRefresh();
             appboy.requestImmediateDataFlush();
         }
     }
 
-    public void handleEvent(ScreenEvent event) {
+    private AppboyProperties buildPlaybackProperties(PlaybackSessionEvent event) {
+        final AppboyProperties properties = buildPlayableProperties(event);
+        final String monetizationModel = event.getMonetizationModel();
+        if (Strings.isNotBlank(monetizationModel)) {
+            properties.addProperty(MONETIZATION_MODEL_PROPERTY, monetizationModel);
+        }
+        return properties;
+    }
+
+    void handleEvent(ScreenEvent event) {
         if (isCategoryScreen(event)) {
             tagEvent(AppboyEvents.EXPLORE, buildProperties(EXPLORE_CATEGORY_ATTRIBUTES, event));
         } else if (isGenreScreen(event)) {
