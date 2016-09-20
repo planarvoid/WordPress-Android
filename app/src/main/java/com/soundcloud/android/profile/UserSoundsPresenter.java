@@ -162,7 +162,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         final List<UserSoundsItem> userSoundsItems = adapter.getItems();
         final UserSoundsItem clickedItem = adapter.getItem(position);
 
-        if (FILTER_PLAYABLE_USER_SOUNDS_ITEMS.apply(clickedItem)) {
+        if (!clickedItem.isDivider()) {
             final List<PropertySet> playables = filterPlayableItems(userSoundsItems);
             final int playablePosition = filterPlayableItems(userSoundsItems.subList(0, position)).size();
 
