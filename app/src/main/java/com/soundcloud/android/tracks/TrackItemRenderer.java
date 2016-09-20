@@ -142,7 +142,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         bindExtraInfoRight(track, trackItemView);
         bindExtraInfoBottom(trackItemView, track, position);
 
-        loadArtwork(trackItemView, track);
+        bindArtwork(trackItemView, track);
         setupOverFlow(trackItemView, track, position, trackSourceInfo, module);
     }
 
@@ -207,10 +207,13 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         return builder;
     }
 
-    private void loadArtwork(TrackItemView itemView, TrackItem track) {
+    private void bindArtwork(TrackItemView itemView, TrackItem track) {
         imageOperations.displayInAdapterView(
                 track, ApiImageSize.getListItemImageSize(itemView.getResources()),
                 itemView.getImage());
+        if (isFullHighTierTrack(track)) {
+            itemView.showGoLabel();
+        }
     }
 
     private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track, int position) {
@@ -254,9 +257,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final int count = track.getPlayCount();
         if (hasPlayCount(count)) {
             itemView.showPlaycount(numberFormatter.format(count));
-        }
-        if (isFullHighTierTrack(track)) {
-            itemView.showGoLabel();
         }
     }
 
