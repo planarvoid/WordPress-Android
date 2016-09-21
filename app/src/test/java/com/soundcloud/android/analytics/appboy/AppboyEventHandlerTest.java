@@ -31,6 +31,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import android.support.annotation.NonNull;
+
 public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Mock private AppboyWrapper appboy;
@@ -50,13 +52,10 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
             PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0L, "https",
                                             "player", false, false, UUID, PLAY_ID));
 
-    private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = new AppboyProperties()
-            .addProperty("creator_display_name", TRACK.getCreatorName())
-            .addProperty("creator_urn", TRACK.getCreatorUrn().toString())
-            .addProperty("playable_title", TRACK.getTitle())
-            .addProperty("playable_urn", TRACK.getUrn().toString())
-            .addProperty("playable_type", "track");
+    private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = basePlayableProperties();
 
+    private static final AppboyProperties PLAYBACK_PROPERTIES = basePlayableProperties()
+            .addProperty("monetization_model", "monetization-model");
 
     private static final EntityMetadata METADATA = EntityMetadata.from(TRACK_PROPERTY_SET);
 
@@ -93,7 +92,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     public void shouldTrackMarketablePlaySessionEvents() {
         eventHandler.handleEvent(MARKETABLE_PLAY_EVENT);
 
-        expectCustomEvent("play", PLAYABLE_ONLY_PROPERTIES);
+        expectCustomEvent("play", PLAYBACK_PROPERTIES);
     }
 
     @Test
@@ -130,7 +129,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     public void shouldNotTrackPauseEvents() {
         final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET,
                                                                               TRACK_SOURCE_INFO,
-                0L,
+                                                                              0L,
                                                                               "https",
                                                                               "player",
                                                                               false,
@@ -331,4 +330,15 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
                                    .pageName("page_name")
                                    .pageUrn(Urn.NOT_SET);
     }
+
+    @NonNull
+    private static AppboyProperties basePlayableProperties() {
+        return new AppboyProperties()
+                .addProperty("creator_display_name", TRACK.getCreatorName())
+                .addProperty("creator_urn", TRACK.getCreatorUrn().toString())
+                .addProperty("playable_title", TRACK.getTitle())
+                .addProperty("playable_urn", TRACK.getUrn().toString())
+                .addProperty("playable_type", "track");
+    }
+
 }
