@@ -9,6 +9,7 @@ import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.NonNull;
@@ -31,10 +32,10 @@ public class EntityMetadata {
     private static final String TYPE_STATION = "station";
     private static final String TYPE_OTHER = "other";
 
-    private final String creatorName;
-    private final Urn creatorUrn;
-    private final String playableTitle;
-    private final Urn playableUrn;
+    public final String creatorName;
+    public final Urn creatorUrn;
+    public final String playableTitle;
+    public final Urn playableUrn;
 
     EntityMetadata(String creatorName, Urn creatorUrn, String playableTitle, Urn playableUrn) {
         this.creatorName = creatorName;
@@ -143,4 +144,19 @@ public class EntityMetadata {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EntityMetadata that = (EntityMetadata) o;
+        return MoreObjects.equal(creatorName, that.creatorName) &&
+                MoreObjects.equal(creatorUrn, that.creatorUrn) &&
+                MoreObjects.equal(playableTitle, that.playableTitle) &&
+                MoreObjects.equal(playableUrn, that.playableUrn);
+    }
+
+    @Override
+    public int hashCode() {
+        return MoreObjects.hashCode(creatorName, creatorUrn, playableTitle, playableUrn);
+    }
 }

@@ -4,8 +4,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -21,16 +19,15 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
-import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -39,17 +36,14 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
-import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
+public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Listener {
 
     private final Context appContext;
     private final EventBus eventBus;
-    private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final AccountOperations accountOperations;
     private final PlaylistOperations playlistOperations;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
@@ -58,20 +52,22 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final Navigator navigator;
-    private final FeatureFlags featureFlags;
     private final PlayQueueHelper playQueueHelper;
     private final EventTracker eventTracker;
+    private final PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory;
 
-    private PlaylistItem playlist;
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private OverflowMenuOptions menuOptions;
     private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
+    private Urn playlistUrn;
+
+    private Optional<PromotedSourceInfo> promotedSourceInfo;
+    private EntityMetadata entityMetadata;
+    private PlaylistItemMenuRenderer renderer;
 
     @Inject
     public PlaylistItemMenuPresenter(Context appContext,
                                      EventBus eventBus,
-                                     PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                     AccountOperations accountOperations,
                                      PlaylistOperations playlistOperations,
                                      LikeOperations likeOperations,
                                      RepostOperations repostOperations,
@@ -80,13 +76,11 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                                      FeatureOperations featureOperations,
                                      OfflineContentOperations offlineContentOperations,
                                      Navigator navigator,
-                                     FeatureFlags featureFlags,
                                      PlayQueueHelper playQueueHelper,
-                                     EventTracker eventTracker) {
+                                     EventTracker eventTracker,
+                                     PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory) {
         this.appContext = appContext;
         this.eventBus = eventBus;
-        this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.accountOperations = accountOperations;
         this.playlistOperations = playlistOperations;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
@@ -95,9 +89,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.navigator = navigator;
-        this.featureFlags = featureFlags;
         this.playQueueHelper = playQueueHelper;
         this.eventTracker = eventTracker;
+        this.playlistItemMenuRendererFactory = playlistItemMenuRendererFactory;
     }
 
     public void show(View button, PlaylistItem playlist, OverflowMenuOptions menuOptions) {
@@ -108,58 +102,30 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                      PlaylistItem playlist,
                      OverflowMenuOptions menuOptions,
                      EventContextMetadata.Builder eventContextMetadataBuilder) {
-        this.playlist = playlist;
+
         this.menuOptions = menuOptions;
         this.eventContextMetadataBuilder = Optional.fromNullable(eventContextMetadataBuilder);
+        renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
+        playlistUrn = playlist.getUrn();
+        promotedSourceInfo = loadPromotedSourceInfo(playlist);
+        entityMetadata = EntityMetadata.from(playlist);
+        loadPlaylist(playlistUrn);
+    }
 
-        final PopupMenuWrapper menu = setupMenu(button);
-        loadPlaylist(menu);
+    private Optional<PromotedSourceInfo> loadPromotedSourceInfo(PlaylistItem playlist) {
+        if (playlist instanceof PromotedPlaylistItem) {
+            return Optional.of(PromotedSourceInfo.fromItem((PromotedPlaylistItem) playlist));
+        }
+        return Optional.absent();
     }
 
     @Override
     public void onDismiss() {
         playlistSubscription.unsubscribe();
         playlistSubscription = Subscriptions.empty();
-        playlist = null;
     }
 
-    @Override
-    public boolean onMenuItemClick(MenuItem menuItem, Context context) {
-        switch (menuItem.getItemId()) {
-            case R.id.play_next:
-                handlePlayNext();
-                return true;
-            case R.id.add_to_likes:
-                handleLike();
-                return true;
-            case R.id.toggle_repost:
-                handleRepost();
-                return true;
-            case R.id.share:
-                handleShare(context);
-                return true;
-            case R.id.upsell_offline_content:
-                navigator.openUpgrade(context);
-                eventBus.publish(EventQueue.TRACKING,
-                                 UpgradeFunnelEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(),
-                                                                         playlist.getUrn()));
-                return true;
-            case R.id.make_offline_available:
-                saveOffline();
-                return true;
-            case R.id.make_offline_unavailable:
-                removeFromOffline(toFragmentManager(context));
-                return true;
-            case R.id.delete_playlist:
-                deletePlaylist(toFragmentManager(context));
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private void handlePlayNext() {
-        Urn playlistUrn = playlist.getUrn();
+    public void handlePlayNext() {
         playQueueHelper.playNext(playlistUrn);
     }
 
@@ -167,37 +133,30 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         return getFragmentActivity(context).getSupportFragmentManager();
     }
 
-    private void saveOffline() {
-        fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getUrn()));
+    public void saveOffline() {
+        fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn));
         eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromAddOfflinePlaylist(
                 screenProvider.getLastScreenTag(),
-                playlist.getUrn(),
-                getPromotedSourceIfExists()));
+                playlistUrn,
+                promotedSourceInfo.orNull()));
     }
 
-    private void removeFromOffline(FragmentManager fragmentManager) {
+    public void removeFromOffline(Context context) {
         if (offlineContentOperations.isOfflineCollectionEnabled()) {
-            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager,
-                                                               playlist.getUrn(),
-                                                               getPromotedSourceIfExists());
+            ConfirmRemoveOfflineDialogFragment.showForPlaylist(toFragmentManager(context),
+                                                               playlistUrn,
+                                                               promotedSourceInfo.orNull());
         } else {
-            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getUrn()));
+            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
             eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                     screenProvider.getLastScreenTag(),
-                    playlist.getUrn(),
-                    getPromotedSourceIfExists()));
+                    playlistUrn,
+                    promotedSourceInfo.orNull()));
         }
     }
 
-    private void deletePlaylist(FragmentManager fragmentManager) {
-        DeletePlaylistDialogFragment.show(fragmentManager, playlist.getUrn());
-    }
-
-    private PromotedSourceInfo getPromotedSourceIfExists() {
-        if (playlist instanceof PromotedPlaylistItem) {
-            return PromotedSourceInfo.fromItem((PromotedPlaylistItem) playlist);
-        }
-        return null;
+    public void deletePlaylist(Context context) {
+        DeletePlaylistDialogFragment.show(toFragmentManager(context), playlistUrn);
     }
 
     private EventContextMetadata getEventContextMetadata() {
@@ -211,8 +170,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         return builder.isFromOverflow(true).build();
     }
 
-    private void handleLike() {
-        final Urn playlistUrn = playlist.getUrn();
+    public void handleLike(PlaylistItem playlist) {
         boolean addLike = !playlist.isLiked();
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
@@ -220,170 +178,71 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
         eventTracker.trackEngagement(
                 UIEvent.fromToggleLike(addLike,
-                                       playlist.getUrn(),
+                                       playlistUrn,
                                        getEventContextMetadata(),
-                                       getPromotedSourceIfExists(),
-                                       EntityMetadata.from(playlist)));
+                                       promotedSourceInfo.orNull(),
+                                       entityMetadata));
 
-        if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike)) {
+        if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike, playlist)) {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
         }
     }
 
-    private void handleRepost() {
-        final Urn playlistUrn = playlist.getUrn();
-        boolean addRepost = !playlist.isRepostedByCurrentUser();
+    public void handleRepost(boolean addRepost) {
         repostOperations.toggleRepost(playlistUrn, addRepost)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(appContext, addRepost));
 
         eventTracker.trackEngagement(
-                         UIEvent.fromToggleRepost(addRepost,
-                                                  playlist.getUrn(),
-                                                  getEventContextMetadata(),
-                                                  getPromotedSourceIfExists(),
-                                                  EntityMetadata.from(playlist)));
+                UIEvent.fromToggleRepost(addRepost,
+                                         playlistUrn,
+                                         getEventContextMetadata(),
+                                         promotedSourceInfo.orNull(),
+                                         entityMetadata));
     }
 
-    private void handleShare(Context context) {
-        shareOperations.share(context, playlist.getSource(),
-                              getEventContextMetadata(),
-                              getPromotedSourceIfExists());
+    @Override
+    public void handleUpsell(Context context) {
+        navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING,
+                         UpgradeFunnelEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(),
+                                                                 playlistUrn));
     }
 
-    private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike) {
+    public void handleShare(Context context, PlaylistItem playlist) {
+        final PropertySet playable = playlist.getSource();
+        final boolean isPublic = !playable.get(PlayableProperty.IS_PRIVATE);
+
+        if (isPublic) {
+            shareOperations.share(context,
+                                  playable.get(PlayableProperty.PERMALINK_URL),
+                                  getEventContextMetadata(), promotedSourceInfo.orNull(),
+                                  EntityMetadata.from(playable));
+        }
+    }
+
+    private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike, PlaylistItem playlist) {
         boolean offlineContentEnabled = featureOperations.isOfflineContentEnabled() && menuOptions.showOffline();
         return offlineContentEnabled && !addLike && !playlist.isPostedByUser();
     }
 
-    private PopupMenuWrapper setupMenu(View button) {
-        PopupMenuWrapper menu = popupMenuWrapperFactory.build(button.getContext(), button);
-        menu.inflate(R.menu.playlist_item_actions);
-        menu.setOnMenuItemClickListener(this);
-        menu.setOnDismissListener(this);
-
-        updateLikeActionTitle(menu, playlist.isLiked());
-        configureAdditionalEngagementsOptions(menu);
-        configureInitialOfflineOptions(menu);
-        configurePlayNextOption(menu);
-        menu.show();
-        return menu;
-    }
-
-    private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.toggle_repost, canRepost(playlist));
-        menu.setItemVisible(R.id.share, !playlist.isPrivate());
-        menu.setItemVisible(R.id.delete_playlist, isOwned(playlist));
-        updateRepostActionTitle(menu, playlist.isRepostedByCurrentUser());
-    }
-
-    private boolean canRepost(PlaylistItem playlist) {
-        return !isOwned(playlist) && !playlist.isPrivate();
-    }
-
-    private boolean isOwned(PlaylistItem playlist) {
-        return accountOperations.isLoggedInUser(playlist.getCreatorUrn());
-    }
-
-    private void updateLikeActionTitle(PopupMenuWrapper menu, boolean isLiked) {
-        final MenuItem item = menu.findItem(R.id.add_to_likes);
-        item.setTitle(isLiked
-                      ? R.string.btn_unlike
-                      : R.string.btn_like);
-    }
-
-    private void updateRepostActionTitle(PopupMenuWrapper menu, boolean isReposted) {
-        final MenuItem item = menu.findItem(R.id.toggle_repost);
-        item.setTitle(isReposted
-                      ? R.string.unpost
-                      : R.string.repost);
-    }
-
-    private void configureInitialOfflineOptions(PopupMenuWrapper menu) {
-        final Optional<Boolean> maybeMarkedForOffline = playlist.isMarkedForOffline();
-        if (maybeMarkedForOffline.isPresent() && menuOptions.showOffline()) {
-            configureOfflineOptions(menu, maybeMarkedForOffline);
-        } else {
-            hideAllOfflineContentOptions(menu);
-        }
-        if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
-            eventBus.publish(EventQueue.TRACKING,
-                             UpgradeFunnelEvent.forPlaylistItemImpression(screenProvider.getLastScreenTag(),
-                                                                          playlist.getUrn()));
-        }
-    }
-
-    private void configureOfflineOptions(PopupMenuWrapper menu, Optional<Boolean> maybeMarkedForOffline) {
-        if (featureOperations.isOfflineContentEnabled() && menuOptions.showOffline() && maybeMarkedForOffline.isPresent()) {
-            showOfflineContentOption(menu, maybeMarkedForOffline.get());
-        } else if (featureOperations.upsellOfflineContent() && menuOptions.showOffline()) {
-            showUpsellOption(menu);
-        } else {
-            hideAllOfflineContentOptions(menu);
-        }
-    }
-
-    private void showOfflineContentOption(PopupMenuWrapper menu, boolean isMarkedForOffline) {
-        if (isMarkedForOffline) {
-            showOfflineRemovalOption(menu);
-        } else {
-            showOfflineDownloadOption(menu);
-        }
-    }
-
-    private void hideAllOfflineContentOptions(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.make_offline_available, false);
-        menu.setItemVisible(R.id.make_offline_unavailable, false);
-        menu.setItemVisible(R.id.upsell_offline_content, false);
-    }
-
-    private void showUpsellOption(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.make_offline_available, false);
-        menu.setItemVisible(R.id.make_offline_unavailable, false);
-        menu.setItemVisible(R.id.upsell_offline_content, true);
-    }
-
-    private void showOfflineDownloadOption(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.make_offline_available, true);
-        menu.setItemVisible(R.id.make_offline_unavailable, false);
-        menu.setItemVisible(R.id.upsell_offline_content, false);
-    }
-
-    private void showOfflineRemovalOption(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.make_offline_available, false);
-        menu.setItemVisible(R.id.make_offline_unavailable, true);
-        menu.setItemVisible(R.id.upsell_offline_content, false);
-    }
-
-    private void configurePlayNextOption(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
-    }
-
     // this is really ugly. We should introduce a PlaylistRepository.
     // https://github.com/soundcloud/SoundCloud-Android/issues/2942
-    private void loadPlaylist(PopupMenuWrapper menu) {
+    private void loadPlaylist(Urn urn) {
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations
-                .playlist(playlist.getUrn())
+                .playlist(urn)
+                .first()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new PlaylistSubscriber(playlist, menu));
+                .subscribe(new PlaylistSubscriber());
     }
 
     private final class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
-        private final PlaylistItem playlist;
-        private final PopupMenuWrapper menu;
-
-        public PlaylistSubscriber(PlaylistItem playlist, PopupMenuWrapper menu) {
-            this.playlist = playlist;
-            this.menu = menu;
-        }
 
         @Override
         public void onNext(PlaylistWithTracks details) {
-            playlist.update(details.getSourceSet());
-            updateLikeActionTitle(menu, playlist.isLiked());
-            updateRepostActionTitle(menu, playlist.isRepostedByCurrentUser());
-            configureOfflineOptions(menu, playlist.isMarkedForOffline());
+            final PlaylistItem playlistItem = PlaylistItem.from(details.getSourceSet());
+            renderer.render(playlistItem);
         }
     }
 

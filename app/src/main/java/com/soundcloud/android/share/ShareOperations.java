@@ -6,8 +6,8 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 
@@ -29,41 +29,51 @@ public class ShareOperations {
 
     public void share(Context context, PropertySet playable, EventContextMetadata contextMetadata,
                       PromotedSourceInfo promotedSourceInfo) {
-        if (!playable.get(PlayableProperty.IS_PRIVATE)) {
-            startShareActivity(context, playable);
-            publishShareTracking(playable, contextMetadata, promotedSourceInfo);
+        if (!playable.getOrElse(PlayableProperty.IS_PRIVATE, true)) {
+            share(context,
+                  playable.get(PlayableProperty.PERMALINK_URL),
+                  contextMetadata, promotedSourceInfo,
+                  EntityMetadata.from(playable));
         }
     }
 
-    private void startShareActivity(Context context, PropertySet playable) {
-        context.startActivity(buildShareIntent(context, playable));
+    public void share(final Context context,
+                      final String permalink,
+                      final EventContextMetadata contextMetadata,
+                      final PromotedSourceInfo promotedSourceInfo,
+                      final EntityMetadata entityMetadata) {
+            startShareActivity(context, entityMetadata.playableTitle, entityMetadata.creatorName, permalink);
+            publishShareTracking(contextMetadata, promotedSourceInfo, entityMetadata.playableUrn, entityMetadata);
     }
 
-    private void publishShareTracking(PropertySet playable, EventContextMetadata contextMetadata,
-                                      PromotedSourceInfo promotedSourceInfo) {
+    private void startShareActivity(Context context,
+                                    String title,
+                                    String creatorName, String permalink) {
+        context.startActivity(buildShareIntent(context, title, creatorName, permalink));
+    }
+
+    private void publishShareTracking(EventContextMetadata contextMetadata, PromotedSourceInfo promotedSourceInfo, Urn urn, EntityMetadata entityMetadata) {
         eventTracker.trackEngagement(UIEvent.fromShare(
-                playable.get(EntityProperty.URN),
+                urn,
                 contextMetadata,
                 promotedSourceInfo,
-                EntityMetadata.from(playable)));
+                entityMetadata));
     }
 
-    private Intent buildShareIntent(Context context, PropertySet playable) {
-        String title = playable.get(PlayableProperty.TITLE);
+    private Intent buildShareIntent(Context context, String title, String creatorName, String permalink) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
 
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, title));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, buildShareText(context, playable));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, buildShareText(context, title, creatorName, permalink));
 
         return Intent.createChooser(shareIntent, context.getString(R.string.share));
     }
 
-    private String buildShareText(Context context, PropertySet playable) {
-        String title = playable.get(PlayableProperty.TITLE);
-        String username = playable.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY);
-        String permalink = playable.get(PlayableProperty.PERMALINK_URL);
+    private String buildShareText(Context context,
+                                  String title,
+                                  String username, String permalink) {
 
         if (Strings.isNotBlank(username)) {
             return context.getString(R.string.share_tracktitle_artist_link, title, username, permalink);
