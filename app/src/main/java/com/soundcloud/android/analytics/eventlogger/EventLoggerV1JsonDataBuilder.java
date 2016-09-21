@@ -22,6 +22,7 @@ import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
+import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -98,42 +99,30 @@ class EventLoggerV1JsonDataBuilder {
         return transform(buildAudioEvent(event));
     }
 
-    String buildForAdDelivery(AdDeliveryEvent event) {
-        switch (event.getKind()) {
-            case AdDeliveryEvent.AD_DELIVERED_KIND:
-                return buildAdDeliveredEvent(event);
-            case AdDeliveryEvent.AD_FAILED_KIND:
-                return buildAdRequestFailedEvent(event);
-            default:
-                throw new IllegalStateException("Unexpected ad delivery type: " + event);
-        }
-    }
+    public String buildForAdRequest(AdRequestEvent event) {
+        EventLoggerEventData data = buildBaseEvent("ad_request", event)
+                .clientEventId(event.getId())
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .playerVisible(event.playerVisible)
+                .inForeground(event.inForeground)
+                .adsRequestSuccess(event.getKind().equals(AdRequestEvent.AD_REQUEST_SUCCESS_KIND))
+                .adsEndpoint(event.get(PlayableTrackingKeys.KEY_ADS_ENDPOINT));
 
-    private EventLoggerEventData buildBaseAdDeliveryEvent(AdDeliveryEvent eventData) {
-        return buildBaseEvent("ad_delivery", eventData)
-                .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .playerVisible(eventData.playerVisible)
-                .inForeground(eventData.inForeground)
-                .adsRequested(eventData.adsRequested)
-                .adsEndpoint(eventData.get(PlayableTrackingKeys.KEY_ADS_ENDPOINT));
-    }
-
-    private String buildAdDeliveredEvent(AdDeliveryEvent eventData) {
-        final EventLoggerEventData data = buildBaseAdDeliveryEvent(eventData)
-                .adsRequestSuccess(true)
-                .adOptimized(eventData.adOptimized)
-                .adsReceived(mapToJson(eventData.adsReceived.ads));
-
-        if (eventData.adUrn.isAd()) {
-            data.adUrn(eventData.adUrn.toString());
+        if (event.adsReceived.isPresent()) {
+            data.adsReceived(mapToJson(event.adsReceived.get().ads));
         }
 
         return transform(data);
     }
 
-    private String buildAdRequestFailedEvent(AdDeliveryEvent eventData) {
-        return transform(buildBaseAdDeliveryEvent(eventData)
-                                 .adsRequestSuccess(false));
+    public String buildForAdDelivery(AdDeliveryEvent event) {
+        return transform(buildBaseEvent("ad_delivery", event)
+                .clientEventId(event.getId())
+                .referringEvent(event.adRequestId, AdRequestEvent.AD_REQUEST_KIND)
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .playerVisible(event.playerVisible)
+                .inForeground(event.inForeground)
+                .adUrn(event.adUrn.toString()));
     }
 
     String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {

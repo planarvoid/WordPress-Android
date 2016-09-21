@@ -75,6 +75,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -92,6 +93,7 @@ class EventLoggerEventData {
     private static final String PAGEVIEW_EVENT = "pageview";
     private static final String FOREGROUND_EVENT = "foreground";
     private static final String NAVIGATION_EVENT = "navigation";
+    private static final String AD_REQUEST_EVENT = "ad_request";
 
     @JsonProperty("event") final String event;
     @JsonProperty("version") final String version;
@@ -559,6 +561,8 @@ class EventLoggerEventData {
                 return FOREGROUND_EVENT;
             case UIEvent.KIND_NAVIGATION:
                 return NAVIGATION_EVENT;
+            case AdRequestEvent.AD_REQUEST_KIND:
+                return AD_REQUEST_EVENT;
             default:
                 throw new IllegalArgumentException(
                         "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);

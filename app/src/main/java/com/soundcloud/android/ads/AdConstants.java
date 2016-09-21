@@ -11,4 +11,5 @@ public final class AdConstants {
     public static final int IAB_UNIVERSAL_MED_MAX_SCALE = 2;
 
     public static final String KRUX_SEGMENT_PARAM = "krux_segments";
+    public static final String CORRELATOR_PARAM = "correlator";
 }

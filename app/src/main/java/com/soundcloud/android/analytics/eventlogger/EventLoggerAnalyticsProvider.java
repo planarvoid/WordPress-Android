@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.TrackingRecord;
@@ -7,6 +8,7 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
+import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -87,6 +89,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleOfflineInteractionEvent((OfflineInteractionEvent) event);
         } else if (event instanceof OfflinePerformanceEvent) {
             handleOfflinePerformanceEvent((OfflinePerformanceEvent) event);
+        } else if (event instanceof AdRequestEvent) {
+            handleAdRequestEvent((AdRequestEvent) event);
         } else if (event instanceof AdDeliveryEvent) {
             handleAdDeliveryEvent((AdDeliveryEvent) event);
         } else if (event instanceof AdPlaybackSessionEvent) {
@@ -180,6 +184,10 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
                 // no-op, ignoring certain types
                 break;
         }
+    }
+
+    private void handleAdRequestEvent(AdRequestEvent eventData) {
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdRequest(eventData));
     }
 
     private void handleAdDeliveryEvent(AdDeliveryEvent eventData) {

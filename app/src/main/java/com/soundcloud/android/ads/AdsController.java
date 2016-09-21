@@ -2,7 +2,6 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
-import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
@@ -42,6 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
@@ -62,9 +62,11 @@ public class AdsController {
     private final long fetchOperationStaleTime;
 
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
+
     private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
+    private Map<Urn, String> adRequestIds = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
+
     private Optional<ApiAdsForTrack> adsForNextTrack = Optional.absent();
-    private boolean didReplaceNextAd;
     private boolean isForeground;
     private boolean isPlayerVisible;
 
@@ -119,10 +121,8 @@ public class AdsController {
     private final Func1<AdRequestData, Observable<ApiAdsForTrack>> fetchAds = new Func1<AdRequestData, Observable<ApiAdsForTrack>>() {
         @Override
         public Observable<ApiAdsForTrack> call(AdRequestData adRequestData) {
-            return adsOperations.ads(adRequestData.monetizableTrackUrn,
-                                     adRequestData.kruxSegments,
-                                     isPlayerVisible,
-                                     isForeground);
+            adRequestIds.put(adRequestData.monetizableTrackUrn, adRequestData.requestId);
+            return adsOperations.ads(adRequestData, isPlayerVisible, isForeground);
         }
     };
 
@@ -152,8 +152,7 @@ public class AdsController {
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
-                         VideoSourceProvider videoSourceProvider,
-                         PlayQueueManager playQueueManager,
+                         VideoSourceProvider videoSourceProvider, PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
                          Scheduler scheduler) {
 
@@ -218,24 +217,19 @@ public class AdsController {
             final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
             if (nextItem.isVideoAd()) {
                 adsOperations.replaceUpcomingVideoAd(ads, (VideoAdQueueItem) nextItem);
-                didReplaceNextAd = true;
             } else if (!nextItem.isAudioAd() && ads.audioAd().isPresent()) {
                 adsOperations.insertAudioAd((TrackQueueItem) nextItem, ads.audioAd().get());
-                didReplaceNextAd = true;
             }
         }
     }
 
     public void publishAdDeliveryEventIfUpcoming() {
         final Urn monetizableUrn = getUpcomingMonetizableUrn();
-        if (!monetizableUrn.equals(Urn.NOT_SET) && adsForNextTrack.isPresent()) {
-            final String endpoint = String.format(ApiEndpoints.ADS.path(), monetizableUrn.toEncodedString());
+        if (!monetizableUrn.equals(Urn.NOT_SET) && adsForNextTrack.isPresent() && adRequestIds.containsKey(monetizableUrn)) {
             final Optional<AdData> nextTrackAdData = adsOperations.getNextTrackAdData();
             final Urn selectedAdUrn = nextTrackAdData.isPresent() ? nextTrackAdData.get().getAdUrn() : Urn.NOT_SET;
             eventBus.publish(EventQueue.TRACKING,
-                             AdDeliveryEvent.adDelivered(monetizableUrn,
-                                                         selectedAdUrn, endpoint, adsForNextTrack.get().toAdsReceived(),
-                                                         didReplaceNextAd, isPlayerVisible, isForeground)
+                             AdDeliveryEvent.adDelivered(monetizableUrn, selectedAdUrn, adRequestIds.get(monetizableUrn), isPlayerVisible, isForeground)
             );
         }
     }
@@ -296,7 +290,6 @@ public class AdsController {
         @Override
         public void onNext(CurrentPlayQueueItemEvent currentItemEvent) {
             adsForNextTrack = Optional.absent();
-            didReplaceNextAd = false;
             Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
             while (iter.hasNext()) {
 
@@ -416,11 +409,14 @@ public class AdsController {
         }
     }
 
-    private static class AdRequestData {
-        private final Urn monetizableTrackUrn;
-        private final Optional<String> kruxSegments;
+    protected static class AdRequestData {
+        final String requestId;
+        final Urn monetizableTrackUrn;
+        final Optional<String> kruxSegments;
 
-        private AdRequestData(Urn monetizableTrackUrn, Optional<String> kruxSegments) {
+        private AdRequestData(Urn monetizableTrackUrn,
+                              Optional<String> kruxSegments) {
+            this.requestId = UUID.randomUUID().toString();
             this.monetizableTrackUrn = monetizableTrackUrn;
             this.kruxSegments = kruxSegments;
         }

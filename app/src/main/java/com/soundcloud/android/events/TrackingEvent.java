@@ -29,6 +29,10 @@ public class TrackingEvent {
         this(kind, timestamp, UUID.randomUUID().toString());
     }
 
+    protected TrackingEvent(@NotNull String kind, String id) {
+        this(kind, System.currentTimeMillis(), id);
+    }
+
     protected TrackingEvent(@NotNull String kind) {
         this(kind, System.currentTimeMillis(), UUID.randomUUID().toString());
     }

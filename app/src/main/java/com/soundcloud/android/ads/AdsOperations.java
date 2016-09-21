@@ -1,14 +1,17 @@
 
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.ads.AdsController.AdRequestData;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
@@ -60,39 +63,63 @@ public class AdsOperations {
         return Observable.just(Optional.<String>absent());
     }
 
-    public Observable<ApiAdsForTrack> ads(Urn sourceUrn, Optional<String> kruxSegments, boolean playerVisible, boolean inForeground) {
+    public Observable<ApiAdsForTrack> ads(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
+        final Urn sourceUrn = requestData.monetizableTrackUrn;
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
-        final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi();
 
-        if (kruxSegments.isPresent()) {
-            request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, kruxSegments.get());
+        final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi()
+                .addQueryParam(AdConstants.CORRELATOR_PARAM, requestData.requestId);
+
+        if (requestData.kruxSegments.isPresent()) {
+            request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, requestData.kruxSegments.get());
         }
 
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                           .subscribeOn(scheduler)
-                          .doOnError(logFailedAds(sourceUrn, endpoint, playerVisible, inForeground))
-                          .doOnNext(logAds(sourceUrn));
+                          .doOnError(onRequestFailure(requestData, endpoint, playerVisible, inForeground))
+                          .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
     }
 
-    private Action1<? super ApiAdsForTrack> logAds(final Urn sourceUrn) {
+    private Action1<? super ApiAdsForTrack> onRequestSuccess(final AdRequestData requestData, final String endpoint,
+                                                             final boolean playerVisible, final boolean inForeground) {
         return new Action1<ApiAdsForTrack>() {
             @Override
-            public void call(ApiAdsForTrack apiAdWrappers) {
-                Log.i(ADS_TAG, "Retrieved ads for " + sourceUrn.toString() + ": " + apiAdWrappers.contentString());
+            public void call(ApiAdsForTrack apiAds) {
+                Log.i(ADS_TAG, "Retrieved ads for " + requestData.monetizableTrackUrn + ": " + apiAds.contentString());
+                logRequestSuccess(apiAds, requestData, endpoint, playerVisible, inForeground);
+
             }
         };
     }
 
-    private Action1<Throwable> logFailedAds(final Urn sourceUrn, final String endpoint,
-                                            final boolean playerVisible, final boolean inForeground) {
+    private Action1<Throwable> onRequestFailure(final AdRequestData requestData, final String endpoint,
+                                                final boolean playerVisible, final boolean inForeground) {
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                Log.i(ADS_TAG, "Failed to retrieve ads for " + sourceUrn.toString(), throwable);
-                eventBus.publish(EventQueue.TRACKING,
-                                 AdDeliveryEvent.adsRequestFailed(sourceUrn, endpoint, playerVisible, inForeground));
+                Log.i(ADS_TAG, "Failed to retrieve ads for " + requestData.monetizableTrackUrn, throwable);
+                if (throwable instanceof ApiRequestException && ((ApiRequestException) throwable).reason() == NOT_FOUND) {
+                    final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
+                    logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
+                } else {
+                    eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestFailure(requestData.requestId,
+                                                                                          requestData.monetizableTrackUrn,
+                                                                                          endpoint,
+                                                                                          playerVisible,
+                                                                                          inForeground));
+                }
             }
         };
+    }
+
+    private void logRequestSuccess(final ApiAdsForTrack apiAds, final AdRequestData requestData,
+                                   final String endpoint, final boolean playerVisible, final boolean inForeground) {
+        eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestSuccess(requestData.requestId,
+                                                                              requestData.monetizableTrackUrn,
+                                                                              endpoint,
+                                                                              apiAds.toAdsReceived(),
+                                                                              playerVisible,
+                                                                              inForeground));
     }
 
     public void applyAdToUpcomingTrack(ApiAdsForTrack ads) {
