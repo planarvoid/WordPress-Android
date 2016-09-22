@@ -21,7 +21,6 @@ import rx.Subscription;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -39,15 +38,17 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private final MainPagerAdapter.Factory pagerAdapterFactory;
     private final Navigator navigator;
     private final EventTracker eventTracker;
-
-    private NavigationModel navigationModel;
+    private final NavigationModel navigationModel;
+    private final FeatureOperations featureOperations;
 
     private RootActivity activity;
     private MainPagerAdapter pagerAdapter;
     private ViewPager pager;
     private TabLayout tabBar;
-    private FeatureOperations featureOperations;
+
+
     private Subscription subscription = RxUtils.invalidSubscription();
+
     @LightCycle final ActivityReferringEventProvider referringEventProvider;
     @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
 
@@ -56,18 +57,18 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                       BaseLayoutHelper layoutHelper,
                       MainPagerAdapter.Factory pagerAdapterFactory,
                       Navigator navigator,
-                      FeatureOperations featureOperations,
                       EventTracker eventTracker,
                       ActivityReferringEventProvider referringEventProvider,
-                      EnterScreenDispatcher enterScreenDispatcher) {
+                      EnterScreenDispatcher enterScreenDispatcher,
+                      FeatureOperations featureOperations) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.navigator = navigator;
-        this.featureOperations = featureOperations;
         this.eventTracker = eventTracker;
         this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
+        this.featureOperations = featureOperations;
         enterScreenDispatcher.setListener(this);
         LightCycles.bind(this);
     }
@@ -197,7 +198,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         tabBar.setTabGravity(TabLayout.GRAVITY_FILL);
         tabBar.setTabMode(TabLayout.MODE_FIXED);
         tabBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                          ViewGroup.LayoutParams.MATCH_PARENT));
+                ViewGroup.LayoutParams.MATCH_PARENT));
         addToToolbar(tabBar);
         return tabBar;
     }
@@ -219,7 +220,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         }
     }
 
-    private View createTabViewFor(@DrawableRes NavigationModel.Target target) {
+    private View createTabViewFor(NavigationModel.Target target) {
         ImageView view = new ImageView(activity);
         view.setImageResource(target.getIcon());
         view.setContentDescription(activity.getString(target.getName()));
@@ -238,6 +239,10 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private NavigationModel.Target currentTargetItem() {
         return navigationModel.getItem(pager.getCurrentItem());
+    }
+
+    Screen getScreen() {
+        return currentTargetItem().getScreen();
     }
 
     private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,
@@ -265,15 +270,10 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         };
     }
 
-    Screen getScreen() {
-        return currentTargetItem().getScreen();
-    }
-
     private class UpdateDevelopmentMenuAction extends DefaultSubscriber<Boolean> {
-
         @Override
-        public void onNext(Boolean value) {
-            if (value) {
+        public void onNext(Boolean developmentModeEnabled) {
+            if (developmentModeEnabled) {
                 BaseLayoutHelper.addDevelopmentDrawer(activity);
             } else {
                 BaseLayoutHelper.removeDevelopmentDrawer(activity);

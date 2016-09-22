@@ -76,7 +76,6 @@ apply plugin: 'maven'
 apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.getkeepsafe.dexcount'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: "com.nimbledroid.profiler"
 
 android {
@@ -226,8 +225,8 @@ dependencies {
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesAuth
   compile libraries.androidPlayServicesCast
-
   compile libraries.firebaseCore
+  compile libraries.firebaseConfig
   compile libraries.firebaseMessaging
 
   /* Unit tests */
@@ -250,3 +249,7 @@ dependencies {
   androidTestCompile acceptanceTestLibraries.robotium
   androidTestCompile acceptanceTestLibraries.networkManagerClient
 }
+
+//ADD THIS AT THE BOTTOM
+//https://firebase.google.com/docs/android/setup
+apply plugin: 'com.google.gms.google-services'

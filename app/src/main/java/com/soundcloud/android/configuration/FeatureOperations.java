@@ -23,11 +23,11 @@ public class FeatureOperations {
         this.applicationProperties = applicationProperties;
     }
 
-    public void updateFeatures(List<Feature> features) {
+    void updateFeatures(List<Feature> features) {
         featureStorage.update(features);
     }
 
-    public void updatePlan(UserPlan userPlan) {
+    void updatePlan(UserPlan userPlan) {
         planStorage.updatePlan(userPlan.currentPlan);
         planStorage.updateUpsells(userPlan.planUpsells);
     }
@@ -38,10 +38,6 @@ public class FeatureOperations {
 
     public boolean shouldUseKruxForAdTargeting() {
         return featureStorage.isEnabled(FeatureName.KRUX_ADS, false);
-    }
-
-    public boolean isDevelopmentMenuEnabled() {
-        return featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, applicationProperties.isDebugBuild());
     }
 
     public boolean isOfflineContentOrUpsellEnabled() {
@@ -91,12 +87,15 @@ public class FeatureOperations {
         return getUpdates(FeatureName.OFFLINE_SYNC);
     }
 
-    public Observable<Boolean> developmentMenuEnabled() {
-        return getUpdates(FeatureName.DEVELOPMENT_MENU);
-    }
-
     private Observable<Boolean> getUpdates(String name) {
         return featureStorage.getUpdates(name);
     }
 
+    public boolean isDevelopmentMenuEnabled() {
+        return featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, applicationProperties.isDevelopmentMode());
+    }
+
+    public Observable<Boolean> developmentMenuEnabled() {
+        return getUpdates(FeatureName.DEVELOPMENT_MENU);
+    }
 }

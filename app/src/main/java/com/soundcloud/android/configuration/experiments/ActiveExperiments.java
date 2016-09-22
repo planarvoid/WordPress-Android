@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ActiveExperiments {
+    static final String LISTENING_LAYER = "android_listening";
 
-    public static final String LISTENING_LAYER = "android_listening";
     public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = Arrays.asList(ShareAsTextButtonExperiment.CONFIGURATION,
                                                                                          StationsRecoAlgorithmExperiment.CONFIGURATION,
                                                                                          OpusExperiment.CONFIGURATION);
@@ -22,12 +22,12 @@ public class ActiveExperiments {
         this.applicationProperties = applicationProperties;
     }
 
-    public String[] getRequestLayers() {
+    String[] getRequestLayers() {
         return ACTIVE_LAYERS;
     }
 
     public boolean isActive(Layer layer) {
-        if (!applicationProperties.isDebugBuild()) {
+        if (!applicationProperties.isDevelopmentMode()) {
             for (ExperimentConfiguration experiment : ACTIVE_EXPERIMENTS) {
                 if (experiment.matches(layer)) {
                     return true;
@@ -36,5 +36,4 @@ public class ActiveExperiments {
         }
         return false;
     }
-
 }

@@ -66,7 +66,7 @@ public class AdjustWrapper {
     }
 
     private void setLogLevel(AdjustConfig config) {
-        LogLevel level = applicationProperties.isDebugBuild() ? LogLevel.INFO : LogLevel.ERROR;
+        LogLevel level = applicationProperties.isDevelopmentMode() ? LogLevel.INFO : LogLevel.ERROR;
         config.setLogLevel(level);
     }
 

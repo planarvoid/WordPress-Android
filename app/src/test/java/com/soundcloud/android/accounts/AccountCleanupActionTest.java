@@ -21,6 +21,7 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.SoundStreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
@@ -63,6 +64,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private PlayHistoryStorage playHistoryStorage;
     @Mock private RecentlyPlayedStorage recentlyPlayedStorage;
     @Mock private GcmStorage gcmStorage;
+    @Mock private PersistentStorage featureFlagsStorage;
 
     @Before
     public void setup() {
@@ -84,7 +86,8 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           notificationPreferencesStorage,
                                           playHistoryStorage,
                                           recentlyPlayedStorage,
-                                          gcmStorage);
+                                          gcmStorage,
+                                          featureFlagsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -242,4 +245,9 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         verify(gcmStorage).clearTokenForRefresh();
     }
 
+    @Test
+    public void shouldClearFeatureFlagsOnLogout() {
+        action.call();
+        verify(featureFlagsStorage).clear();
+    }
 }

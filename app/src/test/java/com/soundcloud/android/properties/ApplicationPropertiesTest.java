@@ -64,6 +64,16 @@ public class ApplicationPropertiesTest {
     }
 
     @Test
+    public void shouldSpecifyThatBuildIsInDevelopmentMode() {
+        when(resources.getString(string.build_type)).thenReturn("debug");
+        ApplicationProperties applicationProperties = new ApplicationProperties(resources);
+        assertThat(applicationProperties.isDebugBuild()).isTrue();
+        assertThat(applicationProperties.isAlphaBuild()).isFalse();
+        assertThat(applicationProperties.isReleaseBuild()).isFalse();
+        assertThat(applicationProperties.isDevelopmentMode()).isTrue();
+    }
+
+    @Test
     public void shouldDetectThatItsNotRunningOnDevice() {
         assertThat(ApplicationProperties.IS_RUNNING_ON_DEVICE).isFalse();
     }
