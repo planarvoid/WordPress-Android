@@ -1119,7 +1119,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         assertEngagementClickEventJson("share", event.getTimestamp());
     }
 
-
     @Test
     public void addsCurrentExperimentJsonOmitsEmptyVariants() throws ApiMapperException {
 

@@ -83,21 +83,6 @@ public class EventLoggerJsonDataBuilder {
         }
     }
 
-    public String build(UIEvent event) {
-        switch (event.getKind()) {
-            case UIEvent.KIND_LIKE:
-                return transform(getEngagementEvent("like::add", event));
-            case UIEvent.KIND_UNLIKE:
-                return transform(getEngagementEvent("like::remove", event));
-            case UIEvent.KIND_REPOST:
-                return transform(getEngagementEvent("repost::add", event));
-            case UIEvent.KIND_UNREPOST:
-                return transform(getEngagementEvent("repost::remove", event));
-            default:
-                throw new IllegalStateException("Unexpected UIEvent type: " + event);
-        }
-    }
-
     private EventLoggerEventData getEngagementEvent(String clickName, UIEvent event) {
         final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event)
                 .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
