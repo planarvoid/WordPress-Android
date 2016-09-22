@@ -126,6 +126,14 @@ public class AdsController {
         }
     };
 
+    private final Func1<AdRequestData, Observable<ApiAdsForTrack>> fetchInterstitial = new Func1<AdRequestData, Observable<ApiAdsForTrack>>() {
+        @Override
+        public Observable<ApiAdsForTrack> call(AdRequestData adRequestData) {
+            adRequestIds.put(adRequestData.monetizableTrackUrn, adRequestData.requestId);
+            return adsOperations.interstitial(adRequestData, isPlayerVisible, isForeground);
+        }
+    };
+
     private final Action1<PlayStateEvent> unsubscribeFailedAdSkip = new Action1<PlayStateEvent>() {
         @Override
         public void call(PlayStateEvent playStateEvent) {
@@ -228,10 +236,17 @@ public class AdsController {
         if (!monetizableUrn.equals(Urn.NOT_SET) && adsForNextTrack.isPresent() && adRequestIds.containsKey(monetizableUrn)) {
             final Optional<AdData> nextTrackAdData = adsOperations.getNextTrackAdData();
             final Urn selectedAdUrn = nextTrackAdData.isPresent() ? nextTrackAdData.get().getAdUrn() : Urn.NOT_SET;
-            eventBus.publish(EventQueue.TRACKING,
-                             AdDeliveryEvent.adDelivered(monetizableUrn, selectedAdUrn, adRequestIds.get(monetizableUrn), isPlayerVisible, isForeground)
-            );
+            publishAdDeliveryEvent(monetizableUrn, selectedAdUrn);
         }
+    }
+
+    private void publishAdDeliveryEvent(Urn monetizableUrn, Urn selectedAdUrn) {
+        eventBus.publish(EventQueue.TRACKING,
+                         AdDeliveryEvent.adDelivered(monetizableUrn,
+                                                     selectedAdUrn,
+                                                     adRequestIds.get(monetizableUrn),
+                                                     isPlayerVisible,
+                                                     isForeground));
     }
 
     private Urn getUpcomingMonetizableUrn() {
@@ -262,7 +277,7 @@ public class AdsController {
         public void onNext(Object event) {
             final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
             final NextTrackSubscriber nextTrackSubscriber = new NextTrackSubscriber(playQueueManager.getCurrentPlayQueueItem());
-            createAdsFetchObservable(nextItem, nextTrackSubscriber);
+            createAdFetchObservable(nextItem, nextTrackSubscriber, false);
         }
     }
 
@@ -270,17 +285,17 @@ public class AdsController {
         @Override
         public void onNext(Object event) {
             final PlayQueueItem currentItem = playQueueManager.getCurrentPlayQueueItem();
-            final InterstitialSubscriber audioAdSubscriber = new InterstitialSubscriber(currentItem);
-            createAdsFetchObservable(currentItem, audioAdSubscriber);
+            final InterstitialSubscriber interstitialSubscriber = new InterstitialSubscriber(currentItem);
+            createAdFetchObservable(currentItem, interstitialSubscriber, true);
         }
     }
 
-    private void createAdsFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
+    private void createAdFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber, boolean fetchOnlyInterstitial) {
         final Observable<ApiAdsForTrack> apiAdsForTrack = Observable.zip(trackRepository.track(playQueueItem.getUrn())
                                                                                         .filter(IS_MONETIZABLE),
                                                                          adsOperations.kruxSegments(),
                                                                          TO_AD_REQUEST_DATA)
-                                                                    .flatMap(fetchAds)
+                                                                     .flatMap(fetchOnlyInterstitial ? fetchInterstitial : fetchAds)
                                                                     .observeOn(AndroidSchedulers.mainThread());
 
         currentAdsFetches.put(playQueueItem.getUrn(), new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
@@ -292,7 +307,6 @@ public class AdsController {
             adsForNextTrack = Optional.absent();
             Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
             while (iter.hasNext()) {
-
                 final Map.Entry<Urn, AdsFetchOperation> operation = iter.next();
                 final Urn monetizableUrn = operation.getKey();
 
@@ -346,7 +360,9 @@ public class AdsController {
         @Override
         public void onNext(ApiAdsForTrack apiAdsForTrack) {
             if (playQueueManager.isCurrentItem(currentItem)) {
+                final Urn adUrn = apiAdsForTrack.interstitialAd().get().urn;
                 adsOperations.applyInterstitialToTrack(currentItem, apiAdsForTrack);
+                publishAdDeliveryEvent(currentItem.getUrn(), adUrn);
             }
         }
     }

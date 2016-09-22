@@ -14,7 +14,6 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -27,6 +26,7 @@ import dagger.Lazy;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import android.util.Log;
 
@@ -36,6 +36,14 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class AdsOperations {
+
+     private static final Func1<ApiInterstitial, ApiAdsForTrack> TO_ADS_FOR_TRACK = new Func1<ApiInterstitial, ApiAdsForTrack>() {
+        @Override
+        public ApiAdsForTrack call(ApiInterstitial apiInterstitial) {
+            final ApiAdWrapper interstitialWrapper = ApiAdWrapper.create(apiInterstitial);
+            return new ApiAdsForTrack(Collections.singletonList(interstitialWrapper));
+        }
+    };
 
     private final FeatureOperations featureOperations;
     private final Lazy<KruxSegmentProvider> kruxSegmentProvider;
@@ -56,17 +64,31 @@ public class AdsOperations {
         this.kruxSegmentProvider = kruxSegmentProvider;
     }
 
-    public Observable<Optional<String>> kruxSegments() {
+    Observable<Optional<String>> kruxSegments() {
         if (featureOperations.shouldUseKruxForAdTargeting()) {
             return Observable.just(kruxSegmentProvider.get().getSegments());
         }
         return Observable.just(Optional.<String>absent());
     }
 
-    public Observable<ApiAdsForTrack> ads(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
-        final Urn sourceUrn = requestData.monetizableTrackUrn;
-        final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
+    Observable<ApiAdsForTrack> ads(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
+        final String endpoint = String.format(ApiEndpoints.ADS.path(), requestData.monetizableTrackUrn.toEncodedString());
+        return apiClientRx.mappedResponse(buildAdRequest(requestData, endpoint), ApiAdsForTrack.class)
+                          .subscribeOn(scheduler)
+                          .doOnError(onRequestFailure(requestData, endpoint, playerVisible, inForeground))
+                          .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
+    }
 
+    Observable<ApiAdsForTrack> interstitial(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
+        final String endpoint = String.format(ApiEndpoints.INTERSTITIAL.path(), requestData.monetizableTrackUrn.toEncodedString());
+        return apiClientRx.mappedResponse(buildAdRequest(requestData, endpoint), ApiInterstitial.class)
+                          .map(TO_ADS_FOR_TRACK)
+                          .subscribeOn(scheduler)
+                          .doOnError(onRequestFailure(requestData, endpoint, playerVisible, inForeground))
+                          .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
+    }
+
+    private ApiRequest buildAdRequest(AdRequestData requestData, String endpoint) {
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi()
                 .addQueryParam(AdConstants.CORRELATOR_PARAM, requestData.requestId);
 
@@ -74,10 +96,7 @@ public class AdsOperations {
             request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, requestData.kruxSegments.get());
         }
 
-        return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
-                          .subscribeOn(scheduler)
-                          .doOnError(onRequestFailure(requestData, endpoint, playerVisible, inForeground))
-                          .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
+        return request.build();
     }
 
     private Action1<? super ApiAdsForTrack> onRequestSuccess(final AdRequestData requestData, final String endpoint,
@@ -85,7 +104,7 @@ public class AdsOperations {
         return new Action1<ApiAdsForTrack>() {
             @Override
             public void call(ApiAdsForTrack apiAds) {
-                Log.i(ADS_TAG, "Retrieved ads for " + requestData.monetizableTrackUrn + ": " + apiAds.contentString());
+                Log.i(ADS_TAG, "Retrieved ads on " + endpoint + " for " + requestData.monetizableTrackUrn + ": " + apiAds.contentString());
                 logRequestSuccess(apiAds, requestData, endpoint, playerVisible, inForeground);
 
             }
@@ -97,7 +116,7 @@ public class AdsOperations {
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                Log.i(ADS_TAG, "Failed to retrieve ads for " + requestData.monetizableTrackUrn, throwable);
+                Log.i(ADS_TAG, "Failed to retrieve ads on" + endpoint + " for " + requestData.monetizableTrackUrn, throwable);
                 if (throwable instanceof ApiRequestException && ((ApiRequestException) throwable).reason() == NOT_FOUND) {
                     final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
                     logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
@@ -122,7 +141,7 @@ public class AdsOperations {
                                                                               inForeground));
     }
 
-    public void applyAdToUpcomingTrack(ApiAdsForTrack ads) {
+    void applyAdToUpcomingTrack(ApiAdsForTrack ads) {
         final PlayQueueItem monetizableItem = playQueueManager.getNextPlayQueueItem();
 
         if (monetizableItem instanceof TrackQueueItem) {
@@ -137,7 +156,7 @@ public class AdsOperations {
         }
     }
 
-    public void applyInterstitialToTrack(PlayQueueItem playQueueItem, ApiAdsForTrack ads) {
+    void applyInterstitialToTrack(PlayQueueItem playQueueItem, ApiAdsForTrack ads) {
         if (playQueueItem instanceof TrackQueueItem && ads.interstitialAd().isPresent()) {
             applyInterstitialAd(ads.interstitialAd().get(), (TrackQueueItem) playQueueItem);
         }
@@ -230,5 +249,4 @@ public class AdsOperations {
     public Optional<AdData> getNextTrackAdData() {
         return playQueueManager.getNextPlayQueueItem().getAdData();
     }
-
 }
