@@ -15,11 +15,12 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdDeliveryEvent;
-import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.AdRequestEvent.AdsReceived;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
@@ -461,12 +462,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAdDeliveryEvents() {
-        AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
         AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123),
-                                                            Urn.NOT_SET,
-                                                            "endpoint",
-                                                            adsReceived,
-                                                            false,
+                                                            Urn.forAd("dfp", "321"),
+                                                            "abc-def-ghi",
                                                             false,
                                                             false);
         when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdDeliveredEvent");
@@ -479,15 +477,21 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackAdFetchFailedEvents() {
-        AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(Urn.forTrack(123), "endpoint", false, false);
-        when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdFetchFailedEvent");
+    public void shouldTrackAdRequestEvents() {
+        AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
+        AdRequestEvent event = AdRequestEvent.adRequestSuccess("abc-def-ghi",
+                                                               Urn.forTrack(123),
+                                                               "endpoint",
+                                                               adsReceived,
+                                                               false,
+                                                               false);
+        when(dataBuilderv1.buildForAdRequest(event)).thenReturn("AdRequestEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
         verify(eventTrackingManager).trackEvent(captor.capture());
-        assertThat(captor.getValue().getData()).isEqualTo("AdFetchFailedEvent");
+        assertThat(captor.getValue().getData()).isEqualTo("AdRequestEvent");
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.TrackingRecord;

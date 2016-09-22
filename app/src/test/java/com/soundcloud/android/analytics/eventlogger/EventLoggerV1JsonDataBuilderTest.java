@@ -23,10 +23,11 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.discovery.ChartSourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
-import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.AdRequestEvent.AdsReceived;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
@@ -833,65 +834,59 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonFromAdDeliveryEvent() throws ApiMapperException {
-        final AdsReceived adsReceived = new AdsReceived(AD_URN, Urn.NOT_SET, Urn.NOT_SET);
         final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN,
                                                                   AD_URN,
-                                                                  "endpoint",
-                                                                  adsReceived,
+                                                                  "abc-def-ghi",
                                                                   false,
-                                                                  true,
                                                                   true);
-        when(jsonTransformer.toJson(adsReceived.ads)).thenReturn("{ads-received}");
 
         jsonDataBuilder.buildForAdDelivery(event);
 
-        verify(jsonTransformer).toJson(adsReceived.ads);
         verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
-                                               .adsRequested(true)
-                                               .adsReceived("{ads-received}")
-                                               .adsRequestSuccess(true)
+                                               .clientEventId(event.getId())
                                                .adUrn(AD_URN.toString())
-                                               .adOptimized(false)
                                                .monetizedObject(TRACK_URN.toString())
                                                .inForeground(true)
-                                               .playerVisible(true)
-                                               .adsEndpoint("endpoint"));
+                                               .playerVisible(false)
+                                               .adRequestId("abc-def-ghi"));
     }
 
     @Test
-    public void createsJsonFromAdDeliveryEventWithNoSelectedAdUrn() throws ApiMapperException {
+    public void createsJsonFromAdRequestSuccessEvent() throws ApiMapperException {
         final AdsReceived adsReceived = new AdsReceived(AD_URN, Urn.NOT_SET, Urn.NOT_SET);
-        final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN,
-                                                                  Urn.NOT_SET,
-                                                                  "endpoint",
-                                                                  adsReceived,
-                                                                  true,
-                                                                  true,
-                                                                  false);
+        final AdRequestEvent event = AdRequestEvent.adRequestSuccess("abc-def-ghi",
+                                                                     TRACK_URN,
+                                                                     "endpoint",
+                                                                     adsReceived,
+                                                                     true,
+                                                                     false);
         when(jsonTransformer.toJson(adsReceived.ads)).thenReturn("{ads-received}");
 
-        jsonDataBuilder.buildForAdDelivery(event);
+        jsonDataBuilder.buildForAdRequest(event);
 
         verify(jsonTransformer).toJson(adsReceived.ads);
-        verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
-                                               .adsRequested(true)
-                                               .adsReceived("{ads-received}")
+        verify(jsonTransformer).toJson(getEventData("ad_request", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clientEventId("abc-def-ghi")
                                                .adsRequestSuccess(true)
-                                               .adOptimized(true)
+                                               .adsReceived("{ads-received}")
                                                .monetizedObject(TRACK_URN.toString())
-                                               .inForeground(false)
                                                .playerVisible(true)
+                                               .inForeground(false)
                                                .adsEndpoint("endpoint"));
     }
 
     @Test
-    public void createsJsonFromFailedAdDeliveryEvent() throws ApiMapperException {
-        final AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(TRACK_URN, "endpoint", true, false);
+    public void createsJsonFromAdRequestFailureEvent() throws ApiMapperException {
+        final AdRequestEvent event = AdRequestEvent.adRequestFailure("abc-def-ghi",
+                                                                     TRACK_URN,
+                                                                     "endpoint",
+                                                                     true,
+                                                                     false);
 
-        jsonDataBuilder.buildForAdDelivery(event);
+        jsonDataBuilder.buildForAdRequest(event);
 
-        verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
-                                               .adsRequested(true)
+        verify(jsonTransformer).toJson(getEventData("ad_request", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clientEventId("abc-def-ghi")
                                                .adsRequestSuccess(false)
                                                .monetizedObject(TRACK_URN.toString())
                                                .inForeground(false)

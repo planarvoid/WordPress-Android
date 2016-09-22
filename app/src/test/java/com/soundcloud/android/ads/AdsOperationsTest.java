@@ -12,6 +12,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdsController.AdRequestData;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -92,7 +93,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        adsOperations.ads(TRACK_URN, Optional.of("123,321"), true, true).subscribe();
+        final AdRequestData requestData = new AdRequestData(TRACK_URN, Optional.of("123,321"));
+        adsOperations.ads(requestData, true, true).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForTrack.class));
@@ -105,7 +107,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        adsOperations.ads(TRACK_URN, Optional.<String>absent(), true, true).subscribe();
+        final AdRequestData requestData = new AdRequestData(TRACK_URN, Optional.<String>absent());
+        adsOperations.ads(requestData, true, true).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForTrack.class));
@@ -119,7 +122,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        assertThat(adsOperations.ads(TRACK_URN, Optional.<String>absent(), true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
+        final AdRequestData requestData = new AdRequestData(TRACK_URN, Optional.<String>absent());
+        assertThat(adsOperations.ads(requestData, true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 
     @Test

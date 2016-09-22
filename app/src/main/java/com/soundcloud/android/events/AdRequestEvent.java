@@ -7,7 +7,6 @@ import java.util.HashMap;
 
 public class AdRequestEvent extends TrackingEvent {
 
-    public static final String AD_REQUEST_KIND = "AD_REQUEST";
     public static final String AD_REQUEST_SUCCESS_KIND = "AD_REQUEST_SUCCESS";
     public static final String AD_REQUEST_FAILURE_KIND = "AD_REQUEST_FAILURE";
 
@@ -18,8 +17,8 @@ public class AdRequestEvent extends TrackingEvent {
     private AdRequestEvent(String kind, String uuid, Urn monetizableUrn, String endpoint,
                            boolean playerVisible, boolean inForeground, Optional<AdsReceived> adsReceived) {
         super(kind, uuid);
-        this.put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableUrn.toString());
-        this.put(PlayableTrackingKeys.KEY_ADS_ENDPOINT, endpoint);
+        put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableUrn.toString());
+        put(PlayableTrackingKeys.KEY_ADS_ENDPOINT, endpoint);
         this.inForeground = inForeground;
         this.playerVisible = playerVisible;
         this.adsReceived = adsReceived;
@@ -56,17 +55,17 @@ public class AdRequestEvent extends TrackingEvent {
         public final HashMap<String, Object> ads;
 
         public AdsReceived(Urn videoAdUrn, Urn audioAdUrn, Urn interstitialAdUrn) {
-            this.ads = new HashMap<>();
-            this.put(VIDEO_AD_KEY, videoAdUrn);
-            this.put(AUDIO_AD_KEY, audioAdUrn);
-            this.put(INTERSTITIAL_AD_KEY, interstitialAdUrn);
+            ads = new HashMap<>(3);
+            put(VIDEO_AD_KEY, videoAdUrn);
+            put(AUDIO_AD_KEY, audioAdUrn);
+            put(INTERSTITIAL_AD_KEY, interstitialAdUrn);
         }
 
         private void put(String key, Urn adUrn) {
             if (adUrn.isAd()) {
-                final HashMap<String, String> adData = new HashMap<>();
+                final HashMap<String, String> adData = new HashMap<>(1);
                 adData.put(URN_KEY, adUrn.toString());
-                this.ads.put(key, adData);
+                ads.put(key, adData);
             }
         }
     }

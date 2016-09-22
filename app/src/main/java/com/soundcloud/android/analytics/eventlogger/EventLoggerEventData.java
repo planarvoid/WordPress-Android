@@ -3,9 +3,8 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ADS_RECEIVED;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_ENDPOINT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_MADE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_SUCCESS;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_SELECTION_OPTIMIZED;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ATTRIBUTING_ACTIVITY;
@@ -75,7 +74,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -93,7 +91,6 @@ class EventLoggerEventData {
     private static final String PAGEVIEW_EVENT = "pageview";
     private static final String FOREGROUND_EVENT = "foreground";
     private static final String NAVIGATION_EVENT = "navigation";
-    private static final String AD_REQUEST_EVENT = "ad_request";
 
     @JsonProperty("event") final String event;
     @JsonProperty("version") final String version;
@@ -195,11 +192,6 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData adsRequested(boolean adsRequested) {
-        addToPayload(AD_REQUEST_MADE, adsRequested);
-        return this;
-    }
-
     public EventLoggerEventData adsEndpoint(String adsEndpoint) {
         addToPayload(AD_REQUEST_ENDPOINT, adsEndpoint);
         return this;
@@ -215,13 +207,13 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData adOptimized(boolean optimized) {
-        addToPayload(AD_SELECTION_OPTIMIZED, optimized);
+    public EventLoggerEventData adsReceived(String adsReceived) {
+        addToPayload(ADS_RECEIVED, adsReceived);
         return this;
     }
 
-    public EventLoggerEventData adsReceived(String adsReceived) {
-        addToPayload(ADS_RECEIVED, adsReceived);
+    public EventLoggerEventData adRequestId(String uuid) {
+        addToPayload(AD_REQUEST_ID, uuid);
         return this;
     }
 
@@ -561,8 +553,6 @@ class EventLoggerEventData {
                 return FOREGROUND_EVENT;
             case UIEvent.KIND_NAVIGATION:
                 return NAVIGATION_EVENT;
-            case AdRequestEvent.AD_REQUEST_KIND:
-                return AD_REQUEST_EVENT;
             default:
                 throw new IllegalArgumentException(
                         "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);

@@ -414,8 +414,8 @@ public class AdsController {
         final Urn monetizableTrackUrn;
         final Optional<String> kruxSegments;
 
-        private AdRequestData(Urn monetizableTrackUrn,
-                              Optional<String> kruxSegments) {
+        AdRequestData(Urn monetizableTrackUrn,
+                      Optional<String> kruxSegments) {
             this.requestId = UUID.randomUUID().toString();
             this.monetizableTrackUrn = monetizableTrackUrn;
             this.kruxSegments = kruxSegments;

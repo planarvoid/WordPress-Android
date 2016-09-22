@@ -68,7 +68,7 @@ class EventLoggerV1JsonDataBuilder {
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
-    private static final String BOOGALOO_VERSION = "v1.21.2";
+    private static final String BOOGALOO_VERSION = "v1.24.0";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -118,7 +118,7 @@ class EventLoggerV1JsonDataBuilder {
     public String buildForAdDelivery(AdDeliveryEvent event) {
         return transform(buildBaseEvent("ad_delivery", event)
                 .clientEventId(event.getId())
-                .referringEvent(event.adRequestId, AdRequestEvent.AD_REQUEST_KIND)
+                .adRequestId(event.adRequestId)
                 .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .playerVisible(event.playerVisible)
                 .inForeground(event.inForeground)
