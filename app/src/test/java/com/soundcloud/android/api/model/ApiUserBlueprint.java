@@ -17,6 +17,7 @@ public class ApiUserBlueprint {
             final ApiUser apiUser = new ApiUser(Urn.forUser(runningId++));
             apiUser.setFollowersCount(100);
             apiUser.setAvatarUrlTemplate("https://i1.sndcdn.com/avatars-" + runningId + "-{size}.jpg");
+            apiUser.setVisualUrlTemplate("https://i1.sndcdn.com/visuals-" + runningId + "-{size}.jpg");
             return apiUser;
         }
     };

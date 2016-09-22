@@ -88,4 +88,9 @@ public class TestUserRecord implements UserRecord {
     public Optional<Urn> getArtistStationUrn() {
         return Optional.of(Urn.forArtistStation(123));
     }
+
+    @Override
+    public Optional<String> getVisualUrlTemplate() {
+        return apiUser.getVisualUrlTemplate();
+    }
 }

@@ -160,6 +160,7 @@ public final class TableColumns {
     public static class Users extends ResourceTable {
         public static final String USERNAME = "username";
         public static final String AVATAR_URL = "avatar_url";
+        public static final String VISUAL_URL = "visual_url";
         public static final String CITY = "city";
         public static final String COUNTRY = "country";
         public static final String DISCOGS_NAME = "discogs_name";
@@ -183,7 +184,7 @@ public final class TableColumns {
         public static final String PLAN = "plan";
 
         public static final String[] ALL_FIELDS = {
-                _ID, USERNAME, AVATAR_URL, CITY, COUNTRY, DISCOGS_NAME,
+                _ID, USERNAME, AVATAR_URL, VISUAL_URL, CITY, COUNTRY, DISCOGS_NAME,
                 FOLLOWERS_COUNT, FOLLOWINGS_COUNT, FULL_NAME, MYSPACE_NAME,
                 TRACK_COUNT, WEBSITE_URL, WEBSITE_NAME, DESCRIPTION, PERMALINK,
                 LAST_UPDATED, PERMALINK_URL, PRIMARY_EMAIL_CONFIRMED, PUBLIC_LIKES_COUNT,

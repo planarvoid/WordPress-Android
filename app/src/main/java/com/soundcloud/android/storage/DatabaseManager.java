@@ -27,7 +27,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 92;
+    public static final int DATABASE_VERSION = 93;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -303,6 +303,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 92:
                             success = upgradeTo92(db, oldVersion);
+                            break;
+                        case 93:
+                            success = upgradeTo93(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1121,6 +1124,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
             dropView(Tables.UsersView.TABLE.name(), db);
             db.execSQL(Tables.UsersView.SQL);
             db.execSQL(Tables.SuggestedCreators.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 92);
+        }
+        return false;
+    }
+
+    /**
+     * Add visual column to User table
+     */
+    private boolean upgradeTo93(SQLiteDatabase db, int oldVersion) {
+        try {
+            alterColumns(Table.Users, db);
+            dropView(Tables.UsersView.TABLE.name(), db);
+            db.execSQL(Tables.UsersView.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 92);

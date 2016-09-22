@@ -37,6 +37,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
 
         putOptionalValue(baseBuilder, user.getDescription(), Users.DESCRIPTION);
         putOptionalValue(baseBuilder, user.getImageUrlTemplate(), Users.AVATAR_URL);
+        putOptionalValue(baseBuilder, user.getVisualUrlTemplate(), Users.VISUAL_URL);
         putOptionalValue(baseBuilder, user.getWebsiteUrl(), Users.WEBSITE_URL);
         putOptionalValue(baseBuilder, user.getWebsiteName(), Users.WEBSITE_NAME);
         putOptionalValue(baseBuilder, user.getDiscogsName(), Users.DISCOGS_NAME);

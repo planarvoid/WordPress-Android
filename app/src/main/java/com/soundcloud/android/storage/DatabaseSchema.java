@@ -134,6 +134,8 @@ final class DatabaseSchema {
             "discogs_name VARCHAR(255)," +
             "myspace_name VARCHAR(255)," +
 
+            "visual_url VARCHAR(255)," +
+
             // counts
             "track_count INTEGER DEFAULT -1," +
             "followers_count INTEGER DEFAULT -1," +

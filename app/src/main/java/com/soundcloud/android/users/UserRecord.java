@@ -27,4 +27,6 @@ public interface UserRecord extends ImageResource {
     Optional<String> getMyspaceName();
 
     Optional<Urn> getArtistStationUrn();
+
+    Optional<String> getVisualUrlTemplate();
 }

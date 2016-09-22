@@ -511,6 +511,7 @@ public interface Tables {
         public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "uv_followers_count");
         public static final Column DESCRIPTION = Column.create(TABLE, "uv_description");
         public static final Column AVATAR_URL = Column.create(TABLE, "uv_avatar_url");
+        public static final Column VISUAL_URL = Column.create(TABLE, "uv_visual_url");
         public static final Column WEBSITE_URL = Column.create(TABLE, "uv_website_url");
         public static final Column WEBSITE_NAME = Column.create(TABLE, "uv_website_name");
         public static final Column MYSPACE_NAME = Column.create(TABLE, "uv_myspace_name");
@@ -530,6 +531,7 @@ public interface Tables {
                              field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.name()),
                              field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.name()),
                              field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.name()),
+                             field(Table.Users.field(TableColumns.Users.VISUAL_URL)).as(VISUAL_URL.name()),
                              field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.name()),
                              field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.name()),
                              field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.name()),

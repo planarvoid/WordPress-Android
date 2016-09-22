@@ -230,6 +230,11 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return Optional.absent();
     }
 
+    @Override
+    public Optional<String> getVisualUrlTemplate() {
+        return Optional.absent();
+    }
+
     public final void setCountry(@Nullable String country) {
         this.country = country;
     }

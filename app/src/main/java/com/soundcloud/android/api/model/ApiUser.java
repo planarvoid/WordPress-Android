@@ -22,6 +22,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     private String permalink;
     private String username;
     private Optional<String> avatarUrlTemplate = Optional.absent();
+    private Optional<String> visualUrlTemplate = Optional.absent();
     private String description;
     private String myspaceName;
     private String website;
@@ -43,6 +44,11 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     @Override
     public Optional<String> getImageUrlTemplate() {
         return avatarUrlTemplate;
+    }
+
+    @Override
+    public Optional<String> getVisualUrlTemplate() {
+        return visualUrlTemplate;
     }
 
     public void setUrn(Urn urn) {
@@ -72,6 +78,11 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     @JsonProperty("avatar_url_template")
     public void setAvatarUrlTemplate(String avatarUrlTemplate) {
         this.avatarUrlTemplate = Optional.fromNullable(avatarUrlTemplate);
+    }
+
+    @JsonProperty("visual_url_template")
+    public void setVisualUrlTemplate(String visualUrlTemplate) {
+        this.visualUrlTemplate = Optional.fromNullable(visualUrlTemplate);
     }
 
     @JsonProperty("station_urns")

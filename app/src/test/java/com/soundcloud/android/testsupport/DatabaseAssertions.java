@@ -77,6 +77,7 @@ import static com.soundcloud.android.storage.TableColumns.Users.DESCRIPTION;
 import static com.soundcloud.android.storage.TableColumns.Users.DISCOGS_NAME;
 import static com.soundcloud.android.storage.TableColumns.Users.FOLLOWERS_COUNT;
 import static com.soundcloud.android.storage.TableColumns.Users.MYSPACE_NAME;
+import static com.soundcloud.android.storage.TableColumns.Users.VISUAL_URL;
 import static com.soundcloud.android.storage.TableColumns.Users.WEBSITE_NAME;
 import static com.soundcloud.android.storage.TableColumns.Users.WEBSITE_URL;
 import static com.soundcloud.android.storage.TableColumns.Waveforms.MAX_AMPLITUDE;
@@ -782,6 +783,7 @@ public class DatabaseAssertions {
         assertOptionalColumn(query, DESCRIPTION, user.getDescription());
         assertOptionalColumn(query, WEBSITE_URL, user.getWebsiteUrl());
         assertOptionalColumn(query, AVATAR_URL, user.getImageUrlTemplate());
+        assertOptionalColumn(query, VISUAL_URL, user.getVisualUrlTemplate());
         assertOptionalColumn(query, WEBSITE_NAME, user.getWebsiteName());
         assertOptionalColumn(query, DISCOGS_NAME, user.getDiscogsName());
         assertOptionalColumn(query, MYSPACE_NAME, user.getMyspaceName());
