@@ -1089,14 +1089,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Create UsersView
      */
+    @SuppressWarnings("unused")
     private boolean upgradeTo90(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.UsersView.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 90);
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -1121,8 +1116,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo92(SQLiteDatabase db, int oldVersion) {
         try {
-            dropView(Tables.UsersView.TABLE.name(), db);
-            db.execSQL(Tables.UsersView.SQL);
             db.execSQL(Tables.SuggestedCreators.SQL);
             return true;
         } catch (SQLException exception) {
