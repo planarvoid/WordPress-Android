@@ -43,7 +43,7 @@
             style="@style/Upsell"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:singleLine="true"
+            android:maxLines="1"
             android:ellipsize="end"
             android:layout_gravity="right" />
     </FrameLayout>

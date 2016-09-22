@@ -151,9 +151,10 @@ public final class AndroidUtils {
     /**
      * Returns emails from the account manager paired and sorted by their frequency of usage
      */
+    @SuppressWarnings("MissingPermission")
     public static String[] listEmails(Context context) {
         Map<String, Integer> map = new HashMap<>();
-        Account[] accounts = AccountManager.get(context).getAccounts();
+        final Account[] accounts = AccountManager.get(context).getAccounts();
         for (Account account : accounts) {
             if (ScTextUtils.isEmail(account.name)) {
                 if (map.get(account.name) == null) {
@@ -179,7 +180,7 @@ public final class AndroidUtils {
     }
 
     public static String[] getAccountsByType(Context context, String accountType) {
-        Account[] accounts = AccountManager.get(context).getAccountsByType(accountType);
+        final Account[] accounts = getAccounts(context, accountType);
         final String[] names = new String[accounts.length];
         for (int i = 0; i < names.length; i++) {
             names[i] = accounts[i].name;
@@ -187,10 +188,19 @@ public final class AndroidUtils {
         return names;
     }
 
+    public static Account[] getAccounts(Context context, String accountType) {
+        return getAccounts(AccountManager.get(context), accountType);
+    }
+
+    @SuppressWarnings("MissingPermission") //safe since we are manipulating our own SC account.
+    public static Account[] getAccounts(AccountManager accountManager, String accountType) {
+        return accountManager.getAccountsByType(accountType);
+    }
+
     private static class MapValueComparator implements Comparator<String> {
         Map<String, Integer> map;
 
-        public MapValueComparator(Map<String, Integer> map) {
+        MapValueComparator(Map<String, Integer> map) {
             this.map = map;
         }
 

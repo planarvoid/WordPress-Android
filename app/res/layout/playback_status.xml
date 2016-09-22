@@ -31,7 +31,7 @@
         <TextView
                 android:id="@+id/user_txt"
                 style="@style/PlaybackNotificationUser"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:scrollHorizontally="true"
                 android:ellipsize="end"
                 android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
                 android:id="@+id/title_txt"
                 style="@style/PlaybackNotificationTitle"
                 android:ellipsize="end"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
     </LinearLayout>

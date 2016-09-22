@@ -59,14 +59,14 @@ public class AuthenticatorService extends Service {
         }
 
         @Override
+        @SuppressWarnings("MissingPermission") //safe since we are manipulating our own SC account.
         public Bundle addAccount(AccountAuthenticatorResponse response,
                                  String accountType,
                                  String authTokenType,
                                  String[] requiredFeatures,
                                  Bundle options) throws NetworkErrorException {
             final Bundle reply = new Bundle();
-            AccountManager mgr = AccountManager.get(context);
-            Account[] accounts = mgr.getAccountsByType(accountType);
+            final Account[] accounts = AndroidUtils.getAccounts(context, accountType);
             if (accounts.length == 0) {
                 Intent intent = new Intent(context, OnboardActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -3,6 +3,7 @@ package com.soundcloud.android.api;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.Log;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.VisibleForTesting;
@@ -14,7 +15,10 @@ public class UnauthorisedRequestRegistry {
     private static final String TAG = "RequestRegistry";
     private static final long NO_OBSERVED_TIME = 0L;
     private static final long TIME_LIMIT_IN_MILLISECONDS = TimeUnit.SECONDS.toMillis(5);
+
+    @SuppressLint("StaticFieldLeak")
     private static UnauthorisedRequestRegistry instance;
+
     private final Context context;
     private final AtomicLong lastObservedTime;
 

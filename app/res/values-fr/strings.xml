@@ -112,16 +112,11 @@
   <string name="list_empty_stream_message">Suivez vos artistes, groupes et podcasts préférés pour écouter leurs derniers titres.</string>
   <string name="custom_empty_playlist_title">%1$s vide</string>
   <string name="custom_empty_playlist_description">Cette %1$s ne contient pas encore de titres.</string>
-  <string name="list_empty_you_sounds_message">Repostez des titres pour les partager avec vos abonnés.</string>
-  <string name="list_empty_you_playlists_message">Créez des playlists pour regrouper tous vos titres préférés.</string>
   <string name="list_empty_you_likes_message">Aimez vos titres préférés pour les écouter à nouveau.</string>
   <string name="list_empty_you_following_message">Suivez vos artistes et curateurs préférés pour écouter leurs derniers titres.</string>
   <string name="list_empty_you_followers_message">Vous n\'avez aucun abonné pour l\'instant.</string>
   <string name="list_empty_you_followers_secondary">Partagez vos titres et vos playlists favorites pour construire votre communauté</string>
   <!--new profile-->
-  <string name="new_empty_user_posts_message">Cette personne n\'a uploadé\naucun titre public pour l\'instant.</string>
-  <string name="new_empty_user_playlists_message">Cette personne n\'a aucune playlist actuellement.</string>
-  <string name="new_empty_user_likes_text">Cette personne n\'a aucun favori pour l\'instant.</string>
   <!--@Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet."-->
   <string name="new_empty_user_followers_text">Cette personne n\'a aucun abonné pour l\'instant.</string>
   <string name="new_empty_user_followings_text">Cette personne ne suit personne pour l\'instant</string>
@@ -204,7 +199,6 @@
   <string name="side_menu_notifications">Activité</string>
   <string name="side_menu_record">Enregistrer</string>
   <string name="side_menu_you">Vous</string>
-  <string name="side_menu_settings">Paramètres</string>
   <string name="side_menu_profile">Profil</string>
   <string name="side_menu_explore">Explorer</string>
   <string name="title_settings">Paramètres </string>
@@ -331,9 +325,7 @@
   </plurals>
   <!--__PROFILE-->
   <string name="tab_title_user_info">INFOS</string>
-  <string name="tab_title_user_posts">PUBLICATIONS</string>
   <string name="tab_title_user_likes">FAVORIS</string>
-  <string name="tab_title_user_playlists">PLAYLISTS</string>
   <string name="tab_title_user_followers">ABONNÉS</string>
   <string name="tab_title_user_followings">ABONNEMENTS</string>
   <string name="tab_title_user_sounds">TITRES</string>
@@ -669,7 +661,6 @@
   <string name="stream_reposted_action">a reposté</string>
   <string name="stream_promoted_action">a sponsorisé</string>
   <string name="stream_track">titre</string>
-  <string name="stream_playlist">Playlist</string>
   <string name="stream_promoted_playable">%s sponsorisé(e)</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
@@ -859,11 +850,6 @@
   <string name="station_type_genre">Station par genre</string>
   <string name="station_type_curator">Station de curateur</string>
   <string name="station_type_artist">Station de l\'artiste</string>
-  <string name="stations_collection_title_saved_stations">Vos stations</string>
-  <string name="stations_collection_title_track_recommendations">Recommandations de titres</string>
-  <string name="stations_collection_title_curator_recommendations">Recommandations de curateurs</string>
-  <string name="stations_collection_title_genre_recommendations">Recommandations par genre</string>
-  <string name="station_bucket_action_text">Afficher tout</string>
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Mis en pause car vous avez commencé la lecture sur un autre appareil</string>
   <!--__PLAYER-->

@@ -29,8 +29,8 @@ class TrackingDbHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_EVENTS_TABLE = "CREATE TABLE IF NOT EXISTS " + EVENTS_TABLE.name() + "(" +
             TrackingColumns._ID + " INTEGER PRIMARY KEY," +
             TrackingColumns.TIMESTAMP + " INTEGER NOT NULL," +
-            TrackingColumns.BACKEND + " STRING NOT NULL," +
-            TrackingColumns.DATA + " STRING NOT NULL," +
+            TrackingColumns.BACKEND + " TEXT NOT NULL," +
+            TrackingColumns.DATA + " TEXT NOT NULL," +
             "UNIQUE (" + TrackingColumns.TIMESTAMP + ", " + TrackingColumns.BACKEND + ", " + TrackingColumns.DATA + ") ON CONFLICT IGNORE" + ")";
 
     @Inject

@@ -5,6 +5,7 @@ import com.soundcloud.java.hashing.Hashing;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.CamcorderProfile;
 import android.os.Build;
@@ -39,6 +40,7 @@ public class DeviceHelper {
         }
     }
 
+    @SuppressLint("HardwareIds")
     private String getUniqueDeviceId() {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }

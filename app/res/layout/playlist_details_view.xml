@@ -49,7 +49,7 @@
         android:layout_marginTop="4dp"
         android:drawableLeft="@drawable/ic_private_playlist_lock"
         android:drawablePadding="4dp"
-        android:singleLine="true"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <View
@@ -75,7 +75,7 @@
         android:layout_marginLeft="@dimen/playlist_edit_info_left_margin"
         android:layout_marginTop="@dimen/playlist_action_bar_padding"
         android:gravity="center_vertical"
-        android:singleLine="true"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <View

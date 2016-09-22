@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_below="@id/title_header"
-        android:singleLine="true"
+        android:maxLines="1"
         android:ellipsize="end"
         android:fadingEdge="horizontal"
         android:fadeScrollbars="true"

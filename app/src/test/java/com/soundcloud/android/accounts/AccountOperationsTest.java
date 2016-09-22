@@ -46,6 +46,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+@SuppressWarnings("MissingPermission")
 public class AccountOperationsTest extends AndroidUnitTest {
 
     private static final String SC_ACCOUNT_TYPE = BuildConfig.APPLICATION_ID + ".account";

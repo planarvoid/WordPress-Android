@@ -44,7 +44,6 @@
                     android:gravity="center_vertical"
                     android:maxWidth="100dp"
                     android:maxLines="1"
-                    android:singleLine="true"
                     android:visibility="gone" />
 
                 <TextView
@@ -68,7 +67,7 @@
                     android:ellipsize="end"
                     android:focusable="true"
                     android:gravity="start|center_vertical"
-                    android:singleLine="true" />
+                    android:maxLines="1" />
             </LinearLayout>
 
             <LinearLayout

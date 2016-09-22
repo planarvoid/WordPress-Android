@@ -19,12 +19,14 @@ import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.java.collections.Sets;
 import rx.functions.Action1;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Collections;
 import java.util.List;
 
+@SuppressLint("CommitPrefEdits")
 public class ConfigurationHelper {
 
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
