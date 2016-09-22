@@ -6,10 +6,12 @@ import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 import static com.soundcloud.android.profile.UserSoundsTypes.TRACKS;
 import static com.soundcloud.android.profile.UserSoundsTypes.fromModule;
 import static java.util.Collections.singletonList;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +22,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -70,6 +73,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private UserSoundsItemClickListener clickListener;
     @Mock private Resources resources;
     @Mock private UserSoundsItem userSoundsItem;
+    @Mock private View view;
 
     @Captor private ArgumentCaptor<Observable<List<PropertySet>>> argumentCaptor;
 
@@ -149,12 +153,10 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldDelegateClickEventsToClickListener() throws Exception {
-        View view = mock(View.class);
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        TrackItem trackItem = TrackItem.from(track);
-        final int collectionType = TRACKS;
-        final UserSoundsItem userSoundsItem = fromTrackItem(trackItem, collectionType);
+    public void shouldDelegateClickEventsToClickListener() {
+        final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        final UserSoundsItem userSoundsItem = fromTrackItem(trackItem, TRACKS);
+
         when(adapter.getItem(0)).thenReturn(userSoundsItem);
         when(adapter.getItems()).thenReturn(singletonList(userSoundsItem));
 
@@ -167,11 +169,43 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
                                           same(userSoundsItem),
                                           eq(USER_URN),
                                           same(SEARCH_QUERY_SOURCE_INFO),
-                                          eq(fromModule(collectionType, 0)));
+                                          eq(fromModule(TRACKS, 0)));
 
         final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
         argumentCaptor.getValue().subscribe(subscriber);
         subscriber.assertValue(singletonList(trackItem.getSource()));
+    }
+
+    @Test
+    public void shouldNotDelegateClickEventsToClickListenerForDivider() {
+        when(adapter.getItem(0)).thenReturn(UserSoundsItem.fromDivider());
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onItemClicked(view, 0);
+
+        verify(clickListener, never()).onItemClick(any(Observable.class),
+                                                   eq(view),
+                                                   eq(0),
+                                                   any(UserSoundsItem.class),
+                                                   any(Urn.class),
+                                                   any(SearchQuerySourceInfo.class),
+                                                   any(Module.class));
+    }
+
+    @Test
+    public void shouldNotDelegateClickEventsToClickListenerForEndOfListDivider() {
+        when(adapter.getItem(0)).thenReturn(UserSoundsItem.fromEndOfListDivider());
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onItemClicked(view, 0);
+
+        verify(clickListener, never()).onItemClick(any(Observable.class),
+                                                   eq(view),
+                                                   eq(0),
+                                                   any(UserSoundsItem.class),
+                                                   any(Urn.class),
+                                                   any(SearchQuerySourceInfo.class),
+                                                   any(Module.class));
     }
 
     private EntityStateChangedEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {

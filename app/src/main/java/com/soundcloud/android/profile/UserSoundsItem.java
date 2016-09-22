@@ -95,6 +95,10 @@ abstract class UserSoundsItem implements ListItem {
         return getItemType() == TYPE_PLAYLIST && getPlaylistItem().isPresent();
     }
 
+    public boolean isDivider() {
+        return getItemType() == TYPE_DIVIDER || getItemType() == TYPE_END_OF_LIST_DIVIDER;
+    }
+
     @Override
     public ListItem update(PropertySet sourceSet) {
         if (isTrack()) {
