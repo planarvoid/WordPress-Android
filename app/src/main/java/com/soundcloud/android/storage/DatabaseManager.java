@@ -1134,7 +1134,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.UsersView.SQL);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 92);
+            handleUpgradeException(exception, oldVersion, 93);
         }
         return false;
     }
