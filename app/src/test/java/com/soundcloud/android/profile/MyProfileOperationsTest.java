@@ -157,8 +157,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsNumberOfFollowings() {
-        TestSubscriber<Integer> subscriber = new TestSubscriber<>();
+    public void returnsListOfFollowingsUrns() {
+        TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
         int numberOfFollowings = 2;
         final List<PropertySet> pageOfFollowings = createPageOfFollowings(numberOfFollowings);
         final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
@@ -168,12 +168,10 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
                 pageOfFollowings));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(SHOULD_NEVER_SYNC);
-        when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
-                                                                                                           true)));
 
-        operations.numberOfFollowings().subscribe(subscriber);
+        operations.followingsUrns().subscribe(subscriber);
 
-        subscriber.assertValue(numberOfFollowings);
+        subscriber.assertValue(followingsUrn);
     }
 
     private List<PropertySet> createPageOfFollowings(int size) {

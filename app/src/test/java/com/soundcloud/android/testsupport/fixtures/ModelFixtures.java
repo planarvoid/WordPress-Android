@@ -43,6 +43,7 @@ import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
+import com.soundcloud.android.users.UserBlueprint;
 import com.soundcloud.android.users.UserItemBlueprint;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -79,6 +80,7 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(TrackItemBlueprint.class);
             modelFactory.registerBlueprint(PlaylistItemBlueprint.class);
             modelFactory.registerBlueprint(UserItemBlueprint.class);
+            modelFactory.registerBlueprint(UserBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }

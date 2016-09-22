@@ -21,6 +21,8 @@ public enum Syncable {
     RECOMMENDED_TRACKS,
     CHARTS,
     CHART_GENRES,
+    SUGGESTED_CREATORS,
+
     /**
      * Used from Operations class
      * through {@link SyncInitiator}

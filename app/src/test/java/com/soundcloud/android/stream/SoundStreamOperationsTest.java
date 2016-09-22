@@ -22,6 +22,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.SoundStreamItem.Kind;
+import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -34,6 +35,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -53,7 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SoundStreamOperationsTest extends TimelineOperationsTest<SoundStreamItem, SoundStreamStorage> {
 
-    private final SoundStreamItem SUGGESTED_CREATORS_ITEM = SoundStreamItem.forSuggestedCreators();
+    private final SoundStreamItem SUGGESTED_CREATORS_ITEM = SoundStreamItem.forSuggestedCreators(Lists.<SuggestedCreator>newArrayList());
     private SoundStreamOperations operations;
 
     @Mock private SoundStreamStorage soundStreamStorage;

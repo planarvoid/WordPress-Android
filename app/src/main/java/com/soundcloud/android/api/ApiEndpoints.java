@@ -50,6 +50,9 @@ public enum ApiEndpoints {
     CHARTS_GENRES("/charts/genres"),
     CHARTS("/charts"),
 
+    // suggested creators
+    SUGGESTED_CREATORS("/you/suggested-creators"),
+
     // ads + monetization
     ADS("/tracks/%s/ads"),
     POLICIES("/policies/tracks"),

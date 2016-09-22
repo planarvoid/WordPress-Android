@@ -124,11 +124,13 @@ import com.soundcloud.android.storage.Tables.RecentlyPlayed;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.storage.Tables.SuggestedCreators;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.charts.ApiChartBucket;
 import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.android.sync.likes.ApiLike;
+import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
@@ -900,5 +902,23 @@ public class DatabaseAssertions {
         assertThat(select(from(ChartTracks.TABLE)
                                   .whereEq(ChartTracks.TRACK_ID, track.getUrn().getNumericId())
                                   .whereEq(ChartTracks.TRACK_ARTWORK, track.getImageUrlTemplate()))).counts(0);
+    }
+
+    public void assertSuggestedCreatorInserted(ApiSuggestedCreator apiSuggestedCreator) {
+        assertThat(select(from(SuggestedCreators.TABLE)
+                                  .whereEq(SuggestedCreators.RELATION_KEY, apiSuggestedCreator.getRelationKey())
+                                  .whereEq(SuggestedCreators.SEED_USER_ID, apiSuggestedCreator.getSeedUser().getId())
+                                  .whereEq(SuggestedCreators.SUGGESTED_USER_ID,
+                                           apiSuggestedCreator.getSuggestedUser().getId()))).counts(1);
+        assertUserInserted(apiSuggestedCreator.getSeedUser());
+        assertUserInserted(apiSuggestedCreator.getSuggestedUser());
+    }
+
+    public void assertSuggestedCreatorRemoved(ApiSuggestedCreator apiSuggestedCreator) {
+        assertThat(select(from(SuggestedCreators.TABLE)
+                                  .whereEq(SuggestedCreators.RELATION_KEY, apiSuggestedCreator.getRelationKey())
+                                  .whereEq(SuggestedCreators.SEED_USER_ID, apiSuggestedCreator.getSeedUser().getId())
+                                  .whereEq(SuggestedCreators.SUGGESTED_USER_ID,
+                                           apiSuggestedCreator.getSuggestedUser().getId()))).counts(0);
     }
 }

@@ -52,6 +52,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                                    .put(Users.PERMALINK, user.getPermalink())
                                    .put(Users.USERNAME, user.getUsername())
                                    .put(Users.COUNTRY, user.getCountry())
+                                   .put(Users.CITY, user.getCity())
                                    .put(Users.FOLLOWERS_COUNT, user.getFollowersCount());
     }
 

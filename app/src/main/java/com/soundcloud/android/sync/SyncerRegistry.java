@@ -11,6 +11,7 @@ import com.soundcloud.android.stations.LikedStationsSyncProvider;
 import com.soundcloud.android.stations.RecentStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorsSyncProvider;
 import com.soundcloud.android.sync.likes.PlaylistLikesSyncProvider;
 import com.soundcloud.android.sync.likes.TrackLikesSyncProvider;
 import com.soundcloud.android.sync.me.MeSyncerProvider;
@@ -45,7 +46,8 @@ public class SyncerRegistry {
                           MeSyncerProvider meSyncerProvider,
                           ChartGenresSyncProvider chartGenresSyncProvider,
                           PlayHistorySyncProvider playHistorySyncProvider,
-                          RecentlyPlayedSyncProvider recentlyPlayedSyncProvider) {
+                          RecentlyPlayedSyncProvider recentlyPlayedSyncProvider,
+                          SuggestedCreatorsSyncProvider suggestedCreatorsSyncProvider) {
         this.syncers = new HashMap<>();
 
         registerSyncer(soundStreamSyncProvider);
@@ -64,6 +66,7 @@ public class SyncerRegistry {
         registerSyncer(chartGenresSyncProvider);
         registerSyncer(playHistorySyncProvider);
         registerSyncer(recentlyPlayedSyncProvider);
+        registerSyncer(suggestedCreatorsSyncProvider);
     }
 
     @Nullable

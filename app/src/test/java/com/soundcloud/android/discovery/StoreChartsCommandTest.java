@@ -15,7 +15,7 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 
-public class StoreChartsCommandTest  extends StorageIntegrationTest {
+public class StoreChartsCommandTest extends StorageIntegrationTest {
 
     private StoreChartsCommand command;
 

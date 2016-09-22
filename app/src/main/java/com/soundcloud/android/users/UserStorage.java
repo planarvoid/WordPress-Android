@@ -27,6 +27,6 @@ public class UserStorage {
     private Query buildUserQuery(Urn userUrn) {
         return Query.from(Tables.UsersView.TABLE)
                     .select("*")
-                    .whereEq(Tables.UsersView.ID.fullName(), userUrn.getNumericId());
+                    .whereEq(Tables.UsersView.ID, userUrn.getNumericId());
     }
 }

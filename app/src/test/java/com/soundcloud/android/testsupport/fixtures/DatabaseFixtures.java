@@ -34,6 +34,7 @@ import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
+import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -207,6 +208,16 @@ public class DatabaseFixtures {
         cv.put(Tables.PlayHistory.TRACK_ID.name(), urn.getNumericId());
         cv.put(Tables.PlayHistory.SYNCED.name(), false);
         insertInto(Tables.PlayHistory.TABLE, cv);
+    }
+
+    public void insertSuggestedCreator(ApiSuggestedCreator apiSuggestedCreator) {
+        insertUser(apiSuggestedCreator.getSeedUser());
+        insertUser(apiSuggestedCreator.getSuggestedUser());
+        ContentValues cv = new ContentValues();
+        cv.put(Tables.SuggestedCreators.RELATION_KEY.name(), apiSuggestedCreator.getRelationKey());
+        cv.put(Tables.SuggestedCreators.SEED_USER_ID.name(), apiSuggestedCreator.getSeedUser().getId());
+        cv.put(Tables.SuggestedCreators.SUGGESTED_USER_ID.name(), apiSuggestedCreator.getSuggestedUser().getId());
+        insertInto(Tables.SuggestedCreators.TABLE, cv);
     }
 
     private void insertPolicy(ApiTrack track) {

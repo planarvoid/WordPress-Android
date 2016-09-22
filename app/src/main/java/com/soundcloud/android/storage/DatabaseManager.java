@@ -27,7 +27,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 91;
+    public static final int DATABASE_VERSION = 92;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -68,6 +68,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.ChartTracks.SQL);
             db.execSQL(Tables.PlayHistory.SQL);
             db.execSQL(Tables.RecentlyPlayed.SQL);
+            db.execSQL(Tables.SuggestedCreators.SQL);
 
             // legacy tables
             for (Table t : Table.values()) {
@@ -103,6 +104,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.ChartTracks.TABLE.name(), db);
         dropTable(Tables.PlayHistory.TABLE.name(), db);
         dropTable(Tables.RecentlyPlayed.TABLE.name(), db);
+        dropTable(Tables.SuggestedCreators.TABLE.name(), db);
 
         // legacy tables
         for (Table t : Table.values()) {
@@ -298,6 +300,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 91:
                             success = upgradeTo91(db, oldVersion);
+                            break;
+                        case 92:
+                            success = upgradeTo92(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1086,7 +1091,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.UsersView.SQL);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 89);
+            handleUpgradeException(exception, oldVersion, 90);
         }
         return false;
     }
@@ -1104,6 +1109,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 91);
+        }
+        return false;
+    }
+
+    /**
+     * Create Suggested Creators Table
+     */
+    private boolean upgradeTo92(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropView(Tables.UsersView.TABLE.name(), db);
+            db.execSQL(Tables.UsersView.SQL);
+            db.execSQL(Tables.SuggestedCreators.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 92);
         }
         return false;
     }

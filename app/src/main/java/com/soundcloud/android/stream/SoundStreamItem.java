@@ -8,6 +8,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
@@ -31,8 +32,8 @@ public abstract class SoundStreamItem implements Timestamped {
         return new AutoValue_SoundStreamItem_Default(Kind.STREAM_UPSELL);
     }
 
-    public static SoundStreamItem forSuggestedCreators() {
-        return new AutoValue_SoundStreamItem_Default(Kind.SUGGESTED_CREATORS);
+    public static SoundStreamItem forSuggestedCreators(final List<SuggestedCreator> suggestedCreators) {
+        return SuggestedCreators.create(suggestedCreators);
     }
 
     public static SoundStreamItem forFacebookCreatorInvites(Urn trackUrn, String trackUrl) {
@@ -148,6 +149,14 @@ public abstract class SoundStreamItem implements Timestamped {
         @Override
         public Date getCreatedAt() {
             return trackItem().getCreatedAt();
+        }
+    }
+
+    @AutoValue
+    public abstract static class SuggestedCreators extends SoundStreamItem {
+        public abstract List<SuggestedCreator> suggestedCreators();
+        public static SuggestedCreators create(List<SuggestedCreator> suggestedCreators) {
+            return new AutoValue_SoundStreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreators);
         }
     }
 }

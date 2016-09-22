@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
@@ -40,8 +41,7 @@ public class MyProfileOperations {
     private final Func1<Object, Observable<List<PropertySet>>> loadInitialFollowings = new Func1<Object, Observable<List<PropertySet>>>() {
         @Override
         public Observable<List<PropertySet>> call(Object ignored) {
-            return pagedFollowingsFromPosition(Consts.NOT_SET)
-                    .subscribeOn(scheduler);
+            return pagedFollowingsFromPosition(Consts.NOT_SET).subscribeOn(scheduler);
         }
     };
 
@@ -86,8 +86,15 @@ public class MyProfileOperations {
                                   .flatMap(loadInitialFollowings);
     }
 
-    public Observable<Integer> numberOfFollowings() {
-        return pagedFollowings().map(RxUtils.TO_SIZE);
+    public Observable<List<Urn>> followingsUrns() {
+        return loadFollowingUrnsFromStorage()
+                .subscribeOn(scheduler)
+                .switchIfEmpty(syncInitiatorBridge.refreshFollowings()
+                                                  .flatMap(continueWith(loadFollowingUrnsFromStorage())));
+    }
+
+    private Observable<List<Urn>> loadFollowingUrnsFromStorage() {
+        return userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET);
     }
 
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {

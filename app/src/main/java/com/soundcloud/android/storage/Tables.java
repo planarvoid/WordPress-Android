@@ -504,36 +504,38 @@ public interface Tables {
             super("UsersView", PrimaryKey.of(_ID));
         }
 
-        public static final Column ID = Column.create(TABLE, "_id");
-        public static final Column USERNAME = Column.create(TABLE, "username");
-        public static final Column COUNTRY = Column.create(TABLE, "country");
-        public static final Column CITY = Column.create(TABLE, "city");
-        public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "followers_count");
-        public static final Column DESCRIPTION = Column.create(TABLE, "description");
-        public static final Column AVATAR_URL = Column.create(TABLE, "avatar_url");
-        public static final Column WEBSITE_URL = Column.create(TABLE, "website_url");
-        public static final Column WEBSITE_NAME = Column.create(TABLE, "website_name");
-        public static final Column MYSPACE_NAME = Column.create(TABLE, "myspace_name");
-        public static final Column DISCOGS_NAME = Column.create(TABLE, "discogs_name");
-        public static final Column ARTIST_STATION = Column.create(TABLE, "artist_station");
-        public static final Column IS_FOLLOWING = Column.create(TABLE, "is_following");
+        public static final Column ID = Column.create(TABLE, "uv_id");
+        public static final Column USERNAME = Column.create(TABLE, "uv_username");
+        public static final Column COUNTRY = Column.create(TABLE, "uv_country");
+        public static final Column CITY = Column.create(TABLE, "uv_city");
+        public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "uv_followers_count");
+        public static final Column DESCRIPTION = Column.create(TABLE, "uv_description");
+        public static final Column AVATAR_URL = Column.create(TABLE, "uv_avatar_url");
+        public static final Column WEBSITE_URL = Column.create(TABLE, "uv_website_url");
+        public static final Column WEBSITE_NAME = Column.create(TABLE, "uv_website_name");
+        public static final Column MYSPACE_NAME = Column.create(TABLE, "uv_myspace_name");
+        public static final Column DISCOGS_NAME = Column.create(TABLE, "uv_discogs_name");
+        public static final Column ARTIST_STATION = Column.create(TABLE, "uv_artist_station");
+        public static final Column IS_FOLLOWING = Column.create(TABLE, "uv_is_following");
+
+
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
                 Query.from(Table.Users)
                      .select(
-                             field(Table.Users.field(TableColumns.Users._ID)).as(ID.fullName()),
-                             field(Table.Users.field(TableColumns.Users.USERNAME)).as(USERNAME.fullName()),
-                             field(Table.Users.field(TableColumns.Users.COUNTRY)).as(COUNTRY.fullName()),
-                             field(Table.Users.field(TableColumns.Users.CITY)).as(CITY.fullName()),
-                             field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.fullName()),
-                             field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.fullName()),
-                             field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.fullName()),
-                             field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.fullName()),
-                             field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.fullName()),
-                             field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.fullName()),
-                             field(Table.Users.field(TableColumns.Users.DISCOGS_NAME)).as(DISCOGS_NAME.fullName()),
-                             field(Table.Users.field(TableColumns.Users.ARTIST_STATION)).as(ARTIST_STATION.fullName()),
-                             exists(followingQuery()).as(IS_FOLLOWING.fullName())
+                             field(Table.Users.field(TableColumns.Users._ID)).as(ID.name()),
+                             field(Table.Users.field(TableColumns.Users.USERNAME)).as(USERNAME.name()),
+                             field(Table.Users.field(TableColumns.Users.COUNTRY)).as(COUNTRY.name()),
+                             field(Table.Users.field(TableColumns.Users.CITY)).as(CITY.name()),
+                             field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.name()),
+                             field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.name()),
+                             field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.name()),
+                             field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.name()),
+                             field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.name()),
+                             field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.name()),
+                             field(Table.Users.field(TableColumns.Users.DISCOGS_NAME)).as(DISCOGS_NAME.name()),
+                             field(Table.Users.field(TableColumns.Users.ARTIST_STATION)).as(ARTIST_STATION.name()),
+                             exists(followingQuery()).as(IS_FOLLOWING.name())
                      );
 
         static Query followingQuery() {
@@ -642,6 +644,28 @@ public interface Tables {
 
         private static String typeRepostDelimited() {
             return "'" + TableColumns.Posts.TYPE_REPOST + "'";
+        }
+    }
+
+    class SuggestedCreators extends BaseTable {
+        public static final SuggestedCreators TABLE = new SuggestedCreators();
+
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column SEED_USER_ID = Column.create(TABLE, "seed_user_id");
+        public static final Column SUGGESTED_USER_ID = Column.create(TABLE, "suggested_user_id");
+        public static final Column RELATION_KEY = Column.create(TABLE, "relation_key");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS SuggestedCreators (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "seed_user_id INTEGER, " +
+                "suggested_user_id INTEGER, " +
+                "relation_key VARCHAR(50), " +
+                "FOREIGN KEY(seed_user_id) REFERENCES Users(_id) " +
+                "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
+                ");";
+
+        protected SuggestedCreators() {
+            super("SuggestedCreators", PrimaryKey.of("_id"));
         }
     }
 }
