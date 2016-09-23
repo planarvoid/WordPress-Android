@@ -17,6 +17,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
@@ -58,6 +59,7 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 public class SkippyAdapter implements Player, Skippy.PlayListener {
@@ -132,7 +134,9 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     public boolean init() {
-        boolean initSuccess = skippy.init(skippyFactory.createConfiguration());
+        Skippy.Configuration configuration = skippyFactory.createConfiguration();
+        sendFileAccessEvent(configuration);
+        boolean initSuccess = skippy.init(configuration);
         if (initSuccess) {
             skippyPreloader.init();
         }
@@ -141,6 +145,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                     getInitializationErrorCount(), getAndIncrementInitilizationSuccesses()));
         }
         return initSuccess;
+    }
+
+    private void sendFileAccessEvent(Skippy.Configuration configuration) {
+        File file = new File(configuration.getCachePath());
+        boolean exists = file.exists();
+        boolean canWrite = file.canWrite();
+        boolean canRead = file.canRead();
+        eventBus.publish(EventQueue.TRACKING, new FileAccessEvent(exists, canWrite, canRead));
     }
 
     public void preload(PreloadItem preloadItem) {
@@ -370,7 +382,9 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                          String.valueOf(true));
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, uri);
 
-            Message msg = stateHandler.obtainMessage(0, new StateChangeHandler.StateChangeMessage(currentPlaybackItem, transition));
+            Message msg = stateHandler.obtainMessage(0,
+                                                     new StateChangeHandler.StateChangeMessage(currentPlaybackItem,
+                                                                                               transition));
             stateHandler.sendMessage(msg);
             configureLockBasedOnNewState(transition);
 
@@ -419,10 +433,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private boolean allowPerformanceMeasureEvent(PlaybackMetric metric) {
         return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY
-               || metric == PlaybackMetric.CACHE_USAGE_PERCENT
-               || metric == PlaybackMetric.TIME_TO_PLAY
-               || metric == PlaybackMetric.UNINTERRUPTED_PLAYTIME
-               || !isCurrentItemAd();
+                || metric == PlaybackMetric.CACHE_USAGE_PERCENT
+                || metric == PlaybackMetric.TIME_TO_PLAY
+                || metric == PlaybackMetric.UNINTERRUPTED_PLAYTIME
+                || !isCurrentItemAd();
     }
 
     private boolean isCurrentItemAd() {

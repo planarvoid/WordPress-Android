@@ -27,12 +27,15 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
@@ -58,6 +61,7 @@ import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.rx.eventbus.TestEventBus;
 
 import org.junit.Before;
@@ -75,12 +79,15 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 public class SkippyAdapterTest extends AndroidUnitTest {
 
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private static final Skippy.SkippyMediaType MP3 = Skippy.SkippyMediaType.MP3;
     public static final int BITRATE = 128000;
+    public static final String CACHE_PATH = "absolute/path/to/cache";
     private SkippyAdapter skippyAdapter;
 
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
@@ -165,6 +172,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                 snippetApiUrlBuilder);
         when(snippetApiUrlBuilder.build()).thenReturn(SNIPPET_STREAM_URL);
 
+        when(configuration.getCachePath()).thenReturn(CACHE_PATH);
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         when(skippyFactory.createPreloaderConfiguration()).thenReturn(preloadConfiguration);
     }
@@ -890,6 +898,15 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         skippyAdapter.onInitializationError(new IOException(), "some error message");
         verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_ERROR_COUNT_KEY, 1);
         verify(sharedPreferencesEditor).apply();
+    }
+
+    @Test
+    public void shouldSendFileAccessEvent() {
+        skippyAdapter.init();
+
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events.size()).isEqualTo(1);
+        assertThat(events.get(0)).isInstanceOf(FileAccessEvent.class);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.crashlytics;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.events.DatabaseMigrationEvent;
+import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.reporting.DatabaseReporting;
 import com.soundcloud.java.optional.Optional;
@@ -116,5 +118,19 @@ public class FabricAnalyticsProviderTest {
                                                   DataPoint.string("FailVersions", "1 to 2"),
                                                   DataPoint.string("MigrationStatus", "Failed"),
                                                   DataPoint.numeric("FailDuration", 3L)));
+    }
+
+    @Test
+    public void shouldPostFileAccessEvent() {
+        final FileAccessEvent fileAccessEvent = new FileAccessEvent(true, true, false);
+        when(fabricProvider.isInitialized()).thenReturn(true);
+
+        provider.handleTrackingEvent(fileAccessEvent);
+
+        verify(fabricReporter).post(Metric.create("FileAccess",
+                                                  DataPoint.string("FileExists", "true"),
+                                                  DataPoint.string("CanWrite", "true"),
+                                                  DataPoint.string("CanRead", "false")));
+        verify(fabricProvider, never()).getCrashlyticsCore();
     }
 }
