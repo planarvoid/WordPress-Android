@@ -9,6 +9,7 @@ import com.soundcloud.android.playback.ui.BlurringPlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.view.WaveformView;
+import com.soundcloud.android.view.GlassLinearLayout;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
@@ -24,7 +25,8 @@ import javax.inject.Named;
                 PlayerFragment.class,
                 PlaybackActionReceiver.class,
                 WaveformView.class,
-                PlayQueueFragment.class
+                PlayQueueFragment.class,
+                GlassLinearLayout.class
         })
 public class PlayerModule {
 

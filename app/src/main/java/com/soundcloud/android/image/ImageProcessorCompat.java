@@ -9,4 +9,10 @@ public class ImageProcessorCompat implements ImageProcessor {
     public Bitmap blurBitmap(Bitmap bitmap, Optional<Float> blurRadius) {
         return bitmap;
     }
+
+    @Override
+    public Bitmap blurBitmap(Bitmap inBitmap, Bitmap outBitmap, Optional<Float> blurRadius) {
+        return inBitmap;
+    }
+
 }

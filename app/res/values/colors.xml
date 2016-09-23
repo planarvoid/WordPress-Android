@@ -9,7 +9,7 @@
     <color name="translucent_status_bar">#0cffffff</color>
     <color name="translucent_white">#ccffffff</color>
     <color name="translucent_black">#33000000</color>
-    
+
     <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>
@@ -114,6 +114,7 @@
     <color name="translucent_background">#80000000</color>
     <color name="user_image_border_color">#1a000000</color>
     <color name="artwork_border_color">#1a000000</color>
+    <color name="translucent_dark_background">#e0000000</color>
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>

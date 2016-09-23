@@ -1,18 +1,8 @@
 package com.soundcloud.android.playback.playqueue;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ToggleButton;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -28,19 +18,27 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
+import android.graphics.Rect;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ToggleButton;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.List;
 
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         implements TrackItemRenderer.Listener {
@@ -84,8 +82,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @Bind(R.id.recycler_view)
     RecyclerView recyclerView;
-    @Bind(R.id.play_queue_drawer)
-    View playQueueDrawer;
     private PlayQueueItemAnimator animator;
 
     @Inject
@@ -110,7 +106,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         super.onViewCreated(fragment, view, savedInstanceState);
         ButterKnife.bind(this, view);
         initRecyclerView();
-        playQueueDrawer.setVisibility(View.VISIBLE);
         artworkController.bind(ButterKnife.<PlayerTrackArtworkView>findById(view, R.id.artwork_view));
         subscribeToEvents();
         refreshPlayQueue();
@@ -122,6 +117,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
         recyclerView.setItemAnimator(animator);
+        recyclerView.addItemDecoration(new TopPaddingDecorator(), 0);
 
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(playQueueSwipeToRemoveCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -162,12 +158,12 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     @OnClick(R.id.close_play_queue)
-    public void closePlayQueue() {
+    void closePlayQueue() {
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
     }
 
     @OnClick(R.id.up_next)
-    public void scrollToNowPlaying() {
+    void scrollToNowPlaying() {
         recyclerView.smoothScrollToPosition(getScrollPosition());
     }
 
@@ -180,10 +176,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     private int getScrollPosition() {
         int currentPlayQueuePosition = playQueueManager.getPositionOfCurrentPlayQueueItem();
-        if (currentPlayQueuePosition < 1) {
+        if (currentPlayQueuePosition < 2) {
             return 0;
         } else {
-            return currentPlayQueuePosition - 1;
+            return currentPlayQueuePosition - 2;
         }
     }
 
@@ -257,7 +253,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         adapter.updateInRepeatMode(playQueueManager.getRepeatMode());
     }
 
-    public boolean isRemovable(int position) {
+    boolean isRemovable(int position) {
         return position > playQueueManager.getCurrentTrackPosition();
     }
 
@@ -267,11 +263,11 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         playQueueManager.removeItem(playQueueItem);
     }
 
-    public void switchItems(int fromPosition, int toPosition) {
+    void switchItems(int fromPosition, int toPosition) {
         adapter.switchItems(fromPosition, toPosition);
     }
 
-    public void moveItems(int fromPosition, int toPosition) {
+    void moveItems(int fromPosition, int toPosition) {
         playQueueManager.moveItem(fromPosition, toPosition);
     }
 
@@ -322,10 +318,24 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         }
     }
 
-    public interface DragListener {
+    interface DragListener {
 
         void startDrag(RecyclerView.ViewHolder viewHolder);
 
+    }
+
+    private static class TopPaddingDecorator extends RecyclerView.ItemDecoration {
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            int position = parent.getChildAdapterPosition(view);
+            if (position == 0) {
+                outRect.top = ViewUtils.dpToPx(view.getContext(), 72);
+                outRect.left = 0;
+                outRect.right = 0;
+                outRect.bottom = 0;
+            }
+        }
     }
 
 }
