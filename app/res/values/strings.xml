@@ -1009,4 +1009,19 @@
     <!-- __PLAY QUEUE -->
     <string name="play_next">Play next</string>
 
+    <string name="play_queue_header_search">From search results for %1$s</string>
+    <string name="play_queue_header_stream">From your stream</string>
+    <string name="play_queue_header_link">From a link</string>
+    <string name="play_queue_header_profile">From profile %1$s</string>
+    <string name="play_queue_header_playlist">From playlist %1$s</string>
+    <string name="play_queue_header_track_station">From track station based on %1$s</string>
+    <string name="play_queue_header_artist_station">From artist station based on %1$s</string>
+    <string name="play_queue_header_likes">From your likes</string>
+    <string name="play_queue_header_listening_history">From listening history</string>
+    <string name="play_queue_header_suggested_tracks">From suggested tracks</string>
+    <string name="play_queue_header_charts_top">From %1$s top 50 charts</string>
+    <string name="play_queue_header_charts_trending">From %1$s New &amp; Hot charts </string>
+    <string name="play_queue_header_explicit">Added by you</string>
+    <string name="play_queue_header_auto_play">Auto play</string>
+
 </resources>

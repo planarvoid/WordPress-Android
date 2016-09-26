@@ -1,14 +1,14 @@
 package com.soundcloud.android.playback.playqueue;
 
-import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.objects.MoreObjects;
 
 public class TrackAndPlayQueueItem {
     public final TrackItem trackItem;
-    public final PlayQueueItem playQueueItem;
+    public final TrackQueueItem playQueueItem;
 
-    TrackAndPlayQueueItem(TrackItem trackItem, PlayQueueItem playQueueItem) {
+    TrackAndPlayQueueItem(TrackItem trackItem, TrackQueueItem playQueueItem) {
         this.trackItem = trackItem;
         this.playQueueItem = playQueueItem;
     }

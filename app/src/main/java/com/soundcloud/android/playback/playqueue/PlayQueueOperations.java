@@ -7,16 +7,21 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueStorage;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.DiffUtils;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func0;
 import rx.functions.Func1;
+
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -44,24 +49,31 @@ public class PlayQueueOperations {
     private final PlayQueueManager playQueueManager;
     private final TrackRepository trackRepository;
     private final LoadTrackImageResource loadTrackImageResource;
+    private final PlayQueueStorage playQueueStorage;
 
     @Inject
     public PlayQueueOperations(@Named(HIGH_PRIORITY) Scheduler scheduler,
                                PlayQueueManager playQueueManager,
                                TrackRepository trackRepository,
-                               LoadTrackImageResource loadTrackImageResource) {
+                               LoadTrackImageResource loadTrackImageResource,
+                               PlayQueueStorage playQueueStorage) {
         this.scheduler = scheduler;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.loadTrackImageResource = loadTrackImageResource;
+        this.playQueueStorage = playQueueStorage;
     }
 
     public Observable<List<TrackAndPlayQueueItem>> getTracks() {
         return Observable.defer(loadTracks);
     }
 
+    Observable<Map<Urn, String>> getContextTitles() {
+        return playQueueStorage.contextTitles().subscribeOn(scheduler);
+    }
+
     private Observable<List<TrackAndPlayQueueItem>> loadTracks() {
-        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems(IS_TRACK);
+        final List<TrackQueueItem> playQueueItems = Lists.transform(playQueueManager.getPlayQueueItems(IS_TRACK), cast(TrackQueueItem.class));
 
         final Func1<Map<Urn, PropertySet>, List<TrackAndPlayQueueItem>> fulfillWithKnownProperties = new Func1<Map<Urn, PropertySet>, List<TrackAndPlayQueueItem>>() {
             @Override
@@ -77,11 +89,20 @@ public class PlayQueueOperations {
                 .subscribeOn(scheduler);
     }
 
-    private ArrayList<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<PlayQueueItem> playQueueItems,
+    private static <T extends PlayQueueItem> Function<PlayQueueItem, T> cast(final Class<T> clazz) {
+        return new Function<PlayQueueItem, T>() {
+            @Override
+            public T apply(PlayQueueItem input) {
+                return clazz.cast(input);
+            }
+        };
+    }
+
+    private ArrayList<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<TrackQueueItem> playQueueItems,
                                                                      Map<Urn, PropertySet> knownProperties) {
         final ArrayList<TrackAndPlayQueueItem> trackItems = new ArrayList<>(playQueueItems.size());
 
-        for (PlayQueueItem item : playQueueItems) {
+        for (TrackQueueItem item : playQueueItems) {
             addTrackAndPlayQueueItemIfPresent(knownProperties, trackItems, item);
         }
         return trackItems;
@@ -89,7 +110,7 @@ public class PlayQueueOperations {
 
     private void addTrackAndPlayQueueItemIfPresent(Map<Urn, PropertySet> urnPropertySetMap,
                                                    ArrayList<TrackAndPlayQueueItem> trackItems,
-                                                   PlayQueueItem item) {
+                                                   TrackQueueItem item) {
         final Urn urn = item.getUrn();
         if (urnPropertySetMap.containsKey(urn)) {
             final PropertySet propertyBindings = urnPropertySetMap.get(urn);

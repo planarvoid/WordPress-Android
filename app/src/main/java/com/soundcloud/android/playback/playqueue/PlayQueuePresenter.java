@@ -57,7 +57,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         }
     };
 
-    private final PlayQueueRecyclerItemAdapter adapter;
+    private final PlayQueueAdapter adapter;
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
     private final PlayQueueArtworkController artworkController;
@@ -66,18 +66,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final Context context;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
-    private final Func1<List<TrackAndPlayQueueItem>, List<PlayQueueUIItem>> toPlayQueueUIItem = new Func1<List<TrackAndPlayQueueItem>, List<PlayQueueUIItem>>() {
-        @Override
-        public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> trackAndPlayQueueItems) {
-            final List<PlayQueueUIItem> items = new ArrayList<>();
-            for (TrackAndPlayQueueItem trackAndPlayQueueItem : trackAndPlayQueueItems) {
-                items.add(PlayQueueUIItem.from(trackAndPlayQueueItem.playQueueItem,
-                                               trackAndPlayQueueItem.trackItem,
-                                               context));
-            }
-            return items;
-        }
-    };
+
+    private final PlayQueueUIItemMapper playQueueUIItemMapper;
+
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
     @Bind(R.id.recycler_view)
@@ -85,13 +76,13 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private PlayQueueItemAnimator animator;
 
     @Inject
-    public PlayQueuePresenter(PlayQueueRecyclerItemAdapter adapter,
+    public PlayQueuePresenter(PlayQueueAdapter adapter,
                               PlayQueueManager playQueueManager,
                               PlayQueueOperations playQueueOperations,
                               PlayQueueArtworkController playerArtworkController,
                               PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                               EventBus eventBus,
-                              Context context) {
+                              Context context, PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
@@ -99,6 +90,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         this.eventBus = eventBus;
         this.context = context;
         this.playQueueSwipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
+        this.playQueueUIItemMapper = playQueueUIItemMapper;
     }
 
     @Override
@@ -108,7 +100,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         initRecyclerView();
         artworkController.bind(ButterKnife.<PlayerTrackArtworkView>findById(view, R.id.artwork_view));
         subscribeToEvents();
-        refreshPlayQueue();
+        loadPlayQueueUIItems();
     }
 
     private void initRecyclerView() {
@@ -167,20 +159,25 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.smoothScrollToPosition(getScrollPosition());
     }
 
-    private void refreshPlayQueue() {
+    private void loadPlayQueueUIItems() {
         updateSubscription = playQueueOperations.getTracks()
-                                                .map(toPlayQueueUIItem)
+                                                .zipWith(playQueueOperations.getContextTitles(), playQueueUIItemMapper)
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(new PlayQueueSubscriber());
     }
 
     private int getScrollPosition() {
         int currentPlayQueuePosition = playQueueManager.getPositionOfCurrentPlayQueueItem();
-        if (currentPlayQueuePosition < 2) {
+
+        if (currentPlayQueuePosition > 0) {
+            currentPlayQueuePosition -= 1;
+        } else if (currentPlayQueuePosition < 2) {
             return 0;
         } else {
             return currentPlayQueuePosition - 2;
         }
+
+        return adapter.getAdapterPosition(currentPlayQueuePosition);
     }
 
     @Override
@@ -192,9 +189,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     @Override
-    public void trackItemClicked(Urn urn, int position) {
-        playQueueManager.setCurrentPlayQueueItem(urn, position);
-        adapter.updateNowPlaying(position);
+    public void trackItemClicked(Urn urn, int adapterPosition) {
+        playQueueManager.setCurrentPlayQueueItem(urn, adapter.getQueuePosition(adapterPosition));
+        adapter.updateNowPlaying(adapterPosition);
     }
 
     private void setupRepeatButton(View view) {
@@ -253,22 +250,29 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         adapter.updateInRepeatMode(playQueueManager.getRepeatMode());
     }
 
-    boolean isRemovable(int position) {
-        return position > playQueueManager.getCurrentTrackPosition();
+    boolean isRemovable(int adapterPosition) {
+        return adapter.getQueuePosition(adapterPosition) > playQueueManager.getCurrentTrackPosition()
+                && adapter.getItem(adapterPosition).isTrack();
     }
 
-    public void remove(int position) {
-        final PlayQueueItem playQueueItem = adapter.getItem(position).getPlayQueueItem();
-        adapter.removeItem(position);
-        playQueueManager.removeItem(playQueueItem);
+    public void remove(int adapterPosition) {
+        final PlayQueueUIItem item = adapter.getItem(adapterPosition);
+
+        if (item.isTrack()) {
+            final PlayQueueItem playQueueItem = ((TrackPlayQueueUIItem) item).getPlayQueueItem();
+            adapter.removeItem(adapterPosition);
+            playQueueManager.removeItem(playQueueItem);
+            // todo: check if last item of bucket and remove header too, ya?
+        }
     }
 
     void switchItems(int fromPosition, int toPosition) {
         adapter.switchItems(fromPosition, toPosition);
     }
 
-    void moveItems(int fromPosition, int toPosition) {
-        playQueueManager.moveItem(fromPosition, toPosition);
+    void moveItems(int fromAdapterPosition, int toAdapterPosition) {
+        playQueueManager.moveItem(adapter.getQueuePosition(fromAdapterPosition),
+                                  adapter.getQueuePosition(toAdapterPosition));
     }
 
     private class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
@@ -292,7 +296,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
             artworkController.loadArtwork(event.getCurrentPlayQueueItem().getUrnOrNotSet());
-            adapter.updateNowPlaying(event.getPosition());
+            adapter.updateNowPlaying(adapter.getAdapterPosition(event.getPosition()));
             adapter.notifyDataSetChanged();
         }
     }
@@ -306,7 +310,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
             }
             adapter.notifyDataSetChanged();
             recyclerView.scrollToPosition(getScrollPosition());
-            adapter.updateNowPlaying(playQueueManager.getCurrentTrackPosition());
+            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentTrackPosition()));
         }
     }
 
@@ -314,7 +318,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         @Override
         public void onNext(PlayQueueEvent playQueueEvent) {
             updateSubscription.unsubscribe();
-            refreshPlayQueue();
+            loadPlayQueueUIItems();
         }
     }
 

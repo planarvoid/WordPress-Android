@@ -172,9 +172,9 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
             final View imageView = view.findViewById(R.id.image);
             final View textView = view.findViewById(R.id.text_holder);
             final float postAlpha = imageView.getAlpha();
-            final float preAlpha = postAlpha == PlayQueueItemRenderer.ALPHA_ENABLED ?
-                                   PlayQueueItemRenderer.ALPHA_DISABLED :
-                                   PlayQueueItemRenderer.ALPHA_ENABLED;
+            final float preAlpha = postAlpha == TrackPlayQueueItemRenderer.ALPHA_ENABLED ?
+                                   TrackPlayQueueItemRenderer.ALPHA_DISABLED :
+                                   TrackPlayQueueItemRenderer.ALPHA_ENABLED;
 
             ViewCompat.setAlpha(imageView, preAlpha);
             ViewCompat.setAlpha(textView, preAlpha);

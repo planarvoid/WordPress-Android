@@ -223,8 +223,10 @@ public class PlayQueueManager implements OriginProvider {
     public void insertNext(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
         if (!playQueue.isEmpty()) {
             for (int i = 0; i < trackUrns.size(); i++) {
-                TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i)).withPlaybackContext(PlaybackContext.create(
-                        playSessionSource)).build();
+                TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i))
+                        .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
+                        .build();
+                // todo: needs to be inserted AFTER the last explicit
                 playQueue.insertPlayQueueItem(currentPosition + (i + 1), queueItem);
             }
             publishQueueUpdate();
@@ -236,8 +238,10 @@ public class PlayQueueManager implements OriginProvider {
 
     public void insertNext(Urn trackUrn, PlaySessionSource playSessionSource) {
         if (!playQueue.isEmpty()) {
-            TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn).withPlaybackContext(PlaybackContext.create(
-                    playSessionSource)).build();
+            TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn)
+                    .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
+                    .build();
+            // todo: needs to be inserted AFTER the last explicit
             playQueue.insertPlayQueueItem(currentPosition + 1, queueItem);
             publishQueueUpdate();
             saveQueue();
@@ -410,8 +414,8 @@ public class PlayQueueManager implements OriginProvider {
         currentItemIsUserTriggered = false;
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionRepeat(getCurrentPlayQueueItem(),
-                                                                       getCollectionUrn(),
-                                                                       getCurrentPosition()));
+                                                                      getCollectionUrn(),
+                                                                      getCurrentPosition()));
         return true;
     }
 
@@ -572,7 +576,7 @@ public class PlayQueueManager implements OriginProvider {
 
         if (playSessionSource.isFromChart()) {
             final ChartSourceInfo chartSourceInfo = playSessionSource.getChartSourceInfo();
-            if (chartSourceInfo!= null) {
+            if (chartSourceInfo != null) {
                 trackSourceInfo.setChartSourceInfo(chartSourceInfo);
             }
         }

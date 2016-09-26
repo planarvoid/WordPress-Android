@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import java.util.List;
+import java.util.Map;
 
 public class PlaylistOperations {
 

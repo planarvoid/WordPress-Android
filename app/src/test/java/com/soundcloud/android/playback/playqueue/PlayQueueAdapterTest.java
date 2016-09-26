@@ -17,20 +17,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
+public class PlayQueueAdapterTest extends AndroidUnitTest {
 
-    private PlayQueueRecyclerItemAdapter adapter;
+    private PlayQueueAdapter adapter;
 
-    @Mock
-    private PlayQueueItemRenderer playQueueItemRenderer;
+    @Mock private TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
+    @Mock private HeaderPlayQueueItemRenderer headerPlayQueueItemRenderer;
 
-    private PlayQueueUIItem playQueueItem1;
-    private PlayQueueUIItem playQueueItem2;
-    private PlayQueueUIItem playQueueItem3;
+    private TrackPlayQueueUIItem playQueueItem1;
+    private TrackPlayQueueUIItem playQueueItem2;
+    private TrackPlayQueueUIItem playQueueItem3;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new PlayQueueRecyclerItemAdapter(playQueueItemRenderer);
+        adapter = new PlayQueueAdapter(trackPlayQueueItemRenderer, headerPlayQueueItemRenderer);
 
         playQueueItem1 = getPlayQueueItem(1);
         adapter.addItem(playQueueItem1);
@@ -46,9 +46,9 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
     public void updateNowPlayingSetsDraggableStateOnItems() {
         adapter.updateNowPlaying(1);
 
-        assertThat(playQueueItem1.getPlayState()).isEqualTo(PlayQueueUIItem.PlayState.PLAYED);
-        assertThat(playQueueItem2.getPlayState()).isEqualTo(PlayQueueUIItem.PlayState.PLAYING);
-        assertThat(playQueueItem3.getPlayState()).isEqualTo(PlayQueueUIItem.PlayState.COMING_UP);
+        assertThat(playQueueItem1.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.PLAYED);
+        assertThat(playQueueItem2.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.PLAYING);
+        assertThat(playQueueItem3.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.COMING_UP);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
         assertThat(playQueueItem3.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
     }
 
-    public PlayQueueUIItem getPlayQueueItem(int uniqueId) {
+    public TrackPlayQueueUIItem getPlayQueueItem(int uniqueId) {
         final Urn track = Urn.forTrack(uniqueId);
         final PlaybackContext playbackContext = PlaybackContext.create(PlaySessionSource.EMPTY);
         final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version",
@@ -69,6 +69,6 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
         final TrackItem trackItem = new TrackItem(TestPropertySets.expectedTrackForListItem(track));
         final int someReourceId = 123;
         final int color = 321;
-        return new PlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someReourceId, color, null);
+        return new TrackPlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someReourceId, color, null);
     }
 }

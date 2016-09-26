@@ -12,6 +12,7 @@ import static rx.Observable.just;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueStorage;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -42,6 +43,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackRepository trackRepository;
     @Mock private LoadTrackImageResource loadTrackImageResource;
+    @Mock private PlayQueueStorage storage;
     @Captor private ArgumentCaptor<Predicate<PlayQueueItem>> predicateCaptor;
 
     private TestSubscriber<List<TrackAndPlayQueueItem>> subscriber = new TestSubscriber<>();
@@ -62,7 +64,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         operations = new PlayQueueOperations(Schedulers.immediate(),
                                              playQueueManager,
                                              trackRepository,
-                                             loadTrackImageResource);
+                                             loadTrackImageResource,
+                                             storage);
     }
 
     @Test

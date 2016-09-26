@@ -1,11 +1,5 @@
 package com.soundcloud.android.playback.playqueue;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -15,14 +9,19 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
 
-import java.util.List;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.List;
 
-public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
+class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
-    public static final float ALPHA_DISABLED = 0.3f;
-    public static final float ALPHA_ENABLED = 1.0f;
+    static final float ALPHA_DISABLED = 0.3f;
+    static final float ALPHA_ENABLED = 1.0f;
     private static final int EXTENDED_TOUCH_DP = 6;
 
     private final ImageOperations imageOperations;
@@ -31,10 +30,10 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     private final PlaySessionController playSessionController;
 
     @Inject
-    public PlayQueueItemRenderer(ImageOperations imageOperations,
-                                 PlayQueueManager playQueueManager,
-                                 TrackItemMenuPresenter trackItemMenuPresenter,
-                                 PlaySessionController playSessionController) {
+    TrackPlayQueueItemRenderer(ImageOperations imageOperations,
+                                      PlayQueueManager playQueueManager,
+                                      TrackItemMenuPresenter trackItemMenuPresenter,
+                                      PlaySessionController playSessionController) {
         this.imageOperations = imageOperations;
         this.playQueueManager = playQueueManager;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
@@ -47,9 +46,9 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     }
 
     @Override
-    public void bindItemView(final int position, View itemView, List<PlayQueueUIItem> items) {
-        final PlayQueueUIItem item = items.get(position);
-        itemView.setSelected(item.getPlayState() == PlayQueueUIItem.PlayState.PLAYING);
+    public void bindItemView(final int position, View itemView, List<TrackPlayQueueUIItem> items) {
+        final TrackPlayQueueUIItem item = items.get(position);
+        itemView.setSelected(item.getPlayState() == TrackPlayQueueUIItem.PlayState.PLAYING);
         ViewGroup statusPlaceHolder = (ViewGroup) itemView.findViewById(R.id.status_place_holder);
         View textHolder = itemView.findViewById(R.id.text_holder);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.image);
@@ -70,22 +69,22 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
         setTitleColor(item, title);
     }
 
-    private void setTitleColor(PlayQueueUIItem item, TextView titleTextView) {
+    private void setTitleColor(TrackPlayQueueUIItem item, TextView titleTextView) {
         titleTextView.setTextColor(item.getTitleTextColor());
     }
 
     private void setStatusLabel(ViewGroup statusPlaceHolder,
                                 View itemView,
-                                PlayQueueUIItem playQueueUIItem) {
-        if (playQueueUIItem.getPlayState() == PlayQueueUIItem.PlayState.PLAYING) {
+                                TrackPlayQueueUIItem trackPlayQueueUIItem) {
+        if (trackPlayQueueUIItem.getPlayState() == TrackPlayQueueUIItem.PlayState.PLAYING) {
             View.inflate(itemView.getContext(), R.layout.playing, statusPlaceHolder);
-        } else if (playQueueUIItem.getStatusLabelId() != -1) {
-            View.inflate(itemView.getContext(), playQueueUIItem.getStatusLabelId(), statusPlaceHolder);
+        } else if (trackPlayQueueUIItem.getStatusLabelId() != -1) {
+            View.inflate(itemView.getContext(), trackPlayQueueUIItem.getStatusLabelId(), statusPlaceHolder);
         }
 
     }
 
-    private void setListener(final int position, View itemView, final PlayQueueUIItem item) {
+    private void setListener(final int position, View itemView, final TrackPlayQueueUIItem item) {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,28 +97,28 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
         });
     }
 
-    private void setClickable(View itemView, PlayQueueUIItem item) {
+    private void setClickable(View itemView, TrackPlayQueueUIItem item) {
         if (item.isBlocked()) {
             itemView.setClickable(false);
         }
     }
 
-    private void setRepeatAlpha(PlayQueueUIItem item, ImageView imageView, View textHolder) {
+    private void setRepeatAlpha(TrackPlayQueueUIItem item, ImageView imageView, View textHolder) {
         float alpha = getAlpha(item.getRepeatMode(), item.getPlayState());
         imageView.setAlpha(alpha);
         textHolder.setAlpha(alpha);
     }
 
-    public static float getAlpha(PlayQueueManager.RepeatMode repeatMode, PlayQueueUIItem.PlayState playstate) {
+    static float getAlpha(PlayQueueManager.RepeatMode repeatMode, TrackPlayQueueUIItem.PlayState playstate) {
         switch (repeatMode) {
             case REPEAT_NONE:
-                if (playstate == PlayQueueUIItem.PlayState.PLAYED) {
+                if (playstate == TrackPlayQueueUIItem.PlayState.PLAYED) {
                     return ALPHA_DISABLED;
                 } else {
                     return ALPHA_ENABLED;
                 }
             case REPEAT_ONE:
-                if (playstate == PlayQueueUIItem.PlayState.PLAYING) {
+                if (playstate == TrackPlayQueueUIItem.PlayState.PLAYING) {
                     return ALPHA_ENABLED;
                 } else {
                     return ALPHA_DISABLED;
@@ -131,25 +130,25 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
         }
     }
 
-    public static boolean shouldRerender(PlayQueueManager.RepeatMode oldRepeatMode,
+    static boolean shouldRerender(PlayQueueManager.RepeatMode oldRepeatMode,
                                          PlayQueueManager.RepeatMode newRepeatMode,
-                                         PlayQueueUIItem.PlayState playstate) {
+                                         TrackPlayQueueUIItem.PlayState playstate) {
         if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE) {
-            return playstate == PlayQueueUIItem.PlayState.COMING_UP;
+            return playstate == TrackPlayQueueUIItem.PlayState.COMING_UP;
         } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL) {
-            return playstate == PlayQueueUIItem.PlayState.PLAYED || playstate == PlayQueueUIItem.PlayState.COMING_UP;
+            return playstate == TrackPlayQueueUIItem.PlayState.PLAYED || playstate == TrackPlayQueueUIItem.PlayState.COMING_UP;
         } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE) {
-            return playstate == PlayQueueUIItem.PlayState.PLAYED;
+            return playstate == TrackPlayQueueUIItem.PlayState.PLAYED;
         } else {
             throw new IllegalStateException("New repeat mode: " + newRepeatMode.toString()
                                                     + " cannot follow and old repeat mode: " + oldRepeatMode.toString());
         }
     }
 
-    private void setupOverFlow(final PlayQueueUIItem item, final ImageView overflowButton, final int position) {
+    private void setupOverFlow(final TrackPlayQueueUIItem item, final ImageView overflowButton, final int position) {
         ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), EXTENDED_TOUCH_DP));
         overflowButton.setSelected(false);
-        if (item.getPlayState() == PlayQueueUIItem.PlayState.COMING_UP) {
+        if (item.getPlayState() == TrackPlayQueueUIItem.PlayState.COMING_UP) {
             overflowButton.setImageResource(R.drawable.drag_handle);
             overflowButton.setOnClickListener(null);
         } else {
