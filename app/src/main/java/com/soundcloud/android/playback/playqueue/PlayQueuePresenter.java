@@ -245,7 +245,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                 break;
             case REPEAT_NONE:
             default:
-                button.setImageResource(R.drawable.ic_repeat);
+                button.setImageResource(R.drawable.ic_repeat_off);
         }
     }
 

@@ -142,20 +142,21 @@
     </style>
 
     <style name="PlayerPlayQueueButton.Shuffle">
-        <item name="android:button">@drawable/btn_player_shuffle</item>
-        <item name="android:layout_height">44dp</item>
-        <item name="android:layout_width">44dp</item>
+        <item name="android:drawableTop">@drawable/btn_player_shuffle</item>
+        <item name="android:layout_gravity">center</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">48dp</item>
+        <item name="android:paddingTop">12dp</item>
     </style>
 
     <style name="PlayerPlayQueueButton.Repeat">
-        <item name="android:src">@drawable/ic_repeat</item>
-        <item name="android:layout_height">44dp</item>
-        <item name="android:layout_width">44dp</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:layout_marginRight">4dp</item>
+        <item name="android:src">@drawable/ic_repeat_off</item>
         <item name="android:scaleType">center</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">48dp</item>
     </style>
 
     <style name="Waveform">

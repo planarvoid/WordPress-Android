@@ -1,5 +1,7 @@
 package com.soundcloud.android.view;
 
+import static android.R.attr.bitmap;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -160,7 +162,7 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
     }
 
     private void updateBackground() {
-        View body = ((ViewGroup) getParent()).findViewById(source);
+        View body = ((ViewGroup) getParent().getParent()).findViewById(source);
 
         if (body.getHeight() > 0 && body.getWidth() > 0) {
             final int renderBlurHeight = (int) (blurRadius / BLUR_SCALE * RENDER_VERTICAL_SCALE);
