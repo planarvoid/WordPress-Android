@@ -1,10 +1,14 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import static com.soundcloud.android.discovery.ChartsFixtures.createChartWithImageResources;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.ChartCategory;
+import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
@@ -485,6 +489,11 @@ public class DatabaseFixtures {
         }
 
         return builder.get();
+    }
+
+    public Chart insertChart(ChartType chartType, ChartCategory chartCategory) {
+        final ApiChart<ApiImageResource> chart = createChartWithImageResources(chartType, chartCategory);
+        return insertChart(chart, Tables.Charts.BUCKET_TYPE_GLOBAL);
     }
 
     public Chart insertChart(ApiChart<ApiImageResource> apiChart, int bucketType) {

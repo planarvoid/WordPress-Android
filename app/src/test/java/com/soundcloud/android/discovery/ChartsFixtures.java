@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ChartsFixtures {
 
-    static ApiChart<ApiImageResource> createChartWithImageResources(ChartType type, ChartCategory chartCategory) {
+    public static ApiChart<ApiImageResource> createChartWithImageResources(ChartType type, ChartCategory chartCategory) {
         return createChartWithImageResourcesWithTrackUrn(type, chartCategory, Urn.forTrack(1L));
     }
 

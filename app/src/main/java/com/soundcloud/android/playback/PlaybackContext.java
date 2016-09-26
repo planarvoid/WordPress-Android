@@ -9,30 +9,28 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
-import android.support.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 
 @AutoValue
 public abstract class PlaybackContext {
 
-    enum Bucket {
+    public enum Bucket {
         EXPLICIT,
         AUTO_PLAY,
         PLAYLIST,
+        // TODO : ALBUM
         TRACK_STATION,
         ARTIST_STATION,
         PROFILE,
-        NEW_AND_HOT_CHARTS,
-        TOP_50_CHARTS,
+        CHARTS_TRENDING,
+        CHARTS_TOP,
         LISTENING_HISTORY,
         SUGGESTED_TRACKS,
         STREAM(Screen.STREAM),
         LINK(Screen.DEEPLINK),
         YOUR_LIKES(Screen.LIKES, Screen.YOUR_LIKES),
-        SEARCH_RESULT(Screen.SEARCH_EVERYTHING, Screen.SEARCH_PREMIUM_CONTENT, Screen.SEARCH_TRACKS),
-        OTHER;
+        SEARCH_RESULT(Screen.SEARCH_EVERYTHING, Screen.SEARCH_PREMIUM_CONTENT, Screen.SEARCH_TRACKS);
 
         private List<Screen> screens;
 
@@ -40,14 +38,13 @@ public abstract class PlaybackContext {
             this.screens = Arrays.asList(screens);
         }
 
-        @Nullable
         static Bucket fromScreen(Screen screen) {
             for (Bucket bucket : values()) {
                 if (bucket.screens.contains(screen)) {
                     return bucket;
                 }
             }
-            return Bucket.OTHER;
+            return EXPLICIT;
         }
     }
 
@@ -56,6 +53,14 @@ public abstract class PlaybackContext {
                 .bucket(bucketFromPlaySessionSource(playSessionSource))
                 .urn(urnFromPlaySessionSource(playSessionSource))
                 .query(queryFromPlaySessionSource(playSessionSource))
+                .build();
+    }
+
+    public static PlaybackContext create(Bucket bucket) {
+        return builder()
+                .bucket(bucket)
+                .urn(Optional.<Urn>absent())
+                .query(Optional.<String>absent())
                 .build();
     }
 
@@ -105,15 +110,15 @@ public abstract class PlaybackContext {
     private static Bucket bucketFromChart(ChartSourceInfo chartSourceInfo) {
         switch (chartSourceInfo.getChartType()) {
             case TRENDING:
-                return Bucket.NEW_AND_HOT_CHARTS;
+                return Bucket.CHARTS_TRENDING;
             case TOP:
-                return Bucket.TOP_50_CHARTS;
+                return Bucket.CHARTS_TOP;
             default:
-                return Bucket.OTHER;
+                throw new IllegalArgumentException("Unknown chart type: " + chartSourceInfo.getChartType().name());
         }
     }
 
-    static Builder builder() {
+    public static Builder builder() {
         return new AutoValue_PlaybackContext.Builder();
     }
 
@@ -124,14 +129,14 @@ public abstract class PlaybackContext {
     public abstract Optional<String> query();
 
     @AutoValue.Builder
-    abstract static class Builder {
-        abstract Builder bucket(Bucket bucket);
+    public abstract static class Builder {
+        public abstract Builder bucket(Bucket bucket);
 
-        abstract Builder urn(Optional<Urn> urn);
+        public abstract Builder urn(Optional<Urn> urn);
 
-        abstract Builder query(Optional<String> query);
+        public abstract Builder query(Optional<String> query);
 
-        abstract PlaybackContext build();
+        public abstract PlaybackContext build();
     }
 
 }

@@ -162,8 +162,8 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = Chart.GLOBAL_GENRE;
 
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.AUDIO, Bucket.NEW_AND_HOT_CHARTS);
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.MUSIC, Bucket.NEW_AND_HOT_CHARTS);
+        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.AUDIO, Bucket.CHARTS_TRENDING);
+        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.MUSIC, Bucket.CHARTS_TRENDING);
     }
 
     @Test
@@ -171,8 +171,8 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = new Urn("soundcloud:genres:all-music:some_genre");
 
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.AUDIO, Bucket.NEW_AND_HOT_CHARTS);
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.MUSIC, Bucket.NEW_AND_HOT_CHARTS);
+        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.AUDIO, Bucket.CHARTS_TRENDING);
+        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.MUSIC, Bucket.CHARTS_TRENDING);
     }
 
     @Test
@@ -180,8 +180,8 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = Chart.GLOBAL_GENRE;
 
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.AUDIO, Bucket.TOP_50_CHARTS);
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.MUSIC, Bucket.TOP_50_CHARTS);
+        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.AUDIO, Bucket.CHARTS_TOP);
+        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.MUSIC, Bucket.CHARTS_TOP);
     }
 
     @Test
@@ -189,8 +189,8 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = new Urn("soundcloud:genres:all-music:some_genre");
 
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.AUDIO, Bucket.TOP_50_CHARTS);
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.MUSIC, Bucket.TOP_50_CHARTS);
+        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.AUDIO, Bucket.CHARTS_TOP);
+        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.MUSIC, Bucket.CHARTS_TOP);
     }
 
 

@@ -89,6 +89,9 @@ public interface Tables {
         public static final Column SOURCE_VERSION = Column.create(TABLE, "source_version");
         public static final Column SOURCE_URN = Column.create(TABLE, "source_urn");
         public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
+        public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type");
+        public static final Column CONTEXT_URN = Column.create(TABLE, "context_urn");
+        public static final Column CONTEXT_QUERY = Column.create(TABLE, "context_query");
 
         public static final int ENTITY_TYPE_TRACK = 0;
         public static final int ENTITY_TYPE_PLAYLIST = 1;
@@ -102,7 +105,10 @@ public interface Tables {
                 "source TEXT," +
                 "source_version TEXT," +
                 "source_urn TEXT," +
-                "query_urn TEXT" +
+                "query_urn TEXT," +
+                "context_type TEXT," +
+                "context_urn TEXT," +
+                "context_query TEXT" +
                 ");";
 
         protected PlayQueue() {
