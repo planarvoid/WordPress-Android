@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
@@ -42,6 +43,7 @@ public class DiscoveryPresenterDataSourceTest {
     @Mock private RecommendedStationsOperations recommendedStationsOperations;
     @Mock private ChartsOperations chartsOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private ChartsExperiment chartsExperiment;
 
     @Before
     public void setUp() throws Exception {
@@ -49,12 +51,14 @@ public class DiscoveryPresenterDataSourceTest {
                                                        playlistDiscoveryOperations,
                                                        recommendedStationsOperations,
                                                        chartsOperations,
-                                                       featureFlags);
+                                                       featureFlags,
+                                                       chartsExperiment);
 
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>empty());
         when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(chartsExperiment.isEnabled()).thenReturn(true);
 
         final ChartBucket chartsItem = ChartBucket.create(Collections.<Chart>emptyList(),
                                                           Collections.<Chart>emptyList());
@@ -85,4 +89,20 @@ public class DiscoveryPresenterDataSourceTest {
         );
     }
 
+    @Test
+    public void loadsAllItemsExceptChartsWhenExperimentAndFlagAreDisabled() {
+        when(chartsExperiment.isEnabled()).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
+        dataSource.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
 }
