@@ -71,7 +71,7 @@
         android:layout_alignBottom="@id/artwork_container"
         android:layout_toRightOf="@id/artwork_container"
         android:gravity="center_vertical"
-        android:singleLine="true"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <View

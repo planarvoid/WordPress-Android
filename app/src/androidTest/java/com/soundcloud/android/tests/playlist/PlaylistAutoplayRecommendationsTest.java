@@ -95,7 +95,7 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
     }
 
     private void setAutoPlayEnabled(boolean enabled) {
-        getDefaultSharedPreferences().edit().putBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, enabled).commit();
+        getDefaultSharedPreferences().edit().putBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, enabled).apply();
     }
 
     private SharedPreferences getDefaultSharedPreferences() {

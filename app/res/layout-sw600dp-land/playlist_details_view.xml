@@ -67,7 +67,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="23dp"
         android:gravity="center_vertical"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textColor="@color/white"
         android:visibility="gone" />
 

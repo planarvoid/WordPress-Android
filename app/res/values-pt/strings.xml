@@ -112,16 +112,11 @@
   <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
   <string name="custom_empty_playlist_title">%1$s vazio</string>
   <string name="custom_empty_playlist_description">Este %1$s ainda não tem faixas.</string>
-  <string name="list_empty_you_sounds_message">Republique os sons para compartilhá-los com seus seguidores.</string>
-  <string name="list_empty_you_playlists_message">Crie playlists para fazer mixes de seus sons favoritos.</string>
   <string name="list_empty_you_likes_message">Curta seus sons favoritos para ouvi-los novamente.</string>
   <string name="list_empty_you_following_message">Siga seus artistas, bandas e curadores favoritos para ouvir as faixas mais recentes.</string>
   <string name="list_empty_you_followers_message">Você ainda não tem seguidores.</string>
   <string name="list_empty_you_followers_secondary">Compartilhe suas faixas e playlists favoritas para criar sua comunidade</string>
   <!--new profile-->
-  <string name="new_empty_user_posts_message">Essa pessoa ainda não enviou\nsons públicos.</string>
-  <string name="new_empty_user_playlists_message">No momento, essa pessoa não tem playlists.</string>
-  <string name="new_empty_user_likes_text">Essa pessoa ainda não tem curtidas.</string>
   <!--@Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet."-->
   <string name="new_empty_user_followers_text">Essa pessoa ainda não está sendo seguida por ninguém.</string>
   <string name="new_empty_user_followings_text">Essa ainda não está seguindo ninguém.</string>
@@ -204,7 +199,6 @@
   <string name="side_menu_notifications">Atividade</string>
   <string name="side_menu_record">Gravar</string>
   <string name="side_menu_you">Você</string>
-  <string name="side_menu_settings">Configurações</string>
   <string name="side_menu_profile">Perfil</string>
   <string name="side_menu_explore">Explorar</string>
   <string name="title_settings">Configurações</string>
@@ -326,9 +320,7 @@
   </plurals>
   <!--__PROFILE-->
   <string name="tab_title_user_info">INFORMAÇÕES</string>
-  <string name="tab_title_user_posts">PUBLICAÇÕES</string>
   <string name="tab_title_user_likes">CURTIDAS</string>
-  <string name="tab_title_user_playlists">PLAYLISTS</string>
   <string name="tab_title_user_followers">SEGUIDORES</string>
   <string name="tab_title_user_followings">SEGUINDO</string>
   <string name="tab_title_user_sounds">SONS</string>
@@ -666,7 +658,6 @@ vão aparecer aqui.</string>
   <string name="stream_reposted_action">republicado</string>
   <string name="stream_promoted_action">promovido</string>
   <string name="stream_track">faixa</string>
-  <string name="stream_playlist">playlist</string>
   <string name="stream_promoted_playable">Promovido %s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
@@ -855,11 +846,6 @@ vão aparecer aqui.</string>
   <string name="station_type_genre">Estação de gênero</string>
   <string name="station_type_curator">Estação de curador</string>
   <string name="station_type_artist">Estação do artista</string>
-  <string name="stations_collection_title_saved_stations">Suas estações</string>
-  <string name="stations_collection_title_track_recommendations">Recomendações de faixa</string>
-  <string name="stations_collection_title_curator_recommendations">Recomendações do curador</string>
-  <string name="stations_collection_title_genre_recommendations">Recomendações de gênero</string>
-  <string name="station_bucket_action_text">Exibir tudo</string>
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Pausado porque você começou a reproduzir em outro dispositivo</string>
   <!--__PLAYER-->

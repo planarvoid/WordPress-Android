@@ -236,10 +236,10 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
     private Notification buildUnderAgeNotification(Urn userUrn, FollowErrors errors, String userName) {
         String title = context.getString(R.string.follow_age_restricted_title);
         String content = context.getString(R.string.follow_age_restricted_content_age_username,
-                                           errors.getAge(),
+                                           String.valueOf(errors.getAge()),
                                            userName);
         String contentLong = context.getString(R.string.follow_age_restricted_content_long_age_username,
-                                               errors.getAge(),
+                                               String.valueOf(errors.getAge()),
                                                userName);
         return buildNotification(title, content, contentLong, navigator.openProfileFromNotification(context, userUrn));
     }

@@ -34,12 +34,12 @@ import java.util.List;
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
 public class Han {
-
     private static final int MAX_SCROLL_ATTEMPTS = 10;
-    private static ViewFetcher viewFetcher;
 
-    private final Chewbacca solo;
     private final Instrumentation instrumentation;
+    private final Chewbacca solo;
+    private final ViewFetcher viewFetcher;
+
     private Activity visibleActivity = new EmptyActivity();
     private With busyUiIndicator;
 
@@ -50,8 +50,8 @@ public class Han {
 
     public Han(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
-        solo = new Chewbacca(instrumentation);
-        viewFetcher = new ViewFetcher(this);
+        this.solo = new Chewbacca(instrumentation);
+        this.viewFetcher = new ViewFetcher(this);
 
         setupActivityListener();
     }
@@ -60,7 +60,7 @@ public class Han {
         this.busyUiIndicator = busyUiIndicator;
     }
 
-    public With getBusyUiIndicator() {
+    With getBusyUiIndicator() {
         return busyUiIndicator;
     }
 

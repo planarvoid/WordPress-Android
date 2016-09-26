@@ -19,6 +19,7 @@ import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -204,7 +205,7 @@ public class AccountOperations {
 
     @Nullable
     public Account getSoundCloudAccount() {
-        Account[] accounts = accountManager.getAccountsByType(context.getString(R.string.account_type));
+        final Account[] accounts = AndroidUtils.getAccounts(accountManager, context.getString(R.string.account_type));
         return accounts != null && accounts.length == 1 ? accounts[0] : null;
     }
 

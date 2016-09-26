@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textColor="@color/white"
-        android:singleLine="true"
+        android:maxLines="1"
         tools:ignore="InconsistentLayout" />
 
     <com.soundcloud.android.view.CustomFontToggleButton

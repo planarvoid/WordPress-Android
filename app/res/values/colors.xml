@@ -156,13 +156,11 @@
     <!-- Stations -->
     <color name="stations_blur_overlay">#1a000000</color>
     <color name="stations_home_background">@color/page_background</color>
-    <color name="stations_home_artwork_bg">@color/ak_medium_gray</color>
     <color name="stations_bucket_action_background">#828282</color>
     <color name="stations_bucket_action_text">@color/ak_light_gray</color>
 
     <!-- Profile -->
     <color name="user_sounds_header">@color/ak_dark_gray</color>
-    <color name="user_sounds_view_all">@color/ak_dark_gray</color>
     <color name="user_toggle_button_border">@color/ak_light_gray</color>
     <color name="user_toggle_button_background">@color/ak_sc_orange</color>
 

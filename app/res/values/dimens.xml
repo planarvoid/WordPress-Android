@@ -93,8 +93,6 @@
 
     <!-- Discovery -->
     <dimen name="discovery_tags_padding_left_right">12dp</dimen>
-    <dimen name="discovery_tags_padding_top_bottom">4dp</dimen>
-    <dimen name="discovery_tags_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_tags_separation">11dp</dimen>
     <dimen name="discovery_cell_elevation">3dp</dimen>
     <dimen name="discovery_cell_text_height">48dp</dimen>
@@ -106,13 +104,10 @@
     <dimen name="discovery_search_help_button">48dp</dimen>
     <dimen name="discovery_search_help_padding">2dp</dimen>
     <dimen name="discovery_search_cell_text_height">56dp</dimen>
-    <dimen name="discovery_cell_image_view_all_padding">6dp</dimen>
-    <dimen name="discovery_cell_image_view_all_size">24dp</dimen>
     <dimen name="discovery_cell_text_view_all_padding">1dp</dimen>
     <dimen name="recommendations_cell_text_recommended_height">48dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_top">8dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_bottom">8dp</dimen>
-    <dimen name="recommendations_cell_text_recommended_margin">4dp</dimen>
     <dimen name="recommendation_item_size">128dp</dimen>
     <dimen name="recommended_stations_pager">216dp</dimen>
 
@@ -180,11 +175,9 @@
 
     <!-- Go Onboarding  -->
     <dimen name="android_status_bar_stub_height">0dp</dimen>
-    <dimen name="go_onboarding_header_text_size">26sp</dimen>
     <dimen name="go_onboarding_title_text_size">18sp</dimen>
     <dimen name="go_onboarding_tooltip_size">84dp</dimen>
     <dimen name="go_onboarding_sub_title_text_size">14sp</dimen>
-    <dimen name="go_onboarding_header_width">240dp</dimen>
     <dimen name="go_onboarding_text_width">360dp</dimen>
 
     <!-- Go Onboarding Settings -->

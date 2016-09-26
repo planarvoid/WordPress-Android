@@ -25,13 +25,14 @@ import java.util.concurrent.TimeUnit;
 
 public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
-    private static Han solo;
     private static final int TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
     private static final int NETWORK_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(1);
     private static final int TWO_SECONDS = (int) TimeUnit.SECONDS.toMillis(2);
     private static final int FIVE_SECONDS = (int) TimeUnit.SECONDS.toMillis(5);
     private static final int ELEMENT_TIMEOUT = FIVE_SECONDS;
     private static final int SMALL_TIMEOUT = 500;
+
+    private final Han solo;
 
     public Waiter(Han driver) {
         solo = driver;
