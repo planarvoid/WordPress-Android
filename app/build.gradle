@@ -31,7 +31,7 @@ ext {
 
   outputsDir            = "$project.buildDir/outputs/apk"
   apkPath               = "$outputsDir/soundcloud-android-$versionName-${pipelineVersion}.apk" // only used by renameApk task (for CI)
-  testApkPath           = "$outputsDir/app-$buildFlavor-$buildType-androidTest-unaligned.apk"
+  testApkPath           = "$outputsDir/app-$buildFlavor-$buildType-androidTest.apk"
   networkManagerApkPath = "$outputsDir/androidnetworkmanager-${rootProject.('networkManager')}.apk"
 
   buildSrcDir = 'buildsystem'
