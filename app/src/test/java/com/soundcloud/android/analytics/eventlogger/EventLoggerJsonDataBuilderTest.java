@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,8 +19,6 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.ReferringEvent;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
@@ -75,57 +72,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
         when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(false);
-    }
-
-    @Test
-    public void createsScreenEventJson() throws ApiMapperException {
-        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
-
-        jsonDataBuilder.build(screenEvent);
-
-        verify(jsonTransformer).toJson(eq(getEventData("pageview",
-                                                       "v0.0.0",
-                                                       screenEvent.getTimestamp()).pageName(Screen.ACTIVITIES.get())));
-    }
-
-    @Test
-    public void createsScreenEventJsonWithUuidAndReferringEventWhenHtiEnabled() throws ApiMapperException {
-        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
-        final String referringEventId = "id";
-        screenEvent.putReferringEvent(ReferringEvent.create(referringEventId, ScreenEvent.KIND));
-        when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(true);
-
-        jsonDataBuilder.build(screenEvent);
-
-        verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
-                                                  .clientEventId(screenEvent.getId())
-                                                  .referringEvent(referringEventId, ScreenEvent.KIND)
-                                                  .pageName(Screen.ACTIVITIES.get())));
-    }
-
-    @Test
-    public void createsScreenEventJsonWithQueryUrn() throws ApiMapperException {
-        ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(),
-                                                     new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), "query"));
-
-
-        jsonDataBuilder.build(screenEvent);
-
-        verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
-                                                  .pageName(Screen.SEARCH_EVERYTHING.get())
-                                                  .queryUrn("soundcloud:search:123")));
-    }
-
-    @Test
-    public void createsScreenEventJsonWithPageUrn() throws ApiMapperException {
-        final Urn pageUrn = Urn.forUser(123L);
-        ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING, pageUrn);
-
-        jsonDataBuilder.build(screenEvent);
-
-        verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
-                                                  .pageName(Screen.SEARCH_EVERYTHING.get())
-                                                  .pageUrn(pageUrn.toString())));
     }
 
     @Test

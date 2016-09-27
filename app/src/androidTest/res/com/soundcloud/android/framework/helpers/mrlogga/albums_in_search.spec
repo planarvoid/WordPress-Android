@@ -11,7 +11,7 @@ expected_events:
     client_id: '3152'
     page_name: search:main
     user: soundcloud:users:18173653
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -21,7 +21,7 @@ expected_events:
     client_id: '3152'
     page_name: search:everything
     user: soundcloud:users:18173653
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
   params:
@@ -41,7 +41,7 @@ expected_events:
     client_id: '3152'
     page_name: search:albums
     user: soundcloud:users:18173653
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
   params:
@@ -63,4 +63,4 @@ expected_events:
     client_id: '3152'
     page_name: playlists:main
     user: soundcloud:users:18173653
-  version: '0'
+  version: '1'

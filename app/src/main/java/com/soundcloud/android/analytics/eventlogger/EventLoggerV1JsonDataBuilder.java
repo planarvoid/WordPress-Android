@@ -8,6 +8,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDI
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
+import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -31,6 +32,7 @@ import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ReferringEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -38,6 +40,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
@@ -49,13 +52,14 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class EventLoggerV1JsonDataBuilder {
+class EventLoggerV1JsonDataBuilder {
 
     private static final String AUDIO_EVENT = "audio";
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
     private static final String INTERACTION_EVENT = "item_interaction";
+    private static final String PAGEVIEW_EVENT = "pageview";
 
     // Ads specific events
     private static final String RICH_MEDIA_ERROR_EVENT = "rich_media_stream_error";
@@ -72,12 +76,14 @@ public class EventLoggerV1JsonDataBuilder {
     private final FeatureOperations featureOperations;
     private final ExperimentOperations experimentOperations;
     private final JsonTransformer jsonTransformer;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public EventLoggerV1JsonDataBuilder(Resources resources, DeviceHelper deviceHelper,
-                                        NetworkConnectionHelper connectionHelper, AccountOperations accountOperations,
-                                        JsonTransformer jsonTransformer, FeatureOperations featureOperations,
-                                        ExperimentOperations experimentOperations) {
+    EventLoggerV1JsonDataBuilder(Resources resources, DeviceHelper deviceHelper,
+                                 NetworkConnectionHelper connectionHelper, AccountOperations accountOperations,
+                                 JsonTransformer jsonTransformer, FeatureOperations featureOperations,
+                                 ExperimentOperations experimentOperations,
+                                 FeatureFlags featureFlags) {
         this.connectionHelper = connectionHelper;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
@@ -85,13 +91,14 @@ public class EventLoggerV1JsonDataBuilder {
         this.appId = resources.getInteger(R.integer.app_id);
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
+        this.featureFlags = featureFlags;
     }
 
-    public String buildForAudioEvent(PlaybackSessionEvent event) {
+    String buildForAudioEvent(PlaybackSessionEvent event) {
         return transform(buildAudioEvent(event));
     }
 
-    public String buildForAdDelivery(AdDeliveryEvent event) {
+    String buildForAdDelivery(AdDeliveryEvent event) {
         switch (event.getKind()) {
             case AdDeliveryEvent.AD_DELIVERED_KIND:
                 return buildAdDeliveredEvent(event);
@@ -129,7 +136,7 @@ public class EventLoggerV1JsonDataBuilder {
                                  .adsRequestSuccess(false));
     }
 
-    public String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
+    String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(CLICK_EVENT, eventData)
                                  .clickName(eventData.get(PlayableTrackingKeys.KEY_QUARTILE_TYPE))
                                  .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
@@ -138,7 +145,7 @@ public class EventLoggerV1JsonDataBuilder {
                                  .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
-    public String buildForAdFinished(AdPlaybackSessionEvent eventData) {
+    String buildForAdFinished(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(CLICK_EVENT, eventData)
                                  .clickName("ad::finish")
                                  .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
@@ -147,7 +154,7 @@ public class EventLoggerV1JsonDataBuilder {
                                  .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
-    public String buildForAdImpression(AdPlaybackSessionEvent eventData) {
+    String buildForAdImpression(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(IMPRESSION_EVENT, eventData)
                                  .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
                                  .pageName(eventData.trackSourceInfo.getOriginScreen())
@@ -156,7 +163,7 @@ public class EventLoggerV1JsonDataBuilder {
                                  .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
-    public String buildForRichMediaSessionEvent(AdPlaybackSessionEvent eventData) {
+    String buildForRichMediaSessionEvent(AdPlaybackSessionEvent eventData) {
         EventLoggerEventData data = buildBaseEvent(RICH_MEDIA_STREAM_EVENT, eventData)
                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
@@ -189,13 +196,13 @@ public class EventLoggerV1JsonDataBuilder {
         return transform(data);
     }
 
-    public EventLoggerEventData buildAdClickThroughEvent(UIEvent event) {
+    private EventLoggerEventData buildAdClickThroughEvent(UIEvent event) {
         final String clickName = event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE).equals("video_ad") ?  "clickthrough::video_ad" : "clickthrough::audio_ad";
         return buildClickEvent(clickName, event)
                 .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL));
     }
 
-    public String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
+    String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
         return transform(buildBaseEvent(RICH_MEDIA_PERFORMANCE_EVENT, event.getTimestamp())
                                  .mediaType(event.isVideoAd() ? "video" : "audio")
                                  .protocol(event.getProtocol().getValue())
@@ -206,7 +213,29 @@ public class EventLoggerV1JsonDataBuilder {
                                  .host(event.getCdnHost()));
     }
 
-    public String buildForRichMediaErrorEvent(AdPlaybackErrorEvent eventData) {
+    String buildForScreenEvent(ScreenEvent event) {
+        try {
+            final String referringEventId = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
+            final String referringEventKind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
+            final EventLoggerEventData eventData = buildBaseEvent(PAGEVIEW_EVENT, event)
+                    .pageName(event.getScreenTag())
+                    .queryUrn(event.getQueryUrn())
+                    .pageUrn(event.getPageUrn());
+
+            if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
+                if (referringEventId != null && referringEventKind != null) {
+                    eventData.referringEvent(referringEventId, referringEventKind);
+                }
+                eventData.clientEventId(event.getId());
+            }
+
+            return jsonTransformer.toJson(eventData);
+        } catch (ApiMapperException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    String buildForRichMediaErrorEvent(AdPlaybackErrorEvent eventData) {
         return transform(buildBaseEvent(RICH_MEDIA_ERROR_EVENT, eventData)
                                  .mediaType(eventData.getMediaType())
                                  .protocol(eventData.getProtocol())
@@ -237,7 +266,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForFacebookInvites(FacebookInvitesEvent event) {
+    String buildForFacebookInvites(FacebookInvitesEvent event) {
         switch (event.getKind()) {
             case FacebookInvitesEvent.KIND_CLICK:
                 return transform(buildFacebookInvitesClickEvent(event));
@@ -248,7 +277,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForUpsell(UpgradeFunnelEvent event) {
+    String buildForUpsell(UpgradeFunnelEvent event) {
         switch (event.getKind()) {
             case UpgradeFunnelEvent.KIND_UPSELL_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
@@ -291,7 +320,7 @@ public class EventLoggerV1JsonDataBuilder {
         return TrackingCode.fromEventId(event.get(UpgradeFunnelEvent.KEY_ID));
     }
 
-    public String buildForUIEvent(UIEvent event) {
+    String buildForUIEvent(UIEvent event) {
         switch (event.getKind()) {
             case UIEvent.KIND_SHARE:
                 return transform(buildEngagementEvent("share", event));
@@ -320,7 +349,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForInteractionEvent(UIEvent event) {
+    String buildForInteractionEvent(UIEvent event) {
         switch (event.getKind()) {
             case UIEvent.KIND_SHARE:
                 return transform(buildInteractionEvent("share", event));
@@ -337,7 +366,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForOfflineInteractionEvent(OfflineInteractionEvent event) {
+    String buildForOfflineInteractionEvent(OfflineInteractionEvent event) {
         if (OfflineInteractionEvent.KIND_LIMIT_BELOW_USAGE.equals(event.getKind())) {
             return transform(buildBaseEvent(IMPRESSION_EVENT, event)
                                      .impressionCategory("consumer_subs")
@@ -355,7 +384,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForOfflinePerformanceEvent(OfflinePerformanceEvent event) {
+    String buildForOfflinePerformanceEvent(OfflinePerformanceEvent event) {
         final EventLoggerEventData eventLoggerEventData = buildBaseEvent(OFFLINE_SYNC_EVENT, event)
                 .eventStage(event.getKind())
                 .track(event.getTrackUrn())
@@ -365,7 +394,7 @@ public class EventLoggerV1JsonDataBuilder {
         return transform(eventLoggerEventData);
     }
 
-    public String buildForCollectionEvent(CollectionEvent event) {
+    String buildForCollectionEvent(CollectionEvent event) {
         switch (event.getKind()) {
             case CollectionEvent.KIND_SET:
                 return transform(buildCollectionEvent("filter_sort::set", event));
@@ -591,9 +620,9 @@ public class EventLoggerV1JsonDataBuilder {
         return trackSourceInfo.getIsUserTriggered() ? "manual" : "auto";
     }
 
-    public EventLoggerEventData addTrackSourceInfoToSessionEvent(EventLoggerEventData data,
-                                                                 TrackSourceInfo sourceInfo,
-                                                                 Urn urn) {
+    private EventLoggerEventData addTrackSourceInfoToSessionEvent(EventLoggerEventData data,
+                                                                  TrackSourceInfo sourceInfo,
+                                                                  Urn urn) {
         if (sourceInfo.hasSource()) {
             data.source(sourceInfo.getSource());
             data.sourceVersion(sourceInfo.getSourceVersion());

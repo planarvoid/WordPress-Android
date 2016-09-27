@@ -11,7 +11,7 @@ expected_events:
     page_name: users:info
     page_urn: soundcloud:users:[0-9]+
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -21,7 +21,7 @@ expected_events:
     page_name: users:main
     page_urn: soundcloud:users:[0-9]+
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -31,7 +31,7 @@ expected_events:
     page_name: users:followers
     page_urn: soundcloud:users:[0-9]+
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -41,4 +41,4 @@ expected_events:
     page_name: users:followings
     page_urn: soundcloud:users:[0-9]+
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
