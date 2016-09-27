@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -62,6 +63,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Mock private SyncConfig syncConfig;
     @Mock private FeatureFlags featureFlags;
     @Mock private OfflineSettingsStorage storage;
+    @Mock private ChartsExperiment chartsExperiment;
 
     @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
 
@@ -81,11 +83,13 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
                                          bugReporter,
                                          appProperties,
                                          storage,
-                                         featureFlags);
+                                         featureFlags,
+                                         chartsExperiment);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
         when(featureFlags.isEnabled(Flag.EXPLORE)).thenReturn(true);
+        when(chartsExperiment.isEnabled()).thenReturn(false);
     }
 
     @Test
@@ -170,6 +174,15 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void hidesExploreWhenExploreDisabled() {
         when(featureFlags.isEnabled(Flag.EXPLORE)).thenReturn(false);
+
+        setupForegroundFragment();
+
+        verify(moreView).hideExplore();
+    }
+
+    @Test
+    public void hidesExploreWhenChartsExperimentEnabled() {
+        when(chartsExperiment.isEnabled()).thenReturn(true);
 
         setupForegroundFragment();
 

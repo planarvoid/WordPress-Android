@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -206,18 +207,21 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         private final RecommendedStationsOperations recommendedStationsOperations;
         private final ChartsOperations chartsOperations;
         private final FeatureFlags featureFlags;
+        private final ChartsExperiment chartsExperiment;
 
         @Inject
         public DataSource(RecommendedTracksOperations recommendedTracksOperations,
                           PlaylistDiscoveryOperations playlistDiscoveryOperations,
                           RecommendedStationsOperations recommendedStationsOperations,
                           ChartsOperations chartsOperations,
-                          FeatureFlags featureFlags) {
+                          FeatureFlags featureFlags,
+                          ChartsExperiment chartsExperiment) {
             this.recommendedTracksOperations = recommendedTracksOperations;
             this.playlistDiscoveryOperations = playlistDiscoveryOperations;
             this.recommendedStationsOperations = recommendedStationsOperations;
             this.chartsOperations = chartsOperations;
             this.featureFlags = featureFlags;
+            this.chartsExperiment = chartsExperiment;
         }
 
         Observable<List<DiscoveryItem>> discoveryItems() {
@@ -229,7 +233,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                 discoveryItems.add(recommendedTracksOperations.recommendedTracks());
             }
 
-            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
+            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.featuredCharts().map(TO_DISCOVERY_ITEM));
             }
 
@@ -247,7 +251,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                 discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
             }
 
-            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
+            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.refreshFeaturedCharts().map(TO_DISCOVERY_ITEM));
             }
 
