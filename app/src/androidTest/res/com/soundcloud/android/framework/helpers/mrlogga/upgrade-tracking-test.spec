@@ -26,7 +26,7 @@ expected_events:
     client_id: '3152'
     page_name: consumer-premium:main
     user: soundcloud:users:147986827
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: impression
   params:
@@ -62,4 +62,4 @@ expected_events:
     client_id: '3152'
     page_name: consumer-premium:checkout
     user: soundcloud:users:147986827
-  version: '0'
+  version: '1'

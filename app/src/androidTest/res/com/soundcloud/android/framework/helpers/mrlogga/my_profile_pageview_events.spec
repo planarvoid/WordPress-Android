@@ -10,7 +10,7 @@ expected_events:
     client_id: '3152'
     page_name: you:info
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -19,7 +19,7 @@ expected_events:
     client_id: '3152'
     page_name: you:main
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -28,7 +28,7 @@ expected_events:
     client_id: '3152'
     page_name: you:followers
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -37,4 +37,4 @@ expected_events:
     client_id: '3152'
     page_name: you:followings
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'

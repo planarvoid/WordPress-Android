@@ -8,7 +8,7 @@ expected_events:
     client_id: '3152'
     page_name: users:likes
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:

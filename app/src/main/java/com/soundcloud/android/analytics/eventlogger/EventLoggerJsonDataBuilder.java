@@ -13,8 +13,6 @@ import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.ReferringEvent;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -27,7 +25,6 @@ import com.soundcloud.java.strings.Strings;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 
 public class EventLoggerJsonDataBuilder {
@@ -41,7 +38,7 @@ public class EventLoggerJsonDataBuilder {
     private static final String AUDIO_PERFORMANCE_EVENT = "audio_performance";
     private static final String AUDIO_ERROR_EVENT = "audio_error";
     private static final String BOOGALOO_VERSION = "v0.0.0";
-    protected final int appId;
+    private final int appId;
     protected final DeviceHelper deviceHelper;
     protected final ExperimentOperations experimentOperations;
     protected final AccountOperations accountOperations;
@@ -59,28 +56,6 @@ public class EventLoggerJsonDataBuilder {
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
         this.featureFlags = featureFlags;
-    }
-
-    public String build(ScreenEvent event) {
-        try {
-            final String referringEventId = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
-            final String referringEventKind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
-            final EventLoggerEventData eventData = buildBaseEvent(PAGEVIEW_EVENT, event)
-                    .pageName(event.getScreenTag())
-                    .queryUrn(event.getQueryUrn())
-                    .pageUrn(event.getPageUrn());
-
-            if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
-                if (referringEventId != null && referringEventKind != null) {
-                    eventData.referringEvent(referringEventId, referringEventKind);
-                }
-                eventData.clientEventId(event.getId());
-            }
-
-            return jsonTransformer.toJson(eventData);
-        } catch (ApiMapperException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 
     private EventLoggerEventData getEngagementEvent(String clickName, UIEvent event) {

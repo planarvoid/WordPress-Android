@@ -1,7 +1,9 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
+import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 import static java.util.UUID.randomUUID;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +13,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ChartCategory;
@@ -38,6 +41,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ReferringEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
@@ -49,6 +53,7 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -97,6 +102,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private JsonTransformer jsonTransformer;
     @Mock private FeatureOperations featureOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private FeatureFlags featureFlags;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = createTrackSourceInfo();
@@ -111,7 +117,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                            accountOperations,
                                                            jsonTransformer,
                                                            featureOperations,
-                                                           experimentOperations);
+                                                           experimentOperations,
+                                                           featureFlags);
 
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
@@ -1371,6 +1378,57 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clickCategory("consumer_subs")
                                                .clickName("clickthrough::consumer_sub_resubscribe")
                                                .clickObject("soundcloud:tcode:4002"));
+    }
+
+    @Test
+    public void createsScreenEventJson() throws ApiMapperException {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
+
+        jsonDataBuilder.buildForScreenEvent(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview",
+                                                       BOOGALOO_VERSION,
+                                                       screenEvent.getTimestamp()).pageName(Screen.ACTIVITIES.get())));
+    }
+
+    @Test
+    public void createsScreenEventJsonWithUuidAndReferringEventWhenHtiEnabled() throws ApiMapperException {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
+        final String referringEventId = "id";
+        screenEvent.putReferringEvent(ReferringEvent.create(referringEventId, ScreenEvent.KIND));
+        when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(true);
+
+        jsonDataBuilder.buildForScreenEvent(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview", BOOGALOO_VERSION, screenEvent.getTimestamp())
+                                                  .clientEventId(screenEvent.getId())
+                                                  .referringEvent(referringEventId, ScreenEvent.KIND)
+                                                  .pageName(Screen.ACTIVITIES.get())));
+    }
+
+    @Test
+    public void createsScreenEventJsonWithQueryUrn() throws ApiMapperException {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(),
+                                                     new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), "query"));
+
+
+        jsonDataBuilder.buildForScreenEvent(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview", BOOGALOO_VERSION, screenEvent.getTimestamp())
+                                                  .pageName(Screen.SEARCH_EVERYTHING.get())
+                                                  .queryUrn("soundcloud:search:123")));
+    }
+
+    @Test
+    public void createsScreenEventJsonWithPageUrn() throws ApiMapperException {
+        final Urn pageUrn = Urn.forUser(123L);
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING, pageUrn);
+
+        jsonDataBuilder.buildForScreenEvent(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview", BOOGALOO_VERSION, screenEvent.getTimestamp())
+                                                  .pageName(Screen.SEARCH_EVERYTHING.get())
+                                                  .pageUrn(pageUrn.toString())));
     }
 
     @Test

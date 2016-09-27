@@ -304,7 +304,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackScreenEvent() {
         ScreenEvent event = ScreenEvent.create(Screen.ACTIVITIES);
-        when(dataBuilderv0.build(event)).thenReturn("ForScreenEvent");
+        when(dataBuilderv1.buildForScreenEvent(event)).thenReturn("ForScreenEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

@@ -11,7 +11,7 @@ expected_events:
     client_id: '3152'
     page_name: search:main
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -20,7 +20,7 @@ expected_events:
     client_id: '3152'
     page_name: personal-recommended:main
     user: soundcloud:users:[0-9]+
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:

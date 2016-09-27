@@ -8,6 +8,6 @@ expected_events:
     client_id: '3152'
     page_name: playlists:main
     user: soundcloud:users:151499536
-  version: '0'
+  version: '1'
 whitelisted_events:
 - pageview

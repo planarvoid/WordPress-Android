@@ -11,7 +11,7 @@ expected_events:
     client_id: '3152'
     page_name: playlists:main
     user: soundcloud:users:50749473
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
   params:
