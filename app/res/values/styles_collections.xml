@@ -135,10 +135,9 @@
     </style>
 
     <style name="Collections.BucketCarousel">
-        <item name="android:paddingLeft">@dimen/collection_default_margin</item>
-        <item name="android:layout_marginTop">@dimen/collection_default_margin</item>
-        <item name="android:layout_marginBottom">24dp</item>
-        <item name="android:clipToPadding">false</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
         <item name="android:overScrollMode">never</item>
     </style>
 
@@ -151,6 +150,12 @@
         <item name="android:paddingRight">96dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/collections_empty_text_color</item>
+    </style>
+
+    <style name="Collections.BucketCarouselCard">
+        <item name="android:clipChildren">false</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:padding">8dp</item>
     </style>
 
 </resources>

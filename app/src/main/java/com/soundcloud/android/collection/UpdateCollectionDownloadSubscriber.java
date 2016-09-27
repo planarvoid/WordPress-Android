@@ -5,29 +5,24 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 
-public class UpdateCollectionDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
+class UpdateCollectionDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
 
     private final CollectionAdapter adapter;
 
-    public UpdateCollectionDownloadSubscriber(CollectionAdapter adapter) {
+    UpdateCollectionDownloadSubscriber(CollectionAdapter adapter) {
         this.adapter = adapter;
     }
 
     @Override
     public void onNext(final OfflineContentChangedEvent event) {
-        boolean changed = false;
-
         for (CollectionItem item : adapter.getItems()) {
-            if (event.entities.contains(item.getUrn())
-                    || (event.isLikedTrackCollection && item.getType() == CollectionItem.TYPE_PREVIEW)) {
-                changed = true;
+            if (event.isLikedTrackCollection && item.getType() == CollectionItem.TYPE_PREVIEW) {
                 item.update(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.state)));
+                adapter.notifyDataSetChanged();
+                break;
             }
         }
-
-        if (changed) {
-            adapter.notifyDataSetChanged();
-        }
+        adapter.getRecentlyPlayedBucketRenderer().update(event);
     }
 
 }

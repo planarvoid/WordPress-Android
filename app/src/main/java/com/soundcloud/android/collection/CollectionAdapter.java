@@ -15,6 +15,7 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
 
     private final OnboardingItemCellRenderer onboardingItemCellRenderer;
     private final PlayHistoryBucketRenderer playHistoryBucketRenderer;
+    private final RecentlyPlayedBucketRenderer recentlyPlayedBuckerRenderer;
 
     @Inject
     public CollectionAdapter(OnboardingItemCellRenderer onboardingItemCellRenderer,
@@ -28,6 +29,7 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_BUCKET, playHistoryBucketRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
         this.playHistoryBucketRenderer = playHistoryBucketRenderer;
+        this.recentlyPlayedBuckerRenderer = recentlyPlayedBucketRenderer;
 
     }
 
@@ -47,5 +49,9 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
 
     void setTrackClickListener(TrackItemRenderer.Listener listener) {
         playHistoryBucketRenderer.setTrackClickListener(listener);
+    }
+
+    RecentlyPlayedBucketRenderer getRecentlyPlayedBucketRenderer() {
+        return recentlyPlayedBuckerRenderer;
     }
 }

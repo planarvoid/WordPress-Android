@@ -7,6 +7,7 @@ import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns.Sounds;
 import com.soundcloud.android.storage.Tables;
@@ -76,7 +77,8 @@ public class RecentlyPlayedStorage {
     }
 
     Observable<RecentlyPlayedPlayableItem> loadContexts(int limit) {
-        return rxDatabase.query(loadContextsQuery(limit))
+        final String query = loadContextsQuery(limit);
+        return rxDatabase.query(query)
                          .map(new RecentlyPlayedItemMapper());
     }
 
@@ -100,6 +102,10 @@ public class RecentlyPlayedStorage {
                 "    coalesce(playlists.artwork_url, artist_stations.artwork_url_template, artist_stations.artwork_url_template, users.avatar_url, ptv.artwork_url) as " + RecentlyPlayedItemMapper.COLUMN_ARTWORK_URL + "," +
                 "    coalesce(playlists.track_count, 0) as " + RecentlyPlayedItemMapper.COLUMN_COLLECTION_COUNT + "," +
                 "    coalesce(playlists.is_album, 0) as " + RecentlyPlayedItemMapper.COLUMN_COLLECTION_ALBUM + "," +
+                "    coalesce(offline.pv_is_marked_for_offline, 0) as " + RecentlyPlayedItemMapper.COLUMN_MARKED_FOR_OFFLINE + "," +
+                "    coalesce(offline.pv_has_pending_download_request, 0) as " + RecentlyPlayedItemMapper.COLUMN_HAS_PENDING_DOWNLOAD_REQUEST + "," +
+                "    coalesce(offline.pv_has_downloaded_tracks, 0) as " + RecentlyPlayedItemMapper.COLUMN_HAS_DOWNLOADED_TRACKS + "," +
+                "    coalesce(offline.pv_has_unavailable_tracks, 0) as " + RecentlyPlayedItemMapper.COLUMN_HAS_UNAVAILABLE_TRACKS + "," +
                 "    max(" + RecentlyPlayed.TIMESTAMP.name() + ") as max_timestamp" +
                 "  FROM " + RecentlyPlayed.TABLE.name() + " as rp" +
                 "  LEFT JOIN " + Table.SoundView.name() + " as playlists ON rp.context_type = " + PlayHistoryRecord.CONTEXT_PLAYLIST + " AND playlists._type = " + Sounds.TYPE_PLAYLIST + " AND playlists._id = rp.context_id" +
@@ -107,6 +113,7 @@ public class RecentlyPlayedStorage {
                 "  LEFT JOIN " + Tables.Stations.TABLE.name() + " as artist_stations ON rp.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST_STATION + " AND artist_stations.station_urn = '" + ARTIST_STATIONS_URN_PREFIX + "' || rp.context_id" +
                 "  LEFT JOIN " + Table.Users.name() + " as users ON rp.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST + " AND users._id = rp.context_id" +
                 "  LEFT JOIN " + Table.PlaylistTracksView.name() + " as ptv ON ptv.playlist_id = playlists._ID AND playlist_position = 0" +
+                "  LEFT JOIN " + Tables.PlaylistView.TABLE.name() + " as offline ON offline.pv_id = playlists._ID " +
                 "  WHERE rp.context_type != " + PlayHistoryRecord.CONTEXT_OTHER + " AND " + RecentlyPlayedItemMapper.COLUMN_TITLE + " IS NOT NULL" +
                 "  GROUP BY rp.context_type, rp.context_id" +
                 "  ORDER BY max_timestamp DESC" +
@@ -165,6 +172,10 @@ public class RecentlyPlayedStorage {
         static final String COLUMN_COLLECTION_ALBUM = "collection_album";
         static final String COLUMN_COLLECTION_COUNT = "collection_count";
         static final String COLUMN_TITLE = "recently_played_title";
+        static final String COLUMN_MARKED_FOR_OFFLINE = "marked_for_offline";
+        static final String COLUMN_HAS_PENDING_DOWNLOAD_REQUEST = "has_pending_tracks";
+        static final String COLUMN_HAS_DOWNLOADED_TRACKS = "has_downloaded_tracks";
+        static final String COLUMN_HAS_UNAVAILABLE_TRACKS = "has_unavailable_tracks";
 
         @Override
         public RecentlyPlayedPlayableItem map(CursorReader reader) {
@@ -172,12 +183,26 @@ public class RecentlyPlayedStorage {
                     reader.getInt(RecentlyPlayed.CONTEXT_TYPE.name()),
                     reader.getLong(RecentlyPlayed.CONTEXT_ID.name()));
 
-            return RecentlyPlayedPlayableItem.create(
+            return new RecentlyPlayedPlayableItem(
                     urn,
                     Optional.fromNullable(reader.getString(COLUMN_ARTWORK_URL)),
                     reader.getString(COLUMN_TITLE),
                     reader.getInt(COLUMN_COLLECTION_COUNT),
-                    reader.getBoolean(COLUMN_COLLECTION_ALBUM));
+                    reader.getBoolean(COLUMN_COLLECTION_ALBUM),
+                    getOfflineState(reader));
+        }
+
+        private Optional<OfflineState> getOfflineState(CursorReader cursorReader) {
+            final boolean isMarkedForOffline = cursorReader.getBoolean(COLUMN_MARKED_FOR_OFFLINE);
+
+            if (isMarkedForOffline) {
+                return Optional.of(OfflineState.getOfflineState(
+                        cursorReader.getBoolean(COLUMN_HAS_PENDING_DOWNLOAD_REQUEST),
+                        cursorReader.getBoolean(COLUMN_HAS_DOWNLOADED_TRACKS),
+                        cursorReader.getBoolean(COLUMN_HAS_UNAVAILABLE_TRACKS)));
+            } else {
+                return Optional.absent();
+            }
         }
     }
 

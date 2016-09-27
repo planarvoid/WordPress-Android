@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketRenderer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
@@ -30,9 +31,11 @@ public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
     private UpdateCollectionDownloadSubscriber subscriber;
 
     @Mock private CollectionAdapter adapter;
+    @Mock private RecentlyPlayedBucketRenderer recentlyPlayedBucketRenderer;
 
     @Before
     public void setUp() throws Exception {
+        when(adapter.getRecentlyPlayedBucketRenderer()).thenReturn(recentlyPlayedBucketRenderer);
         when(adapter.getItems()).thenReturn(singletonList((CollectionItem) PREVIEW));
         subscriber = new UpdateCollectionDownloadSubscriber(adapter);
     }

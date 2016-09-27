@@ -9,11 +9,15 @@ import static com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedIte
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 
 import android.view.View;
+
+import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
 class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem, RecyclerItemAdapter.ViewHolder> {
@@ -42,6 +46,28 @@ class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem
     @Override
     public int getBasicItemViewType(int position) {
         return getItem(position).getKind().ordinal();
+    }
+
+    void updateOfflineState(OfflineContentChangedEvent event) {
+        final List<RecentlyPlayedItem> items = getItems();
+        boolean changed = false;
+        for (int i = 0, itemsSize = items.size(); i < itemsSize; i++) {
+
+            final RecentlyPlayedItem recentlyPlayedItem = items.get(i);
+            if (recentlyPlayedItem.getKind().equals(RecentlyPlayedItem.Kind.RecentlyPlayedPlaylist)) {
+                final RecentlyPlayedPlayableItem playableItem = (RecentlyPlayedPlayableItem) recentlyPlayedItem;
+
+                if (event.entities.contains(playableItem.getUrn())) {
+                    if (!playableItem.getOfflineState().or(OfflineState.NOT_OFFLINE).equals(event.state)) {
+                        playableItem.setOfflineState(event.state);
+                        changed = true;
+                    }
+                }
+            }
+        }
+        if (changed) {
+            notifyDataSetChanged();
+        }
     }
 
 }

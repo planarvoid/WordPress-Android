@@ -4,6 +4,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -35,6 +36,10 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
         ButterKnife.bind(this, view);
         initCarousel(ButterKnife.<RecyclerView>findById(view, R.id.recently_played_carousel));
         return view;
+    }
+
+    public void update(OfflineContentChangedEvent event) {
+        adapter.updateOfflineState(event);
     }
 
     private void initCarousel(final RecyclerView recyclerView) {

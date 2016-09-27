@@ -7,15 +7,18 @@ import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
 import rx.functions.Func1;
 
 import android.content.res.Resources;
@@ -39,6 +42,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     private Fragment fragment;
     private FeedbackController feedbackController;
     private EventBus eventBus;
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public RecentlyPlayedPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -63,6 +67,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     @Override
     public void onDestroyView(Fragment fragment) {
         this.fragment = null;
+        subscription.unsubscribe();
         super.onDestroyView(fragment);
     }
 
@@ -114,11 +119,17 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
 
         setupRecyclerView(view);
         setupEmptyView();
+        subscribeForEvents();
+    }
+
+    private void subscribeForEvents() {
+        subscription = eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED,
+                                          new CurrentDownloadSubscriber(adapter));
     }
 
     private void setupRecyclerView(View view) {
         final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
-        final int itemMargin = view.getResources().getDimensionPixelSize(R.dimen.collection_default_margin);
+        final int itemMargin = view.getResources().getDimensionPixelSize(R.dimen.collection_padding);
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         final RecyclerView recyclerView = getRecyclerView();
 
@@ -126,7 +137,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new RecentlyPlayedItemDecoration(itemMargin));
-        recyclerView.setPadding(itemMargin, 0, 0, 0);
+        recyclerView.setPadding(itemMargin, 0, itemMargin, 0);
         recyclerView.setClipToPadding(false);
     }
 
@@ -169,7 +180,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
             boolean isSingleSpan = layoutParams.getSpanSize() == 1;
 
             outRect.left = isSingleSpan ? 0 : -spacing;
-            outRect.right = isSingleSpan ? spacing : 0;
+            outRect.right = isSingleSpan ? 0 : -spacing;
             outRect.bottom = isSingleSpan ? spacing : 0;
             outRect.top = isSingleSpan ? spacing : 0;
         }
@@ -186,6 +197,19 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
                 retryWith(onBuildBinding(null));
                 eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
             }
+        }
+    }
+
+    private static class CurrentDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
+        private final RecentlyPlayedAdapter adapter;
+
+        CurrentDownloadSubscriber(RecentlyPlayedAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        public void onNext(OfflineContentChangedEvent event) {
+            adapter.updateOfflineState(event);
         }
     }
 }

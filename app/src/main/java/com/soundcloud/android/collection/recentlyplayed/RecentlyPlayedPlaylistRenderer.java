@@ -13,7 +13,10 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -69,8 +72,19 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         setType(view, playlist.isAlbum()
                       ? R.string.collections_recently_played_album
                       : R.string.collections_recently_played_playlist);
+        setOfflineState(view, playlist.getOfflineState());
 
         view.setOnClickListener(goToPlaylist(playlist));
+    }
+
+    private void setOfflineState(View view, Optional<OfflineState> offlineState) {
+        final DownloadImageView downloadImageView = ButterKnife.findById(view, R.id.item_download_state);
+        if (offlineState.isPresent()) {
+            downloadImageView.setState(offlineState.get());
+            downloadImageView.setVisibility(View.VISIBLE);
+        } else {
+            downloadImageView.setVisibility(View.GONE);
+        }
     }
 
     private void setTitle(View view, String title) {

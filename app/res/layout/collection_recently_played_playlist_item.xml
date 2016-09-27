@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout android:id="@+id/collections_recently_played_item"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Collections.BucketCarouselCard"
+    android:id="@+id/collections_recently_played_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?attr/selectableItemBackground"
-    xmlns:ForegroundImageView="http://schemas.android.com/apk/res-auto">
+    android:foreground="?attr/selectableItemBackground">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,10 +17,21 @@
 
         <com.soundcloud.android.view.ForegroundImageView
             android:id="@+id/artwork"
-            ForegroundImageView:foregroundDrawable="@drawable/artwork_border"
-            ForegroundImageView:square="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            app:foregroundDrawable="@drawable/artwork_border"
+            app:square="true" />
+
+        <com.soundcloud.android.offline.DownloadImageView
+            android:id="@+id/item_download_state"
+            style="@style/DownloadItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/artwork"
+            android:layout_alignTop="@id/artwork"
+            android:layout_marginLeft="@dimen/download_progress_indicator_margin"
+            android:layout_marginTop="@dimen/download_progress_indicator_margin"
+            android:visibility="gone" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/track_count"

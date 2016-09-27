@@ -68,8 +68,18 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     );
 
     private List<RecentlyPlayedPlayableItem> recentlyPlayed = Arrays.asList(
-            RecentlyPlayedPlayableItem.create(Urn.forPlaylist(123L), Optional.<String>absent(), "title 1", 10, false),
-            RecentlyPlayedPlayableItem.create(Urn.forTrackStation(234L), Optional.<String>absent(), "title 2", 0, false)
+            new RecentlyPlayedPlayableItem(Urn.forPlaylist(123L),
+                                           Optional.<String>absent(),
+                                           "title 1",
+                                           10,
+                                           false,
+                                           Optional.<OfflineState>absent()),
+            new RecentlyPlayedPlayableItem(Urn.forTrackStation(234L),
+                                           Optional.<String>absent(),
+                                           "title 2",
+                                           0,
+                                           false,
+                                           Optional.<OfflineState>absent())
     );
 
 

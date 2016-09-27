@@ -1,26 +1,64 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
-import com.google.auto.value.AutoValue;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
-@AutoValue
-public abstract class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements ImageResource {
+public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements ImageResource {
 
-    public static RecentlyPlayedPlayableItem create(Urn urn,
-                                                    Optional<String> imageUrl,
-                                                    String title,
-                                                    int trackCount,
-                                                    boolean isAlbum) {
-        return new AutoValue_RecentlyPlayedPlayableItem(urn, imageUrl, kindFor(urn), title, trackCount, isAlbum);
+    private final Urn urn;
+    private final Optional<String> imageUrl;
+    private final String title;
+    private final int trackCount;
+    private final boolean isAlbum;
+    private Optional<OfflineState> offlineState;
+
+    public RecentlyPlayedPlayableItem(Urn urn,
+                                      Optional<String> imageUrl,
+                                      String title,
+                                      int trackCount,
+                                      boolean isAlbum,
+                                      Optional<OfflineState> offlineState) {
+
+        this.urn = urn;
+        this.imageUrl = imageUrl;
+        this.title = title;
+        this.trackCount = trackCount;
+        this.isAlbum = isAlbum;
+        this.offlineState = offlineState;
     }
 
-    public abstract String getTitle();
+    public String getTitle() {
+        return title;
+    }
 
-    public abstract int getTrackCount();
+    public int getTrackCount() {
+        return trackCount;
+    }
 
-    public abstract boolean isAlbum();
+    public boolean isAlbum() {
+        return isAlbum;
+    }
+
+    public Optional<OfflineState> getOfflineState() {
+        return offlineState;
+    }
+
+    public void setOfflineState(OfflineState offlineState) {
+        this.offlineState = Optional.of(offlineState);
+    }
+
+    @Override
+    public Urn getUrn() {
+        return urn;
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return imageUrl;
+    }
 
     private static Kind kindFor(Urn urn) {
         if (urn.isPlaylist()) {
@@ -34,4 +72,26 @@ public abstract class RecentlyPlayedPlayableItem extends RecentlyPlayedItem impl
         }
     }
 
+    @Override
+    Kind getKind() {
+        return kindFor(getUrn());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecentlyPlayedPlayableItem that = (RecentlyPlayedPlayableItem) o;
+        return trackCount == that.trackCount &&
+                isAlbum == that.isAlbum &&
+                MoreObjects.equal(urn, that.urn) &&
+                MoreObjects.equal(imageUrl, that.imageUrl) &&
+                MoreObjects.equal(title, that.title) &&
+                MoreObjects.equal(offlineState, that.offlineState);
+    }
+
+    @Override
+    public int hashCode() {
+        return MoreObjects.hashCode(urn, imageUrl, title, trackCount, isAlbum, offlineState);
+    }
 }
