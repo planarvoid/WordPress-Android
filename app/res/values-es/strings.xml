@@ -687,7 +687,7 @@
   <string name="conversion_buy_retry">Error al cargar. ¿Volver a intentarlo?</string>
   <string name="conversion_restrictions">Existen limitaciones</string>
   <string name="conversion_restrictions_dialog_title">Existen limitaciones</string>
-  <string name="conversion_restrictions_dialog_message">Oferta limitada a un periodo de prueba de 30 días por usuario. Tras los primeros 30 días, el usuario pagará una cuota mensual a menos que la cancele antes. El periodo de prueba se puede cancelar en cualquier momento durante los primeros 30 días.</string>
+  <string name="conversion_restrictions_message_trial">Oferta limitada a un periodo de prueba de %1$d días por usuario. Tras los primeros %2$d días, el usuario pagará una cuota mensual a menos que la cancele antes. El periodo de prueba se puede cancelar en cualquier momento durante los primeros %3$d días.</string>
   <string name="ads_why_ads_upsell_dialog_message">Cada vez que ves u oyes un anuncio, se les paga a los artistas. Ellos nos ayudan a mantener SoundCloud gratis para los oyentes.\n\n¿No quieres que te interrumpan? Olvídate de los anuncios y sigue apoyando a tus artistas favoritos con SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Producto no disponible</string>

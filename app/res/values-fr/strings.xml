@@ -684,8 +684,7 @@
   <string name="conversion_feature_3">Écoutez tous les titres</string>
   <string name="conversion_feature_4">Aucune publicité</string>
   <string name="conversion_buy_loading">Chargement…</string>
-  <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Essai gratuit pendant %d jours
-</string>
+  <string name="conversion_buy_trial">Essai gratuit pendant %d jours</string>
   <string name="conversion_buy_no_trial">Abonnez-vous maintenant</string>
   <string name="conversion_retry_heading">Oups... veuillez réessayer</string>
   <string name="conversion_retry_message">Un problème semble être survenu. Veuillez réessayer</string>
@@ -693,7 +692,7 @@
   <string name="conversion_buy_retry">Échec du chargement. Réessayer ?</string>
   <string name="conversion_restrictions">Des restrictions s\'appliquent</string>
   <string name="conversion_restrictions_dialog_title">Des restrictions s\'appliquent</string>
-  <string name="conversion_restrictions_dialog_message">Offre limitée à un essai de 30 jours par utilisateur. Une fois les 30 premiers jours écoulés, l\'utilisateur sera facturé chaque mois sauf en cas d\'annulation préalable. La période d\'essai peut être interrompue à tout moment au cours des 30 premiers jours.</string>
+  <string name="conversion_restrictions_message_trial">Offre limitée à un essai de %1$d jours par utilisateur. Une fois les %2$d premiers jours écoulés, l\'utilisateur sera facturé chaque mois sauf en cas d\'annulation préalable. La période d\'essai peut être interrompue à tout moment au cours des %3$d premiers jours.</string>
   <string name="ads_why_ads_upsell_dialog_message">À chaque fois que vous voyez ou entendez une publicité, les artistes touchent des revenus. Les publicités nous permettent ainsi de conserver la gratuité de  SoundCloud pour nos auditeurs.\n\nVous souhaitez vous débarrasser des publicités ? Passez à un abonnement sans publicités et continuez à soutenir vos artistes préférés avec SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produit non disponible</string>
