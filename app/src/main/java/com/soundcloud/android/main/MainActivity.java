@@ -77,6 +77,16 @@ public class MainActivity extends PlayerActivity {
     }
 
     @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        //Workaround due to a bug related to Google Play Services
+        //https://github.com/soundcloud/SoundCloud-Android/issues/6075
+        if (intent == null) {
+            intent = new Intent();
+        }
+        super.startActivityForResult(intent, requestCode);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         setupUpgradeUpsell();
