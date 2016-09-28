@@ -17,7 +17,12 @@ import java.util.Collections;
 class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAdapter.PlayQueueItemViewHolder>
         implements RepeatableItemAdapter {
 
+    interface NowPlayingListener {
+        void onNowPlayingChanged(TrackPlayQueueUIItem trackItem);
+    }
+
     private PlayQueuePresenter.DragListener dragListener;
+    private NowPlayingListener nowPlayingListener;
 
     @Inject
     PlayQueueAdapter(TrackPlayQueueItemRenderer trackPlayQueueItemRenderer,
@@ -80,7 +85,8 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         for (int i = 0; i < items.size(); i++) {
             final PlayQueueUIItem item = items.get(i);
             if (item.isTrack()) {
-                setPlayState(position, i, (TrackPlayQueueUIItem) item);
+                final TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
+                setPlayState(position, i, trackItem);
             }
         }
         notifyDataSetChanged();
@@ -89,11 +95,18 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
     private void setPlayState(int position, int index, TrackPlayQueueUIItem item) {
         if (position == index) {
             item.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYING);
+            if (nowPlayingListener != null) {
+                nowPlayingListener.onNowPlayingChanged(item);
+            }
         } else if (index > position) {
             item.setPlayState(TrackPlayQueueUIItem.PlayState.COMING_UP);
         } else {
             item.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYED);
         }
+    }
+
+    void setNowPlayingChangedListener(NowPlayingListener nowPlayingListener) {
+        this.nowPlayingListener = nowPlayingListener;
     }
 
     void setDragListener(PlayQueuePresenter.DragListener dragListener) {

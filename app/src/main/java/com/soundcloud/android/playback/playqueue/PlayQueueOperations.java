@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.playqueue;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.java.collections.Lists.transform;
 
-import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -48,19 +47,16 @@ public class PlayQueueOperations {
     private Scheduler scheduler;
     private final PlayQueueManager playQueueManager;
     private final TrackRepository trackRepository;
-    private final LoadTrackImageResource loadTrackImageResource;
     private final PlayQueueStorage playQueueStorage;
 
     @Inject
     public PlayQueueOperations(@Named(HIGH_PRIORITY) Scheduler scheduler,
                                PlayQueueManager playQueueManager,
                                TrackRepository trackRepository,
-                               LoadTrackImageResource loadTrackImageResource,
                                PlayQueueStorage playQueueStorage) {
         this.scheduler = scheduler;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
-        this.loadTrackImageResource = loadTrackImageResource;
         this.playQueueStorage = playQueueStorage;
     }
 
@@ -116,10 +112,6 @@ public class PlayQueueOperations {
             final PropertySet propertyBindings = urnPropertySetMap.get(urn);
             trackItems.add(new TrackAndPlayQueueItem(TrackItem.from(propertyBindings), item));
         }
-    }
-
-    public Observable<ImageResource> getTrackArtworkResource(Urn urn) {
-        return loadTrackImageResource.toObservable(urn).subscribeOn(scheduler);
     }
 
 }

@@ -31,11 +31,11 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
     private PlayState currentPlayingState;
 
     TrackPlayQueueUIItem(PlayQueueItem playQueueItem,
-                                TrackItem trackItem,
-                                int uniqueId,
-                                int statusLabelId,
-                                @ColorInt int titleTextColor,
-                                ImageResource imageResource) {
+                         TrackItem trackItem,
+                         int uniqueId,
+                         int statusLabelId,
+                         @ColorInt int titleTextColor,
+                         ImageResource imageResource) {
         this.playQueueItem = playQueueItem;
         this.trackItem = trackItem;
         this.uniqueId = uniqueId;
@@ -61,6 +61,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
     Kind getKind() {
         return Kind.TRACK;
     }
+
     @Override
     long getUniqueId() {
         return uniqueId;
@@ -124,7 +125,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
         Urn urn = trackItem.getUrn();
         PropertySet propertySet = trackItem.getSource();
         Optional<String> templateUrl = propertySet.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE,
-                Optional.<String>absent());
+                                                             Optional.<String>absent());
         return SimpleImageResource.create(urn, templateUrl);
     }
 
@@ -149,4 +150,5 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
             return ContextCompat.getColor(context, R.color.ak_light_gray);
         }
     }
+
 }

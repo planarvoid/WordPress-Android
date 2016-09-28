@@ -42,29 +42,27 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackRepository trackRepository;
-    @Mock private LoadTrackImageResource loadTrackImageResource;
     @Mock private PlayQueueStorage storage;
     @Captor private ArgumentCaptor<Predicate<PlayQueueItem>> predicateCaptor;
 
     private TestSubscriber<List<TrackAndPlayQueueItem>> subscriber = new TestSubscriber<>();
 
-    final PropertySet track1 = TestPropertySets.fromApiTrack();
-    final PropertySet track2 = TestPropertySets.fromApiTrack();
-    final Urn track1Urn = track1.get(TrackProperty.URN);
-    final Urn track2Urn = track2.get(TrackProperty.URN);
-    final TrackQueueItem trackQueueItem1 = trackQueueItem(track1Urn);
-    final TrackQueueItem trackQueueItem2 = trackQueueItem(track2Urn);
-    final TrackItem trackItem1 = TrackItem.from(track1);
-    final TrackItem trackItem2 = TrackItem.from(track2);
-    final TrackAndPlayQueueItem trackAndPlayQueueItem1 = new TrackAndPlayQueueItem(trackItem1, trackQueueItem1);
-    final TrackAndPlayQueueItem trackAndPlayQueueItem2 = new TrackAndPlayQueueItem(trackItem2, trackQueueItem2);
+    private final PropertySet track1 = TestPropertySets.fromApiTrack();
+    private final PropertySet track2 = TestPropertySets.fromApiTrack();
+    private final Urn track1Urn = track1.get(TrackProperty.URN);
+    private final Urn track2Urn = track2.get(TrackProperty.URN);
+    private final TrackQueueItem trackQueueItem1 = trackQueueItem(track1Urn);
+    private final TrackQueueItem trackQueueItem2 = trackQueueItem(track2Urn);
+    private final TrackItem trackItem1 = TrackItem.from(track1);
+    private final TrackItem trackItem2 = TrackItem.from(track2);
+    private final TrackAndPlayQueueItem trackAndPlayQueueItem1 = new TrackAndPlayQueueItem(trackItem1, trackQueueItem1);
+    private final TrackAndPlayQueueItem trackAndPlayQueueItem2 = new TrackAndPlayQueueItem(trackItem2, trackQueueItem2);
 
     @Before
     public void setUp() throws Exception {
         operations = new PlayQueueOperations(Schedulers.immediate(),
                                              playQueueManager,
                                              trackRepository,
-                                             loadTrackImageResource,
                                              storage);
     }
 

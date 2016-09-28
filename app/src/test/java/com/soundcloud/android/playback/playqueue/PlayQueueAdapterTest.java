@@ -1,18 +1,11 @@
 package com.soundcloud.android.playback.playqueue;
 
+import static com.soundcloud.android.playback.playqueue.PlayQueueFixtures.getPlayQueueItem;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackContext;
-import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.optional.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,22 +16,18 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
 
     @Mock private TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
     @Mock private HeaderPlayQueueItemRenderer headerPlayQueueItemRenderer;
+    @Mock private PlayQueueAdapter.NowPlayingListener nowPlayingListener;
 
-    private TrackPlayQueueUIItem playQueueItem1;
-    private TrackPlayQueueUIItem playQueueItem2;
-    private TrackPlayQueueUIItem playQueueItem3;
+    private final TrackPlayQueueUIItem playQueueItem1 = getPlayQueueItem(1);
+    private final TrackPlayQueueUIItem playQueueItem2 = getPlayQueueItem(2);
+    private final TrackPlayQueueUIItem playQueueItem3 = getPlayQueueItem(3);
 
     @Before
     public void setUp() throws Exception {
         adapter = new PlayQueueAdapter(trackPlayQueueItemRenderer, headerPlayQueueItemRenderer);
 
-        playQueueItem1 = getPlayQueueItem(1);
         adapter.addItem(playQueueItem1);
-
-        playQueueItem2 = getPlayQueueItem(2);
         adapter.addItem(playQueueItem2);
-
-        playQueueItem3 = getPlayQueueItem(3);
         adapter.addItem(playQueueItem3);
     }
 
@@ -60,15 +49,13 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
         assertThat(playQueueItem3.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
     }
 
-    public TrackPlayQueueUIItem getPlayQueueItem(int uniqueId) {
-        final Urn track = Urn.forTrack(uniqueId);
-        final PlaybackContext playbackContext = PlaybackContext.create(PlaySessionSource.EMPTY);
-        final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version",
-                                                                 Optional.<AdData>absent(), false, Urn.NOT_SET,
-                                                                 Urn.NOT_SET, false, playbackContext);
-        final TrackItem trackItem = new TrackItem(TestPropertySets.expectedTrackForListItem(track));
-        final int someReourceId = 123;
-        final int color = 321;
-        return new TrackPlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someReourceId, color, null);
+    @Test
+    public void notifyNowPlayingListenerWhenPlayStateChangedToPlaying() {
+        adapter.setNowPlayingChangedListener(nowPlayingListener);
+
+        adapter.updateNowPlaying(0);
+
+        verify(nowPlayingListener).onNowPlayingChanged(playQueueItem1);
     }
+
 }

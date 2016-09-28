@@ -31,8 +31,7 @@ public class AdOrientationControllerTest extends AndroidUnitTest {
     @Mock private DeviceHelper deviceHelper;
     @Mock private AppCompatActivity activity;
 
-    TestEventBus eventBus = new TestEventBus();
-
+    private TestEventBus eventBus = new TestEventBus();
     private AdOrientationController controller;
 
     @Before

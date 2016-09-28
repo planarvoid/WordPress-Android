@@ -37,7 +37,6 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
@@ -60,37 +59,36 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueAdapter adapter;
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
-    private final PlayQueueArtworkController artworkController;
 
     private final EventBus eventBus;
     private final Context context;
-    private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
-
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
+    private final PlayQueueArtworkController artworkController;
 
+    private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private Subscription updateSubscription = RxUtils.invalidSubscription();
-
-    @Bind(R.id.recycler_view)
-    RecyclerView recyclerView;
     private PlayQueueItemAnimator animator;
+
+    @Bind(R.id.recycler_view) RecyclerView recyclerView;
 
     @Inject
     public PlayQueuePresenter(PlayQueueAdapter adapter,
                               PlayQueueManager playQueueManager,
                               PlayQueueOperations playQueueOperations,
-                              PlayQueueArtworkController playerArtworkController,
+                              PlayQueueArtworkController playQueueArtworkController,
                               PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                               EventBus eventBus,
-                              Context context, PlayQueueUIItemMapper playQueueUIItemMapper) {
+                              Context context,
+                              PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
-        this.artworkController = playerArtworkController;
         this.eventBus = eventBus;
         this.context = context;
         this.playQueueSwipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
         this.playQueueUIItemMapper = playQueueUIItemMapper;
+        this.artworkController = playQueueArtworkController;
     }
 
     @Override
@@ -119,6 +117,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                 itemTouchHelper.startDrag(viewHolder);
             }
         });
+        adapter.setNowPlayingChangedListener(artworkController);
     }
 
     private void subscribeToEvents() {
@@ -191,7 +190,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     @Override
     public void trackItemClicked(Urn urn, int adapterPosition) {
         playQueueManager.setCurrentPlayQueueItem(urn, adapter.getQueuePosition(adapterPosition));
-        adapter.updateNowPlaying(adapterPosition);
     }
 
     private void setupRepeatButton(View view) {
@@ -295,9 +293,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            artworkController.loadArtwork(event.getCurrentPlayQueueItem().getUrnOrNotSet());
             adapter.updateNowPlaying(adapter.getAdapterPosition(event.getPosition()));
-            adapter.notifyDataSetChanged();
         }
     }
 
