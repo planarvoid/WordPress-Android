@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -16,6 +17,10 @@ public class ProfileActivity extends PlayerActivity {
     @Inject @LightCycle ProfilePresenter profilePresenter;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public ProfileActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public Screen getScreen() {
