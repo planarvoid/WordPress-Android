@@ -152,12 +152,12 @@ public class SoundStreamOperations extends TimelineOperations<SoundStreamItem> {
         return removeStalePromotedItemsCommand.toObservable(null)
                                               .subscribeOn(scheduler)
                                               .flatMap(continueWith(initialTimelineItems(false)))
-                                              .zipWith(notificationItem(), addNotificationItemToStream)
+                                              .zipWith(initialNotificationItem(), addNotificationItemToStream)
                                               .map(appendUpsellAfterSnippet)
                                               .doOnNext(promotedImpressionAction);
     }
 
-    private Observable<Optional<SoundStreamItem>> notificationItem() {
+    private Observable<Optional<SoundStreamItem>> initialNotificationItem() {
         return suggestedCreatorsOperations.suggestedCreators()
                                           .switchIfEmpty(facebookInvites.creatorInvites())
                                           .switchIfEmpty(facebookInvites.listenerInvites())
@@ -169,7 +169,14 @@ public class SoundStreamOperations extends TimelineOperations<SoundStreamItem> {
     public Observable<List<SoundStreamItem>> updatedStreamItems() {
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
+                    .zipWith(updatedNotificationItem(), addNotificationItemToStream)
                     .doOnNext(promotedImpressionAction);
+    }
+
+    private Observable<Optional<SoundStreamItem>> updatedNotificationItem() {
+        return suggestedCreatorsOperations.suggestedCreators()
+                                          .map(RxUtils.<SoundStreamItem>toOptional())
+                                          .switchIfEmpty(Observable.just(Optional.<SoundStreamItem>absent()));
     }
 
     public Observable<List<PropertySet>> urnsForPlayback() {

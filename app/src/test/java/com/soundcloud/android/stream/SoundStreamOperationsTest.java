@@ -122,6 +122,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<SoundStrea
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
+
     @Test
     public void showsSuggestedCreatorsWhenOnlyPromotedTrackIsReturned() {
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
@@ -157,6 +158,20 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<SoundStrea
         initOnboardingStationsItem();
 
         assertInitialStreamFirstItemKind(Kind.SUGGESTED_CREATORS);
+    }
+
+    @Test
+    public void showsSuggestedCreatorsInUpdatedItems() {
+        final TestSubscriber<List<SoundStreamItem>> subscriber = new TestSubscriber<>();
+        initUpdatedTimelineItems();
+
+        initSuggestedCreatorsItem();
+
+        operations.updatedStreamItems().subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        final SoundStreamItem soundStreamItem = subscriber.getOnNextEvents().get(0).get(0);
+        assertThat(soundStreamItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
     }
 
     @Test
@@ -199,14 +214,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<SoundStrea
 
     @Test
     public void updatedItemsStreamWithPromotedTrackTriggersPromotedTrackImpression() {
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH))
-                .thenReturn(Observable.just(successWithChange()));
-        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        items.add(0, promotedTrackProperties);
-
-        final List<SoundStreamItem> streamItemsWithPromoted = viewModelsFromPropertySets(items);
-        when(soundStreamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.from(items));
+        final List<SoundStreamItem> streamItemsWithPromoted = initUpdatedTimelineItems();
 
         operations.updatedStreamItems().subscribe(observer);
 
@@ -478,6 +486,17 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<SoundStrea
         return subscriber;
     }
 
+    private List<SoundStreamItem> initUpdatedTimelineItems() {
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH))
+                .thenReturn(Observable.just(successWithChange()));
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        items.add(0, promotedTrackProperties);
+
+        final List<SoundStreamItem> streamItemsWithPromoted = viewModelsFromPropertySets(items);
+        when(soundStreamStorage.timelineItems(PAGE_SIZE))
+                .thenReturn(Observable.from(items));
+        return streamItemsWithPromoted;
+    }
 
     private void initSuggestedCreatorsItem() {
         when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Observable.just(SUGGESTED_CREATORS_ITEM));
