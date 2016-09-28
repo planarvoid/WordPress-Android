@@ -1,6 +1,7 @@
 package com.soundcloud.android.downgrade;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
@@ -12,8 +13,14 @@ import android.support.v4.app.FragmentManager;
 import javax.inject.Inject;
 
 public class GoOffboardingActivity extends RootActivity implements EnterScreenDispatcher.Listener {
+
     @Inject @LightCycle EnterScreenDispatcher enterScreenDispatcher;
+
     private GoOffboardingFragment fragment;
+
+    public GoOffboardingActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public void onEnterScreen(RootActivity activity) {
