@@ -1,6 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
@@ -28,6 +29,10 @@ public class RecoverActivity extends RootActivity {
 
     @Inject EventBus eventBus;
     @Inject PublicApi publicApi;
+
+    public RecoverActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
