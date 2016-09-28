@@ -1,6 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 
@@ -13,6 +14,10 @@ import javax.inject.Inject;
 public class ResolveActivity extends RootActivity {
 
     @Inject IntentResolver intentResolver;
+
+    public ResolveActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     public static boolean accept(Uri data, Resources resources) {
         return DeepLink.SOUNDCLOUD_SCHEME.equalsIgnoreCase(data.getScheme())

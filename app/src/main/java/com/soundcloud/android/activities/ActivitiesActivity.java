@@ -1,6 +1,7 @@
 package com.soundcloud.android.activities;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -13,6 +14,10 @@ public class ActivitiesActivity extends PlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject Navigator navigator;
+
+    public ActivitiesActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

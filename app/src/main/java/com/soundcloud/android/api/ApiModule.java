@@ -19,7 +19,7 @@ import javax.inject.Singleton;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-@Module(complete = false, library = true)
+@Module
 public class ApiModule {
 
     public static final String API_HTTP_CLIENT = "ApiHttpClient";

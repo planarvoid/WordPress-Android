@@ -1,6 +1,7 @@
 package com.soundcloud.android.settings;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -13,6 +14,10 @@ public class OfflineSettingsActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject Navigator navigator;
+
+    public OfflineSettingsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -3,6 +3,7 @@ package com.soundcloud.android.creators.record;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.upload.MetadataFragment;
 import com.soundcloud.android.creators.upload.UploadMonitorFragment;
@@ -45,6 +46,10 @@ public class RecordActivity extends LoggedInActivity {
     @Inject Navigator navigator;
 
     private Subscription initialStateSubscription = RxUtils.invalidSubscription();
+
+    public RecordActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override

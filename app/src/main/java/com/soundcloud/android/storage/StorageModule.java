@@ -19,7 +19,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
 
-@Module(complete = false, library = true)
+@Module
 public class StorageModule {
 
     public static final String STREAM_CACHE_DIRECTORY = "StreamCacheDirectory";

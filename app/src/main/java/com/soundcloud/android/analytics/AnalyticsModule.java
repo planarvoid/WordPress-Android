@@ -2,8 +2,6 @@ package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.api.ApiModule.API_HTTP_CLIENT;
 
-import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
@@ -21,7 +19,7 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
-@Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class})
+@Module
 public class AnalyticsModule {
 
     public static final String TRACKING_DB = "TrackingDB";

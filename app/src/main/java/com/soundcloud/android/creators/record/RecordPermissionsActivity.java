@@ -2,6 +2,7 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
@@ -22,6 +23,10 @@ public class RecordPermissionsActivity extends LoggedInActivity {
     private static final int REQUEST_CODE = R.string.record_permission_rationale % 0xffff;
 
     @Inject Navigator navigator;
+
+    public RecordPermissionsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

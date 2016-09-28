@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
@@ -17,6 +18,10 @@ public class UserTracksActivity extends PlayerActivity {
     public static final String EXTRA_USER_URN = "userUrn";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public UserTracksActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void setActivityContentView() {

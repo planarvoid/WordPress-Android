@@ -1,5 +1,6 @@
 package com.soundcloud.android.settings;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -11,6 +12,10 @@ import javax.inject.Inject;
 public class LicensesActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public LicensesActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -3,6 +3,7 @@ package com.soundcloud.android.creators.record;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
@@ -23,6 +24,10 @@ public class UploadActivity extends LoggedInActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject RecordingOperations operations;
     @Inject Navigator navigator;
+
+    public UploadActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

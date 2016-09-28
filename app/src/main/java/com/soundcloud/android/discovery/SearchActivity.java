@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.SuggestionListener;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -19,7 +20,10 @@ public class SearchActivity extends PlayerActivity implements SuggestionListener
     @Inject @LightCycle SearchPresenter presenter;
 
     @Inject BaseLayoutHelper layoutHelper;
-    @Inject FeatureFlags featureFlags;
+
+    public SearchActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public Screen getScreen() {

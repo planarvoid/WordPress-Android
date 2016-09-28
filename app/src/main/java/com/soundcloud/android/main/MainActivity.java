@@ -1,6 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
@@ -26,6 +27,10 @@ public class MainActivity extends PlayerActivity {
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
+
+    public MainActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         redirectToResolverIfNecessary(getIntent());

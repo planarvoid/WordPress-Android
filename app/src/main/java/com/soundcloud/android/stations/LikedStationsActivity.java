@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -11,6 +12,10 @@ import javax.inject.Inject;
 
 public class LikedStationsActivity extends PlayerActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public LikedStationsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void setActivityContentView() {

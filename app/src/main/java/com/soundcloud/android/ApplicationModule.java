@@ -9,6 +9,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.accounts.FacebookModule;
+import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -16,7 +17,10 @@ import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
 import com.soundcloud.android.collection.CollectionNavigationTarget;
+import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.discovery.DiscoveryModule;
+import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -24,15 +28,19 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.more.MoreNavigationTarget;
+import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackStrategy;
+import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
+import com.soundcloud.android.playlists.PlaylistsModule;
+import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
@@ -66,7 +74,6 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LruCache;
@@ -76,14 +83,26 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Locale;
 
-@Module(library = true, includes = {ApiModule.class, StorageModule.class,
-        FacebookModule.class, SyncModule.class})
+@Module(
+    includes = {
+        ApiModule.class,
+        StorageModule.class,
+        FacebookModule.class,
+        SyncModule.class,
+        ExploreModule.class,
+        PlayerModule.class,
+        PlaylistsModule.class,
+        ProfileModule.class,
+        CommentsModule.class,
+        OfflineModule.class,
+        DiscoveryModule.class,
+        AnalyticsModule.class
+    })
 public class ApplicationModule {
 
     public static final String HIGH_PRIORITY = "HighPriority";
     public static final String LOW_PRIORITY = "LowPriority";
     public static final String MAIN_LOOPER = "MainLooper";
-
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
 
     private final SoundCloudApplication application;
@@ -293,7 +312,6 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    @Nullable
     public Appboy provideAppboy(Context context) {
         return Appboy.getInstance(context);
     }

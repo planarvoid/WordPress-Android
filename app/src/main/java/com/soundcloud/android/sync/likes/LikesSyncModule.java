@@ -19,7 +19,7 @@ import dagger.Provides;
 
 import javax.inject.Named;
 
-@Module(complete = false, library = true)
+@Module
 public class LikesSyncModule {
 
     public static final String TRACK_LIKES_SYNCER = "TrackLikesSyncer";

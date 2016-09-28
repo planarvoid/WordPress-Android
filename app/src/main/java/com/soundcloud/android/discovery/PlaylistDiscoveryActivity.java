@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.search.PlaylistResultsFragment;
@@ -17,6 +18,10 @@ public class PlaylistDiscoveryActivity extends PlayerActivity {
     public static final String EXTRA_PLAYLIST_TAG = "playlistTag";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public PlaylistDiscoveryActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

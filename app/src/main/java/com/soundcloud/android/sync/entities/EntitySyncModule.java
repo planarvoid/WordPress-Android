@@ -11,7 +11,7 @@ import dagger.Provides;
 
 import javax.inject.Named;
 
-@Module(complete = false, library = true)
+@Module
 public class EntitySyncModule {
 
     public static final String TRACKS_SYNC = "TracksSync";

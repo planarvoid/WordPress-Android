@@ -2,6 +2,7 @@ package com.soundcloud.android.settings;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -17,6 +18,10 @@ public class SettingsActivity extends LoggedInActivity {
     @Inject FeatureFlags featureFlags;
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject Navigator navigator;
+
+    public SettingsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle bundle) {

@@ -88,7 +88,7 @@ android {
       versionNameSuffix '-debug'
       debuggable true
       signingConfig signingConfigs.debug
-      proguardFiles 'buildsystem/proguard.cfg'
+      proguardFiles ['buildsystem/proguard.cfg']
       minifyEnabled project.hasProperty('proguard')
       multiDexEnabled true
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
