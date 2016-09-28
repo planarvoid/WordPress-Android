@@ -117,7 +117,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleScreenEvent(ScreenEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForScreenEvent(event));
     }
 
     private void handleLeaveBehindTracking(AdOverlayTrackingEvent event) {

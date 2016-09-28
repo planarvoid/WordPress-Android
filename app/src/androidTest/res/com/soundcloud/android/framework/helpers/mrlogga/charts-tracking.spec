@@ -26,7 +26,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV2
   name: pageview
@@ -38,7 +38,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV3
   name: pageview
@@ -49,7 +49,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV4
   name: pageview
@@ -60,7 +60,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV5
   name: pageview
@@ -72,7 +72,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # CL1
   name: click
@@ -102,7 +102,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV7
   name: pageview
@@ -113,7 +113,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV8
   name: pageview
@@ -125,7 +125,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-  version: '0'
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # A1
   name: audio
