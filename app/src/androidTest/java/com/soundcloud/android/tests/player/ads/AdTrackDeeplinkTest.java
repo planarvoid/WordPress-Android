@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.player.ads;
 
-import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -27,8 +26,8 @@ public class AdTrackDeeplinkTest extends AdBaseTest {
 
         playerElement.clickAdCTAButton();
         playerElement.waitForPlayState();
+        playerElement.waitForExpandedPlayer();
 
-        assertThat(playerElement, is(expanded()));
         assertThat(playerElement.getTrackTitle(), is(equalTo("PONPONPON")));
     }
 }

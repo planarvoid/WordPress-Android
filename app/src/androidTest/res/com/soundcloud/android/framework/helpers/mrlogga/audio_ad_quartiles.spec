@@ -28,7 +28,6 @@ expected_events:
     client_id: 3152
     monetized_object: soundcloud:tracks:163824437
     user: soundcloud:users:18173653
-    request_success: true
     is_player_visible: true
     ts: '[0-9]+'
     app_version: '[0-9]+'
