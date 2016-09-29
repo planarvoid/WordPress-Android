@@ -14,28 +14,34 @@ public abstract class PlayQueueEvent {
 
     public abstract boolean itemRemoved();
 
+    public abstract boolean itemAdded();
+
     public abstract int getKind();
 
     public abstract Urn getCollectionUrn();
 
     public static PlayQueueEvent fromNewQueue(Urn collectionUrn) {
-        return new AutoValue_PlayQueueEvent(false, false, NEW_QUEUE, collectionUrn);
+        return new AutoValue_PlayQueueEvent(false, false, false, NEW_QUEUE, collectionUrn);
     }
 
     public static PlayQueueEvent fromQueueUpdate(Urn collectionUrn) {
-        return new AutoValue_PlayQueueEvent(false, false, QUEUE_UPDATE, collectionUrn);
+        return new AutoValue_PlayQueueEvent(false, false, false, QUEUE_UPDATE, collectionUrn);
     }
 
     public static PlayQueueEvent fromAdsRemoved(Urn collectionUrn) {
-        return new AutoValue_PlayQueueEvent(false, false, ADS_REMOVED, collectionUrn);
+        return new AutoValue_PlayQueueEvent(false, false, false, ADS_REMOVED, collectionUrn);
     }
 
     public static PlayQueueEvent fromQueueUpdateMoved(Urn collectionUrn) {
-        return new AutoValue_PlayQueueEvent(true, false, QUEUE_UPDATE, collectionUrn);
+        return new AutoValue_PlayQueueEvent(true, false, false, QUEUE_UPDATE, collectionUrn);
     }
 
     public static PlayQueueEvent fromQueueUpdateRemoved(Urn collectionUrn) {
-        return new AutoValue_PlayQueueEvent(false, true, QUEUE_UPDATE, collectionUrn);
+        return new AutoValue_PlayQueueEvent(false, true, false, QUEUE_UPDATE, collectionUrn);
+    }
+
+    public static PlayQueueEvent fromQueueInsert(Urn collectionUrn) {
+        return new AutoValue_PlayQueueEvent(false, false, true, QUEUE_UPDATE, collectionUrn);
     }
 
     public boolean isQueueUpdate() {
@@ -49,6 +55,5 @@ public abstract class PlayQueueEvent {
     public boolean adsRemoved() {
         return getKind() == ADS_REMOVED;
     }
-
 
 }

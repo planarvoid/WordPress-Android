@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ public class PlayQueuePresenterTest {
     @Mock private Context context;
     @Mock private PlayQueueUIItem item;
     @Mock private PlayQueueUIItemMapper playQueueUIItemMapper;
+    @Mock private FeedbackController feedbackController;
 
     private PlayQueuePresenter presenter;
 
@@ -39,6 +41,7 @@ public class PlayQueuePresenterTest {
                 swipeToRemoveCallbackFactory,
                 eventbus,
                 context,
+                feedbackController,
                 playQueueUIItemMapper);
         when(adapter.getItem(anyInt())).thenReturn(item);
         when(item.isTrack()).thenReturn(true);

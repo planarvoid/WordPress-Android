@@ -92,6 +92,11 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         notifyDataSetChanged();
     }
 
+    public void addItem(int position, PlayQueueUIItem playQueueUIItem) {
+        getItems().add(position, playQueueUIItem);
+        notifyDataSetChanged();
+    }
+
     private void setPlayState(int position, int index, TrackPlayQueueUIItem item) {
         if (position == index) {
             item.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYING);

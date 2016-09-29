@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -8,6 +9,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -19,6 +21,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -42,10 +45,10 @@ import java.util.List;
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         implements TrackItemRenderer.Listener {
 
-    private static final Func1<PlayQueueEvent, Boolean> isNotMoveOrRemovedEvent = new Func1<PlayQueueEvent, Boolean>() {
+    private static final Func1<PlayQueueEvent, Boolean> isNotItemChangedEvent = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
-            return !playQueueEvent.itemMoved() && !playQueueEvent.itemRemoved();
+            return !playQueueEvent.itemMoved() && !playQueueEvent.itemRemoved() && !playQueueEvent.itemAdded();
         }
     };
 
@@ -59,36 +62,41 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueAdapter adapter;
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
+    private final PlayQueueArtworkController artworkController;
 
     private final EventBus eventBus;
     private final Context context;
-    private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
-    private final PlayQueueUIItemMapper playQueueUIItemMapper;
-    private final PlayQueueArtworkController artworkController;
-
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
-    private Subscription updateSubscription = RxUtils.invalidSubscription();
-    private PlayQueueItemAnimator animator;
+    private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
+    private final FeedbackController feedbackController;
 
-    @Bind(R.id.recycler_view) RecyclerView recyclerView;
+    private final PlayQueueUIItemMapper playQueueUIItemMapper;
+
+    private Subscription updateSubscription = RxUtils.invalidSubscription();
+
+    @Bind(R.id.recycler_view)
+    RecyclerView recyclerView;
+    private PlayQueueItemAnimator animator;
 
     @Inject
     public PlayQueuePresenter(PlayQueueAdapter adapter,
                               PlayQueueManager playQueueManager,
                               PlayQueueOperations playQueueOperations,
-                              PlayQueueArtworkController playQueueArtworkController,
+                              PlayQueueArtworkController playerArtworkController,
                               PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                               EventBus eventBus,
                               Context context,
+                              FeedbackController feedbackController,
                               PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
+        this.artworkController = playerArtworkController;
         this.eventBus = eventBus;
         this.context = context;
         this.playQueueSwipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
+        this.feedbackController = feedbackController;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
-        this.artworkController = playQueueArtworkController;
     }
 
     @Override
@@ -128,7 +136,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                                        .filter(hasPositionMoved)
                                        .subscribe(new UpdateCurrentTrackSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
-                                       .filter(isNotMoveOrRemovedEvent)
+                                       .filter(isNotItemChangedEvent)
                                        .subscribe(new ChangePlayQueueSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
                                        .observeOn(AndroidSchedulers.mainThread())
@@ -258,8 +266,17 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
         if (item.isTrack()) {
             final PlayQueueItem playQueueItem = ((TrackPlayQueueUIItem) item).getPlayQueueItem();
+            int removalPosition = playQueueManager.getItemPosition(playQueueItem);
             adapter.removeItem(adapterPosition);
             playQueueManager.removeItem(playQueueItem);
+            Feedback feedback = Feedback.create(R.string.track_removed,
+                                                R.string.undo,
+                                                new UndoOnClickListener(playQueueItem,
+                                                                        removalPosition,
+                                                                        item,
+                                                                        adapterPosition));
+            feedbackController.showFeedback(feedback);
+
             // todo: check if last item of bucket and remove header too, ya?
         }
     }
@@ -335,6 +352,30 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                 outRect.right = 0;
                 outRect.bottom = 0;
             }
+        }
+    }
+
+    private class UndoOnClickListener implements View.OnClickListener {
+
+        private final PlayQueueItem playQueueItem;
+        private final int playQueuePosition;
+        private final PlayQueueUIItem playQueueUIItem;
+        private final int adapterPosition;
+
+        public UndoOnClickListener(PlayQueueItem playQueueItem,
+                                   int playQueuePosition,
+                                   PlayQueueUIItem playQueueUIItem,
+                                   int adapterPosition) {
+            this.playQueueItem = playQueueItem;
+            this.playQueuePosition = playQueuePosition;
+            this.playQueueUIItem = playQueueUIItem;
+            this.adapterPosition = adapterPosition;
+        }
+
+        @Override
+        public void onClick(View view) {
+            playQueueManager.insertItemAtPosition(playQueuePosition, playQueueItem);
+            adapter.addItem(adapterPosition, playQueueUIItem);
         }
     }
 

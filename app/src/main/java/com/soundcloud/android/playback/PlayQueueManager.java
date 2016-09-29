@@ -702,22 +702,28 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
+    public void insertItemAtPosition(int position, PlayQueueItem item) {
+        playQueue.insertPlayQueueItem(position, item);
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
+    }
+
+    public int getItemPosition(PlayQueueItem playQueueItem) {
+        return playQueue.indexOfPlayQueueItem(playQueueItem);
+    }
+
     public void removeItem(PlayQueueItem item) {
         playQueue.removeItem(item);
-        eventBus.publish(EventQueue.PLAY_QUEUE,
-                         PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
     }
 
     public void removeItemAtPosition(int position) {
         playQueue.removeItemAtPosition(position);
-        eventBus.publish(EventQueue.PLAY_QUEUE,
-                         PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
     }
 
     public void moveItem(int fromPosition, int toPosition) {
         playQueue.moveItem(fromPosition, toPosition);
-        eventBus.publish(EventQueue.PLAY_QUEUE,
-                         PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
     }
 
 

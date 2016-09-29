@@ -995,6 +995,7 @@
 
     <!-- __PLAY QUEUE -->
     <string name="play_next">Play next</string>
+    <string name="track_removed">Track removed</string>
 
     <string name="play_queue_header_search">From search results for %1$s</string>
     <string name="play_queue_header_stream">From your stream</string>
