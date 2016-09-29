@@ -1,42 +1,7 @@
 --- !ruby/object:MrLoggerLogger::ResultSpec
 whitelisted_events:
 - click
-- ad_delivery
-- ad_received
 expected_events:
-- !ruby/object:MrLoggerLogger::Event
-  name: ad_request
-  params:
-    anonymous_id: (\w|-)+
-    client_id: 3152
-    monetized_object: soundcloud:tracks:163824437
-    request_endpoint: /tracks/soundcloud%3Atracks%3A163824437/ads
-    user: soundcloud:users:18173653
-    request_success: true
-    is_player_visible: true
-    ts: '[0-9]+'
-    app_version: '[0-9]+'
-    connection_type: wifi
-    client_event_id: (\w|-)+
-    ads_received: '{"audio_ad":{"urn":"dfp:ads:110000021-12000000021"}}'
-    in_foreground: true
-  version: '1'
-- !ruby/object:MrLoggerLogger::Event
-  name: ad_delivery
-  params:
-    anonymous_id: (\w|-)+
-    client_id: 3152
-    monetized_object: soundcloud:tracks:163824437
-    user: soundcloud:users:18173653
-    is_player_visible: true
-    ts: '[0-9]+'
-    app_version: '[0-9]+'
-    ad_urn: dfp:ads:110000021-12000000021
-    client_event_id: (\w|-)+
-    ad_request_event_id: (\w|-)+
-    connection_type: wifi
-    in_foreground: true
-  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
   params:

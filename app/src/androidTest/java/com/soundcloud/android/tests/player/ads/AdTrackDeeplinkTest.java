@@ -26,7 +26,6 @@ public class AdTrackDeeplinkTest extends AdBaseTest {
 
         playerElement.clickAdCTAButton();
         playerElement.waitForPlayState();
-        playerElement.waitForExpandedPlayer();
 
         assertThat(playerElement.getTrackTitle(), is(equalTo("PONPONPON")));
     }
