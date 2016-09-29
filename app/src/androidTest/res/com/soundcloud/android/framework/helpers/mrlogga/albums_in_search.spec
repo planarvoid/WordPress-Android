@@ -11,6 +11,8 @@ expected_events:
     client_id: '3152'
     page_name: search:main
     user: soundcloud:users:18173653
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
@@ -21,6 +23,8 @@ expected_events:
     client_id: '3152'
     page_name: search:everything
     user: soundcloud:users:18173653
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
@@ -41,6 +45,8 @@ expected_events:
     client_id: '3152'
     page_name: search:albums
     user: soundcloud:users:18173653
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
@@ -63,4 +69,6 @@ expected_events:
     client_id: '3152'
     page_name: playlists:main
     user: soundcloud:users:18173653
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'

@@ -8,6 +8,8 @@ expected_events:
     client_id: '3152'
     page_name: search:main
     user: soundcloud:users:[0-9]+
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
@@ -17,6 +19,8 @@ expected_events:
     client_id: '3152'
     page_name: stations:main
     user: soundcloud:users:[0-9]+
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -84,6 +88,8 @@ expected_events:
     client_id: '3152'
     page_name: search:main
     user: soundcloud:users:[0-9]+
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 whitelisted_events:
 - pageview

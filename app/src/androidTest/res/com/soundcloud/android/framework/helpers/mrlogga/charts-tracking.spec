@@ -26,6 +26,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV2
@@ -38,6 +40,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV3
@@ -49,6 +53,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV4
@@ -60,6 +66,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV5
@@ -72,6 +80,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # CL1
@@ -102,6 +112,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV7
@@ -113,6 +125,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # PV8
@@ -125,6 +139,8 @@ expected_events:
     user: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   # A1
