@@ -5,29 +5,17 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ListIterator;
 
-class ActivitiesOperations extends TimelineOperations<ActivityItem> {
-
-    private static final Func1<List<PropertySet>, List<ActivityItem>> TO_VIEW_MODELS =
-            new Func1<List<PropertySet>, List<ActivityItem>>() {
-                @Override
-                public List<ActivityItem> call(List<PropertySet> propertySets) {
-                    final List<ActivityItem> items = new ArrayList<>(propertySets.size());
-                    for (PropertySet sourceSet : propertySets) {
-                        items.add(ActivityItem.fromPropertySet(sourceSet));
-                    }
-                    return items;
-                }
-            };
+class ActivitiesOperations extends TimelineOperations<ActivityItem, ActivityItem> {
 
     private final Scheduler scheduler;
 
@@ -53,13 +41,28 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
     }
 
     @Override
-    protected Func1<List<PropertySet>, List<ActivityItem>> toViewModels() {
-        return TO_VIEW_MODELS;
-    }
-
-    @Override
     protected boolean isEmptyResult(List<ActivityItem> result) {
         return result.isEmpty();
     }
 
+    @Override
+    protected List<ActivityItem> toViewModels(List<ActivityItem> activityItems) {
+        return activityItems;
+    }
+
+    public Optional<Date> getFirstItemTimestamp(List<ActivityItem> items) {
+        final ListIterator<ActivityItem> iterator = items.listIterator();
+        if (iterator.hasNext()) {
+            return Optional.of(iterator.next().getCreatedAt());
+        }
+        return Optional.absent();
+    }
+
+    protected Optional<Date> getLastItemTimestamp(List<ActivityItem> items) {
+        final ListIterator<ActivityItem> iterator = items.listIterator(items.size());
+        if (iterator.hasPrevious()) {
+            return Optional.of(iterator.previous().getCreatedAt());
+        }
+        return Optional.absent();
+    }
 }

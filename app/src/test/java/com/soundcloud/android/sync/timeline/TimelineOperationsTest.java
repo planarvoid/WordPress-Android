@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import static rx.Observable.from;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
@@ -30,18 +29,18 @@ import java.util.Collections;
 import java.util.List;
 
 // AndroidUnitTest because of PropertySet
-public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT extends TimelineStorage>
+public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT extends TimelineStorage<StorageModel>>
         extends AndroidUnitTest {
 
     protected static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
-    protected static final long FIRST_ITEM_TIMESTAMP = 1000L;
+    private static final long FIRST_ITEM_TIMESTAMP = 1000L;
     protected Syncable syncable;
-    protected TimelineOperations<ItemT> operations;
+    protected TimelineOperations<ViewModel, StorageModel> operations;
 
     @Mock protected SyncInitiator syncInitiator;
     @Mock protected SyncStateStorage syncStateStorage;
     protected StorageT storage;
-    protected TestSubscriber<List<ItemT>> subscriber = new TestSubscriber<>();
+    protected TestSubscriber<List<ViewModel>> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUpTimelineTest() throws Exception {
@@ -50,10 +49,10 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         syncable = provideSyncable();
     }
 
-    protected abstract TimelineOperations<ItemT> buildOperations(StorageT storage,
-                                                                 SyncInitiator syncInitiator,
-                                                                 Scheduler scheduler,
-                                                                 SyncStateStorage syncStateStorage);
+    protected abstract TimelineOperations<ViewModel, StorageModel> buildOperations(StorageT storage,
+                                                                                   SyncInitiator syncInitiator,
+                                                                                   Scheduler scheduler,
+                                                                                   SyncStateStorage syncStateStorage);
 
     protected abstract StorageT provideStorageMock();
 
@@ -61,20 +60,20 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
 
     @Test
     public void shouldLoadFirstPageOfItemsFromLocalStorage() {
-        final List<PropertySet> items = createItems(PAGE_SIZE, 2000L);
+        final List<StorageModel> items = createItems(PAGE_SIZE, 2000L);
         when(storage.timelineItems(PAGE_SIZE)).thenReturn(from(items));
 
         operations.initialTimelineItems(false).subscribe(subscriber);
 
-        subscriber.assertValue(viewModelsFromPropertySets(items));
+        subscriber.assertValue(viewModelsFromStorageModel(items));
     }
 
     @Test
     public void whenItLoadsAnEmptyPageOfItemsOnPageOneThenItRequestsAFullSyncAndReloads() {
         // 1st page comes back blank first, then as full page of items after sync
-        final List<PropertySet> items = createItems(PAGE_SIZE, 2000L);
+        final List<StorageModel> items = createItems(PAGE_SIZE, 2000L);
         when(storage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.<StorageModel>empty())
                 .thenReturn(from(items));
         // returning true means new items have been added to local storage
         when(syncInitiator.sync(syncable)).thenReturn(Observable.just(successWithChange()));
@@ -86,7 +85,7 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         inOrder.verify(syncInitiator).sync(syncable);
         inOrder.verify(storage).timelineItems(PAGE_SIZE);
         inOrder.verifyNoMoreInteractions();
-        subscriber.assertValue(viewModelsFromPropertySets(items));
+        subscriber.assertValue(viewModelsFromStorageModel(items));
         subscriber.assertCompleted();
     }
 
@@ -94,8 +93,8 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
     public void whenItLoadsAnEmptyPageOfItemsOnPageOneEvenAfterAFullSyncItShouldNotSyncAgain() {
         // 1st page comes back blank first, then blank again even after syncing
         when(storage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty())
-                .thenReturn(Observable.<PropertySet>empty());
+                .thenReturn(Observable.<StorageModel>empty())
+                .thenReturn(Observable.<StorageModel>empty());
         // returning true means successful sync
         when(syncInitiator.sync(syncable)).thenReturn(Observable.just(successWithChange()));
 
@@ -106,16 +105,16 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         inOrder.verify(syncInitiator).sync(syncable);
         inOrder.verify(storage).timelineItems(PAGE_SIZE);
         inOrder.verifyNoMoreInteractions();
-        subscriber.assertValue(Collections.<ItemT>emptyList());
+        subscriber.assertValue(Collections.<ViewModel>emptyList());
         subscriber.assertCompleted();
     }
 
     @Test
     public void pagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
-        final List<PropertySet> items = createItems(PAGE_SIZE, 2000L);
-        when(storage.timelineItemsBefore(2000L, PAGE_SIZE)).thenReturn(Observable.<PropertySet>never());
+        final List<StorageModel> items = createItems(PAGE_SIZE, 2000L);
+        when(storage.timelineItemsBefore(2000L, PAGE_SIZE)).thenReturn(Observable.<StorageModel>never());
 
-        operations.pagingFunction().call(viewModelsFromPropertySets(items));
+        operations.pagingFunction().call(viewModelsFromStorageModel(items));
 
         verify(storage).timelineItemsBefore(2000L, PAGE_SIZE);
     }
@@ -123,34 +122,34 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
     @Test
     public void whenItLoadsAnEmptyPageOfItemsBeyondPageOneThenItRunsABackfillSyncAndReloads() {
         // 1st page is full page of items
-        final List<PropertySet> firstPage = createItems(PAGE_SIZE, 123L);
+        final List<StorageModel> firstPage = createItems(PAGE_SIZE, 123L);
         // 2nd page is blank on first attempt, then filled with items from backfill
-        final List<PropertySet> secondPage = createItems(PAGE_SIZE, 456L);
+        final List<StorageModel> secondPage = createItems(PAGE_SIZE, 456L);
 
         when(storage.timelineItemsBefore(123L, PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.<StorageModel>empty())
                 .thenReturn(from(secondPage));
         // returning true means new items have been added to local storage
         when(syncInitiator.sync(syncable, SyncInitiator.ACTION_APPEND)).thenReturn(Observable.just(successWithChange()));
 
-        operations.pagingFunction().call(viewModelsFromPropertySets(firstPage)).subscribe(subscriber);
+        operations.pagingFunction().call(viewModelsFromStorageModel(firstPage)).subscribe(subscriber);
 
         InOrder inOrder = inOrder(syncInitiator, storage);
         inOrder.verify(storage).timelineItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(syncInitiator).sync(syncable, SyncInitiator.ACTION_APPEND);
         inOrder.verify(storage).timelineItemsBefore(123L, PAGE_SIZE);
         inOrder.verifyNoMoreInteractions();
-        subscriber.assertValue(viewModelsFromPropertySets(secondPage));
+        subscriber.assertValue(viewModelsFromStorageModel(secondPage));
         subscriber.assertCompleted();
     }
 
     @Test
     public void shouldStopPaginationIfBackfillSyncReportsNoNewItemsSynced() {
         // 1st page is full page of items
-        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        final List<ItemT> viewModels = viewModelsFromPropertySets(items);
+        final List<StorageModel> items = createItems(PAGE_SIZE, 123L);
+        final List<ViewModel> viewModels = viewModelsFromStorageModel(items);
         // 2nd page is blank, will trigger backfill
-        when(storage.timelineItemsBefore(123L, PAGE_SIZE)).thenReturn(Observable.<PropertySet>empty());
+        when(storage.timelineItemsBefore(123L, PAGE_SIZE)).thenReturn(Observable.<StorageModel>empty());
         // returning false means no new items have been added to local storage
         when(syncInitiator.sync(syncable, SyncInitiator.ACTION_APPEND)).thenReturn(Observable.just(successWithoutChange()));
 
@@ -160,15 +159,15 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         inOrder.verify(storage).timelineItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(syncInitiator).sync(syncable, SyncInitiator.ACTION_APPEND);
         inOrder.verifyNoMoreInteractions();
-        subscriber.assertValue(Collections.<ItemT>emptyList());
+        subscriber.assertValue(Collections.<ViewModel>emptyList());
         subscriber.assertCompleted();
     }
 
     @Test
     public void refreshingShouldRequestSyncAndReloadFromLocalStorageWhenNewItemsAvailable() {
         when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Observable.just(successWithChange()));
-        List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        List<ItemT> viewModels = viewModelsFromPropertySets(items);
+        List<StorageModel> items = createItems(PAGE_SIZE, 123L);
+        List<ViewModel> viewModels = viewModelsFromStorageModel(items);
         when(storage.timelineItems(PAGE_SIZE)).thenReturn(from(items));
 
         operations.updatedTimelineItems().subscribe(subscriber);
@@ -190,7 +189,7 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         verify(syncInitiator).sync(syncable, SyncInitiator.ACTION_HARD_REFRESH);
         verifyNoMoreInteractions(syncInitiator);
         verifyZeroInteractions(storage);
-        subscriber.assertValue(Collections.<ItemT>emptyList());
+        subscriber.assertValue(Collections.<ViewModel>emptyList());
         subscriber.assertCompleted();
     }
 
@@ -224,15 +223,17 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         subscriber.assertNoValues();
     }
 
-    protected List<PropertySet> createItems(int length, long lastItemTimestamp) {
+    protected List<PropertySet> createPropertySets(int length, long lastItemTimestamp) {
         final List<PropertySet> headList = Collections.nCopies(length - 1, createTimelineItem(FIRST_ITEM_TIMESTAMP));
         final ArrayList<PropertySet> propertySets = new ArrayList<>(headList);
         propertySets.add(createTimelineItem(lastItemTimestamp));
         return propertySets;
     }
 
+    protected abstract List<StorageModel> createItems(int length, long lastItemTimestamp);
+
     protected abstract PropertySet createTimelineItem(long timestamp);
 
-    protected abstract List<ItemT> viewModelsFromPropertySets(List<PropertySet> source);
+    protected abstract List<ViewModel> viewModelsFromStorageModel(List<StorageModel> items);
 
 }

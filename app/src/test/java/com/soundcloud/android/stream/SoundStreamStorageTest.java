@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.stream.StreamPlayable.createFromPropertySet;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observer;
 import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -35,13 +37,15 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     private static final long TIMESTAMP = 1000L;
 
-    @Mock private Observer<PropertySet> observer;
+    @Mock private Observer<StreamPlayable> observer;
 
     private SoundStreamStorage storage;
+    private TestSubscriber<StreamPlayable> subscriber;
 
     @Before
     public void setup() {
         storage = new SoundStreamStorage(propeller());
+        subscriber = new TestSubscriber<>();
     }
 
     @Test
@@ -51,9 +55,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItems(50).subscribe(observer);
 
-        final PropertySet promotedTrack = createPromotedTrackPropertySet(track, promoter);
-
-        verify(observer).onNext(promotedTrack);
+        StreamPlayable promotedStreamPlayable = createPromotedDataItem(track, promoter);
+        verify(observer).onNext(promotedStreamPlayable);
         verify(observer).onCompleted();
     }
 
@@ -63,14 +66,14 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         ApiTrack track = testFixtures().insertPromotedStreamTrack(promoter, TIMESTAMP);
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
-        final PropertySet normalTrackProperties = createTrackPropertySet(track);
-        final PropertySet promotedTrackProperties = createPromotedTrackPropertySet(track, promoter);
+        final StreamPlayable normalTrack = createTrackDataItem(track);
+        final StreamPlayable promotedStreamPlayable = createPromotedDataItem(track, promoter);
 
-        storage.timelineItems(50).subscribe(observer);
+        storage.timelineItems(50).subscribe(subscriber);
 
-        verify(observer).onNext(promotedTrackProperties);
-        verify(observer).onNext(normalTrackProperties);
-        verify(observer).onCompleted();
+        subscriber.assertValueCount(2);
+        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(normalTrack);
+        assertThat(subscriber.getOnNextEvents().get(1)).isEqualTo(promotedStreamPlayable);
     }
 
     @Test
@@ -79,7 +82,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet trackPost = createTrackPropertySet(track);
+        final StreamPlayable trackPost = createTrackDataItem(track);
 
         verify(observer).onNext(trackPost);
         verify(observer).onCompleted();
@@ -92,7 +95,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackRepost(track.getId(), TIMESTAMP, reposter.getId());
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet trackRepost = createRepostedTrack(track, reposter);
+        final StreamPlayable trackRepost = createRepostedTrack(track, reposter);
 
         verify(observer).onNext(trackRepost);
         verify(observer).onCompleted();
@@ -116,8 +119,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet trackPost = createTrackPropertySet(track);
-        final PropertySet trackRepost = createRepostedTrack(track, reposter, new Date(repostedTimestamp));
+        final StreamPlayable trackPost = createTrackDataItem(track);
+        final StreamPlayable trackRepost = createRepostedTrack(track, reposter, new Date(repostedTimestamp));
 
         verify(observer, never()).onNext(trackPost);
         verify(observer).onNext(trackRepost);
@@ -135,8 +138,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackRepost(track.getId(), repostedTimestampOld, reposter.getId());
         testFixtures().insertStreamTrackRepost(track.getId(), repostedTimestampNew, reposter.getId());
 
-        final PropertySet trackRepostOld = createRepostedTrack(track, reposter, new Date(repostedTimestampOld));
-        final PropertySet trackRepostNew = createRepostedTrack(track, reposter, new Date(repostedTimestampNew));
+        final StreamPlayable trackRepostOld = createRepostedTrack(track, reposter, new Date(repostedTimestampOld));
+        final StreamPlayable trackRepostNew = createRepostedTrack(track, reposter, new Date(repostedTimestampNew));
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
@@ -152,7 +155,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
-        final PropertySet trackPost = createTrackPropertySet(track);
+        final StreamPlayable trackPost = createTrackDataItem(track);
 
         verify(observer).onNext(trackPost);
         verify(observer).onCompleted();
@@ -174,13 +177,12 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     public void shouldIncludeLikesStateForPlaylist() {
         final ApiPlaylist playlist = testFixtures().insertLikedPlaylist(new Date());
         testFixtures().insertStreamPlaylistPost(playlist.getId(), TIMESTAMP);
-        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
+        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(subscriber);
 
-        PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .put(PlayableProperty.IS_USER_LIKE, true);
+        final StreamPlayable playlistStreamPlayable = createPlaylistDataItem(playlist, true, false);
 
-        verify(observer).onNext(playlistRepost);
-        verify(observer).onCompleted();
+        subscriber.assertValueCount(1);
+        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(playlistStreamPlayable);
     }
 
     @Test
@@ -190,10 +192,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamPlaylistPost(playlist.getId(), TIMESTAMP);
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .put(PlayableProperty.IS_USER_REPOST, true);
+        StreamPlayable playlistStreamPlayable = createPlaylistDataItem(playlist, false, true);
 
-        verify(observer).onNext(playlistRepost);
+        verify(observer).onNext(playlistStreamPlayable);
         verify(observer).onCompleted();
     }
 
@@ -203,11 +204,11 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(firstTrack.getId(), TIMESTAMP);
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP - 1);
 
-        TestObserver<PropertySet> observer = new TestObserver<>();
+        TestObserver<StreamPlayable> observer = new TestObserver<>();
         storage.timelineItemsBefore(Long.MAX_VALUE, 1).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).isEqualTo(firstTrack.getUrn());
+        assertThat(observer.getOnNextEvents().get(0).playableItem().getUrn()).isEqualTo(firstTrack.getUrn());
     }
 
     @Test
@@ -216,11 +217,11 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final ApiTrack oldestTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(oldestTrack.getId(), TIMESTAMP - 1);
 
-        TestObserver<PropertySet> observer = new TestObserver<>();
+        TestObserver<StreamPlayable> observer = new TestObserver<>();
         storage.timelineItemsBefore(TIMESTAMP, 50).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).isEqualTo(oldestTrack.getUrn());
+        assertThat(observer.getOnNextEvents().get(0).playableItem().getUrn()).isEqualTo(oldestTrack.getUrn());
     }
 
     @Test
@@ -229,9 +230,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final ApiTrack newest = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(newest.getId(), TIMESTAMP + 1);
 
-        final List<PropertySet> actual = storage.timelineItemsSince(TIMESTAMP, 50);
+        final List<StreamPlayable> actual = storage.timelineItemsSince(TIMESTAMP, 50);
         assertThat(actual).hasSize(1);
-        assertThat(actual.get(0).get(PlayableProperty.URN)).isEqualTo(newest.getUrn());
+        assertThat(actual.get(0).playableItem().getUrn()).isEqualTo(newest.getUrn());
     }
 
     @Test
@@ -242,7 +243,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItems(50).subscribe(observer);
 
-        final List<PropertySet> actual = storage.timelineItemsSince(TIMESTAMP - 1, 50);
+        final List<StreamPlayable> actual = storage.timelineItemsSince(TIMESTAMP - 1, 50);
         assertThat(actual).hasSize(1);
     }
 
@@ -265,7 +266,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet highTierTrackPost = createTrackPropertySet(track).put(TrackProperty.SUB_HIGH_TIER, true);
+        final StreamPlayable highTierTrackPost = createTrackDataItem(track, true);
 
         verify(observer).onNext(highTierTrackPost);
         verify(observer).onCompleted();
@@ -280,7 +281,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet snippedTrack = createTrackPropertySet(track);
+        final StreamPlayable snippedTrack = createTrackDataItem(track);
 
         verify(observer).onNext(snippedTrack);
         verify(observer).onCompleted();
@@ -293,11 +294,11 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
         propeller().delete(Table.Sounds, filter().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
 
-        TestObserver<PropertySet> observer = new TestObserver<>();
+        TestObserver<StreamPlayable> observer = new TestObserver<>();
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).isNotEqualTo(deletedTrack.getUrn());
+        assertThat(observer.getOnNextEvents().get(0).playableItem().getUrn()).isNotEqualTo(deletedTrack.getUrn());
     }
 
     @Test
@@ -318,19 +319,33 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 apiPlaylist.getUrn().toPropertySet());
     }
 
-    private PropertySet createTrackPropertySet(final ApiTrack track) {
-        return createTrackPropertySet(track, new Date(TIMESTAMP));
+    private StreamPlayable createTrackDataItem(final ApiTrack track) {
+        PropertySet trackPropertySet = createTrackPropertySet(track, new Date(TIMESTAMP));
+        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
     }
 
-    private PropertySet createRepostedTrack(ApiTrack track, ApiUser reposter, Date repostedAt) {
+    private StreamPlayable createTrackDataItem(final ApiTrack track, boolean isSubHighTier) {
+        PropertySet trackPropertySet = createTrackPropertySet(track,
+                                                              new Date(TIMESTAMP)).put(TrackProperty.SUB_HIGH_TIER,
+                                                                                       isSubHighTier);
+        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
+    }
+
+    private PropertySet createRepostedTrackPropertySet(ApiTrack track, ApiUser reposter, Date repostedAt) {
         return createTrackPropertySet(track, repostedAt)
                 .put(PostProperty.REPOSTER, reposter.getUsername())
                 .put(PostProperty.REPOSTER_URN, reposter.getUrn())
                 .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, reposter.getImageUrlTemplate());
     }
 
-    private PropertySet createRepostedTrack(ApiTrack track, ApiUser reposter) {
-        return createRepostedTrack(track, reposter, new Date(TIMESTAMP));
+    private StreamPlayable createRepostedTrack(ApiTrack track, ApiUser reposter, Date repostedAt) {
+        final PropertySet trackPropertySet = createRepostedTrackPropertySet(track, reposter, repostedAt);
+        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
+    }
+
+    private StreamPlayable createRepostedTrack(ApiTrack track, ApiUser reposter) {
+        final PropertySet trackPropertySet = createRepostedTrackPropertySet(track, reposter, new Date(TIMESTAMP));
+        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
     }
 
     private PropertySet createTrackPropertySet(final ApiTrack track, final Date createdAt) {
@@ -354,11 +369,18 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 TrackProperty.SNIPPED.bind(track.isSnipped()));
     }
 
-    private PropertySet createRepostedPlaylist(ApiPlaylist playlist, ApiUser reposter) {
-        return createPlaylistPropertySet(playlist)
+    private StreamPlayable createRepostedPlaylist(ApiPlaylist playlist, ApiUser reposter) {
+        PropertySet propertySet = createPlaylistPropertySet(playlist)
                 .put(PostProperty.REPOSTER, reposter.getUsername())
                 .put(PostProperty.REPOSTER_URN, reposter.getUrn())
                 .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, reposter.getImageUrlTemplate());
+        return createFromPropertySet(propertySet.get(PlayableProperty.CREATED_AT), propertySet);
+    }
+
+    private StreamPlayable createPlaylistDataItem(ApiPlaylist playlist, boolean isLike, boolean isRepost) {
+        PropertySet propertySet = createPlaylistPropertySet(playlist).put(PlayableProperty.IS_USER_LIKE, isLike)
+                                                                     .put(PlayableProperty.IS_USER_REPOST, isRepost);
+        return createFromPropertySet(propertySet.get(PlayableProperty.CREATED_AT), propertySet);
     }
 
     private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {
@@ -382,8 +404,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
     }
 
-    private PropertySet createPromotedTrackPropertySet(ApiTrack track, ApiUser promoter) {
-        return createTrackPropertySet(track)
+    private StreamPlayable createPromotedDataItem(ApiTrack track, ApiUser promoter) {
+        PropertySet set = createTrackPropertySet(track, new Date(TIMESTAMP))
                 .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, promoter.getImageUrlTemplate())
                 .put(PromotedItemProperty.AD_URN, "promoted:track:123")
                 .put(PromotedItemProperty.PROMOTER_URN, Optional.of(promoter.getUrn()))
@@ -392,6 +414,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
                 .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
                 .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
+        return createFromPropertySet(set.get(PlayableProperty.CREATED_AT), set);
     }
 
 }

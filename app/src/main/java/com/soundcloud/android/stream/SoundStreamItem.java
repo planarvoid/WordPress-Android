@@ -2,12 +2,10 @@ package com.soundcloud.android.stream;
 
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -16,7 +14,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 import java.util.List;
 
-public abstract class SoundStreamItem implements Timestamped {
+public abstract class SoundStreamItem {
 
     public enum Kind {
         TRACK,
@@ -28,7 +26,7 @@ public abstract class SoundStreamItem implements Timestamped {
         SUGGESTED_CREATORS
     }
 
-    public static SoundStreamItem forUpsell() {
+    static SoundStreamItem forUpsell() {
         return new AutoValue_SoundStreamItem_Default(Kind.STREAM_UPSELL);
     }
 
@@ -52,32 +50,27 @@ public abstract class SoundStreamItem implements Timestamped {
         return new AutoValue_SoundStreamItem_Default(Kind.STATIONS_ONBOARDING);
     }
 
-    public static SoundStreamItem fromPlayableItem(PlayableItem playableItem) {
-        if (playableItem instanceof PromotedTrackItem) {
-            return Track.createForPromoted((PromotedTrackItem) playableItem);
-        } else if (playableItem instanceof TrackItem) {
-            return Track.create((TrackItem)playableItem);
-        } else if (playableItem instanceof PromotedPlaylistItem) {
-            return Playlist.createForPromoted((PromotedPlaylistItem) playableItem);
-        } else if (playableItem instanceof PlaylistItem) {
-            return Playlist.create((PlaylistItem)playableItem);
+    static SoundStreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
+        if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
+            return Track.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
+        } else if (streamPlayable.playableItem() instanceof TrackItem) {
+            return Track.create((TrackItem)streamPlayable.playableItem(), streamPlayable.createdAt());
+        } else if (streamPlayable.playableItem() instanceof PromotedPlaylistItem) {
+            return Playlist.createForPromoted((PromotedPlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
+        } else if (streamPlayable.playableItem() instanceof PlaylistItem) {
+            return Playlist.create((PlaylistItem)streamPlayable.playableItem(), streamPlayable.createdAt());
         } else {
             throw new IllegalArgumentException("Unknown playable item.");
         }
     }
 
-    public Optional<ListItem> getListItem() {
+    Optional<ListItem> getListItem() {
         if (kind() == Kind.TRACK) {
             return Optional.<ListItem>of(((Track) this).trackItem());
         } else if (kind() == Kind.PLAYLIST) {
             return Optional.<ListItem>of(((Playlist) this).playlistItem());
         }
         return Optional.absent();
-    }
-
-    @Override
-    public Date getCreatedAt() {
-        return null;
     }
 
     public abstract Kind kind();
@@ -118,18 +111,14 @@ public abstract class SoundStreamItem implements Timestamped {
     public abstract static class Playlist extends SoundStreamItem {
         public abstract PlaylistItem playlistItem();
         public abstract boolean promoted();
+        public abstract Date createdAt();
 
-        static Playlist create(PlaylistItem playlistItem) {
-            return new AutoValue_SoundStreamItem_Playlist(Kind.PLAYLIST, playlistItem, false);
+        static Playlist create(PlaylistItem playlistItem, Date createdAt) {
+            return new AutoValue_SoundStreamItem_Playlist(Kind.PLAYLIST, playlistItem, false, createdAt);
         }
 
-        static Playlist createForPromoted(PromotedPlaylistItem playlistItem) {
-            return new AutoValue_SoundStreamItem_Playlist(Kind.PLAYLIST, playlistItem, true);
-        }
-
-        @Override
-        public Date getCreatedAt() {
-            return playlistItem().getCreatedAt();
+        static Playlist createForPromoted(PromotedPlaylistItem playlistItem, Date createdAt) {
+            return new AutoValue_SoundStreamItem_Playlist(Kind.PLAYLIST, playlistItem, true, createdAt);
         }
     }
 
@@ -137,18 +126,14 @@ public abstract class SoundStreamItem implements Timestamped {
     public abstract static class Track extends SoundStreamItem {
         public abstract TrackItem trackItem();
         public abstract boolean promoted();
+        public abstract Date createdAt();
 
-        static Track create(TrackItem trackItem) {
-            return new AutoValue_SoundStreamItem_Track(Kind.TRACK, trackItem, false);
+        static Track create(TrackItem trackItem, Date createdAt) {
+            return new AutoValue_SoundStreamItem_Track(Kind.TRACK, trackItem, false, createdAt);
         }
 
-        static Track createForPromoted(PromotedTrackItem trackItem) {
-            return new AutoValue_SoundStreamItem_Track(Kind.TRACK, trackItem, true);
-        }
-
-        @Override
-        public Date getCreatedAt() {
-            return trackItem().getCreatedAt();
+        static Track createForPromoted(PromotedTrackItem trackItem, Date createdAt) {
+            return new AutoValue_SoundStreamItem_Track(Kind.TRACK, trackItem, true, createdAt);
         }
     }
 

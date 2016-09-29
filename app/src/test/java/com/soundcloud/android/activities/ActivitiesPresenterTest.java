@@ -17,6 +17,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -145,7 +146,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldRefreshOnCreate() {
         when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
-        when(operations.getFirstItemTimestamp(anyListOf(ActivityItem.class))).thenReturn(new Date(123L));
+        when(operations.getFirstItemTimestamp(anyListOf(ActivityItem.class))).thenReturn(Optional.of(new Date(123L)));
         when(operations.newItemsSince(123L)).thenReturn(Observable.just(5));
 
         presenter.onCreate(fragmentRule.getFragment(), null);

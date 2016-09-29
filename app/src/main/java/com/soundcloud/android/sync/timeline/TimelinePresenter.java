@@ -6,11 +6,11 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.view.NewItemsIndicator;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -27,12 +27,12 @@ import android.widget.TextView;
 import java.util.Date;
 import java.util.List;
 
-public abstract class TimelinePresenter<ItemT extends Timestamped>
+public abstract class TimelinePresenter<ItemT>
         extends RecyclerViewPresenter<List<ItemT>, ItemT>
         implements NewItemsIndicator.Listener {
 
     private final NewItemsIndicator newItemsIndicator;
-    private final TimelineOperations<ItemT> operations;
+    private final TimelineOperations<ItemT, ?> operations;
     private final PagingRecyclerItemAdapter<ItemT, ? extends RecyclerView.ViewHolder> adapter;
 
     private final Action1<Integer> updateNewItemsIndicator = new Action1<Integer>() {
@@ -52,15 +52,15 @@ public abstract class TimelinePresenter<ItemT extends Timestamped>
     private final Observable<Long> mostRecentTimestamp = Observable.defer(new Func0<Observable<Long>>() {
         @Override
         public Observable<Long> call() {
-            Date date = operations.getFirstItemTimestamp(adapter.getItems());
-            return Observable.just(date == null ? Consts.NOT_SET : date.getTime());
+            Optional<Date> date = operations.getFirstItemTimestamp(adapter.getItems());
+            return Observable.just(date.isPresent() ? date.get().getTime() : Consts.NOT_SET);
         }
     });
 
     public TimelinePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                              Options build,
                              NewItemsIndicator newItemsIndicator,
-                             TimelineOperations<ItemT> operations,
+                             TimelineOperations<ItemT, ?> operations,
                              PagingRecyclerItemAdapter<ItemT, ? extends RecyclerView.ViewHolder> adapter) {
         super(swipeRefreshAttacher, build);
         this.newItemsIndicator = newItemsIndicator;

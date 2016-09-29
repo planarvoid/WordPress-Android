@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ActivitiesStorage implements TimelineStorage {
+public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
 
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
@@ -48,27 +48,27 @@ public class ActivitiesStorage implements TimelineStorage {
     }
 
     @Override
-    public Observable<PropertySet> timelineItems(final int limit) {
+    public Observable<ActivityItem> timelineItems(final int limit) {
         return propellerRx.query(activitiesQuery(limit)).map(new ActivityRowMapper());
     }
 
     @Override
-    public Observable<PropertySet> timelineItemsBefore(long timestamp, int limit) {
+    public Observable<ActivityItem> timelineItemsBefore(long timestamp, int limit) {
         final Query query = activitiesQuery(limit)
                 .whereLt(ActivityView.CREATED_AT, timestamp);
         return propellerRx.query(query).map(new ActivityRowMapper());
     }
 
     @Override
-    public List<PropertySet> timelineItemsSince(long timestamp, int limit) {
+    public List<ActivityItem> timelineItemsSince(long timestamp, int limit) {
         final Query query = activitiesQuery(limit)
                 .whereGt(ActivityView.CREATED_AT, timestamp);
         return propeller.query(query).toList(new ActivityRowMapper());
     }
 
-    private static class ActivityRowMapper extends RxResultMapper<PropertySet> {
+    private static class ActivityRowMapper extends RxResultMapper<ActivityItem> {
         @Override
-        public PropertySet map(CursorReader reader) {
+        public ActivityItem map(CursorReader reader) {
             final PropertySet propertySet = PropertySet.create(reader.getRowCount());
             final ActivityKind activityKind = ActivityKind.fromIdentifier(reader.getString(ActivityView.TYPE));
             propertySet.put(ActivityProperty.KIND, activityKind);
@@ -84,7 +84,7 @@ public class ActivitiesStorage implements TimelineStorage {
                 final Urn trackUrn = Urn.forTrack(reader.getLong(ActivityView.SOUND_ID));
                 propertySet.put(ActivityProperty.COMMENTED_TRACK_URN, trackUrn);
             }
-            return propertySet;
+            return ActivityItem.fromPropertySet(propertySet);
         }
     }
 }

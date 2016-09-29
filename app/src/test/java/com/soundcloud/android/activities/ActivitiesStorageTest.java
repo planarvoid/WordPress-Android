@@ -28,7 +28,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
     private ActivitiesStorage storage;
 
-    private TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+    private TestSubscriber<ActivityItem> subscriber = new TestSubscriber<>();
     private ApiTrackCommentActivity oldestActivity;
     private ApiTrackLikeActivity olderActivity;
     private ApiUserFollowActivity newestActivity;
@@ -115,7 +115,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadActivitiesAfterGivenTimestampInReverseChronologicalOrder() {
-        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+        List<ActivityItem> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
 
         assertThat(activities).containsExactly(
                 expectedPropertiesFor(newestActivity),
@@ -125,7 +125,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLimitActivitiesSinceGivenTimestamp() {
-        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, 1);
+        List<ActivityItem> activities = storage.timelineItemsSince(TIMESTAMP, 1);
 
         assertThat(activities).containsExactly(expectedPropertiesFor(newestActivity));
     }
@@ -134,7 +134,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     public void shouldNotReturnUnsupportedActivitiesFromActivitiesSinceGivenTimestamp() {
         testFixtures().insertUnsupportedActivity();
 
-        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+        List<ActivityItem> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
 
         assertThat(activities).containsExactly(
                 expectedPropertiesFor(newestActivity),
@@ -149,7 +149,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         ApiPlaylistRepostActivity playlistRepostActivity = ModelFixtures.apiPlaylistRepostActivity(playlist);
         testFixtures().insertPlaylistRepostActivityWithoutPlaylist(playlistRepostActivity);
 
-        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+        List<ActivityItem> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
         assertThat(activities).containsExactly(
                 expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity)
@@ -163,7 +163,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         ApiPlaylistRepostActivity playlistRepostActivity = ModelFixtures.apiPlaylistRepostActivity(playlist);
         testFixtures().insertPlaylistRepostActivityWithoutPlaylist(playlistRepostActivity);
 
-        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+        List<ActivityItem> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
         assertThat(activities).containsExactly(
                 expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity)
@@ -179,33 +179,33 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         assertThat(observer.getOnNextEvents()).containsExactly(2);
     }
 
-    private PropertySet expectedPropertiesFor(ApiUserFollowActivity activity) {
-        return PropertySet.from(
+    private ActivityItem expectedPropertiesFor(ApiUserFollowActivity activity) {
+        return ActivityItem.fromPropertySet(PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.USER_FOLLOW),
                 ActivityProperty.DATE.bind(activity.getCreatedAt()),
                 ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
                 ActivityProperty.USER_URN.bind(activity.getUserUrn())
-        );
+        ));
     }
 
-    private PropertySet expectedPropertiesFor(ApiTrackLikeActivity activity) {
-        return PropertySet.from(
+    private ActivityItem expectedPropertiesFor(ApiTrackLikeActivity activity) {
+        return ActivityItem.fromPropertySet(PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.TRACK_LIKE),
                 ActivityProperty.DATE.bind(activity.getCreatedAt()),
                 ActivityProperty.PLAYABLE_TITLE.bind(activity.getTrack().getTitle()),
                 ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
                 ActivityProperty.USER_URN.bind(activity.getUserUrn())
-        );
+        ));
     }
 
-    private PropertySet expectedPropertiesFor(ApiTrackCommentActivity activity) {
-        return PropertySet.from(
+    private ActivityItem expectedPropertiesFor(ApiTrackCommentActivity activity) {
+        return ActivityItem.fromPropertySet(PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.TRACK_COMMENT),
                 ActivityProperty.DATE.bind(activity.getCreatedAt()),
                 ActivityProperty.COMMENTED_TRACK_URN.bind(activity.getTrack().getUrn()),
                 ActivityProperty.PLAYABLE_TITLE.bind(activity.getTrack().getTitle()),
                 ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
                 ActivityProperty.USER_URN.bind(activity.getUserUrn())
-        );
+        ));
     }
 }

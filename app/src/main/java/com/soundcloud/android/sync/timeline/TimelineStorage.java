@@ -1,17 +1,16 @@
 package com.soundcloud.android.sync.timeline;
 
-import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 
 import java.util.List;
 
-public interface TimelineStorage {
+public interface TimelineStorage<T> {
 
-    Observable<PropertySet> timelineItems(int limit);
+    Observable<T> timelineItems(int limit);
 
-    Observable<PropertySet> timelineItemsBefore(long timestamp, int limit);
+    Observable<T> timelineItemsBefore(long timestamp, int limit);
 
-    List<PropertySet> timelineItemsSince(long timestamp, int limit);
+    List<T> timelineItemsSince(long timestamp, int limit);
 
     Observable<Integer> timelineItemCountSince(long timestamp);
 }

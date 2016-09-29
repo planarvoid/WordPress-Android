@@ -5,29 +5,26 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
 
-import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Named;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
 
-public abstract class TimelineOperations<ItemT extends Timestamped> {
+public abstract class TimelineOperations<ViewModel, StorageModel> {
 
     private static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
     private static final String TAG = "Timeline";
@@ -36,14 +33,20 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private final Syncable syncable;
-    private final TimelineStorage storage;
+    private final TimelineStorage<StorageModel> storage;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
     private final SyncStateStorage syncStateStorage;
-    private final List<ItemT> noMorePagesSentinel = Collections.emptyList();
+    private final List<ViewModel> noMorePagesSentinel = Collections.emptyList();
+    private Func1<List<StorageModel>, List<ViewModel>> TO_VIEW_MODELS = new Func1<List<StorageModel>, List<ViewModel>>() {
+        @Override
+        public List<ViewModel> call(List<StorageModel> storageModels) {
+            return toViewModels(storageModels);
+        }
+    };
 
     public TimelineOperations(Syncable syncable,
-                              TimelineStorage storage,
+                              TimelineStorage<StorageModel> storage,
                               SyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                               SyncStateStorage syncStateStorage) {
@@ -54,26 +57,26 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         this.syncStateStorage = syncStateStorage;
     }
 
-    protected Observable<List<ItemT>> initialTimelineItems(boolean syncCompleted) {
+    protected Observable<List<ViewModel>> initialTimelineItems(boolean syncCompleted) {
         return storage.timelineItems(PAGE_SIZE)
                       .subscribeOn(scheduler)
                       .toList()
-                      .map(toViewModels())
+                      .map(TO_VIEW_MODELS)
                       .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
     }
 
-    protected Observable<List<ItemT>> updatedTimelineItems() {
+    protected Observable<List<ViewModel>> updatedTimelineItems() {
         return syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)
                             .flatMap(handleSyncResult(INITIAL_TIMESTAMP));
     }
 
-    protected abstract Func1<List<PropertySet>, List<ItemT>> toViewModels();
+    protected abstract List<ViewModel> toViewModels(List<StorageModel> storageModels);
 
-    private Func1<List<ItemT>, Observable<List<ItemT>>> handleLocalResult(
+    private Func1<List<ViewModel>, Observable<List<ViewModel>>> handleLocalResult(
             final long timestamp, final boolean syncCompleted) {
-        return new Func1<List<ItemT>, Observable<List<ItemT>>>() {
+        return new Func1<List<ViewModel>, Observable<List<ViewModel>>>() {
             @Override
-            public Observable<List<ItemT>> call(List<ItemT> result) {
+            public Observable<List<ViewModel>> call(List<ViewModel> result) {
                 if (isEmptyResult(result)) {
                     return handleEmptyLocalResult(timestamp, syncCompleted);
                 } else {
@@ -83,9 +86,9 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         };
     }
 
-    protected abstract boolean isEmptyResult(List<ItemT> result);
+    protected abstract boolean isEmptyResult(List<ViewModel> result);
 
-    private Observable<List<ItemT>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
+    private Observable<List<ViewModel>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
         if (syncCompleted) {
             Log.d(TAG, "No items after previous sync, return empty page");
             return Observable.just(noMorePagesSentinel);
@@ -100,10 +103,10 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         }
     }
 
-    private Func1<SyncJobResult, Observable<List<ItemT>>> handleSyncResult(final long currentTimestamp) {
-        return new Func1<SyncJobResult, Observable<List<ItemT>>>() {
+    private Func1<SyncJobResult, Observable<List<ViewModel>>> handleSyncResult(final long currentTimestamp) {
+        return new Func1<SyncJobResult, Observable<List<ViewModel>>>() {
             @Override
-            public Observable<List<ItemT>> call(SyncJobResult syncJobResult) {
+            public Observable<List<ViewModel>> call(SyncJobResult syncJobResult) {
                 Log.d(TAG, "Sync finished; new items? => " + syncJobResult);
                 if (syncJobResult.wasChanged()) {
                     if (currentTimestamp == INITIAL_TIMESTAMP) {
@@ -120,18 +123,19 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         };
     }
 
-    private Observable<List<ItemT>> pagedTimelineItems(final long timestamp, boolean syncCompleted) {
+    private Observable<List<ViewModel>> pagedTimelineItems(final long timestamp, boolean syncCompleted) {
         return storage
-                .timelineItemsBefore(timestamp, PAGE_SIZE).toList()
+                .timelineItemsBefore(timestamp, PAGE_SIZE)
+                .toList()
                 .subscribeOn(scheduler)
-                .map(toViewModels())
+                .map(TO_VIEW_MODELS)
                 .flatMap(handleLocalResult(timestamp, syncCompleted));
     }
 
-    public Pager.PagingFunction<List<ItemT>> pagingFunction() {
-        return new Pager.PagingFunction<List<ItemT>>() {
+    public Pager.PagingFunction<List<ViewModel>> pagingFunction() {
+        return new Pager.PagingFunction<List<ViewModel>>() {
             @Override
-            public Observable<List<ItemT>> call(List<ItemT> result) {
+            public Observable<List<ViewModel>> call(List<ViewModel> result) {
                 // We use NO_MORE_PAGES as a finish token to signal that there really are no more items to be retrieved,
                 // even after doing a backfill sync. This is different from list.isEmpty, since this may be true for
                 // a local result set, but there are more items on the server.
@@ -139,9 +143,9 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
                     return Pager.finish();
                 } else {
                     // to implement paging, we move the timestamp down reverse chronologically
-                    final Date lastTimestamp = getLastItemTimestamp(result);
-                    if (lastTimestamp != null) {
-                        final long nextTimestamp = lastTimestamp.getTime();
+                    final Optional<Date> lastTimestamp = getLastItemTimestamp(result);
+                    if (lastTimestamp.isPresent()) {
+                        final long nextTimestamp = lastTimestamp.get().getTime();
                         Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
                         return pagedTimelineItems(nextTimestamp, false);
                     } else {
@@ -152,23 +156,9 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         };
     }
 
-    @Nullable
-    public Date getFirstItemTimestamp(List<ItemT> items) {
-        final ListIterator<ItemT> iterator = items.listIterator();
-        if (iterator.hasNext()) {
-            return iterator.next().getCreatedAt();
-        }
-        return null;
-    }
+    public abstract Optional<Date> getFirstItemTimestamp(List<ViewModel> items);
 
-    @Nullable
-    protected Date getLastItemTimestamp(List<ItemT> items) {
-        final ListIterator<ItemT> iterator = items.listIterator(items.size());
-        if (iterator.hasPrevious()) {
-            return iterator.previous().getCreatedAt();
-        }
-        return null;
-    }
+    protected abstract Optional<Date> getLastItemTimestamp(List<ViewModel> items);
 
     public Observable<Long> lastSyncTime() {
         return Observable.just(syncStateStorage.lastSyncTime(syncable));
@@ -178,11 +168,11 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         return Observable.just(syncStateStorage.hasSyncedBefore(syncable));
     }
 
-    public Observable<List<ItemT>> updatedTimelineItemsForStart() {
+    public Observable<List<ViewModel>> updatedTimelineItemsForStart() {
         return hasSyncedBefore()
                 .filter(IS_TRUE)
                 .flatMap(continueWith(updatedTimelineItems()))
-                .onErrorResumeNext(Observable.<List<ItemT>>empty())
+                .onErrorResumeNext(Observable.<List<ViewModel>>empty())
                 .subscribeOn(scheduler);
     }
 
