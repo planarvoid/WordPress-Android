@@ -4,8 +4,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -13,7 +15,9 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +41,15 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
                                                                           .query(Optional.<String>absent())
                                                                           .build();
 
-    private final PlayQueueUIItemMapper mapper = new PlayQueueUIItemMapper(context());
+    @Mock PlayQueueManager playQueueManager;
+
+    private PlayQueueUIItemMapper mapper ;
+
+    @Before
+    public void setUp() throws Exception {
+        when(playQueueManager.isShuffled()).thenReturn(false);
+        mapper = new PlayQueueUIItemMapper(context(), playQueueManager);
+    }
 
     @Test
     public void returnsEmptyWhenEmpty() {
@@ -107,6 +119,20 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         assertThat((header(uiItems, 2)).getContentTitle()).isEqualTo(Optional.of("some profile"));
         assertThat((track(uiItems, 3)).getTrackItem().getUrn()).isEqualTo(Urn.forTrack(789L));
     }
+
+    @Test
+    public void doesNotAddHeadersWhenShuffled() {
+        when(playQueueManager.isShuffled()).thenReturn(true);
+        final List<TrackAndPlayQueueItem> aTrack = singletonList(trackAndPlayQueueItem(Urn.forTrack(123L),
+                                                                                       EMPTY_CONTEXT));
+        final Map<Urn, String> noUrnTitles = Collections.emptyMap();
+
+        final List<PlayQueueUIItem> uiItems = mapper.call(aTrack, noUrnTitles);
+
+        assertThat(uiItems).hasSize(1);
+        assertThat(uiItems.get(0).isTrack()).isTrue();
+    }
+
 
     private TrackPlayQueueUIItem track(List<PlayQueueUIItem> uiItems, int index) {
         return (TrackPlayQueueUIItem) uiItems.get(index);

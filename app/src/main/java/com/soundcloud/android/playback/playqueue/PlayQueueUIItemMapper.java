@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.java.optional.Optional;
@@ -16,30 +17,31 @@ import java.util.Map;
 
 class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Urn, String>, List<PlayQueueUIItem>> {
     private final Context context;
+    private final PlayQueueManager playQueueManager;
 
     @Inject
-    PlayQueueUIItemMapper(Context context) {
+    PlayQueueUIItemMapper(Context context, PlayQueueManager playQueueManager) {
         this.context = context;
+        this.playQueueManager = playQueueManager;
     }
 
     @Override
-    public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> trackAndPlayQueueItems,
-                                      Map<Urn, String> urnStringMap) {
-        final List<PlayQueueUIItem> items = new ArrayList<>();
+    public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> items, Map<Urn, String> urnStringMap) {
+        final List<PlayQueueUIItem> uiItems = new ArrayList<>();
         Optional<PlaybackContext> lastContext = Optional.absent();
 
-        for (TrackAndPlayQueueItem item : trackAndPlayQueueItems) {
+        for (TrackAndPlayQueueItem item : items) {
             final PlayQueueItem playQueueItem = item.playQueueItem;
             final PlaybackContext playbackContext = ((PlayableQueueItem) playQueueItem).getPlaybackContext();
+            final Optional<String> title = getTitle(urnStringMap,playbackContext);
 
-            if (shouldAddNewHeader(lastContext, playbackContext)) {
+            if (!playQueueManager.isShuffled() && shouldAddNewHeader(lastContext, playbackContext)) {
                 lastContext = Optional.of(playbackContext);
-                items.add(new HeaderPlayQueueUIItem(playbackContext, getTitle(urnStringMap, playbackContext)));
+                uiItems.add(new HeaderPlayQueueUIItem(playbackContext, title));
             }
-            items.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context, getTitle(urnStringMap,
-                                                                                                 playbackContext)));
+            uiItems.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context, title));
         }
-        return items;
+        return uiItems;
     }
 
     private static boolean shouldAddNewHeader(Optional<PlaybackContext> lastContext,
