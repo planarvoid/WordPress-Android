@@ -195,7 +195,7 @@ public class PublicApi {
                      ApplicationProperties applicationProperties, BuildHelper buildHelper) {
         this(context, buildObjectMapper(), new OAuth(accountOperations),
              accountOperations, applicationProperties,
-             UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context, buildHelper));
+             UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context, buildHelper, context.getResources()));
     }
 
     @VisibleForTesting

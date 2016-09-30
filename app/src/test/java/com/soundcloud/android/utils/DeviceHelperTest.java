@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,27 +14,27 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.provider.Settings;
 
 public class DeviceHelperTest extends AndroidUnitTest {
 
-    public static final String PACKAGE_NAME = "package-name";
+    private static final String PACKAGE_NAME = "package-name";
     private DeviceHelper deviceHelper;
 
     @Mock Context context;
     @Mock ContentResolver contentResolver;
     @Mock PackageManager packageManager;
     @Mock BuildHelper buildHelper;
-
-    PackageInfo packageInfo;
+    @Mock Resources resources;
 
     @Before
     public void setUp() throws Exception {
-        packageInfo = new PackageInfo();
+        PackageInfo packageInfo = new PackageInfo();
         packageInfo.versionCode = 66;
         packageInfo.versionName = "1.2.3";
 
-        deviceHelper = new DeviceHelper(context, buildHelper);
+        deviceHelper = new DeviceHelper(context, buildHelper, resources);
         when(context.getContentResolver()).thenReturn(contentResolver);
         when(context.getPackageManager()).thenReturn(packageManager);
         when(context.getPackageName()).thenReturn(PACKAGE_NAME);
@@ -42,7 +43,7 @@ public class DeviceHelperTest extends AndroidUnitTest {
 
     @Test
     public void getUdidIsDefaultsToUnknownIfCannotBeObtained() {
-        deviceHelper = new DeviceHelper(context, buildHelper);
+        deviceHelper = new DeviceHelper(context, buildHelper, resources);
         assertThat(deviceHelper.getUdid()).isEqualTo("unknown");
     }
 
@@ -50,7 +51,7 @@ public class DeviceHelperTest extends AndroidUnitTest {
     public void shouldGetHashedDeviceFromAndroidId() throws Exception {
         Settings.Secure.putString(contentResolver, Settings.Secure.ANDROID_ID, "foobar");
 
-        deviceHelper = new DeviceHelper(context, buildHelper);
+        deviceHelper = new DeviceHelper(context, buildHelper, resources);
 
         assertThat(deviceHelper.getUdid()).isEqualTo("3858f62230ac3c915f300c664312c63f");
     }
@@ -100,4 +101,12 @@ public class DeviceHelperTest extends AndroidUnitTest {
                 "SoundCloud-Android/" + BuildConfig.VERSION_NAME + " (Android 4.1.1; Samsung GT-I9082)");
     }
 
+    @Test
+    public void determineTabletBasedOnResources() {
+        final boolean isTablet = false;
+
+        when(resources.getBoolean(R.bool.is_tablet)).thenReturn(isTablet);
+
+        assertThat(deviceHelper.isTablet()).isEqualTo(isTablet);
+    }
 }

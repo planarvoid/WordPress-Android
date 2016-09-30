@@ -5,15 +5,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -21,13 +22,13 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ImageOptionsFactoryTest {
+public class ImageOptionsFactoryTest extends AndroidUnitTest {
 
     ImageViewAware imageAware;
 
     @Mock Bitmap bitmap;
     @Mock ImageView imageView;
+    @Mock DeviceHelper deviceHelper;
 
 
     @Before
@@ -53,7 +54,7 @@ public class ImageOptionsFactoryTest {
     public void shouldCreateAdapterViewOptions() throws Exception {
         Resources resources = mock(Resources.class);
         Drawable drawable = mock(Drawable.class);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, null);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, null, deviceHelper);
         assertThat(displayImageOptions.isCacheInMemory()).isTrue();
         assertThat(displayImageOptions.isCacheOnDisk()).isTrue();
         assertThat(displayImageOptions.getImageForEmptyUri(resources)).isSameAs(drawable);
@@ -65,7 +66,23 @@ public class ImageOptionsFactoryTest {
     @Test
     public void shouldCreateAdapterViewWithRGB565BitmapConfigForSmallImageSize() {
         Drawable drawable = mock(Drawable.class);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T47);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T47, deviceHelper);
+        assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
+    }
+
+    @Test
+    public void shouldCreateAdapterViewWithRGB565BitmapConfigForLowMemoryDevices() {
+        Drawable drawable = mock(Drawable.class);
+        when(deviceHelper.isLowMemoryDevice()).thenReturn(true);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T500, deviceHelper);
+        assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
+    }
+
+    @Test
+    public void shouldCreateAdapterViewWithRGB565BitmapConfigForTablets() {
+        Drawable drawable = mock(Drawable.class);
+        when(deviceHelper.isTablet()).thenReturn(true);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T500, deviceHelper);
         assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
     }
 

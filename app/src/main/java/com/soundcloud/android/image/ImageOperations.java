@@ -2,6 +2,7 @@ package com.soundcloud.android.image;
 
 import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -131,6 +132,7 @@ public class ImageOperations {
         builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
         builder.diskCacheFileNameGenerator(fileNameGenerator);
         builder.imageDownloader(imageDownloaderFactory.create(context));
+        builder.memoryCache(new WeakMemoryCache());
         if (deviceHelper.isLowMemoryDevice()) {
             // Cut down to half of what UIL would reserve by default (div 8) on low mem devices
             builder.memoryCacheSize((int) (Runtime.getRuntime().maxMemory() / 16));
@@ -168,7 +170,7 @@ public class ImageOperations {
     private void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final DisplayImageOptions options = ImageOptionsFactory.adapterView(
-                getPlaceholderDrawable(urn, imageAware), apiImageSize);
+                getPlaceholderDrawable(urn, imageAware), apiImageSize, deviceHelper);
         imageLoader.displayImage(
                 imageUrl,
                 imageAware,
@@ -205,7 +207,7 @@ public class ImageOperations {
         imageLoader.displayImage(
                 imageUrl,
                 imageAware,
-                ImageOptionsFactory.adapterViewCircular(placeholderDrawable, apiImageSize),
+                ImageOptionsFactory.adapterViewCircular(placeholderDrawable, apiImageSize, deviceHelper),
                 notFoundListener);
     }
 
