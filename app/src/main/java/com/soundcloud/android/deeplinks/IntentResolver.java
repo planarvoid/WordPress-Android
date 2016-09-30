@@ -21,6 +21,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -35,6 +36,7 @@ import android.net.Uri;
 import javax.inject.Inject;
 
 public class IntentResolver {
+    private static final String TAG = "IntentResolver";
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
     private final PlaybackServiceController serviceController;
@@ -287,8 +289,12 @@ public class IntentResolver {
 
     private void showTrack(Context context, Uri uri, String referrer) {
         final long id = getIdFromDeeplinkUri(uri);
-        final Urn trackUrn = (id != Consts.NOT_SET) ? Urn.forTrack(id) : Urn.NOT_SET;
-        startActivityForResource(context, trackUrn, referrer);
+        if (id != Consts.NOT_SET) {
+            startActivityForResource(context, Urn.forTrack(id), referrer);
+        } else {
+            Log.e(TAG, "Could not show track from deeplink: " + uri);
+            AndroidUtils.showToast(context, R.string.error_loading_url);
+        }
     }
 
     private long getIdFromDeeplinkUri(Uri uri) {
