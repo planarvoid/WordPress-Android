@@ -36,7 +36,8 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
                 lastContext = Optional.of(playbackContext);
                 items.add(new HeaderPlayQueueUIItem(playbackContext, getTitle(urnStringMap, playbackContext)));
             }
-            items.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context));
+            items.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context, getTitle(urnStringMap,
+                                                                                                 playbackContext)));
         }
         return items;
     }

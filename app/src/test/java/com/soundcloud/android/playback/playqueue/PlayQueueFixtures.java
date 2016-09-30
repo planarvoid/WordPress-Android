@@ -20,6 +20,7 @@ class PlayQueueFixtures {
         final TrackItem trackItem = new TrackItem(TestPropertySets.expectedTrackForListItem(track));
         final int someResourceId = 123;
         final int color = 321;
-        return new TrackPlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someResourceId, color, null);
+        return new TrackPlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someResourceId, color, null,
+                                        Optional.<String>absent());
     }
 }
