@@ -220,14 +220,14 @@ public class PlayQueueManager implements OriginProvider {
         publishQueueUpdate();
     }
 
-    public void insertNext(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
+    public void insertNext(List<Urn> trackUrns) {
         if (!playQueue.isEmpty()) {
+            int nextExplicitPosition = nextExplicitPositionFromCurrent();
             for (int i = 0; i < trackUrns.size(); i++) {
                 TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i))
                         .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                         .build();
-                // todo: needs to be inserted AFTER the last explicit
-                playQueue.insertPlayQueueItem(currentPosition + (i + 1), queueItem);
+                playQueue.insertPlayQueueItem(nextExplicitPosition + i, queueItem);
             }
             publishQueueUpdate();
             saveQueue();
@@ -236,18 +236,42 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void insertNext(Urn trackUrn, PlaySessionSource playSessionSource) {
+    public void insertNext(Urn trackUrn) {
         if (!playQueue.isEmpty()) {
+            int nextExplicitPosition = nextExplicitPositionFromCurrent();
             TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn)
                     .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                     .build();
-            // todo: needs to be inserted AFTER the last explicit
-            playQueue.insertPlayQueueItem(currentPosition + 1, queueItem);
+            playQueue.insertPlayQueueItem(nextExplicitPosition, queueItem);
             publishQueueUpdate();
             saveQueue();
         } else {
             throw new IllegalStateException("It is not possible to insert when the play queue is empty");
         }
+    }
+
+    private final Predicate<PlayQueueItem> NOT_TRACK_ADDED_EXPLICITLY = new Predicate<PlayQueueItem>() {
+        @Override
+        public boolean apply(PlayQueueItem item) {
+            if (item.isTrack()) {
+                final PlayableQueueItem trackItem = (PlayableQueueItem) item;
+                final PlaybackContext.Bucket itemBucket = trackItem.getPlaybackContext().bucket();
+                return !itemBucket.equals(PlaybackContext.Bucket.EXPLICIT);
+            } else {
+                return true;
+            }
+        }
+    };
+
+    private int nextExplicitPositionFromCurrent() {
+        final int startPosition = currentPosition + 1;
+
+        if (startPosition >= playQueue.size()) {
+            return startPosition;
+        }
+
+        final List<PlayQueueItem> upcomingItems = playQueue.items().subList(startPosition, playQueue.size());
+        return startPosition + Iterables.indexOf(upcomingItems, NOT_TRACK_ADDED_EXPLICITLY);
     }
 
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {

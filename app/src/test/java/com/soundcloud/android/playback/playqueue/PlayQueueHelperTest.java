@@ -83,11 +83,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
 
         playQueueHelper.playNext(playlistWithTracks.getUrn());
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(screenProvider.getLastScreen(),
-                                                                                  playlistWithTracks.getUrn(),
-                                                                                  playlistWithTracks.getCreatorUrn(),
-                                                                                  playlistWithTracks.getTrackCount());
-        verify(playQueueManager, times(1)).insertNext(playlistWithTracks.getTracksUrn(), playSessionSource);
+        verify(playQueueManager, times(1)).insertNext(playlistWithTracks.getTracksUrn());
     }
 
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -60,28 +59,16 @@ public class PlayQueueHelper {
         } else {
             playlistOperations.playlist(playlistUrn)
                               .observeOn(AndroidSchedulers.mainThread())
-                              .subscribe(new InsertSubscriber(screenProvider.getLastScreen(), playlistUrn));
+                              .subscribe(new InsertSubscriber());
         }
     }
 
     private class InsertSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
 
-        private final Screen screen;
-        private final Urn playlistUrn;
-
-        public InsertSubscriber(Screen screen, Urn playlistUrn) {
-            this.screen = screen;
-            this.playlistUrn = playlistUrn;
-        }
-
         @Override
         public void onNext(PlaylistWithTracks playlist) {
             final List<Urn> trackUrns = playlist.getTracksUrn();
-            final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(screen,
-                                                                                      playlistUrn,
-                                                                                      playlist.getCreatorUrn(),
-                                                                                      trackUrns.size());
-            playQueueManager.insertNext(trackUrns, playSessionSource);
+            playQueueManager.insertNext(trackUrns);
         }
 
     }

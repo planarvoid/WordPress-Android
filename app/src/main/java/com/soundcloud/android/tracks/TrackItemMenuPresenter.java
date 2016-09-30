@@ -261,7 +261,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
             playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
                              .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         } else {
-            playQueueManager.insertNext(trackUrn, playSessionSource);
+            playQueueManager.insertNext(trackUrn);
         }
     }
 

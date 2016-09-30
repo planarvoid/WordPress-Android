@@ -149,14 +149,13 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnPlayNextInsertsNextWhenQueueIsNotEmpty() {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
         when(menuItem.getItemId()).thenReturn(R.id.play_next);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
         presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(playQueueManager).insertNext(trackItem.getUrn(), playSessionSource);
+        verify(playQueueManager).insertNext(trackItem.getUrn());
     }
 
     @Test
@@ -169,7 +168,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.onMenuItemClick(menuItem, context);
 
         verify(playbackInitiator).playTracks(singletonList(trackItem.getUrn()), 0, playSessionSource);
-        verify(playQueueManager, never()).insertNext(trackItem.getUrn(), playSessionSource);
+        verify(playQueueManager, never()).insertNext(trackItem.getUrn());
     }
 
     @Test
