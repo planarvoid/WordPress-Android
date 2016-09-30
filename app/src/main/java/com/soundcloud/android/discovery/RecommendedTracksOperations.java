@@ -86,15 +86,11 @@ class RecommendedTracksOperations {
     }
 
     Observable<DiscoveryItem> recommendedTracks() {
-        return loadFirstBucket(syncOperations
-                                       .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS))
-                .flatMap(toBucket);
+        return loadFirstBucket(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).flatMap(toBucket);
     }
 
     Observable<DiscoveryItem> refreshRecommendedTracks() {
-        return loadFirstBucket(syncOperations
-                                       .sync(Syncable.RECOMMENDED_TRACKS))
-                .flatMap(toBucket);
+        return loadFirstBucket(syncOperations.failSafeSync(Syncable.RECOMMENDED_TRACKS)).flatMap(toBucket);
     }
 
     private Observable<PropertySet> loadFirstBucket(Observable<SyncOperations.Result> source) {

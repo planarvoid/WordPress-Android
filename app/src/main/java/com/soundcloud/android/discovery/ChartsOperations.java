@@ -78,7 +78,7 @@ class ChartsOperations {
     }
 
     Observable<ChartBucket> refreshFeaturedCharts() {
-        return load(syncOperations.sync(Syncable.CHARTS));
+        return load(syncOperations.failSafeSync(Syncable.CHARTS));
     }
 
     private Observable<ChartBucket> load(Observable<SyncOperations.Result> source) {

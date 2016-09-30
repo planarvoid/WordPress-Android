@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
@@ -133,4 +134,14 @@ public class SyncOperationsTest {
         subscriber.assertCompleted();
     }
 
+
+    @Test
+    public void failSafeSyncDoesReturnResultOnException() {
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.<SyncJobResult>error(new Exception("SYNC FAILED")));
+
+        syncOperations.failSafeSync(SYNCABLE).subscribe(subscriber);
+
+        subscriber.assertCompleted();
+        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(SyncOperations.Result.NO_OP);
+    }
 }

@@ -27,6 +27,10 @@ public class SyncOperations {
         return syncInitiator.sync(syncable).map(returning(Result.SYNCED));
     }
 
+    public Observable<Result> failSafeSync(Syncable syncable) {
+        return sync(syncable).onErrorResumeNext(Observable.just(Result.NO_OP));
+    }
+
     public Observable<Result> syncIfStale(Syncable syncable) {
         if (isContentStale(syncable)) {
             return just(Result.NO_OP);

@@ -61,15 +61,11 @@ public class RecommendedStationsOperations {
     }
 
     public Observable<DiscoveryItem> recommendedStations() {
-        return load(syncOperations
-                            .lazySyncIfStale(Syncable.RECOMMENDED_STATIONS))
-                .map(toRecommendedStationsBucket);
+        return load(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).map(toRecommendedStationsBucket);
     }
 
     public Observable<DiscoveryItem> refreshRecommendedStations() {
-        return load(syncOperations
-                            .sync(Syncable.RECOMMENDED_STATIONS))
-                .map(toRecommendedStationsBucket);
+        return load(syncOperations.failSafeSync(Syncable.RECOMMENDED_STATIONS)).map(toRecommendedStationsBucket);
     }
 
     private Observable<List<StationRecord>> load(Observable<SyncOperations.Result> source) {
