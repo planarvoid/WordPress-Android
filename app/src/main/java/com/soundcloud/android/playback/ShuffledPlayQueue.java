@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.java.collections.AbstractIterator;
 import com.soundcloud.java.objects.MoreObjects;
 
 import android.support.annotation.NonNull;
@@ -14,7 +13,7 @@ import java.util.ListIterator;
 
 abstract class ShuffledPlayQueue extends SimplePlayQueue {
 
-    ShuffledPlayQueue(ShuffledList<PlayQueueItem> playQueueItems) {
+    private ShuffledPlayQueue(ShuffledList<PlayQueueItem> playQueueItems) {
         super(playQueueItems);
     }
 
@@ -40,11 +39,11 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
         private final List<T> actualList;
         private final List<Integer> shuffled2Actual;
 
-        public ShuffledList(List<T> actualList, int start) {
+        ShuffledList(List<T> actualList, int start) {
             this(actualList, createIndicesMapping(start, actualList.size()));
         }
 
-        public ShuffledList(List<T> actualList, List<Integer> shuffledIndices) {
+        ShuffledList(List<T> actualList, List<Integer> shuffledIndices) {
             this.actualList = actualList;
             this.shuffled2Actual = shuffledIndices;
         }
@@ -85,19 +84,28 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
         @NonNull
         @Override
         public Iterator<T> iterator() {
-            return new AbstractIterator<T>() {
-
-                private int index = 0;
+            return new Iterator<T>() {
+                private int index = -1;
 
                 @Override
-                protected T computeNext() {
-                    final T next;
+                public boolean hasNext() {
+                    return ++index < size();
+                }
+
+                @Override
+                public T next() {
                     if (index < size()) {
-                        next = get(index++);
+                        return get(index);
                     } else {
-                        next = endOfData();
+                        return null;
                     }
-                    return next;
+                }
+
+                @Override
+                public void remove() {
+                    if (index < size()) {
+                        ShuffledList.this.remove(index);
+                    }
                 }
             };
         }
@@ -248,7 +256,6 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
             throw new UnsupportedOperationException();
         }
 
-        @NonNull
         @Override
         public Object[] toArray() {
             final Object[] actual = actualList.toArray();

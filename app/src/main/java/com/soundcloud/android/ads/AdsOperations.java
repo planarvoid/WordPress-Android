@@ -169,7 +169,7 @@ public class AdsOperations {
         playQueueManager.replace(monetizableItem, Collections.<PlayQueueItem>singletonList(interstitialItem));
     }
 
-    void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
+    private void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
         final VideoAd videoData = VideoAd.create(apiVideoAd, monetizableItem.getUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
         final VideoAdQueueItem videoItem = new VideoAdQueueItem(videoData);
@@ -222,7 +222,7 @@ public class AdsOperations {
         return playQueueManager.getCurrentPlayQueueItem().isAd();
     }
 
-    public boolean isNextItemAd() {
+    boolean isNextItemAd() {
         return playQueueManager.getNextPlayQueueItem().isAd();
     }
 
@@ -234,11 +234,11 @@ public class AdsOperations {
         return playQueueManager.getCurrentPlayQueueItem().isVideoAd();
     }
 
-    public boolean isCurrentItemLetterboxVideoAd() {
+    boolean isCurrentItemLetterboxVideoAd() {
         return isCurrentItemVideoAd() && !((VideoAdQueueItem) playQueueManager.getCurrentPlayQueueItem()).isVerticalVideo();
     }
 
-    public void clearAllAdsFromQueue() {
+    void clearAllAdsFromQueue() {
         playQueueManager.removeAds(PlayQueueEvent.fromAdsRemoved(playQueueManager.getCollectionUrn()));
     }
 

@@ -442,7 +442,7 @@ public class PlayQueueManager implements OriginProvider {
         return offlineStateProvider.getOfflineState(playQueueItem.getUrn()) == OfflineState.DOWNLOADED;
     }
 
-    public boolean moveToPreviousPlayableItem() {
+    boolean moveToPreviousPlayableItem() {
         if (hasPreviousItem()) {
             final int previousPlayable = getPreviousPlayableItem();
             final int newPosition = previousPlayable == Consts.NOT_SET
@@ -491,7 +491,7 @@ public class PlayQueueManager implements OriginProvider {
         return adjustedPosition;
     }
 
-    public Observable<PlayQueue> loadPlayQueueAsync() {
+    Observable<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
         return playQueueOperations.getLastStoredPlayQueue()
@@ -622,7 +622,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     @VisibleForTesting
-    public void removeAds() {
+    void removeAds() {
         removeAds(PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
     }
 
