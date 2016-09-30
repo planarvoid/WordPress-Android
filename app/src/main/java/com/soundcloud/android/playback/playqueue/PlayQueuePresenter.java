@@ -10,7 +10,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.feedback.Feedback;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
@@ -19,7 +18,6 @@ import com.soundcloud.android.playback.playqueue.PlayQueueItemAnimator.Mode;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -42,8 +40,7 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 import java.util.List;
 
-class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
-        implements TrackItemRenderer.Listener {
+class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private static final Func1<PlayQueueEvent, Boolean> isNotItemChangedEvent = new Func1<PlayQueueEvent, Boolean>() {
         @Override
@@ -193,11 +190,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         updateSubscription.unsubscribe();
         ButterKnife.unbind(this);
         super.onDestroyView(fragment);
-    }
-
-    @Override
-    public void trackItemClicked(Urn urn, int adapterPosition) {
-        playQueueManager.setCurrentPlayQueueItem(urn, adapter.getQueuePosition(adapterPosition));
     }
 
     private void setupRepeatButton(View view) {

@@ -61,7 +61,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
                                              imageView);
         statusPlaceHolder.removeAllViews();
-        setListener(position, itemView, item);
+        setListener(itemView, item);
         setClickable(itemView, item);
         setStatusLabel(statusPlaceHolder, itemView, item);
         setRepeatAlpha(item, imageView, textHolder);
@@ -84,11 +84,12 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
     }
 
-    private void setListener(final int position, View itemView, final TrackPlayQueueUIItem item) {
+    private void setListener(View itemView, final TrackPlayQueueUIItem item) {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                playQueueManager.setCurrentPlayQueueItem(item.getUrn(), position);
+                playQueueManager.setCurrentPlayQueueItem(item.getPlayQueueItem());
+
                 if (!playSessionController.isPlayingCurrentPlayQueueItem()) {
                     playSessionController.play();
                 }
