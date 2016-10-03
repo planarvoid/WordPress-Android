@@ -80,8 +80,8 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
         WebProduct loadedProduct = product.get();
 
         eventBus.publish(EventQueue.TRACKING, loadedProduct.hasPromo()
-                ? UpgradeFunnelEvent.forUpgradeButtonClick()
-                : UpgradeFunnelEvent.forUpgradePromoClick());
+                ? UpgradeFunnelEvent.forUpgradePromoClick()
+                : UpgradeFunnelEvent.forUpgradeButtonClick());
 
         final Intent intent = new Intent(activity, WebCheckoutActivity.class);
         intent.putExtra(PRODUCT_INFO, loadedProduct);
