@@ -17,8 +17,9 @@ class TrackingCode {
     private static final int UPSELL_PLAYLIST_TRACKS = 1042;
     private static final int UPGRADE_BUTTON = 3002;
     private static final int RESUBSCRIBE_BUTTON = 4002;
+    private static final int UPGRADE_PROMO = 4007;
 
-    public static String fromEventId(String eventId) {
+    static String fromEventId(String eventId) {
         switch (eventId) {
             case UpgradeFunnelEvent.ID_WHY_ADS:
                 return toUrn(UPSELL_WHY_ADS);
@@ -46,6 +47,8 @@ class TrackingCode {
                 return toUrn(UPGRADE_BUTTON);
             case UpgradeFunnelEvent.ID_RESUBSCRIBE_BUTTON:
                 return toUrn(RESUBSCRIBE_BUTTON);
+            case UpgradeFunnelEvent.ID_UPGRADE_PROMO:
+                return toUrn(UPGRADE_PROMO);
             default:
                 throw new IllegalArgumentException("Tracking event not recognised: " + eventId);
         }

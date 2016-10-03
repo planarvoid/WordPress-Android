@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.view.LoadingButton;
 
 import android.content.res.Resources;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -71,19 +72,55 @@ class ConversionView {
         priceView.setVisibility(View.VISIBLE);
     }
 
-    void showTrialDays(final int trialDays) {
+    void showPrice(String price, int trialDays) {
+        showPrice(price);
+        showTrialDays(trialDays);
+    }
+
+    private void showTrialDays(final int trialDays) {
         buyButton.setActionText(trialDays > 0
                 ? resources.getString(R.string.conversion_buy_trial, trialDays)
                 : resources.getString(R.string.conversion_buy_no_trial));
-        setupRestrictionsLink(trialDays);
-
+        setupRestrictions(trialDays);
     }
 
-    private void setupRestrictionsLink(final int trialDays) {
+    void showPromo(String promoPrice, int promoDays, String regularPrice) {
+        String duration = formatPromoDuration(promoDays);
+        priceView.setText(resources.getString(R.string.conversion_price_promo, duration, promoPrice));
+        priceView.setVisibility(View.VISIBLE);
+        buyButton.setActionText(resources.getString(R.string.conversion_buy_promo));
+        setupPromoRestrictions(duration, promoPrice, regularPrice);
+    }
+
+    @VisibleForTesting
+    String formatPromoDuration(int promoDays) {
+        if (promoDays >= 30) {
+            int months = promoDays / 30;
+            return resources.getQuantityString(R.plurals.elapsed_months, months, months);
+        } else {
+            return resources.getQuantityString(R.plurals.elapsed_days, promoDays, promoDays);
+        }
+    }
+
+    private void setupRestrictions(final int trialDays) {
         restrictionsView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ConversionRestrictionsDialog.create(trialDays).show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
+                ConversionRestrictionsDialog dialog = trialDays > 0
+                        ? ConversionRestrictionsDialog.createForTrial(trialDays)
+                        : ConversionRestrictionsDialog.createForNoTrial();
+                dialog.show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
+            }
+        });
+    }
+
+    private void setupPromoRestrictions(final String duration, final String promoPrice, final String regularPrice) {
+        restrictionsView.setText(resources.getString(R.string.conversion_restrictions_promo, regularPrice));
+        restrictionsView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConversionRestrictionsDialog.createForPromo(duration, promoPrice, regularPrice)
+                        .show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
             }
         });
     }

@@ -24,48 +24,58 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
     @Mock private WebPaymentOperations paymentOperations;
     @Mock private ConversionView conversionView;
 
-    private AppCompatActivity activity = new AppCompatActivity();
+    private static final WebProduct DEFAULT = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 30, 0, null, "start", "expiry");
+    private static final WebProduct PROMO = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 0, 90, "$1", "start", "expiry");
 
-    private WebProduct product;
+    private AppCompatActivity activity = new AppCompatActivity();
     private WebConversionPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
         presenter = new WebConversionPresenter(paymentOperations, conversionView, new TestEventBus());
-        product = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 30, "start", "expiry");
     }
 
     @Test
     public void enablePurchaseOnProductLoad() {
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(product)));
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
 
         presenter.onCreate(activity, null);
 
-        verify(conversionView).showPrice("$2");
+        verify(conversionView).showPrice("$2", 30);
+        verify(conversionView).setBuyButtonReady();
+    }
+
+    @Test
+    public void enablePromoPurchaseOnPromoLoad() {
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PROMO)));
+
+        presenter.onCreate(activity, null);
+
+        verify(conversionView).showPromo("$1", 90, "$2");
         verify(conversionView).setBuyButtonReady();
     }
 
     @Test
     public void enablePurchaseIfProductSavedInBundle() {
         Bundle savedInstanceState = new Bundle();
-        savedInstanceState.putParcelable(WebConversionPresenter.PRODUCT_INFO, product);
+        savedInstanceState.putParcelable(WebConversionPresenter.PRODUCT_INFO, DEFAULT);
 
         presenter.onCreate(activity, savedInstanceState);
 
         verifyZeroInteractions(paymentOperations);
-        verify(conversionView).showPrice("$2");
+        verify(conversionView).showPrice("$2", 30);
         verify(conversionView).setBuyButtonReady();
     }
 
     @Test
     public void savesLoadedProductToBundle() {
         Bundle savedInstanceState = new Bundle();
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(product)));
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
         presenter.onCreate(activity, null);
 
         presenter.onSaveInstanceState(activity, savedInstanceState);
 
-        assertThat(savedInstanceState.getParcelable(WebConversionPresenter.PRODUCT_INFO)).isEqualTo(product);
+        assertThat(savedInstanceState.getParcelable(WebConversionPresenter.PRODUCT_INFO)).isEqualTo(DEFAULT);
     }
 
     @Test
@@ -79,14 +89,14 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startPurchaseCallbackPassesProductInfoToCheckout() {
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(product)));
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
         presenter.onCreate(activity, null);
 
         presenter.startPurchase();
 
         Assertions.assertThat(activity)
                   .nextStartedIntent()
-                  .containsExtra(WebConversionPresenter.PRODUCT_INFO, product)
+                  .containsExtra(WebConversionPresenter.PRODUCT_INFO, DEFAULT)
                   .opensActivity(WebCheckoutActivity.class);
     }
 

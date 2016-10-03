@@ -40,6 +40,8 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     public static final String PRICE_KEY = "price";
     public static final String EXPIRY_DATE_KEY = "expiry_date";
     public static final String TRIAL_DAYS_KEY = "trial_days";
+    public static final String PROMO_DAYS_KEY = "promo_days";
+    public static final String PROMO_PRICE_KEY = "promo_price";
     public static final String PACKAGE_URN_KEY = "package_urn";
     public static final String ENVIRONMENT_KEY = "env";
     public static final String DISCOUNT_PRICE_KEY = "discount_price";
@@ -190,9 +192,17 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                                        .appendQueryParameter(ENVIRONMENT_KEY, environment);
 
         appendDiscount(product, builder);
+        appendPromo(product, builder);
         appendLocale(builder);
 
         return builder.toString();
+    }
+
+    private void appendPromo(WebProduct product, Uri.Builder builder) {
+        if (product.hasPromo()) {
+            builder.appendQueryParameter(PROMO_DAYS_KEY, Integer.toString(product.getPromoDays()));
+            builder.appendQueryParameter(PROMO_PRICE_KEY, product.getPromoPrice().get());
+        }
     }
 
     private void appendDiscount(WebProduct product, Uri.Builder builder) {

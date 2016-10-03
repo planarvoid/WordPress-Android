@@ -59,6 +59,15 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void tracksPromoConversionImpression() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradePromoImpression();
+
+        adjustAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(adjustWrapper).trackEvent(AdjustEventToken.PROMO);
+    }
+
+    @Test
     public void tracksWhyAdsImpression() {
         UpgradeFunnelEvent event = UpgradeFunnelEvent.forWhyAdsImpression();
 

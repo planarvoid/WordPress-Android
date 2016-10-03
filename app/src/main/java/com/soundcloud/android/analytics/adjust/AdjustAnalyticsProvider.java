@@ -62,6 +62,9 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
             case UpgradeFunnelEvent.ID_UPGRADE_BUTTON:
                 adjustWrapper.trackEvent(AdjustEventToken.CONVERSION);
                 break;
+            case UpgradeFunnelEvent.ID_UPGRADE_PROMO:
+                adjustWrapper.trackEvent(AdjustEventToken.PROMO);
+                break;
             case UpgradeFunnelEvent.ID_PLAYER:
                 adjustWrapper.trackEvent(AdjustEventToken.HIGH_TIER_TRACK_PLAYED);
                 break;

@@ -1,5 +1,7 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
@@ -75,10 +77,14 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void startWebCheckout() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonClick());
+        WebProduct loadedProduct = product.get();
+
+        eventBus.publish(EventQueue.TRACKING, loadedProduct.hasPromo()
+                ? UpgradeFunnelEvent.forUpgradeButtonClick()
+                : UpgradeFunnelEvent.forUpgradePromoClick());
 
         final Intent intent = new Intent(activity, WebCheckoutActivity.class);
-        intent.putExtra(PRODUCT_INFO, product.get());
+        intent.putExtra(PRODUCT_INFO, loadedProduct);
         activity.startActivity(intent);
         activity.finish();
     }
@@ -91,13 +97,27 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void enablePurchase(WebProduct product) {
-        conversionView.showPrice(product.getDiscountPrice().or(product.getPrice()));
-        conversionView.showTrialDays(product.getTrialDays());
+        if (product.hasPromo()) {
+            displayPromo(product);
+        } else {
+            displayPurchase(product);
+        }
+    }
+
+    private void displayPromo(WebProduct product) {
+        checkNotNull(product.getPromoPrice());
+        conversionView.showPromo(product.getPromoPrice().get(), product.getPromoDays(), product.getPrice());
+        conversionView.setBuyButtonReady();
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradePromoImpression());
+    }
+
+    private void displayPurchase(WebProduct product) {
+        conversionView.showPrice(product.getDiscountPrice().or(product.getPrice()), product.getTrialDays());
         conversionView.setBuyButtonReady();
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonImpression());
     }
 
-    class WebProductSubscriber extends DefaultSubscriber<Optional<WebProduct>> {
+    private class WebProductSubscriber extends DefaultSubscriber<Optional<WebProduct>> {
         @Override
         public void onNext(Optional<WebProduct> result) {
             if (result.isPresent()) {

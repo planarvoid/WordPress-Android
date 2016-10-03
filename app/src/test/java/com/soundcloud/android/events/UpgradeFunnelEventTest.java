@@ -211,6 +211,22 @@ public class UpgradeFunnelEventTest {
     }
 
     @Test
+    public void createsEventForPromoButtonImpression() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradePromoImpression();
+
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_PROMO);
+    }
+
+    @Test
+    public void createsEventForPromoButtonClick() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradePromoClick();
+
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_PROMO);
+    }
+
+    @Test
     public void createsEventForUpgradeCompleteImpression() {
         UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradeSuccess();
 

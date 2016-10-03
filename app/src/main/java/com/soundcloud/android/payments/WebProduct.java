@@ -22,6 +22,8 @@ public abstract class WebProduct implements Parcelable {
             @JsonProperty("raw_price") String rawPrice,
             @JsonProperty("raw_currency") String rawCurrency,
             @JsonProperty("trial_days") int trialDays,
+            @JsonProperty("promo_days") int promoDays,
+            @JsonProperty("promo_price") String promoPrice,
             @JsonProperty("start_date") String startDate,
             @JsonProperty("expiry_date") String expiryDate
     ) {
@@ -29,10 +31,12 @@ public abstract class WebProduct implements Parcelable {
                 planId,
                 packageUrn,
                 reformatPrice(price),
-                reformatDiscount(discountPrice),
+                reformatOptionalPrice(discountPrice),
                 rawPrice,
                 rawCurrency,
                 trialDays,
+                promoDays,
+                reformatOptionalPrice(promoPrice),
                 startDate,
                 expiryDate
         );
@@ -52,14 +56,22 @@ public abstract class WebProduct implements Parcelable {
 
     public abstract int getTrialDays();
 
+    public abstract int getPromoDays();
+
+    public abstract Optional<String> getPromoPrice();
+
+    public boolean hasPromo() {
+        return getPromoDays() > 0;
+    }
+
     public abstract String getStartDate();
 
     public abstract String getExpiryDate();
 
-    private static Optional<String> reformatDiscount(@Nullable String discountPrice) {
-        return discountPrice == null
+    private static Optional<String> reformatOptionalPrice(@Nullable String price) {
+        return price == null
                ? Optional.<String>absent()
-               : Optional.of(reformatPrice(discountPrice));
+               : Optional.of(reformatPrice(price));
     }
 
     private static String reformatPrice(String price) {
