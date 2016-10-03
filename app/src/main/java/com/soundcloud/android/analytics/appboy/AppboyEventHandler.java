@@ -45,6 +45,10 @@ class AppboyEventHandler {
     private static final List<AppboyAttributeName> PLAYLIST_ATTRIBUTES = Arrays.asList(PLAYLIST_TITLE, PLAYLIST_URN);
 
     private static final String ENABLED_PROPERTY = "enabled";
+    private static final String CONTEXT_PROPERTY = "context";
+    private static final String LIKES_CONTEXT = "likes";
+    private static final String PLAYLIST_CONTEXT = "playlist";
+    private static final String ALL_CONTEXT = "all";
     private static final String MONETIZATION_MODEL_PROPERTY = "monetization_model";
 
     private final AppboyWrapper appboy;
@@ -87,22 +91,22 @@ class AppboyEventHandler {
     void handleEvent(OfflineInteractionEvent event) {
         switch (event.getKind()) {
             case OfflineInteractionEvent.KIND_OFFLINE_LIKES_ADD:
-                tagEvent(AppboyEvents.OFFLINE_LIKES, buildEnabledProperty(true));
+                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(LIKES_CONTEXT, true));
                 break;
             case OfflineInteractionEvent.KIND_OFFLINE_LIKES_REMOVE:
-                tagEvent(AppboyEvents.OFFLINE_LIKES, buildEnabledProperty(false));
+                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(LIKES_CONTEXT, false));
                 break;
             case OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_ADD:
-                tagEvent(AppboyEvents.OFFLINE_PLAYLIST, buildEnabledProperty(true));
+                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(PLAYLIST_CONTEXT, true));
                 break;
             case OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
-                tagEvent(AppboyEvents.OFFLINE_PLAYLIST, buildEnabledProperty(false));
+                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(PLAYLIST_CONTEXT, false));
                 break;
             case OfflineInteractionEvent.KIND_COLLECTION_SYNC_ENABLE:
-                tagEvent(AppboyEvents.OFFLINE_ALL, buildEnabledProperty(true));
+                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(ALL_CONTEXT, true));
                 break;
             case OfflineInteractionEvent.KIND_COLLECTION_SYNC_DISABLE:
-                tagEvent(AppboyEvents.OFFLINE_ALL, buildEnabledProperty(false));
+                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(ALL_CONTEXT, false));
                 break;
             default:
                 break;
@@ -178,8 +182,10 @@ class AppboyEventHandler {
         return buildProperties(CREATOR_ATTRIBUTES, event);
     }
 
-    private AppboyProperties buildEnabledProperty(boolean isEnabled) {
-        return new AppboyProperties().addProperty(ENABLED_PROPERTY, isEnabled);
+    private AppboyProperties buildOfflineProperties(String context, boolean isEnabled) {
+        return new AppboyProperties()
+                .addProperty(CONTEXT_PROPERTY, context)
+                .addProperty(ENABLED_PROPERTY, isEnabled);
     }
 
     private AppboyProperties buildProperties(List<AppboyAttributeName> fields, TrackingEvent event) {
