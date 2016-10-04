@@ -257,7 +257,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("offline_likes", enabled());
+        expectCustomEvent("offline_content", enabled("likes"));
     }
 
     @Test
@@ -266,7 +266,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("offline_likes", disabled());
+        expectCustomEvent("offline_content", disabled("likes"));
     }
 
     @Test
@@ -275,7 +275,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("offline_playlist", enabled());
+        expectCustomEvent("offline_content", enabled("playlist"));
     }
 
     @Test
@@ -284,7 +284,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("offline_playlist", disabled());
+        expectCustomEvent("offline_content", disabled("playlist"));
     }
 
     @Test
@@ -293,7 +293,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("offline_all", enabled());
+        expectCustomEvent("offline_content", enabled("all"));
     }
 
     @Test
@@ -302,15 +302,19 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("offline_all", disabled());
+        expectCustomEvent("offline_content", disabled("all"));
     }
 
-    private AppboyProperties enabled() {
-        return new AppboyProperties().addProperty("enabled", true);
+    private AppboyProperties enabled(String context) {
+        return new AppboyProperties()
+                .addProperty("context", context)
+                .addProperty("enabled", true);
     }
 
-    private AppboyProperties disabled() {
-        return new AppboyProperties().addProperty("enabled", false);
+    private AppboyProperties disabled(String context) {
+        return new AppboyProperties()
+                .addProperty("context", context)
+                .addProperty("enabled", false);
     }
 
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {
