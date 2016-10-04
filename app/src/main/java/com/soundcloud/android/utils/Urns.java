@@ -28,6 +28,13 @@ public final class Urns {
         }
     };
 
+    public static final Predicate<Urn> VALID_URN_PREDICATE = new Predicate<Urn>() {
+        @Override
+        public boolean apply(Urn urn) {
+            return urn.getNumericId() > 0;
+        }
+    };
+
     private static final Function<Urn, String> URN_TO_STRING = new Function<Urn, String>() {
         @Override
         public String apply(Urn input) {

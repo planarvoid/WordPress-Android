@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPubl
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class FetchUsersCommandTest extends AndroidUnitTest {
@@ -56,6 +58,28 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
 
         Collection<PublicApiUser> result = command.with(urns).call();
         assertThat(result).isEqualTo(users);
+    }
+
+    @Test
+    public void shouldIgnoreUrnsWithNegativeId() throws Exception {
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
+        final List<Urn> urns = Collections.singletonList(users.get(0).getUrn());
+
+        setupRequest(urns, users);
+
+        Collection<PublicApiUser> result = command
+                .with(Arrays.asList(users.get(0).getUrn(), Urn.forUser(-10)))
+                .call();
+        assertThat(result).isEqualTo(users);
+    }
+
+    @Test
+    public void shouldAvoidApiCallWhenAllUrnsAreWithNegativeId() throws Exception {
+        final List<Urn> urns = Arrays.asList(Urn.forUser(-100), Urn.forUser(-200));
+
+        command.with(urns).call();
+
+        verifyZeroInteractions(apiClient);
     }
 
     private void setupRequest(List<Urn> urns, List<PublicApiUser> users) throws Exception {

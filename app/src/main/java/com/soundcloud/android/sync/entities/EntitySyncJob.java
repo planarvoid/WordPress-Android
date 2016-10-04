@@ -34,7 +34,7 @@ public class EntitySyncJob implements SyncJob {
     }
 
     public void setUrns(List<Urn> urns) {
-        this.urns = validUrns(urns);
+        this.urns = urns;
     }
 
     public Collection<PropertySet> getUpdatedEntities() {
@@ -54,17 +54,6 @@ public class EntitySyncJob implements SyncJob {
             exception = e;
         }
     }
-
-    private List<Urn> validUrns(List<Urn> urns) {
-        List<Urn> validUrns = new ArrayList<>(urns.size());
-        for (Urn urn : urns) {
-            if (urn.getNumericId() > 0) {
-                validUrns.add(urn);
-            }
-        }
-        return validUrns;
-    }
-
 
     @Override
     public void onQueued() {

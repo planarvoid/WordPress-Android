@@ -1,5 +1,10 @@
 package com.soundcloud.android.commands;
 
+import static com.soundcloud.android.utils.Urns.VALID_URN_PREDICATE;
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.partition;
+
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
@@ -34,16 +39,15 @@ public abstract class BulkFetchCommand<ApiModel>
 
     @Override
     public Collection<ApiModel> call() throws ApiRequestException, IOException, ApiMapperException {
-        int pageIndex = 0;
-        final Collection<ApiModel> results = new ArrayList<>(input.size());
-        do {
-            final int startIndex = pageIndex * pageSize;
-            final int endIndex = Math.min(input.size(), (++pageIndex) * pageSize);
-            final ApiRequest request = buildRequest(input.subList(startIndex, endIndex));
+        final List<Urn> validUrns = newArrayList(filter(input, VALID_URN_PREDICATE));
+        final Collection<ApiModel> results = new ArrayList<>(validUrns.size());
+        final List<List<Urn>> batchesOfUrns = partition(validUrns, pageSize);
 
+        for (List<Urn> urns : batchesOfUrns) {
+            final ApiRequest request = buildRequest(urns);
             Iterables.addAll(results, apiClient.fetchMappedResponse(request, provideResourceType()));
+        }
 
-        } while (pageIndex * pageSize < input.size());
         return results;
     }
 
@@ -56,4 +60,5 @@ public abstract class BulkFetchCommand<ApiModel>
     protected abstract TypeToken<? extends Iterable<ApiModel>> provideResourceType();
 
     protected abstract ApiRequest buildRequest(List<Urn> urnPage);
+
 }
