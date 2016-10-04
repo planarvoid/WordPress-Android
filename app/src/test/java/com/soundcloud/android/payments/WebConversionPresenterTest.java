@@ -5,6 +5,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.java.optional.Optional;
@@ -21,18 +23,20 @@ import java.io.IOException;
 
 public class WebConversionPresenterTest extends AndroidUnitTest {
 
-    @Mock private WebPaymentOperations paymentOperations;
-    @Mock private ConversionView conversionView;
-
     private static final WebProduct DEFAULT = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 30, 0, null, "start", "expiry");
     private static final WebProduct PROMO = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 0, 90, "$1", "start", "expiry");
+
+    private TestEventBus eventBus = new TestEventBus();
+
+    @Mock private WebPaymentOperations paymentOperations;
+    @Mock private ConversionView conversionView;
 
     private AppCompatActivity activity = new AppCompatActivity();
     private WebConversionPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new WebConversionPresenter(paymentOperations, conversionView, new TestEventBus());
+        presenter = new WebConversionPresenter(paymentOperations, conversionView, eventBus);
     }
 
     @Test
@@ -98,6 +102,28 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
                   .nextStartedIntent()
                   .containsExtra(WebConversionPresenter.PRODUCT_INFO, DEFAULT)
                   .opensActivity(WebCheckoutActivity.class);
+    }
+
+    @Test
+    public void startPurchasePublishesUpgradeFunnelEvent() {
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
+        presenter.onCreate(activity, null);
+
+        presenter.startPurchase();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).get(UpgradeFunnelEvent.KEY_ID))
+                .isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_BUTTON);
+    }
+
+    @Test
+    public void startPurchaseWithPromoPublishesPromoFunnelEvent() {
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PROMO)));
+        presenter.onCreate(activity, null);
+
+        presenter.startPurchase();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).get(UpgradeFunnelEvent.KEY_ID))
+                .isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_PROMO);
     }
 
     @Test
