@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import static com.soundcloud.android.rx.RxUtils.AT_LEAST_ONE_TRUE;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.properties.FeatureFlags;
@@ -40,12 +41,11 @@ public class SyncInitiatorBridge {
     }
 
     public Observable<Boolean> hasSyncedLikedAndPostedPlaylistsBefore() {
-        if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
-            return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.MY_PLAYLISTS) &&
-                                           syncStateStorage.hasSyncedBefore(Syncable.PLAYLIST_LIKES));
-        } else {
-            return syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri);
-        }
+        return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.MY_PLAYLISTS) &&
+                                       syncStateStorage.hasSyncedBefore(Syncable.PLAYLIST_LIKES)).zipWith(
+                syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri),
+                AT_LEAST_ONE_TRUE
+        );
     }
 
     public Observable<Void> refreshMyPlaylists() {
@@ -68,11 +68,10 @@ public class SyncInitiatorBridge {
     }
 
     public Observable<Boolean> hasSyncedTrackLikesBefore() {
-        if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
-            return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.TRACK_LIKES));
-        } else {
-            return syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri);
-        }
+        return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.TRACK_LIKES)).zipWith(
+                syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri),
+                AT_LEAST_ONE_TRUE
+        );
     }
 
     public Observable<Void> refreshLikedTracks() {

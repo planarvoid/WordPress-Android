@@ -70,6 +70,13 @@ public final class RxUtils {
         }
     };
 
+    public static final Func2<Boolean, Boolean, Boolean> AT_LEAST_ONE_TRUE = new Func2<Boolean, Boolean, Boolean>() {
+        @Override
+        public Boolean call(Boolean first, Boolean second) {
+            return first || second;
+        }
+    };
+
     /**
      * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality
      * checks are safe to perform.
