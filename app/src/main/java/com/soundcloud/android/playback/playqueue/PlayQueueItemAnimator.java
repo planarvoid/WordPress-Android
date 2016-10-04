@@ -167,25 +167,53 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
             performAnimationIfAny(newHolder, preLayoutInfo.top, postLayoutInfo.top);
             return true;
         } else if (mode == Mode.REPEAT) {
-
-            final View view = newHolder.itemView;
-            final View imageView = view.findViewById(R.id.image);
-            final View textView = view.findViewById(R.id.text_holder);
-            final float postAlpha = imageView.getAlpha();
-            final float preAlpha = postAlpha == TrackPlayQueueItemRenderer.ALPHA_ENABLED ?
-                                   TrackPlayQueueItemRenderer.ALPHA_DISABLED :
-                                   TrackPlayQueueItemRenderer.ALPHA_ENABLED;
-
-            ViewCompat.setAlpha(imageView, preAlpha);
-            ViewCompat.setAlpha(textView, preAlpha);
-            alphaAnimations.add(new ChangeHolder(newHolder, postAlpha));
-            imageView.setAlpha(preAlpha);
-            textView.setAlpha(preAlpha);
-            return true;
+            return performRepeatAnimation(newHolder);
         } else {
             dispatchAnimationFinished(newHolder);
             return false;
         }
+    }
+
+    private boolean performRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder) {
+        switch (newHolder.itemView.getId()) {
+            case R.id.play_queue_item_header:
+                performHeaderRepeatAnimation(newHolder);
+                return true;
+            case R.id.play_queue_item_track:
+                performTrackRepeatAnimation(newHolder);
+                return true;
+            default:
+                throw new IllegalStateException("Unknown item type.");
+        }
+    }
+
+    private void performHeaderRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder) {
+        final View view =  newHolder.itemView;
+        final View textView = view.findViewById(R.id.title);
+        final float postAlpha = textView.getAlpha();
+        final float preAlpha = postAlpha == TrackPlayQueueItemRenderer.ALPHA_ENABLED ?
+                               TrackPlayQueueItemRenderer.ALPHA_DISABLED :
+                               TrackPlayQueueItemRenderer.ALPHA_ENABLED;
+
+        ViewCompat.setAlpha(textView, preAlpha);
+        alphaAnimations.add(new ChangeHolder(newHolder, postAlpha));
+        textView.setAlpha(preAlpha);
+    }
+
+    private void performTrackRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder) {
+        final View view =  newHolder.itemView;
+        final View imageView = view.findViewById(R.id.image);
+        final View textView = view.findViewById(R.id.text_holder);
+        final float postAlpha = imageView.getAlpha();
+        final float preAlpha = postAlpha == TrackPlayQueueItemRenderer.ALPHA_ENABLED ?
+                               TrackPlayQueueItemRenderer.ALPHA_DISABLED :
+                               TrackPlayQueueItemRenderer.ALPHA_ENABLED;
+
+        ViewCompat.setAlpha(imageView, preAlpha);
+        ViewCompat.setAlpha(textView, preAlpha);
+        alphaAnimations.add(new ChangeHolder(newHolder, postAlpha));
+        imageView.setAlpha(preAlpha);
+        textView.setAlpha(preAlpha);
     }
 
     @Override
@@ -380,11 +408,20 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
         cancelAll(moveAnimations);
 
         for (int i = alphaAnimations.size() - 1; i >= 0; i--) {
-            final View view = alphaAnimations.get(i).viewHolder.itemView;
-            View imageView = view.findViewById(R.id.image);
-            View textView = view.findViewById(R.id.text_holder);
-            ViewCompat.animate(imageView).cancel();
-            ViewCompat.animate(textView).cancel();
+            final RecyclerView.ViewHolder viewHolder = alphaAnimations.get(i).viewHolder;
+            final View view = viewHolder.itemView;
+
+            switch (view.getId()) {
+                case R.id.play_queue_item_header:
+                    ViewCompat.animate(view.findViewById(R.id.title)).cancel();
+                    break;
+                case R.id.play_queue_item_track:
+                    ViewCompat.animate(view.findViewById(R.id.image)).cancel();
+                    ViewCompat.animate(view.findViewById(R.id.text_holder)).cancel();
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown item type.");
+            }
         }
 
         dispatchAnimationsFinished();
