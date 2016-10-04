@@ -72,5 +72,6 @@
         android:id="@+id/conversion_restrictions"
         style="@style/ConversionText.Restrictions"
         android:layout_alignParentBottom="true"
-        android:text="@string/conversion_restrictions" />
+        android:text="@string/conversion_restrictions"
+        android:visibility="invisible" />
 </RelativeLayout>

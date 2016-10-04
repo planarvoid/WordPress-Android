@@ -64,7 +64,6 @@ class ConversionView {
         buyButton.setOnClickListener(clickListener);
         closeButton.setOnClickListener(clickListener);
         outside.setOnClickListener(clickListener);
-        restrictionsView.setOnClickListener(clickListener);
     }
 
     void showPrice(String price) {
@@ -77,19 +76,19 @@ class ConversionView {
         showTrialDays(trialDays);
     }
 
-    private void showTrialDays(final int trialDays) {
-        buyButton.setActionText(trialDays > 0
-                ? resources.getString(R.string.conversion_buy_trial, trialDays)
-                : resources.getString(R.string.conversion_buy_no_trial));
-        setupRestrictions(trialDays);
-    }
-
     void showPromo(String promoPrice, int promoDays, String regularPrice) {
         String duration = formatPromoDuration(promoDays);
         priceView.setText(resources.getString(R.string.conversion_price_promo, duration, promoPrice));
         priceView.setVisibility(View.VISIBLE);
         buyButton.setActionText(resources.getString(R.string.conversion_buy_promo));
         setupPromoRestrictions(duration, promoPrice, regularPrice);
+    }
+
+    private void showTrialDays(final int trialDays) {
+        buyButton.setActionText(trialDays > 0
+                ? resources.getString(R.string.conversion_buy_trial, trialDays)
+                : resources.getString(R.string.conversion_buy_no_trial));
+        setupRestrictions(trialDays);
     }
 
     @VisibleForTesting
@@ -112,6 +111,7 @@ class ConversionView {
                 dialog.show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
             }
         });
+        restrictionsView.setVisibility(View.VISIBLE);
     }
 
     private void setupPromoRestrictions(final String duration, final String promoPrice, final String regularPrice) {
@@ -123,6 +123,7 @@ class ConversionView {
                         .show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
             }
         });
+        restrictionsView.setVisibility(View.VISIBLE);
     }
 
     void setBuyButtonReady() {
