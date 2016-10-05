@@ -90,7 +90,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         final TrackPlayQueueUIItem playQueueUIItem = TrackPlayQueueUIItem
                 .from(TestPlayQueueItem.createTrack(track),
                       new TrackItem(TestPropertySets.expectedTrackForListItem(track)),
-                      context(), Optional.<String>absent());
+                      context(),
+                      Optional.<String>absent(),
+                      PlayQueueManager.RepeatMode.REPEAT_ONE    );
 
         playQueueUIItem.setPlayState(playState);
 

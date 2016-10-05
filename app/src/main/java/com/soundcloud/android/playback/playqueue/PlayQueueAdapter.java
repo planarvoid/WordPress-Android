@@ -23,18 +23,11 @@ import java.util.Collections;
 
 class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAdapter.PlayQueueItemViewHolder> {
 
-    private static final Predicate<PlayQueueUIItem> IS_TRACK = new Predicate<PlayQueueUIItem>() {
-        @Override
-        public boolean apply(PlayQueueUIItem input) {
-            return input.isTrack();
-        }
-    };
-    private final Iterable<TrackPlayQueueUIItem> tracksFromItems;
-
     interface NowPlayingListener {
         void onNowPlayingChanged(TrackPlayQueueUIItem trackItem);
     }
 
+    private final Iterable<TrackPlayQueueUIItem> tracksFromItems;
     private PlayQueuePresenter.DragListener dragListener;
     private NowPlayingListener nowPlayingListener;
 
@@ -44,7 +37,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         super(new CellRendererBinding<>(PlayQueueUIItem.Kind.TRACK.ordinal(), trackPlayQueueItemRenderer),
               new CellRendererBinding<>(PlayQueueUIItem.Kind.HEADER.ordinal(), headerPlayQueueItemRenderer)
         );
-        tracksFromItems = transform(filter(items, IS_TRACK), cast(TrackPlayQueueUIItem.class));
+        tracksFromItems = transform(filter(items, TrackPlayQueueUIItem.IS_TRACK), cast(TrackPlayQueueUIItem.class));
         setHasStableIds(true);
     }
 

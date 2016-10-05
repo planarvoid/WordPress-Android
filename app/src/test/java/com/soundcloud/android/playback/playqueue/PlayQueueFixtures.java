@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -21,6 +22,6 @@ class PlayQueueFixtures {
         final int someResourceId = 123;
         final int color = 321;
         return new TrackPlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someResourceId, color, null,
-                                        Optional.<String>absent());
+                                        Optional.<String>absent(), PlayQueueManager.RepeatMode.REPEAT_NONE);
     }
 }

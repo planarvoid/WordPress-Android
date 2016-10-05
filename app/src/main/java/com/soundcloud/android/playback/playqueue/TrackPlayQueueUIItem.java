@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TieredTracks;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
@@ -21,6 +22,13 @@ import android.support.v4.content.ContextCompat;
 class TrackPlayQueueUIItem extends PlayQueueUIItem {
 
     enum PlayState {PLAYING, COMING_UP, PLAYED}
+
+    static final Predicate<PlayQueueUIItem> IS_TRACK = new Predicate<PlayQueueUIItem>() {
+        @Override
+        public boolean apply(PlayQueueUIItem input) {
+            return input.isTrack();
+        }
+    };
 
     static final Func1<PlayQueueUIItem, Boolean> ONLY_TRACKS = new Func1<PlayQueueUIItem, Boolean>() {
         @Override
@@ -45,7 +53,8 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
                          int statusLabelId,
                          @ColorInt int titleTextColor,
                          ImageResource imageResource,
-                         Optional<String> contextTitle) {
+                         Optional<String> contextTitle,
+                         PlayQueueManager.RepeatMode repeatMode) {
         this.playQueueItem = playQueueItem;
         this.trackItem = trackItem;
         this.uniqueId = uniqueId;
@@ -53,14 +62,15 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
         this.imageResource = imageResource;
         this.titleTextColor = titleTextColor;
         this.contextTitle = contextTitle;
-        this.repeatMode = PlayQueueManager.RepeatMode.REPEAT_NONE;
+        this.repeatMode = repeatMode;
         this.currentPlayingState = PlayState.COMING_UP;
     }
 
     static TrackPlayQueueUIItem from(PlayQueueItem playQueueItem,
                                      TrackItem trackItem,
                                      Context context,
-                                     Optional<String> contextTitle) {
+                                     Optional<String> contextTitle,
+                                     PlayQueueManager.RepeatMode repeatMode) {
         return new TrackPlayQueueUIItem(
                 playQueueItem,
                 trackItem,
@@ -68,7 +78,8 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
                 createStatusLabelId(trackItem),
                 getColor(trackItem.isBlocked(), context),
                 getImageResource(trackItem),
-                contextTitle
+                contextTitle,
+                repeatMode
         );
     }
 
