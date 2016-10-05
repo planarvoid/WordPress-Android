@@ -88,10 +88,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
 
     private Subscription updateSubscription = RxUtils.invalidSubscription();
-
-    @Bind(R.id.recycler_view)
-    RecyclerView recyclerView;
     private PlayQueueItemAnimator animator;
+
+    @Bind(R.id.recycler_view) RecyclerView recyclerView;
 
     @Inject
     public PlayQueuePresenter(PlayQueueAdapter adapter,
@@ -189,7 +188,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private int getScrollPosition() {
-        int currentPlayQueuePosition = playQueueManager.getPositionOfCurrentPlayQueueItem();
+        int currentPlayQueuePosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
 
         if (currentPlayQueuePosition > 0) {
             currentPlayQueuePosition -= 1;
@@ -199,7 +198,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
             return currentPlayQueuePosition - 2;
         }
 
-        return adapter.getAdapterPosition(currentPlayQueuePosition);
+        return currentPlayQueuePosition;
     }
 
     @Override
@@ -362,7 +361,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            adapter.updateNowPlaying(adapter.getAdapterPosition(event.getPosition()), true);
+            adapter.updateNowPlaying(adapter.getAdapterPosition(event.getCurrentPlayQueueItem()), true);
         }
     }
 
@@ -371,7 +370,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         public void onNext(List<PlayQueueUIItem> items) {
             rebuildAdapter(items);
             recyclerView.scrollToPosition(getScrollPosition());
-            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentTrackPosition()), true);
+            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), true);
         }
     }
 
@@ -379,10 +378,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
             rebuildAdapter(items);
-            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentTrackPosition()), false);
+            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), false);
         }
     }
-
 
     private class ChangePlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override

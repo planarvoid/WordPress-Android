@@ -1,10 +1,13 @@
 package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.RepeatableItemAdapter;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Predicate;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
@@ -140,18 +143,18 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         }
     }
 
-    int getAdapterPosition(int queuePosition) {
-        int cursor = 0;
+    int getAdapterPosition(final PlayQueueItem currentPlayQueueItem) {
+        return Iterables.indexOf(items, getPositionForItemPredicate(currentPlayQueueItem));
+    }
 
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).isTrack()) {
-                if (cursor == queuePosition) {
-                    return i;
-                }
-                cursor++;
+    private static Predicate<PlayQueueUIItem> getPositionForItemPredicate(final PlayQueueItem currentPlayQueueItem) {
+        return new Predicate<PlayQueueUIItem>() {
+            @Override
+            public boolean apply(PlayQueueUIItem input) {
+                return input.isTrack() &&
+                        ((TrackPlayQueueUIItem) input).getPlayQueueItem().equals(currentPlayQueueItem);
             }
-        }
-        return 0;
+        };
     }
 
     int getQueuePosition(int adapterPosition) {
