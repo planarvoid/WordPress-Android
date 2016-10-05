@@ -185,7 +185,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         updateSubscription = playQueueOperations.getTracks()
                                                 .zipWith(playQueueOperations.getContextTitles(), playQueueUIItemMapper)
                                                 .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(new PlayQueueSubscriber(true));
+                                                .subscribe(new PlayQueueSubscriber());
     }
 
     private int getScrollPosition() {
@@ -285,8 +285,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                                                                         item,
                                                                         adapterPosition));
             feedbackController.showFeedback(feedback);
-
-            // todo: check if last item of bucket and remove header too, ya?
+            rebuildLabels();
         }
     }
 
@@ -297,7 +296,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     void moveItems(int fromAdapterPosition, int toAdapterPosition) {
         playQueueManager.moveItem(adapter.getQueuePosition(fromAdapterPosition),
                                   adapter.getQueuePosition(toAdapterPosition));
+        rebuildLabels();
+    }
 
+    private void rebuildLabels() {
         final List<PlayQueueUIItem> uiItems = adapter.getItems();
         final Map<Urn, String> existingTitles = buildTitlesMap(uiItems);
 
@@ -307,7 +309,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                   .map(TO_TRACK_AND_PLAY_QUEUE_ITEM)
                   .toList()
                   .zipWith(Observable.just(existingTitles), playQueueUIItemMapper)
-                  .subscribe(new PlayQueueSubscriber(false));
+                  .subscribe(new RebuildSubscriber());
     }
 
     @NonNull
@@ -330,6 +332,16 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         return titles;
     }
 
+    private void rebuildAdapter(List<PlayQueueUIItem> items) {
+        adapter.clear();
+
+        for (PlayQueueUIItem item : items) {
+            adapter.addItem(item);
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
     private class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
 
         @Override
@@ -350,30 +362,27 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            adapter.updateNowPlaying(adapter.getAdapterPosition(event.getPosition()));
+            adapter.updateNowPlaying(adapter.getAdapterPosition(event.getPosition()), true);
         }
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
-        private final boolean canScroll;
-
-        PlayQueueSubscriber(boolean canScroll) {
-            this.canScroll = canScroll;
-        }
-
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
-            adapter.clear();
-            for (PlayQueueUIItem item : items) {
-                adapter.addItem(item);
-            }
-            adapter.notifyDataSetChanged();
-            if (canScroll) {
-                recyclerView.scrollToPosition(getScrollPosition());
-            }
-            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentTrackPosition()));
+            rebuildAdapter(items);
+            recyclerView.scrollToPosition(getScrollPosition());
+            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentTrackPosition()), true);
         }
     }
+
+    private class RebuildSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
+        @Override
+        public void onNext(List<PlayQueueUIItem> items) {
+            rebuildAdapter(items);
+            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentTrackPosition()), false);
+        }
+    }
+
 
     private class ChangePlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
@@ -424,6 +433,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         public void onClick(View view) {
             playQueueManager.insertItemAtPosition(playQueuePosition, playQueueItem);
             adapter.addItem(adapterPosition, playQueueUIItem);
+            rebuildLabels();
         }
     }
 

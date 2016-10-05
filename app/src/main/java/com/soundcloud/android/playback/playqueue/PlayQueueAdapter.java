@@ -81,12 +81,12 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         }
     }
 
-    public void updateNowPlaying(int position) {
+    public void updateNowPlaying(int position, boolean notifyListener) {
         for (int i = 0; i < items.size(); i++) {
             final PlayQueueUIItem item = items.get(i);
             if (item.isTrack()) {
                 final TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
-                setPlayState(position, i, trackItem);
+                setPlayState(position, i, trackItem, notifyListener);
             }
         }
         notifyDataSetChanged();
@@ -97,10 +97,10 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         notifyDataSetChanged();
     }
 
-    private void setPlayState(int position, int index, TrackPlayQueueUIItem item) {
+    private void setPlayState(int position, int index, TrackPlayQueueUIItem item, boolean notifyListener) {
         if (position == index) {
             item.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYING);
-            if (nowPlayingListener != null) {
+            if (notifyListener && nowPlayingListener != null) {
                 nowPlayingListener.onNowPlayingChanged(item);
             }
         } else if (index > position) {

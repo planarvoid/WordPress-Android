@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.playback.playqueue.PlayQueueFixtures.getPlayQueueItem;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -33,7 +34,7 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
 
     @Test
     public void updateNowPlayingSetsDraggableStateOnItems() {
-        adapter.updateNowPlaying(1);
+        adapter.updateNowPlaying(1, true);
 
         assertThat(playQueueItem1.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.PLAYED);
         assertThat(playQueueItem2.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.PLAYING);
@@ -53,9 +54,19 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     public void notifyNowPlayingListenerWhenPlayStateChangedToPlaying() {
         adapter.setNowPlayingChangedListener(nowPlayingListener);
 
-        adapter.updateNowPlaying(0);
+        adapter.updateNowPlaying(0, true);
 
         verify(nowPlayingListener).onNowPlayingChanged(playQueueItem1);
     }
+
+    @Test
+    public void doNotNotifyNowPlayingListenerWhenPlayStateChangedToPlayingAndNotifyFlagSetToFalse() {
+        adapter.setNowPlayingChangedListener(nowPlayingListener);
+
+        adapter.updateNowPlaying(0, false);
+
+        verify(nowPlayingListener, never()).onNowPlayingChanged(playQueueItem1);
+    }
+
 
 }
