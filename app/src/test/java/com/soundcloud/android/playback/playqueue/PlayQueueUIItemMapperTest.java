@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
+import static com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem.createTrackWithContext;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -10,7 +11,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackContext;
-import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
@@ -43,7 +43,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
 
     @Mock PlayQueueManager playQueueManager;
 
-    private PlayQueueUIItemMapper mapper ;
+    private PlayQueueUIItemMapper mapper;
 
     @Before
     public void setUp() throws Exception {
@@ -133,27 +133,19 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         assertThat(uiItems.get(0).isTrack()).isTrue();
     }
 
-
-    private TrackPlayQueueUIItem track(List<PlayQueueUIItem> uiItems, int index) {
+    private static TrackPlayQueueUIItem track(List<PlayQueueUIItem> uiItems, int index) {
         return (TrackPlayQueueUIItem) uiItems.get(index);
     }
 
-    private HeaderPlayQueueUIItem header(List<PlayQueueUIItem> uiItems, int index) {
+    private static HeaderPlayQueueUIItem header(List<PlayQueueUIItem> uiItems, int index) {
         return (HeaderPlayQueueUIItem) uiItems.get(index);
     }
 
-
-    private TrackAndPlayQueueItem trackAndPlayQueueItem(Urn track, PlaybackContext playbackContext) {
-        return new TrackAndPlayQueueItem(trackItem(track), trackQueueItem(track, playbackContext));
+    private static TrackAndPlayQueueItem trackAndPlayQueueItem(Urn track, PlaybackContext playbackContext) {
+        return new TrackAndPlayQueueItem(trackItem(track), createTrackWithContext(track, playbackContext));
     }
 
-    private TrackQueueItem trackQueueItem(Urn track, PlaybackContext playbackContext) {
-        return new TrackQueueItem.Builder(track)
-                .withPlaybackContext(playbackContext)
-                .build();
-    }
-
-    private TrackItem trackItem(Urn track) {
+    private static TrackItem trackItem(Urn track) {
         return new TrackItem(TestPropertySets.expectedTrackForListItem(track));
     }
 }

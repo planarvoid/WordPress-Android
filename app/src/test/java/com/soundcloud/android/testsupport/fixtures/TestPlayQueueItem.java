@@ -45,6 +45,12 @@ public class TestPlayQueueItem {
         return builder(itemUrn).fromSource(source, sourceVersion).build();
     }
 
+   public static TrackQueueItem createTrackWithContext(Urn track, PlaybackContext playbackContext) {
+        return new TrackQueueItem.Builder(track)
+                .withPlaybackContext(playbackContext)
+                .build();
+    }
+
     public static VideoAdQueueItem createVideo(VideoAd adData) {
         return new VideoAdQueueItem(adData);
     }

@@ -90,7 +90,7 @@ public class PlayQueueManager implements OriginProvider {
         setNewPlayQueue(newPlayQueue, playSessionSource, startPosition);
     }
 
-    public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+    void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         setNewPlayQueue(playQueue, playSessionSource, 0);
     }
 
@@ -117,7 +117,7 @@ public class PlayQueueManager implements OriginProvider {
         return newPlayQueue.isShuffled() == this.playQueue.isShuffled();
     }
 
-    public void saveCurrentPosition() {
+    void saveCurrentPosition() {
         if (playQueue.hasItems()) {
             playQueueOperations.savePlayInfo(getPositionToBeSaved(), playSessionSource);
         }
@@ -140,7 +140,7 @@ public class PlayQueueManager implements OriginProvider {
         setPositionInternal(playQueue.indexOfTrackUrn(urn), true);
     }
 
-    public void setCurrentPlayQueueItem(Urn urn, int trackPosition) {
+    void setCurrentPlayQueueItem(Urn urn, int trackPosition) {
         int queuePosition = getQueuePositionFromTrack(trackPosition);
         PlayQueueItem playQueueItem = getPlayQueueItemAtPosition(queuePosition);
 
@@ -163,18 +163,6 @@ public class PlayQueueManager implements OriginProvider {
         return Consts.NOT_SET;
     }
 
-    public int getCurrentTrackPosition() {
-        for (int queuePosition = 0, trackPosition = 0; queuePosition < playQueue.size(); queuePosition++) {
-            if (getPlayQueueItemAtPosition(queuePosition).getUrn().isTrack()) {
-                if (queuePosition == currentPosition) {
-                    return trackPosition;
-                }
-                trackPosition++;
-            }
-        }
-        return Consts.NOT_SET;
-    }
-
     public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
         return Lists.newArrayList(Iterables.filter(playQueue, predicate));
     }
@@ -188,7 +176,7 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public List<Urn> getPreviousPlayQueueItems(int count) {
+    List<Urn> getPreviousPlayQueueItems(int count) {
         if (hasPreviousItem()) {
             final int firstPosition = Math.max(0, currentPosition - count);
             return playQueue.getItemUrns(firstPosition, currentPosition - firstPosition);
@@ -197,7 +185,7 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void insertPlaylistTracks(Urn playlistUrn, List<Urn> tracks) {
+    void insertPlaylistTracks(Urn playlistUrn, List<Urn> tracks) {
         for (PlayQueueItem item : playQueue.itemsWithUrn(playlistUrn)) {
             PlayableQueueItem playableQueueItem = (PlayableQueueItem) item;
 
@@ -311,10 +299,6 @@ public class PlayQueueManager implements OriginProvider {
         } else {
             return PlayQueueItem.EMPTY;
         }
-    }
-
-    public int getPositionOfCurrentPlayQueueItem() {
-        return playQueue.indexOfPlayQueueItem(getCurrentPlayQueueItem());
     }
 
     @VisibleForTesting
@@ -737,11 +721,6 @@ public class PlayQueueManager implements OriginProvider {
 
     public void removeItem(PlayQueueItem item) {
         playQueue.removeItem(item);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
-    }
-
-    public void removeItemAtPosition(int position) {
-        playQueue.removeItemAtPosition(position);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
     }
 

@@ -1552,19 +1552,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
     }
 
-    @Test
-    public void getCurrentPositionForTrackSkipsNonTracks() {
-        final PlayQueueItem playlistItem = TestPlayQueueItem.createPlaylist(Urn.forPlaylist(245L));
-        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
-                PlaybackContext.create(playlistSessionSource)).build();
-        final SimplePlayQueue playQueue = new SimplePlayQueue(asList(playlistItem, trackItem));
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-
-        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L));
-
-        assertThat(playQueueManager.getCurrentTrackPosition()).isEqualTo(0);
-    }
-
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionOnInsert1() {
         playQueueManager.setNewPlayQueue(PlayQueue.empty(), PlaySessionSource.EMPTY);
@@ -1575,20 +1562,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void shouldThrowExceptionOnInsertMany() {
         playQueueManager.setNewPlayQueue(PlayQueue.empty(), PlaySessionSource.EMPTY);
         playQueueManager.insertNext(Lists.newArrayList(Urn.NOT_SET, Urn.NOT_SET));
-    }
-
-    @Test
-    public void removeItemAtPositionPublishPlayQueueUpdate() {
-        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
-        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
-
-        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 0);
-        playQueueManager.removeItemAtPosition(0);
-
-        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
-                PlayQueueEvent.fromNewQueue(Urn.forPlaylist(6)),
-                PlayQueueEvent.fromQueueUpdateRemoved(Urn.forPlaylist(6))
-        );
     }
 
     @Test
