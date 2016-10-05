@@ -31,9 +31,9 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
     @Inject
     TrackPlayQueueItemRenderer(ImageOperations imageOperations,
-                                      PlayQueueManager playQueueManager,
-                                      TrackItemMenuPresenter trackItemMenuPresenter,
-                                      PlaySessionController playSessionController) {
+                               PlayQueueManager playQueueManager,
+                               TrackItemMenuPresenter trackItemMenuPresenter,
+                               PlaySessionController playSessionController) {
         this.imageOperations = imageOperations;
         this.playQueueManager = playQueueManager;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
@@ -132,8 +132,8 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     }
 
     static boolean shouldRerender(PlayQueueManager.RepeatMode oldRepeatMode,
-                                         PlayQueueManager.RepeatMode newRepeatMode,
-                                         TrackPlayQueueUIItem.PlayState playstate) {
+                                  PlayQueueManager.RepeatMode newRepeatMode,
+                                  TrackPlayQueueUIItem.PlayState playstate) {
         if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE) {
             return playstate == TrackPlayQueueUIItem.PlayState.COMING_UP;
         } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL) {

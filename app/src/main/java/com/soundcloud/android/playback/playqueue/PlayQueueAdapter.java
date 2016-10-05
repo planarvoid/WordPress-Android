@@ -1,11 +1,15 @@
 package com.soundcloud.android.playback.playqueue;
 
+import static com.soundcloud.android.playback.playqueue.TrackPlayQueueItemRenderer.shouldRerender;
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Iterables.transform;
+import static com.soundcloud.java.collections.ListsFunctions.cast;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.view.adapters.RepeatableItemAdapter;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 
@@ -17,8 +21,15 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import java.util.Collections;
 
-class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAdapter.PlayQueueItemViewHolder>
-        implements RepeatableItemAdapter {
+class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAdapter.PlayQueueItemViewHolder> {
+
+    private static final Predicate<PlayQueueUIItem> IS_TRACK = new Predicate<PlayQueueUIItem>() {
+        @Override
+        public boolean apply(PlayQueueUIItem input) {
+            return input.isTrack();
+        }
+    };
+    private final Iterable<TrackPlayQueueUIItem> tracksFromItems;
 
     interface NowPlayingListener {
         void onNowPlayingChanged(TrackPlayQueueUIItem trackItem);
@@ -33,6 +44,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         super(new CellRendererBinding<>(PlayQueueUIItem.Kind.TRACK.ordinal(), trackPlayQueueItemRenderer),
               new CellRendererBinding<>(PlayQueueUIItem.Kind.HEADER.ordinal(), headerPlayQueueItemRenderer)
         );
+        tracksFromItems = transform(filter(items, IS_TRACK), cast(TrackPlayQueueUIItem.class));
         setHasStableIds(true);
     }
 
@@ -64,24 +76,23 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         }
     }
 
-    @Override
-    public void updateInRepeatMode(PlayQueueManager.RepeatMode repeatMode) {
-        for (int i = 0; i < items.size(); i++) {
-            PlayQueueUIItem item = items.get(i);
-            if (item.isTrack()) {
-                TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
-
-                if (trackItem.getRepeatMode() != repeatMode) {
-                    boolean shouldRerender = TrackPlayQueueItemRenderer.shouldRerender(trackItem.getRepeatMode(),
-                                                                                       repeatMode,
-                                                                                       trackItem.getPlayState());
-                    trackItem.setRepeatMode(repeatMode);
-                    if (shouldRerender) {
-                        notifyItemChanged(i);
-                    }
-                }
-            }
+    void updateInRepeatMode(PlayQueueManager.RepeatMode repeatMode) {
+        if (setRepeatMode(repeatMode)) {
+            notifyDataSetChanged();
         }
+    }
+
+    private boolean setRepeatMode(PlayQueueManager.RepeatMode newRepeatMode) {
+        boolean itemsChangedAndShouldRerender = false;
+        for (TrackPlayQueueUIItem trackItem : tracksFromItems) {
+            final PlayQueueManager.RepeatMode currentRepeatMode = trackItem.getRepeatMode();
+            final TrackPlayQueueUIItem.PlayState trackPlayState = trackItem.getPlayState();
+            final boolean shouldRerenderItem = shouldRerender(currentRepeatMode, newRepeatMode, trackPlayState);
+            trackItem.setRepeatMode(newRepeatMode);
+
+            itemsChangedAndShouldRerender = itemsChangedAndShouldRerender || shouldRerenderItem;
+        }
+        return itemsChangedAndShouldRerender;
     }
 
     public void updateNowPlaying(int position, boolean notifyListener) {

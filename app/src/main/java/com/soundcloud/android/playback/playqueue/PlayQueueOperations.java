@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.java.collections.Lists.transform;
+import static com.soundcloud.java.collections.ListsFunctions.cast;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -13,7 +14,6 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.DiffUtils;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import rx.Observable;
 import rx.Scheduler;
@@ -83,15 +83,6 @@ public class PlayQueueOperations {
                 .tracks(uniqueTrackUrns)
                 .map(fulfillWithKnownProperties)
                 .subscribeOn(scheduler);
-    }
-
-    private static <T extends PlayQueueItem> Function<PlayQueueItem, T> cast(final Class<T> clazz) {
-        return new Function<PlayQueueItem, T>() {
-            @Override
-            public T apply(PlayQueueItem input) {
-                return clazz.cast(input);
-            }
-        };
     }
 
     private ArrayList<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<TrackQueueItem> playQueueItems,
