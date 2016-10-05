@@ -1,7 +1,5 @@
 package com.soundcloud.android.view;
 
-import static android.R.attr.bitmap;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -43,6 +41,7 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
     private static final float RENDER_VERTICAL_SCALE = 0.5f;
     private static final float DEFAULT_BLUR_RADIUS = 20f;
     private static final int MINIMUM_DELAY_MS = 16; // 0=as fast as it cans, 16=target 60 fps max, 32 = 30 fps max...
+    private static final int STRIDE_SIZE = 4;
 
     private Bitmap backgroundBitmap;
     private Bitmap blurBitmap;
@@ -169,15 +168,19 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
             final int renderWidth = Math.round(getWidth() * RENDER_HORIZONTAL_SCALE);
             final int renderHeight = Math.round(getHeight() * RENDER_VERTICAL_SCALE) + renderBlurHeight;
 
-            blurWidth = Math.round(getWidth() * BLUR_SCALE);
-            blurHeight = Math.round(getHeight() * BLUR_SCALE);
-            blurHeightExtra = blurHeight + (int) blurRadius;
+            blurWidth = strideAligned(Math.round(getWidth() * BLUR_SCALE));
+            blurHeight = strideAligned(Math.round(getHeight() * BLUR_SCALE));
+            blurHeightExtra = strideAligned(blurHeight + (int) blurRadius);
 
             backgroundBitmap = initializeBitmap(backgroundBitmap, renderWidth, renderHeight);
             blurBitmap = initializeBitmap(blurBitmap, blurWidth, blurHeightExtra);
 
             subject.onNext(renderToBitmap(body, backgroundBitmap));
         }
+    }
+
+    private int strideAligned(int size) {
+        return size - (size % STRIDE_SIZE);
     }
 
     private Bitmap renderToBitmap(View view, Bitmap bitmap) {
