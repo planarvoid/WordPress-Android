@@ -77,4 +77,16 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
         databaseAssertions().assertTrackIsUnavailable(TRACK, dateProvider.getCurrentTime());
     }
 
+    @Test
+    public void marksAsUnavailableSnippetTracks() {
+        final DownloadRequest snippet = ModelFixtures.snippetRequest(TRACK);
+        final OfflineContentUpdates offlineContentUpdates = OfflineContentUpdates.builder()
+                .unavailableTracks(singletonList(snippet.getUrn()))
+                .build();
+
+        command.call(offlineContentUpdates);
+
+        databaseAssertions().assertTrackIsUnavailable(TRACK, dateProvider.getCurrentTime());
+    }
+
 }

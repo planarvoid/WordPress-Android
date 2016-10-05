@@ -39,14 +39,14 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     private final Predicate<DownloadRequest> IS_SYNCABLE = new Predicate<DownloadRequest>() {
         @Override
         public boolean apply(DownloadRequest input) {
-            return input.isSyncable();
+            return input.isSyncable() && !input.isSnipped();
         }
     };
 
     private final Predicate<DownloadRequest> IS_NOT_SYNCABLE = new Predicate<DownloadRequest>() {
         @Override
         public boolean apply(DownloadRequest input) {
-            return !input.isSyncable();
+            return !input.isSyncable() || input.isSnipped();
         }
     };
 

@@ -83,6 +83,17 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     }
 
     @Test
+    public void returnsFilteredOutSnippets() {
+        DownloadRequest snippet = ModelFixtures.snippetRequest(TRACK_URN_1);
+        DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(TRACK_URN_2);
+
+        OfflineContentUpdates updates = command.call(createExpectedContent(snippet, downloadRequest));
+
+        assertThat(updates.tracksToDownload()).contains(downloadRequest);
+        assertThat(updates.unavailableTracks()).contains(snippet.getUrn());
+    }
+
+    @Test
     public void returnsDownloadedTrackAsCreatorOptOutAfterPolicyChange() {
         final DownloadRequest creatorOptOutRequest = ModelFixtures.creatorOptOutRequest(TRACK_URN_1);
         actualDownloadedTracks(TRACK_URN_1);
