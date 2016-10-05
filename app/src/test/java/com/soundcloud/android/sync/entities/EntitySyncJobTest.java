@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class EntitySyncJobTest extends AndroidUnitTest {
@@ -29,14 +28,6 @@ public class EntitySyncJobTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         entitySyncJob = new EntitySyncJob(fetchResources, storeResources);
-    }
-
-    @Test
-    public void removesInvalidUrnsFromEntityFetches() throws Exception {
-        entitySyncJob.setUrns(Arrays.asList(Urn.forTrack(123L), Urn.forTrack(-321L)));
-        entitySyncJob.run();
-
-        assertThat(fetchResources.getInput()).isEqualTo(singletonList(Urn.forTrack(123L)));
     }
 
     @Test
