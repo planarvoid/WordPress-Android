@@ -2,10 +2,12 @@ package com.soundcloud.android.playback.playqueue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.playqueue.TrackPlayQueueUIItem.PlayState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -49,7 +51,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void returnTrueWhenUpcomingTrack() {
-        TrackPlayQueueUIItem upcomingTrack = trackPlayQueueItemWithPlayState(TrackPlayQueueUIItem.PlayState.COMING_UP);
+        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueItemWithPlayState(PlayState.COMING_UP);
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isTrue();
@@ -57,7 +59,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void returnFalseWhenCurrentTrack() {
-        TrackPlayQueueUIItem upcomingTrack = trackPlayQueueItemWithPlayState(TrackPlayQueueUIItem.PlayState.PLAYING);
+        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueItemWithPlayState(PlayState.PLAYING);
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isFalse();
@@ -65,13 +67,25 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void returnFalseWhenPlayedTrack() {
-        TrackPlayQueueUIItem upcomingTrack = trackPlayQueueItemWithPlayState(TrackPlayQueueUIItem.PlayState.PLAYED);
+        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueItemWithPlayState(PlayState.PLAYED);
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isFalse();
     }
 
-    private TrackPlayQueueUIItem trackPlayQueueItemWithPlayState(TrackPlayQueueUIItem.PlayState playState) {
+    @Test
+    public void shouldRemoveItemAtPosition() {
+        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueItemWithPlayState(PlayState.COMING_UP);
+        when(adapter.getItem(2)).thenReturn(upcomingTrack);
+
+        presenter.remove(2);
+
+        verify(adapter).getAdapterPosition(upcomingTrack.getPlayQueueItem());
+        verify(adapter).removeItem(2);
+        verify(playQueueManager).removeItem(upcomingTrack.getPlayQueueItem());
+    }
+
+    private TrackPlayQueueUIItem trackPlayQueueItemWithPlayState(PlayState playState) {
         final Urn track = Urn.forTrack(123);
         final TrackPlayQueueUIItem playQueueUIItem = TrackPlayQueueUIItem
                 .from(TestPlayQueueItem.createTrack(track),

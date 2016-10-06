@@ -2,7 +2,9 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueItemsEqual;
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueuesEqual;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
@@ -36,7 +38,6 @@ import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -347,7 +348,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final Urn queryUrn = new Urn("soundcloud:radio:123-456");
         StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
-        List<StationTrack> tracks = Collections.singletonList(stationTrack);
+        List<StationTrack> tracks = singletonList(stationTrack);
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn);
         playQueueManager.setNewPlayQueue(PlayQueue.fromStation(stationUrn, tracks, playSessionSource),
@@ -364,7 +365,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn);
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn,
-                                                          Collections.singletonList(stationTrack),
+                                                          singletonList(stationTrack),
                                                           playSessionSource);
 
         final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
@@ -383,7 +384,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn);
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn,
-                                                          Collections.singletonList(stationTrack),
+                                                          singletonList(stationTrack),
                                                           playSessionSource);
 
         final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
@@ -1483,7 +1484,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
                 PlaybackContext.create(
                         playlistSessionSource)).build();
-        final SimplePlayQueue playQueue = new SimplePlayQueue(Collections.singletonList(playQueueItem));
+        final SimplePlayQueue playQueue = new SimplePlayQueue(singletonList(playQueueItem));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
         playQueueManager.shuffle();
@@ -1561,7 +1562,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionOnInsertMany() {
         playQueueManager.setNewPlayQueue(PlayQueue.empty(), PlaySessionSource.EMPTY);
-        playQueueManager.insertNext(Lists.newArrayList(Urn.NOT_SET, Urn.NOT_SET));
+        playQueueManager.insertNext(newArrayList(Urn.NOT_SET, Urn.NOT_SET));
     }
 
     @Test
@@ -1592,16 +1593,19 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldGetPositionOfItem() {
-        PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
-        playQueue = mock(PlayQueue.class);
-        when(playQueue.indexOfPlayQueueItem(playQueueItem)).thenReturn(3);
+    public void shouldSaveQueueAfterItemRemoval() {
+        final PlayQueueItem item1 = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
+                PlaybackContext.create(playlistSessionSource)).build();
+        final PlayQueueItem item2 = new TrackQueueItem.Builder(Urn.forTrack(124L)).withPlaybackContext(
+                PlaybackContext.create(playlistSessionSource)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(newArrayList(item1, item2));
+
         playQueueManager.setNewPlayQueue(playQueue,
                                          PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
+        Mockito.reset(playQueueOperations);
 
-        int itemPosition = playQueueManager.getItemPosition(playQueueItem);
-
-        assertThat(itemPosition).isEqualTo(3);
+        playQueueManager.removeItem(item1);
+        assertPlayQueueSaved(new SimplePlayQueue(singletonList(item2)));
     }
 
     private void assertPlayQueueSaved(PlayQueue expected) {

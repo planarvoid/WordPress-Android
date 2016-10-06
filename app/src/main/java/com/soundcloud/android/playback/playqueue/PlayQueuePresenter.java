@@ -276,18 +276,25 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         if (item.isTrack()) {
             final PlayQueueItem playQueueItem = ((TrackPlayQueueUIItem) item).getPlayQueueItem();
-            int removalPosition = playQueueManager.getItemPosition(playQueueItem);
+            final int removalPosition = adapter.getAdapterPosition(playQueueItem);
             adapter.removeItem(adapterPosition);
             playQueueManager.removeItem(playQueueItem);
-            Feedback feedback = Feedback.create(R.string.track_removed,
-                                                R.string.undo,
-                                                new UndoOnClickListener(playQueueItem,
-                                                                        removalPosition,
-                                                                        item,
-                                                                        adapterPosition));
-            feedbackController.showFeedback(feedback);
+
+            showFeedback(adapterPosition, item, playQueueItem, removalPosition);
             rebuildLabels();
         }
+    }
+
+    private void showFeedback(int adapterPosition,
+                              PlayQueueUIItem item,
+                              PlayQueueItem playQueueItem,
+                              int removalPosition) {
+        final Feedback feedback = Feedback.create(R.string.track_removed, R.string.undo,
+                                                  new UndoOnClickListener(playQueueItem,
+                                                                          removalPosition,
+                                                                          item,
+                                                                          adapterPosition));
+        feedbackController.showFeedback(feedback);
     }
 
     void switchItems(int fromPosition, int toPosition) {
@@ -419,10 +426,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         private final PlayQueueUIItem playQueueUIItem;
         private final int adapterPosition;
 
-        public UndoOnClickListener(PlayQueueItem playQueueItem,
-                                   int playQueuePosition,
-                                   PlayQueueUIItem playQueueUIItem,
-                                   int adapterPosition) {
+        UndoOnClickListener(PlayQueueItem playQueueItem,
+                            int playQueuePosition,
+                            PlayQueueUIItem playQueueUIItem,
+                            int adapterPosition) {
             this.playQueueItem = playQueueItem;
             this.playQueuePosition = playQueuePosition;
             this.playQueueUIItem = playQueueUIItem;

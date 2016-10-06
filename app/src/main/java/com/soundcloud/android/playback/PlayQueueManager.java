@@ -715,12 +715,9 @@ public class PlayQueueManager implements OriginProvider {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
     }
 
-    public int getItemPosition(PlayQueueItem playQueueItem) {
-        return playQueue.indexOfPlayQueueItem(playQueueItem);
-    }
-
     public void removeItem(PlayQueueItem item) {
         playQueue.removeItem(item);
+        saveQueue();
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
     }
 
@@ -728,6 +725,5 @@ public class PlayQueueManager implements OriginProvider {
         playQueue.moveItem(fromPosition, toPosition);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
     }
-
 
 }
