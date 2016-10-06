@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
@@ -27,6 +28,7 @@ class SoundStreamAdapter
     private final FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer;
     private final SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer;
     private final StreamUpsellItemRenderer upsellItemRenderer;
+    private final AppInstallItemRenderer appInstallItemRenderer;
 
     @Inject
     public SoundStreamAdapter(StreamTrackItemRenderer trackItemRenderer,
@@ -35,19 +37,22 @@ class SoundStreamAdapter
                               StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer,
                               FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer,
                               StreamUpsellItemRenderer upsellItemRenderer,
-                              SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer) {
+                              SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer,
+                              AppInstallItemRenderer appInstallItemRenderer) {
         super(new CellRendererBinding<>(SoundStreamItem.Kind.TRACK.ordinal(), trackItemRenderer),
               new CellRendererBinding<>(SoundStreamItem.Kind.PLAYLIST.ordinal(), playlistItemRenderer),
               new CellRendererBinding<>(SoundStreamItem.Kind.FACEBOOK_LISTENER_INVITES.ordinal(), facebookListenerInvitesItemRenderer),
               new CellRendererBinding<>(SoundStreamItem.Kind.STATIONS_ONBOARDING.ordinal(), stationsOnboardingStreamItemRenderer),
               new CellRendererBinding<>(SoundStreamItem.Kind.FACEBOOK_CREATORS.ordinal(), facebookCreatorInvitesItemRenderer),
               new CellRendererBinding<>(SoundStreamItem.Kind.STREAM_UPSELL.ordinal(), upsellItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.SUGGESTED_CREATORS.ordinal(), suggestedCreatorsItemRenderer));
+              new CellRendererBinding<>(SoundStreamItem.Kind.SUGGESTED_CREATORS.ordinal(), suggestedCreatorsItemRenderer),
+              new CellRendererBinding<>(SoundStreamItem.Kind.APP_INSTALL.ordinal(), appInstallItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
         this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;
         this.upsellItemRenderer = upsellItemRenderer;
         this.suggestedCreatorsItemRenderer = suggestedCreatorsItemRenderer;
+        this.appInstallItemRenderer = appInstallItemRenderer;
     }
 
     @Override

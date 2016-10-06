@@ -356,6 +356,15 @@ public class ImageOperations {
                 notFoundListener);
     }
 
+    public void displayAppInstall(Uri uri, ImageView imageView) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        imageLoader.displayImage(
+                uri.toString(),
+                imageAware,
+                ImageOptionsFactory.adImage(),
+                null);
+    }
+
     public void displayLeaveBehind(Uri uri, ImageView imageView, ImageListener imageListener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(

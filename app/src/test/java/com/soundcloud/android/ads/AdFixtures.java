@@ -268,6 +268,41 @@ public class AdFixtures {
         );
     }
 
+    public static List<AppInstallAd> getAppInstalls() {
+        final AppInstallAd appInstallAd = AppInstallAd.create(getApiAppInstall());
+        return Arrays.asList(appInstallAd, appInstallAd);
+    }
+
+    public static ApiAdTracking getApiAppInstallTracking() {
+        return new ApiAdTracking(
+                Arrays.asList("app_click1", "app_click2"),
+                Arrays.asList("app_impression1", "app_impression2"),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList()
+        );
+    }
+
+    public static ApiAppInstallAd getApiAppInstall() {
+        return ApiAppInstallAd.create(
+                Urn.forAd("dfp", "111"),
+                "App Name",
+                "Download",
+                "http://clickthrough.com",
+                "http://imageurl.com/image.png",
+                3.1f,
+                4411,
+                getApiAppInstallTracking()
+        );
+    }
+
     public static ApiAdsForTrack interstitialAdsForTrack() {
         return new ApiAdsForTrack(newArrayList(
                 ApiAdWrapper.create(getApiInterstitial()))
@@ -286,5 +321,12 @@ public class AdFixtures {
                 ApiAdWrapper.create(getApiVideoAd()),
                 ApiAdWrapper.create(getApiInterstitial()))
         );
+    }
+
+    public static ApiAdsForStream fullAdsForStream() {
+        return new ApiAdsForStream(newArrayList(
+                ApiAdWrapper.create(getApiAppInstall()),
+                ApiAdWrapper.create(getApiVideoAd())
+        ));
     }
 }

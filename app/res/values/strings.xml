@@ -62,6 +62,11 @@
     <string name="ads_skip_in_time">Skip in: %s</string>
     <string name="ads_now_playing">Now playing</string>
     <string name="ads_now_playing_tracktitle_username">Now playing: %1$s (%2$s)</string>
+    <string name="ads_app">app</string>
+    <plurals name="ads_app_ratings">
+        <item quantity="one">%s rating</item>
+        <item quantity="other">%s ratings</item>
+    </plurals>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">Forgot your password?</string>
@@ -338,8 +343,8 @@
     <string name="error_new_playlist_blank_title">Please enter a valid title</string>
     <string name="add_playlist_private">Private</string>
     <plurals name="number_of_sounds">
-        <item quantity="one">%d track</item>
-        <item quantity="other">%d tracks</item>
+        <item quantity="one">%s track</item>
+        <item quantity="other">%s tracks</item>
     </plurals>
 
     <!-- __PLAYLIST IN NEW STREAM -->
@@ -712,6 +717,7 @@
     <string name="stream_promoted_action">promoted</string>
     <string name="stream_track">track</string>
     <string name="stream_promoted_playable">Promoted %s</string>
+    <string name="stream_sponsored_item">Sponsored %s</string>
 
     <!-- __NOTIFICATIONS (prev. ACTIVITIES) -->
     <!--

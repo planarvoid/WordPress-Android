@@ -23,6 +23,8 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -47,8 +49,10 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     private AdsOperations adsOperations;
     private ApiAdsForTrack fullAdsForTrack;
+    private ApiAdsForStream fullAdsForStream;
 
     @Mock private FeatureOperations featureOperations;
+    @Mock private FeatureFlags featureFlags;
     @Mock private KruxSegmentProvider kruxSegmentProvider;
     @Mock private ApiClientRx apiClientRx;
     @Mock private PlayQueueManager playQueueManager;
@@ -59,11 +63,13 @@ public class AdsOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         adsOperations = new AdsOperations(playQueueManager,
                                           featureOperations,
+                                          featureFlags,
                                           apiClientRx,
                                           Schedulers.immediate(),
                                           eventBus,
                                           InjectionSupport.lazyOf(kruxSegmentProvider));
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
+        fullAdsForStream = AdFixtures.fullAdsForStream();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
     }
 
@@ -114,6 +120,24 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForTrack.class));
 
         assertThat(captor.getValue().getQueryParameters().keySet()).doesNotContain("krux_segments");
+    }
+
+    @Test
+    public void inlayAdsReturnsOnlyAppInstallsFromMobileApi() {
+        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(true);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
+                .thenReturn(Observable.just(fullAdsForStream));
+
+        assertThat(adsOperations.inlaysAds().toBlocking().first()).isEqualTo(fullAdsForStream.getAppInstalls());
+    }
+
+    @Test
+    public void inlayAdsReturnsNoAdsIfFeatureFlagIsDisabled() {
+        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(false);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
+                .thenReturn(Observable.just(fullAdsForStream));
+
+        assertThat(adsOperations.inlaysAds().toBlocking().first()).isEmpty();
     }
 
     @Test
