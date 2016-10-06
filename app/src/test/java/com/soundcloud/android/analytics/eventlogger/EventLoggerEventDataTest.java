@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerEventData.ITEM_INTERACTION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.events.ForegroundEvent;
@@ -178,7 +179,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
         final Map<String, String> actual = (Map<String, String>) data.payload.get(EventLoggerParam.REFERRING_EVENT);
 
         assertThat(actual.get(EventLoggerParam.UUID)).isEqualTo(uuid);
-        assertThat(actual.get(EventLoggerParam.REFERRING_EVENT_KIND)).isEqualTo("navigation");
+        assertThat(actual.get(EventLoggerParam.REFERRING_EVENT_KIND)).isEqualTo(ITEM_INTERACTION);
     }
 
     @Test(expected = IllegalArgumentException.class)

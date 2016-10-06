@@ -64,7 +64,7 @@ class StreamCardViewPresenter {
                                 EventContextMetadata.Builder eventContextMetadataBuilder) {
         itemView.resetCardView();
 
-        final EventContextMetadata eventContextMetadata = eventContextMetadataBuilder.linkType(LinkType.ATTRIBUTION)
+        final EventContextMetadata eventContextMetadata = eventContextMetadataBuilder.linkType(LinkType.ATTRIBUTOR)
                                                                                      .build();
 
         if (playableItem instanceof PromotedListItem) {
