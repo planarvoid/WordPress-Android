@@ -167,48 +167,52 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
             performAnimationIfAny(newHolder, preLayoutInfo.top, postLayoutInfo.top);
             return true;
         } else if (mode == Mode.REPEAT) {
-            return performRepeatAnimation(newHolder);
+            BackgroundInfoHolder backgroundInfoHolder = (BackgroundInfoHolder) postLayoutInfo;
+            BackgroundInfoHolder prebackgroundInfoHolder = (BackgroundInfoHolder) preLayoutInfo;
+            float preAlpha = prebackgroundInfoHolder.alpha;
+            float postAlpha = backgroundInfoHolder.alpha;
+            if (preAlpha != postAlpha) {
+                return performRepeatAnimation(newHolder, preAlpha, postAlpha);
+            } else {
+                return false;
+            }
         } else {
             dispatchAnimationFinished(newHolder);
             return false;
         }
     }
 
-    private boolean performRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder) {
+    private boolean performRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder,
+                                           float preAlpha,
+                                           float postAlpha) {
         switch (newHolder.itemView.getId()) {
             case R.id.play_queue_item_header:
-                performHeaderRepeatAnimation(newHolder);
+                performHeaderRepeatAnimation(newHolder, preAlpha, postAlpha);
                 return true;
             case R.id.play_queue_item_track:
-                performTrackRepeatAnimation(newHolder);
+                performTrackRepeatAnimation(newHolder, preAlpha, postAlpha);
                 return true;
             default:
                 throw new IllegalStateException("Unknown item type.");
         }
     }
 
-    private void performHeaderRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder) {
-        final View view =  newHolder.itemView;
+    private void performHeaderRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder,
+                                              float preAlpha,
+                                              float postAlpha) {
+        final View view = newHolder.itemView;
         final View textView = view.findViewById(R.id.title);
-        final float postAlpha = textView.getAlpha();
-        final float preAlpha = postAlpha == TrackPlayQueueItemRenderer.ALPHA_ENABLED ?
-                               TrackPlayQueueItemRenderer.ALPHA_DISABLED :
-                               TrackPlayQueueItemRenderer.ALPHA_ENABLED;
-
         ViewCompat.setAlpha(textView, preAlpha);
         alphaAnimations.add(new ChangeHolder(newHolder, postAlpha));
         textView.setAlpha(preAlpha);
     }
 
-    private void performTrackRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder) {
-        final View view =  newHolder.itemView;
+    private void performTrackRepeatAnimation(@NonNull RecyclerView.ViewHolder newHolder,
+                                             float preAlpha,
+                                             float postAlpha) {
+        final View view = newHolder.itemView;
         final View imageView = view.findViewById(R.id.image);
         final View textView = view.findViewById(R.id.text_holder);
-        final float postAlpha = imageView.getAlpha();
-        final float preAlpha = postAlpha == TrackPlayQueueItemRenderer.ALPHA_ENABLED ?
-                               TrackPlayQueueItemRenderer.ALPHA_DISABLED :
-                               TrackPlayQueueItemRenderer.ALPHA_ENABLED;
-
         ViewCompat.setAlpha(imageView, preAlpha);
         ViewCompat.setAlpha(textView, preAlpha);
         alphaAnimations.add(new ChangeHolder(newHolder, postAlpha));
@@ -442,5 +446,54 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
     @Override
     public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
         return true;
+    }
+
+    @NonNull
+    @Override
+    public ItemHolderInfo recordPostLayoutInformation(@NonNull RecyclerView.State state,
+                                                      @NonNull RecyclerView.ViewHolder viewHolder) {
+        if (mode == Mode.SHUFFLING) {
+            return super.recordPostLayoutInformation(state, viewHolder);
+        } else {
+            return BackgroundInfoHolder.create(viewHolder);
+        }
+    }
+
+    @NonNull
+    @Override
+    public ItemHolderInfo recordPreLayoutInformation(@NonNull RecyclerView.State state,
+                                                     @NonNull RecyclerView.ViewHolder viewHolder,
+                                                     int changeFlags,
+                                                     @NonNull List<Object> payloads) {
+        if (mode == Mode.SHUFFLING) {
+            return super.recordPostLayoutInformation(state, viewHolder);
+        } else {
+            return BackgroundInfoHolder.create(viewHolder);
+        }
+    }
+
+    static class BackgroundInfoHolder extends ItemHolderInfo {
+
+        private float alpha;
+
+        private BackgroundInfoHolder(float alpha) {
+            this.alpha = alpha;
+        }
+
+        static final BackgroundInfoHolder create(RecyclerView.ViewHolder viewHolder) {
+            View view;
+            switch (viewHolder.itemView.getId()) {
+                case R.id.play_queue_item_header:
+                    view = viewHolder.itemView;
+                    break;
+                case R.id.play_queue_item_track:
+                    view = viewHolder.itemView.findViewById(R.id.image);
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown item type.");
+            }
+            return new BackgroundInfoHolder(view.getAlpha());
+        }
+
     }
 }
