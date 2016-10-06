@@ -172,50 +172,6 @@ class UserProfileOperations {
         return postForPlayback;
     }
 
-    Observable<PagedRemoteCollection> pagedLegacyLikes(Urn user) {
-        return profileApi
-                .legacyUserLikes(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .map(mergePlayableInfo)
-                .subscribeOn(scheduler);
-    }
-
-    PagingFunction<PagedRemoteCollection> legacyLikesPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.legacyUserLikes(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .map(mergePlayableInfo)
-                                 .subscribeOn(scheduler);
-            }
-        });
-    }
-
-    Observable<PagedRemoteCollection> legacyPagedPlaylists(Urn user) {
-        return profileApi
-                .userLegacyPlaylists(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .map(mergePlayableInfo)
-                .subscribeOn(scheduler);
-    }
-
-    PagingFunction<PagedRemoteCollection> legacyPlaylistsPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userLegacyPlaylists(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .map(mergePlayableInfo)
-                                 .subscribeOn(scheduler);
-            }
-        });
-    }
-
     Observable<PagedRemoteCollection> userPlaylists(Urn user) {
         return profileApi.userPlaylists(user)
                          .doOnNext(writeMixedRecordsCommand.toAction1())

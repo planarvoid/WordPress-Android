@@ -3,7 +3,6 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -77,16 +76,6 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String nextPageLink) {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    @Override
     public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(Urn user) {
         return getPlaylistsCollection(ApiEndpoints.USER_PLAYLISTS.path(user));
     }
@@ -104,26 +93,6 @@ public class ProfileApiMobile implements ProfileApi {
                                              .build();
 
         return apiClientRx.mappedResponse(request, playlistPostToken);
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
-        return getLegacyLikesCollection(ApiEndpoints.LEGACY_USER_LIKES.path(user));
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String nextPageLink) {
-        return getLegacyLikesCollection(nextPageLink);
-    }
-
-    @NotNull
-    private Observable<ModelCollection<ApiEntityHolder>> getLegacyLikesCollection(String path) {
-        final ApiRequest request = ApiRequest.get(path)
-                                             .forPrivateApi()
-                                             .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
-                                             .build();
-
-        return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
     }
 
     @Override

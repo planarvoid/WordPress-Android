@@ -17,8 +17,7 @@ import java.util.List;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PublicApiTrack.class, name = "track"),
         @JsonSubTypes.Type(value = PublicApiComment.class, name = "comment"),
-        @JsonSubTypes.Type(value = PublicApiUser.class, name = "user"),
-        @JsonSubTypes.Type(value = PublicApiPlaylist.class, name = "playlist")})
+        @JsonSubTypes.Type(value = PublicApiUser.class, name = "user")})
 public abstract class PublicApiResource
         extends ScModel
         implements Identifiable {

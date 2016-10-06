@@ -5,7 +5,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
@@ -25,17 +24,6 @@ import java.util.List;
 public class ProfileApiPublic implements ProfileApi {
 
     private final ApiClientRx apiClientRx;
-
-    private static final Func1<CollectionHolder<PublicApiPlaylist>, ModelCollection<ApiPlaylist>> PLAYLISTS_TO_COLLECTION = new Func1<CollectionHolder<PublicApiPlaylist>, ModelCollection<ApiPlaylist>>() {
-        @Override
-        public ModelCollection<ApiPlaylist> call(CollectionHolder<PublicApiPlaylist> playlistsHolder) {
-            List<ApiPlaylist> playlists = new ArrayList<>(playlistsHolder.size());
-            for (PublicApiPlaylist publicApiPlaylist : playlistsHolder) {
-                playlists.add(publicApiPlaylist.toApiMobilePlaylist());
-            }
-            return new ModelCollection<>(playlists, playlistsHolder.getNextHref());
-        }
-    };
 
     private static final Func1<CollectionHolder<PublicApiUser>, ModelCollection<ApiUser>> USERS_TO_COLLECTION = new Func1<CollectionHolder<PublicApiUser>, ModelCollection<ApiUser>>() {
         @Override
@@ -61,26 +49,6 @@ public class ProfileApiPublic implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiEntityHolder>> userPosts(String pageLink) {
         throw new UnsupportedOperationException("User posts are no longer supported via Public API");
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
-        throw new UnsupportedOperationException("User likes are no longer supported via Public API");
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String pageLink) {
-        throw new UnsupportedOperationException("User likes are no longer supported via Public API");
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
-        return getPlaylists(ApiEndpoints.LEGACY_USER_PLAYLISTS.path(user.getNumericId()));
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String pageLink) {
-        return getPlaylists(pageLink);
     }
 
     @Override
@@ -160,14 +128,7 @@ public class ProfileApiPublic implements ProfileApi {
 
     @NotNull
     private Observable<ModelCollection<ApiPlaylist>> getPlaylists(String path) {
-        final ApiRequest request = ApiRequest.get(path)
-                                             .forPublicApi()
-                                             .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                                             .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
-                                             .build();
-
-        return apiClientRx.mappedResponse(request, playlistHolderToken)
-                          .map(PLAYLISTS_TO_COLLECTION);
+        throw new UnsupportedOperationException("User Playlists will not be supported by Public API");
     }
 
     @NotNull
@@ -181,9 +142,6 @@ public class ProfileApiPublic implements ProfileApi {
         return apiClientRx.mappedResponse(request, userHolderToken)
                           .map(USERS_TO_COLLECTION);
     }
-
-    private final TypeToken<CollectionHolder<PublicApiPlaylist>> playlistHolderToken = new TypeToken<CollectionHolder<PublicApiPlaylist>>() {
-    };
 
     private final TypeToken<CollectionHolder<PublicApiUser>> userHolderToken = new TypeToken<CollectionHolder<PublicApiUser>>() {
     };

@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -34,16 +33,6 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
-        return profileApiPublic.get().userLegacyPlaylists(user);
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String nextPageLink) {
-        return profileApiPublic.get().userLegacyPlaylists(nextPageLink);
-    }
-
-    @Override
     public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(Urn user) {
         return profileApiMobile.get().userPlaylists(user);
     }
@@ -51,16 +40,6 @@ public class ProfileApiDelegator implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(String nextPageLink) {
         return profileApiMobile.get().userPlaylists(nextPageLink);
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
-        return profileApiMobile.get().legacyUserLikes(user);
-    }
-
-    @Override
-    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String nextPageLink) {
-        return profileApiMobile.get().legacyUserLikes(nextPageLink);
     }
 
     @Override
