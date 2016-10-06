@@ -13,6 +13,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds.USER_ID;
 import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds._TYPE;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.LAST_UPDATED;
+import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SNIPPED;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SYNCABLE;
 import static com.soundcloud.android.storage.Tables.OfflineContent;
 import static com.soundcloud.java.collections.MoreCollections.transform;
@@ -110,6 +111,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                                                        data.duration,
                                                        data.waveformUrl,
                                                        data.syncable,
+                                                       data.snipped,
                                                        data.trackingMetadata));
             } else {
                 requestsMap.get(data.track).getTrackingData().update(data.trackingMetadata);
@@ -126,7 +128,8 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                                                    Sounds.field(WAVEFORM_URL),
                                                    Sounds.field(ARTWORK_URL),
                                                    Sounds.field(USER_ID),
-                                                   TrackPolicies.field(SYNCABLE))
+                                                   TrackPolicies.field(SYNCABLE),
+                                                   TrackPolicies.field(SNIPPED))
                                            .innerJoin(Likes.name(), LIKES_SOUNDS_FILTER)
                                            .innerJoin(TrackPolicies.name(),
                                                       Likes.field(TableColumns.Likes._ID),
@@ -163,6 +166,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
         final long duration;
         final String waveformUrl;
         final boolean syncable;
+        final boolean snipped;
         final TrackingMetadata trackingMetadata;
         private final Optional<String> imageUrlTemplate;
 
@@ -181,9 +185,10 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                                             long creatorId,
                                             long duration,
                                             String waveformUrl,
-                                            boolean syncable) {
+                                            boolean syncable,
+                                            boolean snipped) {
             return new OfflineRequestData(trackId, imageUrlTemplate, creatorId, duration,
-                                          waveformUrl, syncable, true, false);
+                                          waveformUrl, syncable, snipped, true, false);
         }
 
         static OfflineRequestData fromPlaylist(long trackId,
@@ -191,9 +196,10 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                                                long creatorId,
                                                long duration,
                                                String waveformUrl,
-                                               boolean syncable) {
+                                               boolean syncable,
+                                               boolean snipped) {
             return new OfflineRequestData(trackId, imageUrlTemplate, creatorId, duration,
-                                          waveformUrl, syncable, false, true);
+                                          waveformUrl, syncable, snipped, false, true);
         }
 
         private OfflineRequestData(long trackId,
@@ -202,6 +208,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                                    long duration,
                                    String waveformUrl,
                                    boolean syncable,
+                                   boolean snipped,
                                    boolean fromLikes,
                                    boolean fromPlaylists) {
             this.imageUrlTemplate = imageUrlTemplate;
@@ -209,6 +216,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
             this.duration = duration;
             this.waveformUrl = waveformUrl;
             this.syncable = syncable;
+            this.snipped = snipped;
             this.trackingMetadata = new TrackingMetadata(Urn.forUser(creatorId), fromLikes, fromPlaylists);
         }
     }
@@ -223,7 +231,8 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                     reader.getLong(OfflinePlaylistTracks.USER_ID),
                     reader.getLong(OfflinePlaylistTracks.DURATION),
                     reader.getString(OfflinePlaylistTracks.WAVEFORM_URL),
-                    reader.getBoolean(OfflinePlaylistTracks.SYNCABLE));
+                    reader.getBoolean(OfflinePlaylistTracks.SYNCABLE),
+                    reader.getBoolean(OfflinePlaylistTracks.SNIPPED));
         }
     }
 
@@ -237,7 +246,8 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                     reader.getLong(USER_ID),
                     reader.getLong(FULL_DURATION),
                     reader.getString(WAVEFORM_URL),
-                    reader.getBoolean(SYNCABLE));
+                    reader.getBoolean(SYNCABLE),
+                    reader.getBoolean(SNIPPED));
         }
     }
 }

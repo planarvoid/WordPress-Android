@@ -307,6 +307,7 @@ public interface Tables {
         public static final Column WAVEFORM_URL = Column.create(TABLE, "waveform_url");
         public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
         public static final Column SYNCABLE = Column.create(TABLE, "syncable");
+        public static final Column SNIPPED = Column.create(TABLE, "snipped");
         public static final Column LAST_POLICY_UPDATE = Column.create(TABLE, "last_policy_update");
         public static final Column CREATED_AT = Column.create(TABLE, "created_at");
         public static final Column POSITION = Column.create(TABLE, "position");
@@ -320,6 +321,7 @@ public interface Tables {
                 "Sounds.waveform_url as waveform_url, " +
                 "Sounds.artwork_url as artwork_url, " +
                 "TrackPolicies.syncable as syncable, " +
+                "TrackPolicies.snipped as snipped, " +
                 "TrackPolicies.last_updated as last_policy_update, " +
                 "PlaylistTracks.position as position, " +
                 "MAX(IFNULL(PlaylistLikes.created_at, 0), PlaylistProperties.created_at ) AS created_at " +

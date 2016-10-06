@@ -173,6 +173,7 @@ public class ModelFixtures {
                                       track.getFullDuration(),
                                       track.getWaveformUrl(),
                                       true,
+                                      false,
                                       trackContext);
     }
 
@@ -183,6 +184,7 @@ public class ModelFixtures {
                                       1234,
                                       "http://waveform.url",
                                       true,
+                                      false,
                                       trackContext);
     }
 
@@ -193,6 +195,7 @@ public class ModelFixtures {
                                       track.getFullDuration(),
                                       track.getWaveformUrl(),
                                       true,
+                                      false,
                                       trackContext);
     }
 
@@ -203,6 +206,7 @@ public class ModelFixtures {
                                       track.getFullDuration(),
                                       track.getWaveformUrl(),
                                       true,
+                                      false,
                                       trackContext);
     }
 
@@ -213,7 +217,19 @@ public class ModelFixtures {
                                       1234,
                                       "http://waveform.url",
                                       false,
+                                      false,
                                       trackContext);
+    }
+
+    public static DownloadRequest snippetRequest(Urn track) {
+        TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), false, true);
+        return DownloadRequest.create(track,
+                Optional.of("http://artwork.url"),
+                1234,
+                "http://waveform.url",
+                false,
+                true,
+                trackContext);
     }
 
     public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {

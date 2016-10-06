@@ -21,12 +21,14 @@ public abstract class DownloadRequest implements ImageResource {
                                          long duration,
                                          String waveformUrl,
                                          boolean syncable,
+                                         boolean snipped,
                                          TrackingMetadata trackingMetadata) {
         return new AutoValue_DownloadRequest(track,
                                              imageUrlTemplate,
                                              duration,
                                              waveformUrl,
                                              syncable,
+                                             snipped,
                                              trackingMetadata);
     }
 
@@ -41,6 +43,8 @@ public abstract class DownloadRequest implements ImageResource {
     public abstract String getWaveformUrl();
 
     public abstract boolean isSyncable();
+
+    public abstract boolean isSnipped();
 
     public abstract TrackingMetadata getTrackingData();
 
