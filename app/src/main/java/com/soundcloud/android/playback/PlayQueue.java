@@ -146,21 +146,28 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public static PlayQueue fromRecommendations(Urn seedTrack,
+                                                boolean continuousPlay,
                                                 RecommendedTracksCollection relatedTracks,
                                                 PlaySessionSource playSessionSource) {
-        return new SimplePlayQueue(playQueueitemsForRecommendations(seedTrack, relatedTracks, playSessionSource));
+        return new SimplePlayQueue(playQueueitemsForRecommendations(seedTrack,
+                                                                    continuousPlay,
+                                                                    relatedTracks,
+                                                                    playSessionSource));
     }
 
     private static List<PlayQueueItem> playQueueitemsForRecommendations(Urn seedTrack,
+                                                                        boolean continuousPlay,
                                                                         RecommendedTracksCollection relatedTracks,
                                                                         PlaySessionSource playSessionSource) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         for (ApiTrack relatedTrack : relatedTracks) {
+            final PlaybackContext playbackContext = continuousPlay ?
+                                                    PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY) :
+                                                    PlaybackContext.create(playSessionSource);
             final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(relatedTrack.getUrn())
                     .relatedEntity(seedTrack)
-                    .fromSource(DiscoverySource.RECOMMENDER.value(),
-                                relatedTracks.getSourceVersion())
-                    .withPlaybackContext(PlaybackContext.create(playSessionSource));
+                    .fromSource(DiscoverySource.RECOMMENDER.value(), relatedTracks.getSourceVersion())
+                    .withPlaybackContext(playbackContext);
             playQueueItems.add(builder.build());
         }
         return playQueueItems;

@@ -111,7 +111,7 @@ public class PlayQueueOperations {
                     return PlayQueue.empty();
                 }
 
-                return PlayQueue.fromRecommendations(seedTrack, recommendedTracks, playSessionSource);
+                return PlayQueue.fromRecommendations(seedTrack, continuousPlay, recommendedTracks, playSessionSource);
             }
         });
     }

@@ -46,11 +46,21 @@ public class PlayQueueTest extends AndroidUnitTest {
         final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
         final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(singletonList(recommendedTrack),
                                                                                           "0");
-        final PlayQueue playQueue = fromRecommendations(Urn.forTrack(1L),
-                                                        relatedTracks,
-                                                        playSessionSource);
+        final PlayQueue playQueue = fromRecommendations(Urn.forTrack(1L), false, relatedTracks, playSessionSource);
 
         assertThat(playbackContext(playQueue)).isEqualTo(create(playSessionSource));
+    }
+
+    @Test
+    public void fromRecommendationsForContinuousPlayShouldApplyAutoPlayPlaybackContext() {
+        final Urn queryUrn = new Urn("soundcloud:query:2");
+        final PlaySessionSource playSessionSource = forRecommendations(Screen.SEARCH_SUGGESTIONS, 0, queryUrn);
+        final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
+        final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(singletonList(recommendedTrack),
+                                                                                          "0");
+        final PlayQueue playQueue = fromRecommendations(Urn.forTrack(1L), true, relatedTracks, playSessionSource);
+
+        assertThat(playbackContext(playQueue)).isEqualTo(create(PlaybackContext.Bucket.AUTO_PLAY));
     }
 
     @Test
