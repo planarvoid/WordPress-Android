@@ -84,16 +84,18 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void toggleClickThroughOnCenteredAdPageArtworkClick() {
-        adView.findViewById(R.id.centered_ad_artwork).performClick();
+        final View view = adView.findViewById(R.id.centered_ad_artwork);
+        view.performClick();
 
-        verify(pageListener).onClickThrough();
+        verify(pageListener).onClickThrough(view.getContext());
     }
 
     @Test
     public void toggleClickThroughOnCenteredOverlayClick() {
-        adView.findViewById(R.id.centered_ad_clickable_overlay).performClick();
+        final View view = adView.findViewById(R.id.centered_ad_clickable_overlay);
+        view.performClick();
 
-        verify(pageListener).onClickThrough();
+        verify(pageListener).onClickThrough(view.getContext());
     }
 
     @Test
@@ -119,9 +121,10 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickThroughOnCallToActionClick() {
-        adView.findViewById(R.id.cta_button).performClick();
+        final View view = adView.findViewById(R.id.cta_button);
+        view.performClick();
 
-        verify(pageListener).onClickThrough();
+        verify(pageListener).onClickThrough(view.getContext());
     }
 
     @Test

@@ -43,6 +43,13 @@ public class AdFixtures {
         );
     }
 
+    public static AudioAd getAudioAdWithCustomClickthrough(String clickthrough, Urn monetizableUrn) {
+        return AudioAd.create(
+                getApiAudioAdWithCompanion(getApiCompanionAdWithCustomClickthrough(clickthrough), SKIPPABLE),
+                monetizableUrn
+        );
+    }
+
     public static AudioAd getNonskippableAudioAd(Urn monetizableUrn) {
         return AudioAd.create(getApiAudioAd(NOT_SKIPPABLE), monetizableUrn);
     }
@@ -85,6 +92,18 @@ public class AdFixtures {
     static ApiCompanionAd getApiCompanionAd() {
         final String ctaText = null;
         return getApiCompanionAdWithCustomCTA(ctaText);
+    }
+
+    static ApiCompanionAd getApiCompanionAdWithCustomClickthrough(String clickthrough) {
+        return new ApiCompanionAd(
+                Urn.forAd("dfp", "746"),
+                "http://image.visualad.com",
+                clickthrough,
+                Arrays.asList("comp_impression1", "comp_impression2"),
+                Arrays.asList("comp_click1", "comp_click2"),
+                "LEARN MORE",
+                getApiDisplayProperties()
+        );
     }
 
     static ApiCompanionAd getApiCompanionAdWithCustomCTA(String ctaText) {

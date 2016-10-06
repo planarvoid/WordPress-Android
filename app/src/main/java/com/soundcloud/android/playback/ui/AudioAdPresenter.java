@@ -73,7 +73,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             case R.id.centered_ad_clickable_overlay:
             case R.id.centered_ad_artwork:
             case R.id.cta_button:
-                listener.onClickThrough();
+                listener.onClickThrough(view.getContext());
                 break;
             case R.id.why_ads:
                 listener.onAboutAds(view.getContext());

@@ -153,10 +153,11 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openAdClickthrough() {
-        navigator.openAdClickthrough(activityContext, "http://clickthroughurl.com");
+        final Uri uri = Uri.parse("http://clickthroughurl.com");
+        navigator.openAdClickthrough(activityContext, uri);
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Intent.ACTION_VIEW)
-                                   .containsUri(Uri.parse("http://clickthroughurl.com"))
+                                   .containsUri(uri)
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK);
     }
 

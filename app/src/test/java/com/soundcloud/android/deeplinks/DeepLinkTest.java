@@ -85,6 +85,9 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.COLLECTION, "soundcloud://collection");
         assertDeeplink(DeepLink.ENTITY, "soundcloud://anythingelse");
         assertDeeplink(DeepLink.CHARTS, "soundcloud://charts");
+        assertDeeplink(DeepLink.TRACK_ENTITY, "soundcloud://tracks/123");
+        assertDeeplink(DeepLink.PLAYLIST_ENTITY, "soundcloud://playlists/123");
+        assertDeeplink(DeepLink.USER_ENTITY, "soundcloud://users/123");
     }
 
     @Test

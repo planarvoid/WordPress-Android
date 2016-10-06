@@ -196,20 +196,17 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     private void setupClearAdOverlaySubscriber() {
-        backgroundSubscription.add(eventBus
-                                           .queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+        backgroundSubscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .subscribe(new ClearAdOverlaySubscriber()));
     }
 
     private void setupPlayerPanelSubscriber() {
-        backgroundSubscription.add(eventBus
-                                           .subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber()));
+        backgroundSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber()));
     }
 
     private void setupTrackMetadataChangedSubscriber() {
-        backgroundSubscription.add(eventBus
-                                           .queue(EventQueue.ENTITY_STATE_CHANGED)
+        backgroundSubscription.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                                            .filter(EntityStateChangedEvent.IS_TRACK_FILTER)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .subscribe(new TrackMetadataChangedSubscriber()));

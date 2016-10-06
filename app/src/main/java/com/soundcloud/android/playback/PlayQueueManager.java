@@ -725,5 +725,4 @@ public class PlayQueueManager implements OriginProvider {
         playQueue.moveItem(fromPosition, toPosition);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
     }
-
 }

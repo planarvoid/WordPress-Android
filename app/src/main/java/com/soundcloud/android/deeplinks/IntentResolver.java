@@ -25,8 +25,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +32,9 @@ import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.OnErrorThrowable;
 
 public class IntentResolver {
     private static final String TAG = "IntentResolver";

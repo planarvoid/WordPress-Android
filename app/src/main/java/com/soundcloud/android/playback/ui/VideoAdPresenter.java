@@ -72,7 +72,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
                 listener.onShrink();
                 break;
             case R.id.cta_button:
-                listener.onClickThrough();
+                listener.onClickThrough(view.getContext());
                 break;
             case R.id.why_ads:
                 listener.onAboutAds(view.getContext());

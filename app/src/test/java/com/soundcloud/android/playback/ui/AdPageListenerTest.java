@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +15,11 @@ import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableTrackingKeys;
+import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -28,6 +34,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.Uri;
 
 public class AdPageListenerTest extends AndroidUnitTest {
 
@@ -44,8 +52,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new AdPageListener(context(), navigator,
-                                      playSessionController, playQueueManager,
+        listener = new AdPageListener(navigator, playSessionController, playQueueManager,
                                       eventBus, adsOperations, whyAdsPresenter);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
@@ -53,16 +60,16 @@ public class AdPageListenerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(adData));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(adData));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
     }
 
     @Test
     public void onClickThroughShouldOpenUrlForAudioAd() throws CreateModelException {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
-        listener.onClickThrough();
+        listener.onClickThrough(context());
 
-        verify(navigator).openAdClickthrough(context(), adData.getClickThroughUrl().get());
+        verify(navigator).openAdClickthrough(context(), Uri.parse(adData.getClickThroughUrl().get()));
     }
 
     @Test
@@ -70,19 +77,17 @@ public class AdPageListenerTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(videoAd));
-        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
-        listener.onClickThrough();
+        listener.onClickThrough(context());
 
-        verify(navigator).openAdClickthrough(context(), videoAd.getClickThroughUrl());
+        verify(navigator).openAdClickthrough(context(), Uri.parse(videoAd.getClickThroughUrl()));
     }
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
-        listener.onClickThrough();
+        listener.onClickThrough(context());
 
         final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
@@ -96,7 +101,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(videoAd));
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
-        listener.onClickThrough();
+        listener.onClickThrough(context());
 
         final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
@@ -108,9 +113,84 @@ public class AdPageListenerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(monetizableLeaveBehindAd));
 
-        listener.onClickThrough();
+        listener.onClickThrough(context());
 
         assertThat(monetizableLeaveBehindAd.isMetaAdClicked()).isTrue();
+    }
+
+    @Test
+    public void onClickthroughForUserProfileDeeplinkShouldCloserPlayer() {
+        final AudioAd userAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://users/42", Urn.forTrack(123L));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(userAudioAd));
+
+        listener.onClickThrough(context());
+
+        PlayerUICommand event = eventBus.firstEventOn(EventQueue.PLAYER_COMMAND);
+        assertThat(event.isCollapse()).isTrue();
+    }
+
+    @Test
+    public void onClickthroughForPlaylistDeeplinkShouldCloserPlayer() {
+        final AudioAd playlistAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://playlists/42", Urn.forTrack(123L));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(playlistAudioAd));
+
+        listener.onClickThrough(context());
+
+        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
+        assertThat(event.isCollapse()).isTrue();
+    }
+
+    @Test
+    public void onClickthroughForUserProfileDeeplinkEmitsUIEventClosePlayer() {
+        final AudioAd userAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://users/42", Urn.forTrack(123L));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(userAudioAd));
+
+        listener.onClickThrough(context());
+
+        TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose();
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    @Test
+    public void onClickthroughForPlaylistDeeplinkEmitsUIEventClosePlayer() {
+        final AudioAd playlistAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://playlists/42", Urn.forTrack(123L));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(playlistAudioAd));
+
+        listener.onClickThrough(context());
+
+        TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose();
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    @Test
+    public void onClickthroughforUserProfileDeeplinkshouldStartProfileActivityAfterPlayerUICollapsed() {
+        final AudioAd userAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://users/42", Urn.forTrack(123L));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(userAudioAd));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(userAudioAd));
+
+        listener.onClickThrough(context());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        verify(playQueueManager).moveToNextPlayableItem();
+        verify(navigator).legacyOpenProfile(any(Context.class), eq(Urn.forUser(42L)));
+    }
+
+    @Test
+    public void onClickthroughforPlaylistDeeplinkshouldStartPlaylistActivityAfterPlayerUICollapsed() {
+        final AudioAd playlistAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://playlists/42", Urn.forTrack(123L));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(playlistAudioAd));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(playlistAudioAd));
+        when(playQueueManager.getScreenTag()).thenReturn("stream:main");
+
+        listener.onClickThrough(context());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        verify(playQueueManager).moveToNextPlayableItem();
+        verify(navigator).legacyOpenPlaylist(any(Context.class), eq(Urn.forPlaylist(42L)), eq(Screen.STREAM));
     }
 
     @Test

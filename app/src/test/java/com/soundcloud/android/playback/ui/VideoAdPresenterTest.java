@@ -244,9 +244,10 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickThroughOnCallToActionClick() {
-        adView.findViewById(R.id.cta_button).performClick();
+        final View view = adView.findViewById(R.id.cta_button);
+        view.performClick();
 
-        verify(pageListener).onClickThrough();
+        verify(pageListener).onClickThrough(view.getContext());
     }
 
     @Test

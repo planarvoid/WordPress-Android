@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public enum DeepLink {
     HOME, STREAM, EXPLORE, TRACK_RECOMMENDATIONS, DISCOVERY, SEARCH, RECORD, WEB_VIEW, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
-    NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS, CHARTS, TRACK_ENTITY;
+    NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS, CHARTS, TRACK_ENTITY, PLAYLIST_ENTITY, USER_ENTITY;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
@@ -32,7 +32,7 @@ public enum DeepLink {
     }
 
     public boolean requiresResolve() {
-        return this == ENTITY || this == TRACK_ENTITY;
+        return this == ENTITY || this == TRACK_ENTITY || this == USER_ENTITY || this == PLAYLIST_ENTITY;
     }
 
     @NonNull
@@ -112,6 +112,10 @@ public enum DeepLink {
                 return CHARTS;
             case "tracks":
                 return TRACK_ENTITY;
+            case "users":
+                return USER_ENTITY;
+            case "playlists":
+                return PLAYLIST_ENTITY;
             default:
                 return ENTITY;
         }
