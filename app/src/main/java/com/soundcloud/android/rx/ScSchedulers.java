@@ -1,6 +1,6 @@
 package com.soundcloud.android.rx;
 
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ErrorUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
@@ -70,14 +70,14 @@ public final class ScSchedulers {
         void logExecuteWarning() {
             final int size = target.getQueue().size();
             if (size > QUEUE_SIZE_WARNING_THRESHOLD) {
-                Log.w(TAG, "Execute Command [queuedCount = " + size + "]");
+                ErrorUtils.log(android.util.Log.WARN, TAG, "Execute Command [queuedCount = " + size + "]");
             }
         }
 
         void logExecutingWarning(long startTime) {
             final long waitTime = System.currentTimeMillis() - startTime;
             if (waitTime > QUEUE_WAIT_WARNING_THRESHOLD) {
-                Log.w(TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
+                ErrorUtils.log(android.util.Log.WARN, TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
             }
         }
 
