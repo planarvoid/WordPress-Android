@@ -88,9 +88,9 @@ import java.util.Locale;
 import java.util.Map;
 
 class EventLoggerEventData {
-    private static final String PAGEVIEW_EVENT = "pageview";
-    private static final String FOREGROUND_EVENT = "foreground";
-    private static final String NAVIGATION_EVENT = "navigation";
+    static final String PAGEVIEW_EVENT = "pageview";
+    static final String FOREGROUND_EVENT = "foreground";
+    static final String ITEM_INTERACTION = "item_interaction";
 
     @JsonProperty("event") final String event;
     @JsonProperty("version") final String version;
@@ -552,7 +552,7 @@ class EventLoggerEventData {
             case ForegroundEvent.KIND_OPEN:
                 return FOREGROUND_EVENT;
             case UIEvent.KIND_NAVIGATION:
-                return NAVIGATION_EVENT;
+                return ITEM_INTERACTION;
             default:
                 throw new IllegalArgumentException(
                         "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);

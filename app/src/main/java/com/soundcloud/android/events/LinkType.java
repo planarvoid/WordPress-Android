@@ -1,10 +1,9 @@
 package com.soundcloud.android.events;
 
 public enum LinkType {
-    ATTRIBUTION("attribution"),
+    ATTRIBUTOR("attributor"),
     OWNER("owner"),
     SELF("self");
-
 
     private final String name;
 
