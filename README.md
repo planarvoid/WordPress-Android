@@ -90,9 +90,9 @@ You can also ask questions on the `#android-newbies` Slack channel.
 
 ## Set up the SoundCloud code style
 
-1  Run `./gradlew setupCodeStyle`; this will install our code formatter to all your IntelliJs
-1. From within Android Studio, go to `File` &rarr; `Other Settings` &rarr; `Default Settings` &rarr; `Editor` &rarr; `Code Style`.
-1. From the `Scheme` drop-down menu, select `SoundCloud-Android`.
+1. Run `./gradlew setupCodeStyle`; this will install our code formatter to all your IntelliJs
+2. From within Android Studio, go to `File` &rarr; `Other Settings` &rarr; `Default Settings` &rarr; `Editor` &rarr; `Code Style`.
+3. From the `Scheme` drop-down menu, select `SoundCloud-Android`.
 
 ![Android code style][Android code style]
 
