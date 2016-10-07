@@ -3,6 +3,7 @@ package com.soundcloud.android.collection.playlists;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -81,14 +82,14 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
         likedPlaylistAssociation2 = getAssociatedPlaylist(likedPlaylist2, new Date(4));
         likedPlaylistAssociation3Offline = getAssociatedPlaylist(likedPlaylist3Offline, new Date(5));
 
-        when(playlistPostStorage.loadPostedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
+        when(playlistPostStorage.loadPostedPlaylists(any(Integer.class), eq(Long.MAX_VALUE), anyString()))
                 .thenReturn(Observable.just(
                         Arrays.asList(
                                 postedPlaylistAssociation1,
                                 postedPlaylistAssociation2
                         )));
 
-        when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
+        when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE), anyString()))
                 .thenReturn(Observable.just(
                         Arrays.asList(
                                 likedPlaylistAssociation1,
@@ -145,10 +146,10 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
                                                                                                    likedPlaylistAssociation2,
                                                                                                    likedPlaylistAssociation3,
                                                                                                    likedPlaylistAssociation3Offline));
-        when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
+        when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE), eq("filter")))
                 .thenReturn(likedPlaylists);
 
-        final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
+        final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).textFilter("filter").build();
         operations.myPlaylists(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);

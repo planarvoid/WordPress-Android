@@ -15,7 +15,9 @@ import com.soundcloud.android.playlists.PlaylistAssociationMapperFactory;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
@@ -50,7 +52,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadAllLikedPlaylists() throws Exception {
-        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListSubscriber);
+        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> playlistAssociations = newArrayList(
                 expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
@@ -61,7 +63,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadLikedPlaylistsAdhereToLimit() throws Exception {
-        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE).subscribe(testListSubscriber);
+        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> playlistAssociations = Arrays.asList(
                 expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2));
@@ -71,7 +73,80 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadLikedPlaylistsAdhereToTimestamp() throws Exception {
-        playlistLikesStorage.loadLikedPlaylists(1, LIKED_DATE_2.getTime()).subscribe(testListSubscriber);
+        playlistLikesStorage.loadLikedPlaylists(1, LIKED_DATE_2.getTime(), Strings.EMPTY).subscribe(testListSubscriber);
+
+        final List<PlaylistAssociation> propertySets = Arrays.asList(
+                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+
+        testListSubscriber.assertValue(propertySets);
+    }
+
+    @Test
+    public void shouldAdhereToPlaylistTitleFilter() throws Exception {
+        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, playlist1.getTitle()).subscribe(testListSubscriber);
+
+        final List<PlaylistAssociation> propertySets = Arrays.asList(
+                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+
+        testListSubscriber.assertValue(propertySets);
+    }
+
+    @Test
+    public void shouldAdhereToPlaylistTitleWithQuoteFilter() throws Exception {
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setTitle("Jan's Playlist");
+        testFixtures().insertUser(playlist.getUser());
+        testFixtures().insertLikedPlaylist(LIKED_DATE_1, playlist);
+
+        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, playlist.getTitle()).subscribe(testListSubscriber);
+
+        final List<PlaylistAssociation> propertySets = Arrays.asList(
+                expectedLikedPlaylistFor(playlist.toPropertySet(), LIKED_DATE_1));
+
+        testListSubscriber.assertValue(propertySets);
+    }
+
+    @Test
+    public void shouldAdhereToPlaylistUserFilter() throws Exception {
+        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, playlist1.getUsername()).subscribe(testListSubscriber);
+
+        final List<PlaylistAssociation> propertySets = Arrays.asList(
+                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+
+        testListSubscriber.assertValue(propertySets);
+    }
+
+    @Test
+    public void shouldAdhereToPlaylistTrackTitleFilter() throws Exception {
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getUrn(), 0);
+
+        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, apiTrack.getTitle()).subscribe(testListSubscriber);
+
+        final List<PlaylistAssociation> propertySets = Arrays.asList(
+                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+
+        testListSubscriber.assertValue(propertySets);
+    }
+
+    @Test
+    public void shouldAdhereToPlaylistTrackTitleFilterWithSingleResult() throws Exception {
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getUrn(), 0);
+        final ApiTrack apiTrack2 = testFixtures().insertTrackWithTitle(apiTrack.getTitle());
+        testFixtures().insertPlaylistTrack(playlist1.getUrn(), apiTrack2.getUrn(), 1);
+
+        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, apiTrack.getTitle()).subscribe(testListSubscriber);
+
+        final List<PlaylistAssociation> propertySets = Arrays.asList(
+                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+
+        testListSubscriber.assertValue(propertySets);
+    }
+
+    @Test
+    public void shouldAdhereToPlaylistTrackUserFilter() throws Exception {
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getUrn(), 0);
+
+        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, apiTrack.getUserName()).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
                 expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
@@ -85,7 +160,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistMarkedForOfflineSync(playlist1);
         testFixtures().insertTrackPendingDownload(apiTrack.getUrn(), LIKED_DATE_1.getTime());
 
-        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListSubscriber);
+        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = newArrayList(
                 expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
@@ -100,7 +175,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistMarkedForOfflineSync(playlist1);
         testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), LIKED_DATE_1.getTime(), LIKED_DATE_1.getTime());
 
-        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListSubscriber);
+        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = newArrayList(
                 expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),

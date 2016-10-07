@@ -158,9 +158,11 @@ public class MyPlaylistsOperations {
 
     private Observable<List<PlaylistAssociation>> unsortedPlaylists(PlaylistsOptions options) {
         final Observable<List<PlaylistAssociation>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT,
-                                                                                                                 Long.MAX_VALUE);
+                                                                                                                 Long.MAX_VALUE,
+                                                                                                                 options.textFilter());
         final Observable<List<PlaylistAssociation>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT,
-                                                                                                          Long.MAX_VALUE);
+                                                                                                          Long.MAX_VALUE,
+                                                                                                                  options.textFilter());
         if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;
         } else if (options.showPosts() && !options.showLikes()) {

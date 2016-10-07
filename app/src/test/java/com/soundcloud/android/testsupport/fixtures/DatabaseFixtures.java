@@ -338,6 +338,13 @@ public class DatabaseFixtures {
         return playlist;
     }
 
+    public ApiTrack insertTrackWithTitle(String title) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setTitle(title);
+        insertTrack(track);
+        return track;
+    }
+
     public ApiTrack insertTrackWithCreationDate(ApiUser user, Date createdAtDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setCreatedAt(createdAtDate);
@@ -643,8 +650,7 @@ public class DatabaseFixtures {
         return insertLikedPlaylist(likedDate, insertPlaylist());
     }
 
-    @NonNull
-    private ApiPlaylist insertLikedPlaylist(Date likedDate, ApiPlaylist playlist) {
+    public ApiPlaylist insertLikedPlaylist(Date likedDate, ApiPlaylist playlist) {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         return playlist;

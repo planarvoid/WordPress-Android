@@ -25,9 +25,6 @@ public class ApiPlaylistBlueprint {
         }
     };
 
-    @Default
-    String title = "playlist " + System.currentTimeMillis();
-
     @Mapped
     ApiUser user;
 
@@ -71,6 +68,7 @@ public class ApiPlaylistBlueprint {
         @Override
         public ApiPlaylist afterCreate(ApiPlaylist model) {
             model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-000151307749-v2r7oy-{size}.jpg");
+            model.setTitle("Playlist " + runningId);
             return model;
         }
     };

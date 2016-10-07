@@ -9,6 +9,7 @@ def UNDER_DEVELOPMENT = "\"UNDER_DEVELOPMENT\""
 
 enum Feature {
   REMOTE_FEATURE_TOGGLES,
+  FILTER_COLLECTIONS,
   ARCHER_PUSH,
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
@@ -28,6 +29,7 @@ enum Feature {
 android {
   defaultConfig {
     buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.FILTER_COLLECTIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ARCHER_PUSH.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), UNDER_DEVELOPMENT

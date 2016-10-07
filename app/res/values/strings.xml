@@ -34,6 +34,7 @@
     <string name="display_name">Name</string>
     <string name="updated_time">Updated %s.</string>
     <string name="posted_time">Posted %s</string>
+    <string name="filter">Filter</string>
 
     <string name="following_zero">Followed by you</string>
 

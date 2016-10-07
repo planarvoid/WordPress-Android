@@ -18,6 +18,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -26,6 +27,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
@@ -39,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionItem>, PlaylistCollectionItem>
-        implements PlaylistsAdapter.Listener, PlaylistOptionsPresenter.Listener {
+        implements PlaylistsAdapter.Listener, PlaylistOptionsPresenter.Listener, FilterHeaderPresenter.Listener {
 
     private Func1<List<PlaylistItem>, List<PlaylistCollectionItem>> toPlaylistsItems =
             new Func1<List<PlaylistItem>, List<PlaylistCollectionItem>>() {
@@ -77,6 +79,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         this.resources = resources;
         this.eventBus = eventBus;
 
+        adapter.setHasStableIds(true);
         adapter.setListener(this);
         currentOptions = collectionOptionsStorage.getLastOrDefault();
     }
@@ -102,6 +105,12 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         recyclerView.setPadding(itemMargin, 0, 0, 0);
         recyclerView.setClipToPadding(false);
         recyclerView.setClipChildren(false);
+
+    }
+
+    @Override
+    public void onFilterQuery(String query) {
+        refreshWithNewOptions(PlaylistsOptions.builder(currentOptions).textFilter(query).build());
     }
 
     @Override
@@ -126,7 +135,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private CollectionBinding<List<PlaylistCollectionItem>, PlaylistCollectionItem> buildBinding(Observable<List<PlaylistItem>> source) {
-        return CollectionBinding.from(source.map(toPlaylistsItems).doOnNext(new OnCollectionLoadedAction()))
+        return CollectionBinding.from(source.map(toPlaylistsItems)
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .doOnNext(new OnCollectionLoadedAction()))
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -137,6 +148,11 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
     private Observable<List<PlaylistItem>> updatedPlaylists() {
         return myPlaylistsOperations.refreshAndLoadPlaylists(currentOptions);
+    }
+
+    @Override
+    public void onFilterOptionsClicked(Context context) {
+        optionsPresenter.showOptions(context, this, currentOptions);
     }
 
     @Override
@@ -153,13 +169,18 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     @Override
     public void onOptionsUpdated(PlaylistsOptions options) {
         collectionOptionsStorage.store(options);
-        currentOptions = options;
-        refreshCollections();
+        refreshWithNewOptions(options);
         eventBus.publish(EventQueue.TRACKING, CollectionEvent.forFilter(currentOptions));
     }
 
+    public void refreshWithNewOptions(PlaylistsOptions options) {
+        currentOptions = options;
+        refreshCollections();
+    }
+
     private boolean isCurrentlyFiltered() {
-        return currentOptions.showOfflineOnly()
+        return Strings.isNotBlank(currentOptions.textFilter())
+                || currentOptions.showOfflineOnly()
                 || (currentOptions.showLikes() && !currentOptions.showPosts())
                 || (!currentOptions.showLikes() && currentOptions.showPosts());
     }

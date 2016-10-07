@@ -9,6 +9,7 @@ import static com.soundcloud.propeller.query.Query.on;
 import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistAssociationMapper;
 import com.soundcloud.android.playlists.PlaylistAssociationMapperFactory;
+import com.soundcloud.android.playlists.PlaylistQueries;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
@@ -31,7 +32,7 @@ public class PlaylistLikesStorage {
         this.playlistAssociationMapper = mapperFactory.create(TableColumns.Likes.CREATED_AT);
     }
 
-    public Observable<List<PlaylistAssociation>> loadLikedPlaylists(int limit, long fromTimestamp) {
+    public Observable<List<PlaylistAssociation>> loadLikedPlaylists(int limit, long fromTimestamp, String filter) {
         final Query query = Query.from(Tables.PlaylistView.TABLE.name())
                                  .select(Tables.PlaylistView.TABLE.name() + ".*",
                                          field(Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT))
@@ -40,9 +41,11 @@ public class PlaylistLikesStorage {
                                                     .whereEq(Table.Likes.field(TableColumns.Likes._TYPE),
                                                              TableColumns.Sounds.TYPE_PLAYLIST))
                                  .whereLt(Table.Likes.field(TableColumns.Likes.CREATED_AT), fromTimestamp)
+                                 .groupBy(Tables.PlaylistView.ID)
                                  .order(Likes.field(CREATED_AT), DESC)
                                  .limit(limit);
 
+        PlaylistQueries.addPlaylistFilterToQuery(filter, query);
         return propellerRx.query(query).map(playlistAssociationMapper).toList();
     }
 }

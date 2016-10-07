@@ -13,6 +13,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,11 +42,14 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     private PlaylistsPresenter presenter;
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
+    @Mock private FilterHeaderPresenterFactory filterHeaderPresenterFactory;
     @Mock private MyPlaylistsOperations myPlaylistsOperations;
     @Mock private CollectionOptionsStorage collectionOptionsStorage;
     @Mock private PlaylistOptionsPresenter optionsPresenter;
     @Mock private PlaylistsAdapter adapter;
     @Mock private Fragment fragment;
+    @Mock private CollapsingScrollHelper scrollHelper;
+    @Mock private FilterHeaderPresenter myPlaylistHeaderPresenter;
 
     private TestEventBus eventBus = new TestEventBus();
     private PlaylistsOptions options;
@@ -55,13 +59,16 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
         when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.<List<PlaylistItem>>empty());
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
-        presenter = new PlaylistsPresenter(swipeRefreshAttacher,
-                                           myPlaylistsOperations,
-                                           collectionOptionsStorage,
-                                           adapter,
-                                           optionsPresenter,
-                                           resources(),
-                                           eventBus);
+        when(filterHeaderPresenterFactory.create(any(FilterHeaderPresenter.Listener.class))).thenReturn(
+                myPlaylistHeaderPresenter);
+        presenter = new PlaylistsPresenter(
+                swipeRefreshAttacher,
+                myPlaylistsOperations,
+                collectionOptionsStorage,
+                adapter,
+                optionsPresenter,
+                resources(),
+                eventBus);
 
         when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.just(PLAYLISTS));
     }

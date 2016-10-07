@@ -42,8 +42,10 @@ public class PlaylistPostStorage {
         this.playlistAssociationMapper = mapperFactory.create(TableColumns.Posts.CREATED_AT);
     }
 
-    public Observable<List<PlaylistAssociation>> loadPostedPlaylists(int limit, long fromTimestamp) {
-        return propellerRx.query(buildLoadPostedPlaylistsQuery(limit, fromTimestamp))
+    public Observable<List<PlaylistAssociation>> loadPostedPlaylists(int limit, long fromTimestamp, String filter) {
+        final Query query = buildLoadPostedPlaylistsQuery(limit, fromTimestamp);
+        PlaylistQueries.addPlaylistFilterToQuery(filter, query);
+        return propellerRx.query(query)
                           .map(playlistAssociationMapper)
                           .toList();
     }
@@ -56,6 +58,7 @@ public class PlaylistPostStorage {
                     .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), "\"" + TableColumns.Posts.TYPE_POST + "\"")
                     .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                     .whereLt(Posts.field(TableColumns.Posts.CREATED_AT), fromTimestamp))
+                    .groupBy(Tables.PlaylistView.ID)
                     .order(CREATED_AT, DESC)
                     .limit(limit);
     }

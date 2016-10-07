@@ -57,8 +57,12 @@ public class PlaylistsAdapter extends PagingRecyclerItemAdapter<PlaylistCollecti
     }
 
     @Override
+    public long getItemId(int position) {
+        return getItem(position).getUrn().getNumericId();
+    }
+
+    @Override
     public int getBasicItemViewType(int position) {
         return getItem(position).getType();
     }
-
 }
