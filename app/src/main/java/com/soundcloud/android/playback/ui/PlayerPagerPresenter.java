@@ -23,7 +23,6 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsOperations;
@@ -111,8 +110,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         @Override
         public PlayerItem call(AdData adData) {
             return adData instanceof VideoAd
-                   ? new VideoPlayerAd((VideoAd) adData)
-                   : new AudioPlayerAd((AudioAd) adData);
+                    ? new VideoPlayerAd((VideoAd) adData)
+                    : new AudioPlayerAd((AudioAd) adData);
         }
     };
 
@@ -355,8 +354,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         foregroundSubscription.add(getTrackOrAdObservable(playQueueItem)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .filter(isPlayerItemRelatedToView(view))
-                                           .compose(OperationsInstrumentation.<PlayerItem>timeout())
                                            .subscribe(new PlayerItemSubscriber(presenter, view)));
+
         return view;
     }
 
@@ -384,24 +383,18 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private Observable<PlayerItem> getTrackOrAdObservable(final PlayQueueItem playQueueItem) {
+    private Observable<? extends PlayerItem> getTrackOrAdObservable(final PlayQueueItem playQueueItem) {
         if (playQueueItem.isAd()) {
             return getAdObservable(playQueueItem.getAdData().get());
         } else if (playQueueItem.isTrack() && playQueueManager.getCollectionUrn().isStation()) {
             return getStationObservable(playQueueItem);
         } else {
             return getTrackObservable(playQueueItem.getUrn(), playQueueItem.getAdData())
-                    // Type lifting necessary here
-                    .map(new Func1<PropertySet, PlayerItem>() {
-                        @Override
-                        public PlayerItem call(PropertySet propertySet) {
-                            return toPlayerTrackState(playQueueItem).call(propertySet);
-                        }
-                    });
+                    .map(toPlayerTrackState(playQueueItem));
         }
     }
 
-    private Observable<PlayerItem> getStationObservable(final PlayQueueItem playQueueItem) {
+    private Observable<? extends PlayerItem> getStationObservable(final PlayQueueItem playQueueItem) {
         return Observable.zip(
                 getTrackObservable(playQueueItem.getUrn(), playQueueItem.getAdData()).map(toPlayerTrackState(
                         playQueueItem)),
@@ -441,7 +434,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         });
     }
 
-    private Observable<PlayerItem> getAdObservable(final AdData adData) {
+    private Observable<? extends PlayerItem> getAdObservable(final AdData adData) {
         return getTrackObservable(adData.getMonetizableTrackUrn()).map(
                 new Func1<PropertySet, AdData>() {
                     @Override
