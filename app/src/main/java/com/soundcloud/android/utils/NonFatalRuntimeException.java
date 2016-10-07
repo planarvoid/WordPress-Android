@@ -1,6 +1,9 @@
 package com.soundcloud.android.utils;
 
 public class NonFatalRuntimeException extends RuntimeException {
+
+    public NonFatalRuntimeException() {}
+
     public NonFatalRuntimeException(String message) {
         super(message);
     }
