@@ -76,6 +76,7 @@ android {
     alpha {
       applicationIdSuffix '.alpha'
       versionNameSuffix '-alpha'
+      debuggable true
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false
       proguardFiles = ['buildsystem/proguard.cfg']
