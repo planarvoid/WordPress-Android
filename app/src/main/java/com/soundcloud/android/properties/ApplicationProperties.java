@@ -27,9 +27,10 @@ public class ApplicationProperties {
     private static final String DEV_PLAYBACK_LOGS_EMAIL = "skippy@soundcloud.com";
 
     private static BuildType buildType;
-    private static boolean verboseLogging;
-    private static boolean googlePlusEnabled;
-    private static boolean enforceConcurrentStreamingLimitation;
+    private boolean verboseLogging;
+    private boolean googlePlusEnabled;
+    private boolean enforceConcurrentStreamingLimitation;
+    private boolean logQueries;
 
     private final String castReceiverAppId;
     @VisibleForTesting
@@ -72,6 +73,7 @@ public class ApplicationProperties {
         googlePlusEnabled = resources.getBoolean(R.bool.google_plus_enabled);
         enforceConcurrentStreamingLimitation = resources.getBoolean(R.bool.enforce_concurrent_streaming_limitation);
         castReceiverAppId = resources.getString(R.string.cast_receiver_app_id);
+        logQueries = resources.getBoolean(R.bool.log_queries);
     }
 
     public boolean isGooglePlusEnabled() {
@@ -80,6 +82,10 @@ public class ApplicationProperties {
 
     public boolean useVerboseLogging() {
         return verboseLogging;
+    }
+
+    public boolean shouldLogQueries() {
+        return logQueries;
     }
 
     public boolean enforceConcurrentStreamingLimitation() {

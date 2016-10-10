@@ -99,7 +99,7 @@ class EventLoggerV1JsonDataBuilder {
         return transform(buildAudioEvent(event));
     }
 
-    public String buildForAdRequest(AdRequestEvent event) {
+    String buildForAdRequest(AdRequestEvent event) {
         EventLoggerEventData data = buildBaseEvent("ad_request", event)
                 .clientEventId(event.getId())
                 .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
