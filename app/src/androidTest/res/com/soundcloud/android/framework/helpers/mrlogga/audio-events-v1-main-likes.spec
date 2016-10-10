@@ -5,7 +5,7 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
-    trigger: manual
+    trigger: auto|manual
     protocol: hls|https
     ts: '[0-9]+'
     pause_reason: pause

@@ -40,8 +40,7 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlayAndPauseTrackFromLikes() {
-        final VisualPlayerElement playerElement =
-                likesScreen.clickTrack(0).waitForExpandedPlayerToStartPlaying();
+        final VisualPlayerElement playerElement = likesScreen.clickTrack(0);
 
         assertThat(playerElement, Is.is(visible()));
         assertThat(playerElement, Is.is(playing()));
