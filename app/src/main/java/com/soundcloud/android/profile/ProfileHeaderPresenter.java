@@ -6,7 +6,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -26,6 +29,8 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 
 class ProfileHeaderPresenter {
+
+    private static final int POSITION_IN_CONTEXT = 0;
 
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
@@ -47,7 +52,8 @@ class ProfileHeaderPresenter {
                                   final Urn user, final AppCompatActivity profileActivity,
                                   final FollowingOperations followingOperations,
                                   final EngagementsTracking engagementsTracking,
-                                  final StartStationHandler stationHandler) {
+                                  final StartStationHandler stationHandler,
+                                  final ScreenProvider screenProvider) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
         this.stationHandler = stationHandler;
@@ -57,16 +63,10 @@ class ProfileHeaderPresenter {
         if (accountOperations.isLoggedInUser(user)) {
             followButton.setVisibility(View.GONE);
         } else {
-            followButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    followingOperations
-                            .toggleFollowing(user, followButton.isChecked())
-                            .subscribe(new DefaultSubscriber<PropertySet>());
-                    engagementsTracking.followUserUrn(user, followButton.isChecked());
-                    updateStationButton();
-                }
-            });
+            followButton.setOnClickListener(createOnClickListener(user,
+                                                                  followingOperations,
+                                                                  engagementsTracking,
+                                                                  screenProvider));
         }
 
         stationButton.setVisibility(View.GONE);
@@ -77,6 +77,33 @@ class ProfileHeaderPresenter {
                 FullImageDialog.show(profileActivity.getSupportFragmentManager(), user);
             }
         });
+    }
+
+    private View.OnClickListener createOnClickListener(final Urn user,
+                                                       final FollowingOperations followingOperations,
+                                                       final EngagementsTracking engagementsTracking,
+                                                       final ScreenProvider screenProvider) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                followingOperations
+                        .toggleFollowing(user, followButton.isChecked())
+                        .subscribe(new DefaultSubscriber<PropertySet>());
+
+                engagementsTracking.followUserUrn(user,
+                                                  followButton.isChecked(),
+                                                  getEventContextMetadata(screenProvider));
+
+                updateStationButton();
+            }
+        };
+    }
+
+    private EventContextMetadata getEventContextMetadata(ScreenProvider screenProvider) {
+        return EventContextMetadata.builder()
+                                   .module(Module.create(Module.SINGLE, POSITION_IN_CONTEXT))
+                                   .pageName(screenProvider.getLastScreen().get())
+                                   .build();
     }
 
     void setUserDetails(ProfileUser user) {
@@ -154,6 +181,7 @@ class ProfileHeaderPresenter {
         private final FollowingOperations followingOperations;
         private final EngagementsTracking engagementsTracking;
         private final StartStationHandler stationHandler;
+        private final ScreenProvider screenProvider;
 
         @Inject
         public ProfileHeaderPresenterFactory(ImageOperations imageOperations,
@@ -161,19 +189,21 @@ class ProfileHeaderPresenter {
                                              AccountOperations accountOperations,
                                              FollowingOperations followingOperations,
                                              EngagementsTracking engagementsTracking,
-                                             StartStationHandler stationHandler) {
+                                             StartStationHandler stationHandler,
+                                             ScreenProvider screenProvider) {
             this.imageOperations = imageOperations;
             this.numberFormatter = numberFormatter;
             this.accountOperations = accountOperations;
             this.followingOperations = followingOperations;
             this.engagementsTracking = engagementsTracking;
             this.stationHandler = stationHandler;
+            this.screenProvider = screenProvider;
         }
 
         ProfileHeaderPresenter create(AppCompatActivity profileActivity, Urn user) {
             return new ProfileHeaderPresenter(imageOperations, numberFormatter, accountOperations,
                                               user, profileActivity, followingOperations, engagementsTracking,
-                                              stationHandler);
+                                              stationHandler, screenProvider);
         }
     }
 

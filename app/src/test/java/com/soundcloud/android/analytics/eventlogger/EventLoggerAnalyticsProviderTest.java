@@ -198,6 +198,42 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldTrackFollowEventsWithV1() {
+        final EntityMetadata userMetadata = EntityMetadata.fromUser(TestPropertySets.user());
+        EventContextMetadata eventContext = eventContextBuilder().build();
+
+        UIEvent event = UIEvent.fromToggleFollow(true,
+                                                 userMetadata,
+                                                 eventContext);
+
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForFollowEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForFollowEvent");
+    }
+
+    @Test
+    public void shouldTrackUnFollowEventsV1() {
+        PropertySet userProperties = TestPropertySets.user();
+        EventContextMetadata eventContext = eventContextBuilder().build();
+
+        UIEvent event = UIEvent.fromToggleFollow(false,
+                                                 EntityMetadata.fromUser(userProperties),
+                                                 eventContext);
+
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnFollowEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForUnFollowEvent");
+    }
+
+    @Test
     public void shouldTrackRepostEventsWithV1() {
         PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
         PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);

@@ -59,8 +59,12 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_PLAYER_CLOSE);
     }
 
-    public static UIEvent fromToggleFollow(boolean isFollow, @NonNull EntityMetadata userMetadata) {
-        return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW).putPlayableMetadata(userMetadata);
+    public static UIEvent fromToggleFollow(boolean isFollow,
+                                           @NonNull EntityMetadata userMetadata,
+                                           EventContextMetadata eventContextMetadata) {
+        return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
+                .putPlayableMetadata(userMetadata)
+                .putEventContextMetadata(eventContextMetadata);
     }
 
     public static UIEvent fromToggleLike(boolean isLike,
@@ -133,8 +137,10 @@ public final class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromAdClickThrough(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        final UIEvent event = withBasicAdAttributes(new UIEvent(KIND_AD_CLICKTHROUGH, System.currentTimeMillis()), adData, trackSourceInfo)
-                              .addPromotedTrackingUrls(CLICKTHROUGHS, adData.getClickUrls());
+        final UIEvent event = withBasicAdAttributes(new UIEvent(KIND_AD_CLICKTHROUGH, System.currentTimeMillis()),
+                                                    adData,
+                                                    trackSourceInfo)
+                .addPromotedTrackingUrls(CLICKTHROUGHS, adData.getClickUrls());
 
         if (adData instanceof AudioAd) {
             final AudioAd audioAd = (AudioAd) adData;
@@ -171,7 +177,8 @@ public final class UIEvent extends TrackingEvent {
         return adEvent
                 .put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString())
                 .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString())
-                .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, (adData instanceof VideoAd) ? TYPE_VIDEO_AD : TYPE_AUDIO_AD)
+                .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE,
+                     (adData instanceof VideoAd) ? TYPE_VIDEO_AD : TYPE_AUDIO_AD)
                 .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
     }
 

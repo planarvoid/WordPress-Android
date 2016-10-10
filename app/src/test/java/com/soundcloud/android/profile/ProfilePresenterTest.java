@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -73,6 +74,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private ScreenStateProvider screenStateProvider;
     @Mock private ActivityReferringEventProvider referringEventProvider;
     @Mock private EnterScreenDispatcher enterScreenDispatcher;
+    @Mock private ScreenProvider screenProvider;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
     @Captor private ArgumentCaptor<ScreenEvent> screenEventArgumentCaptor;
 
@@ -87,6 +89,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
         intent.putExtra(ProfileActivity.EXTRA_USER_URN, USER_URN);
 
+        when(screenProvider.getLastScreen()).thenReturn(Screen.USER_MAIN);
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getResources()).thenReturn(resources);
@@ -105,7 +108,8 @@ public class ProfilePresenterTest extends AndroidUnitTest {
                                                 accountOperations,
                                                 eventTracker,
                                                 referringEventProvider,
-                                                enterScreenDispatcher);
+                                                enterScreenDispatcher,
+                                                screenProvider);
     }
 
     @Test
