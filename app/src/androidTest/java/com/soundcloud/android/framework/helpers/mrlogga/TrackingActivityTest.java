@@ -36,7 +36,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
 
         final Context context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context,
-                                                                 new DeviceHelper(context, new BuildHelper()),
+                                                                 new DeviceHelper(context, new BuildHelper(), context.getResources()),
                                                                  new OkHttpClient(), new JacksonJsonTransformer());
 
         verifier = new MrLoggaVerifier(client, waiter);

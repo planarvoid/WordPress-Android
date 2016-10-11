@@ -1,12 +1,14 @@
 package com.soundcloud.android.utils;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.R;
 import com.soundcloud.java.hashing.Hashing;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.provider.Settings;
@@ -26,12 +28,14 @@ public class DeviceHelper {
 
     private final Context context;
     private final BuildHelper buildHelper;
+    private final Resources resources;
     private final String udid;
 
     @Inject
-    public DeviceHelper(Context context, BuildHelper buildHelper) {
+    public DeviceHelper(Context context, BuildHelper buildHelper, Resources resources) {
         this.context = context;
         this.buildHelper = buildHelper;
+        this.resources = resources;
         final String deviceId = getUniqueDeviceId();
         if (deviceId != null) {
             this.udid = Hashing.md5(deviceId);
@@ -102,6 +106,10 @@ public class DeviceHelper {
     public boolean isLowMemoryDevice() {
         // Reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
         return Runtime.getRuntime().maxMemory() < LOW_MEM_DEVICE_THRESHOLD;
+    }
+
+    public boolean isTablet() {
+        return resources.getBoolean(R.bool.is_tablet);
     }
 
     public DisplayMetrics getDisplayMetrics() {

@@ -5,6 +5,7 @@ import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.support.annotation.VisibleForTesting;
 import android.widget.ImageView;
 
@@ -20,17 +22,22 @@ final class ImageOptionsFactory {
 
     static final int DELAY_BEFORE_LOADING = 200;
 
-    static DisplayImageOptions adapterViewCircular(@Nullable Drawable placeholderDrawable, ApiImageSize apiImageSize) {
-        return adapterView(placeholderDrawable, apiImageSize, new CircularTransitionDisplayer());
+    static DisplayImageOptions adapterViewCircular(@Nullable Drawable placeholderDrawable,
+                                                   ApiImageSize apiImageSize,
+                                                   DeviceHelper deviceHelper) {
+        return adapterView(placeholderDrawable, apiImageSize, new CircularTransitionDisplayer(), deviceHelper);
     }
 
-    static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable, ApiImageSize apiImageSize) {
-        return adapterView(placeholderDrawable, apiImageSize, new PlaceholderTransitionDisplayer());
+    static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable,
+                                           ApiImageSize apiImageSize,
+                                           DeviceHelper deviceHelper) {
+        return adapterView(placeholderDrawable, apiImageSize, new PlaceholderTransitionDisplayer(), deviceHelper);
     }
 
     private static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable,
                                                    ApiImageSize apiImageSize,
-                                                   PlaceholderTransitionDisplayer displayer) {
+                                                   PlaceholderTransitionDisplayer displayer,
+                                                   DeviceHelper deviceHelper) {
         DisplayImageOptions.Builder options = fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .showImageOnLoading(placeholderDrawable)
@@ -38,7 +45,10 @@ final class ImageOptionsFactory {
                 .showImageForEmptyUri(placeholderDrawable)
                 .displayer(displayer);
 
-        if (ApiImageSize.SMALL_SIZES.contains(apiImageSize)) {
+        if (ApiImageSize.SMALL_SIZES.contains(apiImageSize)
+                || Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+                || deviceHelper.isLowMemoryDevice()
+                || deviceHelper.isTablet()) {
             options.bitmapConfig(Bitmap.Config.RGB_565);
         }
 
