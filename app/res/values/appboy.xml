@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <drawable name="com_appboy_push_small_notification_icon">@drawable/ic_notification_cloud</drawable>
+
+    <integer name="com_appboy_trigger_action_minimum_time_interval_seconds">5</integer>
 </resources>
