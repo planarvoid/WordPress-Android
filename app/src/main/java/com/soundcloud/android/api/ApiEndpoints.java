@@ -76,6 +76,9 @@ public enum ApiEndpoints {
     MY_TRACK_POSTS("/you/posts_and_reposts/tracks"),
     MY_PLAYLIST_POSTS("/you/posts_and_reposts/playlists"),
 
+    // followings
+    MY_FOLLOWINGS("/you/followings"),
+
     // profile
     MY_DOB("/you/profile/dob"),
     USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
