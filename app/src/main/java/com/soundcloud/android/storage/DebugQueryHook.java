@@ -10,6 +10,7 @@ class DebugQueryHook implements PropellerDatabase.QueryHook {
 
     private static final String TAG = "QueryDebug";
     private static final int MAX_QUERY_LENGTH = 100;
+    private static final int QUERY_LENGTH_TOLERANCE = 1000;
 
     @Override
     public void onQueryStarted(Query query) {
@@ -37,9 +38,16 @@ class DebugQueryHook implements PropellerDatabase.QueryHook {
 
     private void logQueryFinished(String query, long duration) {
         ErrorUtils.log(Log.DEBUG, TAG, "finish ("+ duration + "ms) : " + limit(query));
+
+        if (duration > QUERY_LENGTH_TOLERANCE) {
+            ErrorUtils.handleSilentException(new SQLRequestOverdueException());
+        }
     }
 
     private String limit(String query) {
         return query.length() <= MAX_QUERY_LENGTH ? query : query.substring(0, MAX_QUERY_LENGTH);
+    }
+
+    public static class SQLRequestOverdueException extends Exception {
     }
 }

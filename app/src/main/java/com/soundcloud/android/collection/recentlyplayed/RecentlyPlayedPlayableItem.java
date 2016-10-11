@@ -14,13 +14,15 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
     private final int trackCount;
     private final boolean isAlbum;
     private Optional<OfflineState> offlineState;
+    private final long timestamp;
 
     public RecentlyPlayedPlayableItem(Urn urn,
                                       Optional<String> imageUrl,
                                       String title,
                                       int trackCount,
                                       boolean isAlbum,
-                                      Optional<OfflineState> offlineState) {
+                                      Optional<OfflineState> offlineState,
+                                      long timestamp) {
 
         this.urn = urn;
         this.imageUrl = imageUrl;
@@ -28,6 +30,7 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
         this.trackCount = trackCount;
         this.isAlbum = isAlbum;
         this.offlineState = offlineState;
+        this.timestamp = timestamp;
     }
 
     public String getTitle() {
@@ -58,6 +61,10 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
     @Override
     public Optional<String> getImageUrlTemplate() {
         return imageUrl;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     private static Kind kindFor(Urn urn) {

@@ -61,7 +61,7 @@ public class RecentlyPlayedOperations {
     }
 
     private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayedItems(int limit) {
-        return recentlyPlayedStorage.loadContexts(limit).toList();
+        return recentlyPlayedStorage.loadContexts(limit);
     }
 
 }

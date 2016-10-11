@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
+import static java.util.Collections.singletonList;
+
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.offline.OfflineState;
@@ -8,6 +10,8 @@ import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
+
+import java.util.List;
 
 public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
@@ -20,23 +24,23 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadCorrectOfflineStateForPlaylistMarkedAsOffline() {
-        final TestSubscriber<RecentlyPlayedPlayableItem> subscriber = new TestSubscriber<>();
+        final TestSubscriber<List<RecentlyPlayedPlayableItem>> subscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist = insertDownloadedOfflinePlaylist();
         testFixtures().insertRecentlyPlayed(100, apiPlaylist.getUrn());
 
         storage.loadContexts(1).subscribe(subscriber);
 
-        subscriber.assertValue(getRecentlyPlayedItem(apiPlaylist, Optional.of(OfflineState.DOWNLOADED)));
+        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.of(OfflineState.DOWNLOADED), 100)));
     }
 
     @Test
     public void loadCorrectOfflineStateForPlaylistNotMarkedAsOffline() {
-        final TestSubscriber<RecentlyPlayedPlayableItem> subscriber = new TestSubscriber<>();
+        final TestSubscriber<List<RecentlyPlayedPlayableItem>> subscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist = insertRecentPlaylist();
 
         storage.loadContexts(1).subscribe(subscriber);
 
-        subscriber.assertValue(getRecentlyPlayedItem(apiPlaylist, Optional.<OfflineState>absent()));
+        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.<OfflineState>absent(), 0L)));
 
     }
 
@@ -56,13 +60,15 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
     }
 
     private RecentlyPlayedPlayableItem getRecentlyPlayedItem(ApiPlaylist playlist,
-                                                             Optional<OfflineState> offlineState) {
+                                                             Optional<OfflineState> offlineState,
+                                                             long timestamp) {
         return new RecentlyPlayedPlayableItem(playlist.getUrn(),
                                               playlist.getImageUrlTemplate(),
                                               playlist.getTitle(),
                                               playlist.getTrackCount(),
                                               playlist.isAlbum(),
-                                              offlineState);
+                                              offlineState,
+                                              timestamp);
 
     }
 
