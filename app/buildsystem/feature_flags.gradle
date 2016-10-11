@@ -98,6 +98,7 @@ android {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
     }
 
     preRelease {
@@ -108,6 +109,7 @@ android {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
@@ -118,6 +120,7 @@ android {
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
     }
   }
 }
