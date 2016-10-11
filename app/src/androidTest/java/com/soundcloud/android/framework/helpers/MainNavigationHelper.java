@@ -43,7 +43,16 @@ public class MainNavigationHelper {
     }
 
     public DiscoveryScreen goToDiscovery() {
-        return mainTabs().clickDiscovery();
+        // TODO: Fix horrible hack after Support Library bump.
+        // Bug: When Robotium clicks on the Search Icon in the main nav, the app switches to the Discovery screen
+        // then performs a sudden scrollDown. This leads all tests that search for the `search_text` view to fail.
+        //
+        // As a quick fix, simply double-tap the discovery tab. This will force the search screen to scroll to the top.
+        final MainTabs mainTabs = mainTabs();
+
+        mainTabs.clickDiscovery();
+
+        return mainTabs.clickDiscovery();
     }
 
     public ExploreScreen goToExplore() {
