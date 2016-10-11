@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.playqueue;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.DeviceHelper;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -50,8 +51,11 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
         }
     }
 
+    private final DeviceHelper deviceHelper;
+
     @Inject
-    public PlayQueueItemAnimator() {
+    public PlayQueueItemAnimator(DeviceHelper deviceHelper) {
+        this.deviceHelper = deviceHelper;
         this.random = new Random();
         this.mode = Mode.DEFAULT;
     }
@@ -95,12 +99,12 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
         }
     }
 
-    private void startAlphaAnimation(final RecyclerView.ViewHolder viewHolder, float newAlpha) {
+    private void startAlphaAnimation(final RecyclerView.ViewHolder viewHolder, final float newAlpha) {
         View target = viewHolder.itemView;
-        View image = target.findViewById(R.id.image);
-        View textHolder = target.findViewById(R.id.text_holder);
-        ObjectAnimator imageAnimator = ObjectAnimator.ofFloat(image, "alpha", image.getAlpha(), newAlpha);
-        ObjectAnimator textAnimator = ObjectAnimator.ofFloat(textHolder, "alpha", textHolder.getAlpha(), newAlpha);
+        final View image = target.findViewById(R.id.image);
+        final View textHolder = target.findViewById(R.id.text_holder);
+        ObjectAnimator imageAnimator = ObjectAnimator.ofFloat(image, View.ALPHA, image.getAlpha(), newAlpha);
+        ObjectAnimator textAnimator = ObjectAnimator.ofFloat(textHolder, View.ALPHA, textHolder.getAlpha(), newAlpha);
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(imageAnimator, textAnimator);
 
@@ -119,6 +123,8 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
 
             @Override
             public void onAnimationCancel(Animator animation) {
+                ViewCompat.setAlpha(image, newAlpha);
+                ViewCompat.setAlpha(textHolder, newAlpha);
             }
 
             @Override
@@ -260,7 +266,8 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
         final int newTop;
         if (viewHolder.getAdapterPosition() == -1) {
             // We don't know the new position so use a random position
-            newTop = oldTop + getRandomNumberInInterval(7, 12) * height;
+            int minIntevalStart = deviceHelper.getDisplayMetrics().heightPixels / height;
+            newTop = oldTop + getRandomNumberInInterval(minIntevalStart, minIntevalStart + 5) * height;
         } else {
             final int position = viewHolder.getAdapterPosition();
             // There is an approximation here as the first item in the adapter
@@ -289,13 +296,13 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
 
         final AnimatorSet animSetXY = new AnimatorSet();
 
-        animSetXY.play(ObjectAnimator.ofFloat(view, "translationY", 0f).setDuration(MOVE_ANIMATION_DURATION));
+        animSetXY.play(ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, 0f).setDuration(MOVE_ANIMATION_DURATION));
 
         final float originalAlpha = view.getAlpha();
         if (originalAlpha == 1) {
             animSetXY.playSequentially(
-                    ObjectAnimator.ofFloat(view, "alpha", 0.5f).setDuration(MOVE_FADE_OUT_ANIMATION_DURATION),
-                    ObjectAnimator.ofFloat(view, "alpha", 1f).setDuration(MOVE_FADE_IN_ANIMATION_DURATION)
+                    ObjectAnimator.ofFloat(view, View.ALPHA, 0.5f).setDuration(MOVE_FADE_OUT_ANIMATION_DURATION),
+                    ObjectAnimator.ofFloat(view, View.ALPHA, 1f).setDuration(MOVE_FADE_IN_ANIMATION_DURATION)
             );
         }
 
