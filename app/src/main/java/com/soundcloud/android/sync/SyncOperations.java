@@ -28,10 +28,10 @@ public class SyncOperations {
     }
 
     public Observable<Result> failSafeSync(Syncable syncable) {
-        return sync(syncable).onErrorResumeNext(Observable.just(Result.NO_OP));
+        return sync(syncable).onErrorResumeNext(Observable.just(Result.ERROR));
     }
 
-    public Observable<Result> syncIfStale(Syncable syncable) {
+    Observable<Result> syncIfStale(Syncable syncable) {
         if (isContentStale(syncable)) {
             return just(Result.NO_OP);
         } else {
@@ -57,6 +57,6 @@ public class SyncOperations {
     }
 
     public enum Result {
-        SYNCED, SYNCING, NO_OP
+        SYNCED, SYNCING, NO_OP, ERROR
     }
 }

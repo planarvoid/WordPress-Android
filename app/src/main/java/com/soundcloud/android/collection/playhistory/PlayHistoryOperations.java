@@ -58,9 +58,8 @@ public class PlayHistoryOperations {
     }
 
     public Observable<List<TrackItem>> refreshPlayHistory(final int limit) {
-        return syncOperations.sync(Syncable.PLAY_HISTORY)
+        return syncOperations.failSafeSync(Syncable.PLAY_HISTORY)
                              .observeOn(scheduler)
-                             .onErrorResumeNext(Observable.just(Result.NO_OP))
                              .flatMap(continueWith(tracks(limit)));
     }
 

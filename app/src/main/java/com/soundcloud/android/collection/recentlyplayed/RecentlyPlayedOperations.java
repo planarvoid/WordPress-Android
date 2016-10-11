@@ -50,9 +50,8 @@ public class RecentlyPlayedOperations {
     }
 
     public Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed(int limit) {
-        return syncOperations.sync(Syncable.RECENTLY_PLAYED)
+        return syncOperations.failSafeSync(Syncable.RECENTLY_PLAYED)
                              .observeOn(scheduler)
-                             .onErrorResumeNext(Observable.just(Result.NO_OP))
                              .flatMap(continueWith(recentlyPlayedItems(limit)));
     }
 

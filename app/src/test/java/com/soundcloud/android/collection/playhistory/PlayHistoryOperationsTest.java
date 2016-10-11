@@ -56,7 +56,7 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldForceSyncPlayHistoryOnRefresh() {
-        when(syncOperations.sync(Syncable.PLAY_HISTORY))
+        when(syncOperations.failSafeSync(Syncable.PLAY_HISTORY))
                 .thenReturn(Observable.just(SyncOperations.Result.NO_OP));
 
         operations.refreshPlayHistory().subscribe(trackSubscriber);

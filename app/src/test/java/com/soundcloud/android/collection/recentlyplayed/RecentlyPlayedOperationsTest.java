@@ -53,7 +53,7 @@ public class RecentlyPlayedOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldForceSyncRecentlyPlayedOnRefresh() {
-        when(syncOperations.sync(Syncable.RECENTLY_PLAYED))
+        when(syncOperations.failSafeSync(Syncable.RECENTLY_PLAYED))
                 .thenReturn(Observable.just(SyncOperations.Result.NO_OP));
 
         operations.refreshRecentlyPlayed().subscribe(contextsSubscriber);

@@ -134,6 +134,15 @@ public class SyncOperationsTest {
         subscriber.assertCompleted();
     }
 
+    @Test
+    public void syncFailsOnException() {
+        final Exception exception = new Exception("SYNC FAILED");
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.<SyncJobResult>error(exception));
+
+        syncOperations.sync(SYNCABLE).subscribe(subscriber);
+
+        subscriber.assertError(exception);
+    }
 
     @Test
     public void failSafeSyncDoesReturnResultOnException() {
@@ -142,6 +151,6 @@ public class SyncOperationsTest {
         syncOperations.failSafeSync(SYNCABLE).subscribe(subscriber);
 
         subscriber.assertCompleted();
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(SyncOperations.Result.NO_OP);
+        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(SyncOperations.Result.ERROR);
     }
 }
