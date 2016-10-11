@@ -125,7 +125,7 @@ You can simply run unit tests by right clicking the `java` folder in `src/test/j
 
 ## [Wiki][wiki] topics
 
-* [Dev Tools][Dev-Tools]
+* [Dev Tools][dev-tools]
 * [Acceptance Tests][acceptance-tests]
 * [Releasing][releasing]
 * [Betas][betas]
@@ -146,4 +146,4 @@ You can simply run unit tests by right clicking the `java` folder in `src/test/j
 [java-syntax]: https://github.com/soundcloud/SoundCloud-Android/wiki/Java-Syntax-Conventions
 [JUnit default run config]: http://f.cl.ly/items/3q3m3v2U0C1b0w1c2D2G/default_junit_run_configuration.png
 [Android code style]: http://f.cl.ly/items/1j0U3Q0i330b3G2D3G1D/codestye_soundcloud.png
-
+[dev-tools]: https://github.com/soundcloud/SoundCloud-Android/wiki/Dev-Tools
