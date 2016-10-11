@@ -7,10 +7,12 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.suggestedcreators.SuggestedCreator;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -139,9 +141,13 @@ public abstract class SoundStreamItem {
 
     @AutoValue
     public abstract static class SuggestedCreators extends SoundStreamItem {
-        public abstract List<SuggestedCreator> suggestedCreators();
+        public abstract List<SuggestedCreatorItem> suggestedCreators();
         public static SuggestedCreators create(List<SuggestedCreator> suggestedCreators) {
-            return new AutoValue_SoundStreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreators);
+            final List<SuggestedCreatorItem> suggestedCreatorItems = new ArrayList<>(suggestedCreators.size());
+            for (SuggestedCreator suggestedCreator : suggestedCreators) {
+                suggestedCreatorItems.add(SuggestedCreatorItem.fromSuggestedCreator(suggestedCreator));
+            }
+            return new AutoValue_SoundStreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreatorItems);
         }
     }
 }

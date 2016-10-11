@@ -83,7 +83,7 @@ public class FragmentRule implements TestRule {
     }
 
     @SuppressLint("ValidFragment")
-    static class DummyFragment extends Fragment {
+    public static class DummyFragment extends Fragment {
 
         @LayoutRes private final int layoutId;
 

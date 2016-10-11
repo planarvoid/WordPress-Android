@@ -15,6 +15,8 @@ public enum ApiImageSize {
     T300("t300x300", 300, 300),
     T120("t120x120", 120, 120),
     T47("t47x47", 47, 47),
+    T1240x260("t1240x260", 1240, 260),
+    T2480x520("t2480x520", 2480, 520),
     Unknown("t120x120", 120, 120);
 
     public final int width;
@@ -72,6 +74,17 @@ public enum ApiImageSize {
             return ApiImageSize.T300;
         } else {
             return ApiImageSize.T120;
+        }
+    }
+
+    public static ApiImageSize getFullBannerSize(Resources resources) {
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        int maxResolution = Math.max(metrics.heightPixels, metrics.widthPixels);
+
+        if (maxResolution >= HIGH_RESOLUTION_SIZE) {
+            return ApiImageSize.T2480x520;
+        } else {
+            return ApiImageSize.T1240x260;
         }
     }
 

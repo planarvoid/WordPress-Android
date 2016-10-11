@@ -11,7 +11,7 @@ import com.soundcloud.java.collections.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SuggestedCreatorsFixtures {
+class SuggestedCreatorsFixtures {
     static ApiSuggestedCreatorItem createApiSuggestedCreatorItem() {
         ApiSuggestedCreator apiSuggestedCreator = createApiSuggestedCreator();
         return ApiSuggestedCreatorItem.create(apiSuggestedCreator);
@@ -32,6 +32,17 @@ public class SuggestedCreatorsFixtures {
         for (int i = 0; i < count; i++) {
             result.add(SuggestedCreator.create(ModelFixtures.create(User.class), relation));
         }
+        return result;
+    }
+
+    static List<SuggestedCreatorItem> createSuggestedCreatorItems(int count) {
+        final List<SuggestedCreatorItem> result = new ArrayList<>(count);
+
+        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(count, SuggestedCreatorRelation.LIKED);
+        for (SuggestedCreator suggestedCreator : suggestedCreators) {
+            result.add(SuggestedCreatorItem.fromSuggestedCreator(suggestedCreator));
+        }
+
         return result;
     }
 }

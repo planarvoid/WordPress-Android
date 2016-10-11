@@ -105,6 +105,7 @@
     <color name="page_background">#f3f3f3</color>
 
     <color name="following_text">@color/ak_sc_orange</color>
+    <color name="follow_text">@color/ak_dark_gray</color>
     <color name="gray_text">@color/ak_medium_dark_gray</color>
     <color name="dark_gray_text">@color/ak_almost_black</color>
     <color name="tab_bar_divider">#dddddd</color>
@@ -118,6 +119,7 @@
     <color name="user_image_border_color">#1a000000</color>
     <color name="artwork_border_color">#1a000000</color>
     <color name="translucent_dark_background">#e0000000</color>
+    <color name="translucent_grey_border">#1A000000</color>
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>
@@ -152,6 +154,11 @@
     <color name="discovery_search_premium_view_all">@color/ak_dark_gray</color>
     <color name="recommendation_card_track_title">@color/ak_almost_black</color>
     <color name="recommendation_card_artist_name">@color/ak_medium_dark_gray</color>
+
+    <!-- Suggested Creators -->
+    <color name="suggested_creators_heading">@color/ak_dark_gray</color>
+    <color name="suggested_creators_blurb">@color/ak_medium_dark_gray</color>
+    <color name="suggested_creators_reason">@color/ak_medium_dark_gray</color>
 
     <!-- Stations -->
     <color name="stations_blur_overlay">#1a000000</color>

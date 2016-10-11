@@ -1,6 +1,7 @@
 package com.soundcloud.android.users;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
@@ -12,8 +13,8 @@ public class UserBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            final User user = User.create(Urn.forUser(runningId++), "user"+ runningId, "country", "city", 100, true);
-            return user;
+            return User.create(Urn.forUser(runningId++), "user"+ runningId, "country", "city", 100, true,
+                               Optional.<String>absent(), Optional.<String>absent());
         }
     };
 }

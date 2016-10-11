@@ -12,10 +12,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.support.v4.SupportFragmentTestUtil;
 
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -35,7 +31,7 @@ public class ScrollableProfileFragmentTest extends AndroidUnitTest {
         when(view.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(emptyView.getLayoutParams()).thenReturn(layoutParams);
 
-        fragment = createFragment();
+        fragment = ScrollableProfileFragmentFixture.create(view);
     }
 
     @Test
@@ -55,22 +51,5 @@ public class ScrollableProfileFragmentTest extends AndroidUnitTest {
         SupportFragmentTestUtil.startFragment(fragment);
 
         verify(swipeRefreshLayout).setEnabled(true);
-    }
-
-    @NonNull
-    private ScrollableProfileFragment createFragment() {
-        return new ScrollableProfileFragment() {
-
-            @Nullable
-            @Override
-            public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-                return view;
-            }
-
-            @Override
-            public View[] getRefreshableViews() {
-                return new View[0];
-            }
-        };
     }
 }

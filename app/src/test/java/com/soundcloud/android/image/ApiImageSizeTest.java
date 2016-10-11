@@ -107,6 +107,16 @@ public class ApiImageSizeTest extends AndroidUnitTest {
         assertFullImageUri(240, 320, ApiImageSize.T120);
     }
 
+    @Test
+    public void shouldReturnT2480x520ForHiResScreens() {
+        assertFullBannerUri(1080, 1920, ApiImageSize.T2480x520);
+    }
+
+    @Test
+    public void shouldReturnT1240x260ForMidResScreens() {
+        assertFullBannerUri(640, 480, ApiImageSize.T1240x260);
+    }
+
     private void assertFormatUri(float density, String input, String expected) {
         Resources resources = mock(Resources.class);
         Context context = mock(Context.class);
@@ -128,4 +138,13 @@ public class ApiImageSizeTest extends AndroidUnitTest {
         assertThat(ApiImageSize.getFullImageSize(resources)).isEqualTo(expected);
     }
 
+
+    private void assertFullBannerUri(int width, int height, ApiImageSize expected) {
+        Resources resources = mock(Resources.class);
+        DisplayMetrics displayMetrics = new DisplayMetricsStub(width, height);
+
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
+
+        assertThat(ApiImageSize.getFullBannerSize(resources)).isEqualTo(expected);
+    }
 }

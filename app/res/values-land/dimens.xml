@@ -35,4 +35,7 @@
     <!-- Stations -->
     <dimen name="stations_home_artwork_size">104dp</dimen>
 
+    <!-- Suggested creators -->
+    <dimen name="suggested_creators_module_left_padding">0dp</dimen>
+
 </resources>

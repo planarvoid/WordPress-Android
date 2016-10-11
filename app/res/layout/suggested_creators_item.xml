@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView style="@style/SuggestedCreators.BackgroundCard"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="272dp"
+    android:layout_height="140dp"
+    android:layout_marginRight="16dp">
+
+    <ImageView
+        android:id="@+id/suggested_creator_visual_banner"
+        android:layout_width="420dp"
+        android:layout_height="88dp" />
+
+    <com.soundcloud.android.view.CircularBorderImageView
+        android:id="@+id/suggested_creator_avatar"
+        android:layout_width="67.6923076923dp"
+        android:layout_height="67.6923076923dp"
+        android:layout_marginLeft="10.1538461538dp"
+        android:layout_marginTop="10.1538461538dp" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/suggested_creators_item"
+        style="@style/SuggestedCreators.ForegroundCard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@+id/suggested_creator_artist"
+                style="@style/SuggestedCreators.Artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="88dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="16dp" />
+
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@+id/suggested_creator_location"
+                style="@style/SuggestedCreators.Location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/suggested_creator_artist"
+                android:layout_marginLeft="88dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="4dp" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/suggested_creator_relation"
+                style="@style/SuggestedCreators.Reason"
+                android:layout_width="144dp"
+                android:layout_height="36dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="12dp" />
+
+            <com.soundcloud.android.view.CustomFontToggleButton
+                android:id="@+id/toggle_btn_follow"
+                style="@style/SuggestedCreators.FollowButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+</android.support.v7.widget.CardView>
+

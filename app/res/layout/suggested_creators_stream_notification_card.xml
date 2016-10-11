@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/SuggestedCreators.Heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:text="@string/suggested_creators" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/SuggestedCreators.Blurb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/suggested_creators_blurb" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/suggested_creators_carousel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingLeft="@dimen/suggested_creators_module_left_padding" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/SuggestedCreators.Heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:text="@string/suggested_creators_recent_posts" />
+
+</LinearLayout>

@@ -257,6 +257,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return getFirstUrn().isPlaylist() && getKind() == ENTITY_DELETED;
     }
 
+    public boolean isFollowingKind() {
+        return getKind() == FOLLOWING;
+    }
+
     private boolean isTrackAddedEvent() {
         return getKind() == TRACK_ADDED_TO_PLAYLIST;
     }

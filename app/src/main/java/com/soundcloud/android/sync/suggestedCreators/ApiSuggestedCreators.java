@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApiSuggestedCreators extends ModelCollection<ApiSuggestedCreatorItem> {
+    public ApiSuggestedCreators() {
+    }
 
     @VisibleForTesting
     public ApiSuggestedCreators(List<ApiSuggestedCreatorItem> apiSuggestedCreatorItems) {

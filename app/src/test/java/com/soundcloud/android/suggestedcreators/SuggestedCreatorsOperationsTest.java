@@ -46,17 +46,21 @@ public class SuggestedCreatorsOperationsTest {
                                                      suggestedCreatorsStorage,
                                                      scheduler);
         when(featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)).thenReturn(true);
-        when(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS)).thenReturn(Observable.just(SYNCED));
+        when(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS)).thenReturn(Observable.just(
+                SYNCED));
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.<List<SuggestedCreator>>empty());
         subscriber = new TestSubscriber<>();
     }
 
     @Test
     public void returnsNotificationItemIfNumberOfFollowingsLowerEqualThanFive() {
-        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(3, SuggestedCreatorRelation.LIKED);
-        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(suggestedCreators));
+        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(3,
+                                                                                 SuggestedCreatorRelation.LIKED);
+        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(
+                suggestedCreators));
 
-        when(myProfileOperations.followingsUrns()).thenReturn(Observable.just(generateNonUserFollowingUrns(5)));
+        when(myProfileOperations.followingsUrns()).thenReturn(Observable.just(
+                generateNonUserFollowingUrns(5)));
 
         operations.suggestedCreators().subscribe(subscriber);
 
@@ -68,8 +72,10 @@ public class SuggestedCreatorsOperationsTest {
 
     @Test
     public void filtersOutCreatorsAlreadyFollowed() {
-        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(2, SuggestedCreatorRelation.LIKED);
-        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(suggestedCreators));
+        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(2,
+                                                                                 SuggestedCreatorRelation.LIKED);
+        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(
+                suggestedCreators));
 
         final List<Urn> usedUrns = Lists.newArrayList(suggestedCreators.get(0).getCreator().urn());
         when(myProfileOperations.followingsUrns()).thenReturn(Observable.just(usedUrns));
@@ -77,19 +83,26 @@ public class SuggestedCreatorsOperationsTest {
         operations.suggestedCreators().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final SoundStreamItem.SuggestedCreators notificationItem = (SoundStreamItem.SuggestedCreators) subscriber.getOnNextEvents().get(0);
+        final SoundStreamItem.SuggestedCreators notificationItem = (SoundStreamItem.SuggestedCreators) subscriber
+                .getOnNextEvents()
+                .get(0);
 
         assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
         assertThat(notificationItem.suggestedCreators().size()).isEqualTo(1);
-        assertThat(notificationItem.suggestedCreators().get(0)).isEqualTo(suggestedCreators.get(1));
+        assertThat(notificationItem.suggestedCreators()
+                                   .get(0)).isEqualTo(SuggestedCreatorItem.fromSuggestedCreator(
+                suggestedCreators.get(1)));
     }
 
     @Test
     public void doesNotEmitItemWhenAllSuggestedCreatorsFilteredOut() {
-        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(2, SuggestedCreatorRelation.LIKED);
-        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(suggestedCreators));
+        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(2,
+                                                                                 SuggestedCreatorRelation.LIKED);
+        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(
+                suggestedCreators));
 
-        final List<Urn> usedUrns = Lists.newArrayList(suggestedCreators.get(0).getCreator().urn(), suggestedCreators.get(1).getCreator().urn());
+        final List<Urn> usedUrns = Lists.newArrayList(suggestedCreators.get(0).getCreator().urn(),
+                                                      suggestedCreators.get(1).getCreator().urn());
         when(myProfileOperations.followingsUrns()).thenReturn(Observable.just(usedUrns));
 
         operations.suggestedCreators().subscribe(subscriber);
@@ -99,7 +112,8 @@ public class SuggestedCreatorsOperationsTest {
 
     @Test
     public void returnsEmptyIfNumberOfFollowingsGreaterThanFive() {
-        when(myProfileOperations.followingsUrns()).thenReturn(Observable.just(generateNonUserFollowingUrns(6)));
+        when(myProfileOperations.followingsUrns()).thenReturn(Observable.just(
+                generateNonUserFollowingUrns(6)));
 
         operations.suggestedCreators().subscribe(subscriber);
 
@@ -109,7 +123,7 @@ public class SuggestedCreatorsOperationsTest {
     private List<Urn> generateNonUserFollowingUrns(int numberOfUrns) {
         final List<Urn> urns = Lists.newArrayList();
         for (int i = 0; i < numberOfUrns; i++) {
-            urns.add(new Urn("soundcloud:follower:"+i));
+            urns.add(new Urn("soundcloud:follower:" + i));
         }
         return urns;
     }

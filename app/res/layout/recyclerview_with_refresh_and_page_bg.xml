@@ -17,6 +17,7 @@
             android:id="@id/ak_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipChildren="false"
             android:clipToPadding="false"
             android:headerDividersEnabled="false"
             android:paddingLeft="@dimen/grids_padding_left_right"

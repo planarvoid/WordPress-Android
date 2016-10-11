@@ -44,11 +44,11 @@ public class SuggestedCreatorsOperations {
     private final Scheduler scheduler;
 
     @Inject
-    public SuggestedCreatorsOperations(FeatureFlags featureFlags,
-                                       MyProfileOperations myProfileOperations,
-                                       SyncOperations syncOperations,
-                                       SuggestedCreatorsStorage suggestedCreatorsStorage,
-                                       @Named(HIGH_PRIORITY) Scheduler scheduler) {
+    SuggestedCreatorsOperations(FeatureFlags featureFlags,
+                                MyProfileOperations myProfileOperations,
+                                SyncOperations syncOperations,
+                                SuggestedCreatorsStorage suggestedCreatorsStorage,
+                                @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.featureFlags = featureFlags;
         this.myProfileOperations = myProfileOperations;
         this.syncOperations = syncOperations;

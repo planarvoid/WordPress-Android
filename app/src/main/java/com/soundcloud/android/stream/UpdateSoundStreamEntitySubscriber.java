@@ -18,17 +18,21 @@ class UpdateSoundStreamEntitySubscriber extends DefaultSubscriber<EntityStateCha
 
     @Override
     public void onNext(final EntityStateChangedEvent event) {
-        boolean changed = false;
-        final Map<Urn, PropertySet> changeSet = event.getChangeMap();
-        for (final SoundStreamItem item : adapter.getItems()) {
-            final Optional<ListItem> listItem = item.getListItem();
-            if (listItem.isPresent() && changeSet.containsKey(listItem.get().getUrn())) {
-                changed = true;
-                listItem.get().update(changeSet.get(listItem.get().getUrn()));
+        if (event.isFollowingKind()) {
+            adapter.onFollowingEntityChange(event);
+        } else {
+            boolean changed = false;
+            final Map<Urn, PropertySet> changeSet = event.getChangeMap();
+            for (final SoundStreamItem item : adapter.getItems()) {
+                final Optional<ListItem> listItem = item.getListItem();
+                if (listItem.isPresent() && changeSet.containsKey(listItem.get().getUrn())) {
+                    changed = true;
+                    listItem.get().update(changeSet.get(listItem.get().getUrn()));
+                }
             }
-        }
-        if (changed) {
-            adapter.notifyDataSetChanged();
+            if (changed) {
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 }

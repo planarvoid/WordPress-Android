@@ -140,7 +140,7 @@ public class MixedItemClickListener {
         } else if (entityUrn.isUser()) {
             navigator.legacyOpenProfile(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
         } else {
-            throw new IllegalArgumentException("Unrecognized urn in " + this.getClass()
+            throw new IllegalArgumentException("Unrecognized urn [" + entityUrn + "] in " + this.getClass()
                                                                             .getSimpleName() + ": " + entityUrn);
         }
     }

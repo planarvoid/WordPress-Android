@@ -1017,4 +1017,16 @@
     <string name="play_queue_header_explicit">Added by you</string>
     <string name="play_queue_header_auto_play">Auto play</string>
 
+    <!-- __SUGGESTED CREATORS -->
+    <string name="suggested_creators">Suggested artists</string>
+    <string name="suggested_creators_blurb">Follow your favorite artists so you never miss any of their latest tracks</string>
+    <string name="suggested_creators_recent_posts">Recent posts</string>
+    <string name="suggested_creators_relation_listened_to">You recently listened to their track</string>
+    <string name="suggested_creators_relation_liked">You recently liked their track</string>
+    <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
+    <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
+    <string name="suggested_creators_relation_followed"/>
+    <string name="suggested_creators_relation_uploaded"/>
+    <string name="suggested_creators_relation_unknown"/>
+
 </resources>
