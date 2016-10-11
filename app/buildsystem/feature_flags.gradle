@@ -67,6 +67,7 @@ android {
       buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
@@ -146,9 +147,9 @@ android.buildTypes.all { buildType ->
   buildType.getBuildConfigFields().each {
     if (!excludeConfigFields.contains(it.key))
       if (it.getValue().getValue() == UNDER_DEVELOPMENT) {
-      failBuild("Flag ${it.key} has a UNDER_DEVELOPMENT value in build type: ${buildType.name}. " +
-              "Please remove it or turn its value to DEFAULT_SHOW or DEFAULT_HIDE.")
-    }
+        failBuild("Flag ${it.key} has a UNDER_DEVELOPMENT value in build type: ${buildType.name}. " +
+                "Please remove it or turn its value to DEFAULT_SHOW or DEFAULT_HIDE.")
+      }
   }
 }
 
