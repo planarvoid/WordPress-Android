@@ -15,12 +15,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
-
 
     enum Mode {
         DEFAULT, SHUFFLING, REPEAT
@@ -50,6 +50,7 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
         }
     }
 
+    @Inject
     public PlayQueueItemAnimator() {
         this.random = new Random();
         this.mode = Mode.DEFAULT;

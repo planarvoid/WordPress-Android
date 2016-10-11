@@ -28,18 +28,20 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
     @Override
     public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> items, Map<Urn, String> urnStringMap) {
         final List<PlayQueueUIItem> uiItems = new ArrayList<>();
+        final PlayQueueManager.RepeatMode repeatMode = playQueueManager.getRepeatMode();
         Optional<PlaybackContext> lastContext = Optional.absent();
 
         for (TrackAndPlayQueueItem item : items) {
             final PlayQueueItem playQueueItem = item.playQueueItem;
             final PlaybackContext playbackContext = ((PlayableQueueItem) playQueueItem).getPlaybackContext();
-            final Optional<String> title = getTitle(urnStringMap,playbackContext);
+            final Optional<String> title = getTitle(urnStringMap, playbackContext);
 
             if (!playQueueManager.isShuffled() && shouldAddNewHeader(lastContext, playbackContext)) {
                 lastContext = Optional.of(playbackContext);
                 uiItems.add(new HeaderPlayQueueUIItem(playbackContext, title));
             }
-            uiItems.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context, title, playQueueManager.getRepeatMode()));
+
+            uiItems.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context, title, repeatMode));
         }
         return uiItems;
     }

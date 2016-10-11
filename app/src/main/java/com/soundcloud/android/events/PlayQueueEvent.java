@@ -6,9 +6,9 @@ import com.soundcloud.android.model.Urn;
 @AutoValue
 public abstract class PlayQueueEvent {
 
-    public static final int NEW_QUEUE = 0;
-    public static final int QUEUE_UPDATE = 1;
-    public static final int ADS_REMOVED = 2;
+    private static final int NEW_QUEUE = 0;
+    private static final int QUEUE_UPDATE = 1;
+    private static final int ADS_REMOVED = 2;
 
     public abstract boolean itemMoved();
 
@@ -56,4 +56,7 @@ public abstract class PlayQueueEvent {
         return getKind() == ADS_REMOVED;
     }
 
+    public boolean itemChanged() {
+        return itemRemoved() || itemMoved() || itemAdded();
+    }
 }

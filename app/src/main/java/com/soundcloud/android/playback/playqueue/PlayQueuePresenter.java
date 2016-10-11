@@ -38,6 +38,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -55,14 +56,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private static final Func1<PlayQueueEvent, Boolean> isNotItemChangedEvent = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
-            return !playQueueEvent.itemMoved() && !playQueueEvent.itemRemoved() && !playQueueEvent.itemAdded();
-        }
-    };
-
-    private static final Func1<CurrentPlayQueueItemEvent, Boolean> hasPositionMoved = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentPlayQueueItemEvent currentPlayQueueItemEvent) {
-            return currentPlayQueueItemEvent.hasPositionChanged();
+            return !playQueueEvent.itemChanged();
         }
     };
 
@@ -84,24 +78,25 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
     private final FeedbackController feedbackController;
+    private final PlayQueueItemAnimator animator;
 
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
 
     private Subscription updateSubscription = RxUtils.invalidSubscription();
-    private PlayQueueItemAnimator animator;
 
     @Bind(R.id.recycler_view) RecyclerView recyclerView;
 
     @Inject
-    public PlayQueuePresenter(PlayQueueAdapter adapter,
-                              PlayQueueManager playQueueManager,
-                              PlayQueueOperations playQueueOperations,
-                              PlayQueueArtworkController playerArtworkController,
-                              PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
-                              EventBus eventBus,
-                              Context context,
-                              FeedbackController feedbackController,
-                              PlayQueueUIItemMapper playQueueUIItemMapper) {
+    PlayQueuePresenter(PlayQueueAdapter adapter,
+                       PlayQueueManager playQueueManager,
+                       PlayQueueOperations playQueueOperations,
+                       PlayQueueArtworkController playerArtworkController,
+                       PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
+                       EventBus eventBus,
+                       Context context,
+                       FeedbackController feedbackController,
+                       PlayQueueItemAnimator animator,
+                       PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
@@ -110,6 +105,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         this.context = context;
         this.playQueueSwipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
         this.feedbackController = feedbackController;
+        this.animator = animator;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
     }
 
@@ -124,7 +120,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private void initRecyclerView() {
-        animator = new PlayQueueItemAnimator();
         recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
@@ -142,12 +137,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         adapter.setNowPlayingChangedListener(artworkController);
     }
 
-    private void subscribeToEvents() {
+    @VisibleForTesting
+    void subscribeToEvents() {
         eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                       .first()
-                                       .subscribe(new UpdateCurrentTrackSubscriber()));
-        eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                       .filter(hasPositionMoved)
                                        .subscribe(new UpdateCurrentTrackSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
                                        .filter(isNotItemChangedEvent)
@@ -155,10 +147,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
                                        .observeOn(AndroidSchedulers.mainThread())
                                        .subscribe(new PlaybackProgressSubscriber()));
-        eventSubscriptions.add(
-                eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new PlaybackStateSubscriber()));
+        eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                                       .observeOn(AndroidSchedulers.mainThread())
+                                       .subscribe(new PlaybackStateSubscriber()));
     }
 
     @Override
@@ -210,23 +201,44 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private void setupRepeatButton(View view) {
-        ImageView button = ButterKnife.findById(view, R.id.repeat_button);
-        setupRepeatButtonIcon(button);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animator.setMode(Mode.REPEAT);
-                playQueueManager.setRepeatMode(getNextRepeatMode());
-                updateRepeatAdapter();
-                setupRepeatButtonIcon((ImageView) v);
-            }
-        });
+        final ImageView button = ButterKnife.findById(view, R.id.repeat_button);
+        switch (playQueueManager.getRepeatMode()) {
+            case REPEAT_ONE:
+                button.setImageResource(R.drawable.ic_repeat_one);
+                break;
+            case REPEAT_ALL:
+                button.setImageResource(R.drawable.ic_repeat_all);
+                break;
+            case REPEAT_NONE:
+            default:
+                button.setImageResource(R.drawable.ic_repeat_off);
+        }
     }
 
     private void setupShuffleButton(View view) {
         ToggleButton button = ButterKnife.findById(view, R.id.shuffle_button);
         button.setChecked(playQueueManager.isShuffled());
+    }
+
+    @OnClick(R.id.repeat_button)
+    void repeatClicked(ImageView view) {
+        final RepeatMode nextRepeatMode = getNextRepeatMode();
+
+        animator.setMode(Mode.REPEAT);
+        playQueueManager.setRepeatMode(nextRepeatMode);
+        adapter.updateInRepeatMode(nextRepeatMode);
+
+        switch (nextRepeatMode) {
+            case REPEAT_ONE:
+                view.setImageResource(R.drawable.ic_repeat_one);
+                break;
+            case REPEAT_ALL:
+                view.setImageResource(R.drawable.ic_repeat_all);
+                break;
+            case REPEAT_NONE:
+            default:
+                view.setImageResource(R.drawable.ic_repeat_off);
+        }
     }
 
     @OnClick(R.id.shuffle_button)
@@ -245,24 +257,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         final int currentOrdinal = playQueueManager.getRepeatMode().ordinal();
         final int nextOrdinal = (currentOrdinal + 1) % repeatModes.length;
         return repeatModes[nextOrdinal];
-    }
-
-    private void setupRepeatButtonIcon(ImageView button) {
-        switch (playQueueManager.getRepeatMode()) {
-            case REPEAT_ONE:
-                button.setImageResource(R.drawable.ic_repeat_one);
-                break;
-            case REPEAT_ALL:
-                button.setImageResource(R.drawable.ic_repeat_all);
-                break;
-            case REPEAT_NONE:
-            default:
-                button.setImageResource(R.drawable.ic_repeat_off);
-        }
-    }
-
-    private void updateRepeatAdapter() {
-        adapter.updateInRepeatMode(playQueueManager.getRepeatMode());
     }
 
     boolean isRemovable(int adapterPosition) {
@@ -308,16 +302,19 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private void rebuildLabels() {
-        final List<PlayQueueUIItem> uiItems = adapter.getItems();
-        final Map<Urn, String> existingTitles = buildTitlesMap(uiItems);
+        rebuildPlayQueueUIItemsObservable(adapter.getItems())
+                .subscribe(new RebuildSubscriber());
+    }
 
-        Observable.from(uiItems)
-                  .filter(ONLY_TRACKS)
-                  .cast(TrackPlayQueueUIItem.class)
-                  .map(TO_TRACK_AND_PLAY_QUEUE_ITEM)
-                  .toList()
-                  .zipWith(Observable.just(existingTitles), playQueueUIItemMapper)
-                  .subscribe(new RebuildSubscriber());
+    @VisibleForTesting
+    Observable<List<PlayQueueUIItem>> rebuildPlayQueueUIItemsObservable(List<PlayQueueUIItem> uiItems) {
+        final Map<Urn, String> existingTitles = buildTitlesMap(uiItems);
+        return Observable.from(uiItems)
+                         .filter(ONLY_TRACKS)
+                         .cast(TrackPlayQueueUIItem.class)
+                         .map(TO_TRACK_AND_PLAY_QUEUE_ITEM)
+                         .toList()
+                         .zipWith(Observable.just(existingTitles), playQueueUIItemMapper);
     }
 
     @NonNull

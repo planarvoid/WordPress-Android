@@ -133,7 +133,6 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     public TrackQueueItem trackQueueItem(Urn urn) {
-        return TestPlayQueueItem.createTrack(
-                urn);
+        return TestPlayQueueItem.createTrack(urn);
     }
 }

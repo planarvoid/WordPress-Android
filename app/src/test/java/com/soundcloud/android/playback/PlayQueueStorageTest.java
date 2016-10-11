@@ -30,7 +30,6 @@ import com.soundcloud.android.playback.TrackQueueItem.Builder;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -261,7 +260,11 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void contextTitlesReturnsEmptyValueWhenContextUrnIsAbsent() {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
-        insertPlayableQueueItem(TestPlayQueueItem.createTrack(forTrack(123L)));
+        final TrackQueueItem trackQueueItem = new Builder(forTrack(123L))
+                .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
+                .build();
+
+        insertPlayableQueueItem(trackQueueItem);
 
         storage.contextTitles().subscribe(subscriber);
 
