@@ -25,6 +25,7 @@ import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -48,6 +49,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -69,6 +71,9 @@ class EventLoggerV1JsonDataBuilder {
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
     private static final String BOOGALOO_VERSION = "v1.24.0";
+
+    static final String FOLLOW_ADD = "follow::add";
+    static final String FOLLOW_REMOVE = "follow::remove";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -117,12 +122,12 @@ class EventLoggerV1JsonDataBuilder {
 
     public String buildForAdDelivery(AdDeliveryEvent event) {
         return transform(buildBaseEvent("ad_delivery", event)
-                .clientEventId(event.getId())
-                .adRequestId(event.adRequestId)
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .playerVisible(event.playerVisible)
-                .inForeground(event.inForeground)
-                .adUrn(event.adUrn.toString()));
+                                 .clientEventId(event.getId())
+                                 .adRequestId(event.adRequestId)
+                                 .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                                 .playerVisible(event.playerVisible)
+                                 .inForeground(event.inForeground)
+                                 .adUrn(event.adUrn.toString()));
     }
 
     String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
@@ -186,7 +191,9 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildAdClickThroughEvent(UIEvent event) {
-        final String clickName = event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE).equals("video_ad") ?  "clickthrough::video_ad" : "clickthrough::audio_ad";
+        final String clickName = event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE).equals("video_ad") ?
+                                 "clickthrough::video_ad" :
+                                 "clickthrough::audio_ad";
         return buildClickEvent(clickName, event)
                 .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL));
     }
@@ -333,6 +340,10 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("ad::skip", event));
             case UIEvent.KIND_NAVIGATION:
                 return transform(buildInteractionEvent(ACTION_NAVIGATION, event));
+            case UIEvent.KIND_FOLLOW:
+                return transform(buildEngagementEvent(FOLLOW_ADD, event));
+            case UIEvent.KIND_UNFOLLOW:
+                return transform(buildEngagementEvent(FOLLOW_REMOVE, event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -350,6 +361,10 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildInteractionEvent("like::add", event));
             case UIEvent.KIND_UNLIKE:
                 return transform(buildInteractionEvent("like::remove", event));
+            case UIEvent.KIND_FOLLOW:
+                return transform(buildInteractionEvent(FOLLOW_ADD, event));
+            case UIEvent.KIND_UNFOLLOW:
+                return transform(buildInteractionEvent(FOLLOW_REMOVE, event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -432,7 +447,7 @@ class EventLoggerV1JsonDataBuilder {
                 .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
                 .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
-                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN));
+                .clickObject(getClickObjectFromEvent(event));
     }
 
     private EventLoggerEventData buildEngagementEvent(String engagementClickName, UIEvent event) {
@@ -475,7 +490,7 @@ class EventLoggerV1JsonDataBuilder {
 
         final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event)
                 .clientEventId(event.getId())
-                .item(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .item(getClickObjectFromEvent(event))
                 .pageviewId(event.get(ReferringEvent.REFERRING_EVENT_ID_KEY))
                 .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
                 .action(action);
@@ -498,6 +513,13 @@ class EventLoggerV1JsonDataBuilder {
         }
 
         return eventData;
+    }
+
+    @Nullable
+    private String getClickObjectFromEvent(UIEvent event) {
+        return event.contains(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)
+               ? event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)
+               : event.get(EntityMetadata.KEY_CREATOR_URN);
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {

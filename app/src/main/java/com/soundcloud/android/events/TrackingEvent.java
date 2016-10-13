@@ -68,6 +68,10 @@ public class TrackingEvent {
         return attributes.get(key);
     }
 
+    public boolean contains(String key) {
+        return attributes.containsKey(key);
+    }
+
     public void putReferringEvent(ReferringEvent referringEvent) {
         this.put(ReferringEvent.REFERRING_EVENT_ID_KEY, referringEvent.getId());
         this.put(ReferringEvent.REFERRING_EVENT_KIND_KEY, referringEvent.getKind());

@@ -6,7 +6,10 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -28,16 +31,20 @@ public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
     private final UpdateAgeCommand updateAgeCommand;
     private final FollowingOperations followingOperations;
     private final EngagementsTracking engagementsTracking;
+    private final ScreenProvider screenProvider;
 
     private Activity activity;
     private Urn userToFollowUrn;
 
     @Inject
-    VerifyAgePresenter(UpdateAgeCommand updateAgeCommand, FollowingOperations followingOperations,
-                       EngagementsTracking engagementsTracking) {
+    VerifyAgePresenter(UpdateAgeCommand updateAgeCommand,
+                       FollowingOperations followingOperations,
+                       EngagementsTracking engagementsTracking,
+                       ScreenProvider screenProvider) {
         this.updateAgeCommand = updateAgeCommand;
         this.followingOperations = followingOperations;
         this.engagementsTracking = engagementsTracking;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -77,7 +84,12 @@ public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
             @Override
             public void onNext(Boolean success) {
                 fireAndForget(followingOperations.toggleFollowing(userToFollowUrn, true));
-                engagementsTracking.followUserUrn(userToFollowUrn, true);
+                engagementsTracking.followUserUrn(userToFollowUrn,
+                                                  true,
+                                                  EventContextMetadata.builder()
+                                                                      .module(Module.create(Module.SINGLE, 0))
+                                                                      .pageName(screenProvider.getLastScreen().get())
+                                                                      .build());
                 activity.finish();
             }
         };

@@ -7,7 +7,9 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.CollectionEvent;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
@@ -71,14 +73,17 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
         setTitle(view, user.getTitle());
         setImage(view, user);
         view.setOnClickListener(goToUserProfile(user));
-        setupOverflow(view.findViewById(R.id.overflow_button), user);
+        setupOverflow(view.findViewById(R.id.overflow_button), user, position);
     }
 
-    private void setupOverflow(final View button, final RecentlyPlayedPlayableItem user) {
+    private void setupOverflow(final View button, final RecentlyPlayedPlayableItem user, final int position) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userMenuPresenter.show(button, user.getUrn());
+                userMenuPresenter.show(button, user.getUrn(), EventContextMetadata.builder()
+                                                                                  .pageName(screenProvider.getLastScreen().get())
+                                                                                  .module(Module.create(Module.RECENTLY_PLAYED, position))
+                                                                                  .build());
             }
         });
 

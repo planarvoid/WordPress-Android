@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.FOLLOW_ADD;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Matchers.eq;
@@ -1111,6 +1112,59 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .module(module.getName())
                                                .modulePosition(position)
         );
+    }
+
+    @Test
+    public void createsInteractionEventJsonForFollowEvent() throws ApiMapperException {
+        final EntityMetadata userMetadata = EntityMetadata.fromUser(TestPropertySets.user());
+        final Integer position = 0;
+        final Module module = Module.create(Module.SINGLE, position);
+        final EventContextMetadata eventContextMetadata =
+                EventContextMetadata.builder()
+                                    .contextScreen("screen")
+                                    .pageName(PAGE_NAME)
+                                    .module(module)
+                                    .build();
+
+        final UIEvent event = UIEvent.fromToggleFollow(true, userMetadata, eventContextMetadata);
+        final String pageviewId = randomUUID().toString();
+
+        event.putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
+
+        jsonDataBuilder.buildForInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clientEventId(event.getId())
+                                               .item(userMetadata.creatorUrn.toString())
+                                               .pageName(PAGE_NAME)
+                                               .pageviewId(pageviewId)
+                                               .action(FOLLOW_ADD)
+                                               .module(module.getName())
+                                               .modulePosition(position)
+        );
+    }
+
+    @Test
+    public void createsClickEventJsonForFollowEvent() throws ApiMapperException {
+        final EntityMetadata userMetadata = EntityMetadata.fromUser(TestPropertySets.user());
+        final Integer position = 0;
+        final Module module = Module.create(Module.SINGLE, position);
+        final EventContextMetadata eventContextMetadata =
+                EventContextMetadata.builder()
+                                    .contextScreen("screen")
+                                    .pageName(PAGE_NAME)
+                                    .module(module)
+                                    .build();
+
+        final UIEvent event = UIEvent.fromToggleFollow(true, userMetadata, eventContextMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                                .clickName(FOLLOW_ADD)
+                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                                                .clickObject(userMetadata.creatorUrn.toString())
+                                                .pageName(PAGE_NAME));
     }
 
     @Test
