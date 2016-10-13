@@ -33,7 +33,7 @@ class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     private Optional<WebProduct> product = Optional.absent();
 
     @Inject
-    public LegacyConversionPresenter(WebPaymentOperations operations, ConversionView conversionView, EventBus eventBus) {
+    LegacyConversionPresenter(WebPaymentOperations operations, ConversionView conversionView, EventBus eventBus) {
         this.operations = operations;
         this.conversionView = conversionView;
         this.eventBus = eventBus;

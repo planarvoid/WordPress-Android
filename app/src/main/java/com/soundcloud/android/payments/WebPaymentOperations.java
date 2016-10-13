@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class WebPaymentOperations {
+
     private static final String HIGH_TIER_PLAN_ID = "high_tier";
 
     private static final Func1<ModelCollection<WebProduct>, Optional<WebProduct>> TO_WEB_PRODUCT = new Func1<ModelCollection<WebProduct>, Optional<WebProduct>>() {
@@ -45,8 +46,7 @@ public class WebPaymentOperations {
                 .forPrivateApi()
                 .build();
 
-        return apiClientRx.mappedResponse(request, new TypeToken<ModelCollection<WebProduct>>() {
-        })
+        return apiClientRx.mappedResponse(request, new TypeToken<ModelCollection<WebProduct>>() {})
                           .subscribeOn(scheduler)
                           .map(TO_WEB_PRODUCT);
     }
