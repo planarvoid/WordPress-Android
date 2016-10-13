@@ -11,7 +11,6 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchTracker.ScreenData;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -44,9 +43,7 @@ public class SearchTrackerTest {
 
     @Before
     public void setUp() {
-        when(featureFlags.isEnabled(Flag.ALBUMS)).thenReturn(true);
-        final SearchTypes searchTypes = new SearchTypes(featureFlags);
-        tracker = new SearchTracker(eventBus, featureOperations, searchTypes);
+        tracker = new SearchTracker(eventBus, featureOperations);
     }
 
     @Test
@@ -214,7 +211,8 @@ public class SearchTrackerTest {
 
     @Test
     public void trackItemClickOnSearchPremiumResultsTracksPublishesEvent() {
-        tracker.trackSearchPremiumItemClick(TRACK_URN, new SearchQuerySourceInfo(QUERY_URN, 0, TRACK_URN, SEARCH_QUERY));
+        tracker.trackSearchPremiumItemClick(TRACK_URN,
+                                            new SearchQuerySourceInfo(QUERY_URN, 0, TRACK_URN, SEARCH_QUERY));
 
         final SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);

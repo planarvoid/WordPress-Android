@@ -27,7 +27,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
@@ -93,7 +92,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.<Urn>newArrayList());
-        when(featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)).thenReturn(true);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(PlaybackProgress.empty());
     }
 
@@ -196,14 +194,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
         playCurrentSubject.onCompleted();
 
         final PublishSubject<Void> nextPlayCurrentSubject = PublishSubject.create();
         when(playbackStrategy.playCurrent()).thenReturn(nextPlayCurrentSubject);
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         assertThat(nextPlayCurrentSubject.hasObservers()).isFalse();
     }
 
@@ -212,20 +212,22 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
         playCurrentSubject.onCompleted();
 
         final PublishSubject<Void> nextPlayCurrentSubject = PublishSubject.create();
         when(playbackStrategy.playCurrent()).thenReturn(nextPlayCurrentSubject);
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionRepeat(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionRepeat(trackPlayQueueItem, Urn.NOT_SET, 0));
         assertThat(nextPlayCurrentSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.playQueueComplete());
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playQueueComplete());
         verify(playQueueManager, never()).saveCurrentPosition();
     }
 

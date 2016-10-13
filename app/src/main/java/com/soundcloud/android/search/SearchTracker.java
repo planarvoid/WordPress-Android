@@ -27,16 +27,13 @@ import java.util.Map;
 public class SearchTracker {
 
     private final EventBus eventBus;
-    private final SearchTypes searchTypes;
     private final FeatureOperations featureOperations;
     private Map<SearchType, ScreenData> screenDataMap;
 
     @Inject
     public SearchTracker(EventBus eventBus,
-                         FeatureOperations featureOperations,
-                         SearchTypes searchTypes) {
+                         FeatureOperations featureOperations) {
         this.eventBus = eventBus;
-        this.searchTypes = searchTypes;
         this.featureOperations = featureOperations;
         init();
     }
@@ -47,7 +44,7 @@ public class SearchTracker {
     }
 
     private void initializeScreenQueryUrnMap() {
-        for (SearchType searchType : searchTypes.available()) {
+        for (SearchType searchType : SearchType.values()) {
             this.screenDataMap.put(searchType, ScreenData.EMPTY);
         }
     }
@@ -59,7 +56,8 @@ public class SearchTracker {
     void trackSearchSubmission(SearchType searchType, Urn queryUrn, String searchQuery) {
         if (queryUrn != Urn.NOT_SET) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(searchType.getScreen(),
-                                                                          new SearchQuerySourceInfo(queryUrn, searchQuery)));
+                                                                          new SearchQuerySourceInfo(queryUrn,
+                                                                                                    searchQuery)));
         }
     }
 
