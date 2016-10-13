@@ -34,7 +34,7 @@ public class SuggestedCreatorsAdapterTest extends AndroidUnitTest {
     @Test
     public void updateItemOnFollowEvent() throws Exception {
         final SuggestedCreatorItem item = suggestedCreatorItems.get(0);
-        final EntityStateChangedEvent event = createEvent(item.user().urn(), false);
+        final EntityStateChangedEvent event = createEvent(item.creator().urn(), false);
 
         suggestedCreatorsAdapter.onFollowingEntityChange(event);
 

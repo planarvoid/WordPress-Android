@@ -63,6 +63,12 @@ public class SuggestedCreatorsItemRenderer implements CellRenderer<SuggestedCrea
         bindCarousel(itemView, suggestedCreatorsNotificationItem);
     }
 
+    public void unsubscribe() {
+        if (adapter != null) {
+            adapter.unsubscribe();
+        }
+    }
+
     private void bindCarousel(View itemView, SuggestedCreators suggestedCreatorsNotificationItem) {
         final RecyclerView recyclerView = ButterKnife.findById(itemView, R.id.suggested_creators_carousel);
         final SuggestedCreatorsAdapter adapter = (SuggestedCreatorsAdapter) recyclerView.getAdapter();

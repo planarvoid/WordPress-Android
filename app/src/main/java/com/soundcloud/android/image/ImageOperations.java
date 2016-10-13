@@ -40,7 +40,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.graphics.Palette;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ImageView;
@@ -48,6 +50,7 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,22 +59,39 @@ public class ImageOperations {
 
     private static final String TAG = ImageLoader.TAG;
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
-
+    private static final Func1<Bitmap, Observable<Palette>> BITMAP_TO_PALETTE = new Func1<Bitmap, Observable<Palette>>() {
+        @Override
+        public Observable<Palette> call(final Bitmap bitmap) {
+            return Observable.create(new Observable.OnSubscribe<Palette>() {
+                @Override
+                public void call(final Subscriber<? super Palette> subscriber) {
+                    Palette.from(bitmap)
+                           .generate(new Palette.PaletteAsyncListener() {
+                               public void onGenerated(Palette palette) {
+                                   if (!subscriber.isUnsubscribed()) {
+                                       subscriber.onNext(
+                                               palette);
+                                       subscriber.onCompleted();
+                                   }
+                               }
+                           });
+                }
+            });
+        }
+    };
     private final ImageLoader imageLoader;
     private final ImageUrlBuilder imageUrlBuilder;
     private final PlaceholderGenerator placeholderGenerator;
-
     private final Set<String> notFoundUris = new HashSet<>();
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final BitmapLoadingAdapter.Factory bitmapAdapterFactory;
     private final FileNameGenerator fileNameGenerator;
     private final UserAgentImageDownloaderFactory imageDownloaderFactory;
     private final DeviceHelper deviceHelper;
-
     private final CircularPlaceholderGenerator circularPlaceholderGenerator;
     private final Cache<String, TransitionDrawable> placeholderCache;
     private final Cache<Urn, Bitmap> blurredImageCache;
-
+    private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
     private ImageProcessor imageProcessor;
 
     @Inject
@@ -83,16 +103,19 @@ public class ImageOperations {
                            ImageUrlBuilder imageUrlBuilder,
                            UserAgentImageDownloaderFactory imageDownloaderFactory,
                            DeviceHelper deviceHelper) {
-        this(ImageLoader.getInstance(), imageUrlBuilder, placeholderGenerator, circularPlaceholderGenerator,
-             adapterFactory, bitmapAdapterFactory, imageProcessor,
+        this(ImageLoader.getInstance(),
+             imageUrlBuilder,
+             placeholderGenerator,
+             circularPlaceholderGenerator,
+             adapterFactory,
+             bitmapAdapterFactory,
+             imageProcessor,
              Cache.<String, TransitionDrawable>withSoftValues(50),
              Cache.<Urn, Bitmap>withSoftValues(10),
              new HashCodeFileNameGenerator(),
              imageDownloaderFactory,
              deviceHelper);
     }
-
-    private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader,
@@ -152,8 +175,60 @@ public class ImageOperations {
      * If no URL is provided, the indirect resolution via the image resolver is used.
      */
     public void displayInAdapterView(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
-        displayInAdapterView(imageResource.getUrn(), apiImageSize, imageView,
-                             buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+        displayInAdapterView(imageResource.getUrn(),
+                             apiImageSize,
+                             imageView,
+                             buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
+                             notFoundListener,
+                             Optional.<Drawable>absent());
+    }
+
+    public Observable<Bitmap> displayInAdapterView(final ImageResource imageResource,
+                                                   final ApiImageSize apiImageSize,
+                                                   final ImageView imageView,
+                                                   final Optional<Drawable> fallbackDrawable) {
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                displayInAdapterView(imageResource.getUrn(),
+                                     apiImageSize,
+                                     imageView,
+                                     buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
+                                     buildFallbackImageListener(fromBitmapSubscriber(subscriber)),
+                                     fallbackDrawable);
+            }
+        });
+    }
+
+    private DefaultImageListener fromBitmapSubscriber(final Subscriber<? super Bitmap> subscriber) {
+        return new DefaultImageListener() {
+            @Override
+            public void onLoadingFailed(String imageUri,
+                                        View view,
+                                        String failedReason) {
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onError(new IOException(
+                            failedReason));
+                }
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri,
+                                          View view,
+                                          Bitmap loadedImage) {
+                if (subscriber.isUnsubscribed()) {
+                    return;
+                }
+
+                if (imageUri == null && loadedImage == null) {
+                    subscriber.onError(new IOException(
+                            "Image loading failed."));
+                    return;
+                }
+                subscriber.onNext(loadedImage);
+                subscriber.onCompleted();
+            }
+        };
     }
 
     /**
@@ -164,17 +239,16 @@ public class ImageOperations {
      */
     @Deprecated // use the ImageResource variant instead
     public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
-        displayInAdapterView(urn, apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
+        displayInAdapterView(urn, apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize), notFoundListener, Optional.<Drawable>absent());
     }
 
-    private void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl) {
+    private void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl, FallbackImageListener imageListener, Optional<Drawable> placeholderDrawable) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        final DisplayImageOptions options = ImageOptionsFactory.adapterView(
-                getPlaceholderDrawable(urn, imageAware), apiImageSize, deviceHelper);
-        imageLoader.displayImage(
-                imageUrl,
-                imageAware,
-                options, notFoundListener);
+        final Drawable drawable = placeholderDrawable.isPresent() ?
+                                  placeholderDrawable.get() :
+                                  getPlaceholderDrawable(urn, imageAware);
+        final DisplayImageOptions options = ImageOptionsFactory.adapterView(drawable, apiImageSize, deviceHelper);
+        imageLoader.displayImage(imageUrl, imageAware, options, imageListener);
     }
 
     /**
@@ -184,7 +258,24 @@ public class ImageOperations {
                                              ApiImageSize apiImageSize,
                                              ImageView imageView) {
         final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
-        displayCircularInAdapterView(imageResource.getUrn(), apiImageSize, imageView, imageUrl);
+        displayCircularInAdapterView(imageResource.getUrn(), apiImageSize, imageView, imageUrl, notFoundListener);
+    }
+
+    public Observable<Palette> displayCircularInAdapterViewAndGeneratePalette(final ImageResource imageResource,
+                                                                              final ApiImageSize apiImageSize,
+                                                                              final ImageView imageView) {
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
+                displayCircularInAdapterView(imageResource.getUrn(),
+                                             apiImageSize,
+                                             imageView,
+                                             imageUrl,
+                                             buildFallbackImageListener(fromBitmapSubscriber(
+                                                     subscriber)));
+            }
+        }).flatMap(BITMAP_TO_PALETTE);
     }
 
     /**
@@ -193,13 +284,14 @@ public class ImageOperations {
     @Deprecated // use the ImageResource variant instead
     public void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final String imageUrl = buildUrlIfNotPreviouslyMissing(urn, apiImageSize);
-        displayCircularInAdapterView(urn, apiImageSize, imageView, imageUrl);
+        displayCircularInAdapterView(urn, apiImageSize, imageView, imageUrl, notFoundListener);
     }
 
     private void displayCircularInAdapterView(Urn urn,
                                               ApiImageSize apiImageSize,
                                               ImageView imageView,
-                                              String imageUrl) {
+                                              String imageUrl,
+                                              ImageLoadingListener listener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(urn,
                                                                                       imageAware.getWidth(),
@@ -208,7 +300,7 @@ public class ImageOperations {
                 imageUrl,
                 imageAware,
                 ImageOptionsFactory.adapterViewCircular(placeholderDrawable, apiImageSize, deviceHelper),
-                notFoundListener);
+                listener);
     }
 
     public void displayWithPlaceholder(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
@@ -515,6 +607,11 @@ public class ImageOperations {
         final String imageUrl = imageUrlBuilder.imageResolverUrl(urn, apiImageSize);
         Log.d(TAG, "URN " + urn + "; url=" + imageUrl);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
+    }
+
+    @NonNull
+    private FallbackImageListener buildFallbackImageListener(ImageListener imageListener) {
+        return new FallbackImageListener(imageListener, notFoundUris);
     }
 
     @Nullable

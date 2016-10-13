@@ -66,6 +66,10 @@ class SoundStreamAdapter
         notifyDataSetChanged();
     }
 
+    void unsubscribe() {
+        suggestedCreatorsItemRenderer.unsubscribe();
+    }
+
     void onFollowingEntityChange(EntityStateChangedEvent event) {
         suggestedCreatorsItemRenderer.onFollowingEntityChange(event);
     }

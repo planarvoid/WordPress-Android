@@ -157,6 +157,7 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
     @Override
     public void onDestroyView(Fragment fragment) {
         viewLifeCycle.unsubscribe();
+        adapter.unsubscribe();
         newItemsIndicator.destroy();
         super.onDestroyView(fragment);
     }

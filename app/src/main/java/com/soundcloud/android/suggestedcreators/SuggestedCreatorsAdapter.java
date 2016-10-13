@@ -12,9 +12,15 @@ import java.util.Map;
 
 class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem, RecyclerItemAdapter.ViewHolder> {
     private static final int SUGGESTED_CREATORS_TYPE = 0;
+    private final SuggestedCreatorRenderer suggestedCreatorRenderer;
 
     SuggestedCreatorsAdapter(SuggestedCreatorRenderer suggestedCreatorRenderer) {
         super(suggestedCreatorRenderer);
+        this.suggestedCreatorRenderer = suggestedCreatorRenderer;
+    }
+
+    void unsubscribe() {
+        suggestedCreatorRenderer.unsubscribe();
     }
 
     void onFollowingEntityChange(EntityStateChangedEvent event) {
@@ -27,7 +33,7 @@ class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem,
 
     private void setFollowingState(Urn urn, Boolean isFollowing) {
         for (SuggestedCreatorItem item : items) {
-            if (item.user().urn().equals(urn) && item.following != isFollowing) {
+            if (item.creator().urn().equals(urn) && item.following != isFollowing) {
                 item.following = isFollowing;
                 notifyDataSetChanged();
                 break;
