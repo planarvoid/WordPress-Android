@@ -13,6 +13,7 @@ public abstract class Module {
     public static final String USER_LIKES = "users-likes";
     public static final String USER_FOLLOWING = "users-followings";
     public static final String USER_FOLLOWERS = "users-followers";
+    public static final String RECENTLY_PLAYED = "recently-played";
     public static final String PLAYLIST = "playlist";
     public static final String SINGLE = "single";
 
