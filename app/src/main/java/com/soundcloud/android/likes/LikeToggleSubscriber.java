@@ -2,12 +2,11 @@ package com.soundcloud.android.likes;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Context;
 import android.widget.Toast;
 
-public class LikeToggleSubscriber extends DefaultSubscriber<PropertySet> {
+public class LikeToggleSubscriber extends DefaultSubscriber<Object> {
     private final Context context;
     private final boolean likeStatus;
 
@@ -17,7 +16,7 @@ public class LikeToggleSubscriber extends DefaultSubscriber<PropertySet> {
     }
 
     @Override
-    public void onNext(PropertySet ignored) {
+    public void onNext(Object ignored) {
         if (likeStatus) {
             Toast.makeText(context, R.string.like_toast_overflow_action, Toast.LENGTH_SHORT).show();
         } else {

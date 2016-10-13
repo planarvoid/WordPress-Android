@@ -16,6 +16,8 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StartStationHandler;
+import com.soundcloud.android.stations.StationMenuPresenter;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -37,6 +39,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
     private final FeatureFlags featureFlags;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
+    private final StationMenuPresenter stationMenuPresenter;
 
     RecentlyPlayedStationRenderer(boolean fixedWidth,
                                   @Provided ImageOperations imageOperations,
@@ -44,7 +47,8 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
                                   @Provided StartStationHandler stationHandler,
                                   @Provided FeatureFlags featureFlags,
                                   @Provided ScreenProvider screenProvider,
-                                  @Provided EventBus eventBus) {
+                                  @Provided EventBus eventBus,
+                                  @Provided StationMenuPresenter stationMenuPresenter) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
@@ -52,6 +56,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
         this.featureFlags = featureFlags;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
+        this.stationMenuPresenter = stationMenuPresenter;
     }
 
     @Override
@@ -72,6 +77,18 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
         setTitle(view, station.getTitle());
         setType(view, getStationType(station));
         view.setOnClickListener(goToStation(station));
+        setupOverflow(view.findViewById(R.id.overflow_button), station);
+    }
+
+    private void setupOverflow(final View button, final RecentlyPlayedPlayableItem station) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stationMenuPresenter.show(button, station.getUrn());
+            }
+        });
+
+        ViewUtils.extendTouchArea(button);
     }
 
     private void setTitle(View view, String title) {

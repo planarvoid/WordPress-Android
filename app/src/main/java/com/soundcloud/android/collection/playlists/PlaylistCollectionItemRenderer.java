@@ -26,8 +26,6 @@ import java.util.List;
 
 class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionPlaylistItem> {
 
-    public static final int TOUCH_DELEGATE_DP = 8;
-
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
@@ -89,7 +87,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
                 playlistItemMenuPresenter.show(button, playlistItem, options);
             }
         });
-        ViewUtils.extendTouchArea(button, TOUCH_DELEGATE_DP);
+        ViewUtils.extendTouchArea(button);
     }
 
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {

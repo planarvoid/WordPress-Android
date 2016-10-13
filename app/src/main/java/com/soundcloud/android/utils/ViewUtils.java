@@ -16,6 +16,8 @@ import java.util.Stack;
 
 public final class ViewUtils {
 
+    private static final int DEFAULT_TOUCH_DELEGATE_DP = 8;
+
     public static int dpToPx(Context context, int dp) {
         return dpToPx(context.getResources(), dp);
     }
@@ -41,6 +43,10 @@ public final class ViewUtils {
     public static void unsetTouchClickable(View view) {
         clearTouchDelegate(view);
         view.setClickable(false);
+    }
+
+    public static void extendTouchArea(final View delegate) {
+        extendTouchArea(delegate, DEFAULT_TOUCH_DELEGATE_DP);
     }
 
     public static void extendTouchArea(final View delegate, int extendDp) {

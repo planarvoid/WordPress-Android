@@ -19,8 +19,6 @@ import android.widget.TextView;
 @AutoFactory(allowSubclasses = true)
 public class FilterHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> {
 
-    private static final int EXTEND_OPTIONS_HIT_DP = 8;
-
     private final Listener listener;
 
     @Bind(R.id.btn_filter_options) View optionsButton;
@@ -34,7 +32,7 @@ public class FilterHeaderPresenter extends DefaultSupportFragmentLightCycle<Frag
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         ButterKnife.bind(this, view);
-        ViewUtils.extendTouchArea(optionsButton, EXTEND_OPTIONS_HIT_DP);
+        ViewUtils.extendTouchArea(optionsButton);
     }
 
     @Override
