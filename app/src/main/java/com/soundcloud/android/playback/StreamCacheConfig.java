@@ -31,7 +31,7 @@ public class StreamCacheConfig {
 
     @Inject
     public StreamCacheConfig(TelphonyBasedCountryProvider countryProvider,
-                             @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory, IOUtils ioUtils) {
+                             @Nullable @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory, IOUtils ioUtils) {
         this.countryProvider = countryProvider;
         this.streamCacheDirectory = streamCacheDirectory;
         this.ioUtils = ioUtils;
