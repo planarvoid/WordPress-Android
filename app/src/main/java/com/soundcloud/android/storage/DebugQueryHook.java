@@ -104,7 +104,7 @@ class DebugQueryHook implements DatabaseHook {
 
     @Override
     public void onUpdate(String table, ContentValues contentValues, Where where) {
-        finished(format(UPDATE, table, contentValues, where), duration);
+        started(format(UPDATE, table, contentValues, where));
     }
 
     @Override
