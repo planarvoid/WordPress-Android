@@ -76,6 +76,7 @@ public class StorageModule {
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY)
+    @Nullable
     public File provideStreamCacheDirectory(Context context) {
         return IOUtils.getExternalStorageDir(context, "skippy");
     }
