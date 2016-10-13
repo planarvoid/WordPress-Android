@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -33,8 +34,9 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.payments.LegacyConversionActivity;
+import com.soundcloud.android.payments.TieredConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
-import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -45,6 +47,8 @@ import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
@@ -80,11 +84,13 @@ public class NavigatorTest extends AndroidUnitTest {
 
     private Context appContext;
     private Activity activityContext;
+
     @Mock private EventTracker eventTracker;
+    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
-        navigator = new Navigator(eventTracker);
+        navigator = new Navigator(eventTracker, featureFlags);
         appContext = context();
         activityContext = new Activity();
     }
@@ -162,9 +168,21 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void openUpgrade() {
+    public void openLegacyUpgrade() {
+        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(false);
+
         navigator.openUpgrade(activityContext);
-        assertThat(activityContext).nextStartedIntent().opensActivity(WebConversionActivity.class);
+
+        assertThat(activityContext).nextStartedIntent().opensActivity(LegacyConversionActivity.class);
+    }
+
+    @Test
+    public void openTieredUpgrade() {
+        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+
+        navigator.openUpgrade(activityContext);
+
+        assertThat(activityContext).nextStartedIntent().opensActivity(TieredConversionActivity.class);
     }
 
     @Test

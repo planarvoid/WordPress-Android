@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         implements WebCheckoutInterface.Listener, WebCheckoutView.Listener {
 
+    static final String PRODUCT_INFO = "product_info";
+
     private static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(15);
 
     public static final String PAYMENT_FORM_BASE_URL = "https://soundcloud.com/android_payment.html";
@@ -85,7 +87,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Nullable
     private WebProduct getProductFromIntent() {
-        return (WebProduct) activity.getIntent().getParcelableExtra(WebConversionPresenter.PRODUCT_INFO);
+        return (WebProduct) activity.getIntent().getParcelableExtra(PRODUCT_INFO);
     }
 
     private void loadProduct() {
@@ -236,7 +238,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void saveProduct(WebProduct product) {
-        activity.getIntent().putExtra(WebConversionPresenter.PRODUCT_INFO, product);
+        activity.getIntent().putExtra(PRODUCT_INFO, product);
     }
 
 }

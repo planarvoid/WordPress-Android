@@ -11,6 +11,7 @@ enum Feature {
   REMOTE_FEATURE_TOGGLES,
   FILTER_COLLECTIONS,
   ARCHER_PUSH,
+  MID_TIER,
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
   EDIT_PLAYLIST,
@@ -30,6 +31,7 @@ android {
     buildConfigField FLAG, Feature.FILTER_COLLECTIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ARCHER_PUSH.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.MID_TIER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.EDIT_PLAYLIST.name(), UNDER_DEVELOPMENT
@@ -69,6 +71,7 @@ android {
     debug {
       buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.MID_TIER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW

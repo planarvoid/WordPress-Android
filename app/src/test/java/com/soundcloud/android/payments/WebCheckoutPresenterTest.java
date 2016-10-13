@@ -102,7 +102,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        assertThat(intent.getParcelableExtra(WebConversionPresenter.PRODUCT_INFO)).isEqualTo(PRODUCT);
+        assertThat(intent.getParcelableExtra(WebCheckoutPresenter.PRODUCT_INFO)).isEqualTo(PRODUCT);
     }
 
     @Test
@@ -202,7 +202,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     private void setupIntentWithProduct() {
-        when(activity.getIntent()).thenReturn(new Intent().putExtra(WebConversionPresenter.PRODUCT_INFO, PRODUCT));
+        when(activity.getIntent()).thenReturn(new Intent().putExtra(WebCheckoutPresenter.PRODUCT_INFO, PRODUCT));
     }
 
 }

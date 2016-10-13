@@ -14,13 +14,15 @@ import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ConversionView.Listener {
+class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ConversionView.Listener {
 
-    static final String PRODUCT_INFO = "product_info";
+    @VisibleForTesting
+    static final String LOADED_PRODUCT = "product_info";
 
     private final WebPaymentOperations operations;
     private final ConversionView conversionView;
@@ -31,7 +33,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private Optional<WebProduct> product = Optional.absent();
 
     @Inject
-    public WebConversionPresenter(WebPaymentOperations operations, ConversionView conversionView, EventBus eventBus) {
+    public LegacyConversionPresenter(WebPaymentOperations operations, ConversionView conversionView, EventBus eventBus) {
         this.operations = operations;
         this.conversionView = conversionView;
         this.eventBus = eventBus;
@@ -41,8 +43,8 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
         conversionView.setupContentView(activity, this);
-        if (bundle != null && bundle.getParcelable(PRODUCT_INFO) != null) {
-            product = Optional.fromNullable((WebProduct) bundle.getParcelable(PRODUCT_INFO));
+        if (bundle != null && bundle.getParcelable(LOADED_PRODUCT) != null) {
+            product = Optional.fromNullable((WebProduct) bundle.getParcelable(LOADED_PRODUCT));
             enablePurchase(product.get());
         } else {
             loadProduct();
@@ -84,7 +86,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
                 : UpgradeFunnelEvent.forUpgradeButtonClick());
 
         final Intent intent = new Intent(activity, WebCheckoutActivity.class);
-        intent.putExtra(PRODUCT_INFO, loadedProduct);
+        intent.putExtra(WebCheckoutPresenter.PRODUCT_INFO, loadedProduct);
         activity.startActivity(intent);
         activity.finish();
     }
@@ -92,7 +94,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     @Override
     public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
         if (product.isPresent()) {
-            bundle.putParcelable(PRODUCT_INFO, product.get());
+            bundle.putParcelable(LOADED_PRODUCT, product.get());
         }
     }
 

@@ -21,7 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
 
-public class WebConversionPresenterTest extends AndroidUnitTest {
+public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
     private static final WebProduct DEFAULT = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 30, 0, null, "start", "expiry");
     private static final WebProduct PROMO = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 0, 90, "$1", "start", "expiry");
@@ -32,11 +32,11 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
     @Mock private ConversionView conversionView;
 
     private AppCompatActivity activity = new AppCompatActivity();
-    private WebConversionPresenter presenter;
+    private LegacyConversionPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new WebConversionPresenter(paymentOperations, conversionView, eventBus);
+        presenter = new LegacyConversionPresenter(paymentOperations, conversionView, eventBus);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void enablePurchaseIfProductSavedInBundle() {
         Bundle savedInstanceState = new Bundle();
-        savedInstanceState.putParcelable(WebConversionPresenter.PRODUCT_INFO, DEFAULT);
+        savedInstanceState.putParcelable(LegacyConversionPresenter.LOADED_PRODUCT, DEFAULT);
 
         presenter.onCreate(activity, savedInstanceState);
 
@@ -79,7 +79,7 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onSaveInstanceState(activity, savedInstanceState);
 
-        assertThat(savedInstanceState.getParcelable(WebConversionPresenter.PRODUCT_INFO)).isEqualTo(DEFAULT);
+        assertThat(savedInstanceState.getParcelable(LegacyConversionPresenter.LOADED_PRODUCT)).isEqualTo(DEFAULT);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
 
         Assertions.assertThat(activity)
                   .nextStartedIntent()
-                  .containsExtra(WebConversionPresenter.PRODUCT_INFO, DEFAULT)
+                  .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, DEFAULT)
                   .opensActivity(WebCheckoutActivity.class);
     }
 

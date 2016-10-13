@@ -275,8 +275,8 @@
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
         <!-- payments -->
-        <activity android:name=".payments.NativeConversionActivity" android:theme="@style/Theme.SoundCloud.Conversion" />
-        <activity android:name=".payments.WebConversionActivity" android:theme="@style/Theme.SoundCloud.Conversion" />
+        <activity android:name=".payments.LegacyConversionActivity" android:theme="@style/Theme.SoundCloud.Conversion" />
+        <activity android:name=".payments.TieredConversionActivity" />
         <activity android:label="@string/conversion_page_title" android:name=".payments.WebCheckoutActivity" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
 
         <!-- discovery -->

@@ -33,8 +33,9 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.payments.LegacyConversionActivity;
+import com.soundcloud.android.payments.TieredConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
-import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -44,6 +45,8 @@ import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.LegalActivity;
@@ -84,10 +87,13 @@ public class Navigator {
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
-    private final EventTracker eventTracker;
 
-    public Navigator(EventTracker eventTracker) {
+    protected final EventTracker eventTracker;
+    protected final FeatureFlags featureFlags;
+
+    public Navigator(EventTracker eventTracker, FeatureFlags featureFlags) {
         this.eventTracker = eventTracker;
+        this.featureFlags = featureFlags;
     }
 
     public void openHome(Context context) {
@@ -127,8 +133,16 @@ public class Navigator {
     }
 
     // Allow platform versions that would otherwise use SmoothNavigator to launch upgrade without the transition
+    // TODO: This work-around can be removed completely when we delete the LegacyConversionActivity!
     public void openUpgradeNoTransition(Context activityContext) {
-        activityContext.startActivity(new Intent(activityContext, WebConversionActivity.class));
+        activityContext.startActivity(new Intent(activityContext, getConversionActivity()));
+    }
+
+    @NonNull
+    private Class getConversionActivity() {
+        return featureFlags.isEnabled(Flag.MID_TIER)
+                ? TieredConversionActivity.class
+                : LegacyConversionActivity.class;
     }
 
     public void openUpgradeOnMain(Context context) {

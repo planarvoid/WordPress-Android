@@ -42,6 +42,7 @@ import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
 import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
@@ -317,11 +318,11 @@ public class ApplicationModule {
     }
 
     @Provides
-    public Navigator provideNavigator(EventTracker eventTracker) {
+    public Navigator provideNavigator(EventTracker eventTracker, FeatureFlags featureFlags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new SmoothNavigator(eventTracker);
+            return new SmoothNavigator(eventTracker, featureFlags);
         } else {
-            return new Navigator(eventTracker);
+            return new Navigator(eventTracker, featureFlags);
         }
     }
 
