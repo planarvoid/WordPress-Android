@@ -1,7 +1,5 @@
 package com.soundcloud.android.storage;
 
-import static android.R.attr.duration;
-
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.propeller.ChangeResult;
