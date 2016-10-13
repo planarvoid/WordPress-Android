@@ -14,6 +14,8 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.users.UserMenuPresenter;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -34,19 +36,22 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
     private final Navigator navigator;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
+    private final UserMenuPresenter userMenuPresenter;
 
     RecentlyPlayedProfileRenderer(boolean fixedWidth,
                                   @Provided ImageOperations imageOperations,
                                   @Provided Resources resources,
                                   @Provided Navigator navigator,
                                   @Provided ScreenProvider screenProvider,
-                                  @Provided EventBus eventBus) {
+                                  @Provided EventBus eventBus,
+                                  @Provided UserMenuPresenter userMenuPresenter) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
+        this.userMenuPresenter = userMenuPresenter;
     }
 
     @Override
@@ -66,6 +71,18 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
         setTitle(view, user.getTitle());
         setImage(view, user);
         view.setOnClickListener(goToUserProfile(user));
+        setupOverflow(view.findViewById(R.id.overflow_button), user);
+    }
+
+    private void setupOverflow(final View button, final RecentlyPlayedPlayableItem user) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userMenuPresenter.show(button, user.getUrn());
+            }
+        });
+
+        ViewUtils.extendTouchArea(button, 8); // todo: use default ViewUtils.extendTouchArea
     }
 
     private void setTitle(View view, String title) {

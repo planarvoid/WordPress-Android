@@ -16,6 +16,7 @@
     <string name="btn_shuffle">Shuffle</string>
     <string name="btn_follow">Follow</string>
     <string name="btn_following">Following</string>
+    <string name="btn_unfollow">Unfollow</string>
     <string name="btn_like">Like</string>
     <string name="btn_unlike">Unlike</string>
     <string name="btn_save">Save</string>
