@@ -57,6 +57,17 @@
             android:layout_below="@id/title"
             android:layout_marginRight="4dp" />
 
+        <com.soundcloud.android.view.OverflowAnchorImageView
+            android:id="@+id/overflow_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="1dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/ic_playlist_menu"
+            android:background="?attr/selectableItemBackground" />
+
+
     </RelativeLayout>
 
 </FrameLayout>
