@@ -22,7 +22,16 @@ public class WebProductTest extends AndroidUnitTest {
 
     @Test
     public void originalUsdFormattingForEnglishLocale() {
-        setLocale("en");
+        setLocale(Locale.ENGLISH);
+
+        final WebProduct product = buildWebProduct("$9.99", null);
+
+        assertThat(product.getPrice()).isEqualTo("$9.99");
+    }
+
+    @Test
+    public void originalUsdFormattingForUSSpanishLocale() {
+        setLocale(new Locale("es", "US"));
 
         final WebProduct product = buildWebProduct("$9.99", null);
 
@@ -31,7 +40,7 @@ public class WebProductTest extends AndroidUnitTest {
 
     @Test
     public void originalEurFormattingForEnglishLocale() {
-        setLocale("en");
+        setLocale(Locale.ENGLISH);
 
         final WebProduct product = buildWebProduct("€9.99", null);
 
@@ -40,7 +49,7 @@ public class WebProductTest extends AndroidUnitTest {
 
     @Test
     public void originalDiscountCurrencyFormattingForEnglishLocale() {
-        setLocale("en");
+        setLocale(Locale.ENGLISH);
 
         final WebProduct product = buildWebProduct("€9.99", "€4.99");
 
@@ -49,7 +58,7 @@ public class WebProductTest extends AndroidUnitTest {
 
     @Test
     public void reformattedCurrencyForFrance() {
-        setLocale("fr");
+        setLocale(Locale.FRENCH);
 
         final WebProduct product = buildWebProduct("€9.99", null);
 
@@ -57,8 +66,17 @@ public class WebProductTest extends AndroidUnitTest {
     }
 
     @Test
+    public void reformattedCurrencyForFrenchCanadian() {
+        setLocale(Locale.CANADA_FRENCH);
+
+        final WebProduct product = buildWebProduct("$9.99", null);
+
+        assertThat(product.getPrice()).isEqualTo("9,99 $");
+    }
+
+    @Test
     public void reformattedDiscountCurrencyForFrance() {
-        setLocale("fr");
+        setLocale(Locale.FRENCH);
 
         final WebProduct product = buildWebProduct("€9.99", "€4.99");
 
@@ -67,7 +85,7 @@ public class WebProductTest extends AndroidUnitTest {
 
     @Test
     public void reformattedCurrencyForOtherNonEnglishLocale() {
-        setLocale("de");
+        setLocale(Locale.GERMAN);
 
         final WebProduct product = buildWebProduct("€9.99", null);
 
@@ -76,7 +94,7 @@ public class WebProductTest extends AndroidUnitTest {
 
     @Test
     public void reformattedDiscountCurrencyForOtherNonEnglishLocale() {
-        setLocale("de");
+        setLocale(Locale.GERMAN);
 
         final WebProduct product = buildWebProduct("€9.99", "€4.99");
 
@@ -92,8 +110,8 @@ public class WebProductTest extends AndroidUnitTest {
         return WebProduct.create("high_tier", "package:123", price, discountedPrice, "9.99", "USD", 0, 0, null, "123", "456");
     }
 
-    private void setLocale(String code) {
-        Locale.setDefault(new Locale(code));
+    private void setLocale(Locale locale) {
+        Locale.setDefault(locale);
     }
 
 }
