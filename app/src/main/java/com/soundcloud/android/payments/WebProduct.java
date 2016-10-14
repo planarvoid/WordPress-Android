@@ -13,6 +13,10 @@ import java.util.Locale;
 
 @AutoParcel
 public abstract class WebProduct implements Parcelable {
+
+    private static final char EURO = '€';
+    private static final char DOLLAR = '$';
+
     @JsonCreator
     static WebProduct create(
             @JsonProperty("plan_id") String planId,
@@ -30,7 +34,7 @@ public abstract class WebProduct implements Parcelable {
         return new AutoParcel_WebProduct(
                 planId,
                 packageUrn,
-                reformatPrice(price),
+                reformatCurrency(price),
                 reformatOptionalPrice(discountPrice),
                 rawPrice,
                 rawCurrency,
@@ -71,22 +75,34 @@ public abstract class WebProduct implements Parcelable {
     private static Optional<String> reformatOptionalPrice(@Nullable String price) {
         return price == null
                ? Optional.<String>absent()
-               : Optional.of(reformatPrice(price));
+               : Optional.of(reformatCurrency(price));
     }
 
-    private static String reformatPrice(String price) {
-        return price.charAt(0) == '€'
-               ? reformatForLocale(price.charAt(0), price.substring(1, price.length()))
-               : price;
-    }
-
-    private static String reformatForLocale(char symbol, String value) {
-        if (isLanguage(Locale.ENGLISH)) {
-            return symbol + value;
-        } else if (isLanguage(Locale.FRENCH)) {
-            return reformatValue(value) + " " + symbol;
+    private static String reformatCurrency(String price) {
+        if (price.charAt(0) == EURO) {
+            return reformatEuro(price.substring(1, price.length()));
+        } else if (price.charAt(0) == DOLLAR) {
+            return reformatDollar(price.substring(1, price.length()));
         } else {
-            return reformatValue(value) + symbol;
+            return price;
+        }
+    }
+
+    private static String reformatEuro(String value) {
+        if (isLanguage(Locale.ENGLISH)) {
+            return EURO + value;
+        } else if (isLanguage(Locale.FRENCH)) {
+            return reformatValue(value) + " " + EURO;
+        } else {
+            return reformatValue(value) + EURO;
+        }
+    }
+
+    private static String reformatDollar(String value) {
+        if (isLanguage(Locale.CANADA_FRENCH)) {
+            return reformatValue(value) + " " + DOLLAR;
+        } else {
+            return DOLLAR + value;
         }
     }
 
