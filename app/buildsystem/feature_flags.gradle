@@ -78,8 +78,6 @@ android {
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
     }
 
     release {
