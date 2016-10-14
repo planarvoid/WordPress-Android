@@ -62,8 +62,7 @@ class TrackStorage {
     }
 
     private Observable<QueryResult> batchedTracks(List<Urn> urns) {
-        final int buckets = (int) Math.ceil(urns.size() / (float) MAX_TRACKS_BATCH);
-        return Observable.from(partition(urns, buckets)).flatMap(fetchTracks);
+        return Observable.from(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchTracks);
     }
 
     private Map<Urn, PropertySet> toMapOfUrnAndPropertySet(List<QueryResult> cursorReadersBatches) {
