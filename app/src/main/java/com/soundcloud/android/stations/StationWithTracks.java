@@ -5,6 +5,7 @@ import static java.lang.Math.min;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
@@ -34,7 +35,8 @@ class StationWithTracks {
         }
     };
 
-    private static final Function<ApiTrack, StationInfoTrack> TO_STATION_TRACKS =
+    @VisibleForTesting
+    static final Function<ApiTrack, StationInfoTrack> TO_STATION_TRACKS =
             new Function<ApiTrack, StationInfoTrack>() {
                 @Override
                 public StationInfoTrack apply(ApiTrack input) {

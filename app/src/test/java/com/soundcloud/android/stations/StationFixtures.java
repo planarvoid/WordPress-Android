@@ -81,14 +81,19 @@ public class StationFixtures {
         final ApiStation apiStation = getApiStation(station);
         final List<StationInfoTrack> tracks = transform(apiStation.getTrackRecords(), toStationInfoTrack);
 
-        return getStationWithTracks(apiStation, tracks);
+        return getStationWithTracks(apiStation, tracks, Stations.NEVER_PLAYED);
     }
 
     static StationWithTracks getStationWithTracks(Urn station, List<StationInfoTrack> tracks) {
-        return getStationWithTracks(getApiStation(station), tracks);
+        return getStationWithTracks(getApiStation(station), tracks, Stations.NEVER_PLAYED);
     }
 
-    private static StationWithTracks getStationWithTracks(ApiStation apiStation, List<StationInfoTrack> tracks) {
+    static StationWithTracks getStationWithTracks(Urn station, List<StationInfoTrack> tracks, int lastPlayedPosition) {
+        return getStationWithTracks(getApiStation(station), tracks, lastPlayedPosition);
+    }
+
+    private static StationWithTracks getStationWithTracks(ApiStation apiStation,
+                                                          List<StationInfoTrack> tracks, int lastPlayed) {
         return new StationWithTracks(
                 apiStation.getUrn(),
                 apiStation.getTitle(),
@@ -96,7 +101,7 @@ public class StationFixtures {
                 apiStation.getImageUrlTemplate(),
                 apiStation.getPermalink(),
                 tracks,
-                Stations.NEVER_PLAYED,
+                lastPlayed,
                 true);
     }
 

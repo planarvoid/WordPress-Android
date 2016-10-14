@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.annotations.VisibleForTesting;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -72,15 +73,18 @@ class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksB
         layout.scrollToPositionWithOffset(scrollPosition(stationInfoTracksBucket), itemView.getWidth());
     }
 
-    private int scrollPosition(StationInfoTracksBucket bucket) {
+    @VisibleForTesting
+    int scrollPosition(StationInfoTracksBucket bucket) {
         final int lastPlayedPosition = bucket.lastPlayedPosition();
         final List<StationInfoTrack> tracksList = bucket.stationTracks();
 
-        if (lastPlayedPosition >= 0 && tracksList.get(lastPlayedPosition).getTrack().isPlaying()) {
+        if (lastPlayedPosition >= 0
+                && lastPlayedPosition < tracksList.size()
+                && tracksList.get(lastPlayedPosition).getTrack().isPlaying()) {
             return lastPlayedPosition;
         }
 
-        final boolean isLastTrack = lastPlayedPosition + 1 == tracksList.size();
+        final boolean isLastTrack = lastPlayedPosition + 1 >= tracksList.size();
         final boolean wasNeverPlayed = lastPlayedPosition == Stations.NEVER_PLAYED;
 
         return wasNeverPlayed || isLastTrack ? 0 : lastPlayedPosition + 1;
