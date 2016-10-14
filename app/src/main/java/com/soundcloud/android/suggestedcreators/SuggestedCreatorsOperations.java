@@ -21,22 +21,19 @@ import javax.inject.Named;
 import java.util.List;
 
 public class SuggestedCreatorsOperations {
-    private final static int FOLLOWINGS_LIMIT = 5;
-
-    private final static Func1<List<Urn>, Boolean> LESS_THAN_LIMIT_FOLLOWERS = new Func1<List<Urn>, Boolean>() {
-        @Override
-        public Boolean call(List<Urn> urns) {
-            return urns.size() <= FOLLOWINGS_LIMIT;
-        }
-    };
-
-    private final static Func1<List<SuggestedCreator>, SoundStreamItem> TO_SOUND_STREAM_ITEM = new Func1<List<SuggestedCreator>, SoundStreamItem>() {
+    private static final int FOLLOWINGS_LIMIT = 5;
+    private static final Func1<List<SuggestedCreator>, SoundStreamItem> TO_SOUND_STREAM_ITEM = new Func1<List<SuggestedCreator>, SoundStreamItem>() {
         @Override
         public SoundStreamItem call(List<SuggestedCreator> suggestedCreators) {
             return SoundStreamItem.forSuggestedCreators(suggestedCreators);
         }
     };
-
+    private final Func1<List<Urn>, Boolean> lessThanLimitFollowers = new Func1<List<Urn>, Boolean>() {
+        @Override
+        public Boolean call(List<Urn> urns) {
+            return urns.size() <= FOLLOWINGS_LIMIT || featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL);
+        }
+    };
     private final FeatureFlags featureFlags;
     private final MyProfileOperations myProfileOperations;
     private final SyncOperations syncOperations;
@@ -59,7 +56,7 @@ public class SuggestedCreatorsOperations {
     public Observable<SoundStreamItem> suggestedCreators() {
         if (featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)) {
             return myProfileOperations.followingsUrns()
-                                      .filter(LESS_THAN_LIMIT_FOLLOWERS)
+                                      .filter(lessThanLimitFollowers)
                                       .flatMap(loadSuggestedCreators());
         }
         return Observable.empty();
@@ -94,6 +91,7 @@ public class SuggestedCreatorsOperations {
     }
 
     private Observable<List<SuggestedCreator>> load(Observable<SyncOperations.Result> source) {
-        return source.flatMap(continueWith(suggestedCreatorsStorage.suggestedCreators().subscribeOn(scheduler)));
+        return source.flatMap(continueWith(suggestedCreatorsStorage.suggestedCreators()
+                                                                   .subscribeOn(scheduler)));
     }
 }

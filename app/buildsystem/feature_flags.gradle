@@ -22,6 +22,7 @@ enum Feature {
   STATION_PAGE,
   LIKED_STATIONS,
   SUGGESTED_CREATORS,
+  FORCE_SUGGESTED_CREATORS_FOR_ALL,
   MOAT_ADS_VIEWABILITY;
 }
 
@@ -41,6 +42,7 @@ android {
     buildConfigField FLAG, Feature.STATION_PAGE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.LIKED_STATIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), UNDER_DEVELOPMENT
   }
 
@@ -55,6 +57,8 @@ android {
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -79,6 +83,8 @@ android {
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
     }
 
     release {

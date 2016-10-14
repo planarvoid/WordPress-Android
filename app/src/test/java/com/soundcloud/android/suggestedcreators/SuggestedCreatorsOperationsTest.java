@@ -46,6 +46,7 @@ public class SuggestedCreatorsOperationsTest {
                                                      suggestedCreatorsStorage,
                                                      scheduler);
         when(featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL)).thenReturn(false);
         when(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS)).thenReturn(Observable.just(
                 SYNCED));
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.<List<SuggestedCreator>>empty());
@@ -56,6 +57,25 @@ public class SuggestedCreatorsOperationsTest {
     public void returnsNotificationItemIfNumberOfFollowingsLowerEqualThanFive() {
         final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(3,
                                                                                  SuggestedCreatorRelation.LIKED);
+        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(
+                suggestedCreators));
+
+        when(myProfileOperations.followingsUrns()).thenReturn(Observable.just(
+                generateNonUserFollowingUrns(5)));
+
+        operations.suggestedCreators().subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        final SoundStreamItem notificationItem = subscriber.getOnNextEvents().get(0);
+
+        assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
+    }
+
+    @Test
+    public void returnsNotificationItemIfNumberOfFollowingsIsGreaterThanLimitAndForceFeatureFlag() {
+        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(6,
+                                                                                 SuggestedCreatorRelation.LIKED);
+        when(featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL)).thenReturn(true);
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(
                 suggestedCreators));
 
