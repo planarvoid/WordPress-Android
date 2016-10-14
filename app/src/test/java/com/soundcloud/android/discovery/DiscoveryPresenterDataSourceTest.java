@@ -57,7 +57,6 @@ public class DiscoveryPresenterDataSourceTest {
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>empty());
         when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(chartsExperiment.isEnabled()).thenReturn(true);
 
         final ChartBucket chartsItem = ChartBucket.create(Collections.<Chart>emptyList(),

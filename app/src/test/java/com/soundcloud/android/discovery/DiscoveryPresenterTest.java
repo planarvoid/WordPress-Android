@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
@@ -63,7 +62,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void setUp() {
         when(adapterFactory.create(recommendationBucketRenderer)).thenReturn(adapter);
         when(adapter.getItems()).thenReturn(discoveryItems);
-        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(dataSource.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
         when(recommendationBucketRendererFactory
                      .create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
