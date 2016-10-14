@@ -2,7 +2,11 @@ package com.soundcloud.android.suggestedcreators;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -39,9 +43,9 @@ import java.util.List;
 
 public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorItem> {
 
-    private static final Func1<Notification<?>, Boolean> FILTER_OUT_COMPLETED = new Func1<Notification<? extends Object>, Boolean>() {
+    private static final Func1<Notification<?>, Boolean> FILTER_OUT_COMPLETED = new Func1<Notification<?>, Boolean>() {
         @Override
-        public Boolean call(Notification<? extends Object> paletteNotification) {
+        public Boolean call(Notification<?> paletteNotification) {
             return paletteNotification.getKind() != Notification.Kind.OnCompleted;
         }
     };
@@ -51,6 +55,8 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private final Navigator navigator;
     private final PlaceholderGenerator placeholderGenerator;
     private final BackgroundAnimator backgroundAnimator;
+    private final EngagementsTracking engagementsTracking;
+    private final ScreenProvider screenProvider;
     private final CompositeSubscription subscriptions = new CompositeSubscription();
 
     @Inject
@@ -58,13 +64,17 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
                              Resources resources,
                              FollowingOperations followingOperations,
                              Navigator navigator,
-                             PlaceholderGenerator placeholderGenerator) {
+                             PlaceholderGenerator placeholderGenerator,
+                             EngagementsTracking engagementsTracking,
+                             ScreenProvider screenProvider) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.followingOperations = followingOperations;
         this.navigator = navigator;
         this.placeholderGenerator = placeholderGenerator;
         this.backgroundAnimator = new BackgroundAnimator(placeholderGenerator);
+        this.engagementsTracking = engagementsTracking;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -80,11 +90,11 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     @Override
     public void bindItemView(int position, View itemView, List<SuggestedCreatorItem> items) {
         final SuggestedCreatorItem suggestedCreatorItem = items.get(position);
-        bindArtistName(itemView, suggestedCreatorItem.creator());
+        bindArtistName(itemView, suggestedCreatorItem.creator(), position);
         bindArtistLocation(itemView, suggestedCreatorItem.creator());
         bindImages(itemView, suggestedCreatorItem);
         bindReason(itemView, suggestedCreatorItem.relation());
-        bindFollowButton(itemView, suggestedCreatorItem);
+        bindFollowButton(itemView, suggestedCreatorItem, position);
     }
 
     private void bindImages(View itemView, final SuggestedCreatorItem suggestedCreatorItem) {
@@ -121,7 +131,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         };
     }
 
-    private void bindFollowButton(View view, final SuggestedCreatorItem suggestedCreatorItem) {
+    private void bindFollowButton(View view, final SuggestedCreatorItem suggestedCreatorItem, final int position) {
         final ToggleButton toggleButton = (ToggleButton) view.findViewById(R.id.toggle_btn_follow);
         toggleButton.setChecked(suggestedCreatorItem.following);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -130,22 +140,32 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
                 suggestedCreatorItem.following = isChecked;
                 followingOperations.toggleFollowing(suggestedCreatorItem.creator().urn(), isChecked)
                                    .subscribe(new DefaultSubscriber<PropertySet>());
+
+                engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
+                                                  isChecked,
+                                                  buildEventContextMetadata(position));
             }
         });
     }
 
-    private void bindArtistName(View view, final User creator) {
+    private void bindArtistName(View view, final User creator, final int position) {
         final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_artist);
         textView.setText(creator.username());
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO Fix event for tracking
                 navigator.openProfile(v.getContext(),
                                       creator.urn(),
-                                      new UIEvent(UIEvent.KIND_NAVIGATION));
+                                      UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position)));
             }
         });
+    }
+
+    private EventContextMetadata buildEventContextMetadata(int position) {
+        return EventContextMetadata.builder()
+                                   .pageName(screenProvider.getLastScreen().get())
+                                   .module(Module.create(Module.SUGGESTED_CREATORS, position))
+                                   .build();
     }
 
     private void bindArtistLocation(View view, User creator) {
@@ -236,8 +256,8 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         private final ImageView bannerView;
         private final BackgroundAnimator backgroundAnimator;
 
-        public ImageLoadingSubscriber(ImageView bannerView,
-                                      BackgroundAnimator backgroundAnimator) {
+        ImageLoadingSubscriber(ImageView bannerView,
+                               BackgroundAnimator backgroundAnimator) {
             this.bannerView = bannerView;
             this.backgroundAnimator = backgroundAnimator;
         }
@@ -245,11 +265,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         @Override
         public void onNext(SuggestedCreatorItem item) {
             if (shouldDisplayGradientFromPalette(item)) {
-                backgroundAnimator.animate(item.palette
-                                                   .get(),
-                                           bannerView,
-                                           item.creator()
-                                               .urn());
+                backgroundAnimator.animate(item.palette.get(), bannerView, item.creator().urn());
             }
 
         }
