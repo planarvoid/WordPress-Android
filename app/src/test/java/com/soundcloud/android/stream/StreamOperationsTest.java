@@ -11,9 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.from;
 
-import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.AppInstallAd;
+import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -64,7 +62,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Mock private RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     @Mock private FacebookInvitesOperations facebookInvitesOperations;
-    @Mock private AdsOperations adsOperations;
+    @Mock private StreamAdsController streamAdsController;
     @Mock private StationsOperations stationsOperations;
     @Mock private InlineUpsellOperations upsellOperations;
     @Mock private SuggestedCreatorsOperations suggestedCreatorsOperations;
@@ -81,7 +79,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
         when(facebookInvitesOperations.listenerInvites()).thenReturn(Observable.<StreamItem>empty());
         when(stationsOperations.onboardingStreamItem()).thenReturn(Observable.<StreamItem>empty());
         when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Observable.<StreamItem>empty());
-        when(adsOperations.inlaysAds()).thenReturn(Observable.just(Collections.<AppInstallAd>emptyList()));
         this.operations = (StreamOperations) super.operations;
     }
 
@@ -92,7 +89,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
                                                                              SyncStateStorage syncStateStorage) {
         return new StreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
                                     markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
-                                    adsOperations, stationsOperations, upsellOperations, syncStateStorage,
+                streamAdsController, stationsOperations, upsellOperations, syncStateStorage,
                                     suggestedCreatorsOperations);
     }
 
@@ -282,18 +279,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     }
 
     @Test
-    public void shouldInsertAppInstallAfterEveryFourthItem() {
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.from(createItems(12, 12)));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
-        when(adsOperations.inlaysAds()).thenReturn(Observable.just(AdFixtures.getAppInstalls()));
-
-        assertStreamItemAtPosition(Kind.APP_INSTALL, 4);
-        assertStreamItemAtPosition(Kind.APP_INSTALL, 9);
-    }
-
-    @Test
     public void showStationsOnboardingAsFirstItem() {
         final List<StreamPlayable> items = createItems(PAGE_SIZE, 123L);
         when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
@@ -446,6 +431,26 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
         operations.updatedTimelineItemsForStart().subscribe(subscriber);
 
         subscriber.assertNoValues();
+    }
+
+    @Test
+    public void shouldInsertAdsOnInitialStreamLoad() {
+        when(streamStorage.timelineItems(PAGE_SIZE))
+                .thenReturn(Observable.<StreamPlayable>empty())
+                .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        verify(streamAdsController).insertAds();
+    }
+
+    @Test
+    public void shouldInsertAdsOnStreamUpdate() {
+        initUpdatedTimelineItems();
+        operations.updatedStreamItems().subscribe(observer);
+
+        verify(streamAdsController).insertAds();
     }
 
     @Override

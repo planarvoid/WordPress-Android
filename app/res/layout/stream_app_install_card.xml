@@ -2,6 +2,7 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:sc="http://schemas.android.com/apk/res-auto"
     android:id="@+id/stream_app_install"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -11,8 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:clipChildren="false"
-        android:clipToPadding="false"
         tools:ignore="UselessParent">
 
         <RelativeLayout
@@ -28,10 +27,10 @@
 
         </RelativeLayout>
 
-        <ImageView
+        <com.soundcloud.android.view.ParallaxImageView
             android:id="@+id/image"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"/>
+            sc:foreground="@drawable/artwork_border"
+            style="@style/Stream.Image.AppInstall" />
 
         <RelativeLayout
             style="@style/Cards.Footer">

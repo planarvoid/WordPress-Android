@@ -11,6 +11,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -48,6 +49,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -70,6 +72,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final StreamOperations streamOperations;
     private final StreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
+    private final StreamAdsController streamAdsController;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
@@ -85,6 +88,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     StreamAdapter adapter,
                     StationsOperations stationsOperations,
                     ImagePauseOnScrollListener imagePauseOnScrollListener,
+                    StreamAdsController streamAdsController,
                     SwipeRefreshAttacher swipeRefreshAttacher,
                     EventBus eventBus,
                     MixedItemClickListener.Factory itemClickListenerFactory,
@@ -97,13 +101,13 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.adapter = adapter;
         this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
+        this.streamAdsController = streamAdsController;
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
         this.navigator = navigator;
         this.newItemsIndicator = newItemsIndicator;
 
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
-
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
@@ -137,6 +141,9 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+
+        streamAdsController.set((StaggeredGridLayoutManager) getRecyclerView().getLayoutManager(), adapter);
+
         configureEmptyView();
         addScrollListeners();
 
@@ -151,11 +158,13 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
+        getRecyclerView().addOnScrollListener(streamAdsController);
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        streamAdsController.clear();
         viewLifeCycle.unsubscribe();
         adapter.unsubscribe();
         newItemsIndicator.destroy();

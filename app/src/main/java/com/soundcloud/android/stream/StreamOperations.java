@@ -4,8 +4,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.AppInstallAd;
+import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
@@ -39,7 +38,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -48,7 +46,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     private final StreamStorage streamStorage;
     private final EventBus eventBus;
     private final FacebookInvitesOperations facebookInvites;
-    private final AdsOperations adsOperations;
+    private final StreamAdsController streamAdsController;
     private final StationsOperations stationsOperations;
     private final InlineUpsellOperations upsellOperations;
     private final SuggestedCreatorsOperations suggestedCreatorsOperations;
@@ -84,6 +82,13 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         }
     };
 
+    private final Action1<List<StreamItem>> insertAds = new Action1<List<StreamItem>>() {
+        @Override
+        public void call(List<StreamItem> streamItems) {
+            streamAdsController.insertAds();
+        }
+    };
+
     private static final Func2<List<StreamItem>, Optional<StreamItem>, List<StreamItem>> addNotificationItemToStream = new Func2<List<StreamItem>, Optional<StreamItem>, List<StreamItem>>() {
         @Override
         public List<StreamItem> call(List<StreamItem> streamItems, Optional<StreamItem> notificationItemOptional) {
@@ -101,28 +106,6 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         }
     };
 
-    private static final Func2<List<StreamItem>, List<AppInstallAd>, List<StreamItem>> addAdInlaysIntoStream = new Func2<List<StreamItem>, List<AppInstallAd>, List<StreamItem>>() {
-        @Override
-        public List<StreamItem> call(List<StreamItem> streamItems, List<AppInstallAd> ads) {
-            if (ads.isEmpty()) {
-                return streamItems;
-            }
-
-            final List<List<StreamItem>> partitionedStream = Lists.partition(streamItems, 4);
-            final Iterator<AppInstallAd> adIterator = ads.iterator();
-            final List<StreamItem> result = new ArrayList<>();
-
-            for (List<StreamItem> partition : partitionedStream) {
-                result.addAll(partition);
-                if (adIterator.hasNext()) {
-                    result.add(StreamItem.AppInstall.create(adIterator.next()));
-                }
-            }
-
-            return result;
-        }
-    };
-
     private static boolean isSuggestedCreatorsNotification(Optional<StreamItem> notificationItemOptional) {
         return notificationItemOptional.isPresent() && notificationItemOptional.get().kind() == Kind.SUGGESTED_CREATORS;
     }
@@ -133,7 +116,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
                      MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                      FacebookInvitesOperations facebookInvites,
-                     AdsOperations adsOperations,
+                     StreamAdsController streamAdsController,
                      StationsOperations stationsOperations, InlineUpsellOperations upsellOperations,
                      SyncStateStorage syncStateStorage,
                      SuggestedCreatorsOperations suggestedCreatorsOperations) {
@@ -148,7 +131,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         this.scheduler = scheduler;
         this.eventBus = eventBus;
         this.facebookInvites = facebookInvites;
-        this.adsOperations = adsOperations;
+        this.streamAdsController = streamAdsController;
         this.stationsOperations = stationsOperations;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.upsellOperations = upsellOperations;
@@ -169,9 +152,9 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
                                               .subscribeOn(scheduler)
                                               .flatMap(continueWith(initialTimelineItems(false)))
                                               .zipWith(initialNotificationItem(), addNotificationItemToStream)
-                                              .zipWith(adsOperations.inlaysAds(), addAdInlaysIntoStream)
                                               .map(appendUpsellAfterSnippet)
-                                              .doOnNext(promotedImpressionAction);
+                                              .doOnNext(promotedImpressionAction)
+                                              .doOnNext(insertAds);
     }
 
     private Observable<Optional<StreamItem>> initialNotificationItem() {
@@ -187,8 +170,8 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
                     .zipWith(updatedNotificationItem(), addNotificationItemToStream)
-                    .zipWith(adsOperations.inlaysAds(), addAdInlaysIntoStream)
-                    .doOnNext(promotedImpressionAction);
+                    .doOnNext(promotedImpressionAction)
+                    .doOnNext(insertAds);
     }
 
     private Observable<Optional<StreamItem>> updatedNotificationItem() {
