@@ -13,7 +13,6 @@ enum Feature {
   ARCHER_PUSH,
   MID_TIER,
   DISCOVERY_CHARTS,
-  DISCOVERY_RECOMMENDATIONS,
   EDIT_PLAYLIST,
   PLAY_QUEUE,
   NEW_SYNC_ADAPTER,
@@ -34,7 +33,6 @@ android {
     buildConfigField FLAG, Feature.ARCHER_PUSH.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MID_TIER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.EDIT_PLAYLIST.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PLAY_QUEUE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
@@ -49,7 +47,6 @@ android {
   buildTypes {
     alpha {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
@@ -63,7 +60,6 @@ android {
 
     beta {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
@@ -75,7 +71,6 @@ android {
     debug {
       buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
@@ -88,7 +83,6 @@ android {
     }
 
     release {
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
@@ -97,7 +91,6 @@ android {
     }
 
     preRelease {
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
@@ -105,7 +98,6 @@ android {
     }
 
     releaseNonPlayStore {
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW

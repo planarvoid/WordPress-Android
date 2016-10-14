@@ -158,9 +158,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
-        if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-            getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
-        }
+        getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
     }
 
     @Override
@@ -228,10 +226,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
 
             discoveryItems.add(recommendedStationsOperations.recommendedStations());
-
-            if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-                discoveryItems.add(recommendedTracksOperations.recommendedTracks());
-            }
+            discoveryItems.add(recommendedTracksOperations.recommendedTracks());
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.featuredCharts().map(TO_DISCOVERY_ITEM));
@@ -246,10 +241,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
 
             discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
-
-            if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-                discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
-            }
+            discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.refreshFeaturedCharts().map(TO_DISCOVERY_ITEM));
