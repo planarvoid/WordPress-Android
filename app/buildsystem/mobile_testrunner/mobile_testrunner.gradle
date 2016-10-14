@@ -52,12 +52,12 @@ task runLollipopTests << {
   def excludeAnnotations = [
           "com.soundcloud.android.framework.annotation.Ignore",
           "com.soundcloud.android.framework.annotation.CollectionsTest",
-          "com.soundcloud.android.framework.annotation.QueueExplosionTest",
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
           "com.soundcloud.android.framework.annotation.LegacyStationTest",
-          "com.soundcloud.android.framework.annotation.ShuffleTest"
+          "com.soundcloud.android.framework.annotation.ShuffleTest",
+          "com.soundcloud.android.framework.annotation.ReleaseOnly"
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
@@ -70,7 +70,6 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
           "com.soundcloud.android.framework.annotation.CollectionsTest",
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",
-          "com.soundcloud.android.framework.annotation.QueueExplosionTest",
           "com.soundcloud.android.framework.annotation.StationsTabTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
           "com.soundcloud.android.framework.annotation.LegacyStationTest"
