@@ -10,7 +10,6 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +26,7 @@ public class WebPaymentOperationsTest extends AndroidUnitTest {
 
     @Mock ApiClientRx api;
 
-    private TestSubscriber<Optional<WebProduct>> subscriber = new TestSubscriber<>();
+    private TestSubscriber<AvailableWebProducts> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -35,35 +34,25 @@ public class WebPaymentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void productReturnsWebProductIfPlanExists() {
-        WebProduct expected = WebProduct.create("high_tier", "urn:123", "$1", "$0", "0.00", "USD", 30, 0, null, "now", "later");
+    public void fetchesAndMapsAvailableProducts() {
+        WebProduct expected = TestProduct.highTier();
         setupExpectedProductsCall(expected);
 
-        operations.product().subscribe(subscriber);
+        operations.products().subscribe(subscriber);
 
-        final Optional<WebProduct> product = subscriber.getOnNextEvents().get(0);
-        assertThat(product.isPresent()).isTrue();
-        assertThat(product.get()).isEqualTo(expected);
+        final AvailableWebProducts products = subscriber.getOnNextEvents().get(0);
+        assertThat(products.highTier().isPresent()).isTrue();
+        assertThat(products.highTier().get()).isEqualTo(expected);
     }
 
     @Test
-    public void productReturnsAbsentIfPlanDoesNotExist() {
-        setupExpectedProductsCall(WebProduct.create("high_tears",
-                                                    "urn:123",
-                                                    "$1",
-                                                    "$0",
-                                                    "0.00",
-                                                    "USD",
-                                                    2,
-                                                    0,
-                                                    null,
-                                                    "now",
-                                                    "later"));
+    public void returnsEmptyAvailableProductsIfNoKnownPlansAvailable() {
+        setupExpectedProductsCall(TestProduct.unknown());
 
-        operations.product().subscribe(subscriber);
+        operations.products().subscribe(subscriber);
 
-        final Optional<WebProduct> product = subscriber.getOnNextEvents().get(0);
-        assertThat(product.isPresent()).isFalse();
+        final AvailableWebProducts products = subscriber.getOnNextEvents().get(0);
+        assertThat(products.highTier().isPresent()).isFalse();
     }
 
     private void setupExpectedProductsCall(WebProduct expected) {

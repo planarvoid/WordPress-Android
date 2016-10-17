@@ -40,8 +40,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private AppCompatActivity activity;
 
-    private static final WebProduct PRODUCT =
-            WebProduct.create("high_tier", "some:product:123", "$2", "$1", "1.00", "USD", 30, 0, null, "start", "expiry");
+    private static final AvailableWebProducts HIGH_TIER = AvailableWebProducts.single(TestProduct.highTier());
 
     private TestEventBus eventBus;
     private WebCheckoutPresenter presenter;
@@ -77,7 +76,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Test
     public void loadProductIfNotPassedInIntent() {
         when(activity.getIntent()).thenReturn(new Intent());
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PRODUCT)));
+        when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
 
         presenter.onCreate(activity, null);
 
@@ -87,7 +86,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Test
     public void loadingProductCanBeRetried() {
         when(activity.getIntent()).thenReturn(new Intent());
-        when(paymentOperations.product()).thenReturn(Observable.<Optional<WebProduct>>error(new IOException()));
+        when(paymentOperations.products()).thenReturn(Observable.<AvailableWebProducts>error(new IOException()));
 
         presenter.onCreate(activity, null);
 
@@ -98,11 +97,11 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     public void loadedProductIsSavedInIntent() {
         Intent intent = new Intent();
         when(activity.getIntent()).thenReturn(intent);
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PRODUCT)));
+        when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
 
         presenter.onCreate(activity, null);
 
-        assertThat(intent.getParcelableExtra(WebCheckoutPresenter.PRODUCT_INFO)).isEqualTo(PRODUCT);
+        assertThat(intent.getParcelableExtra(WebCheckoutPresenter.PRODUCT_INFO)).isEqualTo(HIGH_TIER.highTier().get());
     }
 
     @Test
@@ -202,7 +201,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     private void setupIntentWithProduct() {
-        when(activity.getIntent()).thenReturn(new Intent().putExtra(WebCheckoutPresenter.PRODUCT_INFO, PRODUCT));
+        when(activity.getIntent()).thenReturn(new Intent().putExtra(WebCheckoutPresenter.PRODUCT_INFO, TestProduct.highTier()));
     }
 
 }

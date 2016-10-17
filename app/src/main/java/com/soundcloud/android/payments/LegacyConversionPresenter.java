@@ -47,7 +47,7 @@ class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
             product = Optional.fromNullable((WebProduct) bundle.getParcelable(LOADED_PRODUCT));
             enablePurchase(product.get());
         } else {
-            loadProduct();
+            loadProducts();
         }
     }
 
@@ -57,11 +57,11 @@ class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         this.activity = null;
     }
 
-    private void loadProduct() {
+    private void loadProducts() {
         conversionView.setBuyButtonLoading();
-        subscription = operations.product()
+        subscription = operations.products()
                                  .observeOn(AndroidSchedulers.mainThread())
-                                 .subscribe(new WebProductSubscriber());
+                                 .subscribe(new WebProductsSubscriber());
     }
 
     @Override
@@ -69,7 +69,7 @@ class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         if (product.isPresent()) {
             startWebCheckout();
         } else {
-            loadProduct();
+            loadProducts();
         }
     }
 
@@ -119,13 +119,13 @@ class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonImpression());
     }
 
-    private class WebProductSubscriber extends DefaultSubscriber<Optional<WebProduct>> {
+    private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {
         @Override
-        public void onNext(Optional<WebProduct> result) {
-            if (result.isPresent()) {
-                enablePurchase(result.get());
+        public void onNext(AvailableWebProducts products) {
+            if (products.highTier().isPresent()) {
+                enablePurchase(products.highTier().get());
             }
-            product = result;
+            product = products.highTier();
         }
 
         @Override

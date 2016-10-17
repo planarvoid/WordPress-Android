@@ -9,7 +9,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,8 +22,8 @@ import java.io.IOException;
 
 public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
-    private static final WebProduct DEFAULT = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 30, 0, null, "start", "expiry");
-    private static final WebProduct PROMO = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 0, 90, "$1", "start", "expiry");
+    private static final AvailableWebProducts DEFAULT = AvailableWebProducts.single(TestProduct.highTier());
+    private static final AvailableWebProducts PROMO = AvailableWebProducts.single(TestProduct.highTierPromo());
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -41,7 +40,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enablePurchaseOnProductLoad() {
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
+        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
 
         presenter.onCreate(activity, null);
 
@@ -51,7 +50,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enablePromoPurchaseOnPromoLoad() {
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PROMO)));
+        when(paymentOperations.products()).thenReturn(Observable.just(PROMO));
 
         presenter.onCreate(activity, null);
 
@@ -62,7 +61,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void enablePurchaseIfProductSavedInBundle() {
         Bundle savedInstanceState = new Bundle();
-        savedInstanceState.putParcelable(LegacyConversionPresenter.LOADED_PRODUCT, DEFAULT);
+        savedInstanceState.putParcelable(LegacyConversionPresenter.LOADED_PRODUCT, TestProduct.highTier());
 
         presenter.onCreate(activity, savedInstanceState);
 
@@ -74,17 +73,17 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void savesLoadedProductToBundle() {
         Bundle savedInstanceState = new Bundle();
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
+        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.onSaveInstanceState(activity, savedInstanceState);
 
-        assertThat(savedInstanceState.getParcelable(LegacyConversionPresenter.LOADED_PRODUCT)).isEqualTo(DEFAULT);
+        assertThat(savedInstanceState.getParcelable(LegacyConversionPresenter.LOADED_PRODUCT)).isEqualTo(DEFAULT.highTier().get());
     }
 
     @Test
     public void allowsRetryIfProductLoadFails() {
-        when(paymentOperations.product()).thenReturn(Observable.<Optional<WebProduct>>error(new IOException()));
+        when(paymentOperations.products()).thenReturn(Observable.<AvailableWebProducts>error(new IOException()));
 
         presenter.onCreate(activity, null);
 
@@ -93,20 +92,20 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startPurchaseCallbackPassesProductInfoToCheckout() {
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
+        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.startPurchase();
 
         Assertions.assertThat(activity)
                   .nextStartedIntent()
-                  .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, DEFAULT)
+                  .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, DEFAULT.highTier().get())
                   .opensActivity(WebCheckoutActivity.class);
     }
 
     @Test
     public void startPurchasePublishesUpgradeFunnelEvent() {
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(DEFAULT)));
+        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.startPurchase();
@@ -117,7 +116,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startPurchaseWithPromoPublishesPromoFunnelEvent() {
-        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PROMO)));
+        when(paymentOperations.products()).thenReturn(Observable.just(PROMO));
         presenter.onCreate(activity, null);
 
         presenter.startPurchase();
@@ -128,7 +127,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void closeCallbackFinishesActivity() {
-        when(paymentOperations.product()).thenReturn(Observable.<Optional<WebProduct>>empty());
+        when(paymentOperations.products()).thenReturn(Observable.<AvailableWebProducts>empty());
         presenter.onCreate(activity, null);
 
         presenter.close();

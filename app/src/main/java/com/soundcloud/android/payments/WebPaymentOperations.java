@@ -5,7 +5,6 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 import rx.Scheduler;
@@ -16,17 +15,12 @@ import javax.inject.Named;
 
 public class WebPaymentOperations {
 
-    private static final String HIGH_TIER_PLAN_ID = "high_tier";
+    private static final TypeToken<ModelCollection<WebProduct>> PRODUCT_COLLECTION_TOKEN = new TypeToken<ModelCollection<WebProduct>>() {};
 
-    private static final Func1<ModelCollection<WebProduct>, Optional<WebProduct>> TO_WEB_PRODUCT = new Func1<ModelCollection<WebProduct>, Optional<WebProduct>>() {
+    private static final Func1<ModelCollection<WebProduct>, AvailableWebProducts> TO_AVAILABLE_PRODUCTS = new Func1<ModelCollection<WebProduct>, AvailableWebProducts>() {
         @Override
-        public Optional<WebProduct> call(ModelCollection<WebProduct> webProducts) {
-            for (WebProduct product : webProducts) {
-                if (product.getPlanId().equals(HIGH_TIER_PLAN_ID)) {
-                    return Optional.of(product);
-                }
-            }
-            return Optional.absent();
+        public AvailableWebProducts call(ModelCollection<WebProduct> webProducts) {
+            return new AvailableWebProducts(webProducts.getCollection());
         }
     };
 
@@ -40,14 +34,17 @@ public class WebPaymentOperations {
         this.scheduler = scheduler;
     }
 
-    Observable<Optional<WebProduct>> product() {
-        final ApiRequest request = ApiRequest
+    Observable<AvailableWebProducts> products() {
+        return apiClientRx.mappedResponse(webProductRequest(), PRODUCT_COLLECTION_TOKEN)
+                .subscribeOn(scheduler)
+                .map(TO_AVAILABLE_PRODUCTS);
+    }
+
+    private ApiRequest webProductRequest() {
+        return ApiRequest
                 .get(ApiEndpoints.WEB_PRODUCTS.path())
                 .forPrivateApi()
                 .build();
-
-        return apiClientRx.mappedResponse(request, new TypeToken<ModelCollection<WebProduct>>() {})
-                          .subscribeOn(scheduler)
-                          .map(TO_WEB_PRODUCT);
     }
+
 }

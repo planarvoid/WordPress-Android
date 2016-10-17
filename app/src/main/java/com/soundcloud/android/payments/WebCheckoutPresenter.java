@@ -96,13 +96,17 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
         final WebProduct product = getProductFromIntent();
         if (product == null) {
-            subscription = paymentOperations.get()
-                                            .product()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new WebProductSubscriber());
+            fetchHighTierProduct();
         } else {
             launchWebForm(product);
         }
+    }
+
+    private void fetchHighTierProduct() {
+        subscription = paymentOperations.get()
+                                        .products()
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new WebProductsSubscriber());
     }
 
     private void launchWebForm(WebProduct product) {
@@ -220,12 +224,13 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
-    private class WebProductSubscriber extends DefaultSubscriber<Optional<WebProduct>> {
+    private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {
         @Override
-        public void onNext(Optional<WebProduct> result) {
-            if (result.isPresent()) {
-                saveProduct(result.get());
-                launchWebForm(result.get());
+        public void onNext(AvailableWebProducts products) {
+            Optional<WebProduct> highTier = products.highTier();
+            if (highTier.isPresent()) {
+                saveProduct(highTier.get());
+                launchWebForm(highTier.get());
             } else {
                 setRetryState();
             }
