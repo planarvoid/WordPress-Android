@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -25,7 +26,8 @@ public abstract class SoundStreamItem {
         STATIONS_ONBOARDING,
         FACEBOOK_CREATORS,
         STREAM_UPSELL,
-        SUGGESTED_CREATORS
+        SUGGESTED_CREATORS,
+        APP_INSTALL
     }
 
     static SoundStreamItem forUpsell() {
@@ -148,6 +150,15 @@ public abstract class SoundStreamItem {
                 suggestedCreatorItems.add(SuggestedCreatorItem.fromSuggestedCreator(suggestedCreator));
             }
             return new AutoValue_SoundStreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreatorItems);
+        }
+    }
+
+    @AutoValue
+    public abstract static class AppInstall extends SoundStreamItem {
+        public abstract AppInstallAd appInstall();
+
+        static AppInstall create(AppInstallAd appInstall) {
+            return new AutoValue_SoundStreamItem_AppInstall(Kind.APP_INSTALL, appInstall);
         }
     }
 }

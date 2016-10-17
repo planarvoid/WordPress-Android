@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/stream_app_install"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        style="@style/Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        tools:ignore="UselessParent">
+
+        <RelativeLayout
+            android:id="@+id/header_container"
+            style="@style/Cards.Header">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/ad_item"
+                style="@style/Cards.PrimaryHeaderText"
+                android:layout_marginLeft="0dp"
+                android:drawableLeft="@drawable/inset_promoted_icon"
+                android:drawablePadding="3dp"/>
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+
+        <RelativeLayout
+            style="@style/Cards.Footer">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/app_name"
+                android:layout_marginTop="10dp"
+                style="@style/ListItemText"/>
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/ratings_count"
+                android:layout_below="@id/app_name"
+                style="@style/Cards.StatsItem"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

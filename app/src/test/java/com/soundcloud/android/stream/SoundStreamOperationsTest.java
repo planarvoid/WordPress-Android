@@ -11,6 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.from;
 
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -61,6 +64,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamPlay
     @Mock private RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     @Mock private FacebookInvitesOperations facebookInvitesOperations;
+    @Mock private AdsOperations adsOperations;
     @Mock private StationsOperations stationsOperations;
     @Mock private InlineUpsellOperations upsellOperations;
     @Mock private SuggestedCreatorsOperations suggestedCreatorsOperations;
@@ -77,6 +81,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamPlay
         when(facebookInvitesOperations.listenerInvites()).thenReturn(Observable.<SoundStreamItem>empty());
         when(stationsOperations.onboardingStreamItem()).thenReturn(Observable.<SoundStreamItem>empty());
         when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Observable.<SoundStreamItem>empty());
+        when(adsOperations.inlaysAds()).thenReturn(Observable.just(Collections.<AppInstallAd>emptyList()));
         this.operations = (SoundStreamOperations) super.operations;
     }
 
@@ -87,7 +92,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamPlay
                                                              SyncStateStorage syncStateStorage) {
         return new SoundStreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
                                          markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
-                                         stationsOperations, upsellOperations, syncStateStorage,
+                                         adsOperations, stationsOperations, upsellOperations, syncStateStorage,
                                          suggestedCreatorsOperations);
     }
 
@@ -274,6 +279,18 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamPlay
         when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         assertInitialStreamFirstItemKind(Kind.FACEBOOK_LISTENER_INVITES);
+    }
+
+    @Test
+    public void shouldInsertAppInstallAfterEveryFourthItem() {
+        when(soundStreamStorage.timelineItems(PAGE_SIZE))
+                .thenReturn(Observable.<StreamPlayable>empty())
+                .thenReturn(Observable.from(createItems(12, 12)));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        when(adsOperations.inlaysAds()).thenReturn(Observable.just(AdFixtures.getAppInstalls()));
+
+        assertStreamItemAtPosition(Kind.APP_INSTALL, 4);
+        assertStreamItemAtPosition(Kind.APP_INSTALL, 9);
     }
 
     @Test
