@@ -30,13 +30,8 @@
 
             <ImageView
                 android:id="@+id/search_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:src="@drawable/search_icon"
-                android:paddingLeft="@dimen/search_link_padding_horizontal"
-                android:paddingRight="@dimen/search_link_padding_horizontal"
-                android:paddingTop="@dimen/search_link_padding_vertical"
-                android:paddingBottom="@dimen/search_link_padding_vertical"/>
+                style="@style/SearchIcon" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/search_text"

@@ -2,6 +2,7 @@ package com.soundcloud.android.collection.playlists;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +60,7 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
         when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.<List<PlaylistItem>>empty());
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
-        when(filterHeaderPresenterFactory.create(any(FilterHeaderPresenter.Listener.class))).thenReturn(
+        when(filterHeaderPresenterFactory.create(any(FilterHeaderPresenter.Listener.class), anyInt())).thenReturn(
                 myPlaylistHeaderPresenter);
         presenter = new PlaylistsPresenter(
                 swipeRefreshAttacher,

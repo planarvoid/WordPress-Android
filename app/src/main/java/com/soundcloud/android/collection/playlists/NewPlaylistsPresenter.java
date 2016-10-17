@@ -1,5 +1,6 @@
 package com.soundcloud.android.collection.playlists;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
@@ -35,7 +36,7 @@ public class NewPlaylistsPresenter extends PlaylistsPresenter {
               eventBus);
 
         this.scrollHelper = scrollHelper;
-        this.filterHeaderPresenter = fileHeaderPresenterFactory.create(this);
+        this.filterHeaderPresenter = fileHeaderPresenterFactory.create(this, R.string.search_playlists);
     }
 
     @Override
