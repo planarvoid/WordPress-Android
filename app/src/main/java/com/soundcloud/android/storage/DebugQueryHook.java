@@ -17,7 +17,7 @@ class DebugQueryHook implements DatabaseHook {
 
     private static final String TAG = "QueryDebug";
     private static final int MAX_LENGTH = 200;
-    private static final int LENGTH_TOLERANCE = 1000;
+    private static final int LENGTH_TOLERANCE = 5000;
 
     private static final String UPSERT = "UPSERT";
     private static final String BULK_UPSERT = "BULK UPSERT";
