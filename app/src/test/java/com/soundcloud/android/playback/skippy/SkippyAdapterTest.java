@@ -27,7 +27,6 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -61,9 +60,7 @@ import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -80,7 +77,6 @@ import android.support.annotation.NonNull;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 public class SkippyAdapterTest extends AndroidUnitTest {
 
@@ -902,6 +898,16 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSendFileAccessEvent() {
+        skippyAdapter.init();
+
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events.size()).isEqualTo(1);
+        assertThat(events.get(0)).isInstanceOf(FileAccessEvent.class);
+    }
+
+    @Test
+    public void shouldSendFileAccessEventWithoutCachePath() {
+        when(configuration.getCachePath()).thenReturn(null);
         skippyAdapter.init();
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
