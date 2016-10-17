@@ -297,6 +297,7 @@ public class PlaybackService extends Service
     }
 
     void play(PlaybackItem playbackItem) {
+        Log.d(TAG, "Play item (playbackItem=" + playbackItem + ")");
         currentPlaybackItem = Optional.of(playbackItem);
         if (mediaSessionController.onPlay(playbackItem)) {
             resetVolume(playbackItem.getStartPosition());
