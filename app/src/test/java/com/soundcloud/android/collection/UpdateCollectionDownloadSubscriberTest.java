@@ -12,6 +12,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketRend
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -22,11 +23,11 @@ import java.util.Collections;
 
 public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
 
-    private static final PreviewCollectionItem PREVIEW =
-            PreviewCollectionItem.forLikesAndStations(
+    private static final CollectionItem PREVIEW =
+            PreviewCollectionItem.forLikesPlaylistsAndStations(
                     LikesItem.fromTrackPreviews(singletonList(
                             LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url"))),
-                    Collections.<StationRecord>emptyList());
+                    Collections.<PlaylistItem>emptyList(), Collections.<StationRecord>emptyList());
 
     private UpdateCollectionDownloadSubscriber subscriber;
 
@@ -36,7 +37,7 @@ public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(adapter.getRecentlyPlayedBucketRenderer()).thenReturn(recentlyPlayedBucketRenderer);
-        when(adapter.getItems()).thenReturn(singletonList((CollectionItem) PREVIEW));
+        when(adapter.getItems()).thenReturn(singletonList(PREVIEW));
         subscriber = new UpdateCollectionDownloadSubscriber(adapter);
     }
 
@@ -45,7 +46,7 @@ public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
         final OfflineContentChangedEvent event = downloading(Collections.<Urn>emptyList(), true);
         subscriber.onNext(event);
 
-        assertThat(PREVIEW.getLikes().getDownloadState()).isEqualTo(OfflineState.DOWNLOADING);
+        assertThat(((PreviewCollectionItem)PREVIEW).getLikes().getDownloadState()).isEqualTo(OfflineState.DOWNLOADING);
         verify(adapter).notifyDataSetChanged();
     }
 

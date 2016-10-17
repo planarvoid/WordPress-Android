@@ -12,13 +12,10 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -46,18 +43,10 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     private static final int FIXED_ITEMS = 5;
 
-    public static final String TAG = "CollectionPresenter";
     private final Func1<Object, Boolean> isNotRefreshing = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
             return !swipeRefreshAttacher.isRefreshing();
-        }
-    };
-
-    private final Action1<Object> logCollectionChanged = new Action1<Object>() {
-        @Override
-        public void call(Object o) {
-            Log.d(TAG, "OnCollectionChanged [event=" + o + ", isNotRefreshing=" + isNotRefreshing + "]");
         }
     };
 
@@ -90,7 +79,6 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final CollectionOperations collectionOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
-    private final FeatureFlags featureFlags;
 
     private CompositeSubscription eventSubscriptions = new CompositeSubscription();
 
@@ -103,13 +91,11 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         Resources resources,
                         EventBus eventBus,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                        PlayHistoryOperations playHistoryOperations,
-                        FeatureFlags featureFlags) {
+                        PlayHistoryOperations playHistoryOperations) {
         super(swipeRefreshAttacher);
         this.collectionOperations = collectionOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.playHistoryOperations = playHistoryOperations;
-        this.featureFlags = featureFlags;
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventBus = eventBus;
         this.adapter = adapter;
@@ -217,7 +203,6 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter)),
                 collectionOperations.onCollectionChanged()
-                                    .doOnNext(logCollectionChanged)
                                     .filter(isNotRefreshing)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(new RefreshCollectionsSubscriber())
@@ -261,15 +246,9 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems = myCollection.getRecentlyPlayedItems();
         List<CollectionItem> collectionItems = new ArrayList<>(playHistoryTrackItems.size() + FIXED_ITEMS);
 
-        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
-            collectionItems.add(PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
-                                                                                   myCollection.getPlaylistItems(),
-                                                                                   myCollection.getStations()));
-        } else {
-            collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
-                                                                           myCollection.getPlaylistItems()));
-        }
-
+        collectionItems.add(PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
+                                                                               myCollection.getPlaylistItems(),
+                                                                               myCollection.getStations()));
         addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
         addPlayHistory(playHistoryTrackItems, collectionItems);
 

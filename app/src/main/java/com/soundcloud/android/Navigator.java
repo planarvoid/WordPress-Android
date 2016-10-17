@@ -54,7 +54,6 @@ import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.LikedStationsActivity;
-import com.soundcloud.android.stations.RecentStationsActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
@@ -141,8 +140,8 @@ public class Navigator {
     @NonNull
     private Class getConversionActivity() {
         return featureFlags.isEnabled(Flag.MID_TIER)
-                ? TieredConversionActivity.class
-                : LegacyConversionActivity.class;
+               ? TieredConversionActivity.class
+               : LegacyConversionActivity.class;
     }
 
     public void openUpgradeOnMain(Context context) {
@@ -387,10 +386,6 @@ public class Navigator {
         context.startActivity(new Intent(context, AllGenresActivity.class));
     }
 
-    public void openRecentStations(Context context) {
-        context.startActivity(new Intent(context, RecentStationsActivity.class));
-    }
-
     public void openLikedStations(Context context) {
         context.startActivity(new Intent(context, LikedStationsActivity.class));
     }
@@ -488,13 +483,13 @@ public class Navigator {
         return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 
-    static public Intent createProfileIntent(Context context, Urn user, Screen screen) {
+    private static Intent createProfileIntent(Context context, Urn user, Screen screen) {
         Intent intent = createProfileIntent(context, user);
         screen.addToIntent(intent);
         return intent;
     }
 
-    static public Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
+    private static Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
         Intent intent = createProfileIntent(context, user, screen);
         referrer.addToIntent(intent);
         return intent;

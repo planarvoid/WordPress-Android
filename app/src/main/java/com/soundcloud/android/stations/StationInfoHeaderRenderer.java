@@ -11,7 +11,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleBlurredImageLoader;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 
 import android.content.res.Resources;
@@ -84,25 +83,10 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
         playButton.setVisibility(View.VISIBLE);
         playButton.setOnClickListener(playButtonClickListener);
 
-        final boolean likeStationEnabled = featureFlags.isEnabled(Flag.LIKED_STATIONS);
+        final ToggleButton likeButton = ButterKnife.findById(itemView, R.id.toggle_like);
+        likeButton.setChecked(info.isLiked());
+        likeButton.setOnCheckedChangeListener(toggleLikeListener);
 
-        toggleLikeStationVisibility(itemView, likeStationEnabled);
-        if (likeStationEnabled) {
-            final ToggleButton likeButton = ButterKnife.findById(itemView, R.id.toggle_like);
-            likeButton.setChecked(info.isLiked());
-            likeButton.setOnCheckedChangeListener(toggleLikeListener);
-        }
-    }
-
-    private void toggleLikeStationVisibility(View itemView, boolean isEnabled) {
-        final View view = itemView.findViewById(R.id.station_engagements_bar);
-        final int visibility = isEnabled ? View.VISIBLE : View.GONE;
-
-        if (view != null) {
-            view.setVisibility(visibility);
-        } else {
-            itemView.findViewById(R.id.toggle_like).setVisibility(visibility);
-        }
     }
 
     private void bindTextViews(StationInfoHeader info, View itemView) {

@@ -10,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -187,28 +186,6 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
                 StationFixtures.getStation(firstStation),
                 StationFixtures.getStation(thirdStation)
         );
-    }
-
-    @Test
-    public void shouldReturnRecentStationsToSync() {
-        final ApiStation firstSyncedStation = testFixtures().insertStation();
-        final ApiStation secondSyncedStation = testFixtures().insertStation();
-        final ApiStation unsyncedStation = testFixtures().insertStation();
-        final long timestamp = 1421315988L;
-
-        testFixtures().insertRecentlyPlayedStationAtPosition(firstSyncedStation.getUrn(), 0);
-        testFixtures().insertRecentlyPlayedStationAtPosition(secondSyncedStation.getUrn(), 1);
-        testFixtures().insertRecentlyPlayedUnsyncedStation(unsyncedStation.getUrn(), timestamp);
-
-        final List<PropertySet> recentStationsToSync = storage.getRecentStationsToSync();
-
-        final PropertySet expectedProperties = PropertySet.from(
-                StationProperty.URN.bind(unsyncedStation.getUrn()),
-                StationProperty.ADDED_AT.bind(timestamp),
-                StationProperty.POSITION.bind(unsyncedStation.getPreviousPosition())
-        );
-
-        assertThat(recentStationsToSync).containsExactly(expectedProperties);
     }
 
     @Test

@@ -27,13 +27,12 @@ public class StationsControllerTest extends AndroidUnitTest {
     private static final Urn STATION = Urn.forTrackStation(TRACK_URN.getNumericId());
 
     @Mock StationsOperations operations;
+
     private TestEventBus eventBus = new TestEventBus();
-    private final PublishSubject<SyncJobResult> syncRecentStations = PublishSubject.create();
     private final PublishSubject<SyncJobResult> syncLikedStations = PublishSubject.create();
 
     @Before
     public void setUp() {
-        when(operations.syncRecentStations()).thenReturn(syncRecentStations);
         when(operations.syncLikedStations()).thenReturn(syncLikedStations);
 
         new StationsController(eventBus, operations, Schedulers.immediate()).subscribe();

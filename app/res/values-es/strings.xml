@@ -498,11 +498,8 @@
   <string name="stations_open_station">Abrir emisora</string>
   <string name="stations_unable_to_start_station">No podemos iniciar esta emisora. inténtalo de nuevo dentro de unos minutos.</string>
   <string name="stations_loading_station">Cargando emisora. Permanece atento.</string>
-  <string name="stations_collection_title_recent_stations">Emisoras recientes</string>
   <string name="stations_onboarding_stream_title">Inicia una emisora para escuchar una serie de pistas similares. Como en la radio.</string>
   <string name="stations_onboarding_stream_description">Toca los puntos suspensivos que hay al lado de cualquier pista para empezar.</string>
-  <string name="recent_stations_empty_view_heading">Inicia una emisora para escuchar una serie de pistas similares. Como en la radio.</string>
-  <string name="recent_stations_empty_view_message">Toca los puntos suspensivos que hay al lado de cualquier pista para empezar.</string>
   <string name="stations_collection_title_station_page">Emisora</string>
   <string name="stations_tracks_in_this_station">Pistas en esta emisora</string>
   <string name="stations_see_all_tracks">Ver todas las pistas</string>

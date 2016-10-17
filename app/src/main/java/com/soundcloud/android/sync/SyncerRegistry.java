@@ -8,7 +8,6 @@ import com.soundcloud.android.discovery.ChartGenresSyncProvider;
 import com.soundcloud.android.discovery.ChartsSyncProvider;
 import com.soundcloud.android.discovery.RecommendedTracksSyncProvider;
 import com.soundcloud.android.stations.LikedStationsSyncProvider;
-import com.soundcloud.android.stations.RecentStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsSyncProvider;
@@ -33,7 +32,6 @@ public class SyncerRegistry {
     @Inject
     public SyncerRegistry(SoundStreamSyncProvider soundStreamSyncProvider,
                           ActivitiesSyncProvider activitiesSyncProvider,
-                          RecentStationsSyncProvider recentStationsSyncerProvider,
                           LikedStationsSyncProvider likedStationsSyncProvider,
                           RecommendedStationsSyncProvider recommendedStationsSyncProvider,
                           RecommendedTracksSyncProvider recommendationsSyncProvider,
@@ -52,7 +50,6 @@ public class SyncerRegistry {
 
         registerSyncer(soundStreamSyncProvider);
         registerSyncer(activitiesSyncProvider);
-        registerSyncer(recentStationsSyncerProvider);
         registerSyncer(likedStationsSyncProvider);
         registerSyncer(recommendedStationsSyncProvider);
         registerSyncer(recommendationsSyncProvider);

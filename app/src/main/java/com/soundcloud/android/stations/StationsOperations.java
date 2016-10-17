@@ -185,10 +185,6 @@ public class StationsOperations {
         }
     }
 
-    Observable<SyncJobResult> syncRecentStations() {
-        return syncInitiator.sync(Syncable.RECENT_STATIONS);
-    }
-
     Observable<SyncJobResult> syncLikedStations() {
         return syncInitiator.sync(Syncable.LIKED_STATIONS);
     }
@@ -212,8 +208,6 @@ public class StationsOperations {
         switch (type) {
             case StationsCollectionsTypes.LIKED:
                 return Syncable.LIKED_STATIONS;
-            case StationsCollectionsTypes.RECENT:
-                return Syncable.RECENT_STATIONS;
             case StationsCollectionsTypes.RECOMMENDATIONS:
                 return Syncable.RECOMMENDED_STATIONS;
             default:

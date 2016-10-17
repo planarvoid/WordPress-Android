@@ -13,8 +13,6 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
@@ -36,7 +34,6 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final StartStationHandler stationHandler;
-    private final FeatureFlags featureFlags;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final StationMenuPresenter stationMenuPresenter;
@@ -45,7 +42,6 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
                                   @Provided ImageOperations imageOperations,
                                   @Provided Resources resources,
                                   @Provided StartStationHandler stationHandler,
-                                  @Provided FeatureFlags featureFlags,
                                   @Provided ScreenProvider screenProvider,
                                   @Provided EventBus eventBus,
                                   @Provided StationMenuPresenter stationMenuPresenter) {
@@ -53,7 +49,6 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.stationHandler = stationHandler;
-        this.featureFlags = featureFlags;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.stationMenuPresenter = stationMenuPresenter;
@@ -126,11 +121,8 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
             public void onClick(View view) {
                 Urn urn = station.getUrn();
 
-                if (featureFlags.isEnabled(Flag.STATION_INFO_PAGE)) {
-                    Screen lastScreen = screenProvider.getLastScreen();
-                    eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-                }
-
+                Screen lastScreen = screenProvider.getLastScreen();
+                eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
                 stationHandler.startStation(view.getContext(), urn);
             }
         };

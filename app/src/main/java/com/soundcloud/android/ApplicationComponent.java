@@ -122,8 +122,6 @@ import com.soundcloud.android.settings.notifications.NotificationPreferencesActi
 import com.soundcloud.android.settings.notifications.NotificationPreferencesFragment;
 import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.LikedStationsFragment;
-import com.soundcloud.android.stations.RecentStationsActivity;
-import com.soundcloud.android.stations.RecentStationsFragment;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.stations.StationInfoFragment;
 import com.soundcloud.android.stream.SoundStreamFragment;
@@ -300,8 +298,6 @@ public interface ApplicationComponent {
     void inject(LicensesActivity licensesActivity);
 
     //StationsModule
-    void inject(RecentStationsActivity recentStationsActivity);
-    void inject(RecentStationsFragment recentStationsFragment);
     void inject(StationInfoActivity stationInfoActivity);
     void inject(StationInfoFragment stationInfoFragment);
     void inject(LikedStationsActivity likedStationsActivity);

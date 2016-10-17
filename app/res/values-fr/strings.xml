@@ -503,11 +503,8 @@
   <string name="stations_open_station">Ouvrir la station</string>
   <string name="stations_unable_to_start_station">Nous ne parvenons pas à démarrer cette station. Réessayez dans quelques minutes.</string>
   <string name="stations_loading_station">Chargement de la station. Veuillez patienter.</string>
-  <string name="stations_collection_title_recent_stations">Stations récentes</string>
   <string name="stations_onboarding_stream_title">Pour écouter une série de titres similaires, démarrez une station.</string>
   <string name="stations_onboarding_stream_description">Appuyez sur les trois points à côté d\'un titre pour commencer.</string>
-  <string name="recent_stations_empty_view_heading">Pour écouter une série de titres similaires, démarrez une station.</string>
-  <string name="recent_stations_empty_view_message">Appuyez sur les trois points en regard d\'un titre pour commencer.</string>
   <string name="stations_collection_title_station_page">Station</string>
   <string name="stations_tracks_in_this_station">Titres de cette station</string>
   <string name="stations_see_all_tracks">Voir tous les titres</string>

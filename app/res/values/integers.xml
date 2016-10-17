@@ -8,7 +8,6 @@
 
     <!-- Stations -->
     <integer name="stations_grid_span_count">2</integer>
-    <integer name="stations_list_max_recent_stations">20</integer>
     <integer name="stations_recommendation_card_count">2</integer>
 
     <!-- Collection -->

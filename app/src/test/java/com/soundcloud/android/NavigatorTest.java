@@ -52,7 +52,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
-import com.soundcloud.android.stations.RecentStationsActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -630,14 +629,6 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(AllGenresActivity.class);
-    }
-
-    @Test
-    public void openRecentStations() {
-        navigator.openRecentStations(activityContext);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(RecentStationsActivity.class);
     }
 
     @Test

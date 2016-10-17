@@ -150,17 +150,6 @@ class StationsStorage {
         }
     };
 
-    private static final ResultMapper<PropertySet> TO_RECENT_STATION = new ResultMapper<PropertySet>() {
-        @Override
-        public PropertySet map(CursorReader reader) {
-            return PropertySet.from(
-                    StationProperty.URN.bind(new Urn(reader.getString(StationsCollections.STATION_URN))),
-                    StationProperty.ADDED_AT.bind(reader.getLong(StationsCollections.ADDED_AT)),
-                    StationProperty.POSITION.bind(reader.getInt(StationsCollections.POSITION))
-            );
-        }
-    };
-
     private final Func1<CursorReader, Observable<StationRecord>> toStation = new Func1<CursorReader, Observable<StationRecord>>() {
         @Override
         public Observable<StationRecord> call(CursorReader cursorReader) {
@@ -344,14 +333,6 @@ class StationsStorage {
                         .put(StationsCollections.ADDED_AT, dateProvider.getCurrentTime())
                         .get()
         );
-    }
-
-    List<PropertySet> getRecentStationsToSync() {
-        return propellerDatabase
-                .query(Query.from(StationsCollections.TABLE)
-                            .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
-                            .whereNotNull(StationsCollections.ADDED_AT))
-                .toList(TO_RECENT_STATION);
     }
 
     List<Urn> getLocalLikedStations() {

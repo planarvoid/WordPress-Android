@@ -20,9 +20,7 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stream.SoundStreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
-import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -33,7 +31,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import java.util.Collections;
 import java.util.List;
@@ -179,39 +176,6 @@ public class StationsOperationsTest extends AndroidUnitTest {
                                                                         .get(0)
                                                                         .getPlayQueueItem(0);
         assertThat(playQueueItem.getSource()).isEqualTo("stations:suggestions");
-    }
-
-    @Test
-    public void collectionShouldReturnFromStorageWhenSyncedBefore() {
-        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        final PublishSubject<SyncJobResult> syncResults = PublishSubject.create();
-
-        when(syncStateStorage.hasSyncedBefore(Syncable.RECENT_STATIONS)).thenReturn(true);
-        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
-        when(syncInitiator.sync(Syncable.RECENT_STATIONS)).thenReturn(syncResults);
-
-        operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
-
-        subscriber.assertValue(station);
-        assertThat(syncResults.hasObservers()).isFalse();
-    }
-
-    @Test
-    public void collectionShouldTriggerSyncerWhenNotSyncedBefore() {
-        final PublishSubject<SyncJobResult> syncResults = PublishSubject.create();
-        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
-        when(syncInitiator.sync(Syncable.RECENT_STATIONS)).thenReturn(syncResults);
-
-        operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
-
-        subscriber.assertNoValues();
-        syncResults.onNext(SyncJobResult.success("action", true));
-        syncResults.onCompleted();
-        subscriber.assertValue(station);
-        subscriber.assertCompleted();
     }
 
     @Test

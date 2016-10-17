@@ -8,8 +8,6 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -23,7 +21,6 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     private final Navigator navigator;
     private final Resources resources;
-    private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
     private final ImageOperations imageOperations;
 
@@ -37,11 +34,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final View.OnClickListener goToStationsListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
-                navigator.openLikedStations(v.getContext());
-            } else {
-                navigator.openRecentStations(v.getContext());
-            }
+            navigator.openLikedStations(v.getContext());
         }
     };
 
@@ -54,13 +47,11 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     @Inject
     public CollectionPreviewRenderer(Navigator navigator,
-                                     Resources resources,
-                                     FeatureFlags featureFlags,
-                                     FeatureOperations featureOperations,
-                                     ImageOperations imageOperations) {
+                              Resources resources,
+                              FeatureOperations featureOperations,
+                              ImageOperations imageOperations) {
         this.navigator = navigator;
         this.resources = resources;
-        this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.imageOperations = imageOperations;
     }
@@ -74,9 +65,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     private void setupStationsView(CollectionPreviewView stationsView) {
-        stationsView.setTitle(featureFlags.isEnabled(Flag.LIKED_STATIONS) ?
-                              resources.getString(R.string.stations_collection_title_liked_stations) :
-                              resources.getString(R.string.stations_collection_title_recent_stations));
+        stationsView.setTitle(resources.getString(R.string.stations_collection_title_liked_stations));
         stationsView.setVisibility(View.VISIBLE);
         stationsView.setOnClickListener(goToStationsListener);
     }

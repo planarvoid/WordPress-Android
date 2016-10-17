@@ -19,7 +19,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -83,7 +82,6 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private PlayHistoryOperations playHistoryOperations;
-    @Mock private FeatureFlags featureFlags;
 
     private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private TestEventBus eventBus = new TestEventBus();
@@ -100,7 +98,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             resources(),
                                             eventBus,
                                             expandPlayerSubscriberProvider,
-                                            playHistoryOperations, featureFlags);
+                                            playHistoryOperations);
     }
 
     @Test
@@ -108,7 +106,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(MY_COLLECTION);
 
         assertThat(collectionItems).containsExactly(
-                PreviewCollectionItem.forLikesAndPlaylists(MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems()),
+                PreviewCollectionItem.forLikesPlaylistsAndStations(MY_COLLECTION.getLikes(),
+                                                                   MY_COLLECTION.getPlaylistItems(),
+                                                                   MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
                 PlayHistoryBucketItem.create(PLAY_HISTORY)
         );
@@ -120,7 +120,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
 
         assertThat(collectionItems).containsExactly(
-                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems()),
+                PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
+                                                                   myCollection.getPlaylistItems(),
+                                                                   myCollection.getStations()),
                 RecentlyPlayedBucketItem.create(Collections.<RecentlyPlayedPlayableItem>emptyList()),
                 PlayHistoryBucketItem.create(Collections.<TrackItem>emptyList())
         );
@@ -132,7 +134,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
 
         assertThat(collectionItems).containsExactly(
-                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems()),
+                PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
+                                                                   myCollection.getPlaylistItems(),
+                                                                   myCollection.getStations()),
                 RecentlyPlayedBucketItem.create(Collections.<RecentlyPlayedPlayableItem>emptyList()),
                 PlayHistoryBucketItem.create(Collections.<TrackItem>emptyList())
         );
@@ -190,7 +194,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
                 OnboardingCollectionItem.create(),
-                PreviewCollectionItem.forLikesAndPlaylists(MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems()),
+                PreviewCollectionItem.forLikesPlaylistsAndStations(
+                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems(), MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
                 PlayHistoryBucketItem.create(PLAY_HISTORY)
         );

@@ -18,8 +18,6 @@ enum Feature {
   NEW_SYNC_ADAPTER,
   HOLISTIC_TRACKING,
   EXPLORE,
-  STATION_PAGE,
-  LIKED_STATIONS,
   SUGGESTED_CREATORS,
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
   MOAT_ADS_VIEWABILITY;
@@ -37,8 +35,6 @@ android {
     buildConfigField FLAG, Feature.PLAY_QUEUE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.EXPLORE.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.STATION_PAGE.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.LIKED_STATIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), UNDER_DEVELOPMENT
@@ -52,8 +48,6 @@ android {
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
     }
@@ -64,8 +58,6 @@ android {
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
     }
 
     debug {
@@ -75,30 +67,22 @@ android {
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
     }
 
     release {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
     }
 
     preRelease {
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
     }
   }
