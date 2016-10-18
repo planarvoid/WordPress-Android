@@ -128,7 +128,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      headerViewObservable(headerViewFactory),
                                      getOfflineStateObservable(),
                                      getOfflineLikesEnabledObservable(),
-                                     toHeaderViewUpdate).first().subscribe(subscriberProvider.get());
+                                     toHeaderViewUpdate).subscribe(subscriberProvider.get());
     }
 
     @Override
