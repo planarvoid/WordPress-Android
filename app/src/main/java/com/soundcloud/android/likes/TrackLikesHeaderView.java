@@ -4,6 +4,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
@@ -29,7 +30,7 @@ class TrackLikesHeaderView {
 
     private Optional<View> headerOpt;
 
-    private int trackCount;
+    private int trackCount = Consts.NOT_SET;
     private final Listener listener;
     private final FeatureFlags featureFlags;
 
@@ -68,6 +69,10 @@ class TrackLikesHeaderView {
                 listener.onShuffle();
             }
         });
+
+        if (trackCount >= 0) {
+            updateTrackCount(trackCount);
+        }
     }
 
     @VisibleForTesting
