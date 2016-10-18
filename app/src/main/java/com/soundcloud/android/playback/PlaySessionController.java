@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
 
 import com.soundcloud.android.PlaybackServiceController;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsController;
@@ -52,7 +51,6 @@ public class PlaySessionController {
 
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
     private final PlaybackToastHelper playbackToastHelper;
-    private final AccountOperations accountOperations;
     private final PlaybackServiceController playbackServiceController;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -94,7 +92,6 @@ public class PlaySessionController {
                                  CastConnectionHelper castConnectionHelper,
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
-                                 AccountOperations accountOperations,
                                  PlaybackServiceController playbackServiceController) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
@@ -102,7 +99,6 @@ public class PlaySessionController {
         this.playQueueManager = playQueueManager;
         this.playbackStrategyProvider = playbackStrategyProvider;
         this.playbackToastHelper = playbackToastHelper;
-        this.accountOperations = accountOperations;
         this.playbackServiceController = playbackServiceController;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castConnectionHelper = castConnectionHelper;

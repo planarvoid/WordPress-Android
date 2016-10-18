@@ -76,7 +76,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                                                castConnectionHelper,
                                                InjectionSupport.providerOf(playbackStrategy),
                                                playbackToastHelper,
-                                               accountOperations,
                                                playbackServiceController);
         controller.subscribe();
 

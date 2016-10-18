@@ -9,15 +9,15 @@ import java.util.List;
 
 class LocalPlayQueue {
 
-    public final JSONObject playQueueTracksJSON;
-    public final List<Urn> playQueueTrackUrns;
-    public final MediaInfo mediaInfo;
-    public final Urn currentTrackUrn;
+    final JSONObject playQueueTracksJSON;
+    final List<Urn> playQueueTrackUrns;
+    final MediaInfo mediaInfo;
+    final Urn currentTrackUrn;
 
-    public LocalPlayQueue(JSONObject playQueueTracksJSON,
-                          List<Urn> playQueueTrackUrns,
-                          MediaInfo mediaInfo,
-                          Urn currentTrackUrn) {
+    LocalPlayQueue(JSONObject playQueueTracksJSON,
+                   List<Urn> playQueueTrackUrns,
+                   MediaInfo mediaInfo,
+                   Urn currentTrackUrn) {
         this.playQueueTracksJSON = playQueueTracksJSON;
         this.playQueueTrackUrns = Collections.unmodifiableList(playQueueTrackUrns);
         this.mediaInfo = mediaInfo;

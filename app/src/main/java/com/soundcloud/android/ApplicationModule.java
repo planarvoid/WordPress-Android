@@ -85,20 +85,20 @@ import javax.inject.Singleton;
 import java.util.Locale;
 
 @Module(
-    includes = {
-        ApiModule.class,
-        StorageModule.class,
-        FacebookModule.class,
-        SyncModule.class,
-        ExploreModule.class,
-        PlayerModule.class,
-        PlaylistsModule.class,
-        ProfileModule.class,
-        CommentsModule.class,
-        OfflineModule.class,
-        DiscoveryModule.class,
-        AnalyticsModule.class
-    })
+        includes = {
+                ApiModule.class,
+                StorageModule.class,
+                FacebookModule.class,
+                SyncModule.class,
+                ExploreModule.class,
+                PlayerModule.class,
+                PlaylistsModule.class,
+                ProfileModule.class,
+                CommentsModule.class,
+                OfflineModule.class,
+                DiscoveryModule.class,
+                AnalyticsModule.class
+        })
 public class ApplicationModule {
 
     public static final String HIGH_PRIORITY = "HighPriority";
