@@ -33,10 +33,11 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+        final StoreUsersCommand storeUsersCommand = new StoreUsersCommand(propeller());
         command = new StoreActivitiesCommand(propeller(),
-                                             new StoreUsersCommand(propeller()),
-                                             new StoreTracksCommand(propeller()),
-                                             new StorePlaylistsCommand(propeller()),
+                                             storeUsersCommand,
+                                             new StoreTracksCommand(propeller(), storeUsersCommand),
+                                             new StorePlaylistsCommand(propeller(), storeUsersCommand),
                                              new StoreCommentCommand(propeller()));
     }
 

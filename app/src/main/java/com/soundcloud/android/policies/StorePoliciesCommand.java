@@ -13,7 +13,9 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicyInfo>, TxnResult> {
 
@@ -27,7 +29,24 @@ class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicy
 
     @Override
     protected TxnResult write(PropellerDatabase propeller, final Iterable<ApiPolicyInfo> input) {
-        return propeller.bulkInsert(Table.TrackPolicies, buildPolicyContentValues(input));
+        return propeller.bulkInsert_experimental(Table.TrackPolicies,
+                                                 getColumnTypes(),
+                                                 buildPolicyContentValues(input));
+    }
+
+    private Map<String, Class> getColumnTypes() {
+        final HashMap<String, Class> columns = new HashMap<>();
+        columns.put(TableColumns.TrackPolicies.TRACK_ID, Long.class);
+        columns.put(TableColumns.TrackPolicies.POLICY, String.class);
+        columns.put(TableColumns.TrackPolicies.MONETIZABLE, Boolean.class);
+        columns.put(TableColumns.TrackPolicies.SYNCABLE, Boolean.class);
+        columns.put(TableColumns.TrackPolicies.SNIPPED, Boolean.class);
+        columns.put(TableColumns.TrackPolicies.BLOCKED, Boolean.class);
+        columns.put(TableColumns.TrackPolicies.LAST_UPDATED, Long.class);
+        columns.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, String.class);
+        columns.put(TableColumns.TrackPolicies.SUB_MID_TIER, Boolean.class);
+        columns.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, Boolean.class);
+        return columns;
     }
 
     private List<ContentValues> buildPolicyContentValues(final Iterable<ApiPolicyInfo> input) {

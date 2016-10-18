@@ -30,7 +30,9 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RecentlyPlayedStorage {
 
@@ -63,11 +65,20 @@ public class RecentlyPlayedStorage {
 
     WriteResult setSynced(List<PlayHistoryRecord> playHistoryRecords) {
         Collection<ContentValues> contentValues = buildSyncedContentValuesForContext(playHistoryRecords);
-        return database.bulkUpsert(RecentlyPlayed.TABLE, contentValues);
+        return database.bulkInsert_experimental(RecentlyPlayed.TABLE, getColumns(), contentValues);
     }
 
     TxnResult insertRecentlyPlayed(List<PlayHistoryRecord> addRecords) {
-        return database.bulkUpsert(RecentlyPlayed.TABLE, buildSyncedContentValuesForContext(addRecords));
+        return database.bulkInsert_experimental(RecentlyPlayed.TABLE, getColumns(), buildSyncedContentValuesForContext(addRecords));
+    }
+
+    private Map<String, Class> getColumns() {
+        final HashMap<String, Class> columns = new HashMap<>(4);
+        columns.put(RecentlyPlayed.TIMESTAMP.name(), Long.class);
+        columns.put(RecentlyPlayed.CONTEXT_ID.name(), Long.class);
+        columns.put(RecentlyPlayed.CONTEXT_TYPE.name(), Integer.class);
+        columns.put(RecentlyPlayed.SYNCED.name(), Boolean.class);
+        return columns;
     }
 
     TxnResult removeRecentlyPlayed(final List<PlayHistoryRecord> removeRecords) {

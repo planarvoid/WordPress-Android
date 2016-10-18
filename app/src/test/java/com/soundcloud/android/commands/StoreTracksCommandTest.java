@@ -22,7 +22,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        command = new StoreTracksCommand(propeller());
+        command = new StoreTracksCommand(propeller(), new StoreUsersCommand(propeller()));
     }
 
     @Test

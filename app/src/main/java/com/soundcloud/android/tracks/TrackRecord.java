@@ -3,11 +3,19 @@ package com.soundcloud.android.tracks;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
 public interface TrackRecord extends ImageResource {
+    Function<TrackRecord, UserRecord> TO_USER_RECORD = new Function<TrackRecord, UserRecord>() {
+        @Override
+        public UserRecord apply(TrackRecord input) {
+            return input.getUser();
+        }
+    };
+
     UserRecord getUser();
 
     String getTitle();

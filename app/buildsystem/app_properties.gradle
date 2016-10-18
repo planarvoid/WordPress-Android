@@ -35,7 +35,7 @@ android {
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
-      resValue "bool",   "log_queries", "true"
+      resValue "bool",   "log_queries", "false"
     }
 
     alpha {
