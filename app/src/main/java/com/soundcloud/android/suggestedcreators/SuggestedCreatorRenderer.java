@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import rx.Notification;
 import rx.Observable;
@@ -51,7 +50,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     };
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final FollowingOperations followingOperations;
+    private final SuggestedCreatorsOperations suggestedCreatorsOperations;
     private final Navigator navigator;
     private final PlaceholderGenerator placeholderGenerator;
     private final BackgroundAnimator backgroundAnimator;
@@ -62,14 +61,14 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     @Inject
     SuggestedCreatorRenderer(ImageOperations imageOperations,
                              Resources resources,
-                             FollowingOperations followingOperations,
+                             SuggestedCreatorsOperations suggestedCreatorsOperations,
                              Navigator navigator,
                              PlaceholderGenerator placeholderGenerator,
                              EngagementsTracking engagementsTracking,
                              ScreenProvider screenProvider) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.followingOperations = followingOperations;
+        this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.navigator = navigator;
         this.placeholderGenerator = placeholderGenerator;
         this.backgroundAnimator = new BackgroundAnimator(placeholderGenerator);
@@ -133,17 +132,20 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
 
     private void bindFollowButton(View view, final SuggestedCreatorItem suggestedCreatorItem, final int position) {
         final ToggleButton toggleButton = (ToggleButton) view.findViewById(R.id.toggle_btn_follow);
+        toggleButton.setOnCheckedChangeListener(null);
         toggleButton.setChecked(suggestedCreatorItem.following);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                suggestedCreatorItem.following = isChecked;
-                followingOperations.toggleFollowing(suggestedCreatorItem.creator().urn(), isChecked)
-                                   .subscribe(new DefaultSubscriber<PropertySet>());
+                if (suggestedCreatorItem.following != isChecked) {
+                    suggestedCreatorItem.following = isChecked;
+                    suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
+                                       .subscribe(new DefaultSubscriber<Void>());
 
-                engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
-                                                  isChecked,
-                                                  buildEventContextMetadata(position));
+                    engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
+                                                      isChecked,
+                                                      buildEventContextMetadata(position));
+                }
             }
         });
     }

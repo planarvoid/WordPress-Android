@@ -167,6 +167,21 @@ public class UserAssociationStorage {
         return propellerRx.query(query).map(new UserUrnMapper()).toList();
     }
 
+    public Observable<List<UserAssociation>> followedUserAssociations(int limit) {
+        Query query = Query.from(UserAssociations)
+                           .select(field(TARGET_ID).as(BaseColumns._ID),
+                                   UserAssociations.field(ASSOCIATION_TYPE),
+                                   UserAssociations.field(POSITION),
+                                   UserAssociations.field(ADDED_AT),
+                                   UserAssociations.field(REMOVED_AT)
+                           )
+                           .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING)
+                           .whereNull(UserAssociations.field(REMOVED_AT))
+                           .limit(limit);
+
+        return propellerRx.query(query).map(new UserAssociationEntityMapper()).toList();
+    }
+
     public boolean hasStaleFollowings() {
         return propeller.query(Query.count(UserAssociations)
                                     .where(staleFollowingsFilter()))
@@ -283,6 +298,14 @@ public class UserAssociationStorage {
                 propertySet.put(UserAssociationProperty.REMOVED_AT, reader.getDateFromTimestamp(REMOVED_AT));
             }
             return propertySet;
+        }
+    }
+
+    private static class UserAssociationEntityMapper extends RxResultMapper<UserAssociation> {
+
+        @Override
+        public UserAssociation map(CursorReader reader) {
+            return UserAssociation.create(reader);
         }
     }
 }

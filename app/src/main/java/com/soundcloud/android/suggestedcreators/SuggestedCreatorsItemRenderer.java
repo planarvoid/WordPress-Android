@@ -58,6 +58,7 @@ public class SuggestedCreatorsItemRenderer implements CellRenderer<SuggestedCrea
                                                                                                            ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.setFullSpan(true);
         itemView.setLayoutParams(layoutParams);
+        itemView.setEnabled(false);
 
         final SuggestedCreators suggestedCreatorsNotificationItem = items.get(position);
         bindCarousel(itemView, suggestedCreatorsNotificationItem);

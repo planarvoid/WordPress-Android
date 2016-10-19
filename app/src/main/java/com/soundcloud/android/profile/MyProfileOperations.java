@@ -10,6 +10,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.java.collections.PropertySet;
@@ -86,15 +87,15 @@ public class MyProfileOperations {
                                   .flatMap(loadInitialFollowings);
     }
 
-    public Observable<List<Urn>> followingsUrns() {
-        return loadFollowingUrnsFromStorage()
+    public Observable<List<UserAssociation>> followingsUserAssociations() {
+        return loadFollowingUserAssociationsFromStorage()
                 .subscribeOn(scheduler)
                 .switchIfEmpty(syncInitiatorBridge.refreshFollowings()
-                                                  .flatMap(continueWith(loadFollowingUrnsFromStorage())));
+                                                  .flatMap(continueWith(loadFollowingUserAssociationsFromStorage())));
     }
 
-    private Observable<List<Urn>> loadFollowingUrnsFromStorage() {
-        return userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET);
+    private Observable<List<UserAssociation>> loadFollowingUserAssociationsFromStorage() {
+        return userAssociationStorage.followedUserAssociations(PAGE_SIZE);
     }
 
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {

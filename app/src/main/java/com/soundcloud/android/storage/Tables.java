@@ -664,12 +664,14 @@ public interface Tables {
         public static final Column SEED_USER_ID = Column.create(TABLE, "seed_user_id");
         public static final Column SUGGESTED_USER_ID = Column.create(TABLE, "suggested_user_id");
         public static final Column RELATION_KEY = Column.create(TABLE, "relation_key");
+        public static final Column FOLLOWED_AT = Column.create(TABLE, "followed_at");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS SuggestedCreators (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "seed_user_id INTEGER, " +
                 "suggested_user_id INTEGER, " +
                 "relation_key VARCHAR(50), " +
+                "followed_at INTEGER," +
                 "FOREIGN KEY(seed_user_id) REFERENCES Users(_id) " +
                 "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
                 ");";
