@@ -13,6 +13,8 @@ import com.soundcloud.propeller.query.Query;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, WriteResult> {
@@ -30,23 +32,40 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.upsert(Stations.TABLE, buildStationContentValues(station)));
-                addPlayQueue(propeller);
+                step(propeller.insert(Stations.TABLE, buildStationContentValues(station)));
+                final Integer playQueueSize = queryPlayQueueSize(propeller);
+                step(propeller.bulkInsert_experimental(StationsPlayQueues.TABLE,
+                                                       columnTypes(),
+                                                       contentValues(playQueueSize)));
             }
 
-            private void addPlayQueue(PropellerDatabase propeller) {
+            private Integer queryPlayQueueSize(PropellerDatabase propeller) {
+                final Query query = Query.count(StationsPlayQueues.TABLE)
+                                         .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString());
+                return propeller.query(query).first(Integer.class);
+            }
+
+            private HashMap<String, Class> columnTypes() {
+                final HashMap<String, Class> columns = new HashMap<>();
+                columns.put(StationsPlayQueues.STATION_URN.name(), String.class);
+                columns.put(StationsPlayQueues.TRACK_ID.name(), Long.class);
+                columns.put(StationsPlayQueues.QUERY_URN.name(), String.class);
+                columns.put(StationsPlayQueues.POSITION.name(), Long.class);
+                return columns;
+            }
+
+            private List<ContentValues> contentValues(Integer playQueueSize) {
                 final List<StationTrack> tracks = station.getTracks();
-                final Integer playQueueSize = propeller.query(Query.count(StationsPlayQueues.TABLE)
-                                                                   .whereEq(StationsPlayQueues.STATION_URN,
-                                                                            station.getUrn().toString()))
-                                                       .first(Integer.class);
 
+                final List<ContentValues> contentValues = new ArrayList<>(tracks.size());
                 for (int position = 0; position < tracks.size(); position++) {
-                    step(propeller
-                                 .upsert(StationsPlayQueues.TABLE,
-                                         buildContentValues(station, tracks.get(position), playQueueSize + position)));
+                    contentValues.add(buildContentValues(station,
+                                                         tracks.get(position),
+                                                         playQueueSize + position));
                 }
+                return contentValues;
             }
+
         });
     }
 

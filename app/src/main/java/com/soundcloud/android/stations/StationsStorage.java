@@ -45,13 +45,14 @@ import rx.functions.Func2;
 
 import android.content.ContentValues;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 class StationsStorage {
@@ -126,7 +127,9 @@ class StationsStorage {
                                                                    StationsCollectionsTypes.LIKED);
                 step(storeStationsMetadata(newStationsMetaData));
                 step(propellerDatabase.delete(StationsCollections.TABLE, filterLikedStations));
-                step(propellerDatabase.bulkUpsert(StationsCollections.TABLE, toContentValues(remoteLikedStations)));
+                step(propellerDatabase.bulkInsert_experimental(StationsCollections.TABLE,
+                                                               columnTypes(),
+                                                               toContentValues(remoteLikedStations)));
             }
         });
     }
@@ -370,7 +373,14 @@ class StationsStorage {
                                 .toList(STATIONS_COLLECTIONS_TO_URN);
     }
 
-    @NonNull
+    private Map<String, Class> columnTypes() {
+        final HashMap<String, Class> columns = new HashMap<>();
+        columns.put(StationsCollections.STATION_URN.name(), String.class);
+        columns.put(StationsCollections.COLLECTION_TYPE.name(), Integer.class);
+        columns.put(StationsCollections.POSITION.name(), Integer.class);
+        return columns;
+    }
+
     private List<ContentValues> toContentValues(List<Urn> likedStations) {
         final List<ContentValues> contentValuesList = new ArrayList<>(likedStations.size());
         for (int i = 0; i < likedStations.size(); i++) {
