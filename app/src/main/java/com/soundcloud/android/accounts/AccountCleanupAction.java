@@ -14,9 +14,12 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.SoundStreamOperations;
@@ -55,6 +58,8 @@ class AccountCleanupAction implements Action0 {
     private final RecentlyPlayedStorage recentlyPlayedStorage;
     private final GcmStorage gcmStorage;
     private final PersistentStorage featureFlagsStorage;
+    private final FeatureFlags featureFlags;
+    private final DatabaseManager databaseManager;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -73,7 +78,9 @@ class AccountCleanupAction implements Action0 {
                          PlayHistoryStorage playHistoryStorage,
                          RecentlyPlayedStorage recentlyPlayedStorage,
                          GcmStorage gcmStorage,
-                         @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage) {
+                         @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage,
+                         FeatureFlags featureFlags,
+                         DatabaseManager databaseManager) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -94,6 +101,8 @@ class AccountCleanupAction implements Action0 {
         this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.gcmStorage = gcmStorage;
         this.featureFlagsStorage = featureFlagsStorage;
+        this.featureFlags = featureFlags;
+        this.databaseManager = databaseManager;
     }
 
     @Override
@@ -119,6 +128,13 @@ class AccountCleanupAction implements Action0 {
         recentlyPlayedStorage.clear();
         gcmStorage.clearTokenForRefresh();
         featureFlagsStorage.clear();
+
+        if (featureFlags.isEnabled(Flag.DELETE_DATABASE_ON_SIGN_OUT)) {
+            // Once we are confident that this approach works well (clearing the entire database), and
+            // are about to get rid of the feature flag, we should clean up the code such that the table
+            // deletions are not repeated (specially the clearCollections above will not be required).
+            databaseManager.deleteDatabase();
+        }
     }
 
     private void clearCollections() {
