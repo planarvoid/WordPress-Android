@@ -21,6 +21,7 @@ enum Feature {
   SUGGESTED_CREATORS,
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
   MOAT_ADS_VIEWABILITY,
+  NEW_HOME,
   APP_INSTALLS;
 }
 
@@ -39,6 +40,7 @@ android {
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APP_INSTALLS.name(), UNDER_DEVELOPMENT
   }
 

@@ -16,7 +16,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
-import com.soundcloud.android.collection.CollectionNavigationTarget;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryModule;
@@ -26,8 +25,8 @@ import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.NavigationModel;
+import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.more.MoreNavigationTarget;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
@@ -44,9 +43,7 @@ import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.stream.StreamNavigationTarget;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -129,12 +126,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public NavigationModel navigationModel() {
-        return new NavigationModel(
-                new StreamNavigationTarget(),
-                new DiscoveryNavigationTarget(),
-                new CollectionNavigationTarget(),
-                new MoreNavigationTarget());
+    public NavigationModel navigationModel(NavigationModelFactory navigationModelFactory) {
+        return navigationModelFactory.build();
     }
 
     @Provides
