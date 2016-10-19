@@ -1,8 +1,9 @@
 package com.soundcloud.android.discovery;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.java.functions.Predicate;
 
-public class DiscoveryItem {
+public abstract class DiscoveryItem {
 
     public static Predicate<DiscoveryItem> byKind(final Kind kind) {
         return new Predicate<DiscoveryItem>() {
@@ -13,11 +14,11 @@ public class DiscoveryItem {
     }
 
     static DiscoveryItem forRecommendedTracksFooter() {
-        return new DiscoveryItem(Kind.RecommendedTracksFooterItem);
+        return Default.create(Kind.RecommendedTracksFooterItem);
     }
 
     static DiscoveryItem forSearchItem() {
-        return new DiscoveryItem(Kind.SearchItem);
+        return Default.create(Kind.SearchItem);
     }
 
     public enum Kind {
@@ -31,14 +32,12 @@ public class DiscoveryItem {
         Empty
     }
 
-    private final Kind kind;
+    public abstract Kind getKind();
 
-    public DiscoveryItem(Kind kind) {
-        this.kind = kind;
+    @AutoValue
+    abstract static class Default extends DiscoveryItem {
+        public static DiscoveryItem create(Kind kind) {
+            return new AutoValue_DiscoveryItem_Default(kind);
+        }
     }
-
-    public Kind getKind() {
-        return kind;
-    }
-
 }

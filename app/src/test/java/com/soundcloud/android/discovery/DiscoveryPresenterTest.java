@@ -73,7 +73,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 recommendationBucketRendererFactory,
                 imagePauseOnScrollListener,
                 navigator,
-                featureFlags,
                 eventBus,
                 startStationHandler,
                 trackRecommendationPlaybackInitiator);

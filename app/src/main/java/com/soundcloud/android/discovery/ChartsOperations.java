@@ -34,13 +34,43 @@ class ChartsOperations {
             return trending.isPresent() && top.isPresent() && chartBucket.getFeaturedGenres().size() >= 3;
         }
     };
-
-    private Action1<ApiChart> storeTracksFromChart = new Action1<ApiChart>() {
+    private final SyncOperations syncOperations;
+    private final StoreChartsCommand storeChartsCommand;
+    private final StoreTracksCommand storeTracksCommand;
+    private final ChartsStorage chartsStorage;
+    private final ChartsApi chartsApi;
+    private final Scheduler scheduler;
+    private final Action1<ApiChart> storeTracksFromChart = new Action1<ApiChart>() {
         @Override
         public void call(ApiChart apiChart) {
             storeTracksCommand.toAction1().call(apiChart.tracks());
         }
     };
+    private final Func1<SyncOperations.Result, Observable<DiscoveryItem>> loadCharts = new Func1<SyncOperations.Result, Observable<DiscoveryItem>>() {
+        @Override
+        public Observable<DiscoveryItem> call(SyncOperations.Result result) {
+            return chartsStorage.featuredCharts()
+                                .filter(HAS_EXPECTED_CONTENT)
+                                .subscribeOn(scheduler)
+                                .switchIfEmpty(SyncOperations.<ChartBucket>emptyResult(result))
+                                .map(toDiscoveryItem());
+        }
+    };
+
+    @Inject
+    ChartsOperations(SyncOperations syncOperations,
+                     StoreChartsCommand storeChartsCommand,
+                     StoreTracksCommand storeTracksCommand,
+                     ChartsStorage chartsStorage,
+                     ChartsApi chartsApi,
+                     @Named(HIGH_PRIORITY) Scheduler scheduler) {
+        this.syncOperations = syncOperations;
+        this.storeChartsCommand = storeChartsCommand;
+        this.storeTracksCommand = storeTracksCommand;
+        this.chartsStorage = chartsStorage;
+        this.chartsApi = chartsApi;
+        this.scheduler = scheduler;
+    }
 
     private Predicate<Chart> filterType(final ChartType type) {
         return new Predicate<Chart>() {
@@ -51,58 +81,25 @@ class ChartsOperations {
         };
     }
 
-    private final SyncOperations syncOperations;
-    private final StoreChartsCommand storeChartsCommand;
-    private final StoreTracksCommand storeTracksCommand;
-    private final ChartsStorage chartsStorage;
-    private final ChartsApi chartsApi;
-    private final Scheduler scheduler;
-
-    @Inject
-    ChartsOperations(SyncOperations syncOperations,
-                     StoreChartsCommand storeChartsCommand,
-                     StoreTracksCommand storeTracksCommand,
-                     ChartsStorage chartsStorage,
-                     ChartsApi chartsApi,
-                     @Named(HIGH_PRIORITY)Scheduler scheduler) {
-        this.syncOperations = syncOperations;
-        this.storeChartsCommand = storeChartsCommand;
-        this.storeTracksCommand = storeTracksCommand;
-        this.chartsStorage = chartsStorage;
-        this.chartsApi = chartsApi;
-        this.scheduler = scheduler;
+    private Observable<DiscoveryItem> load(Observable<SyncOperations.Result> source) {
+        return source.flatMap(loadCharts);
     }
 
-    Observable<ChartBucket> featuredCharts() {
-        return load(syncOperations.lazySyncIfStale(Syncable.CHARTS));
-    }
-
-    Observable<ChartBucket> refreshFeaturedCharts() {
-        return load(syncOperations.failSafeSync(Syncable.CHARTS));
-    }
-
-    private Observable<ChartBucket> load(Observable<SyncOperations.Result> source) {
-        return source
-                .flatMap(continueWith(chartsStorage.featuredCharts().subscribeOn(scheduler)))
-                .filter(HAS_EXPECTED_CONTENT);
-    }
-
-    Observable<ApiChart<ApiTrack>> tracks(ChartType type, String genre) {
-        return chartsApi.chartTracks(type, genre).doOnNext(storeTracksFromChart).subscribeOn(scheduler);
-    }
-
-    Observable<List<Chart>> genresByCategory(final ChartCategory chartCategory) {
-        return syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)
-                             .flatMap(continueWith(chartsStorage.genres(chartCategory).subscribeOn(scheduler)))
-                             .map(filterGenresByCategory(chartCategory));
+    private Func1<ChartBucket, DiscoveryItem> toDiscoveryItem() {
+        return new Func1<ChartBucket, DiscoveryItem>() {
+            @Override
+            public DiscoveryItem call(ChartBucket chartBucket) {
+                return ChartsBucketItem.from(chartBucket);
+            }
+        };
     }
 
     private Func1<List<Chart>, List<Chart>> filterGenresByCategory(final ChartCategory chartCategory) {
         return new Func1<List<Chart>, List<Chart>>() {
             @Override
             public List<Chart> call(List<Chart> apiCharts) {
-                final List<Chart> filteredGenres = new ArrayList<>();
-                for (final Chart genre : apiCharts) {
+                List<Chart> filteredGenres = new ArrayList<>();
+                for (Chart genre : apiCharts) {
                     if (genre.category() == chartCategory) {
                         filteredGenres.add(genre);
                     }
@@ -110,6 +107,27 @@ class ChartsOperations {
                 return filteredGenres;
             }
         };
+    }
+
+    Observable<DiscoveryItem> featuredCharts() {
+        return load(syncOperations.lazySyncIfStale(Syncable.CHARTS));
+    }
+
+    Observable<DiscoveryItem> refreshFeaturedCharts() {
+        return load(syncOperations.failSafeSync(Syncable.CHARTS));
+    }
+
+    Observable<ApiChart<ApiTrack>> tracks(ChartType type, String genre) {
+        return chartsApi.chartTracks(type, genre)
+                        .doOnNext(storeTracksFromChart)
+                        .subscribeOn(scheduler);
+    }
+
+    Observable<List<Chart>> genresByCategory(ChartCategory chartCategory) {
+        return syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)
+                             .flatMap(continueWith(chartsStorage.genres(chartCategory)
+                                                                .subscribeOn(scheduler)))
+                             .map(filterGenresByCategory(chartCategory));
     }
 
     void clearData() {

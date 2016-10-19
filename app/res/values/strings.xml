@@ -454,6 +454,7 @@
     <string name="recommendation_seeds_header">Discover more tracks</string>
     <string name="discovery_search_hint">Search SoundCloud</string>
     <string name="discovery_search_title">Search</string>
+    <string name="discovery_empty">No discovery items yet</string>
 
     <!-- __DISCOVERY CHARTS -->
     <string name="charts_header">SoundCloud charts</string>

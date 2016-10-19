@@ -11,12 +11,9 @@ import java.util.List;
 @AutoValue
 abstract class RecommendedTracksBucketItem extends DiscoveryItem implements PlayingTrackAware {
 
-    RecommendedTracksBucketItem() {
-        super(Kind.RecommendedTracksItem);
-    }
-
-    static RecommendedTracksBucketItem create(PropertySet source, List<Recommendation> recommendations) {
-        return new AutoValue_RecommendedTracksBucketItem(source, recommendations);
+    static RecommendedTracksBucketItem create(PropertySet source,
+                                              List<Recommendation> recommendations) {
+        return new AutoValue_RecommendedTracksBucketItem(Kind.RecommendedTracksItem, source, recommendations);
     }
 
     String getSeedTrackTitle() {

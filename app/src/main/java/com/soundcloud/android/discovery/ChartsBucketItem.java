@@ -25,10 +25,6 @@ abstract class ChartsBucketItem extends DiscoveryItem {
         }
     };
 
-    protected ChartsBucketItem() {
-        super(Kind.ChartItem);
-    }
-
     static ChartsBucketItem from(ChartBucket chartBucket) {
         final Optional<ChartListItem> newAndHotChart = tryFind(chartBucket.getGlobal(), isType(TRENDING)).transform(
                 TO_PRESENTATION_MODEL);
@@ -39,12 +35,12 @@ abstract class ChartsBucketItem extends DiscoveryItem {
         final Optional<ChartListItem> secondGenreChart = getGenreAtIfPresent(chartBucket, 1);
         final Optional<ChartListItem> thirdGenreChart = getGenreAtIfPresent(chartBucket, 2);
 
-        return new AutoValue_ChartsBucketItem(
-                newAndHotChart,
-                topFiftyChart,
-                firstGenreChart,
-                secondGenreChart,
-                thirdGenreChart);
+        return new AutoValue_ChartsBucketItem(Kind.ChartItem,
+                                              newAndHotChart,
+                                              topFiftyChart,
+                                              firstGenreChart,
+                                              secondGenreChart,
+                                              thirdGenreChart);
     }
 
     private static Optional<ChartListItem> getGenreAtIfPresent(ChartBucket chartBucket, int index) {

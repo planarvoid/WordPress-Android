@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,7 +36,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     private static final ChartType TYPE = ChartType.TOP;
 
     private final PublishSubject<Result> syncSubject = PublishSubject.create();
-    private final TestSubscriber<ChartBucket> subscriber = new TestSubscriber<>();
+    private final TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
     private final TestSubscriber<ApiChart<ApiTrack>> chartTrackSubscriber = new TestSubscriber<>();
     private final TestSubscriber<List<Chart>> genresSubscriber = new TestSubscriber<>();
     private final Chart musicChart = createGenreChart(1L, ChartCategory.MUSIC);
@@ -74,16 +75,15 @@ public class ChartsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void returnsDiscoveryItemWithHotAndNewAndTopFiftyChartsAndGenres() {
-        final ChartBucket charts = initChartsForModule();
+        initChartsForModule();
 
         operations.featuredCharts().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         subscriber.assertValueCount(1);
-        final ChartBucket chartsItem = subscriber.getOnNextEvents().get(0);
+        final DiscoveryItem discoveryItem = subscriber.getOnNextEvents().get(0);
 
-        assertThat(chartsItem.getGlobal()).isEqualTo(charts.getGlobal());
-        assertThat(chartsItem.getFeaturedGenres()).isEqualTo(charts.getFeaturedGenres());
+        assertThat(discoveryItem.getKind()).isEqualTo(ChartItem);
     }
 
     @Test

@@ -48,7 +48,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final Navigator navigator;
-    private final FeatureFlags featureFlags;
     private final EventBus eventBus;
     private final StartStationHandler startStationPresenter;
 
@@ -68,7 +67,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        RecommendationBucketRendererFactory recommendationBucketRendererFactory,
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                        Navigator navigator,
-                       FeatureFlags featureFlags,
                        EventBus eventBus,
                        StartStationHandler startStationPresenter,
                        TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator) {
@@ -77,7 +75,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
-        this.featureFlags = featureFlags;
         this.eventBus = eventBus;
         this.startStationPresenter = startStationPresenter;
         this.trackRecommendationPlaybackInitiator = trackRecommendationPlaybackInitiator;
@@ -193,13 +190,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             }
         };
 
-        private static final Func1<ChartBucket, DiscoveryItem> TO_DISCOVERY_ITEM = new Func1<ChartBucket, DiscoveryItem>() {
-            @Override
-            public DiscoveryItem call(ChartBucket chartBucket) {
-                return ChartsBucketItem.from(chartBucket);
-            }
-        };
-
         private final RecommendedTracksOperations recommendedTracksOperations;
         private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
         private final RecommendedStationsOperations recommendedStationsOperations;
@@ -229,7 +219,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             discoveryItems.add(recommendedTracksOperations.recommendedTracks());
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
-                discoveryItems.add(chartsOperations.featuredCharts().map(TO_DISCOVERY_ITEM));
+                discoveryItems.add(chartsOperations.featuredCharts());
             }
 
             discoveryItems.add(playlistDiscoveryOperations.playlistTags());
@@ -244,7 +234,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
-                discoveryItems.add(chartsOperations.refreshFeaturedCharts().map(TO_DISCOVERY_ITEM));
+                discoveryItems.add(chartsOperations.refreshFeaturedCharts());
             }
 
             discoveryItems.add(playlistDiscoveryOperations.playlistTags());

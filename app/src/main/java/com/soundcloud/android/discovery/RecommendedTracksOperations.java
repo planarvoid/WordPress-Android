@@ -4,7 +4,6 @@ import static com.soundcloud.android.discovery.RecommendationProperty.QUERY_POSI
 import static com.soundcloud.android.discovery.RecommendationProperty.QUERY_URN;
 import static com.soundcloud.android.discovery.RecommendationProperty.SEED_TRACK_LOCAL_ID;
 import static com.soundcloud.android.discovery.RecommendationProperty.SEED_TRACK_URN;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
@@ -27,43 +26,27 @@ import java.util.List;
 
 class RecommendedTracksOperations {
 
-    private List<Recommendation> toRecommendations(PropertySet seed, List<TrackItem> trackItems) {
-        final Urn seedUrn = seed.get(SEED_TRACK_URN);
-        final int queryPosition = seed.get(QUERY_POSITION);
-        final Urn queryUrn = seed.get(QUERY_URN);
-        final List<Recommendation> recommendations = new ArrayList<>(trackItems.size());
-        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-
-        for (TrackItem trackItem : trackItems) {
-            boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn()
-                                                                                       .equals(trackItem.getUrn());
-            recommendations.add(new Recommendation(trackItem, seedUrn, isPlaying, queryPosition, queryUrn));
-        }
-
-        return recommendations;
-    }
-
-    private Func1<PropertySet, Observable<DiscoveryItem>> toBucket = new Func1<PropertySet, Observable<DiscoveryItem>>() {
-        @Override
-        public Observable<DiscoveryItem> call(PropertySet seed) {
-            return tracksForSeed(seed.get(SEED_TRACK_LOCAL_ID)).map(mergeWith(seed));
-        }
-    };
-
-    private Func1<List<TrackItem>, DiscoveryItem> mergeWith(final PropertySet seed) {
-        return new Func1<List<TrackItem>, DiscoveryItem>() {
-            @Override
-            public DiscoveryItem call(List<TrackItem> trackItems) {
-                return RecommendedTracksBucketItem.create(seed, toRecommendations(seed, trackItems));
-            }
-        };
-    }
-
     private final SyncOperations syncOperations;
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
+    private final Func1<SyncOperations.Result, Observable<DiscoveryItem>> loadRecommendedTracks = new Func1<SyncOperations.Result, Observable<DiscoveryItem>>() {
+        @Override
+        public Observable<DiscoveryItem> call(SyncOperations.Result result) {
+            return recommendationsStorage.firstSeed()
+                                         .subscribeOn(scheduler)
+                                         .flatMap(toDiscoveryItem)
+                                         .switchIfEmpty(SyncOperations.<DiscoveryItem>emptyResult(
+                                                 result));
+        }
+    };
+    private final Func1<PropertySet, Observable<DiscoveryItem>> toDiscoveryItem = new Func1<PropertySet, Observable<DiscoveryItem>>() {
+        @Override
+        public Observable<DiscoveryItem> call(PropertySet seed) {
+            return tracksForSeed(seed.get(SEED_TRACK_LOCAL_ID)).map(mergeWith(seed));
+        }
+    };
 
     @Inject
     RecommendedTracksOperations(SyncOperations syncOperations,
@@ -78,6 +61,48 @@ class RecommendedTracksOperations {
         this.scheduler = scheduler;
     }
 
+    private List<Recommendation> toRecommendations(PropertySet seed, List<TrackItem> trackItems) {
+        Urn seedUrn = seed.get(SEED_TRACK_URN);
+        int queryPosition = seed.get(QUERY_POSITION);
+        Urn queryUrn = seed.get(QUERY_URN);
+        List<Recommendation> recommendations = new ArrayList<>(trackItems.size());
+        PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+
+        for (TrackItem trackItem : trackItems) {
+            boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn()
+                                                                                       .equals(trackItem
+                                                                                                       .getUrn());
+            recommendations.add(new Recommendation(trackItem,
+                                                   seedUrn,
+                                                   isPlaying,
+                                                   queryPosition,
+                                                   queryUrn));
+        }
+
+        return recommendations;
+    }
+
+    private Func1<List<TrackItem>, DiscoveryItem> mergeWith(final PropertySet seed) {
+        return new Func1<List<TrackItem>, DiscoveryItem>() {
+            @Override
+            public DiscoveryItem call(List<TrackItem> trackItems) {
+                return RecommendedTracksBucketItem.create(seed,
+                                                          toRecommendations(seed, trackItems));
+            }
+        };
+    }
+
+    private Observable<DiscoveryItem> loadFirstBucket(Observable<SyncOperations.Result> source) {
+        return source.flatMap(loadRecommendedTracks);
+    }
+
+    private Observable<DiscoveryItem> loadAllBuckets() {
+        return recommendationsStorage.allSeeds()
+                                     .flatMap(toDiscoveryItem)
+                                     .subscribeOn(scheduler);
+
+    }
+
     @VisibleForTesting
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
@@ -86,32 +111,26 @@ class RecommendedTracksOperations {
     }
 
     Observable<DiscoveryItem> recommendedTracks() {
-        return loadFirstBucket(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).flatMap(toBucket);
+        return loadFirstBucket(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS));
     }
 
     Observable<DiscoveryItem> refreshRecommendedTracks() {
-        return loadFirstBucket(syncOperations.failSafeSync(Syncable.RECOMMENDED_TRACKS)).flatMap(toBucket);
-    }
-
-    private Observable<PropertySet> loadFirstBucket(Observable<SyncOperations.Result> source) {
-        return source
-                .flatMap(continueWith(recommendationsStorage.firstSeed()
-                                                            .subscribeOn(scheduler)));
+        return loadFirstBucket(syncOperations.failSafeSync(Syncable.RECOMMENDED_TRACKS));
     }
 
     Observable<DiscoveryItem> allBuckets() {
         return syncOperations
                 .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)
-                .flatMap(continueWith(loadAllBuckets()));
+                .flatMap(new Func1<SyncOperations.Result, Observable<DiscoveryItem>>() {
+                    @Override
+                    public Observable<DiscoveryItem> call(SyncOperations.Result result) {
+                        return loadAllBuckets()
+                                .switchIfEmpty(SyncOperations.<DiscoveryItem>emptyResult(result));
+                    }
+                });
     }
 
     void clearData() {
         storeRecommendationsCommand.clearTables();
-    }
-
-    private Observable<DiscoveryItem> loadAllBuckets() {
-        return recommendationsStorage.allSeeds()
-                                     .flatMap(toBucket)
-                                     .subscribeOn(scheduler);
     }
 }

@@ -7,13 +7,11 @@ import java.util.List;
 @AutoValue
 public abstract class PlaylistTagsItem extends DiscoveryItem {
 
-    protected PlaylistTagsItem() {
-        super(Kind.PlaylistTagsItem);
-    }
 
     public static PlaylistTagsItem create(List<String> popularTags,
                                           List<String> recentTags) {
-        return new AutoValue_PlaylistTagsItem(popularTags,
+        return new AutoValue_PlaylistTagsItem(Kind.PlaylistTagsItem,
+                                              popularTags,
                                               recentTags);
     }
 
