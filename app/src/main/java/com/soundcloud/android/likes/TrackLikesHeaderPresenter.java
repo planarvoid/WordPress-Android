@@ -150,7 +150,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.fragment = null;
     }
 
-
     void updateTrackCount(int trackCount) {
         trackCountSubject.onNext(trackCount);
     }
@@ -228,6 +227,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         private final NetworkConnectionHelper connectionHelper;
         private final EventBus eventBus;
 
+        private Optional<HeaderViewUpdate> previousUpdate = Optional.absent();
+
         @Inject
         UpdateHeaderViewSubscriber(OfflineSettingsOperations offlineSettings,
                                    NetworkConnectionHelper connectionHelper,
@@ -250,12 +251,22 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                 headerView.setDownloadedButtonState(headerViewUpdate.isOfflineLikesEnabled());
                 configureOfflineState(headerView, headerViewUpdate.getOfflineState());
 
-            } else if (headerViewUpdate.upsellOfflineContent()) {
+            } else if (upsellOfflineCOntentChanged(headerViewUpdate)) {
                 headerView.showUpsell();
                 eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forLikesImpression());
 
             } else {
                 headerView.show(OfflineState.NOT_OFFLINE);
+            }
+
+            previousUpdate = Optional.of(headerViewUpdate);
+        }
+
+        private boolean upsellOfflineCOntentChanged(HeaderViewUpdate headerViewUpdate) {
+            if (previousUpdate.isPresent()) {
+                return previousUpdate.get().upsellOfflineContent() != headerViewUpdate.upsellOfflineContent();
+            } else {
+                return headerViewUpdate.upsellOfflineContent();
             }
         }
 
@@ -277,7 +288,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
 
     @AutoValue
-    public static abstract class HeaderViewUpdate {
+    static abstract class HeaderViewUpdate {
 
         public static HeaderViewUpdate create(TrackLikesHeaderView view,
                                               int trackCount,

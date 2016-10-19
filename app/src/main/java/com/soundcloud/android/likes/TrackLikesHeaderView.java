@@ -87,15 +87,15 @@ class TrackLikesHeaderView {
         }
     }
 
-    public void showNoWifi() {
+    void showNoWifi() {
         downloadStateView.setHeaderText(resources.getString(R.string.offline_no_wifi));
     }
 
-    public void showNoConnection() {
+    void showNoConnection() {
         downloadStateView.setHeaderText(resources.getString(R.string.offline_no_connection));
     }
 
-    public void setDownloadedButtonState(final boolean isOffline) {
+    void setDownloadedButtonState(final boolean isOffline) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isOffline);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +108,7 @@ class TrackLikesHeaderView {
         });
     }
 
-    public void showUpsell() {
+    void showUpsell() {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(false);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
