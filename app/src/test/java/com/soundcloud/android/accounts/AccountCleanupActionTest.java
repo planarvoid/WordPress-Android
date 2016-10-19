@@ -1,9 +1,7 @@
 package com.soundcloud.android.accounts;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,12 +18,9 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.SoundStreamOperations;
@@ -70,8 +65,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private RecentlyPlayedStorage recentlyPlayedStorage;
     @Mock private GcmStorage gcmStorage;
     @Mock private PersistentStorage featureFlagsStorage;
-    @Mock private FeatureFlags featureFlags;
-    @Mock private DatabaseManager databaseManager;
 
     @Before
     public void setup() {
@@ -94,15 +87,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           playHistoryStorage,
                                           recentlyPlayedStorage,
                                           gcmStorage,
-                                          featureFlagsStorage,
-                                          featureFlags,
-                                          databaseManager);
+                                          featureFlagsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
         when(context.getApplicationContext()).thenReturn(soundCloudApplication);
         when(soundCloudApplication.getAccountOperations()).thenReturn(accountOperations);
-        when(featureFlags.isEnabled(Flag.DELETE_DATABASE_ON_SIGN_OUT)).thenReturn(false);
     }
 
     @Test
@@ -260,21 +250,4 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         action.call();
         verify(featureFlagsStorage).clear();
     }
-
-    @Test
-    public void shouldNotDeleteDatabase() {
-        action.call();
-
-        verify(databaseManager, never()).deleteDatabase();
-    }
-
-    @Test
-    public void shouldDeleteDatabaseWhenFeatureFlagIsSet() {
-        when(featureFlags.isEnabled(Flag.DELETE_DATABASE_ON_SIGN_OUT)).thenReturn(true);
-
-        action.call();
-
-        verify(databaseManager).deleteDatabase();
-    }
-
 }
