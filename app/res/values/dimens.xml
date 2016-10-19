@@ -208,4 +208,8 @@
     <!-- Suggested creators -->
     <dimen name="suggested_creators_module_left_padding">16dp</dimen>
 
+    <!-- Ads -->
+    <dimen name="ad_inlay_cta_border_width">1dp</dimen>
+    <dimen name="ad_inlay_cta_border_radius">3dp</dimen>
+
 </resources>

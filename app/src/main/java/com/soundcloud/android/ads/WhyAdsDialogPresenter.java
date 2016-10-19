@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback.ui;
+package com.soundcloud.android.ads;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -14,7 +14,7 @@ import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
 
-class WhyAdsDialogPresenter {
+public class WhyAdsDialogPresenter {
 
     private final Navigator navigator;
     private final FeatureOperations featureOperations;

@@ -100,6 +100,26 @@ final class ImageOptionsFactory {
                 .build();
     }
 
+    public static DisplayImageOptions streamAdImage(Drawable placeholderDrawable, DeviceHelper deviceHelper) {
+        final PlaceholderTransitionDisplayer displayer = new PlaceholderTransitionDisplayer();
+        final DisplayImageOptions.Builder options = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(false)
+                .resetViewBeforeLoading(true)
+                .showImageOnLoading(placeholderDrawable)
+                .showImageOnFail(placeholderDrawable)
+                .showImageForEmptyUri(placeholderDrawable)
+                .displayer(displayer);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+            || deviceHelper.isLowMemoryDevice()
+            || deviceHelper.isTablet()) {
+            options.bitmapConfig(Bitmap.Config.RGB_565);
+        }
+
+        return options.build();
+    }
+
     public static DisplayImageOptions prefetch() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(false)

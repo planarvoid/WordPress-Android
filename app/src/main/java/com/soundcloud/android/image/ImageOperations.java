@@ -356,13 +356,12 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayAppInstall(Uri uri, ImageView imageView) {
+    public void displayAppInstall(Urn urn, String imageUri, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        imageLoader.displayImage(
-                uri.toString(),
-                imageAware,
-                ImageOptionsFactory.adImage(),
-                null);
+        final Drawable drawable = getPlaceholderDrawable(urn, imageAware);
+        final DisplayImageOptions options = ImageOptionsFactory.streamAdImage(drawable, deviceHelper);
+
+        imageLoader.displayImage(imageUri, imageAware, options, notFoundListener);
     }
 
     public void displayLeaveBehind(Uri uri, ImageView imageView, ImageListener imageListener) {
