@@ -18,15 +18,18 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import rx.Observable;
 
 import android.os.Bundle;
@@ -59,9 +62,12 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     @Mock private ChartsOperations chartsOperations;
     @Mock private ChartTracksAdapter chartTracksAdapter;
     @Mock private PlaybackInitiator playbackInitiator;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private ChartsTracker chartsTracker;
     @Mock private Fragment fragment;
+    @Mock private EventBus eventBus;
+    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Spy private ExpandPlayerSubscriber expandPlayerSubscriber =
+            new ExpandPlayerSubscriber(eventBus, playbackToastHelper);
 
     private ChartTracksPresenter chartTracksPresenter;
     private Bundle bundle;
