@@ -27,6 +27,8 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         adapter = new PlayQueueAdapter(trackPlayQueueItemRenderer, headerPlayQueueItemRenderer);
 
+        playQueueItem2.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYING);
+
         adapter.addItem(playQueueItem1);
         adapter.addItem(playQueueItem2);
         adapter.addItem(playQueueItem3);
@@ -64,6 +66,15 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
         adapter.setNowPlayingChangedListener(nowPlayingListener);
 
         adapter.updateNowPlaying(0, false);
+
+        verify(nowPlayingListener, never()).onNowPlayingChanged(playQueueItem1);
+    }
+
+    @Test
+    public void doNotUpdateWhenUpdatingTheSameTrack() {
+        adapter.setNowPlayingChangedListener(nowPlayingListener);
+
+        adapter.updateNowPlaying(1, true);
 
         verify(nowPlayingListener, never()).onNowPlayingChanged(playQueueItem1);
     }

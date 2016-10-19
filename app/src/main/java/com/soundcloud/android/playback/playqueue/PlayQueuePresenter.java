@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -70,6 +71,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private final PlayQueueAdapter adapter;
     private final PlayQueueManager playQueueManager;
+    private final PlaySessionController playSessionController;
     private final PlayQueueOperations playQueueOperations;
     private final PlayQueueArtworkController artworkController;
 
@@ -89,6 +91,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @Inject
     PlayQueuePresenter(PlayQueueAdapter adapter,
                        PlayQueueManager playQueueManager,
+                       PlaySessionController playSessionController,
                        PlayQueueOperations playQueueOperations,
                        PlayQueueArtworkController playerArtworkController,
                        PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
@@ -99,6 +102,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                        PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
+        this.playSessionController = playSessionController;
         this.playQueueOperations = playQueueOperations;
         this.artworkController = playerArtworkController;
         this.eventBus = eventBus;
@@ -135,6 +139,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
             }
         });
         adapter.setNowPlayingChangedListener(artworkController);
+        adapter.setTrackClickListener(new TrackClickListener());
     }
 
     @VisibleForTesting
@@ -399,6 +404,24 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     interface DragListener {
 
         void startDrag(RecyclerView.ViewHolder viewHolder);
+
+    }
+
+    private class TrackClickListener implements TrackPlayQueueItemRenderer.TrackClickListener {
+
+        @Override
+        public void trackClicked(final int listPosition) {
+
+            if (adapter.getItem(listPosition).isTrack()) {
+                adapter.updateNowPlaying(listPosition, true);
+                playQueueManager.setCurrentPlayQueueItem(((TrackPlayQueueUIItem) adapter.getItem(listPosition)).getPlayQueueItem());
+
+                if (!playSessionController.isPlayingCurrentPlayQueueItem()) {
+                    playSessionController.play();
+                }
+            }
+
+        }
 
     }
 

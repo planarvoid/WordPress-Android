@@ -27,6 +27,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         void onNowPlayingChanged(TrackPlayQueueUIItem trackItem);
     }
 
+    private final TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
     private final Iterable<TrackPlayQueueUIItem> tracksFromItems;
     private PlayQueuePresenter.DragListener dragListener;
     private NowPlayingListener nowPlayingListener;
@@ -37,6 +38,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         super(new CellRendererBinding<>(PlayQueueUIItem.Kind.TRACK.ordinal(), trackPlayQueueItemRenderer),
               new CellRendererBinding<>(PlayQueueUIItem.Kind.HEADER.ordinal(), headerPlayQueueItemRenderer)
         );
+        this.trackPlayQueueItemRenderer = trackPlayQueueItemRenderer;
         tracksFromItems = transform(filter(items, TrackPlayQueueUIItem.IS_TRACK), cast(TrackPlayQueueUIItem.class));
         setHasStableIds(true);
     }
@@ -89,6 +91,11 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
     }
 
     public void updateNowPlaying(int position, boolean notifyListener) {
+
+        if (items.size() == position && getItem(position).isTrack()
+                && ((TrackPlayQueueUIItem) getItem(position)).getPlayState() == TrackPlayQueueUIItem.PlayState.PLAYING) {
+            return;
+        }
         for (int i = 0; i < items.size(); i++) {
             final PlayQueueUIItem item = items.get(i);
             if (item.isTrack()) {
@@ -174,6 +181,10 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
             }
         }
         return 0;
+    }
+
+    void setTrackClickListener(TrackPlayQueueItemRenderer.TrackClickListener trackClickListener) {
+        trackPlayQueueItemRenderer.setTrackClickListener(trackClickListener);
     }
 
 }

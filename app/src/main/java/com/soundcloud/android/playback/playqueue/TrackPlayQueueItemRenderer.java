@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
@@ -20,24 +19,25 @@ import java.util.List;
 
 class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
+    interface TrackClickListener {
+
+        void trackClicked(int listPosition);
+    }
+
     static final float ALPHA_DISABLED = 0.3f;
     static final float ALPHA_ENABLED = 1.0f;
     private static final int EXTENDED_TOUCH_DP = 6;
 
     private final ImageOperations imageOperations;
-    private final PlayQueueManager playQueueManager;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
-    private final PlaySessionController playSessionController;
+
+    private TrackClickListener trackClickListener;
 
     @Inject
     TrackPlayQueueItemRenderer(ImageOperations imageOperations,
-                               PlayQueueManager playQueueManager,
-                               TrackItemMenuPresenter trackItemMenuPresenter,
-                               PlaySessionController playSessionController) {
+                               TrackItemMenuPresenter trackItemMenuPresenter) {
         this.imageOperations = imageOperations;
-        this.playQueueManager = playQueueManager;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
-        this.playSessionController = playSessionController;
     }
 
     @Override
@@ -61,7 +61,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
                                              imageView);
         statusPlaceHolder.removeAllViews();
-        setListener(itemView, item);
+        setListener(itemView, item, position);
         setClickable(itemView, item);
         setStatusLabel(statusPlaceHolder, itemView, item);
         setRepeatAlpha(item, imageView, textHolder);
@@ -84,14 +84,12 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
     }
 
-    private void setListener(View itemView, final TrackPlayQueueUIItem item) {
+    private void setListener(final View itemView, final TrackPlayQueueUIItem item, final int position) {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                playQueueManager.setCurrentPlayQueueItem(item.getPlayQueueItem());
-
-                if (!playSessionController.isPlayingCurrentPlayQueueItem()) {
-                    playSessionController.play();
+                if (trackClickListener != null) {
+                    trackClickListener.trackClicked(position);
                 }
             }
 
@@ -166,4 +164,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         }
     }
 
+    public void setTrackClickListener(TrackClickListener trackClickListener) {
+        this.trackClickListener = trackClickListener;
+    }
 }
