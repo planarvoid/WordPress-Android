@@ -343,6 +343,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return migrationEvent.getAndSet(null);
     }
 
+    public void deleteDatabase() {
+        onRecreateDb(getWritableDatabase());
+    }
+
     /**
      * Added unavailable_at column to TrackDownloads table
      */
