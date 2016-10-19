@@ -13,6 +13,7 @@ import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistJobRequest;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 
@@ -127,8 +128,13 @@ class SyncRequestFactory {
     private List<SyncJob> createSyncJobs(List<Syncable> syncables, boolean isUiRequest) {
         final List<SyncJob> syncJobs = new ArrayList<>(syncables.size());
         for (Syncable syncable : syncables) {
-            final DefaultSyncJob syncJob = new DefaultSyncJob(syncerRegistry.get(syncable).syncer(null, isUiRequest), syncable);
-            syncJobs.add(syncJob);
+            final SyncerRegistry.SyncProvider syncProvider = syncerRegistry.get(syncable);
+            if (syncProvider != null) {
+                final DefaultSyncJob syncJob = new DefaultSyncJob(syncProvider.syncer(null, isUiRequest), syncable);
+                syncJobs.add(syncJob);
+            } else {
+                ErrorUtils.handleSilentException(new SyncerNotFoundException(syncable));
+            }
         }
         return syncJobs;
     }
@@ -167,6 +173,12 @@ class SyncRequestFactory {
         if (intent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS) && !getIsUiRequest(intent)) {
             int syncUriCount = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS).size();
             eventBus.publish(EventQueue.TRACKING, new BackgroundSyncEvent(syncUriCount));
+        }
+    }
+
+    private static class SyncerNotFoundException extends Exception {
+        SyncerNotFoundException(Syncable syncable) {
+            super("Cannot find syncer for " + syncable);
         }
     }
 }

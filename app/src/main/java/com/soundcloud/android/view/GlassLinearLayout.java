@@ -31,10 +31,9 @@ import android.widget.LinearLayout;
 
 import javax.inject.Inject;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.OnDrawListener {
+public class GlassLinearLayout extends LinearLayout {
 
-    private static final boolean JELLY_BEAN_MR1_OR_HIGHER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+    private static final boolean LOLLIPOP_OR_HIGHER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
     private static final float BLUR_SCALE = 0.25f;
     private static final float RENDER_HORIZONTAL_SCALE = 0.125f;
@@ -51,6 +50,7 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
     private long lastUpdate = System.currentTimeMillis() - MINIMUM_DELAY_MS;
     private boolean updating;
     private Subscription subscription = RxUtils.invalidSubscription();
+    private ViewTreeObserverCompat viewTreeObserver;
 
     @Inject ImageProcessor imageProcessor;
 
@@ -88,7 +88,7 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
     }
 
     private void init(Context context, AttributeSet attrs) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (LOLLIPOP_OR_HIGHER) {
             initGraph();
             initAttributes(context, attrs);
             subject = PublishSubject.create();
@@ -113,25 +113,29 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
     }
 
     @Override
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (JELLY_BEAN_MR1_OR_HIGHER) {
+        if (LOLLIPOP_OR_HIGHER) {
             updating = false;
             lastUpdate = System.currentTimeMillis() - MINIMUM_DELAY_MS;
             subscription = subject.map(blurBackground)
                                   .subscribeOn(Schedulers.computation())
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .subscribe(backgroundUpdater);
-            getViewTreeObserver().addOnDrawListener(this);
+            viewTreeObserver = new ViewTreeObserverCompatImpl();
+            getViewTreeObserver().addOnDrawListener((ViewTreeObserverCompatImpl) viewTreeObserver);
         }
     }
 
     @Override
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     protected void onDetachedFromWindow() {
-        if (JELLY_BEAN_MR1_OR_HIGHER) {
-            getViewTreeObserver().removeOnDrawListener(this);
+        if (LOLLIPOP_OR_HIGHER) {
+            getViewTreeObserver().removeOnDrawListener((ViewTreeObserverCompatImpl) viewTreeObserver);
             subscription.unsubscribe();
             cleanupBitmaps();
+            viewTreeObserver = null;
         }
         super.onDetachedFromWindow();
     }
@@ -146,17 +150,6 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
                 backgroundBitmap.recycle();
                 backgroundBitmap = null;
             }
-        }
-    }
-
-    @Override
-    public void onDraw() {
-        long current = System.currentTimeMillis();
-
-        if (!updating && current - lastUpdate >= MINIMUM_DELAY_MS) {
-            updating = true;
-            lastUpdate = current;
-            updateBackground();
         }
     }
 
@@ -207,6 +200,7 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
         return bitmap;
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private class BackgroundUpdater extends DefaultSubscriber<Bitmap> {
         @Override
         public void onNext(Bitmap bitmap) {
@@ -219,4 +213,22 @@ public class GlassLinearLayout extends LinearLayout implements ViewTreeObserver.
             updating = false;
         }
     }
+
+    interface ViewTreeObserverCompat {
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    class ViewTreeObserverCompatImpl implements ViewTreeObserverCompat, ViewTreeObserver.OnDrawListener {
+        @Override
+        public void onDraw() {
+            long current = System.currentTimeMillis();
+
+            if (!updating && current - lastUpdate >= MINIMUM_DELAY_MS) {
+                updating = true;
+                lastUpdate = current;
+                updateBackground();
+            }
+        }
+    }
+
 }

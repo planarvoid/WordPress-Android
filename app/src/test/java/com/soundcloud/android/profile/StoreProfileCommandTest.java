@@ -23,9 +23,9 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        final StoreTracksCommand storeTracksCommand = new StoreTracksCommand(propeller());
-        final StorePlaylistsCommand storePlaylistsCommand = new StorePlaylistsCommand(propeller());
         final StoreUsersCommand storeUsersCommand = new StoreUsersCommand(propeller());
+        final StoreTracksCommand storeTracksCommand = new StoreTracksCommand(propeller(), storeUsersCommand);
+        final StorePlaylistsCommand storePlaylistsCommand = new StorePlaylistsCommand(propeller(), storeUsersCommand);
         final WriteMixedRecordsCommand writeMixedRecordsCommand = new WriteMixedRecordsCommand(storeTracksCommand,
                                                                                                storePlaylistsCommand,
                                                                                                storeUsersCommand);

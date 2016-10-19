@@ -72,13 +72,15 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                                            "title 1",
                                            10,
                                            false,
-                                           Optional.<OfflineState>absent()),
+                                           Optional.<OfflineState>absent(),
+                                           1000),
             new RecentlyPlayedPlayableItem(Urn.forTrackStation(234L),
                                            Optional.<String>absent(),
                                            "title 2",
                                            0,
                                            false,
-                                           Optional.<OfflineState>absent())
+                                           Optional.<OfflineState>absent(),
+                                           1000)
     );
 
 

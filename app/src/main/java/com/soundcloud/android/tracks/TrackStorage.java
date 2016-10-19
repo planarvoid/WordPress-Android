@@ -2,6 +2,7 @@ package com.soundcloud.android.tracks;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
+import static com.soundcloud.java.collections.Lists.partition;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.commands.TrackViewUrnMapper;
@@ -26,12 +27,20 @@ import java.util.Map;
 
 class TrackStorage {
 
+    private static final int MAX_TRACKS_BATCH = 200;
+
     private final PropellerRx propeller;
     private final TrackItemMapper trackMapper = new TrackItemMapper();
-    private Func1<QueryResult, Map<Urn, PropertySet>> toMapOfUrnAndPropertySet = new Func1<QueryResult, Map<Urn, PropertySet>>() {
+    private Func1<List<QueryResult>, Map<Urn, PropertySet>> toMapOfUrnAndPropertySet = new Func1<List<QueryResult> , Map<Urn, PropertySet>>() {
         @Override
-        public Map<Urn, PropertySet> call(QueryResult cursorReaders) {
+        public Map<Urn, PropertySet> call(List<QueryResult> cursorReaders) {
             return toMapOfUrnAndPropertySet(cursorReaders);
+        }
+    };
+    private Func1<List<Urn>, Observable<QueryResult>> fetchTracks = new Func1<List<Urn>, Observable<QueryResult>>() {
+        @Override
+        public Observable<QueryResult> call(List<Urn> urns) {
+            return propeller.queryResult(buildTracksQuery(urns));
         }
     };
 
@@ -47,18 +56,24 @@ class TrackStorage {
     }
 
     Observable<Map<Urn, PropertySet>> loadTracks(List<Urn> urns) {
-        return propeller.queryResult(buildTracksQuery(urns))
-                        .map(toMapOfUrnAndPropertySet)
-                        .firstOrDefault(Collections.<Urn, PropertySet>emptyMap());
+        return batchedTracks(urns).toList()
+                                  .map(toMapOfUrnAndPropertySet)
+                                  .firstOrDefault(Collections.<Urn, PropertySet>emptyMap());
     }
 
-    private Map<Urn, PropertySet> toMapOfUrnAndPropertySet(QueryResult cursorReaders) {
-        final Map<Urn, PropertySet> tracks = new HashMap<>(cursorReaders.getResultCount());
-        for (CursorReader cursorReader : cursorReaders) {
-            final PropertySet track = trackMapper.map(cursorReader);
-            final Urn urn = track.get(TrackProperty.URN);
+    private Observable<QueryResult> batchedTracks(List<Urn> urns) {
+        return Observable.from(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchTracks);
+    }
 
-            tracks.put(urn, track);
+    private Map<Urn, PropertySet> toMapOfUrnAndPropertySet(List<QueryResult> cursorReadersBatches) {
+        final Map<Urn, PropertySet> tracks = new HashMap<>(cursorReadersBatches.size() * MAX_TRACKS_BATCH);
+        for (QueryResult cursorReaders : cursorReadersBatches) {
+            for (CursorReader cursorReader : cursorReaders) {
+                final PropertySet track = trackMapper.map(cursorReader);
+                final Urn urn = track.get(TrackProperty.URN);
+
+                tracks.put(urn, track);
+            }
         }
         return tracks;
     }

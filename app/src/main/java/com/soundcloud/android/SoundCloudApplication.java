@@ -55,6 +55,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
@@ -101,7 +102,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
-    @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
+    @Inject @Nullable @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;

@@ -149,6 +149,18 @@ public class ShuffledListTest {
     }
 
     @Test
+    public void subList() {
+        assertThat(shuffledArrayList.subList(0, 1)).containsExactly("original 1");
+        assertThat(shuffledLinkedList.subList(0, 1)).containsExactly("original 1");
+
+        assertThat(shuffledArrayList.subList(0, shuffledArrayList.size())).containsExactly("original 1", "original 0", "original 2");
+        assertThat(shuffledLinkedList.subList(0, shuffledLinkedList.size())).containsExactly("original 1", "original 0", "original 2");
+
+        assertThat(shuffledArrayList.subList(2, shuffledArrayList.size())).containsExactly("original 2");
+        assertThat(shuffledLinkedList.subList(2, shuffledLinkedList.size())).containsExactly("original 2");
+    }
+
+    @Test
     public void isEmpty() {
         assertThat(new ShuffledPlayQueue.ShuffledList<>(emptyList(), 0)).isEmpty();
     }

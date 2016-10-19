@@ -10,11 +10,11 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySet>, TxnResult> {
@@ -30,7 +30,11 @@ class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySe
         for (PropertySet like : input) {
             values.add(buildContentValuesForLike(like));
         }
-        return propeller.bulkInsert(Table.Likes, values, SQLiteDatabase.CONFLICT_REPLACE);
+        final HashMap<String, Class> columns = new HashMap<>();
+        columns.put(TableColumns.Likes._ID, Long.class);
+        columns.put(TableColumns.Likes._TYPE, Integer.class);
+        columns.put(TableColumns.Likes.CREATED_AT, Long.class);
+        return propeller.bulkInsert_experimental(Table.Likes, columns, values);
     }
 
     private ContentValues buildContentValuesForLike(PropertySet like) {

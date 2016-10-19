@@ -19,7 +19,7 @@ public class StorePlaylistsCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        command = new StorePlaylistsCommand(propeller());
+        command = new StorePlaylistsCommand(propeller(), new StoreUsersCommand(propeller()));
     }
 
     @Test

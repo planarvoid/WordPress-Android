@@ -29,6 +29,11 @@ public final class SchemaMigrationHelper {
 
     }
 
+    public static void recreateView(String name, SQLiteDatabase db) {
+        db.execSQL("DROP VIEW IF EXISTS " + name);
+
+    }
+
     public static void dropView(String name, SQLiteDatabase db) {
         db.execSQL("DROP VIEW IF EXISTS " + name);
     }

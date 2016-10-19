@@ -6,7 +6,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropellerDatabase.QueryHook;
 import com.soundcloud.propeller.rx.PropellerRx;
 import dagger.Module;
 import dagger.Provides;
@@ -76,6 +75,7 @@ public class StorageModule {
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY)
+    @Nullable
     public File provideStreamCacheDirectory(Context context) {
         return IOUtils.getExternalStorageDir(context, "skippy");
     }
@@ -158,7 +158,7 @@ public class StorageModule {
     @Named(FEATURES_FLAGS)
     public SharedPreferences provideFeatureFlagsPrefs(Context context, Obfuscator obfuscator) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE),
-                obfuscator);
+                                         obfuscator);
     }
 
     @Provides
@@ -245,15 +245,20 @@ public class StorageModule {
     }
 
     @Provides
-    public PropellerDatabase providePropeller(SQLiteDatabase database, @Nullable QueryHook queryHook) {
-        final PropellerDatabase propeller = new PropellerDatabase(database, queryHook);
+    public PropellerDatabase providePropeller(SQLiteDatabase database, ApplicationProperties applicationProperties) {
+        final PropellerDatabase propeller;
+        if (applicationProperties.shouldLogQueries()) {
+            propeller = new PropellerDatabase(database, new DebugQueryHook());
+        } else {
+            propeller = new PropellerDatabase(database);
+        }
         propeller.setAssertBackgroundThread();
         return propeller;
     }
 
     @Provides
     @Nullable
-    public QueryHook provideQueryHook(ApplicationProperties applicationProperties) {
+    public DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties) {
         return applicationProperties.shouldLogQueries() ? new DebugQueryHook() : null;
     }
 

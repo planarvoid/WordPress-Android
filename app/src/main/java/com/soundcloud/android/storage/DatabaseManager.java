@@ -27,7 +27,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 96;
+    public static final int DATABASE_VERSION = 98;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -72,15 +72,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             // legacy tables
             for (Table t : Table.values()) {
-                SchemaMigrationHelper.create(t, db);
+                if (!t.view) {
+                    SchemaMigrationHelper.create(t, db);
+                }
             }
 
             // views
-            db.execSQL(Tables.SearchSuggestions.SQL);
-            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
-            db.execSQL(Tables.PlaylistView.SQL);
-            db.execSQL(Tables.UsersView.SQL);
-            db.execSQL(Tables.TrackView.SQL);
+            createViews(db);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -108,14 +106,53 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         // legacy tables
         for (Table t : Table.values()) {
-            SchemaMigrationHelper.drop(t, db);
+            if (!t.view) {
+                SchemaMigrationHelper.drop(t, db);
+            }
         }
+
+        dropViews(db);
+        onCreate(db);
+    }
+
+    private boolean recreateViews(SQLiteDatabase db) {
+        try {
+            dropViews(db);
+            createViews(db);
+            return true;
+        } catch (SQLException exception) {
+            handleMigrationException(exception, "Failed to recreate views");
+            return false;
+        }
+    }
+
+    private void dropViews(SQLiteDatabase db) {
         dropView(Tables.SearchSuggestions.TABLE.name(), db);
         dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
         dropView(Tables.PlaylistView.TABLE.name(), db);
         dropView(Tables.UsersView.TABLE.name(), db);
         dropView(Tables.TrackView.TABLE.name(), db);
-        onCreate(db);
+
+        // legacy tables
+        for (Table t : Table.values()) {
+            if (t.view) {
+                SchemaMigrationHelper.drop(t, db);
+            }
+        }
+    }
+
+    private void createViews(SQLiteDatabase db) {
+        db.execSQL(Tables.SearchSuggestions.SQL);
+        db.execSQL(Tables.OfflinePlaylistTracks.SQL);
+        db.execSQL(Tables.PlaylistView.SQL);
+        db.execSQL(Tables.UsersView.SQL);
+        db.execSQL(Tables.TrackView.SQL);
+
+        for (Table t : Table.values()) {
+            if (t.view) {
+                SchemaMigrationHelper.create(t, db);
+            }
+        }
     }
 
     @Override
@@ -316,6 +353,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 96:
                             success = upgradeTo96(db, oldVersion);
                             break;
+                        case 97:
+                            success = upgradeTo97(db, oldVersion);
+                            break;
+                        case 98:
+                            success = upgradeTo98(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -323,6 +366,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         break;
                     }
                 }
+            }
+
+            if (success) {
+                Log.i(TAG, "successful db recreating views");
+                success = recreateViews(db);
             }
 
             if (success) {
@@ -1180,14 +1228,42 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Add followed_at column to suggested creators
+    * Recreate PlaylistView after fixing local count column for efficiency
      */
     private boolean upgradeTo96(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.dropView(Tables.PlaylistView.TABLE.name(), db);
+            db.execSQL(Tables.PlaylistView.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 96);
+        }
+        return false;
+    }
+
+    /**
+     * Recreate TrackView to try to fix column not found (that does exists) in some clients
+     */
+    private boolean upgradeTo97(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.dropView(Tables.TrackView.TABLE.name(), db);
+            db.execSQL(Tables.TrackView.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 97);
+        }
+        return false;
+    }
+
+    /**
+     * Add followed_at column to suggested creators
+     */
+    private boolean upgradeTo98(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.SuggestedCreators.TABLE.name(), Tables.SuggestedCreators.SQL, db);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 96);
+            handleUpgradeException(exception, oldVersion, 98);
         }
         return false;
     }
@@ -1219,6 +1295,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
                                                                      newVersion,
                                                                      getMigrationDuration(),
                                                                      exception.getMessage()));
+        handleMigrationException(exception, message);
+    }
+
+    private void handleMigrationException(SQLException exception, String message) {
 
         if (applicationProperties.allowDatabaseMigrationsSilentErrors()) {
             ErrorUtils.handleSilentException(message, exception);

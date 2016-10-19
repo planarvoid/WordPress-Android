@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
+import static com.soundcloud.propeller.query.ColumnFunctions.count;
 
 import com.soundcloud.android.offline.OfflineFilters;
 import com.soundcloud.android.storage.Table;
@@ -16,6 +17,11 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.query.Query;
 
 public final class PlaylistQueries {
+
+    public static final Query LOCAL_TRACK_COUNT = Query.from(Table.PlaylistTracks)
+                                                       .select(count(PlaylistTracks.field(TRACK_ID)))
+                                                       .joinOn(SoundView.field(TableColumns.SoundView._ID),
+                                                          PlaylistTracks.field(PLAYLIST_ID));
 
     public static final Query HAS_PENDING_DOWNLOAD_REQUEST_QUERY = Query.from(TrackDownloads.TABLE)
                                                                         .select(TrackDownloads._ID.qualifiedName())

@@ -34,7 +34,7 @@ public class RecentlyPlayedOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(recentlyPlayedStorage.loadContexts(anyInt())).thenReturn(Observable.from(CONTEXT_ITEMS));
+        when(recentlyPlayedStorage.loadContexts(anyInt())).thenReturn(Observable.just(CONTEXT_ITEMS));
         contextsSubscriber = new TestSubscriber<>();
         operations = new RecentlyPlayedOperations(recentlyPlayedStorage, scheduler, syncOperations,
                                                   clearRecentlyPlayedCommand);

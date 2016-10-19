@@ -253,7 +253,11 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
         @NonNull
         @Override
         public List<T> subList(int start, int end) {
-            throw new UnsupportedOperationException();
+            final ArrayList<T> subList = new ArrayList<>(end - start);
+            for (int i = start; i < end; i++) {
+                subList.add(get(i));
+            }
+            return subList;
         }
 
         @Override

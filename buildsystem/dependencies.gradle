@@ -15,7 +15,7 @@ ext {
   googleServicesVersion = '9.2.0'
   lightCycleVersion = '1.2.0'
   daggerVersion = '2.5'
-  propellerVersion = '0.65'
+  propellerVersion = '0.67'
   findBugsVersion = '3.0.0'
   networkManager = '29'
 
