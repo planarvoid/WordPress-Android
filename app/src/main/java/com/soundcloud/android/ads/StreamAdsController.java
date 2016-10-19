@@ -11,10 +11,14 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -74,6 +78,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
     public void insertAds() {
         if (featureFlags.isEnabled(Flag.APP_INSTALLS)) {
+            clearExpiredAds();
             if (inlayAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldRequestAds()) {
                 fetchSubscription = adsOperations.inlaysAds()
                         .observeOn(AndroidSchedulers.mainThread())
@@ -82,6 +87,15 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                 attemptToInsertAd();
             }
         }
+    }
+
+    private void clearExpiredAds() {
+        inlayAds = Lists.newArrayList(Iterables.filter(inlayAds, new Predicate<AppInstallAd>() {
+            @Override
+            public boolean apply(AppInstallAd ad) {
+                return ad.getCreatedAt() + TimeUnit.MINUTES.toMillis(ad.getExpiryInMins()) > dateProvider.getCurrentTime();
+            }
+        }));
     }
 
     private boolean shouldRequestAds() {
@@ -105,7 +119,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                 setLastEmptyResponseTime();
             } else {
                 inlayAds = ads;
-                attemptToInsertAd();
+                insertAds();
             }
         }
 

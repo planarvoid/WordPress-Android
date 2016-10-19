@@ -165,6 +165,30 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         verify(adsOperations, times(2)).inlaysAds();
     }
 
+    @Test
+    public void insertAdsWillNeverInsertAnExpiredAd() {
+        final long createdAtMs = appInstalls.get(1).getCreatedAt();
+        final long expiryTimeMs = appInstalls.get(1).getExpiryInMins() * 60 * 1000L;
+        when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + expiryTimeMs);
+        when(adsOperations.inlaysAds()).thenReturn(justAppInstalls());
+
+        controller.insertAds();
+
+        verify(insertionHelper, never()).insertAd(any(AppInstallAd.class), anyBoolean());
+    }
+
+    @Test
+    public void insertAdsWillInsertAnAdIfNotExpired() {
+        final long createdAtMs = appInstalls.get(0).getCreatedAt();
+        final long justBeforeExpiryMs = appInstalls.get(0).getExpiryInMins() * 59 * 1000L;
+        when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + justBeforeExpiryMs);
+        when(adsOperations.inlaysAds()).thenReturn(justAppInstalls());
+
+        controller.insertAds();
+
+        verify(insertionHelper).insertAd(appInstalls.get(0), SCROLLING_DOWN);
+    }
+
     private Observable<List<AppInstallAd>> justAppInstalls() {
         final List<AppInstallAd> installs = new ArrayList<>(appInstalls);
         return Observable.just(installs);

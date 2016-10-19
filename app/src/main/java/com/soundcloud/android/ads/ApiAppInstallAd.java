@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 abstract class ApiAppInstallAd {
     @JsonCreator
     public static ApiAppInstallAd create(@JsonProperty("urn") Urn adUrn,
+                                         @JsonProperty("expiry_in_minutes") int expiryInMins,
                                          @JsonProperty("name") String name,
                                          @JsonProperty("cta_button_text") String ctaButtonText,
                                          @JsonProperty("clickthrough_url") String clickthroughUrl,
@@ -17,6 +18,7 @@ abstract class ApiAppInstallAd {
                                          @JsonProperty("rater_count") int ratersCount,
                                          @JsonProperty("app_install_tracking") ApiAdTracking tracking) {
         return new AutoValue_ApiAppInstallAd(adUrn,
+                                             expiryInMins,
                                              name,
                                              ctaButtonText,
                                              clickthroughUrl,
@@ -27,6 +29,8 @@ abstract class ApiAppInstallAd {
     }
 
     public abstract Urn getAdUrn();
+
+    public abstract int getExpiryInMins();
 
     public abstract String getName();
 
