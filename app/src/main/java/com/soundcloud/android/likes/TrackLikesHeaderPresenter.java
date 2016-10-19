@@ -251,7 +251,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                 headerView.setDownloadedButtonState(headerViewUpdate.isOfflineLikesEnabled());
                 configureOfflineState(headerView, headerViewUpdate.getOfflineState());
 
-            } else if (upsellOfflineCOntentChanged(headerViewUpdate)) {
+            } else if (upsellOfflineContentChanged(headerViewUpdate)) {
                 headerView.showUpsell();
                 eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forLikesImpression());
 
@@ -262,7 +262,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             previousUpdate = Optional.of(headerViewUpdate);
         }
 
-        private boolean upsellOfflineCOntentChanged(HeaderViewUpdate headerViewUpdate) {
+        private boolean upsellOfflineContentChanged(HeaderViewUpdate headerViewUpdate) {
             if (previousUpdate.isPresent()) {
                 return previousUpdate.get().upsellOfflineContent() != headerViewUpdate.upsellOfflineContent();
             } else {
