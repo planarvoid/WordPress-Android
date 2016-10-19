@@ -329,9 +329,9 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     @Override
-    public void onCastConnectionChange() {
+    public void onCastConnectionChange(String deviceName) {
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-            pagePresenter(entry.getValue()).setCastDeviceName(entry.getKey(), castConnectionHelper.getDeviceName());
+            pagePresenter(entry.getValue()).setCastDeviceName(entry.getKey(), deviceName);
         }
     }
 

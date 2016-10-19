@@ -1,162 +1,147 @@
 package com.soundcloud.android.cast;
 
-import static java.util.Collections.singletonList;
+import static com.soundcloud.android.cast.CastProtocol.*;
 
-import com.google.android.gms.cast.ApplicationMetadata;
-import com.google.android.gms.cast.MediaStatus;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
-import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
-import com.soundcloud.android.Actions;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.CastState;
+import com.google.android.gms.cast.framework.CastStateListener;
+import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.soundcloud.android.PlaybackServiceController;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.playback.PlayQueueItem;
-import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.functions.Action1;
+import com.soundcloud.java.optional.Optional;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 @Singleton
-public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
+public class CastSessionController implements CastStateListener, SessionManagerListener<CastSession> {
 
-    private final CastOperations castOperations;
     private final PlaybackServiceController serviceController;
     private final CastPlayer castPlayer;
-    private final PlayQueueManager playQueueManager;
-    private final VideoCastManager videoCastManager;
-    private final EventBus eventBus;
-    private final PlaySessionStateProvider playSessionStateProvider;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriber;
+    private final CastContextWrapper castContext;
+    private final PlaySessionController playSessionController;
+
+    private Optional<CastConnectionHelper> castConnectionHelper;
+    private Optional<CastSession> currentCastSession;
 
     @Inject
-    public CastSessionController(CastOperations castOperations,
-                                 PlaybackServiceController serviceController,
+    public CastSessionController(PlaybackServiceController serviceController,
                                  CastPlayer castPlayer,
-                                 PlayQueueManager playQueueManager,
-                                 VideoCastManager videoCastManager,
-                                 EventBus eventBus,
-                                 PlaySessionStateProvider playSessionStateProvider,
-                                 Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
-        this.castOperations = castOperations;
+                                 CastContextWrapper castContext,
+                                 PlaySessionController playSessionController) {
         this.serviceController = serviceController;
         this.castPlayer = castPlayer;
-        this.playQueueManager = playQueueManager;
-        this.videoCastManager = videoCastManager;
-        this.eventBus = eventBus;
-        this.playSessionStateProvider = playSessionStateProvider;
-        this.expandPlayerSubscriber = expandPlayerSubscriberProvider;
+        this.castContext = castContext;
+        this.playSessionController = playSessionController;
+
+        this.currentCastSession = castContext.getCurrentCastSession();
+        this.castConnectionHelper = Optional.absent();
     }
 
     public void startListening() {
-        videoCastManager.addVideoCastConsumer(this);
-        videoCastManager.setMediaRouteDialogListener(this);
+        castContext.addCastStateListener(this);
+    }
+
+    public void onResume(AppCompatActivity activity) {
+        castContext.onActivityResumed(activity);
+        castContext.addSessionManagerListener(this);
+    }
+
+    public void onPause(AppCompatActivity activity) {
+        castContext.onActivityPaused(activity);
+        castContext.removeSessionManagerListener(this);
+    }
+
+    void setCastConnectionListener(CastConnectionHelper castConnectionHelper) {
+        this.castConnectionHelper = Optional.of(castConnectionHelper);
     }
 
     @Override
-    public void onApplicationConnected(ApplicationMetadata appMetadata, String sessionId, boolean wasLaunched) {
-        Log.d(CastOperations.TAG, "On Application Connected, launched: " + wasLaunched);
+    public void onSessionStarting(CastSession castSession) {
+    }
+
+    @Override
+    public void onSessionStarted(CastSession castSession, String sessionId) {
+        onApplicationConnected(Optional.fromNullable(castSession));
+    }
+
+    @Override
+    public void onSessionStartFailed(CastSession castSession, int i) {
+        castPlayer.onDisconnected();
+    }
+
+    @Override
+    public void onSessionEnding(CastSession castSession) {
+    }
+
+    @Override
+    public void onSessionEnded(CastSession castSession, int i) {
+        castPlayer.onDisconnected();
+    }
+
+    @Override
+    public void onSessionResuming(CastSession castSession, String sessionId) {
+    }
+
+    @Override
+    public void onSessionResumed(CastSession castSession, boolean b) {
+        castPlayer.onConnected(castSession.getRemoteMediaClient());
+        castPlayer.updateLocalPlayQueueAndPlayState();
+    }
+
+    @Override
+    public void onSessionResumeFailed(CastSession castSession, int i) {
+    }
+
+    @Override
+    public void onSessionSuspended(CastSession castSession, int i) {
+    }
+
+    private void onApplicationConnected(Optional<CastSession> session) {
+        currentCastSession = session;
         serviceController.stopPlaybackService();
-        if (wasLaunched && !playQueueManager.isQueueEmpty()) {
-            playLocalPlayQueueOnRemote();
+        castPlayer.onConnected(session.get().getRemoteMediaClient());
+        notifyConnectionChange(true, Optional.of(session.get().getCastDevice().getFriendlyName()));
+
+        if (playSessionController.isPlayingCurrentPlayQueueItem()) {
+            castPlayer.playLocalPlayQueueOnRemote();
         }
     }
 
-    private void playLocalPlayQueueOnRemote() {
-        Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
-        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-        final PlaybackProgress lastProgressForTrack = currentPlayQueueItem.isEmpty() ? PlaybackProgress.empty() :
-                                                      playSessionStateProvider.getLastProgressForItem(
-                                                              currentPlayQueueItem.getUrn());
-
-        castPlayer.reloadCurrentQueue()
-                  .doOnNext(playCurrent(lastProgressForTrack))
-                  .subscribe(expandPlayerSubscriber.get());
-    }
-
-    @NonNull
-    private Action1<PlaybackResult> playCurrent(final PlaybackProgress lastProgressForTrack) {
-        return new Action1<PlaybackResult>() {
-            @Override
-            public void call(PlaybackResult playbackResult) {
-                CastSessionController.this.castPlayer.playCurrent(lastProgressForTrack.getPosition());
-            }
-        };
-    }
-
-    @Override
-    public void onRemoteMediaPlayerStatusUpdated() {
-        Log.d(CastOperations.TAG,
-              "On Status updated, status: " + videoCastManager.getRemoteMediaPlayer()
-                                                              .getMediaStatus()
-                                                              .getPlayerState());
-        super.onRemoteMediaPlayerStatusUpdated();
-    }
-
-    @Override
-    public void onRemoteMediaPlayerMetadataUpdated() {
-        Log.d(CastOperations.TAG, "On metadata updated.");
-        final RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
-        if (!remotePlayQueue.getTrackList().isEmpty()) {
-            updateLocalPlayQueueAndPlayState(remotePlayQueue);
+    private void notifyConnectionChange(boolean castAvailable, Optional<String> deviceName) {
+        if (castConnectionHelper.isPresent()) {
+            castConnectionHelper.get().notifyConnectionChange(castAvailable, deviceName);
         }
     }
 
-    private void updateLocalPlayQueueAndPlayState(RemotePlayQueue remotePlayQueue) {
-        final List<Urn> remoteTrackList = remotePlayQueue.getTrackList();
-        final Urn remoteCurrentUrn = remotePlayQueue.getCurrentTrackUrn();
-        final int remotePosition = remotePlayQueue.getCurrentPosition();
-
-        Log.d(CastOperations.TAG, String.format(Locale.US,
-                                                "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
-                                                remoteCurrentUrn, remoteTrackList.size()));
-        if (playQueueManager.hasSameTrackList(remoteTrackList)) {
-            Log.d(CastOperations.TAG, "Has the same tracklist, setting remotePosition");
-            playQueueManager.setPosition(remotePosition, true);
-            if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
-                castPlayer.playCurrent();
-            }
-        } else {
-            Log.d(CastOperations.TAG, "Does not have the same tracklist, updating locally");
-            List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
-            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns,
-                                                                   PlaySessionSource.EMPTY,
-                                                                   Collections.<Urn, Boolean>emptyMap());
-            playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, remotePosition);
-            castPlayer.playCurrent();
-        }
-
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+    private Optional<String> getDeviceName() {
+        return currentCastSession.isPresent() && currentCastSession.get().getCastDevice() != null ?
+               Optional.fromNullable(currentCastSession.get().getCastDevice().getFriendlyName()) :
+               Optional.<String>absent();
     }
 
     @Override
-    public void onMediaRouteDialogCellClick(Context context) {
-        openStreamAndExpandPlayer(context);
+    public void onCastStateChanged(int castState) {
+        Log.d(TAG, "Cast state changed: " + castState);
+        switch (castState) {
+            case CastState.CONNECTED:
+                onApplicationConnected(castContext.getCurrentCastSession());
+                break;
+            case CastState.NOT_CONNECTED:
+            case CastState.CONNECTING:
+                notifyConnectionChange(true, getDeviceName());
+                break;
+            case CastState.NO_DEVICES_AVAILABLE:
+                notifyConnectionChange(false, Optional.<String>absent());
+                break;
+        }
     }
 
-    private void openStreamAndExpandPlayer(Context context) {
-        Intent intent = new Intent(Actions.STREAM)
-                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        context.startActivity(intent);
+    public boolean isCasting() {
+        return currentCastSession.isPresent() && currentCastSession.get().isConnected();
     }
 
 }

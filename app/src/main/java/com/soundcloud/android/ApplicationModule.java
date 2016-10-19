@@ -4,8 +4,7 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 
 import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
-import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.google.android.gms.cast.framework.CastContext;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.accounts.FacebookModule;
@@ -13,7 +12,9 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.cast.CastContextWrapper;
 import com.soundcloud.android.cast.CastPlayer;
+import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
 import com.soundcloud.android.comments.CommentsModule;
@@ -23,7 +24,6 @@ import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
@@ -227,45 +227,33 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public CastConnectionHelper provideCastConnectionHelper(Context context,
-                                                            ApplicationProperties applicationProperties) {
+    public CastContextWrapper provideCastContext(Context context) {
+        return new CastContextWrapper(CastContext.getSharedInstance(context));
+    }
+
+    @Provides
+    @Singleton
+    public CastConnectionHelper provideCastConnectionHelper(CastSessionController controller) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
         if ("Dalvik".equals(System.getProperty("java.vm.name"))) {
-            return new DefaultCastConnectionHelper(provideVideoCastManager(context, applicationProperties));
+            return new DefaultCastConnectionHelper(controller);
         } else {
             return new NoOpCastConnectionHelper();
         }
     }
 
     @Provides
-    @Singleton
-    public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties) {
-        return VideoCastManager
-                .initialize(
-                        context,
-                        new CastConfiguration.Builder(applicationProperties.getCastReceiverAppId())
-                                .setTargetActivity(MainActivity.class)
-                                .addNamespace("urn:x-cast:com.soundcloud.cast.sender")
-                                .enableLockScreen()
-                                .enableDebug()
-                                .enableNotification()
-                                .enableWifiReconnection()
-                                .build()
-                );
-    }
-
-    @Provides
     public PlaybackStrategy providePlaybackStrategy(PlaybackServiceController serviceController,
-                                                    CastConnectionHelper castConnectionHelper,
+                                                    CastSessionController castSessionController,
                                                     PlayQueueManager playQueueManager,
                                                     Lazy<CastPlayer> castPlayer,
                                                     TrackRepository trackRepository,
                                                     OfflinePlaybackOperations offlinePlaybackOperations,
                                                     PlaySessionStateProvider playSessionStateProvider,
                                                     EventBus eventBus) {
-        if (castConnectionHelper.isCasting()) {
+        if (castSessionController.isCasting()) {
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
             return new DefaultPlaybackStrategy(playQueueManager,

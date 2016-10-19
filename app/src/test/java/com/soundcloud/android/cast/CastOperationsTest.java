@@ -1,16 +1,14 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
-import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
-import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -19,16 +17,12 @@ import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
-
-import android.content.res.Resources;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,29 +33,26 @@ public class CastOperationsTest extends AndroidUnitTest {
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
     private static final Urn TRACK3 = Urn.forTrack(789L);
-    private static final List<Urn> PLAY_QUEUE = newArrayList(TRACK1, TRACK2);
     private static final String IMAGE_URL = "http://image.url";
 
     private CastOperations castOperations;
 
-    @Mock private VideoCastManager videoCastManager;
     @Mock private TrackRepository trackRepository;
     @Mock private PolicyOperations policyOperations;
+    @Mock private PlayQueueManager playQueueManager;
     @Mock private ImageOperations imageOperations;
-    @Mock private Resources resources;
 
     private TestObserver<LocalPlayQueue> observer;
 
     @Before
     public void setUp() throws Exception {
-        castOperations = new CastOperations(videoCastManager,
-                                            trackRepository,
+        castOperations = new CastOperations(trackRepository,
                                             policyOperations,
-                                            imageOperations,
-                                            resources,
+                                            playQueueManager,
+                                            new CastProtocol(imageOperations, resources()),
                                             Schedulers.immediate());
         observer = new TestObserver<>();
-        when(imageOperations.getUrlForLargestImage(resources, TRACK1)).thenReturn(IMAGE_URL);
+        when(imageOperations.getUrlForLargestImage(resources(), TRACK1)).thenReturn(IMAGE_URL);
     }
 
     @Test
@@ -80,7 +71,7 @@ public class CastOperationsTest extends AndroidUnitTest {
         createAndSetupPublicTrack(TRACK2);
         PropertySet currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
-        List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1);
+        List<Urn> filteredPlayQueueTracks = singletonList(TRACK1);
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
                 filteredPlayQueueTracks));
 
@@ -103,7 +94,7 @@ public class CastOperationsTest extends AndroidUnitTest {
                       .subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-        List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1);
+        List<Urn> expectedFilteredPlayQueueTracks = singletonList(TRACK1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrack, expectedFilteredPlayQueueTracks);
     }
 
@@ -145,7 +136,7 @@ public class CastOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadFilteredLocalPlayQueueEmitsEmptyLocalQueueWhenAllTracksAreFilteredOut() {
-        List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1);
+        List<Urn> unfilteredPlayQueueTracks = singletonList(TRACK1);
         List<Urn> filteredPlayQueueTracks = Collections.emptyList();
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
                 filteredPlayQueueTracks));
@@ -155,54 +146,6 @@ public class CastOperationsTest extends AndroidUnitTest {
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isEmpty()).isTrue();
-    }
-
-    @Test
-    public void loadRemotePlayQueueReturnsEmptyQueueOnNetworkError() throws TransientNetworkDisconnectionException, NoConnectionException {
-        Mockito.doThrow(new TransientNetworkDisconnectionException())
-               .when(videoCastManager)
-               .getRemoteMediaInformation();
-
-        RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
-
-        assertThat(remotePlayQueue.getTrackList()).isEmpty();
-        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(Urn.NOT_SET);
-    }
-
-    @Test
-    public void loadRemotePlayQueueReturnsEmptyQueueOnConnectionError() throws TransientNetworkDisconnectionException, NoConnectionException {
-        Mockito.doThrow(new NoConnectionException()).when(videoCastManager).getRemoteMediaInformation();
-
-        RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
-
-        assertThat(remotePlayQueue.getTrackList()).isEmpty();
-        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(Urn.NOT_SET);
-    }
-
-    @Test
-    public void loadsRemotePlayQueue() throws TransientNetworkDisconnectionException, NoConnectionException, JSONException {
-        MediaInfo mediaInfo = createMediaInfo(PLAY_QUEUE, TRACK2);
-        when(videoCastManager.getRemoteMediaInformation()).thenReturn(mediaInfo);
-
-        RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
-
-        assertThat(remotePlayQueue.getTrackList()).isEqualTo(PLAY_QUEUE);
-        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(TRACK2);
-    }
-
-    private MediaInfo createMediaInfo(List<Urn> playQueue, Urn currentTrack) throws JSONException {
-        JSONObject customData = new JSONObject()
-                .put("play_queue", new JSONArray(Urns.toString(playQueue)));
-
-        MediaMetadata metadata = new MediaMetadata();
-        metadata.putString("urn", currentTrack.toString());
-
-        return new MediaInfo.Builder("contentId123")
-                .setCustomData(customData)
-                .setMetadata(metadata)
-                .setContentType("contentType123")
-                .setStreamType(0)
-                .build();
     }
 
     private PropertySet createAndSetupPrivateTrack(Urn urn) {
