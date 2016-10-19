@@ -26,7 +26,7 @@ public class LikedStationsSyncProvider extends SyncerRegistry.SyncProvider {
     }
 
     @Override
-    public Callable<Boolean> syncer(@Nullable String action) {
+    public Callable<Boolean> syncer(@Nullable String action, boolean isUiRequest) {
         return likedStationsSyncerProvider.get();
     }
 

@@ -25,7 +25,7 @@ public class TrackLikesSyncProvider extends SyncerRegistry.SyncProvider {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Callable<Boolean> syncer(String action) {
+    public Callable<Boolean> syncer(String action, boolean isUiRequest) {
         return trackLikesSyncer.get();
     }
 

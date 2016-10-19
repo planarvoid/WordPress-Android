@@ -3,10 +3,10 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncerFactory;
-import com.soundcloud.android.sync.me.MeSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
+import com.soundcloud.android.sync.me.MeSyncer;
 import com.soundcloud.android.sync.playlists.LegacySinglePlaylistSyncer;
-import com.soundcloud.android.sync.playlists.MyPlaylistsSyncer;
+import com.soundcloud.android.sync.playlists.MyPlaylistsSyncerFactory;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.sync.posts.MyPostsSyncer;
 import dagger.Lazy;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 
 public class ApiSyncerFactory {
 
-    private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
+    private final MyPlaylistsSyncerFactory lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final MyFollowingsSyncerFactory myFollowingsSyncerLazyFactory;
@@ -25,7 +25,7 @@ public class ApiSyncerFactory {
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
 
     @Inject
-    public ApiSyncerFactory(Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
+    public ApiSyncerFactory(MyPlaylistsSyncerFactory lazyPlaylistsSyncer,
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
                             MyFollowingsSyncerFactory myFollowingsSyncerLazyFactory,
@@ -50,7 +50,7 @@ public class ApiSyncerFactory {
                 return myFollowingsSyncerLazyFactory.create("" /* not used */ );
 
             case ME_PLAYLISTS:
-                return lazyPlaylistsSyncer.get();
+                return lazyPlaylistsSyncer.create(false);
 
             case PLAYLIST:
                 return new LegacySinglePlaylistSyncer(singlePlaylistSyncerFactory,

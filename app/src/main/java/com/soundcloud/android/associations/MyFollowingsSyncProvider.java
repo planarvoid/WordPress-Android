@@ -22,7 +22,7 @@ public class MyFollowingsSyncProvider extends SyncerRegistry.SyncProvider {
     }
 
     @Override
-    public Callable<Boolean> syncer(String action) {
+    public Callable<Boolean> syncer(String action, boolean isUiRequest) {
         return syncerFactory.create(action);
     }
 

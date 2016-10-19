@@ -95,12 +95,13 @@ public class SyncerRegistry {
          *
          * @param action a specific action for this sync. If a syncer can perform multiple types of syncs,
          *               this action specify that type. See {@link com.soundcloud.android.sync.stream.SoundStreamSyncer}
+         * @param isUiRequest
          * @return The return value indicates that there were actual updates performed.
          * A return of true will reset the periodic sync time to the actual stale time
          * if periodic sync is used. A return of false will increase the delay until
          * the next sync, so we are not frequently syncing collections that do not change.
          */
-        public abstract Callable<Boolean> syncer(@Nullable String action);
+        public abstract Callable<Boolean> syncer(@Nullable String action, boolean isUiRequest);
 
         /**
          * Tells the service whether a sync should be performed outside of the normal scheduling.

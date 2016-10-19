@@ -130,6 +130,6 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
 
         final DefaultSyncJob syncJob = defaultSyncJobArgumentCaptor.getValue();
         syncJob.run();
-        assertThat(((TestSyncer) syncProvider.syncer("action")).hasRun()).isTrue();
+        assertThat(((TestSyncer) syncProvider.syncer("action", false)).hasRun()).isTrue();
     }
 }

@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 class SyncRequestFactory {
 
@@ -105,27 +106,28 @@ class SyncRequestFactory {
     }
 
     private SyncRequest createDefaultSingleJobRequest(Intent intent, Syncable syncable) {
-        return singleJobRequestFactory.create(new DefaultSyncJob(syncerRegistry.get(syncable).syncer(intent.getAction()), syncable),
+        final boolean isUiRequest = getIsUiRequest(intent);
+        final Callable<Boolean> syncer = syncerRegistry.get(syncable).syncer(intent.getAction(), isUiRequest);
+        final DefaultSyncJob syncJob = new DefaultSyncJob(syncer,syncable);
+        return singleJobRequestFactory.create(syncJob,
                                               syncable.name(),
-                                              getIsHighPriorityFromIntent(intent),
+                                              isUiRequest,
                                               getReceiverFromIntent(intent));
     }
 
     private SyncRequest createMultiJobRequest(Intent intent) {
         final List<Syncable> syncables = getSyncables(intent);
-        final List<SyncJob> syncJobs = createSyncJobs(syncables);
+        final boolean isUiRequest = getIsUiRequest(intent);
+        final List<SyncJob> syncJobs = createSyncJobs(syncables, isUiRequest);
         final ResultReceiver resultReceiver = getReceiverFromIntent(intent);
-        final boolean isHighPriority = getIsHighPriorityFromIntent(intent);
-
-        logBackgroundSync(syncables, isHighPriority);
-
-        return multiJobRequestFactory.create(syncJobs, resultReceiver, isHighPriority);
+        logBackgroundSync(syncables, isUiRequest);
+        return multiJobRequestFactory.create(syncJobs, resultReceiver, isUiRequest);
     }
 
-    private List<SyncJob> createSyncJobs(List<Syncable> syncables) {
+    private List<SyncJob> createSyncJobs(List<Syncable> syncables, boolean isUiRequest) {
         final List<SyncJob> syncJobs = new ArrayList<>(syncables.size());
         for (Syncable syncable : syncables) {
-            final DefaultSyncJob syncJob = new DefaultSyncJob(syncerRegistry.get(syncable).syncer(null), syncable);
+            final DefaultSyncJob syncJob = new DefaultSyncJob(syncerRegistry.get(syncable).syncer(null, isUiRequest), syncable);
             syncJobs.add(syncJob);
         }
         return syncJobs;
@@ -150,7 +152,7 @@ class SyncRequestFactory {
         return (ResultReceiver) intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
     }
 
-    private boolean getIsHighPriorityFromIntent(Intent intent) {
+    private boolean getIsUiRequest(Intent intent) {
         // TODO, we should probably default to false when we get rid of LegacySyncInitiator, as it should always be set
         return intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
     }
@@ -162,7 +164,7 @@ class SyncRequestFactory {
     }
 
     private void logLegacyBackgroundSync(Intent intent) {
-        if (intent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS) && !getIsHighPriorityFromIntent(intent)) {
+        if (intent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS) && !getIsUiRequest(intent)) {
             int syncUriCount = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS).size();
             eventBus.publish(EventQueue.TRACKING, new BackgroundSyncEvent(syncUriCount));
         }

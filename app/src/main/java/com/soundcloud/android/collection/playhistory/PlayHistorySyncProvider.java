@@ -22,7 +22,7 @@ public class PlayHistorySyncProvider extends SyncerRegistry.SyncProvider {
     }
 
     @Override
-    public Callable<Boolean> syncer(String action) {
+    public Callable<Boolean> syncer(String action, boolean isUiRequest) {
         return playHistorySyncerProvider.get();
     }
 

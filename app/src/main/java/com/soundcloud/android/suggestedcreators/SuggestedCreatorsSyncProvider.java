@@ -18,7 +18,7 @@ public class SuggestedCreatorsSyncProvider extends SyncerRegistry.SyncProvider {
     }
 
     @Override
-    public Callable<Boolean> syncer(String action) {
+    public Callable<Boolean> syncer(String action, boolean isUiRequest) {
         return suggestedCreatorsSyncerProvider.get();
     }
 
