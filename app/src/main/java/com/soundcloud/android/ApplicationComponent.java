@@ -124,7 +124,7 @@ import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.LikedStationsFragment;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.stations.StationInfoFragment;
-import com.soundcloud.android.stream.SoundStreamFragment;
+import com.soundcloud.android.stream.StreamFragment;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -234,8 +234,8 @@ public interface ApplicationComponent {
     void inject(UserAlbumsActivity userAlbumsActivity);
     void inject(UserAlbumsFragment userAlbumsFragment);
 
-    //SoundStreamModule
-    void inject(SoundStreamFragment soundStreamFragment);
+    //StreamModule
+    void inject(StreamFragment streamFragment);
 
     //TrackModule
     void inject(TrackInfoFragment trackInfoFragment);

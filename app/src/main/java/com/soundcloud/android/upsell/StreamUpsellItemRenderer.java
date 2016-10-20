@@ -2,7 +2,7 @@ package com.soundcloud.android.upsell;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.stream.SoundStreamItem;
+import com.soundcloud.android.stream.StreamItem;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-public class StreamUpsellItemRenderer implements CellRenderer<SoundStreamItem> {
+public class StreamUpsellItemRenderer implements CellRenderer<StreamItem> {
 
     private final UpsellItemRenderer upsellItemRenderer;
 
@@ -28,7 +28,7 @@ public class StreamUpsellItemRenderer implements CellRenderer<SoundStreamItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<SoundStreamItem> items) {
+    public void bindItemView(int position, View itemView, List<StreamItem> items) {
         upsellItemRenderer.bindItemView(position, itemView);
     }
 

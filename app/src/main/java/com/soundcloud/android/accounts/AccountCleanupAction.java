@@ -19,7 +19,7 @@ import com.soundcloud.android.settings.notifications.NotificationPreferencesStor
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.stream.SoundStreamOperations;
+import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -48,7 +48,7 @@ class AccountCleanupAction implements Action0 {
     private final ClearTableCommand clearTableCommand;
     private final StationsOperations stationsOperations;
     private final CollectionOperations collectionOperations;
-    private final SoundStreamOperations soundStreamOperations;
+    private final StreamOperations streamOperations;
     private final ConfigurationOperations configurationOperations;
     private final NotificationPreferencesStorage notificationPreferencesStorage;
     private final PlayHistoryStorage playHistoryStorage;
@@ -67,7 +67,7 @@ class AccountCleanupAction implements Action0 {
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionOperations collectionOperations,
-                         SoundStreamOperations soundStreamOperations,
+                         StreamOperations streamOperations,
                          ConfigurationOperations configurationOperations,
                          NotificationPreferencesStorage notificationPreferencesStorage,
                          PlayHistoryStorage playHistoryStorage,
@@ -87,7 +87,7 @@ class AccountCleanupAction implements Action0 {
         this.clearTableCommand = clearTableCommand;
         this.stationsOperations = stationsOperations;
         this.collectionOperations = collectionOperations;
-        this.soundStreamOperations = soundStreamOperations;
+        this.streamOperations = streamOperations;
         this.configurationOperations = configurationOperations;
         this.notificationPreferencesStorage = notificationPreferencesStorage;
         this.playHistoryStorage = playHistoryStorage;
@@ -112,7 +112,7 @@ class AccountCleanupAction implements Action0 {
         stationsOperations.clearData();
         discoveryOperations.clearData();
         collectionOperations.clearData();
-        soundStreamOperations.clearData();
+        streamOperations.clearData();
         configurationOperations.clearConfigurationSettings();
         notificationPreferencesStorage.clear();
         playHistoryStorage.clear();

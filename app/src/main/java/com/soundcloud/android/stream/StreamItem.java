@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public abstract class SoundStreamItem {
+public abstract class StreamItem {
 
     public enum Kind {
         TRACK,
@@ -30,19 +30,19 @@ public abstract class SoundStreamItem {
         APP_INSTALL
     }
 
-    static SoundStreamItem forUpsell() {
-        return new AutoValue_SoundStreamItem_Default(Kind.STREAM_UPSELL);
+    static StreamItem forUpsell() {
+        return new AutoValue_StreamItem_Default(Kind.STREAM_UPSELL);
     }
 
-    public static SoundStreamItem forSuggestedCreators(final List<SuggestedCreator> suggestedCreators) {
+    public static StreamItem forSuggestedCreators(final List<SuggestedCreator> suggestedCreators) {
         return SuggestedCreators.create(suggestedCreators);
     }
 
-    public static SoundStreamItem forFacebookCreatorInvites(Urn trackUrn, String trackUrl) {
+    public static StreamItem forFacebookCreatorInvites(Urn trackUrn, String trackUrl) {
         return FacebookCreatorInvites.create(trackUrn, trackUrl);
     }
 
-    public static SoundStreamItem forFacebookListenerInvites() {
+    public static StreamItem forFacebookListenerInvites() {
         return FacebookListenerInvites.create(Optional.<List<String>>absent());
     }
 
@@ -50,11 +50,11 @@ public abstract class SoundStreamItem {
         return FacebookListenerInvites.create(Optional.of(friendPictureUrls));
     }
 
-    public static SoundStreamItem forStationOnboarding() {
-        return new AutoValue_SoundStreamItem_Default(Kind.STATIONS_ONBOARDING);
+    public static StreamItem forStationOnboarding() {
+        return new AutoValue_StreamItem_Default(Kind.STATIONS_ONBOARDING);
     }
 
-    static SoundStreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
+    static StreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
         if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
             return Track.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof TrackItem) {
@@ -85,21 +85,21 @@ public abstract class SoundStreamItem {
     }
 
     @AutoValue
-    abstract static class Default extends SoundStreamItem {
+    abstract static class Default extends StreamItem {
     }
 
     @AutoValue
-    public abstract static class FacebookCreatorInvites extends SoundStreamItem {
+    public abstract static class FacebookCreatorInvites extends StreamItem {
         public abstract Urn trackUrn();
         public abstract String trackUrl();
 
         private static FacebookCreatorInvites create(Urn trackUrn, String trackUrl) {
-            return new AutoValue_SoundStreamItem_FacebookCreatorInvites(Kind.FACEBOOK_CREATORS, trackUrn, trackUrl);
+            return new AutoValue_StreamItem_FacebookCreatorInvites(Kind.FACEBOOK_CREATORS, trackUrn, trackUrl);
         }
     }
 
     @AutoValue
-    public abstract static class FacebookListenerInvites extends SoundStreamItem {
+    public abstract static class FacebookListenerInvites extends StreamItem {
         public abstract Optional<List<String>> friendPictureUrls();
 
         public boolean hasPictures() {
@@ -107,58 +107,58 @@ public abstract class SoundStreamItem {
         }
 
         private static FacebookListenerInvites create(Optional<List<String>> friendPictureUrls) {
-            return new AutoValue_SoundStreamItem_FacebookListenerInvites(Kind.FACEBOOK_LISTENER_INVITES, friendPictureUrls);
+            return new AutoValue_StreamItem_FacebookListenerInvites(Kind.FACEBOOK_LISTENER_INVITES, friendPictureUrls);
         }
     }
 
     @AutoValue
-    public abstract static class Playlist extends SoundStreamItem {
+    public abstract static class Playlist extends StreamItem {
         public abstract PlaylistItem playlistItem();
         public abstract boolean promoted();
         public abstract Date createdAt();
 
         static Playlist create(PlaylistItem playlistItem, Date createdAt) {
-            return new AutoValue_SoundStreamItem_Playlist(Kind.PLAYLIST, playlistItem, false, createdAt);
+            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, playlistItem, false, createdAt);
         }
 
         static Playlist createForPromoted(PromotedPlaylistItem playlistItem, Date createdAt) {
-            return new AutoValue_SoundStreamItem_Playlist(Kind.PLAYLIST, playlistItem, true, createdAt);
+            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, playlistItem, true, createdAt);
         }
     }
 
     @AutoValue
-    public abstract static class Track extends SoundStreamItem {
+    public abstract static class Track extends StreamItem {
         public abstract TrackItem trackItem();
         public abstract boolean promoted();
         public abstract Date createdAt();
 
         static Track create(TrackItem trackItem, Date createdAt) {
-            return new AutoValue_SoundStreamItem_Track(Kind.TRACK, trackItem, false, createdAt);
+            return new AutoValue_StreamItem_Track(Kind.TRACK, trackItem, false, createdAt);
         }
 
         static Track createForPromoted(PromotedTrackItem trackItem, Date createdAt) {
-            return new AutoValue_SoundStreamItem_Track(Kind.TRACK, trackItem, true, createdAt);
+            return new AutoValue_StreamItem_Track(Kind.TRACK, trackItem, true, createdAt);
         }
     }
 
     @AutoValue
-    public abstract static class SuggestedCreators extends SoundStreamItem {
+    public abstract static class SuggestedCreators extends StreamItem {
         public abstract List<SuggestedCreatorItem> suggestedCreators();
         public static SuggestedCreators create(List<SuggestedCreator> suggestedCreators) {
             final List<SuggestedCreatorItem> suggestedCreatorItems = new ArrayList<>(suggestedCreators.size());
             for (SuggestedCreator suggestedCreator : suggestedCreators) {
                 suggestedCreatorItems.add(SuggestedCreatorItem.fromSuggestedCreator(suggestedCreator));
             }
-            return new AutoValue_SoundStreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreatorItems);
+            return new AutoValue_StreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreatorItems);
         }
     }
 
     @AutoValue
-    public abstract static class AppInstall extends SoundStreamItem {
+    public abstract static class AppInstall extends StreamItem {
         public abstract AppInstallAd appInstall();
 
         static AppInstall create(AppInstallAd appInstall) {
-            return new AutoValue_SoundStreamItem_AppInstall(Kind.APP_INSTALL, appInstall);
+            return new AutoValue_StreamItem_AppInstall(Kind.APP_INSTALL, appInstall);
         }
     }
 }

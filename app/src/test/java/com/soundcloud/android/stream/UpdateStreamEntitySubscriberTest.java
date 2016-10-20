@@ -13,14 +13,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class UpdateSoundStreamEntitySubscriberTest extends AndroidUnitTest {
+public class UpdateStreamEntitySubscriberTest extends AndroidUnitTest {
 
-    @Mock SoundStreamAdapter mockAdapter;
+    @Mock StreamAdapter mockAdapter;
 
     private EntityStateChangedEvent followEvent;
     private EntityStateChangedEvent nonFollowEvent;
 
-    UpdateSoundStreamEntitySubscriber testSubscriber;
+    UpdateStreamEntitySubscriber testSubscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -30,7 +30,7 @@ public class UpdateSoundStreamEntitySubscriberTest extends AndroidUnitTest {
                                                                             urn));
         nonFollowEvent = EntityStateChangedEvent.fromEntityCreated(urn);
 
-        testSubscriber = new UpdateSoundStreamEntitySubscriber(mockAdapter);
+        testSubscriber = new UpdateStreamEntitySubscriber(mockAdapter);
     }
 
     @Test

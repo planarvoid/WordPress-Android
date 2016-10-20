@@ -23,7 +23,7 @@ import com.soundcloud.android.settings.notifications.NotificationPreferencesStor
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.stream.SoundStreamOperations;
+import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -58,7 +58,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private PlanStorage planStorage;
     @Mock private StationsOperations stationsOperations;
     @Mock private CollectionOperations collectionOperations;
-    @Mock private SoundStreamOperations soundStreamOperations;
+    @Mock private StreamOperations streamOperations;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
     @Mock private PlayHistoryStorage playHistoryStorage;
@@ -81,7 +81,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           clearTableCommand,
                                           stationsOperations,
                                           collectionOperations,
-                                          soundStreamOperations,
+                                          streamOperations,
                                           configurationOperations,
                                           notificationPreferencesStorage,
                                           playHistoryStorage,
@@ -224,7 +224,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveUpsellPreferences() {
         action.call();
-        verify(soundStreamOperations).clearData();
+        verify(streamOperations).clearData();
     }
 
     @Test

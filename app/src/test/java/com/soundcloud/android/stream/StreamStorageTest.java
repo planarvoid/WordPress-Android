@@ -33,18 +33,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class SoundStreamStorageTest extends StorageIntegrationTest {
+public class StreamStorageTest extends StorageIntegrationTest {
 
     private static final long TIMESTAMP = 1000L;
 
     @Mock private Observer<StreamPlayable> observer;
 
-    private SoundStreamStorage storage;
+    private StreamStorage storage;
     private TestSubscriber<StreamPlayable> subscriber;
 
     @Before
     public void setup() {
-        storage = new SoundStreamStorage(propeller());
+        storage = new StreamStorage(propeller());
         subscriber = new TestSubscriber<>();
     }
 

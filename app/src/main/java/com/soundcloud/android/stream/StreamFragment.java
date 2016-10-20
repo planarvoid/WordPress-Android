@@ -15,12 +15,12 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SoundStreamFragment extends LightCycleSupportFragment<SoundStreamFragment>
+public class StreamFragment extends LightCycleSupportFragment<StreamFragment>
         implements RefreshableScreen, ScrollContent {
 
-    @Inject @LightCycle SoundStreamPresenter presenter;
+    @Inject @LightCycle StreamPresenter presenter;
 
-    public SoundStreamFragment() {
+    public StreamFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

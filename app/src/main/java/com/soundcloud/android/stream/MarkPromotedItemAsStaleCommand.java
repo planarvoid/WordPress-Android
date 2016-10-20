@@ -16,7 +16,7 @@ import javax.inject.Inject;
 
 /**
  * @see RemoveStalePromotedItemsCommand
- * @see SoundStreamOperations#promotedImpressionAction
+ * @see StreamOperations#promotedImpressionAction
  */
 public class MarkPromotedItemAsStaleCommand extends DefaultWriteStorageCommand<PromotedListItem, WriteResult> {
 

@@ -11,8 +11,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.stream.SoundStreamItem;
-import com.soundcloud.android.stream.SoundStreamItem.Kind;
+import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.users.UserAssociation;
@@ -54,7 +54,7 @@ public class SuggestedCreatorsOperationsTest {
     private CurrentDateProvider dateProvider;
 
     private SuggestedCreatorsOperations operations;
-    private TestSubscriber<SoundStreamItem> subscriber;
+    private TestSubscriber<StreamItem> subscriber;
 
     @Before
     public void setup() {
@@ -87,7 +87,7 @@ public class SuggestedCreatorsOperationsTest {
         operations.suggestedCreators().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final SoundStreamItem notificationItem = subscriber.getOnNextEvents().get(0);
+        final StreamItem notificationItem = subscriber.getOnNextEvents().get(0);
 
         assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
     }
@@ -106,7 +106,7 @@ public class SuggestedCreatorsOperationsTest {
         operations.suggestedCreators().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final SoundStreamItem notificationItem = subscriber.getOnNextEvents().get(0);
+        final StreamItem notificationItem = subscriber.getOnNextEvents().get(0);
 
         assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
     }
@@ -126,7 +126,7 @@ public class SuggestedCreatorsOperationsTest {
         operations.suggestedCreators().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final SoundStreamItem.SuggestedCreators notificationItem = (SoundStreamItem.SuggestedCreators) subscriber
+        final StreamItem.SuggestedCreators notificationItem = (StreamItem.SuggestedCreators) subscriber
                 .getOnNextEvents()
                 .get(0);
 
@@ -153,7 +153,7 @@ public class SuggestedCreatorsOperationsTest {
         operations.suggestedCreators().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final SoundStreamItem.SuggestedCreators notificationItem = (SoundStreamItem.SuggestedCreators) subscriber
+        final StreamItem.SuggestedCreators notificationItem = (StreamItem.SuggestedCreators) subscriber
                 .getOnNextEvents()
                 .get(0);
 
@@ -181,7 +181,7 @@ public class SuggestedCreatorsOperationsTest {
         operations.suggestedCreators().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final SoundStreamItem.SuggestedCreators notificationItem = (SoundStreamItem.SuggestedCreators) subscriber
+        final StreamItem.SuggestedCreators notificationItem = (StreamItem.SuggestedCreators) subscriber
                 .getOnNextEvents()
                 .get(0);
 

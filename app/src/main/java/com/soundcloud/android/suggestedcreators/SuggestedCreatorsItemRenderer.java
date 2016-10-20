@@ -4,7 +4,7 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.stream.SoundStreamItem.SuggestedCreators;
+import com.soundcloud.android.stream.StreamItem.SuggestedCreators;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;

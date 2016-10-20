@@ -19,8 +19,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SoundStreamAdapter
-        extends PagingRecyclerItemAdapter<SoundStreamItem, SoundStreamAdapter.SoundStreamViewHolder>
+class StreamAdapter
+        extends PagingRecyclerItemAdapter<StreamItem, StreamAdapter.StreamViewHolder>
         implements PlayingTrackAware {
 
     private final FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer;
@@ -31,22 +31,22 @@ class SoundStreamAdapter
     private final AppInstallItemRenderer appInstallItemRenderer;
 
     @Inject
-    public SoundStreamAdapter(StreamTrackItemRenderer trackItemRenderer,
-                              StreamPlaylistItemRenderer playlistItemRenderer,
-                              FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
-                              StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer,
-                              FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer,
-                              StreamUpsellItemRenderer upsellItemRenderer,
-                              SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer,
-                              AppInstallItemRenderer appInstallItemRenderer) {
-        super(new CellRendererBinding<>(SoundStreamItem.Kind.TRACK.ordinal(), trackItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.PLAYLIST.ordinal(), playlistItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.FACEBOOK_LISTENER_INVITES.ordinal(), facebookListenerInvitesItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.STATIONS_ONBOARDING.ordinal(), stationsOnboardingStreamItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.FACEBOOK_CREATORS.ordinal(), facebookCreatorInvitesItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.STREAM_UPSELL.ordinal(), upsellItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.SUGGESTED_CREATORS.ordinal(), suggestedCreatorsItemRenderer),
-              new CellRendererBinding<>(SoundStreamItem.Kind.APP_INSTALL.ordinal(), appInstallItemRenderer));
+    public StreamAdapter(StreamTrackItemRenderer trackItemRenderer,
+                         StreamPlaylistItemRenderer playlistItemRenderer,
+                         FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
+                         StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer,
+                         FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer,
+                         StreamUpsellItemRenderer upsellItemRenderer,
+                         SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer,
+                         AppInstallItemRenderer appInstallItemRenderer) {
+        super(new CellRendererBinding<>(StreamItem.Kind.TRACK.ordinal(), trackItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.PLAYLIST.ordinal(), playlistItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.FACEBOOK_LISTENER_INVITES.ordinal(), facebookListenerInvitesItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.STATIONS_ONBOARDING.ordinal(), stationsOnboardingStreamItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.FACEBOOK_CREATORS.ordinal(), facebookCreatorInvitesItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.STREAM_UPSELL.ordinal(), upsellItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.SUGGESTED_CREATORS.ordinal(), suggestedCreatorsItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.APP_INSTALL.ordinal(), appInstallItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
         this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;
@@ -62,9 +62,9 @@ class SoundStreamAdapter
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (SoundStreamItem viewModel : getItems()) {
-            if (viewModel.kind() == SoundStreamItem.Kind.TRACK) {
-                final TrackItem trackModel = ((SoundStreamItem.Track) viewModel).trackItem();
+        for (StreamItem viewModel : getItems()) {
+            if (viewModel.kind() == StreamItem.Kind.TRACK) {
+                final TrackItem trackModel = ((StreamItem.Track) viewModel).trackItem();
                 trackModel.setIsPlaying(trackModel.getUrn().equals(currentlyPlayingUrn));
             }
         }
@@ -80,12 +80,12 @@ class SoundStreamAdapter
     }
 
     @Override
-    protected SoundStreamViewHolder createViewHolder(View itemView) {
-        return new SoundStreamViewHolder(itemView);
+    protected StreamViewHolder createViewHolder(View itemView) {
+        return new StreamViewHolder(itemView);
     }
 
-    static class SoundStreamViewHolder extends RecyclerView.ViewHolder {
-        SoundStreamViewHolder(View itemView) {
+    static class StreamViewHolder extends RecyclerView.ViewHolder {
+        StreamViewHolder(View itemView) {
             super(itemView);
         }
     }

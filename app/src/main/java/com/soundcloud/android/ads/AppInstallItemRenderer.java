@@ -1,5 +1,12 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.android.stream.StreamItem.AppInstall;
+import com.soundcloud.android.util.CondensedNumberFormatter;
+
 import android.content.res.Resources;
 import android.net.Uri;
 import android.text.SpannableString;
@@ -11,18 +18,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.stream.SoundStreamItem;
-import com.soundcloud.android.stream.SoundStreamItem.AppInstall;
-import com.soundcloud.android.util.CondensedNumberFormatter;
-
+import javax.inject.Inject;
 import java.util.List;
 
-import javax.inject.Inject;
-
-public class AppInstallItemRenderer implements CellRenderer<SoundStreamItem> {
+public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
 
     private final Resources resources;
     private final CondensedNumberFormatter numberFormatter;
@@ -44,7 +43,7 @@ public class AppInstallItemRenderer implements CellRenderer<SoundStreamItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<SoundStreamItem> items) {
+    public void bindItemView(int position, View itemView, List<StreamItem> items) {
         final AppInstallAd appInstall = ((AppInstall) items.get(position)).appInstall();
 
         final TextView headerText = (TextView) itemView.findViewById(R.id.ad_item);

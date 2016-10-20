@@ -28,8 +28,8 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.stream.SoundStreamItem.FacebookListenerInvites;
-import com.soundcloud.android.stream.SoundStreamItem.Kind;
+import com.soundcloud.android.stream.StreamItem.FacebookListenerInvites;
+import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
@@ -53,7 +53,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> implements
+class StreamPresenter extends TimelinePresenter<StreamItem> implements
         FacebookListenerInvitesItemRenderer.Listener,
         StationsOnboardingStreamItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
@@ -67,8 +67,8 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
         }
     };
 
-    private final SoundStreamOperations streamOperations;
-    private final SoundStreamAdapter adapter;
+    private final StreamOperations streamOperations;
+    private final StreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
@@ -81,16 +81,16 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
     private Fragment fragment;
 
     @Inject
-    SoundStreamPresenter(SoundStreamOperations streamOperations,
-                         SoundStreamAdapter adapter,
-                         StationsOperations stationsOperations,
-                         ImagePauseOnScrollListener imagePauseOnScrollListener,
-                         SwipeRefreshAttacher swipeRefreshAttacher,
-                         EventBus eventBus,
-                         MixedItemClickListener.Factory itemClickListenerFactory,
-                         FacebookInvitesDialogPresenter invitesDialogPresenter,
-                         Navigator navigator,
-                         NewItemsIndicator newItemsIndicator) {
+    StreamPresenter(StreamOperations streamOperations,
+                    StreamAdapter adapter,
+                    StationsOperations stationsOperations,
+                    ImagePauseOnScrollListener imagePauseOnScrollListener,
+                    SwipeRefreshAttacher swipeRefreshAttacher,
+                    EventBus eventBus,
+                    MixedItemClickListener.Factory itemClickListenerFactory,
+                    FacebookInvitesDialogPresenter invitesDialogPresenter,
+                    Navigator navigator,
+                    NewItemsIndicator newItemsIndicator) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
               newItemsIndicator, streamOperations, adapter);
         this.streamOperations = streamOperations;
@@ -118,7 +118,7 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
     }
 
     @Override
-    protected CollectionBinding<List<SoundStreamItem>, SoundStreamItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(streamOperations.initialStreamItems())
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
@@ -126,7 +126,7 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
     }
 
     @Override
-    protected CollectionBinding<List<SoundStreamItem>, SoundStreamItem> onRefreshBinding() {
+    protected CollectionBinding<List<StreamItem>, StreamItem> onRefreshBinding() {
         newItemsIndicator.hideAndReset();
         return CollectionBinding.from(streamOperations.updatedStreamItems())
                                 .withAdapter(adapter)
@@ -142,7 +142,7 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateSoundStreamEntitySubscriber(adapter)),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateStreamEntitySubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                         .filter(FILTER_STREAM_REFRESH_EVENTS)
                         .flatMap(continueWith(updateIndicatorFromMostRecent())))
@@ -172,7 +172,7 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
 
     @Override
     protected void onItemClicked(View view, int position) {
-        final SoundStreamItem item = adapter.getItem(position);
+        final StreamItem item = adapter.getItem(position);
         final Optional<ListItem> listItem = item.getListItem();
         if (listItem.isPresent()) {
             if (item.isPromoted()) {
@@ -218,7 +218,7 @@ public class SoundStreamPresenter extends TimelinePresenter<SoundStreamItem> imp
     @Override
     public void onCreatorInvitesClicked(int position) {
         if (adapter.getItem(position).kind() == Kind.FACEBOOK_CREATORS) {
-            SoundStreamItem.FacebookCreatorInvites item = (SoundStreamItem.FacebookCreatorInvites) adapter.getItem(
+            StreamItem.FacebookCreatorInvites item = (StreamItem.FacebookCreatorInvites) adapter.getItem(
                     position);
 
             if (!Urn.NOT_SET.equals(item.trackUrn())) {

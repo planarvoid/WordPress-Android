@@ -7,7 +7,7 @@ import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.profile.MyProfileOperations;
-import com.soundcloud.android.stream.SoundStreamItem;
+import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -35,13 +35,13 @@ public class FacebookInvitesOperations {
     private final DateProvider dateProvider;
     private final MyProfileOperations myProfileOperations;
 
-    private final Func1<PropertySet, Observable<SoundStreamItem>> toCreatorInvitesItem =
-            new Func1<PropertySet, Observable<SoundStreamItem>>() {
+    private final Func1<PropertySet, Observable<StreamItem>> toCreatorInvitesItem =
+            new Func1<PropertySet, Observable<StreamItem>>() {
                 @Override
-                public Observable<SoundStreamItem> call(PropertySet track) {
+                public Observable<StreamItem> call(PropertySet track) {
                     if (isPostRecentlyCreated(track)) {
-                        return Observable.just(SoundStreamItem.forFacebookCreatorInvites(track.get(PlayableProperty.URN),
-                                                                                         track.get(PlayableProperty.PERMALINK_URL)));
+                        return Observable.just(StreamItem.forFacebookCreatorInvites(track.get(PlayableProperty.URN),
+                                                                                    track.get(PlayableProperty.PERMALINK_URL)));
                     } else {
                         return Observable.empty();
                     }
@@ -61,18 +61,18 @@ public class FacebookInvitesOperations {
         this.myProfileOperations = myProfileOperations;
     }
 
-    public Observable<SoundStreamItem> creatorInvites() {
+    public Observable<StreamItem> creatorInvites() {
         return canShowForCreators()
                 .filter(IS_TRUE)
                 .flatMap(continueWith(myProfileOperations.lastPublicPostedTrack()
                                                          .flatMap(toCreatorInvitesItem)
-                                                         .onErrorResumeNext(Observable.<SoundStreamItem>empty())));
+                                                         .onErrorResumeNext(Observable.<StreamItem>empty())));
     }
 
-    public Observable<SoundStreamItem> listenerInvites() {
+    public Observable<StreamItem> listenerInvites() {
         return canShowForListeners()
                 .filter(IS_TRUE)
-                .flatMap(continueWith(Observable.just(SoundStreamItem.forFacebookListenerInvites())));
+                .flatMap(continueWith(Observable.just(StreamItem.forFacebookListenerInvites())));
     }
 
     private Observable<Boolean> canShowForCreators() {

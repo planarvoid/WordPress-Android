@@ -25,7 +25,7 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.List;
 
-public class SoundStreamStorage implements TimelineStorage<StreamPlayable> {
+public class StreamStorage implements TimelineStorage<StreamPlayable> {
 
     private static final Object[] STREAM_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
@@ -86,7 +86,7 @@ public class SoundStreamStorage implements TimelineStorage<StreamPlayable> {
     private final PropellerDatabase propeller;
 
     @Inject
-    public SoundStreamStorage(PropellerDatabase propeller) {
+    public StreamStorage(PropellerDatabase propeller) {
         this.propellerRx = new PropellerRx(propeller);
         this.propeller = propeller;
     }

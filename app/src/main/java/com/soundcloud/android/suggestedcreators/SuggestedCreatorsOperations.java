@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.stream.SoundStreamItem;
+import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.users.UserAssociation;
@@ -31,10 +31,10 @@ import java.util.concurrent.TimeUnit;
 public class SuggestedCreatorsOperations {
     private static final long VISIBLE_INTERVAL = TimeUnit.MINUTES.toMillis(5);
     private static final int FOLLOWINGS_LIMIT = 5;
-    private static final Func1<List<SuggestedCreator>, SoundStreamItem> TO_SOUND_STREAM_ITEM = new Func1<List<SuggestedCreator>, SoundStreamItem>() {
+    private static final Func1<List<SuggestedCreator>, StreamItem> TO_SOUND_STREAM_ITEM = new Func1<List<SuggestedCreator>, StreamItem>() {
         @Override
-        public SoundStreamItem call(List<SuggestedCreator> suggestedCreators) {
-            return SoundStreamItem.forSuggestedCreators(suggestedCreators);
+        public StreamItem call(List<SuggestedCreator> suggestedCreators) {
+            return StreamItem.forSuggestedCreators(suggestedCreators);
         }
     };
     private final Func1<List<UserAssociation>, Boolean> lessThanLimitFollowers = new Func1<List<UserAssociation>, Boolean>() {
@@ -68,7 +68,7 @@ public class SuggestedCreatorsOperations {
         this.dateProvider = dateProvider;
     }
 
-    public Observable<SoundStreamItem> suggestedCreators() {
+    public Observable<StreamItem> suggestedCreators() {
         if (featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)) {
             return myProfileOperations.followingsUserAssociations()
                                       .filter(lessThanLimitFollowers)
@@ -85,9 +85,9 @@ public class SuggestedCreatorsOperations {
         );
     }
 
-    private Func1<List<UserAssociation>, Observable<SoundStreamItem>> loadSuggestedCreators() {
-        return new Func1<List<UserAssociation>, Observable<SoundStreamItem>>() {
-            public Observable<SoundStreamItem> call(final List<UserAssociation> userAssociations) {
+    private Func1<List<UserAssociation>, Observable<StreamItem>> loadSuggestedCreators() {
+        return new Func1<List<UserAssociation>, Observable<StreamItem>>() {
+            public Observable<StreamItem> call(final List<UserAssociation> userAssociations) {
                 return lazySyncCreators().map(filterOutAlreadyFollowed(userAssociations))
                                          .filter(IS_NOT_EMPTY_LIST)
                                          .map(TO_SOUND_STREAM_ITEM);

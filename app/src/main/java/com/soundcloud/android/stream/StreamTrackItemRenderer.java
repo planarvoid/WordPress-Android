@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class StreamTrackItemRenderer implements CellRenderer<SoundStreamItem.Track> {
+class StreamTrackItemRenderer implements CellRenderer<StreamItem.Track> {
 
     private final CondensedNumberFormatter numberFormatter;
     private final TrackItemMenuPresenter menuPresenter;
@@ -49,7 +49,7 @@ class StreamTrackItemRenderer implements CellRenderer<SoundStreamItem.Track> {
     }
 
     @Override
-    public void bindItemView(final int position, View itemView, List<SoundStreamItem.Track> trackItems) {
+    public void bindItemView(final int position, View itemView, List<StreamItem.Track> trackItems) {
         final TrackItem track = trackItems.get(position).trackItem();
         StreamItemViewHolder trackView = (StreamItemViewHolder) itemView.getTag();
         trackView.resetAdditionalInformation();

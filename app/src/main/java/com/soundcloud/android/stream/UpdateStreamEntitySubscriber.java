@@ -9,10 +9,10 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.Map;
 
-class UpdateSoundStreamEntitySubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-    private final SoundStreamAdapter adapter;
+class UpdateStreamEntitySubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private final StreamAdapter adapter;
 
-    UpdateSoundStreamEntitySubscriber(SoundStreamAdapter adapter) {
+    UpdateStreamEntitySubscriber(StreamAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -23,7 +23,7 @@ class UpdateSoundStreamEntitySubscriber extends DefaultSubscriber<EntityStateCha
         } else {
             boolean changed = false;
             final Map<Urn, PropertySet> changeSet = event.getChangeMap();
-            for (final SoundStreamItem item : adapter.getItems()) {
+            for (final StreamItem item : adapter.getItems()) {
                 final Optional<ListItem> listItem = item.getListItem();
                 if (listItem.isPresent() && changeSet.containsKey(listItem.get().getUrn())) {
                     changed = true;

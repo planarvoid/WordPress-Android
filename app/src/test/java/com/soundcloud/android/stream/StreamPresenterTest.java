@@ -1,6 +1,6 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.stream.SoundStreamItem.forFacebookListenerInvites;
+import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedLikedPlaylistForPlaylistsScreen;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedTrack;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForListItem;
@@ -58,21 +58,21 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class SoundStreamPresenterTest extends AndroidUnitTest {
+public class StreamPresenterTest extends AndroidUnitTest {
 
     private static final Date CREATED_AT = new Date();
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
     private final Date DATE = new Date(123L);
 
-    private SoundStreamPresenter presenter;
+    private StreamPresenter presenter;
 
-    @Mock private SoundStreamOperations streamOperations;
-    @Mock private SoundStreamAdapter adapter;
+    @Mock private StreamOperations streamOperations;
+    @Mock private StreamAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DateProvider dateProvider;
-    @Mock private Observer<Iterable<SoundStreamItem>> itemObserver;
+    @Mock private Observer<Iterable<StreamItem>> itemObserver;
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
     @Mock private MixedItemClickListener itemClickListener;
     @Mock private Navigator navigator;
@@ -86,7 +86,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(itemClickListenerFactory.create(Screen.STREAM, null)).thenReturn(itemClickListener);
-        presenter = new SoundStreamPresenter(
+        presenter = new StreamPresenter(
                 streamOperations,
                 adapter,
                 stationsOperations,
@@ -98,27 +98,27 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 navigator,
                 newItemsIndicator);
 
-        when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<SoundStreamItem>>empty());
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<SoundStreamItem>>empty());
-        when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<SoundStreamItem>>singlePageFunction());
+        when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
 
     @Test
     public void canLoadStreamItems() {
         final PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(expectedPromotedTrack());
-        SoundStreamItem.Track promotedTrackStreamItem = SoundStreamItem.Track.createForPromoted(promotedTrackItem,
-                                                                                                CREATED_AT);
+        StreamItem.Track promotedTrackStreamItem = StreamItem.Track.createForPromoted(promotedTrackItem,
+                                                                                      CREATED_AT);
         final TrackItem trackItem = TrackItem.from(expectedTrackForListItem(Urn.forTrack(123L)));
-        SoundStreamItem.Track normalTrackStreamItem = SoundStreamItem.Track.create(trackItem, CREATED_AT);
+        StreamItem.Track normalTrackStreamItem = StreamItem.Track.create(trackItem, CREATED_AT);
         final PlaylistItem playlistItem = PlaylistItem.from(expectedLikedPlaylistForPlaylistsScreen());
-        SoundStreamItem.Playlist playlistStreamItem = SoundStreamItem.Playlist.create(playlistItem, CREATED_AT);
-        final List<SoundStreamItem> items = Arrays.asList(promotedTrackStreamItem,
-                                                          normalTrackStreamItem,
-                                                          playlistStreamItem);
+        StreamItem.Playlist playlistStreamItem = StreamItem.Playlist.create(playlistItem, CREATED_AT);
+        final List<StreamItem> items = Arrays.asList(promotedTrackStreamItem,
+                                                     normalTrackStreamItem,
+                                                     playlistStreamItem);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
 
-        CollectionBinding<List<SoundStreamItem>, SoundStreamItem> binding = presenter.onBuildBinding(null);
+        CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onBuildBinding(null);
         binding.connect();
         binding.items().subscribe(itemObserver);
 
@@ -128,12 +128,12 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Test
     public void canRefreshStreamItems() {
         final TrackItem trackItem = TrackItem.from(expectedTrackForListItem(Urn.forTrack(123L)));
-        final SoundStreamItem streamItem = SoundStreamItem.Track.create(trackItem, CREATED_AT);
+        final StreamItem streamItem = StreamItem.Track.create(trackItem, CREATED_AT);
         when(streamOperations.updatedStreamItems()).thenReturn(Observable.just(
                 Collections.singletonList(streamItem)
         ));
 
-        CollectionBinding<List<SoundStreamItem>, SoundStreamItem> binding = presenter.onRefreshBinding();
+        CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onRefreshBinding();
         binding.connect();
         binding.items().subscribe(itemObserver);
 
@@ -146,7 +146,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(clickedTrack.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(SoundStreamItem.Track.create(clickedTrack, clickedTrack.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(StreamItem.Track.create(clickedTrack, clickedTrack.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -160,7 +160,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(clickedTrack.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(SoundStreamItem.Track.createForPromoted(clickedTrack, clickedTrack.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(StreamItem.Track.createForPromoted(clickedTrack, clickedTrack.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -174,7 +174,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(clickedPlaylist.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(SoundStreamItem.Playlist.createForPromoted(clickedPlaylist, clickedPlaylist.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(StreamItem.Playlist.createForPromoted(clickedPlaylist, clickedPlaylist.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -190,7 +190,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 Arrays.asList(playlistItem.getUrn().toPropertySet(),
                               Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(SoundStreamItem.Playlist.create(playlistItem, playlistItem.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(StreamItem.Playlist.create(playlistItem, playlistItem.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -322,7 +322,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Test
     public void onRefreshableOverlayClickedUpdatesStreamAgain() {
         when(streamOperations.initialStreamItems())
-                .thenReturn(Observable.just(Collections.<SoundStreamItem>emptyList()));
+                .thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
@@ -334,7 +334,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Test
     public void onStreamRefreshNewItemsSinceDate() {
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
-        when(streamOperations.getFirstItemTimestamp(anyListOf(SoundStreamItem.class)))
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class)))
                 .thenReturn(Optional.of(DATE));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -348,7 +348,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Test
     public void onStreamRefreshUpdatesOnlyWhenThereAreVisibleItems() {
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
-        when(streamOperations.getFirstItemTimestamp(anyListOf(SoundStreamItem.class))).thenReturn(null);
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(null);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -360,8 +360,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<SoundStreamItem>emptyList()));
-        when(streamOperations.getFirstItemTimestamp(anyListOf(SoundStreamItem.class))).thenReturn(Optional.of(DATE));
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.of(DATE));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -371,8 +371,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotUpdateIndicatorWhenUpdatedItemsForStartIsEmpty() {
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<SoundStreamItem>>empty());
-        when(streamOperations.getFirstItemTimestamp(anyListOf(SoundStreamItem.class))).thenReturn(Optional.of(DATE));
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.of(DATE));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -382,7 +382,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetOverlayOnRefreshBinding() {
-        when(streamOperations.updatedStreamItems()).thenReturn(Observable.<List<SoundStreamItem>>empty());
+        when(streamOperations.updatedStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
 
         presenter.onRefreshBinding();
 

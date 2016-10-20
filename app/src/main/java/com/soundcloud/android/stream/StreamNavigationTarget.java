@@ -14,7 +14,7 @@ public class StreamNavigationTarget extends BaseNavigationTarget {
 
     @Override
     public Fragment createFragment() {
-        return new SoundStreamFragment();
+        return new StreamFragment();
     }
 
     @Override
