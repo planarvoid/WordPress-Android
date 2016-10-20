@@ -12,7 +12,6 @@ import com.soundcloud.android.storage.TableColumns.Sounds;
 import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.schema.BaseTable;
 import com.soundcloud.propeller.schema.Column;
 
 import android.provider.BaseColumns;
@@ -21,7 +20,7 @@ public interface Tables {
 
     // Pure Tables
 
-    class Recommendations extends BaseTable {
+    class Recommendations extends SCBaseTable {
 
         // table instance
         public static final Recommendations TABLE = new Recommendations();
@@ -40,12 +39,17 @@ public interface Tables {
                 "FOREIGN KEY(recommended_sound_id, recommended_sound_type) REFERENCES Sounds(_id, _type)" +
                 ");";
 
-        protected Recommendations() {
+        Recommendations() {
             super("Recommendations", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class RecommendationSeeds extends BaseTable {
+    class RecommendationSeeds extends SCBaseTable {
 
         // table instance
         public static final RecommendationSeeds TABLE = new RecommendationSeeds();
@@ -70,12 +74,17 @@ public interface Tables {
                 "FOREIGN KEY(seed_sound_id, seed_sound_type) REFERENCES Sounds(_id, _type)" +
                 ");";
 
-        protected RecommendationSeeds() {
+        RecommendationSeeds() {
             super("RecommendationSeeds", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class PlayQueue extends BaseTable {
+    class PlayQueue extends SCBaseTable {
 
         public static final PlayQueue TABLE = new PlayQueue();
 
@@ -109,12 +118,17 @@ public interface Tables {
                 "context_query TEXT" +
                 ");";
 
-        protected PlayQueue() {
+        PlayQueue() {
             super("PlayQueue", PrimaryKey.of(_ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class Stations extends BaseTable {
+    class Stations extends SCBaseTable {
         public static final Stations TABLE = new Stations();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
@@ -136,12 +150,17 @@ public interface Tables {
                 "PRIMARY KEY(station_urn) ON CONFLICT REPLACE" +
                 ");";
 
-        protected Stations() {
+        Stations() {
             super("Stations", PrimaryKey.of("station_urn"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class StationsPlayQueues extends BaseTable {
+    class StationsPlayQueues extends SCBaseTable {
         public static final StationsPlayQueues TABLE = new StationsPlayQueues();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
@@ -158,12 +177,17 @@ public interface Tables {
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
-        protected StationsPlayQueues() {
+        StationsPlayQueues() {
             super("StationsPlayQueues", PrimaryKey.of("station_urn", "track_id", "position"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class StationsCollections extends BaseTable {
+    class StationsCollections extends SCBaseTable {
         public static final StationsCollections TABLE = new StationsCollections();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
@@ -182,12 +206,17 @@ public interface Tables {
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
-        protected StationsCollections() {
+        StationsCollections() {
             super("StationsCollections", PrimaryKey.of("station_urn, collection_type"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class TrackDownloads extends BaseTable {
+    class TrackDownloads extends SCBaseTable {
 
         public static final TrackDownloads TABLE = new TrackDownloads();
 
@@ -205,12 +234,17 @@ public interface Tables {
                 "unavailable_at INTEGER DEFAULT NULL" +
                 ");";
 
-        protected TrackDownloads() {
+        TrackDownloads() {
             super("TrackDownloads", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class OfflineContent extends BaseTable {
+    class OfflineContent extends SCBaseTable {
 
         public static final OfflineContent TABLE = new OfflineContent();
 
@@ -229,12 +263,17 @@ public interface Tables {
                 "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
                 ");";
 
-        protected OfflineContent() {
+        OfflineContent() {
             super("OfflineContent", PrimaryKey.of(BaseColumns._ID, "_type"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class Comments extends BaseTable {
+    class Comments extends SCBaseTable {
 
         public static final Comments TABLE = new Comments();
 
@@ -259,9 +298,14 @@ public interface Tables {
         Comments() {
             super("Comments", PrimaryKey.of(BaseColumns._ID));
         }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class Charts extends BaseTable {
+    class Charts extends SCBaseTable {
 
         // table instance
         public static final Charts TABLE = new Charts();
@@ -286,12 +330,17 @@ public interface Tables {
                 "bucket_type INTEGER" +
                 ");";
 
-        protected Charts() {
+        Charts() {
             super("Charts", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class ChartTracks extends BaseTable {
+    class ChartTracks extends SCBaseTable {
 
         // table instance
         public static final ChartTracks TABLE = new ChartTracks();
@@ -311,12 +360,17 @@ public interface Tables {
                 "FOREIGN KEY(chart_id) REFERENCES Charts(_id) " +
                 ");";
 
-        protected ChartTracks() {
+        ChartTracks() {
             super("ChartTracks", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class PlayHistory extends BaseTable {
+    class PlayHistory extends SCBaseTable {
         public static final PlayHistory TABLE = new PlayHistory();
 
         public static final Column TRACK_ID = Column.create(TABLE, "track_id");
@@ -333,9 +387,14 @@ public interface Tables {
         PlayHistory() {
             super("PlayHistory", PrimaryKey.of("timestamp", "track_id"));
         }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class RecentlyPlayed extends BaseTable {
+    class RecentlyPlayed extends SCBaseTable {
         public static final RecentlyPlayed TABLE = new RecentlyPlayed();
 
         public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
@@ -359,9 +418,14 @@ public interface Tables {
         RecentlyPlayed() {
             super("RecentlyPlayed", PrimaryKey.of("timestamp", "context_type", "context_id"));
         }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class SuggestedCreators extends BaseTable {
+    class SuggestedCreators extends SCBaseTable {
         public static final SuggestedCreators TABLE = new SuggestedCreators();
 
         public static final Column _ID = Column.create(TABLE, "_id");
@@ -380,14 +444,19 @@ public interface Tables {
                 "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
                 ");";
 
-        protected SuggestedCreators() {
+        SuggestedCreators() {
             super("SuggestedCreators", PrimaryKey.of("_id"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
     // Views
 
-    class SearchSuggestions extends BaseTable {
+    class SearchSuggestions extends SCBaseTable {
 
         public static final SearchSuggestions TABLE = new SearchSuggestions();
 
@@ -415,12 +484,17 @@ public interface Tables {
                 "avatar_url AS image_url " +
                 "from UserAssociations INNER JOIN Users ON UserAssociations.target_id = Users._id";
 
-        protected SearchSuggestions() {
+        SearchSuggestions() {
             super("SearchSuggestions", PrimaryKey.of(BaseColumns._ID, "kind"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class OfflinePlaylistTracks extends BaseTable {
+    class OfflinePlaylistTracks extends SCBaseTable {
 
         public static final OfflinePlaylistTracks TABLE = new OfflinePlaylistTracks();
 
@@ -467,13 +541,17 @@ public interface Tables {
             super("OfflinePlaylistTracks", PrimaryKey.of(BaseColumns._ID));
         }
 
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class PlaylistView extends BaseTable {
+    class PlaylistView extends SCBaseTable {
 
         public static final PlaylistView TABLE = new PlaylistView();
 
-        protected PlaylistView() {
+        PlaylistView() {
             super("PlaylistView", PrimaryKey.of(_ID));
         }
 
@@ -527,13 +605,18 @@ public interface Tables {
                     .innerJoin(Table.Sounds.name(), joinConditions)
                     .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class UsersView extends BaseTable {
+    class UsersView extends SCBaseTable {
 
         public static final UsersView TABLE = new UsersView();
 
-        protected UsersView() {
+        UsersView() {
             super("UsersView", PrimaryKey.of(_ID));
         }
 
@@ -578,16 +661,20 @@ public interface Tables {
                             Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
                     .whereNull(TableColumns.UserAssociations.REMOVED_AT);
         }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class TrackView extends BaseTable {
+    class TrackView extends SCBaseTable {
 
         public static final TrackView TABLE = new TrackView();
 
-        protected TrackView() {
+        TrackView() {
             super("TrackView", PrimaryKey.of(_ID));
         }
-
 
         public static final Column ID = Column.create(TABLE, "tv_id");
         public static final Column CREATED_AT = Column.create(TABLE, "tv_created_at");
@@ -683,6 +770,11 @@ public interface Tables {
 
         private static String typeRepostDelimited() {
             return "'" + TableColumns.Posts.TYPE_REPOST + "'";
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 

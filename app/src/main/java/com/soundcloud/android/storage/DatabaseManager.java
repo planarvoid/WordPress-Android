@@ -55,21 +55,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Log.d(TAG, "onCreate(" + db + ")");
 
         try {
-            // new tables ! remember to drop in onRecreate!
-            db.execSQL(Tables.Recommendations.SQL);
-            db.execSQL(Tables.RecommendationSeeds.SQL);
-            db.execSQL(Tables.PlayQueue.SQL);
-            db.execSQL(Tables.Stations.SQL);
-            db.execSQL(Tables.StationsPlayQueues.SQL);
-            db.execSQL(Tables.TrackDownloads.SQL);
-            db.execSQL(Tables.OfflineContent.SQL);
-            db.execSQL(Tables.Comments.SQL);
-            db.execSQL(Tables.StationsCollections.SQL);
-            db.execSQL(Tables.Charts.SQL);
-            db.execSQL(Tables.ChartTracks.SQL);
-            db.execSQL(Tables.PlayHistory.SQL);
-            db.execSQL(Tables.RecentlyPlayed.SQL);
-            db.execSQL(Tables.SuggestedCreators.SQL);
+            for (SCBaseTable table : allTables()) {
+                db.execSQL(table.getCreateSQL());
+            }
 
             // legacy tables
             for (Table t : Table.values()) {
@@ -89,21 +77,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private void onRecreateDb(SQLiteDatabase db) {
         Log.d(TAG, "onRecreate(" + db + ")");
 
-        dropTable(Tables.Recommendations.TABLE.name(), db);
-        dropTable(Tables.RecommendationSeeds.TABLE.name(), db);
-        dropTable(Tables.PlayQueue.TABLE.name(), db);
-        dropTable(Tables.Stations.TABLE.name(), db);
-        dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
-        dropTable(Tables.StationsCollections.TABLE.name(), db);
-        dropTable(Tables.TrackDownloads.TABLE.name(), db);
-        dropTable(Tables.OfflineContent.TABLE.name(), db);
-        dropTable(Tables.Comments.TABLE.name(), db);
+        for (SCBaseTable table : allTables()) {
+            dropTable(table.name(), db);
+        }
+
         dropTable("RecentStations", db);
-        dropTable(Tables.Charts.TABLE.name(), db);
-        dropTable(Tables.ChartTracks.TABLE.name(), db);
-        dropTable(Tables.PlayHistory.TABLE.name(), db);
-        dropTable(Tables.RecentlyPlayed.TABLE.name(), db);
-        dropTable(Tables.SuggestedCreators.TABLE.name(), db);
 
         // legacy tables
         for (Table t : Table.values()) {
@@ -128,11 +106,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     private void dropViews(SQLiteDatabase db) {
-        dropView(Tables.SearchSuggestions.TABLE.name(), db);
-        dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
-        dropView(Tables.PlaylistView.TABLE.name(), db);
-        dropView(Tables.UsersView.TABLE.name(), db);
-        dropView(Tables.TrackView.TABLE.name(), db);
+        for (SCBaseTable view : allViews()) {
+            dropView(view.name(), db);
+        }
 
         // legacy tables
         for (Table t : Table.values()) {
@@ -148,11 +124,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 SchemaMigrationHelper.create(t, db);
             }
         }
-        db.execSQL(Tables.SearchSuggestions.SQL);
-        db.execSQL(Tables.OfflinePlaylistTracks.SQL);
-        db.execSQL(Tables.PlaylistView.SQL);
-        db.execSQL(Tables.UsersView.SQL);
-        db.execSQL(Tables.TrackView.SQL);
+
+        for (SCBaseTable view : allViews()) {
+            db.execSQL(view.getCreateSQL());
+        }
     }
 
     @Override
@@ -1340,5 +1315,34 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         SchemaMigrationHelper.dropView(Tables.TrackView.TABLE.name(), db);
         db.execSQL(Tables.TrackView.SQL);
+    }
+
+    private List<SCBaseTable> allTables() {
+        return Arrays.asList(
+                Tables.Recommendations.TABLE,
+                Tables.RecommendationSeeds.TABLE,
+                Tables.PlayQueue.TABLE,
+                Tables.Stations.TABLE,
+                Tables.StationsPlayQueues.TABLE,
+                Tables.StationsCollections.TABLE,
+                Tables.TrackDownloads.TABLE,
+                Tables.OfflineContent.TABLE,
+                Tables.Comments.TABLE,
+                Tables.Charts.TABLE,
+                Tables.ChartTracks.TABLE,
+                Tables.PlayHistory.TABLE,
+                Tables.RecentlyPlayed.TABLE,
+                Tables.SuggestedCreators.TABLE
+        );
+    }
+
+    private List<SCBaseTable> allViews() {
+        return Arrays.asList(
+                Tables.SearchSuggestions.TABLE,
+                Tables.OfflinePlaylistTracks.TABLE,
+                Tables.PlaylistView.TABLE,
+                Tables.UsersView.TABLE,
+                Tables.TrackView.TABLE
+        );
     }
 }
