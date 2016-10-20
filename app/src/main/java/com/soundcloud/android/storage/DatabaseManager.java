@@ -142,17 +142,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     private void createViews(SQLiteDatabase db) {
-        db.execSQL(Tables.SearchSuggestions.SQL);
-        db.execSQL(Tables.OfflinePlaylistTracks.SQL);
-        db.execSQL(Tables.PlaylistView.SQL);
-        db.execSQL(Tables.UsersView.SQL);
-        db.execSQL(Tables.TrackView.SQL);
-
         for (Table t : Table.values()) {
             if (t.view) {
                 SchemaMigrationHelper.create(t, db);
             }
         }
+        db.execSQL(Tables.SearchSuggestions.SQL);
+        db.execSQL(Tables.OfflinePlaylistTracks.SQL);
+        db.execSQL(Tables.PlaylistView.SQL);
+        db.execSQL(Tables.UsersView.SQL);
+        db.execSQL(Tables.TrackView.SQL);
     }
 
     @Override
