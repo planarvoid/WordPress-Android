@@ -566,7 +566,8 @@ public interface Tables {
         public static final Column GENRE = Column.create(TABLE, "pv_genre");
         public static final Column TAG_LIST = Column.create(TABLE, "pv_tag_list");
         public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "pv_local_track_count");
-        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE, "pv_has_pending_download_request");
+        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE,
+                                                                                "pv_has_pending_download_request");
         public static final Column HAS_DOWNLOADED_TRACKS = Column.create(TABLE, "pv_has_downloaded_tracks");
         public static final Column HAS_UNAVAILABLE_TRACKS = Column.create(TABLE, "pv_has_unavailable_tracks");
         public static final Column IS_MARKED_FOR_OFFLINE = Column.create(TABLE, "pv_is_marked_for_offline");
@@ -601,9 +602,9 @@ public interface Tables {
                     .whereEq(Table.SoundView.field(Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
             return Query.from(Table.Likes.name())
-                    // do not use SoundView here. The exists query will fail, in spite of passing tests
-                    .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                        // do not use SoundView here. The exists query will fail, in spite of passing tests
+                        .innerJoin(Table.Sounds.name(), joinConditions)
+                        .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
 
         @Override
@@ -638,28 +639,28 @@ public interface Tables {
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
                 Query.from(Table.Users)
-                        .select(
-                                field(Table.Users.field(TableColumns.Users._ID)).as(ID.name()),
-                                field(Table.Users.field(TableColumns.Users.USERNAME)).as(USERNAME.name()),
-                                field(Table.Users.field(TableColumns.Users.COUNTRY)).as(COUNTRY.name()),
-                                field(Table.Users.field(TableColumns.Users.CITY)).as(CITY.name()),
-                                field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.name()),
-                                field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.name()),
-                                field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.name()),
-                                field(Table.Users.field(TableColumns.Users.VISUAL_URL)).as(VISUAL_URL.name()),
-                                field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.name()),
-                                field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.name()),
-                                field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.name()),
-                                field(Table.Users.field(TableColumns.Users.DISCOGS_NAME)).as(DISCOGS_NAME.name()),
-                                field(Table.Users.field(TableColumns.Users.ARTIST_STATION)).as(ARTIST_STATION.name()),
-                                exists(followingQuery()).as(IS_FOLLOWING.name())
-                        );
+                     .select(
+                             field(Table.Users.field(TableColumns.Users._ID)).as(ID.name()),
+                             field(Table.Users.field(TableColumns.Users.USERNAME)).as(USERNAME.name()),
+                             field(Table.Users.field(TableColumns.Users.COUNTRY)).as(COUNTRY.name()),
+                             field(Table.Users.field(TableColumns.Users.CITY)).as(CITY.name()),
+                             field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.name()),
+                             field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.name()),
+                             field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.name()),
+                             field(Table.Users.field(TableColumns.Users.VISUAL_URL)).as(VISUAL_URL.name()),
+                             field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.name()),
+                             field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.name()),
+                             field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.name()),
+                             field(Table.Users.field(TableColumns.Users.DISCOGS_NAME)).as(DISCOGS_NAME.name()),
+                             field(Table.Users.field(TableColumns.Users.ARTIST_STATION)).as(ARTIST_STATION.name()),
+                             exists(followingQuery()).as(IS_FOLLOWING.name())
+                     );
 
         static Query followingQuery() {
             return Query.from(Table.UserAssociations.name())
-                    .whereEq(Table.Users.field(TableColumns.Users._ID),
-                            Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
-                    .whereNull(TableColumns.UserAssociations.REMOVED_AT);
+                        .whereEq(Table.Users.field(TableColumns.Users._ID),
+                                 Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
+                        .whereNull(TableColumns.UserAssociations.REMOVED_AT);
         }
 
         @Override
@@ -733,12 +734,14 @@ public interface Tables {
 
                              field(SoundView.field(TableColumns.SoundView.POLICIES_POLICY)).as(POLICY.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZABLE)).as(MONETIZABLE.name()),
-                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZATION_MODEL)).as(MONETIZATION_MODEL.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZATION_MODEL)).as(
+                                     MONETIZATION_MODEL.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(BLOCKED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(SNIPPED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
 
-                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(OFFLINE_DOWNLOADED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(
+                                     OFFLINE_DOWNLOADED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),
 
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
@@ -754,18 +757,18 @@ public interface Tables {
                     .whereEq(Table.SoundView.field(Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
             return Query.from(Table.Likes.name())
-                    .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                        .innerJoin(Table.Sounds.name(), joinConditions)
+                        .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
 
         static Query repostQuery() {
             final Where joinConditions = Filter.filter()
-                    .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
-                    .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE);
+                                               .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
+                                               .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE);
 
             return Query.from(Table.Posts.name())
-                    .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
+                        .innerJoin(Table.Sounds.name(), joinConditions)
+                        .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
         }
 
         private static String typeRepostDelimited() {

@@ -5,11 +5,15 @@ import static com.soundcloud.android.storage.SchemaMigrationHelper.alterColumns;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.recreate;
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.functions.Predicate;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -17,7 +21,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
@@ -60,10 +63,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             }
 
             // legacy tables
-            for (Table t : Table.values()) {
-                if (!t.view) {
-                    SchemaMigrationHelper.create(t, db);
-                }
+            for (Table table : allLegacyTables()) {
+                SchemaMigrationHelper.create(table, db);
             }
 
             // views
@@ -84,10 +85,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable("RecentStations", db);
 
         // legacy tables
-        for (Table t : Table.values()) {
-            if (!t.view) {
-                SchemaMigrationHelper.drop(t, db);
-            }
+        for (Table table : allLegacyTables()) {
+            SchemaMigrationHelper.drop(table, db);
         }
 
         dropViews(db);
@@ -110,19 +109,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
             dropView(view.name(), db);
         }
 
-        // legacy tables
-        for (Table t : Table.values()) {
-            if (t.view) {
-                SchemaMigrationHelper.drop(t, db);
-            }
+        // legacy views
+        for (Table view : allLegacyViews()) {
+            SchemaMigrationHelper.drop(view, db);
         }
     }
 
     private void createViews(SQLiteDatabase db) {
-        for (Table t : Table.values()) {
-            if (t.view) {
-                SchemaMigrationHelper.create(t, db);
-            }
+        // legacy views
+        for (Table view : allLegacyViews()) {
+            SchemaMigrationHelper.create(view, db);
         }
 
         for (SCBaseTable view : allViews()) {
@@ -362,6 +358,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.endTransaction();
         } else {
             onRecreateDb(db);
+        }
+    }
+
+    public void clearTables() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        for (SCBaseTable table : allTables()) {
+            clearTable(table.name(), db);
+        }
+
+        // legacy tables
+        for (Table table : allLegacyTables()) {
+            clearTable(table.name(), db);
         }
     }
 
@@ -1267,9 +1276,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     private void migratePolicies(SQLiteDatabase db) {
-        final List<String> oldSoundColumns = Arrays.asList(
+        final List<String> oldSoundColumns = asList(
                 "_id", "monetizable", "policy");
-        final List<String> newPoliciesColumns = Arrays.asList(
+        final List<String> newPoliciesColumns = asList(
                 TableColumns.TrackPolicies.TRACK_ID,
                 TableColumns.TrackPolicies.MONETIZABLE,
                 TableColumns.TrackPolicies.POLICY
@@ -1317,8 +1326,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
         db.execSQL(Tables.TrackView.SQL);
     }
 
+    private void clearTable(String tableName, SQLiteDatabase db) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "clearing " + tableName);
+        }
+        db.execSQL("DELETE FROM " + tableName);
+    }
+
     private List<SCBaseTable> allTables() {
-        return Arrays.asList(
+        return asList(
                 Tables.Recommendations.TABLE,
                 Tables.RecommendationSeeds.TABLE,
                 Tables.PlayQueue.TABLE,
@@ -1337,12 +1353,30 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     private List<SCBaseTable> allViews() {
-        return Arrays.asList(
+        return asList(
                 Tables.SearchSuggestions.TABLE,
                 Tables.OfflinePlaylistTracks.TABLE,
                 Tables.PlaylistView.TABLE,
                 Tables.UsersView.TABLE,
                 Tables.TrackView.TABLE
         );
+    }
+
+    private List<Table> allLegacyTables() {
+        return newArrayList(filter(asList(Table.values()), new Predicate<Table>() {
+            @Override
+            public boolean apply(Table t) {
+                return !t.view;
+            }
+        }));
+    }
+
+    private List<Table> allLegacyViews() {
+        return newArrayList(filter(asList(Table.values()), new Predicate<Table>() {
+            @Override
+            public boolean apply(Table t) {
+                return t.view;
+            }
+        }));
     }
 }
