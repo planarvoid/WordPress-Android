@@ -8,6 +8,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -92,6 +93,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         public void onNext(PlayerState event) {
             final PlayQueueItem currentItem = event.playQueueItem;
             if (currentItem.isVideoAd()) {
+                eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
                 lastSeenAdUrn = currentItem.getUrn();
             } else {
