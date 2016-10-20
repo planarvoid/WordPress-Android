@@ -12,6 +12,7 @@ import org.junit.Ignore;
 import java.util.Arrays;
 import java.util.List;
 
+@Ignore
 public class PlayHistoryMigrationTest extends AndroidUnitTest {
 
     private DatabaseMigrationHelper migrationHelper;
