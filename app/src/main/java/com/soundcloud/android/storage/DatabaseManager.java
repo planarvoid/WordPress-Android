@@ -97,7 +97,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
         dropTable("RecentStations", db);
-        dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
         dropTable(Tables.Charts.TABLE.name(), db);
         dropTable(Tables.ChartTracks.TABLE.name(), db);
         dropTable(Tables.PlayHistory.TABLE.name(), db);
