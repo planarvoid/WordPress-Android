@@ -19,6 +19,8 @@ import android.provider.BaseColumns;
 
 public interface Tables {
 
+    // Pure Tables
+
     class Recommendations extends BaseTable {
 
         // table instance
@@ -232,39 +234,6 @@ public interface Tables {
         }
     }
 
-    class SearchSuggestions extends BaseTable {
-
-        public static final SearchSuggestions TABLE = new SearchSuggestions();
-
-        public static final Column KIND = Column.create(TABLE, "kind");
-        public static final Column _ID = Column.create(TABLE, "_id");
-        public static final Column _TYPE = Column.create(TABLE, "_type");
-        public static final Column DISPLAY_TEXT = Column.create(TABLE, "display_text");
-        public static final Column IMAGE_URL = Column.create(TABLE, "image_url");
-
-        public static final String KIND_LIKE = "like";
-        public static final String KIND_FOLLOWING = "following";
-
-        static final String SQL = "CREATE VIEW IF NOT EXISTS SearchSuggestions AS SELECT '" +
-                KIND_LIKE + "' AS kind, " +
-                "Sounds._id AS _id, " +
-                "Sounds._type AS _type, " +
-                "title AS display_text, " +
-                "artwork_url AS image_url " +
-                "FROM Likes INNER JOIN Sounds ON Likes._id = Sounds._id " +
-                "AND Likes._type = Sounds._type" +
-                " UNION" +
-                " SELECT '" + KIND_FOLLOWING + "' AS kind, " +
-                "Users._id, 0 AS _type, " +
-                "username AS text, " +
-                "avatar_url AS image_url " +
-                "from UserAssociations INNER JOIN Users ON UserAssociations.target_id = Users._id";
-
-        protected SearchSuggestions() {
-            super("SearchSuggestions", PrimaryKey.of(BaseColumns._ID, "kind"));
-        }
-    }
-
     class Comments extends BaseTable {
 
         public static final Comments TABLE = new Comments();
@@ -290,55 +259,6 @@ public interface Tables {
         Comments() {
             super("Comments", PrimaryKey.of(BaseColumns._ID));
         }
-    }
-
-    class OfflinePlaylistTracks extends BaseTable {
-
-        public static final OfflinePlaylistTracks TABLE = new OfflinePlaylistTracks();
-
-        public static final Column _ID = Column.create(TABLE, BaseColumns._ID);
-        public static final Column _TYPE = Column.create(TABLE, "_type");
-        public static final Column USER_ID = Column.create(TABLE, "user_id");
-        public static final Column DURATION = Column.create(TABLE, "duration");
-        public static final Column WAVEFORM_URL = Column.create(TABLE, "waveform_url");
-        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
-        public static final Column SYNCABLE = Column.create(TABLE, "syncable");
-        public static final Column SNIPPED = Column.create(TABLE, "snipped");
-        public static final Column LAST_POLICY_UPDATE = Column.create(TABLE, "last_policy_update");
-        public static final Column CREATED_AT = Column.create(TABLE, "created_at");
-        public static final Column POSITION = Column.create(TABLE, "position");
-
-        static final String SQL = "CREATE VIEW IF NOT EXISTS OfflinePlaylistTracks AS " +
-                "SELECT " +
-                "Sounds._id as _id," +
-                "Sounds._type as _type, " +
-                "Sounds.user_id as user_id, " +
-                "Sounds.full_duration as duration, " +
-                "Sounds.waveform_url as waveform_url, " +
-                "Sounds.artwork_url as artwork_url, " +
-                "TrackPolicies.syncable as syncable, " +
-                "TrackPolicies.snipped as snipped, " +
-                "TrackPolicies.last_updated as last_policy_update, " +
-                "PlaylistTracks.position as position, " +
-                "MAX(IFNULL(PlaylistLikes.created_at, 0), PlaylistProperties.created_at ) AS created_at " +
-                // ^ The timestamp used to sort
-                "FROM Sounds " +
-                "INNER JOIN PlaylistTracks ON Sounds._id = PlaylistTracks.track_id " +
-                // ^ Add PlaylistTracks to tracks
-                "LEFT JOIN Likes as PlaylistLikes ON (PlaylistTracks.playlist_id = PlaylistLikes._id) AND (PlaylistLikes._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ") " +
-                // ^ When available, adds the Playlist Like date to the tracks (for sorting purpose)
-                "LEFT JOIN Sounds as PlaylistProperties ON (PlaylistProperties._id = PlaylistTracks.playlist_id AND PlaylistProperties._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ")" +
-                // ^ Add the playlist creation date
-                "INNER JOIN OfflineContent ON PlaylistTracks.playlist_id = OfflineContent._id  AND Sounds._type = " + TableColumns.Sounds.TYPE_TRACK + " " +
-                // ^ Keep only offline tracks
-                "INNER JOIN TrackPolicies ON PlaylistTracks.track_id = TrackPolicies.track_id " +
-                // ^ Keep only tracks with policies
-                "WHERE (PlaylistTracks.removed_at IS NULL) ";
-
-        OfflinePlaylistTracks() {
-            super("OfflinePlaylistTracks", PrimaryKey.of(BaseColumns._ID));
-        }
-
     }
 
     class Charts extends BaseTable {
@@ -441,6 +361,114 @@ public interface Tables {
         }
     }
 
+    class SuggestedCreators extends BaseTable {
+        public static final SuggestedCreators TABLE = new SuggestedCreators();
+
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column SEED_USER_ID = Column.create(TABLE, "seed_user_id");
+        public static final Column SUGGESTED_USER_ID = Column.create(TABLE, "suggested_user_id");
+        public static final Column RELATION_KEY = Column.create(TABLE, "relation_key");
+        public static final Column FOLLOWED_AT = Column.create(TABLE, "followed_at");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS SuggestedCreators (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "seed_user_id INTEGER, " +
+                "suggested_user_id INTEGER, " +
+                "relation_key VARCHAR(50), " +
+                "followed_at INTEGER," +
+                "FOREIGN KEY(seed_user_id) REFERENCES Users(_id) " +
+                "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
+                ");";
+
+        protected SuggestedCreators() {
+            super("SuggestedCreators", PrimaryKey.of("_id"));
+        }
+    }
+
+    // Views
+
+    class SearchSuggestions extends BaseTable {
+
+        public static final SearchSuggestions TABLE = new SearchSuggestions();
+
+        public static final Column KIND = Column.create(TABLE, "kind");
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column _TYPE = Column.create(TABLE, "_type");
+        public static final Column DISPLAY_TEXT = Column.create(TABLE, "display_text");
+        public static final Column IMAGE_URL = Column.create(TABLE, "image_url");
+
+        public static final String KIND_LIKE = "like";
+        public static final String KIND_FOLLOWING = "following";
+
+        static final String SQL = "CREATE VIEW IF NOT EXISTS SearchSuggestions AS SELECT '" +
+                KIND_LIKE + "' AS kind, " +
+                "Sounds._id AS _id, " +
+                "Sounds._type AS _type, " +
+                "title AS display_text, " +
+                "artwork_url AS image_url " +
+                "FROM Likes INNER JOIN Sounds ON Likes._id = Sounds._id " +
+                "AND Likes._type = Sounds._type" +
+                " UNION" +
+                " SELECT '" + KIND_FOLLOWING + "' AS kind, " +
+                "Users._id, 0 AS _type, " +
+                "username AS text, " +
+                "avatar_url AS image_url " +
+                "from UserAssociations INNER JOIN Users ON UserAssociations.target_id = Users._id";
+
+        protected SearchSuggestions() {
+            super("SearchSuggestions", PrimaryKey.of(BaseColumns._ID, "kind"));
+        }
+    }
+
+    class OfflinePlaylistTracks extends BaseTable {
+
+        public static final OfflinePlaylistTracks TABLE = new OfflinePlaylistTracks();
+
+        public static final Column _ID = Column.create(TABLE, BaseColumns._ID);
+        public static final Column _TYPE = Column.create(TABLE, "_type");
+        public static final Column USER_ID = Column.create(TABLE, "user_id");
+        public static final Column DURATION = Column.create(TABLE, "duration");
+        public static final Column WAVEFORM_URL = Column.create(TABLE, "waveform_url");
+        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
+        public static final Column SYNCABLE = Column.create(TABLE, "syncable");
+        public static final Column SNIPPED = Column.create(TABLE, "snipped");
+        public static final Column LAST_POLICY_UPDATE = Column.create(TABLE, "last_policy_update");
+        public static final Column CREATED_AT = Column.create(TABLE, "created_at");
+        public static final Column POSITION = Column.create(TABLE, "position");
+
+        static final String SQL = "CREATE VIEW IF NOT EXISTS OfflinePlaylistTracks AS " +
+                "SELECT " +
+                "Sounds._id as _id," +
+                "Sounds._type as _type, " +
+                "Sounds.user_id as user_id, " +
+                "Sounds.full_duration as duration, " +
+                "Sounds.waveform_url as waveform_url, " +
+                "Sounds.artwork_url as artwork_url, " +
+                "TrackPolicies.syncable as syncable, " +
+                "TrackPolicies.snipped as snipped, " +
+                "TrackPolicies.last_updated as last_policy_update, " +
+                "PlaylistTracks.position as position, " +
+                "MAX(IFNULL(PlaylistLikes.created_at, 0), PlaylistProperties.created_at ) AS created_at " +
+                // ^ The timestamp used to sort
+                "FROM Sounds " +
+                "INNER JOIN PlaylistTracks ON Sounds._id = PlaylistTracks.track_id " +
+                // ^ Add PlaylistTracks to tracks
+                "LEFT JOIN Likes as PlaylistLikes ON (PlaylistTracks.playlist_id = PlaylistLikes._id) AND (PlaylistLikes._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ") " +
+                // ^ When available, adds the Playlist Like date to the tracks (for sorting purpose)
+                "LEFT JOIN Sounds as PlaylistProperties ON (PlaylistProperties._id = PlaylistTracks.playlist_id AND PlaylistProperties._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ")" +
+                // ^ Add the playlist creation date
+                "INNER JOIN OfflineContent ON PlaylistTracks.playlist_id = OfflineContent._id  AND Sounds._type = " + TableColumns.Sounds.TYPE_TRACK + " " +
+                // ^ Keep only offline tracks
+                "INNER JOIN TrackPolicies ON PlaylistTracks.track_id = TrackPolicies.track_id " +
+                // ^ Keep only tracks with policies
+                "WHERE (PlaylistTracks.removed_at IS NULL) ";
+
+        OfflinePlaylistTracks() {
+            super("OfflinePlaylistTracks", PrimaryKey.of(BaseColumns._ID));
+        }
+
+    }
+
     class PlaylistView extends BaseTable {
 
         public static final PlaylistView TABLE = new PlaylistView();
@@ -495,9 +523,9 @@ public interface Tables {
                     .whereEq(Table.SoundView.field(Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
             return Query.from(Table.Likes.name())
-                        // do not use SoundView here. The exists query will fail, in spite of passing tests
-                        .innerJoin(Table.Sounds.name(), joinConditions)
-                        .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                    // do not use SoundView here. The exists query will fail, in spite of passing tests
+                    .innerJoin(Table.Sounds.name(), joinConditions)
+                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
     }
 
@@ -525,31 +553,30 @@ public interface Tables {
         public static final Column IS_FOLLOWING = Column.create(TABLE, "uv_is_following");
 
 
-
         static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
                 Query.from(Table.Users)
-                     .select(
-                             field(Table.Users.field(TableColumns.Users._ID)).as(ID.name()),
-                             field(Table.Users.field(TableColumns.Users.USERNAME)).as(USERNAME.name()),
-                             field(Table.Users.field(TableColumns.Users.COUNTRY)).as(COUNTRY.name()),
-                             field(Table.Users.field(TableColumns.Users.CITY)).as(CITY.name()),
-                             field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.name()),
-                             field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.name()),
-                             field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.name()),
-                             field(Table.Users.field(TableColumns.Users.VISUAL_URL)).as(VISUAL_URL.name()),
-                             field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.name()),
-                             field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.name()),
-                             field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.name()),
-                             field(Table.Users.field(TableColumns.Users.DISCOGS_NAME)).as(DISCOGS_NAME.name()),
-                             field(Table.Users.field(TableColumns.Users.ARTIST_STATION)).as(ARTIST_STATION.name()),
-                             exists(followingQuery()).as(IS_FOLLOWING.name())
-                     );
+                        .select(
+                                field(Table.Users.field(TableColumns.Users._ID)).as(ID.name()),
+                                field(Table.Users.field(TableColumns.Users.USERNAME)).as(USERNAME.name()),
+                                field(Table.Users.field(TableColumns.Users.COUNTRY)).as(COUNTRY.name()),
+                                field(Table.Users.field(TableColumns.Users.CITY)).as(CITY.name()),
+                                field(Table.Users.field(TableColumns.Users.FOLLOWERS_COUNT)).as(FOLLOWERS_COUNT.name()),
+                                field(Table.Users.field(TableColumns.Users.DESCRIPTION)).as(DESCRIPTION.name()),
+                                field(Table.Users.field(TableColumns.Users.AVATAR_URL)).as(AVATAR_URL.name()),
+                                field(Table.Users.field(TableColumns.Users.VISUAL_URL)).as(VISUAL_URL.name()),
+                                field(Table.Users.field(TableColumns.Users.WEBSITE_URL)).as(WEBSITE_URL.name()),
+                                field(Table.Users.field(TableColumns.Users.WEBSITE_NAME)).as(WEBSITE_NAME.name()),
+                                field(Table.Users.field(TableColumns.Users.MYSPACE_NAME)).as(MYSPACE_NAME.name()),
+                                field(Table.Users.field(TableColumns.Users.DISCOGS_NAME)).as(DISCOGS_NAME.name()),
+                                field(Table.Users.field(TableColumns.Users.ARTIST_STATION)).as(ARTIST_STATION.name()),
+                                exists(followingQuery()).as(IS_FOLLOWING.name())
+                        );
 
         static Query followingQuery() {
             return Query.from(Table.UserAssociations.name())
-                        .whereEq(Table.Users.field(TableColumns.Users._ID),
-                                 Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
-                        .whereNull(TableColumns.UserAssociations.REMOVED_AT);
+                    .whereEq(Table.Users.field(TableColumns.Users._ID),
+                            Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
+                    .whereNull(TableColumns.UserAssociations.REMOVED_AT);
         }
     }
 
@@ -640,18 +667,18 @@ public interface Tables {
                     .whereEq(Table.SoundView.field(Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
             return Query.from(Table.Likes.name())
-                        .innerJoin(Table.Sounds.name(), joinConditions)
-                        .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                    .innerJoin(Table.Sounds.name(), joinConditions)
+                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
 
         static Query repostQuery() {
             final Where joinConditions = Filter.filter()
-                                               .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
-                                               .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE);
+                    .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
+                    .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE);
 
             return Query.from(Table.Posts.name())
-                        .innerJoin(Table.Sounds.name(), joinConditions)
-                        .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
+                    .innerJoin(Table.Sounds.name(), joinConditions)
+                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
         }
 
         private static String typeRepostDelimited() {
@@ -659,27 +686,4 @@ public interface Tables {
         }
     }
 
-    class SuggestedCreators extends BaseTable {
-        public static final SuggestedCreators TABLE = new SuggestedCreators();
-
-        public static final Column _ID = Column.create(TABLE, "_id");
-        public static final Column SEED_USER_ID = Column.create(TABLE, "seed_user_id");
-        public static final Column SUGGESTED_USER_ID = Column.create(TABLE, "suggested_user_id");
-        public static final Column RELATION_KEY = Column.create(TABLE, "relation_key");
-        public static final Column FOLLOWED_AT = Column.create(TABLE, "followed_at");
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS SuggestedCreators (" +
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "seed_user_id INTEGER, " +
-                "suggested_user_id INTEGER, " +
-                "relation_key VARCHAR(50), " +
-                "followed_at INTEGER," +
-                "FOREIGN KEY(seed_user_id) REFERENCES Users(_id) " +
-                "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
-                ");";
-
-        protected SuggestedCreators() {
-            super("SuggestedCreators", PrimaryKey.of("_id"));
-        }
-    }
 }
