@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class CastProtocol {
+public class CastProtocol {
 
     public static final String TAG = "GoogleCast";
 

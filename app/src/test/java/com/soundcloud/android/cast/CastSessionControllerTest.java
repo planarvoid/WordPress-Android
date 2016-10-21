@@ -9,7 +9,6 @@ import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.soundcloud.android.PlaybackServiceController;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -17,8 +16,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 public class CastSessionControllerTest extends AndroidUnitTest {
-
-    private static final Urn URN = Urn.forTrack(123L);
 
     private CastSessionController castSessionController;
 

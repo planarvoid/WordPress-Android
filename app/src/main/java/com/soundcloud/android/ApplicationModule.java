@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.cast.CastProtocol.TAG;
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
 import com.appboy.Appboy;
@@ -16,7 +17,9 @@ import com.soundcloud.android.cast.CastContextWrapper;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
+import com.soundcloud.android.cast.LegacyCastContextWrapper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
+import com.soundcloud.android.cast.NoOpCastContextWrapper;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryModule;
@@ -49,6 +52,8 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.GooglePlayServicesWrapper;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.reporting.FabricReporter;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
@@ -227,17 +232,23 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public CastContextWrapper provideCastContext(Context context) {
-        return new CastContextWrapper(CastContext.getSharedInstance(context));
+    public CastContextWrapper provideCastContext(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
+        if (googlePlayServicesWrapper.isPlayServicesAvailable(context)) {
+            return new LegacyCastContextWrapper(CastContext.getSharedInstance(context));
+        } else {
+            Log.d(TAG, "Google Play services not available - chrome cast disabled");
+            return new NoOpCastContextWrapper();
+        }
     }
 
     @Provides
     @Singleton
-    public CastConnectionHelper provideCastConnectionHelper(CastSessionController controller) {
+    public CastConnectionHelper provideCastConnectionHelper(GooglePlayServicesWrapper playServices,
+                                                            CastSessionController controller, Context context) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
-        if ("Dalvik".equals(System.getProperty("java.vm.name"))) {
+        if ("Dalvik".equals(System.getProperty("java.vm.name")) && playServices.isPlayServicesAvailable(context)) {
             return new DefaultCastConnectionHelper(controller);
         } else {
             return new NoOpCastConnectionHelper();
