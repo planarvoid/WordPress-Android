@@ -297,6 +297,7 @@ public class AdFixtures {
     public static ApiAppInstallAd getApiAppInstall(Urn urn) {
         return ApiAppInstallAd.create(
                 urn,
+                60,
                 "App Name",
                 "Download",
                 "http://clickthrough.com",

@@ -10,6 +10,8 @@ public abstract class AppInstallAd extends AdData {
     public static AppInstallAd create(ApiAppInstallAd apiAppInstallAd) {
         final ApiAdTracking apiAdTracking = apiAppInstallAd.apiAdTracking();
         return new AutoValue_AppInstallAd(apiAppInstallAd.getAdUrn(),
+                                          System.currentTimeMillis(),
+                                          apiAppInstallAd.getExpiryInMins(),
                                           apiAppInstallAd.getName(),
                                           apiAppInstallAd.getCtaButtonText(),
                                           apiAppInstallAd.getClickThroughUrl(),
@@ -19,6 +21,10 @@ public abstract class AppInstallAd extends AdData {
                                           apiAdTracking.impressionUrls,
                                           apiAdTracking.clickUrls);
     }
+
+    public abstract Long getCreatedAt();
+
+    public abstract int getExpiryInMins();
 
     public abstract String getName();
 
