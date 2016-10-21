@@ -269,8 +269,8 @@ public class AdFixtures {
     }
 
     public static List<AppInstallAd> getAppInstalls() {
-        final AppInstallAd appInstallAd = AppInstallAd.create(getApiAppInstall());
-        return Arrays.asList(appInstallAd, appInstallAd);
+        return Arrays.asList(AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "1"))),
+                             AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "2"))));
     }
 
     public static ApiAdTracking getApiAppInstallTracking() {
@@ -291,8 +291,12 @@ public class AdFixtures {
     }
 
     public static ApiAppInstallAd getApiAppInstall() {
+       return getApiAppInstall(Urn.forAd("dfp", "111"));
+    }
+
+    public static ApiAppInstallAd getApiAppInstall(Urn urn) {
         return ApiAppInstallAd.create(
-                Urn.forAd("dfp", "111"),
+                urn,
                 "App Name",
                 "Download",
                 "http://clickthrough.com",

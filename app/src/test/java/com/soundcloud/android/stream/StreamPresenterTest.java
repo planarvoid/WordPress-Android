@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -50,6 +51,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.TextView;
 
@@ -70,6 +72,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private StreamOperations streamOperations;
     @Mock private StreamAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
+    @Mock private StreamAdsController streamAdsController;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DateProvider dateProvider;
     @Mock private Observer<Iterable<StreamItem>> itemObserver;
@@ -91,6 +94,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 adapter,
                 stationsOperations,
                 imagePauseOnScrollListener,
+                streamAdsController,
                 swipeRefreshAttacher,
                 eventBus,
                 itemClickListenerFactory,
@@ -396,5 +400,24 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         verify(newItemsIndicator).setTextView(any(TextView.class));
+    }
+
+    @Test
+    public void shouldSetStreamAdControllerOnViewCreated() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        verify(streamAdsController).set((StaggeredGridLayoutManager) presenter.getRecyclerView().getLayoutManager(), adapter);
+    }
+
+    @Test
+    public void shouldClearStreamAdControllerOnViewDestroy() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(streamAdsController).clear();
     }
 }

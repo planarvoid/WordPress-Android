@@ -19,7 +19,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class StreamAdapter
+public class StreamAdapter
         extends PagingRecyclerItemAdapter<StreamItem, StreamAdapter.StreamViewHolder>
         implements PlayingTrackAware {
 
@@ -75,19 +75,26 @@ class StreamAdapter
         suggestedCreatorsItemRenderer.unsubscribe();
     }
 
-    void onFollowingEntityChange(EntityStateChangedEvent event) {
-        suggestedCreatorsItemRenderer.onFollowingEntityChange(event);
-    }
-
     @Override
     protected StreamViewHolder createViewHolder(View itemView) {
         return new StreamViewHolder(itemView);
+    }
+
+    public void addItem(int position, StreamItem item) {
+        if (position < getItemCount()) {
+            items.add(position, item);
+            notifyItemInserted(position);
+        }
     }
 
     static class StreamViewHolder extends RecyclerView.ViewHolder {
         StreamViewHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    void onFollowingEntityChange(EntityStateChangedEvent event) {
+        suggestedCreatorsItemRenderer.onFollowingEntityChange(event);
     }
 
     void setOnFacebookInvitesClickListener(FacebookListenerInvitesItemRenderer.Listener clickListener) {

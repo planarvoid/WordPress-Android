@@ -54,6 +54,10 @@ public abstract class StreamItem {
         return new AutoValue_StreamItem_Default(Kind.STATIONS_ONBOARDING);
     }
 
+    public static StreamItem forAppInstall(AppInstallAd ad) {
+        return AppInstall.create(ad);
+    }
+
     static StreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
         if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
             return Track.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
@@ -82,6 +86,14 @@ public abstract class StreamItem {
     public boolean isPromoted() {
         return (this.kind() == Kind.TRACK && ((Track)this).promoted())
                 || (this.kind() == Kind.PLAYLIST && ((Playlist)this).promoted());
+    }
+
+    public boolean isAd() {
+       return kind() == Kind.APP_INSTALL;
+    }
+
+    public boolean isUpsell() {
+       return kind() == Kind.STREAM_UPSELL;
     }
 
     @AutoValue
