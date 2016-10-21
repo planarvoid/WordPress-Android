@@ -9,7 +9,7 @@
     android:background="@color/translucent_background">
 
     <ScrollView
-        style="@style/ConversionScrollable"
+        style="@style/LegacyConversionScrollable"
         tools:ignore="UselessParent">
 
         <FrameLayout

@@ -750,6 +750,7 @@
     <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>
     <string name="conversion_buy_promo">Get it for a limited time</string>
+    <string name="conversion_more_plans">View more plans</string>
     <string name="conversion_retry_heading">Oops… try again</string>
     <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
     <string name="conversion_retry_button">Try again</string>

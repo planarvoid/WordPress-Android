@@ -1,5 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ConversionFullScreen">
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/conversion_cloud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/conversion_cloud" />
+
+    <ImageView
+        android:id="@+id/conversion_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="12dp"
+        android:background="?attr/selectableItemBackground"
+        android:src="@drawable/conversion_close" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_title"
+        style="@style/ConversionText.Title"
+        android:layout_below="@id/conversion_cloud"
+        android:layout_marginTop="14dp"
+        android:text="@string/conversion_title" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_price"
+        style="@style/ConversionText.Price"
+        android:layout_below="@id/conversion_title"
+        android:layout_marginTop="4dp" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_feature_1"
+        style="@style/ConversionText.Feature"
+        android:layout_above="@+id/conversion_feature_2"
+        android:text="@string/conversion_feature_1" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_feature_2"
+        style="@style/ConversionText.Feature"
+        android:layout_above="@+id/conversion_feature_3"
+        android:text="@string/conversion_feature_2" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_feature_3"
+        style="@style/ConversionText.Feature"
+        android:layout_above="@+id/conversion_feature_4"
+        android:text="@string/conversion_feature_3" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_feature_4"
+        style="@style/ConversionText.Feature"
+        android:layout_above="@+id/conversion_buy"
+        android:layout_marginBottom="20dp"
+        android:text="@string/conversion_feature_4" />
+
+    <com.soundcloud.android.view.LoadingButton
+        android:id="@+id/conversion_buy"
+        style="@style/ConversionButton"
+        android:layout_above="@+id/conversion_more_products"
+        app:loadingText="@string/conversion_buy_loading"
+        app:actionText="@string/conversion_buy_no_trial"
+        app:retryText="@string/conversion_buy_retry" />
+
+    <com.soundcloud.android.view.CustomFontButton
+        android:id="@+id/conversion_more_products"
+        style="@style/ConversionButton.More"
+        android:layout_above="@+id/conversion_restrictions"
+        android:text="@string/conversion_more_plans"
+        android:visibility="invisible" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_restrictions"
+        style="@style/ConversionText.Restrictions"
+        android:layout_alignParentBottom="true"
+        android:text="@string/conversion_restrictions"
+        android:visibility="invisible" />
+
+</RelativeLayout>

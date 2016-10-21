@@ -21,11 +21,11 @@ import android.support.v7.app.AppCompatActivity;
 import javax.inject.Inject;
 
 class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity>
-        implements ConversionView.Listener {
+        implements LegacyConversionView.Listener {
 
     private final NativePaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;
-    private final ConversionView conversionView;
+    private final LegacyConversionView conversionView;
     private final EventBus eventBus;
     private final Navigator navigator;
 
@@ -39,7 +39,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
 
     @Inject
     NativeConversionPresenter(NativePaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                              ConversionView conversionView, EventBus eventBus, Navigator navigator) {
+                              LegacyConversionView conversionView, EventBus eventBus, Navigator navigator) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.conversionView = conversionView;

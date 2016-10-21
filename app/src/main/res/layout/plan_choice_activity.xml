@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/android_status_bar_stub_height"
+    android:gravity="center">
+
+    <com.soundcloud.android.view.CustomFontButton
+        android:id="@+id/buy_1"
+        style="@style/ConversionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.soundcloud.android.view.CustomFontButton
+        android:id="@+id/buy_2"
+        style="@style/ConversionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

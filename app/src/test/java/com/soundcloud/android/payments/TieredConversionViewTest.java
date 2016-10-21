@@ -6,13 +6,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConversionViewTest extends AndroidUnitTest {
+public class TieredConversionViewTest extends AndroidUnitTest {
 
-    private ConversionView view;
+    private TieredConversionView view;
 
     @Before
     public void setUp() throws Exception {
-        view = new ConversionView(resources());
+        view = new TieredConversionView(resources());
     }
 
     @Test

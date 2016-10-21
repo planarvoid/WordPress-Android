@@ -19,13 +19,13 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ConversionView.Listener {
+class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements LegacyConversionView.Listener {
 
     @VisibleForTesting
     static final String LOADED_PRODUCT = "product_info";
 
     private final WebPaymentOperations operations;
-    private final ConversionView conversionView;
+    private final LegacyConversionView conversionView;
     private final EventBus eventBus;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -33,7 +33,7 @@ class LegacyConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     private Optional<WebProduct> product = Optional.absent();
 
     @Inject
-    LegacyConversionPresenter(WebPaymentOperations operations, ConversionView conversionView, EventBus eventBus) {
+    LegacyConversionPresenter(WebPaymentOperations operations, LegacyConversionView conversionView, EventBus eventBus) {
         this.operations = operations;
         this.conversionView = conversionView;
         this.eventBus = eventBus;

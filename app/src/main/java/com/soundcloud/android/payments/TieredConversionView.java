@@ -10,11 +10,12 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 
-class ConversionView {
+class TieredConversionView {
 
     private static final String RESTRICTIONS_DIALOG_TAG = "product_info";
 
@@ -25,36 +26,39 @@ class ConversionView {
     @Bind(R.id.conversion_buy) LoadingButton buyButton;
     @Bind(R.id.conversion_price) TextView priceView;
     @Bind(R.id.conversion_restrictions) TextView restrictionsView;
+    @Bind(R.id.conversion_more_products) Button moreButton;
     @Bind(R.id.conversion_close) View closeButton;
-    @Bind(R.id.conversion_outside) View outside;
-
-    interface Listener {
-        void startPurchase();
-        void close();
-    }
 
     @Inject
-    public ConversionView(Resources resources) {
+    TieredConversionView(Resources resources) {
         this.resources = resources;
+    }
+
+    interface Listener {
+        void onPurchasePrimary();
+        void onMoreProducts();
+        void onClose();
     }
 
     void setupContentView(AppCompatActivity activity, Listener listener) {
         this.fragmentManager = activity.getSupportFragmentManager();
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
-        setListener(listener);
+        setupListener(listener);
     }
 
-    private void setListener(final Listener listener) {
+    private void setupListener(final Listener listener) {
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.conversion_buy:
-                        listener.startPurchase();
+                        listener.onPurchasePrimary();
                         break;
                     case R.id.conversion_close:
-                    case R.id.conversion_outside:
-                        listener.close();
+                        listener.onClose();
+                        break;
+                    case R.id.conversion_more_products:
+                        listener.onMoreProducts();
                         break;
                     default:
                         throw new IllegalArgumentException("Click on unknown View ID");
@@ -63,17 +67,14 @@ class ConversionView {
         };
         buyButton.setOnClickListener(clickListener);
         closeButton.setOnClickListener(clickListener);
-        outside.setOnClickListener(clickListener);
+        moreButton.setOnClickListener(clickListener);
     }
 
-    void showPrice(String price) {
+    void showDetails(String price, int trialDays) {
         priceView.setText(resources.getString(R.string.conversion_price, price));
         priceView.setVisibility(View.VISIBLE);
-    }
-
-    void showPrice(String price, int trialDays) {
-        showPrice(price);
         showTrialDays(trialDays);
+        enableBuyButton();
     }
 
     void showPromo(String promoPrice, int promoDays, String regularPrice) {
@@ -82,6 +83,7 @@ class ConversionView {
         priceView.setVisibility(View.VISIBLE);
         buyButton.setActionText(resources.getString(R.string.conversion_buy_promo));
         setupPromoRestrictions(duration, promoPrice, regularPrice);
+        enableBuyButton();
     }
 
     private void showTrialDays(final int trialDays) {
@@ -126,19 +128,23 @@ class ConversionView {
         restrictionsView.setVisibility(View.VISIBLE);
     }
 
-    void setBuyButtonReady() {
+    private void enableBuyButton() {
         buyButton.setEnabled(true);
         buyButton.setLoading(false);
     }
 
-    void setBuyButtonLoading() {
+    void showLoadingState() {
         buyButton.setEnabled(false);
         buyButton.setLoading(true);
     }
 
-    void setBuyButtonRetry() {
+    void showRetryState() {
         buyButton.setEnabled(true);
         buyButton.setRetry();
+    }
+
+    void enableMorePlans() {
+        moreButton.setVisibility(View.VISIBLE);
     }
 
 }
