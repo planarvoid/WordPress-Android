@@ -259,25 +259,6 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createShuffledPlayQueueWithOfflineTrackAtFirstPosition() {
-        final List<Urn> offlineTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
-        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(2), Urn.forTrack(3), Urn.forTrack(2));
-
-        PlayQueue shuffled = PlayQueue.shuffled(offlineTracks, allTracks, playSessionSource, blockTracksMap(allTracks));
-        assertThat(offlineTracks).contains(shuffled.getUrn(0));
-        assertThat(shuffled.getTrackItemUrns()).containsAll(allTracks);
-    }
-
-    @Test
-    public void createsShufflePlayQueueWhenNoOfflineTracksFound() {
-        final List<Urn> offlineTracks = Collections.emptyList();
-        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(2), Urn.forTrack(3), Urn.forTrack(2));
-
-        PlayQueue shuffled = PlayQueue.shuffled(offlineTracks, allTracks, playSessionSource, blockTracksMap(allTracks));
-        assertThat(shuffled.getTrackItemUrns()).containsAll(allTracks);
-    }
-
-    @Test
     public void playStationReturnsQueueWithStationPlayQueueItemsFromSuggestions() {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);

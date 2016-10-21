@@ -74,10 +74,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         bindEditBar(view, playlistInfoText, isEditMode);
     }
 
-    public void hideShuffle() {
-        popupMenuWrapper.setItemVisible(R.id.shuffle, false);
-    }
-
     private void bindEngagementBar(View view, boolean isEditMode) {
         final View bar = view.findViewById(R.id.playlist_engagement_bar);
 

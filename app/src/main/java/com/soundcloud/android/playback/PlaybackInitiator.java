@@ -1,11 +1,11 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlayQueue.fromTrackUrnList;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationTrack;
@@ -24,21 +24,16 @@ import java.util.Map;
 public class PlaybackInitiator {
 
     private final PlayQueueManager playQueueManager;
-    private final PlayQueueOperations playQueueOperations;
     private final PlaySessionController playSessionController;
     private final PolicyOperations policyOperations;
-    private final OfflinePlaybackOperations offlinePlaybackOperations;
 
     @Inject
     public PlaybackInitiator(PlayQueueManager playQueueManager,
-                             PlayQueueOperations playQueueOperations,
-                             PlaySessionController playSessionController, PolicyOperations policyOperations,
-                             OfflinePlaybackOperations offlinePlaybackOperations) {
+                             PlaySessionController playSessionController,
+                             PolicyOperations policyOperations) {
         this.playQueueManager = playQueueManager;
-        this.playQueueOperations = playQueueOperations;
         this.playSessionController = playSessionController;
         this.policyOperations = policyOperations;
-        this.offlinePlaybackOperations = offlinePlaybackOperations;
     }
 
     public Observable<PlaybackResult> playTracks(List<Urn> trackUrns,
@@ -93,39 +88,34 @@ public class PlaybackInitiator {
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
-                                                         final PlaySessionSource playSessionSource,
-                                                         boolean offlineTrackPriority) {
+                                                         final PlaySessionSource playSessionSource) {
+
         return trackUrnsObservable
                 .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                .flatMap(toShuffledPlayQueue(playSessionSource, offlineTrackPriority))
+                .flatMap(toShuffledPlayQueue(playSessionSource))
                 .flatMap(toPlaybackResult(0, playSessionSource))
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Func1<List<Urn>, Observable<PlayQueue>> toShuffledPlayQueue(final PlaySessionSource playSessionSource,
-                                                                        final boolean offlineTrackPriority) {
+    private Func1<List<Urn>, Observable<PlayQueue>> toShuffledPlayQueue(final PlaySessionSource playSessionSource) {
         return new Func1<List<Urn>, Observable<PlayQueue>>() {
             @Override
             public Observable<PlayQueue> call(final List<Urn> urns) {
                 return policyOperations.blockedStatuses(urns)
-                                       .flatMap(createShuffledPlayQueue(urns, offlineTrackPriority, playSessionSource));
+                                       .flatMap(createShuffledPlayQueue(urns, playSessionSource));
             }
         };
     }
 
     @NonNull
     private Func1<Map<Urn, Boolean>, Observable<PlayQueue>> createShuffledPlayQueue(
-            final List<Urn> urns, final boolean offlineTrackPriority, final PlaySessionSource playSessionSource) {
+            final List<Urn> urns, final PlaySessionSource playSessionSource) {
         return new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
             @Override
             public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
-                if (offlineTrackPriority) {
-                    return Observable.just(PlayQueue.shuffled(
-                            offlinePlaybackOperations.findOfflineAvailableTracks(urns),
-                            urns, playSessionSource, blockedTracksMap));
-                } else {
-                    return Observable.just(PlayQueue.shuffled(urns, playSessionSource, blockedTracksMap));
-                }
+                PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedTracksMap);
+                PlayQueue shuffledPlayQueue = ShuffledPlayQueue.from(playQueue, 0);
+                return Observable.just(shuffledPlayQueue);
             }
         };
     }
@@ -226,7 +216,7 @@ public class PlaybackInitiator {
         return new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
             @Override
             public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracks) {
-                return Observable.just(PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedTracks));
+                return Observable.just(fromTrackUrnList(urns, playSessionSource, blockedTracks));
             }
         };
     }

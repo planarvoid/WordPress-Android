@@ -103,29 +103,6 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
         }));
     }
 
-    public static PlayQueue shuffled(List<Urn> offlineAvailable, List<Urn> tracks,
-                                     PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracks) {
-        List<Urn> shuffled = newArrayList(tracks);
-        Collections.shuffle(shuffled);
-
-        if (!offlineAvailable.isEmpty()) {
-            Collections.shuffle(offlineAvailable);
-            Urn randomOfflineTrack = offlineAvailable.get(0);
-
-            shuffled.remove(randomOfflineTrack);
-            shuffled.add(0, randomOfflineTrack);
-        }
-
-        return fromTrackUrnList(shuffled, playSessionSource, blockedTracks);
-    }
-
-    public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource,
-                                     Map<Urn, Boolean> blockedTracks) {
-        List<Urn> shuffled = newArrayList(tracks);
-        Collections.shuffle(shuffled);
-        return fromTrackUrnList(shuffled, playSessionSource, blockedTracks);
-    }
-
     public static PlayQueue fromStation(Urn stationUrn,
                                         List<StationTrack> stationTracks,
                                         PlaySessionSource playSessionSource) {

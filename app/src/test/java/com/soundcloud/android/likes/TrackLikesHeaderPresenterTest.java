@@ -37,7 +37,6 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.annotations.Issue;
@@ -84,7 +83,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private View layoutView;
     @Mock private ListView listView;
     @Mock private FragmentManager fragmentManager;
-    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus;
     private List<Urn> likedTrackUrns;
@@ -148,7 +146,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
-        when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class), anyBoolean()))
+        when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, layoutView, null);

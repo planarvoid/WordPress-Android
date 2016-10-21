@@ -341,9 +341,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         if (headerItem != null) {
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(headerItem.getUrn());
             playbackInitiator
-                    .playTracksShuffled(tracks,
-                                        headerItem.getPlaySessionSource(),
-                                        featureOperations.isOfflineContentEnabled())
+                    .playTracksShuffled(tracks, headerItem.getPlaySessionSource())
                     .doOnCompleted(publishAnalyticsEventForShuffle())
                     .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }

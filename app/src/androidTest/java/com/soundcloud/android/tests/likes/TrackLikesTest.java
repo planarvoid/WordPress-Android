@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.ShuffleTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
@@ -80,7 +79,6 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount));
     }
 
-    @ShuffleTest
     public void testSongIsPlayedWhenShuffleEnabled() {
         startEventTracking();
 

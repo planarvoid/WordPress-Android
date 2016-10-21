@@ -5,7 +5,6 @@ import static org.assertj.android.api.Assertions.assertThat;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,14 +24,12 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private TrackLikesHeaderView.Listener listener;
-    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
         View view = View.inflate(context(), R.layout.track_likes_header, null);
         trackLikesHeaderView = new TrackLikesHeaderView(resources(),
                                                         new DownloadStateView(resources()),
-                                                        featureFlags,
                                                         view,
                                                         listener);
     }
