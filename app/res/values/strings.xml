@@ -1005,7 +1005,7 @@
     <string name="kill_switch_confirm">Update now</string>
 
     <!-- __PLAY QUEUE -->
-    <string name="play_next">Add to up next</string>
+    <string name="play_next">Add to Next up</string>
     <string name="track_removed">Track removed</string>
 
     <string name="play_queue_header_search">From search results for %1$s</string>
