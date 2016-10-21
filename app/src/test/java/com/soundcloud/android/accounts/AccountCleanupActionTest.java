@@ -11,6 +11,7 @@ import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.comments.CommentsStorage;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -65,6 +66,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private RecentlyPlayedStorage recentlyPlayedStorage;
     @Mock private GcmStorage gcmStorage;
     @Mock private PersistentStorage featureFlagsStorage;
+    @Mock private CommentsStorage commentsStorage;
 
     @Before
     public void setup() {
@@ -87,7 +89,8 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           playHistoryStorage,
                                           recentlyPlayedStorage,
                                           gcmStorage,
-                                          featureFlagsStorage);
+                                          featureFlagsStorage,
+                                          commentsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -158,7 +161,8 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldClearCommentsTable() throws PropellerWriteException {
         action.call();
-        verify(clearTableCommand).call(Table.Comments);
+
+        verify(commentsStorage).clear();
     }
 
     @Test

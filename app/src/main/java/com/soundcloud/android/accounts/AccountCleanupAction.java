@@ -7,6 +7,7 @@ import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.comments.CommentsStorage;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -55,6 +56,7 @@ class AccountCleanupAction implements Action0 {
     private final RecentlyPlayedStorage recentlyPlayedStorage;
     private final GcmStorage gcmStorage;
     private final PersistentStorage featureFlagsStorage;
+    private final CommentsStorage commentsStorage;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -73,7 +75,8 @@ class AccountCleanupAction implements Action0 {
                          PlayHistoryStorage playHistoryStorage,
                          RecentlyPlayedStorage recentlyPlayedStorage,
                          GcmStorage gcmStorage,
-                         @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage) {
+                         @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage,
+                         CommentsStorage commentsStorage) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -94,6 +97,7 @@ class AccountCleanupAction implements Action0 {
         this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.gcmStorage = gcmStorage;
         this.featureFlagsStorage = featureFlagsStorage;
+        this.commentsStorage = commentsStorage;
     }
 
     @Override
@@ -127,7 +131,7 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.Posts);
             clearTableCommand.call(Table.SoundStream);
             clearTableCommand.call(Table.Activities);
-            clearTableCommand.call(Table.Comments);
+            commentsStorage.clear();
             clearTableCommand.call(Table.PromotedTracks);
             clearTableCommand.call(Table.Waveforms);
             clearTableCommand.call(Table.TrackPolicies);

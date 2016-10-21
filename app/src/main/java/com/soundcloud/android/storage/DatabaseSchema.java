@@ -147,16 +147,6 @@ final class DatabaseSchema {
             "last_updated INTEGER" +
             ");";
 
-    static final String DATABASE_CREATE_COMMENTS = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "urn TEXT UNIQUE," +
-            "user_id INTEGER," +
-            "track_id INTEGER," +
-            "timestamp INTEGER," +
-            "created_at INTEGER," +
-            "body VARCHAR(255)" +
-            ");";
-
     static final String DATABASE_CREATE_ACTIVITIES = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "uuid VARCHAR(255)," +

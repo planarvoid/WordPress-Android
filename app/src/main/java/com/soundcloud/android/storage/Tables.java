@@ -278,13 +278,13 @@ public interface Tables {
         public static final Column BODY = Column.create(TABLE, "body");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS Comments (" +
-                "_id INTEGER PRIMARY KEY," +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "urn TEXT UNIQUE," +
                 "user_id INTEGER," +
                 "track_id INTEGER," +
                 "timestamp INTEGER," +
                 "created_at INTEGER," +
-                "body TEXT" +
+                "body VARCHAR(255)" +
                 ");";
 
         Comments() {

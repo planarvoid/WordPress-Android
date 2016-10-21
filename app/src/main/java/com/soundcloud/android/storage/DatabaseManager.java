@@ -63,6 +63,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.StationsPlayQueues.SQL);
             db.execSQL(Tables.TrackDownloads.SQL);
             db.execSQL(Tables.OfflineContent.SQL);
+            db.execSQL(Tables.Comments.SQL);
             db.execSQL(Tables.StationsCollections.SQL);
             db.execSQL(Tables.Charts.SQL);
             db.execSQL(Tables.ChartTracks.SQL);
@@ -96,6 +97,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.StationsCollections.TABLE.name(), db);
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
+        dropTable(Tables.Comments.TABLE.name(), db);
         dropTable("RecentStations", db);
         dropTable(Tables.Charts.TABLE.name(), db);
         dropTable(Tables.ChartTracks.TABLE.name(), db);
@@ -1033,7 +1035,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             dropTable("Searches", db);
             dropTable("Suggestions", db);
             dropTable("TrackMetadata", db);
-            alterColumns(Table.Comments, db);
+            alterColumns(Tables.Comments.TABLE.name(), Tables.Comments.SQL, db);
             SchemaMigrationHelper.recreate(Table.ActivityView, db);
             return true;
         } catch (SQLException exception) {

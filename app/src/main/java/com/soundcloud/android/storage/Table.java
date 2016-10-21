@@ -15,7 +15,6 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
                   DatabaseSchema.DATABASE_CREATE_TRACK_POLICIES,
                   TableColumns.TrackPolicies.ALL_FIELDS),
     Users(false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
-    Comments(false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
     Activities(false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
     PlaylistTracks(PrimaryKey.of(
             TableColumns.PlaylistTracks._ID,
