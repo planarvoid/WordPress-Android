@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;

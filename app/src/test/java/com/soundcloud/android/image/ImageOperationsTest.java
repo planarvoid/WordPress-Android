@@ -324,17 +324,15 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void displayAppInstallDoesNotCacheAndHasNoPlaceholder() {
-        imageOperations.displayAppInstall(Uri.parse(URL), imageView);
+    public void displayAppInstallDoesNotCacheAndHasPlaceholder() {
+        imageOperations.displayAppInstall(Urn.forAd("dfp", "123"), URL, imageView);
 
         verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(),
                                          displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
 
         assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
         assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
-        assertThat(displayOptionsCaptor.getValue().shouldShowImageOnLoading()).isFalse();
-        assertThat(displayOptionsCaptor.getValue().shouldShowImageOnFail()).isFalse();
-        assertThat(displayOptionsCaptor.getValue().shouldShowImageForEmptyUri()).isFalse();
+        assertThat(displayOptionsCaptor.getValue().getDisplayer()).isInstanceOf(PlaceholderTransitionDisplayer.class);
         assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isSameAs(imageView);
     }
 

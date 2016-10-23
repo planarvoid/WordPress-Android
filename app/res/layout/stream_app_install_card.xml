@@ -25,6 +25,12 @@
                 android:drawableLeft="@drawable/inset_promoted_icon"
                 android:drawablePadding="3dp"/>
 
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/why_ads"
+                style="@style/Stream.Button.WhyAds"
+                android:layout_alignParentRight="true"
+                android:text="@string/ads_why_ads" />
+
         </RelativeLayout>
 
         <com.soundcloud.android.view.ParallaxImageView
@@ -33,20 +39,32 @@
             style="@style/Stream.Image.AppInstall" />
 
         <RelativeLayout
+            android:paddingBottom="18dp"
             style="@style/Cards.Footer">
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/app_name"
-                android:layout_marginTop="10dp"
-                style="@style/ListItemText"/>
+                style="@style/Stream.Text.AppInstallName"/>
+
+            <RatingBar
+                android:id="@+id/rating_bar"
+                android:layout_below="@id/app_name"
+                style="@style/Stream.RatingBar.AppInstall"/>
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/ratings_count"
+                android:layout_toRightOf="@id/rating_bar"
                 android:layout_below="@id/app_name"
-                style="@style/Cards.StatsItem"/>
+                android:layout_marginLeft="5dp"
+                style="@style/ListItemText"/>
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/call_to_action"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/app_name"
+                android:layout_alignBottom="@+id/rating_bar"
+                style="@style/Stream.Button.CallToAction"/>
 
         </RelativeLayout>
-
     </LinearLayout>
-
 </FrameLayout>
