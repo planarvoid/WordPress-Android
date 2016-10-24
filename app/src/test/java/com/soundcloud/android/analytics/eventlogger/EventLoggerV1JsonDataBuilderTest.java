@@ -1346,6 +1346,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName("collection:recently_played")
                                                .clickName("item_navigation")
+                                               .clickSource("recently_played")
                                                .clickObject(urn.toString()));
     }
 

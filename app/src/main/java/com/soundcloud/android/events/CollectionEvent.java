@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.DiscoverySource;
 
 public final class CollectionEvent extends TrackingEvent {
 
@@ -13,6 +14,7 @@ public final class CollectionEvent extends TrackingEvent {
     public static final String KEY_OBJECT = "click_object";
     public static final String KEY_TARGET = "click_target";
     public static final String KEY_PAGE_NAME = "page_name";
+    public static final String KEY_SOURCE = "source";
 
     public static final String CLICK_NAME_ITEM_NAVIGATION = "item_navigation";
 
@@ -42,6 +44,7 @@ public final class CollectionEvent extends TrackingEvent {
         CollectionEvent base = new CollectionEvent(KIND_RECENTLY_PLAYED_NAVIGATION);
         base.put(KEY_OBJECT, clickObject.toString());
         base.put(KEY_PAGE_NAME, screen.get());
+        base.put(KEY_SOURCE, DiscoverySource.RECENTLY_PLAYED.value());
         return base;
     }
 

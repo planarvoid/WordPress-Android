@@ -435,6 +435,7 @@ class EventLoggerV1JsonDataBuilder {
     private EventLoggerEventData buildNavigationCollectionEvent(CollectionEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
                 .clickName(CollectionEvent.CLICK_NAME_ITEM_NAVIGATION)
+                .clickSource(event.get(CollectionEvent.KEY_SOURCE))
                 .pageName(event.get(CollectionEvent.KEY_PAGE_NAME))
                 .clickObject(event.get(CollectionEvent.KEY_OBJECT));
     }
