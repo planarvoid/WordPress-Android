@@ -50,7 +50,7 @@ public class PlayQueueStorage {
         return propellerRx.truncate(TABLE);
     }
 
-    public Observable<TxnResult> storeAsync(final PlayQueue playQueue) {
+    Observable<TxnResult> storeAsync(final PlayQueue playQueue) {
         final List<ContentValues> newItems = new ArrayList<>(playQueue.size());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
@@ -66,9 +66,25 @@ public class PlayQueueStorage {
         return clearAsync().flatMap(new Func1<ChangeResult, Observable<TxnResult>>() {
             @Override
             public Observable<TxnResult> call(ChangeResult changeResult) {
-                return propellerRx.bulkInsert(TABLE, newItems);
+                return propellerRx.bulkInsertExperimental(TABLE, getColumnTypes(), newItems);
             }
         });
+    }
+
+    private Map<String, Class> getColumnTypes() {
+        final HashMap<String, Class> columns = new HashMap<>();
+        columns.put(Tables.PlayQueue.ENTITY_ID.name(), Long.class);
+        columns.put(Tables.PlayQueue.ENTITY_TYPE.name(), Integer.class);
+        columns.put(Tables.PlayQueue.REPOSTER_ID.name(), Long.class);
+        columns.put(Tables.PlayQueue.RELATED_ENTITY.name(), String.class);
+        columns.put(Tables.PlayQueue.SOURCE.name(), String.class);
+        columns.put(Tables.PlayQueue.SOURCE_VERSION.name(), String.class);
+        columns.put(Tables.PlayQueue.SOURCE_URN.name(), String.class);
+        columns.put(Tables.PlayQueue.QUERY_URN.name(), String.class);
+        columns.put(Tables.PlayQueue.CONTEXT_TYPE.name(), String.class);
+        columns.put(Tables.PlayQueue.CONTEXT_URN.name(), String.class);
+        columns.put(Tables.PlayQueue.CONTEXT_QUERY.name(), String.class);
+        return columns;
     }
 
     public Observable<PlayQueueItem> loadAsync() {

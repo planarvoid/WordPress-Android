@@ -26,7 +26,9 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlayHistoryStorage {
 
@@ -55,7 +57,7 @@ public class PlayHistoryStorage {
 
     void setSynced(List<PlayHistoryRecord> playHistoryRecords) {
         Collection<ContentValues> contentValues = buildSyncedContentValuesForTrack(playHistoryRecords);
-        database.bulkUpsert(PlayHistory.TABLE, contentValues);
+        database.bulkInsert_experimental(PlayHistory.TABLE, getColumnTypes(), contentValues);
     }
 
     TxnResult removePlayHistory(final List<PlayHistoryRecord> removeRecords) {
@@ -73,7 +75,15 @@ public class PlayHistoryStorage {
     }
 
     TxnResult insertPlayHistory(List<PlayHistoryRecord> addRecords) {
-        return database.bulkUpsert(PlayHistory.TABLE, buildSyncedContentValuesForTrack(addRecords));
+        return database.bulkInsert_experimental(PlayHistory.TABLE, getColumnTypes(), buildSyncedContentValuesForTrack(addRecords));
+    }
+
+    private Map<String, Class> getColumnTypes() {
+        final HashMap<String, Class> columns = new HashMap<>();
+        columns.put(PlayHistory.TRACK_ID.name(), Long.class);
+        columns.put(PlayHistory.TIMESTAMP.name(), Long.class);
+        columns.put(PlayHistory.SYNCED.name(), Boolean.class);
+        return columns;
     }
 
     Observable<Urn> loadPlayHistoryForPlayback() {

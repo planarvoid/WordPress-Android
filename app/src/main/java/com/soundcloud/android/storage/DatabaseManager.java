@@ -1224,7 +1224,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-    * Recreate PlaylistView after fixing local count column for efficiency
+     * Recreate PlaylistView after fixing local count column for efficiency
      */
     private boolean upgradeTo96(SQLiteDatabase db, int oldVersion) {
         try {
