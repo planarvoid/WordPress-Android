@@ -191,7 +191,8 @@ public final class UpgradeFunnelEvent extends TrackingEvent {
     }
 
     public boolean isImpression() {
-        return kind.equals(KIND_UPSELL_IMPRESSION);
+        return kind.equals(KIND_UPSELL_IMPRESSION)
+                || kind.equals(KIND_RESUBSCRIBE_IMPRESSION);
     }
 
 }
