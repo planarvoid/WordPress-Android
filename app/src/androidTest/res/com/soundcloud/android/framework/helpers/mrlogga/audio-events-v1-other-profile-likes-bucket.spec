@@ -55,6 +55,7 @@ expected_events:
   optional: true
   params:
     client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     client_id: 3152
