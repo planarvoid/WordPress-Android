@@ -130,7 +130,7 @@ class SyncRequestFactory {
         for (Syncable syncable : syncables) {
             final SyncerRegistry.SyncProvider syncProvider = syncerRegistry.get(syncable);
             if (syncProvider != null) {
-                final DefaultSyncJob syncJob = new DefaultSyncJob(syncProvider.syncer(null), syncable);
+                final DefaultSyncJob syncJob = new DefaultSyncJob(syncProvider.syncer(null, isUiRequest), syncable);
                 syncJobs.add(syncJob);
             } else {
                 ErrorUtils.handleSilentException(new SyncerNotFoundException(syncable));
