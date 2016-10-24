@@ -167,7 +167,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         } else {
             return bundle.getBoolean(EXTRA_EXPAND_PLAYER, false) || isPlayQueueLocked;
         }
-
     }
 
     @Override

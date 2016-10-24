@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
+import com.soundcloud.android.cast.CastRedirectActivity;
 import com.soundcloud.android.collection.CollectionFragment;
 import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -193,6 +194,7 @@ public interface ApplicationComponent {
     void inject(LauncherActivity launcherActivity);
     void inject(RootActivity rootActivity);
     void inject(MainActivity mainActivity);
+    void inject(CastRedirectActivity castRedirectActivity);
     void inject(WebViewActivity webViewActivity);
     void inject(MetadataFragment metadataFragment);
     void inject(DevDrawerFragment devDrawerFragment);

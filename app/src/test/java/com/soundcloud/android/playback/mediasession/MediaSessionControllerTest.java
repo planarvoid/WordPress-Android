@@ -11,6 +11,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.model.Urn;
@@ -64,6 +65,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
 
     @Mock MediaMetadataCompat currentMediaMetadata;
     @Mock MediaDescriptionCompat currentMediaDescription;
+    @Mock Navigator navigator;
 
     private MediaSessionController controller;
 
@@ -74,7 +76,8 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
 
         controller = new MediaSessionController(context(), listener, mediaSessionWrapper,
-                                                actionController, metadataOperations, playQueueManager, adsOperations);
+                                                actionController, metadataOperations, playQueueManager, adsOperations,
+                                                navigator);
 
         setupMetadataMocks();
     }

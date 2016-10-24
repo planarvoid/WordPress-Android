@@ -13,6 +13,7 @@ import static android.support.v4.media.session.PlaybackStateCompat.STATE_PLAYING
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.model.Urn;
@@ -53,6 +54,7 @@ public class MediaSessionController {
     private final AdsOperations adsOperations;
     private final MediaSessionCompat mediaSession;
     private final AudioManager audioManager;
+    private final Navigator navigator;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private int playbackState;
@@ -64,7 +66,8 @@ public class MediaSessionController {
                                   @Provided PlaybackActionController playbackActionController,
                                   @Provided MetadataOperations metadataOperations,
                                   @Provided PlayQueueManager playQueueManager,
-                                  @Provided AdsOperations adsOperations) {
+                                  @Provided AdsOperations adsOperations,
+                                  @Provided Navigator navigator) {
         this.context = context;
         this.listener = listener;
         this.mediaSessionWrapper = mediaSessionWrapper;
@@ -73,6 +76,7 @@ public class MediaSessionController {
         this.adsOperations = adsOperations;
 
         audioFocusListener = new AudioFocusListener(listener);
+        this.navigator = navigator;
         audioManager = mediaSessionWrapper.getAudioManager(context);
         mediaSession = mediaSessionWrapper.getMediaSession(context, TAG);
         mediaSession.setCallback(new MediaSessionListener(this,
@@ -203,7 +207,7 @@ public class MediaSessionController {
 
     private void showNotification() {
         Optional<NotificationCompat.Builder> builderOpt =
-                MediaNotificationHelper.from(context, mediaSession, isPlaying());
+                MediaNotificationHelper.from(context, navigator, mediaSession, isPlaying());
 
         if (builderOpt.isPresent()) {
             listener.showNotification(builderOpt.get().build());
