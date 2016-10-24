@@ -4,6 +4,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.cast.CastConfigStorage;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.gcm.GcmDebugDialogFragment;
@@ -13,11 +14,13 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -25,12 +28,16 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
+import java.util.Locale;
 
 @SuppressLint("ValidFragment")
 public class DevDrawerFragment extends PreferenceFragment {
@@ -44,6 +51,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject ConfigurationManager configurationManager;
     @Inject Navigator navigator;
     @Inject ConcurrentPlaybackOperations concurrentPlaybackOperations;
+    @Inject CastConfigStorage castConfigStorage;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -60,7 +68,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     }
 
     private void addFeatureToggles() {
-        final PreferenceScreen screen = this.getPreferenceScreen();
+        final PreferenceScreen screen = getPreferenceScreen();
         final PreferenceCategory category = new PreferenceCategory(screen.getContext());
         category.setTitle(getString(R.string.dev_drawer_section_build_features));
         screen.addPreference(category);
@@ -136,8 +144,6 @@ public class DevDrawerFragment extends PreferenceFragment {
                   }
               });
 
-        setupForceConfigUpdatePref(screen);
-
         screen.findPreference(getString(R.string.dev_drawer_action_policy_sync_key))
               .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                   @Override
@@ -167,6 +173,55 @@ public class DevDrawerFragment extends PreferenceFragment {
                       return true;
                   }
               });
+
+        setupForceConfigUpdatePref(screen);
+        setupCastReceiverIdPref(screen);
+    }
+
+    private void setupCastReceiverIdPref(PreferenceScreen screen) {
+        final Preference castIdPref = screen.findPreference(getString(R.string.dev_drawer_action_cast_id_key));
+        castIdPref.setSummary(castConfigStorage.getReceiverID());
+        castIdPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                showCastIDInputDialog(preference);
+                return true;
+            }
+        });
+    }
+
+    private void showCastIDInputDialog(Preference preference) {
+        final View dialogView = View.inflate(getActivity(), R.layout.comment_input, null);
+        final TextView title = (TextView) dialogView.findViewById(R.id.custom_dialog_title);
+        final EditText input = (EditText) dialogView.findViewById(R.id.comment_input);
+
+        title.setText(R.string.dev_drawer_dialog_cast_id_title);
+        input.setHint(castConfigStorage.getReceiverID());
+
+        new AlertDialog.Builder(preference.getContext())
+                .setView(dialogView)
+                .setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        final String newID = input.getText().toString().toUpperCase(Locale.US);
+                        if (Strings.isNotBlank(newID)) {
+                            castConfigStorage.saveReceiverIDOverride(newID);
+                            dialog.dismiss();
+                            navigator.restartApp(getActivity());
+                        }
+                    }
+                })
+                .setNeutralButton(R.string.dev_drawer_dialog_cast_id_reset, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        castConfigStorage.reset();
+                        dialog.dismiss();
+                        navigator.restartApp(getActivity());
+                    }
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .create()
+                .show();
     }
 
     private void setupForceConfigUpdatePref(PreferenceScreen screen) {
@@ -193,7 +248,9 @@ public class DevDrawerFragment extends PreferenceFragment {
 
     private void updateLastConfigUpdateText(Preference preference, SharedPreferences sharedPreferences) {
         final long lastUpdatedTs = sharedPreferences.getLong(KEY_LAST_CONFIG_CHECK_TIME, 0);
-        final String lastUpdateTime = ScTextUtils.formatTimeElapsedSince(preference.getContext().getResources(), lastUpdatedTs, true);
+        final String lastUpdateTime = ScTextUtils.formatTimeElapsedSince(preference.getContext().getResources(),
+                                                                         lastUpdatedTs,
+                                                                         true);
         preference.setSummary("last updated " + lastUpdateTime);
     }
 
@@ -233,7 +290,7 @@ public class DevDrawerFragment extends PreferenceFragment {
             setOnPreferenceClickListener(new OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    featureFlags.setRuntimeFeatureFlagValue(flag, ((CheckBoxPreference)preference).isChecked());
+                    featureFlags.setRuntimeFeatureFlagValue(flag, ((CheckBoxPreference) preference).isChecked());
                     return false;
                 }
             });

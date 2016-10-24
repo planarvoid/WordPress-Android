@@ -5,20 +5,26 @@ import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
 import com.google.android.gms.cast.framework.media.CastMediaOptions;
 import com.google.android.gms.cast.framework.media.NotificationOptions;
-import com.soundcloud.android.R;
-import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.SoundCloudApplication;
 
 import android.content.Context;
 
+import javax.inject.Inject;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class CastOptionsProvider implements OptionsProvider {
 
+    @Inject CastConfigStorage castConfigStorage;
+
+    public CastOptionsProvider() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
     @Override
     public CastOptions getCastOptions(Context context) {
         return new CastOptions.Builder()
-                .setReceiverApplicationId(context.getString(R.string.cast_receiver_app_id))
+                .setReceiverApplicationId(castConfigStorage.getReceiverID())
                 .setEnableReconnectionService(true)
                 .setResumeSavedSession(true)
                 .setCastMediaOptions(castMediaOptions())

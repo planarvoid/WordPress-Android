@@ -1,5 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools"
-           tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="dev_drawer_section_build_features">Build Features</string>
 
@@ -40,6 +39,11 @@
     <string name="dev_drawer_flush_eventlogger_instantly_title">Flush Eventlogger Instantly</string>
 
     <string name="dev_oauth_token_copied">OAuth token copied to clipboard</string>
+
+    <string name="dev_drawer_action_cast_id_key">cast_id</string>
+    <string name="dev_drawer_action_cast_id_title">Cast Receiver ID</string>
+    <string name="dev_drawer_dialog_cast_id_title">Enter new Receiver ID</string>
+    <string name="dev_drawer_dialog_cast_id_reset">Reset</string>
 
     <string name="dev_drawer_section_experiments">Active Experiments</string>
     <string name="dev_drawer_section_experiments_enabled_prefix">Enabled: %s</string>
