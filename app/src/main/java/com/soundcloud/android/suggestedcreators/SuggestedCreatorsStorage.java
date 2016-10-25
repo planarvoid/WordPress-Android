@@ -10,6 +10,7 @@ import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.CursorReader;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
@@ -21,13 +22,15 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-class SuggestedCreatorsStorage {
+public class SuggestedCreatorsStorage {
     private final PropellerRx propellerRx;
+    private final PropellerDatabase propeller;
     private final DateProvider dateProvider;
 
     @Inject
-    SuggestedCreatorsStorage(PropellerRx propellerRx, CurrentDateProvider dateProvider) {
+    SuggestedCreatorsStorage(PropellerRx propellerRx, PropellerDatabase propeller, CurrentDateProvider dateProvider) {
         this.propellerRx = propellerRx;
+        this.propeller = propeller;
         this.dateProvider = dateProvider;
     }
 
@@ -39,6 +42,10 @@ class SuggestedCreatorsStorage {
         return propellerRx.update(Tables.SuggestedCreators.TABLE,
                                   buildContentValuesForFollowingCreator(isFollowing),
                                   filter().whereEq(Tables.SuggestedCreators.SUGGESTED_USER_ID, urn.getNumericId()));
+    }
+
+    public void clear() {
+        propeller.delete(Tables.SuggestedCreators.TABLE);
     }
 
     private Query buildSuggestedCreatorsQuery() {

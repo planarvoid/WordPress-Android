@@ -29,6 +29,7 @@ import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.StreamOperations;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -73,6 +74,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private CommentsStorage commentsStorage;
     @Mock private FeatureFlags featureFlags;
     @Mock private DatabaseManager databaseManager;
+    @Mock private SuggestedCreatorsStorage suggestedCreatorsStorage;
 
     @Before
     public void setup() {
@@ -98,7 +100,8 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           featureFlagsStorage,
                                           commentsStorage,
                                           featureFlags,
-                                          databaseManager);
+                                          databaseManager,
+                                          suggestedCreatorsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -141,6 +144,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldClearOfflineSettingsStorage() {
         action.call();
         verify(offlineSettingsStorage).clear();
+    }
+
+    @Test
+    public void shouldClearSuggestedCreatorsStorage() {
+        action.call();
+        verify(suggestedCreatorsStorage).clear();
     }
 
     @Test

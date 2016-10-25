@@ -924,4 +924,8 @@ public class DatabaseAssertions {
                                   .whereEq(SuggestedCreators.SUGGESTED_USER_ID,
                                            apiSuggestedCreator.getSuggestedUser().getId()))).counts(0);
     }
+
+    public void assertNoSuggestedCreators() {
+        assertThat(select(from(SuggestedCreators.TABLE))).counts(0);
+    }
 }
