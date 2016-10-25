@@ -282,9 +282,9 @@
         <activity android:label="@string/conversion_page_title" android:name=".payments.WebCheckoutActivity" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
 
         <!-- discovery -->
-        <activity android:label="@string/activity_title_view_all_recommendations" android:name=".discovery.ViewAllRecommendedTracksActivity"/>
-        <activity android:name=".discovery.ChartActivity"/>
-        <activity android:label="@string/all_genres" android:name=".discovery.AllGenresActivity"/>
+        <activity android:label="@string/activity_title_view_all_recommendations" android:name=".discovery.recommendations.ViewAllRecommendedTracksActivity"/>
+        <activity android:name=".discovery.charts.ChartActivity"/>
+        <activity android:label="@string/all_genres" android:name=".discovery.charts.AllGenresActivity"/>
         <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Translucent"/>
         <activity android:name=".search.SearchPremiumResultsActivity"/>
         <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>

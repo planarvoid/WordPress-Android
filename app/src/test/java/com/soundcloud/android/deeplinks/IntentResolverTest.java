@@ -17,7 +17,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.discovery.Chart;
+import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;

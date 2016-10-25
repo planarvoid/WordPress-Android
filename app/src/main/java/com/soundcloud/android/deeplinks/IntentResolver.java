@@ -9,7 +9,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.discovery.Chart;
+import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -25,6 +25,8 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.OnErrorThrowable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,9 +34,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
-
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
 
 public class IntentResolver {
     private static final String TAG = "IntentResolver";

@@ -1,5 +1,7 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.discovery.charts.ChartsOperations;
+import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
 

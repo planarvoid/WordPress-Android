@@ -5,6 +5,11 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.experiments.ChartsExperiment;
+import com.soundcloud.android.discovery.charts.Chart;
+import com.soundcloud.android.discovery.charts.ChartBucket;
+import com.soundcloud.android.discovery.charts.ChartsBucketItem;
+import com.soundcloud.android.discovery.charts.ChartsOperations;
+import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
@@ -60,7 +65,7 @@ public class DiscoveryPresenterDataSourceTest {
         when(chartsExperiment.isEnabled()).thenReturn(true);
 
         final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.<Chart>emptyList(),
-                                                          Collections.<Chart>emptyList()));
+                                                                                     Collections.<Chart>emptyList()));
         final RecommendedStationsBucketItem stationsItem = RecommendedStationsBucketItem.create(Collections.<StationViewModel>emptyList());
         final DiscoveryItem tracksItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.RecommendedTracksItem);
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"),

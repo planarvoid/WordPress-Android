@@ -2,8 +2,8 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.discovery.ChartSourceInfo;
-import com.soundcloud.android.discovery.RecommendationsSourceInfo;
+import com.soundcloud.android.discovery.charts.ChartSourceInfo;
+import com.soundcloud.android.discovery.recommendations.RecommendationsSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.java.objects.MoreObjects;

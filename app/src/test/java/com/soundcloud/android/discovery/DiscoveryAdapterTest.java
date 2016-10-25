@@ -14,6 +14,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.discovery.charts.ChartsBucketItem;
+import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
+import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
+import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
+import com.soundcloud.android.discovery.recommendations.RecommendedTracksBucketItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;

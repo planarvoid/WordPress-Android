@@ -2,6 +2,11 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.experiments.ChartsExperiment;
+import com.soundcloud.android.discovery.charts.ChartsOperations;
+import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
+import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
+import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
+import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;

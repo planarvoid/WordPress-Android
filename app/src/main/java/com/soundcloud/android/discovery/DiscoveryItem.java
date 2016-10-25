@@ -13,7 +13,7 @@ public abstract class DiscoveryItem {
         };
     }
 
-    static DiscoveryItem forRecommendedTracksFooter() {
+    public static DiscoveryItem forRecommendedTracksFooter() {
         return Default.create(Kind.RecommendedTracksFooterItem);
     }
 

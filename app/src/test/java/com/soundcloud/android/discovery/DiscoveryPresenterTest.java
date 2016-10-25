@@ -7,6 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
+import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
+import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;

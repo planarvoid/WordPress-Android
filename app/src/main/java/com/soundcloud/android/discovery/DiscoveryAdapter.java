@@ -10,6 +10,9 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
+import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
+import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
@@ -23,7 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder>
+public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder>
         implements PlayingTrackAware {
 
     private final PlaylistTagRenderer playlistTagRenderer;

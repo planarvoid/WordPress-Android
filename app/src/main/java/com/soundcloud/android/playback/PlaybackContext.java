@@ -4,7 +4,7 @@ import static com.soundcloud.android.utils.Urns.optionalFromNotSetUrn;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.discovery.ChartSourceInfo;
+import com.soundcloud.android.discovery.charts.ChartSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
