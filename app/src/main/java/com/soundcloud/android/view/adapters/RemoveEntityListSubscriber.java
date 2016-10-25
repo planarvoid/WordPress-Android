@@ -1,14 +1,14 @@
 package com.soundcloud.android.view.adapters;
 
+import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ItemAdapter;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
-    private final ItemAdapter<? extends ListItem> adapter;
+    private final ItemAdapter adapter;
 
-    public RemoveEntityListSubscriber(ItemAdapter<? extends ListItem> adapter) {
+    public RemoveEntityListSubscriber(ItemAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -16,10 +16,13 @@ public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
     public void onNext(final Urn urn) {
         int adapterCount = adapter.getItemCount();
         for (int position = 0; position < adapterCount; position++) {
-            Urn itemUrn = adapter.getItem(position).getUrn();
-            if (itemUrn.equals(urn)) {
-                removeItemFromAdapterAt(position);
-                break;
+            final Object item = adapter.getItem(position);
+            if (item instanceof Entity) {
+                Urn itemUrn = ((Entity) item).getUrn();
+                if (itemUrn.equals(urn)) {
+                    removeItemFromAdapterAt(position);
+                    break;
+                }
             }
         }
     }
