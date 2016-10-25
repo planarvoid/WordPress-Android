@@ -13,7 +13,8 @@ public class ActiveExperiments {
                                                                                          StationsRecoAlgorithmExperiment.CONFIGURATION,
                                                                                          OpusExperiment.CONFIGURATION,
                                                                                          ChartsExperiment.CONFIGURATION,
-                                                                                         SwitchHomeExperiment.CONFIGURATION);
+                                                                                         SwitchHomeExperiment.CONFIGURATION,
+                                                                                         DiscoveryModulesPositionExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 

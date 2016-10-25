@@ -7,6 +7,7 @@ import com.soundcloud.android.discovery.recommendations.RecommendationBucketRend
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
+import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -184,7 +185,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         }
     }
 
-    public static class DataSource {
+    static class DataSource {
         private static final DiscoveryItem EMPTY_ITEM = EmptyViewItem.fromThrowable(new EmptyThrowable());
         private static final DiscoveryItem SEARCH_ITEM = DiscoveryItem.forSearchItem();
 
@@ -201,27 +202,35 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         private final ChartsOperations chartsOperations;
         private final FeatureFlags featureFlags;
         private final ChartsExperiment chartsExperiment;
+        private final DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
 
         @Inject
-        public DataSource(RecommendedTracksOperations recommendedTracksOperations,
-                          PlaylistDiscoveryOperations playlistDiscoveryOperations,
-                          RecommendedStationsOperations recommendedStationsOperations,
-                          ChartsOperations chartsOperations,
-                          FeatureFlags featureFlags,
-                          ChartsExperiment chartsExperiment) {
+        DataSource(RecommendedTracksOperations recommendedTracksOperations,
+                   PlaylistDiscoveryOperations playlistDiscoveryOperations,
+                   RecommendedStationsOperations recommendedStationsOperations,
+                   ChartsOperations chartsOperations,
+                   FeatureFlags featureFlags,
+                   ChartsExperiment chartsExperiment,
+                   DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment) {
             this.recommendedTracksOperations = recommendedTracksOperations;
             this.playlistDiscoveryOperations = playlistDiscoveryOperations;
             this.recommendedStationsOperations = recommendedStationsOperations;
             this.chartsOperations = chartsOperations;
             this.featureFlags = featureFlags;
             this.chartsExperiment = chartsExperiment;
+            this.discoveryModulesPositionExperiment = discoveryModulesPositionExperiment;
         }
 
         Observable<List<DiscoveryItem>> discoveryItems() {
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
 
-            discoveryItems.add(recommendedStationsOperations.recommendedStations());
-            discoveryItems.add(recommendedTracksOperations.recommendedTracks());
+            if (discoveryModulesPositionExperiment.isEnabled()) {
+                discoveryItems.add(recommendedTracksOperations.recommendedTracks());
+                discoveryItems.add(recommendedStationsOperations.recommendedStations());
+            } else {
+                discoveryItems.add(recommendedStationsOperations.recommendedStations());
+                discoveryItems.add(recommendedTracksOperations.recommendedTracks());
+            }
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.featuredCharts());
@@ -235,8 +244,13 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         Observable<List<DiscoveryItem>> refreshItems() {
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
 
-            discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
-            discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
+            if (discoveryModulesPositionExperiment.isEnabled()) {
+                discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
+                discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
+            } else {
+                discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
+                discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
+            }
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.refreshFeaturedCharts());

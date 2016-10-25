@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.experiments.ChartsExperiment;
+import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.discovery.charts.ChartBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
@@ -51,6 +52,7 @@ public class DiscoveryPresenterDataSourceTest {
     @Mock private ChartsOperations chartsOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private ChartsExperiment chartsExperiment;
+    @Mock private DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
 
     @Before
     public void setUp() throws Exception {
@@ -59,10 +61,12 @@ public class DiscoveryPresenterDataSourceTest {
                                                        recommendedStationsOperations,
                                                        chartsOperations,
                                                        featureFlags,
-                                                       chartsExperiment);
+                                                       chartsExperiment,
+                                                       discoveryModulesPositionExperiment);
 
         when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
         when(chartsExperiment.isEnabled()).thenReturn(true);
+        when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(false);
 
         final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.<Chart>emptyList(),
                                                                                      Collections.<Chart>emptyList()));
@@ -106,6 +110,24 @@ public class DiscoveryPresenterDataSourceTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
+
+    @Test
+    public void loadsItemsInCorrectOrderForDiscoveryModulesPositionExperiment() {
+        when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(true);
+
+        dataSource.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
