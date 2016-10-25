@@ -306,7 +306,7 @@
     <string name="info">Info</string>
     <string name="uploaded_xtimeago">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
-    <string name="up_next">Up next</string>
+    <string name="up_next">Next up</string>
 
     <!-- @Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this? -->
     <string name="playback_error">Not playable</string>
