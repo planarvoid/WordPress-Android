@@ -138,11 +138,10 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void trackChangeEventInsertsInterstitialForCurrentTrackIntoPlayQueue() throws CreateModelException {
-        apiAdsForTrack = AdFixtures.interstitialAdsForTrack();
         when(trackRepository.track(currentTrackUrn)).thenReturn(Observable.just(currentMonetizablePropertySet));
-        when(adsOperations.interstitial(argThat(new AdRequestDataMatcher(currentTrackUrn)),
-                                        anyBoolean(),
-                                        anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(argThat(new AdRequestDataMatcher(currentTrackUrn)),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
         final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn,
                                                                        InterstitialAd.create(apiAdsForTrack.interstitialAd()
@@ -152,24 +151,6 @@ public class AdsControllerTest extends AndroidUnitTest {
                          CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
 
         verify(adsOperations).applyInterstitialToTrack(currentPlayQueueItem, apiAdsForTrack);
-    }
-
-    @Test
-    public void interstitialOnlyInsertAlsoPublishesAdDeliveryEvent() throws CreateModelException {
-        apiAdsForTrack = AdFixtures.interstitialAdsForTrack();
-        when(trackRepository.track(currentTrackUrn)).thenReturn(Observable.just(currentMonetizablePropertySet));
-        when(adsOperations.interstitial(argThat(new AdRequestDataMatcher(currentTrackUrn)),
-                                        anyBoolean(),
-                                        anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
-        adsController.subscribe();
-        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn,
-                                                                       InterstitialAd.create(apiAdsForTrack.interstitialAd()
-                                                                                                           .get(),
-                                                                                             currentTrackUrn));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
-
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isExactlyInstanceOf(AdDeliveryEvent.class);
     }
 
     @Test
@@ -489,9 +470,9 @@ public class AdsControllerTest extends AndroidUnitTest {
         final PublishSubject<ApiAdsForTrack> adsObservable = PublishSubject.create();
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.interstitial(argThat(new AdRequestDataMatcher(nextTrackUrn)),
-                                        anyBoolean(),
-                                        anyBoolean())).thenReturn(adsObservable);
+        when(adsOperations.ads(argThat(new AdRequestDataMatcher(nextTrackUrn)),
+                                       anyBoolean(),
+                                       anyBoolean())).thenReturn(adsObservable);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -518,10 +499,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
         when(adsOperations.ads(argThat(new AdRequestDataMatcher(nextTrackUrn)),
                                anyBoolean(),
-                               anyBoolean())).thenReturn(adsObservable1);
-        when(adsOperations.interstitial(argThat(new AdRequestDataMatcher(nextTrackUrn)),
-                                        anyBoolean(),
-                                        anyBoolean())).thenReturn(adsObservable2);
+                               anyBoolean())).thenReturn(adsObservable1, adsObservable2);
 
         // cheap override of stale time to avoid a horrible sequence of exposing internal implementation
         adsController = new AdsController(eventBus,
