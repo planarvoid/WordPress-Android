@@ -41,7 +41,6 @@
     </style>
 
     <style name="FooterTitle" parent="FooterUser">
-        <item name="android:layout_width">match_parent</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">16sp</item>
     </style>
@@ -136,12 +135,6 @@
     <style name="PlayerQueue">
         <item name="android:src">@drawable/ic_queue</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:layout_height">44dp</item>
-        <item name="android:layout_width">44dp</item>
-        <item name="android:layout_alignParentRight">true</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:visibility">gone</item>
-        <item name="android:padding">18dp</item>
     </style>
 
     <style name="PlayerPlayQueueButton" parent="Widget.AppCompat.Button.Borderless">

@@ -217,7 +217,7 @@ public class PlayQueueManager implements OriginProvider {
                         .build();
                 playQueue.insertPlayQueueItem(nextExplicitPosition + i, queueItem);
             }
-            publishQueueInsertEvent();
+            publishQueueUpdate();
             saveQueue();
         } else {
             throw new IllegalStateException("It is not possible to insert when the play queue is empty");
@@ -231,7 +231,7 @@ public class PlayQueueManager implements OriginProvider {
                     .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                     .build();
             playQueue.insertPlayQueueItem(nextExplicitPosition, queueItem);
-            publishQueueInsertEvent();
+            publishQueueUpdate();
             saveQueue();
         } else {
             throw new IllegalStateException("It is not possible to insert when the play queue is empty");
@@ -698,10 +698,6 @@ public class PlayQueueManager implements OriginProvider {
                          CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(),
                                                                 getCollectionUrn(),
                                                                 getCurrentPosition()));
-    }
-
-    private void publishQueueInsertEvent() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
     }
 
     public void removeUpcomingItem(PlayQueueItem item, boolean shouldPublishQueueChange) {

@@ -13,7 +13,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -195,12 +194,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         setupPlayerPanelSubscriber();
         setupTrackMetadataChangedSubscriber();
         setupClearAdOverlaySubscriber();
-        setupTextResizeSubscriber();
-    }
-
-    private void setupTextResizeSubscriber() {
-        backgroundSubscription.add(eventBus.queue(EventQueue.PLAY_QUEUE)
-                                           .subscribe(new PlayNextSubscriber()));
     }
 
     private void setupClearAdOverlaySubscriber() {
@@ -553,16 +546,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class PlayNextSubscriber extends DefaultSubscriber<PlayQueueEvent> {
-
-        @Override
-        public void onNext(PlayQueueEvent playQueueEvent) {
-            if (playQueueEvent.itemAdded()) {
-                onItemAdded();
-            }
-        }
-    }
-
     private final class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
         public void onNext(PlayStateEvent playStateEvent) {
@@ -652,17 +635,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             presenter.setExpanded(view, playQueueItem, isCurrentPagerPage(playQueueItem));
         } else if (kind == PlayerUIEvent.PLAYER_COLLAPSED) {
             presenter.setCollapsed(view);
-        }
-    }
-
-    private void onItemAdded() {
-        for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-            final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
-            final View view = entry.getKey();
-            final PlayQueueItem playQueueItem = pagesInPlayer.get(view);
-            if (isCurrentPagerPage(playQueueItem)) {
-                presenter.onItemAdded(view);
-            }
         }
     }
 

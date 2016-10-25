@@ -1259,7 +1259,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
                 PlayQueueEvent.fromNewQueue(Urn.forPlaylist(6)),
-                PlayQueueEvent.fromQueueInsert(Urn.forPlaylist(6))
+                PlayQueueEvent.fromQueueUpdate(Urn.forPlaylist(6))
         );
     }
 
@@ -1310,7 +1310,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
                 PlayQueueEvent.fromNewQueue(Urn.forPlaylist(6)),
-                PlayQueueEvent.fromQueueInsert(Urn.forPlaylist(6))
+                PlayQueueEvent.fromQueueUpdate(Urn.forPlaylist(6))
         );
     }
 
