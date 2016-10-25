@@ -23,19 +23,13 @@
     <ImageView
         android:id="@+id/play_queue_button"
         style="@style/PlayerQueue"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_alignBottom="@+id/player_close_indicator"
-        android:layout_alignParentRight="true"
-        android:padding="18dp"
-        android:scaleType="center"
-        android:visibility="gone" />
+        android:layout_alignBottom="@+id/player_close_indicator" />
 
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
         android:layout_alignParentRight="true"
+        android:layout_marginLeft="12dp"
         android:layout_toRightOf="@id/preview_indicator">
 
         <android.support.v7.widget.AppCompatButton
@@ -43,9 +37,9 @@
             style="@style/Upsell"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:maxLines="1"
+            android:layout_gravity="right"
             android:ellipsize="end"
-            android:layout_gravity="right" />
+            android:maxLines="1" />
     </FrameLayout>
 
 </RelativeLayout>

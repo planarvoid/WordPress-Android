@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/footer_controls"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/player_footer_control">
+<RelativeLayout android:id="@+id/footer_controls"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/player_footer_control">
 
     <com.soundcloud.android.view.CustomFontToggleButton
-            android:id="@+id/footer_toggle"
-            style="@style/FooterToggle"
-            android:layout_marginRight="8dp" />
+        android:id="@+id/footer_toggle"
+        style="@style/FooterToggle"
+        android:layout_marginRight="8dp" />
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/footer_user"
-            style="@style/FooterUser"
-            android:layout_width="match_parent"
-            android:layout_toRightOf="@id/footer_toggle"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/player_footer_margin" />
+        android:id="@+id/footer_user"
+        style="@style/FooterUser"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/player_footer_margin"
+        android:layout_toLeftOf="@+id/footer_play_queue_button"
+        android:layout_toRightOf="@id/footer_toggle"
+        android:gravity="center_horizontal" />
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/footer_title"
-            style="@style/FooterTitle"
-            android:layout_width="match_parent"
-            android:layout_below="@id/footer_user"
-            android:layout_toRightOf="@id/footer_toggle"
-            android:gravity="center_horizontal" />
+        android:id="@+id/footer_title"
+        style="@style/FooterTitle"
+        android:layout_width="match_parent"
+        android:layout_below="@id/footer_user"
+        android:layout_toLeftOf="@+id/footer_play_queue_button"
+        android:layout_toRightOf="@id/footer_toggle"
+        android:gravity="center_horizontal" />
+
+    <ImageView
+        android:id="@+id/footer_play_queue_button"
+        style="@style/PlayerQueue"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="12dp" />
 </RelativeLayout>
