@@ -492,7 +492,7 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onMetaDataUpdatedPlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() {
+    public void updateLocalPlayQueueAndPlayStatePlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() {
         final RemotePlayQueue remoteQueue = new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1);
         mockForPlayCurrent();
 
@@ -501,21 +501,21 @@ public class CastPlayerTest extends AndroidUnitTest {
                 .thenReturn(remoteQueue);
         when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
 
-        castPlayer.onMetadataUpdated();
+        castPlayer.updateLocalPlayQueueAndPlayState();
 
         verify(playQueueManager).setPosition(remoteQueue.getCurrentPosition(), true);
         verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyInt());
     }
 
     @Test
-    public void onMetaDataUpdatedSetsPlayQueueWithDifferentTrackList() {
+    public void updateLocalPlayQueueAndPlayStateSetsPlayQueueWithDifferentTrackList() {
         final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(PLAY_QUEUE, URN);
         mockForPlayCurrent();
 
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
         when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(false);
 
-        castPlayer.onMetadataUpdated();
+        castPlayer.updateLocalPlayQueueAndPlayState();
 
         verify(playQueueManager, never()).setPosition(anyInt(), anyBoolean());
         verify(playQueueManager).setNewPlayQueue(any(PlayQueue.class), eq(PlaySessionSource.EMPTY),
@@ -530,12 +530,12 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onMetaDataUpdatedShowsPlayer() {
+    public void updateLocalPlayQueueAndPlayStateShowsPlayer() {
         final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(PLAY_QUEUE, URN);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
         mockForPlayCurrent();
 
-        castPlayer.onMetadataUpdated();
+        castPlayer.updateLocalPlayQueueAndPlayState();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(1);
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();

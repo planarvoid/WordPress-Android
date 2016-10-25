@@ -2,6 +2,7 @@ package com.soundcloud.android.cast;
 
 import com.appboy.support.StringUtils;
 import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.MediaRouteButton;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,7 +65,7 @@ public class DefaultCastConnectionHelper implements CastConnectionHelper {
 
     @Override
     public void addMediaRouterButton(MediaRouteButton mediaRouteButton) {
-        Log.d("Cast", "AddMediaRouterButton called for " + mediaRouteButton);
+        Log.d(CastProtocol.TAG, "AddMediaRouterButton called for " + mediaRouteButton);
         CastButtonFactory.setUpMediaRouteButton(mediaRouteButton.getContext(), mediaRouteButton);
         mediaRouteButtons.add(mediaRouteButton);
         mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);

@@ -108,7 +108,6 @@ public class CastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
 
     @Override
     public void onMetadataUpdated() {
-        updateLocalPlayQueueAndPlayState();
     }
 
     @Override

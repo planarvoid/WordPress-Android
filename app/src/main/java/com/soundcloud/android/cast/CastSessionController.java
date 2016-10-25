@@ -65,6 +65,7 @@ public class CastSessionController implements CastStateListener, SessionManagerL
 
     @Override
     public void onSessionStarted(CastSession castSession, String sessionId) {
+        Log.d(TAG, "OnSessionStarted");
         onApplicationConnected(Optional.fromNullable(castSession));
     }
 
@@ -88,6 +89,7 @@ public class CastSessionController implements CastStateListener, SessionManagerL
 
     @Override
     public void onSessionResumed(CastSession castSession, boolean b) {
+        Log.d(TAG, "OnSessionResumed");
         castPlayer.onConnected(castSession.getRemoteMediaClient());
         castPlayer.updateLocalPlayQueueAndPlayState();
     }
