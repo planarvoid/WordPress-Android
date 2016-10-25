@@ -7,17 +7,17 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
 
 public class ApiAdsForStreamTest extends AndroidUnitTest {
     private ApiVideoAd videoAd;
-    private ApiAppInstallAd appInstallAd;
 
     @Before
     public void setUp() {
         videoAd = AdFixtures.getApiVideoAd();
-        appInstallAd = AdFixtures.getApiAppInstall();
     }
 
     @Test
@@ -33,8 +33,16 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getAppInstallsReturnsAppInstallsFromAdsForStraem() throws Exception {
-        final ApiAdsForStream adsForStream = AdFixtures.fullAdsForStream();
-        assertThat(adsForStream.getAppInstalls()).contains(AppInstallAd.create(appInstallAd));
+    public void getAppInstallsReturnsAppInstallsFromAdsForStream() throws Exception {
+        final ApiAppInstallAd apiAppInstall = AdFixtures.getApiAppInstall();
+        final ApiAdsForStream adsForStream = new ApiAdsForStream(newArrayList(
+                ApiAdWrapper.create(apiAppInstall),
+                ApiAdWrapper.create(AdFixtures.getApiVideoAd())
+        ));
+
+
+        final List<AppInstallAd> appInstalls = adsForStream.getAppInstalls();
+        assertThat(appInstalls.size()).isEqualTo(1);
+        assertThat(appInstalls.get(0).getAdUrn()).isEqualTo(apiAppInstall.getAdUrn());
     }
 }
