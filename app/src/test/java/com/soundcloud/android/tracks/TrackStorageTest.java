@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,21 +10,30 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
+import android.content.ContentValues;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 public class TrackStorageTest extends StorageIntegrationTest {
 
+    private static final int BATCH_TRACKS_COUNT = 1500;
     private TrackStorage storage;
 
     @Before
@@ -183,6 +193,64 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         assertThat(map.get(postedApiTrack.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isTrue();
         assertThat(map.get(apiTrack.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isFalse();
+    }
+
+    @Test
+    public void loadTracksInBatches() {
+        final TestSubscriber<Map<Urn, PropertySet>> subscriber = new TestSubscriber<>();
+        List<Urn> trackUrns = insertBulkTracks(BATCH_TRACKS_COUNT);
+
+        storage.loadTracks(trackUrns).subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents().get(0).keySet()).isEqualTo(new HashSet<>(trackUrns));
+    }
+
+    @Test
+    public void loadAvailableTracksInBatches() {
+        final TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
+        List<Urn> trackUrns = insertBulkTracks(BATCH_TRACKS_COUNT);
+
+        storage.availableTracks(trackUrns).subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(trackUrns);
+    }
+
+    // TODO: move to DatabaseFixtures?
+    private List<Urn> insertBulkTracks(int count) {
+        List<Urn> trackUrns = new ArrayList<>(count);
+        List<ContentValues> trackContentValues = new ArrayList<>(count);
+        List<ContentValues> trackPoliciesContentValues = new ArrayList<>(count);
+
+        HashMap<String, Class> trackColumns = new HashMap<>();
+        trackColumns.put(TableColumns.Sounds._ID, Long.class);
+        trackColumns.put(TableColumns.Sounds._TYPE, Integer.class);
+        trackColumns.put(TableColumns.Sounds.TITLE, String.class);
+        trackColumns.put(TableColumns.Sounds.PERMALINK_URL, String.class);
+
+        HashMap<String, Class> policyColumns = new HashMap<>();
+        policyColumns.put(TableColumns.TrackPolicies.TRACK_ID, Long.class);
+        policyColumns.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, String.class);
+
+        for (int i = 1; i <= BATCH_TRACKS_COUNT; i++) {
+            ContentValues track = new ContentValues();
+            track.put(TableColumns.Sounds._ID, i);
+            track.put(TableColumns.Sounds._TYPE, TYPE_TRACK);
+            track.put(TableColumns.Sounds.TITLE, "Track #" + i);
+            track.put(TableColumns.Sounds.PERMALINK_URL, "track-" + i);
+
+            ContentValues policy = new ContentValues();
+            policy.put(TableColumns.TrackPolicies.TRACK_ID, i);
+            policy.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, Strings.EMPTY);
+
+            trackContentValues.add(track);
+            trackPoliciesContentValues.add(policy);
+            trackUrns.add(Urn.forTrack(i));
+        }
+
+        propeller().bulkInsert_experimental(Table.Sounds, trackColumns, trackContentValues);
+        propeller().bulkInsert_experimental(Table.TrackPolicies, policyColumns, trackPoliciesContentValues);
+
+        return trackUrns;
     }
 
 }
