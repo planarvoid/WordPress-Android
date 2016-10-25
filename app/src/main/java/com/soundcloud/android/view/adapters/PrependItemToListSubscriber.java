@@ -1,9 +1,10 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.presentation.ItemAdapter;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
-public final class PrependItemToListSubscriber<T> extends DefaultSubscriber<T> {
+public final class PrependItemToListSubscriber<T extends ListItem> extends DefaultSubscriber<T> {
     private final ItemAdapter<T> adapter;
 
     public PrependItemToListSubscriber(ItemAdapter<T> adapter) {

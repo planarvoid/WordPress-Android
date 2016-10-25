@@ -27,6 +27,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
+import com.soundcloud.android.view.adapters.PagedTracksRecyclerItemAdapter;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,6 @@ import rx.subjects.PublishSubject;
 import android.view.View;
 
 import javax.inject.Provider;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +55,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private TrackLikeOperations likeOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private OfflineContentOperations offlineContentOperations;
-    @Mock private TrackLikesAdapter adapter;
+    @Mock private PagedTracksRecyclerItemAdapter adapter;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private CollapsingScrollHelper collapsingScrollHelper;
@@ -108,7 +108,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldPlayLikedTracksOnListItemClick() {
-        PlaybackResult playbackResult = setupPlaybackConditions(new TrackLikesTrackItem(ModelFixtures.create(TrackItem.class)));
+        PlaybackResult playbackResult = setupPlaybackConditions(ModelFixtures.create(TrackItem.class));
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
@@ -119,7 +119,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSendUpsellEventOnMidTierItemClickWhenUserCannotUpgrade() {
-        final TrackLikesTrackItem clickedTrack = new TrackLikesTrackItem(TrackItem.from(TestPropertySets.highTierTrack()));
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.highTierTrack());
         setupPlaybackConditions(clickedTrack);
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
@@ -161,10 +161,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         reset(adapter);
 
-        final List<TrackLikesItem> trackLikesTrackItems = new ArrayList<>();
-        trackLikesTrackItems.add(new TrackLikesTrackItem(TrackItem.from(track)));
-
-        when(adapter.getItems()).thenReturn(trackLikesTrackItems);
+        when(adapter.getItems()).thenReturn(singletonList(TrackItem.from(track)));
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
 
         verify(adapter).notifyDataSetChanged();
@@ -197,12 +194,12 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     }
 
     @NotNull
-    private PlaybackResult setupPlaybackConditions(TrackLikesTrackItem clickedTrack) {
+    private PlaybackResult setupPlaybackConditions(TrackItem clickedTrack) {
 
         PlaybackResult playbackResult = PlaybackResult.success();
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(playbackInitiator.playTracks(eq(likedTrackUrns),
-                                          eq(clickedTrack.getTrackItem().getUrn()),
+                                          eq(clickedTrack.getUrn()),
                                           eq(0),
                                           isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(playbackResult));
