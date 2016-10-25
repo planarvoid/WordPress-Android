@@ -64,11 +64,11 @@ public final class OfflineStoragePreference extends Preference {
         resources = context.getResources();
     }
 
-    public void setOnStorageLimitChangedListener(OnStorageLimitChangedListener onPreferenceChangeListener) {
+    void setOnStorageLimitChangedListener(OnStorageLimitChangedListener onPreferenceChangeListener) {
         onStorageLimitChangeListener = onPreferenceChangeListener;
     }
 
-    public void setOfflineUsage(OfflineUsage usage) {
+    void setOfflineUsage(OfflineUsage usage) {
         this.offlineUsage = usage;
     }
 
@@ -87,7 +87,7 @@ public final class OfflineStoragePreference extends Preference {
         onStorageLimitChangeListener = null;
     }
 
-    public void updateAndRefresh() {
+    void updateAndRefresh() {
         if (offlineUsage != null) {
             offlineUsage.update();
             updateView();
