@@ -1,11 +1,11 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
-import com.soundcloud.android.presentation.RecyclerItemAdapter;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-class StationTracksAdapter extends PagingRecyclerItemAdapter<StationInfoTrack, RecyclerItemAdapter.ViewHolder> {
+class StationTracksAdapter extends PagingRecyclerItemAdapter<StationInfoTrack, RecyclerView.ViewHolder> {
 
     StationTracksAdapter(StationTrackRenderer cellRenderer) {
         super(cellRenderer);

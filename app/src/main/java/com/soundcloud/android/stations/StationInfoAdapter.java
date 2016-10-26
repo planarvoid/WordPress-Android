@@ -15,7 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-class StationInfoAdapter extends PagingRecyclerItemAdapter<StationInfoItem, StationInfoAdapter.ViewHolder>
+class StationInfoAdapter extends PagingRecyclerItemAdapter<StationInfoItem, RecyclerView.ViewHolder>
         implements PlayingTrackAware {
 
     private final StationInfoTracksBucketRenderer bucketRenderer;
@@ -51,11 +51,4 @@ class StationInfoAdapter extends PagingRecyclerItemAdapter<StationInfoItem, Stat
     protected ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
     }
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
 }

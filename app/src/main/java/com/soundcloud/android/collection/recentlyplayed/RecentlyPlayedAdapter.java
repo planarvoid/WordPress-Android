@@ -13,14 +13,14 @@ import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
-import com.soundcloud.android.presentation.RecyclerItemAdapter;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem, RecyclerItemAdapter.ViewHolder> {
+class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem, RecyclerView.ViewHolder> {
 
     RecentlyPlayedAdapter(boolean fixedWidth,
                           SimpleHeaderRenderer.Listener listener,
@@ -39,7 +39,7 @@ class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem
     }
 
     @Override
-    protected RecyclerItemAdapter.ViewHolder createViewHolder(View view) {
+    protected ViewHolder createViewHolder(View view) {
         return new ViewHolder(view);
     }
 

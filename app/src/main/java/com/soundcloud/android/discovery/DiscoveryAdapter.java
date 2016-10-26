@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.Empty;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedPlaylistsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
@@ -10,6 +11,7 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
@@ -26,7 +28,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder>
+public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, RecyclerView.ViewHolder>
         implements PlayingTrackAware {
 
     private final PlaylistTagRenderer playlistTagRenderer;
@@ -44,6 +46,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Discove
                      @Provided PlaylistTagRenderer playlistTagRenderer,
                      @Provided SearchItemRenderer searchItemRenderer,
                      @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
+                     @Provided RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer,
                      @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,
                      @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
                      @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer) {
@@ -51,6 +54,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Discove
               new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
               new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
               new CellRendererBinding<>(RecommendedStationsItem.ordinal(), stationsBucketRenderer),
+              new CellRendererBinding<>(RecommendedPlaylistsItem.ordinal(), recommendedPlaylistsBucketRenderer),
               new CellRendererBinding<>(ChartItem.ordinal(), chartsBucketItemRenderer),
               new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
               new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer)
@@ -66,15 +70,8 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Discove
     }
 
     @Override
-    protected DiscoveryViewHolder createViewHolder(View itemView) {
-        return new DiscoveryViewHolder(itemView);
-    }
-
-
-    static class DiscoveryViewHolder extends RecyclerView.ViewHolder {
-        DiscoveryViewHolder(View itemView) {
-            super(itemView);
-        }
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
     void setDiscoveryListener(DiscoveryItemListenerBucket itemListener) {

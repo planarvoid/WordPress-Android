@@ -456,6 +456,10 @@
     <string name="discovery_search_title">Search</string>
     <string name="discovery_empty">No discovery items yet</string>
 
+    <!-- __DISCOVERY PLAYLISTS -->
+    <string name="recommended_playlists_reason">Playlists for %s</string>
+
+
     <!-- __DISCOVERY CHARTS -->
     <string name="charts_header">SoundCloud charts</string>
     <string name="charts_trending">New &amp; hot</string>

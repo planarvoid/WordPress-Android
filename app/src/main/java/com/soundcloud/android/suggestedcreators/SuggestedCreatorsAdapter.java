@@ -6,11 +6,12 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.Map;
 
-class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem, RecyclerItemAdapter.ViewHolder> {
+class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem, RecyclerView.ViewHolder> {
     private static final int SUGGESTED_CREATORS_TYPE = 0;
     private final SuggestedCreatorRenderer suggestedCreatorRenderer;
 

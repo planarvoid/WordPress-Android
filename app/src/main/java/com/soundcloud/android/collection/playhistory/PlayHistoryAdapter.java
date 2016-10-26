@@ -8,16 +8,16 @@ import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
 
-class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, PlayHistoryAdapter.PlayHistoryViewHolder>
+class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, RecyclerItemAdapter.ViewHolder>
         implements PlayingTrackAware {
 
     private final PlayHistoryTrackRenderer trackRenderer;
@@ -53,19 +53,13 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Play
     }
 
     @Override
-    protected PlayHistoryViewHolder createViewHolder(View itemView) {
-        return new PlayHistoryViewHolder(itemView);
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
     @Override
     public int getBasicItemViewType(int position) {
         return getItem(position).getKind().ordinal();
-    }
-
-    static class PlayHistoryViewHolder extends RecyclerView.ViewHolder {
-        PlayHistoryViewHolder(View itemView) {
-            super(itemView);
-        }
     }
 
     public void setMenuClickListener(SimpleHeaderRenderer.Listener listener) {

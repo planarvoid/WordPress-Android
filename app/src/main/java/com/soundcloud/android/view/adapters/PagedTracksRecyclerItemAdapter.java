@@ -12,7 +12,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class PagedTracksRecyclerItemAdapter
-        extends PagingRecyclerItemAdapter<TrackItem, PagedTracksRecyclerItemAdapter.TrackViewHolder>
+        extends PagingRecyclerItemAdapter<TrackItem, RecyclerView.ViewHolder>
         implements PlayingTrackAware {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
@@ -36,14 +36,7 @@ public class PagedTracksRecyclerItemAdapter
     }
 
     @Override
-    protected TrackViewHolder createViewHolder(View itemView) {
-        return new TrackViewHolder(itemView);
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
-
-    public static class TrackViewHolder extends RecyclerView.ViewHolder {
-        public TrackViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
 }

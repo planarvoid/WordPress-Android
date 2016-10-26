@@ -2,12 +2,13 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.experiments.ChartsExperiment;
+import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
-import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -199,22 +200,25 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         private final RecommendedTracksOperations recommendedTracksOperations;
         private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
         private final RecommendedStationsOperations recommendedStationsOperations;
+        private final RecommendedPlaylistsOperations recommendedPlaylistsOperations;
         private final ChartsOperations chartsOperations;
         private final FeatureFlags featureFlags;
         private final ChartsExperiment chartsExperiment;
         private final DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
 
         @Inject
-        DataSource(RecommendedTracksOperations recommendedTracksOperations,
-                   PlaylistDiscoveryOperations playlistDiscoveryOperations,
-                   RecommendedStationsOperations recommendedStationsOperations,
-                   ChartsOperations chartsOperations,
-                   FeatureFlags featureFlags,
-                   ChartsExperiment chartsExperiment,
-                   DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment) {
+        public DataSource(RecommendedTracksOperations recommendedTracksOperations,
+                          PlaylistDiscoveryOperations playlistDiscoveryOperations,
+                          RecommendedStationsOperations recommendedStationsOperations,
+                          RecommendedPlaylistsOperations recommendedPlaylistsOperations,
+                          ChartsOperations chartsOperations,
+                          FeatureFlags featureFlags,
+                          ChartsExperiment chartsExperiment,
+                          DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment) {
             this.recommendedTracksOperations = recommendedTracksOperations;
             this.playlistDiscoveryOperations = playlistDiscoveryOperations;
             this.recommendedStationsOperations = recommendedStationsOperations;
+            this.recommendedPlaylistsOperations = recommendedPlaylistsOperations;
             this.chartsOperations = chartsOperations;
             this.featureFlags = featureFlags;
             this.chartsExperiment = chartsExperiment;
@@ -232,11 +236,17 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                 discoveryItems.add(recommendedTracksOperations.recommendedTracks());
             }
 
+            if (featureFlags.isEnabled(Flag.NEW_HOME)) {
+                discoveryItems.add(recommendedPlaylistsOperations.recommendedPlaylists());
+            }
+
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.featuredCharts());
             }
 
-            discoveryItems.add(playlistDiscoveryOperations.playlistTags());
+            if (featureFlags.isDisabled(Flag.NEW_HOME)) {
+                discoveryItems.add(playlistDiscoveryOperations.playlistTags());
+            }
 
             return items(discoveryItems);
         }
@@ -252,11 +262,17 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                 discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
             }
 
+            if (featureFlags.isEnabled(Flag.NEW_HOME)) {
+                discoveryItems.add(recommendedPlaylistsOperations.recommendedPlaylists());
+            }
+
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
                 discoveryItems.add(chartsOperations.refreshFeaturedCharts());
             }
 
-            discoveryItems.add(playlistDiscoveryOperations.playlistTags());
+            if (featureFlags.isDisabled(Flag.NEW_HOME)) {
+                discoveryItems.add(playlistDiscoveryOperations.playlistTags());
+            }
 
             return items(discoveryItems);
         }

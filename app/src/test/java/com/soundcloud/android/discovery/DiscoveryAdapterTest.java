@@ -14,6 +14,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
@@ -35,6 +36,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private PlaylistTagRenderer playlistTagRenderer;
     @Mock private SearchItemRenderer searchItemRenderer;
     @Mock private RecommendedStationsBucketRenderer recommendedStationsBucketRenderer;
+    @Mock private RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer;
     @Mock private ChartsBucketItemRenderer chartsBucketItemRenderer;
     @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
     @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
@@ -59,6 +61,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                                        playlistTagRenderer,
                                        searchItemRenderer,
                                        recommendedStationsBucketRenderer,
+                                       recommendedPlaylistsBucketRenderer,
                                        chartsBucketItemRenderer,
                                        recommendationsFooterRenderer,
                                        emptyDiscoveryItemRenderer);

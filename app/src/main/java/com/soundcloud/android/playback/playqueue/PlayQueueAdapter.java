@@ -13,7 +13,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,7 +20,7 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import java.util.Collections;
 
-class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAdapter.PlayQueueItemViewHolder> {
+class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItemAdapter.ViewHolder> {
 
     interface NowPlayingListener {
         void onNowPlayingChanged(TrackPlayQueueUIItem trackItem);
@@ -54,7 +53,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
     }
 
     @Override
-    public void onBindViewHolder(final PlayQueueItemViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         ImageView overflow = (ImageView) holder.itemView.findViewById(R.id.overflow_button);
 
@@ -144,14 +143,8 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
     }
 
     @Override
-    protected PlayQueueItemViewHolder createViewHolder(View itemView) {
-        return new PlayQueueItemViewHolder(itemView);
-    }
-
-    static class PlayQueueItemViewHolder extends RecyclerView.ViewHolder {
-        PlayQueueItemViewHolder(View itemView) {
-            super(itemView);
-        }
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
     int getAdapterPosition(final PlayQueueItem currentPlayQueueItem) {

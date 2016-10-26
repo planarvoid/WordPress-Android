@@ -20,17 +20,9 @@ class ChartTracksAdapter extends PagingRecyclerItemAdapter<ChartTrackListItem, R
     }
 
     @Override
-    protected ChartTrackViewHolder createViewHolder(View itemView) {
-        return new ChartTrackViewHolder(itemView);
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
-
-
-    static class ChartTrackViewHolder extends RecyclerView.ViewHolder {
-        ChartTrackViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
 
     @Override
     public int getBasicItemViewType(int position) {

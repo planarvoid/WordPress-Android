@@ -17,8 +17,8 @@ public class PlaylistItemAdapter extends PagingRecyclerItemAdapter<PlaylistItem,
     }
 
     @Override
-    protected RecyclerView.ViewHolder createViewHolder(View view) {
-        return new PagingRecyclerItemAdapter.ViewHolder(view);
+    protected ViewHolder createViewHolder(View view) {
+        return new ViewHolder(view);
     }
 
     @Override

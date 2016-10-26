@@ -25,6 +25,7 @@ public abstract class DiscoveryItem {
         RecommendedStationsItem,
         RecommendedTracksItem,
         RecommendedTracksFooterItem,
+        RecommendedPlaylistsItem,
         PlaylistTagsItem,
         SearchItem,
         ChartItem,

@@ -6,7 +6,7 @@ import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.view.View;
 
-class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecommendationsViewHolder>
+class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecyclerItemAdapter.ViewHolder>
         implements PlayingTrackAware {
 
     private static final int RECOMMENDATION_TYPE = 0;
@@ -41,13 +41,8 @@ class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, Recomme
     }
 
     @Override
-    protected RecommendationsViewHolder createViewHolder(View view) {
-        return new RecommendationsViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(RecommendationsViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    protected ViewHolder createViewHolder(View view) {
+        return new ViewHolder(view);
     }
 
     @Override

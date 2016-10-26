@@ -4,11 +4,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
 
-class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsViewHolder> implements PlayingTrackAware {
+class StationsAdapter extends RecyclerItemAdapter<StationViewModel, RecyclerView.ViewHolder> implements PlayingTrackAware {
     private static final int STATION_TYPE = 0;
 
     @Inject
@@ -26,13 +27,8 @@ class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsView
     }
 
     @Override
-    protected StationsViewHolder createViewHolder(View view) {
-        return new StationsViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(StationsViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    protected ViewHolder createViewHolder(View view) {
+        return new ViewHolder(view);
     }
 
     @Override
