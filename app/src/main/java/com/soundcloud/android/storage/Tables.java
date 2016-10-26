@@ -12,14 +12,15 @@ import com.soundcloud.android.storage.TableColumns.Sounds;
 import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.schema.BaseTable;
 import com.soundcloud.propeller.schema.Column;
 
 import android.provider.BaseColumns;
 
 public interface Tables {
 
-    class Recommendations extends BaseTable {
+    // Pure Tables
+
+    class Recommendations extends SCBaseTable {
 
         // table instance
         public static final Recommendations TABLE = new Recommendations();
@@ -38,12 +39,17 @@ public interface Tables {
                 "FOREIGN KEY(recommended_sound_id, recommended_sound_type) REFERENCES Sounds(_id, _type)" +
                 ");";
 
-        protected Recommendations() {
+        Recommendations() {
             super("Recommendations", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class RecommendationSeeds extends BaseTable {
+    class RecommendationSeeds extends SCBaseTable {
 
         // table instance
         public static final RecommendationSeeds TABLE = new RecommendationSeeds();
@@ -68,12 +74,17 @@ public interface Tables {
                 "FOREIGN KEY(seed_sound_id, seed_sound_type) REFERENCES Sounds(_id, _type)" +
                 ");";
 
-        protected RecommendationSeeds() {
+        RecommendationSeeds() {
             super("RecommendationSeeds", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class PlayQueue extends BaseTable {
+    class PlayQueue extends SCBaseTable {
 
         public static final PlayQueue TABLE = new PlayQueue();
 
@@ -107,12 +118,17 @@ public interface Tables {
                 "context_query TEXT" +
                 ");";
 
-        protected PlayQueue() {
+        PlayQueue() {
             super("PlayQueue", PrimaryKey.of(_ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class Stations extends BaseTable {
+    class Stations extends SCBaseTable {
         public static final Stations TABLE = new Stations();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
@@ -134,12 +150,17 @@ public interface Tables {
                 "PRIMARY KEY(station_urn) ON CONFLICT REPLACE" +
                 ");";
 
-        protected Stations() {
+        Stations() {
             super("Stations", PrimaryKey.of("station_urn"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class StationsPlayQueues extends BaseTable {
+    class StationsPlayQueues extends SCBaseTable {
         public static final StationsPlayQueues TABLE = new StationsPlayQueues();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
@@ -156,12 +177,17 @@ public interface Tables {
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
-        protected StationsPlayQueues() {
+        StationsPlayQueues() {
             super("StationsPlayQueues", PrimaryKey.of("station_urn", "track_id", "position"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class StationsCollections extends BaseTable {
+    class StationsCollections extends SCBaseTable {
         public static final StationsCollections TABLE = new StationsCollections();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
@@ -180,12 +206,17 @@ public interface Tables {
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
-        protected StationsCollections() {
+        StationsCollections() {
             super("StationsCollections", PrimaryKey.of("station_urn, collection_type"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class TrackDownloads extends BaseTable {
+    class TrackDownloads extends SCBaseTable {
 
         public static final TrackDownloads TABLE = new TrackDownloads();
 
@@ -203,12 +234,17 @@ public interface Tables {
                 "unavailable_at INTEGER DEFAULT NULL" +
                 ");";
 
-        protected TrackDownloads() {
+        TrackDownloads() {
             super("TrackDownloads", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class OfflineContent extends BaseTable {
+    class OfflineContent extends SCBaseTable {
 
         public static final OfflineContent TABLE = new OfflineContent();
 
@@ -227,12 +263,200 @@ public interface Tables {
                 "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
                 ");";
 
-        protected OfflineContent() {
+        OfflineContent() {
             super("OfflineContent", PrimaryKey.of(BaseColumns._ID, "_type"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class SearchSuggestions extends BaseTable {
+    class Comments extends SCBaseTable {
+
+        public static final Comments TABLE = new Comments();
+
+        public static final Column _ID = Column.create(TABLE, BaseColumns._ID);
+        public static final Column URN = Column.create(TABLE, "urn");
+        public static final Column USER_ID = Column.create(TABLE, "user_id");
+        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
+        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
+        public static final Column CREATED_AT = Column.create(TABLE, "created_at");
+        public static final Column BODY = Column.create(TABLE, "body");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS Comments (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "urn TEXT UNIQUE," +
+                "user_id INTEGER," +
+                "track_id INTEGER," +
+                "timestamp INTEGER," +
+                "created_at INTEGER," +
+                "body VARCHAR(255)" +
+                ");";
+
+        Comments() {
+            super("Comments", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
+
+    class Charts extends SCBaseTable {
+
+        // table instance
+        public static final Charts TABLE = new Charts();
+        // columns
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column DISPLAY_NAME = Column.create(TABLE, "display_name");
+        public static final Column GENRE = Column.create(TABLE, "genre");
+        public static final Column TYPE = Column.create(TABLE, "type");
+        public static final Column CATEGORY = Column.create(TABLE, "category");
+        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type");
+
+        public static final int BUCKET_TYPE_GLOBAL = 0;
+        public static final int BUCKET_TYPE_FEATURED_GENRES = 1;
+        public static final int BUCKET_TYPE_ALL_GENRES = 2;
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS Charts (" +
+                "_id INTEGER PRIMARY KEY," +
+                "display_name TEXT, " +
+                "genre TEXT, " +
+                "type TEXT, " +
+                "category TEXT," +
+                "bucket_type INTEGER" +
+                ");";
+
+        Charts() {
+            super("Charts", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
+
+    class ChartTracks extends SCBaseTable {
+
+        // table instance
+        public static final ChartTracks TABLE = new ChartTracks();
+        // columns
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column CHART_ID = Column.create(TABLE, "chart_id");
+        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
+        public static final Column TRACK_ARTWORK = Column.create(TABLE, "track_artwork");
+        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS ChartTracks (" +
+                "_id INTEGER PRIMARY KEY," +
+                "chart_id INTEGER, " +
+                "track_id INTEGER, " +
+                "track_artwork TEXT, " +
+                "bucket_type INTEGER," +
+                "FOREIGN KEY(chart_id) REFERENCES Charts(_id) " +
+                ");";
+
+        ChartTracks() {
+            super("ChartTracks", PrimaryKey.of(BaseColumns._ID));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
+
+    class PlayHistory extends SCBaseTable {
+        public static final PlayHistory TABLE = new PlayHistory();
+
+        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
+        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
+        public static final Column SYNCED = Column.create(TABLE, "synced");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS PlayHistory (" +
+                "timestamp INTEGER NOT NULL," +
+                "track_id INTEGER NOT NULL," +
+                "synced BOOLEAN DEFAULT 0," +
+                "PRIMARY KEY (timestamp, track_id)" +
+                ");";
+
+        PlayHistory() {
+            super("PlayHistory", PrimaryKey.of("timestamp", "track_id"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
+
+    class RecentlyPlayed extends SCBaseTable {
+        public static final RecentlyPlayed TABLE = new RecentlyPlayed();
+
+        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
+        public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type");
+        public static final Column CONTEXT_ID = Column.create(TABLE, "context_id");
+        public static final Column SYNCED = Column.create(TABLE, "synced");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS RecentlyPlayed (" +
+                "timestamp INTEGER NOT NULL," +
+                "context_type INTEGER NOT NULL," +
+                "context_id INTEGER NOT NULL," +
+                "synced BOOLEAN DEFAULT 0," +
+                "PRIMARY KEY (timestamp, context_type, context_id)" +
+                ");";
+
+        static final String MIGRATE_SQL = "INSERT OR IGNORE INTO RecentlyPlayed " +
+                "(timestamp, context_type, context_id) " +
+                "SELECT timestamp, context_type, context_id " +
+                "FROM PlayHistory WHERE context_type != 0;";
+
+        RecentlyPlayed() {
+            super("RecentlyPlayed", PrimaryKey.of("timestamp", "context_type", "context_id"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
+
+    class SuggestedCreators extends SCBaseTable {
+        public static final SuggestedCreators TABLE = new SuggestedCreators();
+
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column SEED_USER_ID = Column.create(TABLE, "seed_user_id");
+        public static final Column SUGGESTED_USER_ID = Column.create(TABLE, "suggested_user_id");
+        public static final Column RELATION_KEY = Column.create(TABLE, "relation_key");
+        public static final Column FOLLOWED_AT = Column.create(TABLE, "followed_at");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS SuggestedCreators (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "seed_user_id INTEGER, " +
+                "suggested_user_id INTEGER, " +
+                "relation_key VARCHAR(50), " +
+                "followed_at INTEGER," +
+                "FOREIGN KEY(seed_user_id) REFERENCES Users(_id) " +
+                "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
+                ");";
+
+        SuggestedCreators() {
+            super("SuggestedCreators", PrimaryKey.of("_id"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
+
+    // Views
+
+    class SearchSuggestions extends SCBaseTable {
 
         public static final SearchSuggestions TABLE = new SearchSuggestions();
 
@@ -260,39 +484,17 @@ public interface Tables {
                 "avatar_url AS image_url " +
                 "from UserAssociations INNER JOIN Users ON UserAssociations.target_id = Users._id";
 
-        protected SearchSuggestions() {
+        SearchSuggestions() {
             super("SearchSuggestions", PrimaryKey.of(BaseColumns._ID, "kind"));
         }
-    }
 
-    class Comments extends BaseTable {
-
-        public static final Comments TABLE = new Comments();
-
-        public static final Column _ID = Column.create(TABLE, BaseColumns._ID);
-        public static final Column URN = Column.create(TABLE, "urn");
-        public static final Column USER_ID = Column.create(TABLE, "user_id");
-        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
-        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
-        public static final Column CREATED_AT = Column.create(TABLE, "created_at");
-        public static final Column BODY = Column.create(TABLE, "body");
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS Comments (" +
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "urn TEXT UNIQUE," +
-                "user_id INTEGER," +
-                "track_id INTEGER," +
-                "timestamp INTEGER," +
-                "created_at INTEGER," +
-                "body VARCHAR(255)" +
-                ");";
-
-        Comments() {
-            super("Comments", PrimaryKey.of(BaseColumns._ID));
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class OfflinePlaylistTracks extends BaseTable {
+    class OfflinePlaylistTracks extends SCBaseTable {
 
         public static final OfflinePlaylistTracks TABLE = new OfflinePlaylistTracks();
 
@@ -339,113 +541,17 @@ public interface Tables {
             super("OfflinePlaylistTracks", PrimaryKey.of(BaseColumns._ID));
         }
 
-    }
-
-    class Charts extends BaseTable {
-
-        // table instance
-        public static final Charts TABLE = new Charts();
-        // columns
-        public static final Column _ID = Column.create(TABLE, "_id");
-        public static final Column DISPLAY_NAME = Column.create(TABLE, "display_name");
-        public static final Column GENRE = Column.create(TABLE, "genre");
-        public static final Column TYPE = Column.create(TABLE, "type");
-        public static final Column CATEGORY = Column.create(TABLE, "category");
-        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type");
-
-        public static final int BUCKET_TYPE_GLOBAL = 0;
-        public static final int BUCKET_TYPE_FEATURED_GENRES = 1;
-        public static final int BUCKET_TYPE_ALL_GENRES = 2;
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS Charts (" +
-                "_id INTEGER PRIMARY KEY," +
-                "display_name TEXT, " +
-                "genre TEXT, " +
-                "type TEXT, " +
-                "category TEXT," +
-                "bucket_type INTEGER" +
-                ");";
-
-        protected Charts() {
-            super("Charts", PrimaryKey.of(BaseColumns._ID));
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
 
-    class ChartTracks extends BaseTable {
-
-        // table instance
-        public static final ChartTracks TABLE = new ChartTracks();
-        // columns
-        public static final Column _ID = Column.create(TABLE, "_id");
-        public static final Column CHART_ID = Column.create(TABLE, "chart_id");
-        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
-        public static final Column TRACK_ARTWORK = Column.create(TABLE, "track_artwork");
-        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type");
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS ChartTracks (" +
-                "_id INTEGER PRIMARY KEY," +
-                "chart_id INTEGER, " +
-                "track_id INTEGER, " +
-                "track_artwork TEXT, " +
-                "bucket_type INTEGER," +
-                "FOREIGN KEY(chart_id) REFERENCES Charts(_id) " +
-                ");";
-
-        protected ChartTracks() {
-            super("ChartTracks", PrimaryKey.of(BaseColumns._ID));
-        }
-    }
-
-    class PlayHistory extends BaseTable {
-        public static final PlayHistory TABLE = new PlayHistory();
-
-        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
-        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
-        public static final Column SYNCED = Column.create(TABLE, "synced");
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS PlayHistory (" +
-                "timestamp INTEGER NOT NULL," +
-                "track_id INTEGER NOT NULL," +
-                "synced BOOLEAN DEFAULT 0," +
-                "PRIMARY KEY (timestamp, track_id)" +
-                ");";
-
-        PlayHistory() {
-            super("PlayHistory", PrimaryKey.of("timestamp", "track_id"));
-        }
-    }
-
-    class RecentlyPlayed extends BaseTable {
-        public static final RecentlyPlayed TABLE = new RecentlyPlayed();
-
-        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
-        public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type");
-        public static final Column CONTEXT_ID = Column.create(TABLE, "context_id");
-        public static final Column SYNCED = Column.create(TABLE, "synced");
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS RecentlyPlayed (" +
-                "timestamp INTEGER NOT NULL," +
-                "context_type INTEGER NOT NULL," +
-                "context_id INTEGER NOT NULL," +
-                "synced BOOLEAN DEFAULT 0," +
-                "PRIMARY KEY (timestamp, context_type, context_id)" +
-                ");";
-
-        static final String MIGRATE_SQL = "INSERT OR IGNORE INTO RecentlyPlayed " +
-                "(timestamp, context_type, context_id) " +
-                "SELECT timestamp, context_type, context_id " +
-                "FROM PlayHistory WHERE context_type != 0;";
-
-        RecentlyPlayed() {
-            super("RecentlyPlayed", PrimaryKey.of("timestamp", "context_type", "context_id"));
-        }
-    }
-
-    class PlaylistView extends BaseTable {
+    class PlaylistView extends SCBaseTable {
 
         public static final PlaylistView TABLE = new PlaylistView();
 
-        protected PlaylistView() {
+        PlaylistView() {
             super("PlaylistView", PrimaryKey.of(_ID));
         }
 
@@ -460,7 +566,8 @@ public interface Tables {
         public static final Column GENRE = Column.create(TABLE, "pv_genre");
         public static final Column TAG_LIST = Column.create(TABLE, "pv_tag_list");
         public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "pv_local_track_count");
-        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE, "pv_has_pending_download_request");
+        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE,
+                                                                                "pv_has_pending_download_request");
         public static final Column HAS_DOWNLOADED_TRACKS = Column.create(TABLE, "pv_has_downloaded_tracks");
         public static final Column HAS_UNAVAILABLE_TRACKS = Column.create(TABLE, "pv_has_unavailable_tracks");
         public static final Column IS_MARKED_FOR_OFFLINE = Column.create(TABLE, "pv_is_marked_for_offline");
@@ -499,13 +606,18 @@ public interface Tables {
                         .innerJoin(Table.Sounds.name(), joinConditions)
                         .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class UsersView extends BaseTable {
+    class UsersView extends SCBaseTable {
 
         public static final UsersView TABLE = new UsersView();
 
-        protected UsersView() {
+        UsersView() {
             super("UsersView", PrimaryKey.of(_ID));
         }
 
@@ -523,7 +635,6 @@ public interface Tables {
         public static final Column DISCOGS_NAME = Column.create(TABLE, "uv_discogs_name");
         public static final Column ARTIST_STATION = Column.create(TABLE, "uv_artist_station");
         public static final Column IS_FOLLOWING = Column.create(TABLE, "uv_is_following");
-
 
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
@@ -551,16 +662,20 @@ public interface Tables {
                                  Table.UserAssociations.field(TableColumns.UserAssociations.TARGET_ID))
                         .whereNull(TableColumns.UserAssociations.REMOVED_AT);
         }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
     }
 
-    class TrackView extends BaseTable {
+    class TrackView extends SCBaseTable {
 
         public static final TrackView TABLE = new TrackView();
 
-        protected TrackView() {
+        TrackView() {
             super("TrackView", PrimaryKey.of(_ID));
         }
-
 
         public static final Column ID = Column.create(TABLE, "tv_id");
         public static final Column CREATED_AT = Column.create(TABLE, "tv_created_at");
@@ -619,12 +734,14 @@ public interface Tables {
 
                              field(SoundView.field(TableColumns.SoundView.POLICIES_POLICY)).as(POLICY.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZABLE)).as(MONETIZABLE.name()),
-                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZATION_MODEL)).as(MONETIZATION_MODEL.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZATION_MODEL)).as(
+                                     MONETIZATION_MODEL.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(BLOCKED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(SNIPPED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
 
-                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(OFFLINE_DOWNLOADED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(
+                                     OFFLINE_DOWNLOADED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),
 
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
@@ -657,29 +774,11 @@ public interface Tables {
         private static String typeRepostDelimited() {
             return "'" + TableColumns.Posts.TYPE_REPOST + "'";
         }
-    }
 
-    class SuggestedCreators extends BaseTable {
-        public static final SuggestedCreators TABLE = new SuggestedCreators();
-
-        public static final Column _ID = Column.create(TABLE, "_id");
-        public static final Column SEED_USER_ID = Column.create(TABLE, "seed_user_id");
-        public static final Column SUGGESTED_USER_ID = Column.create(TABLE, "suggested_user_id");
-        public static final Column RELATION_KEY = Column.create(TABLE, "relation_key");
-        public static final Column FOLLOWED_AT = Column.create(TABLE, "followed_at");
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS SuggestedCreators (" +
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "seed_user_id INTEGER, " +
-                "suggested_user_id INTEGER, " +
-                "relation_key VARCHAR(50), " +
-                "followed_at INTEGER," +
-                "FOREIGN KEY(seed_user_id) REFERENCES Users(_id) " +
-                "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
-                ");";
-
-        protected SuggestedCreators() {
-            super("SuggestedCreators", PrimaryKey.of("_id"));
+        @Override
+        String getCreateSQL() {
+            return SQL;
         }
     }
+
 }
