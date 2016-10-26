@@ -64,7 +64,7 @@ expected_events:
     client_id: '3152'
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-    impression_object: soundcloud:tcode:3002
+    impression_object: soundcloud:tcode:[0-9]+
     user: soundcloud:users:147986827
     page_name: consumer-premium:main
     app_version: '[0-9]+'
