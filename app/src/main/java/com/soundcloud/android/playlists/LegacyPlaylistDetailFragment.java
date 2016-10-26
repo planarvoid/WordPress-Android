@@ -133,16 +133,6 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
     };
 
-    private final DefaultSubscriber<EntityStateChangedEvent> trackAddedToPlaylist =
-            new DefaultSubscriber<EntityStateChangedEvent>() {
-                @Override
-                public void onNext(EntityStateChangedEvent event) {
-                    if (event.getFirstUrn().equals(playlistWithTracks.getUrn())) {
-                        onPlaylistContentChanged();
-                    }
-                }
-            };
-
     public static LegacyPlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
                                                       PromotedSourceInfo promotedInfo, boolean autoplay) {
         final Bundle bundle = new Bundle();
@@ -260,7 +250,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                         .filter(EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(trackAddedToPlaylist));
+                        .subscribe(new PlaylistContentChangedSubscriber()));
 
         eventSubscription.add(eventBus
                                       .queue(ENTITY_STATE_CHANGED)
@@ -476,6 +466,15 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
             final PropertySet updatedPlaylist = args.getNextChangeSet();
             playlistWithTracks.update(updatedPlaylist);
             getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
+        }
+    }
+
+    private class PlaylistContentChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(EntityStateChangedEvent event) {
+            if (event.getFirstUrn().equals(playlistWithTracks.getUrn())) {
+                onPlaylistContentChanged();
+            }
         }
     }
 }
