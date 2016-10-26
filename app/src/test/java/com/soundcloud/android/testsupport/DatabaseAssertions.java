@@ -587,6 +587,7 @@ public class DatabaseAssertions {
                                   .whereEq(LIKES_COUNT, playlist.getStats().getLikesCount())
                                   .whereEq(REPOSTS_COUNT, playlist.getStats().getRepostsCount())
                                   .whereEq(TRACK_COUNT, playlist.getTrackCount())
+                                  .whereEq(GENRE, playlist.getGenre())
                                   .whereEq(TAG_LIST, join(" ", playlist.getTags())))).counts(1);
     }
 

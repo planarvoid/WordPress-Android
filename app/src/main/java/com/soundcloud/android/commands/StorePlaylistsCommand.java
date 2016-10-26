@@ -60,6 +60,7 @@ public class StorePlaylistsCommand extends DefaultWriteStorageCommand<Iterable<?
                                    .put(TableColumns.Sounds.REPOSTS_COUNT, playlist.getRepostsCount())
                                    .put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount())
                                    .put(TableColumns.Sounds.USER_ID, playlist.getUser().getUrn().getNumericId())
+                                   .put(TableColumns.Sounds.GENRE, playlist.getGenre())
                                    .put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))
                                    .put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl())
                                    .put(TableColumns.Sounds.ARTWORK_URL, playlist.getImageUrlTemplate().orNull())
@@ -82,6 +83,7 @@ public class StorePlaylistsCommand extends DefaultWriteStorageCommand<Iterable<?
         columns.put(TableColumns.Sounds.REPOSTS_COUNT, Integer.class);
         columns.put(TableColumns.Sounds.TRACK_COUNT, Integer.class);
         columns.put(TableColumns.Sounds.USER_ID, Long.class);
+        columns.put(TableColumns.Sounds.GENRE, String.class);
         columns.put(TableColumns.Sounds.TAG_LIST, String.class);
         columns.put(TableColumns.Sounds.PERMALINK_URL, String.class);
         columns.put(TableColumns.Sounds.ARTWORK_URL, String.class);

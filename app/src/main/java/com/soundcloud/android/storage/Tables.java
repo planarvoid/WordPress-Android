@@ -457,6 +457,8 @@ public interface Tables {
         public static final Column LIKES_COUNT = Column.create(TABLE, "pv_likes_count");
         public static final Column SHARING = Column.create(TABLE, "pv_sharing");
         public static final Column ARTWORK_URL = Column.create(TABLE, "pv_artwork_url");
+        public static final Column GENRE = Column.create(TABLE, "pv_genre");
+        public static final Column TAG_LIST = Column.create(TABLE, "pv_tag_list");
         public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "pv_local_track_count");
         public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE, "pv_has_pending_download_request");
         public static final Column HAS_DOWNLOADED_TRACKS = Column.create(TABLE, "pv_has_downloaded_tracks");
@@ -475,6 +477,8 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.name()),
                              field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.name()),
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.GENRE)).as(GENRE.name()),
+                             field(SoundView.field(TableColumns.SoundView.TAG_LIST)).as(TAG_LIST.name()),
                              field(SoundView.field(TableColumns.SoundView.IS_ALBUM)).as(IS_ALBUM.name()),
                              field("(" + PlaylistQueries.LOCAL_TRACK_COUNT.build() + ")").as(LOCAL_TRACK_COUNT.name()),
                              exists(likeQuery()).as(IS_USER_LIKE.name()),
@@ -574,6 +578,8 @@ public interface Tables {
         public static final Column REPOSTS_COUNT = Column.create(TABLE, "tv_reposts_count");
         public static final Column COMMENTS_COUNT = Column.create(TABLE, "tv_comments_count");
         public static final Column IS_COMMENTABLE = Column.create(TABLE, "tv_is_commentable");
+        public static final Column GENRE = Column.create(TABLE, "tv_genre");
+        public static final Column TAG_LIST = Column.create(TABLE, "tv_tag_list");
         public static final Column SHARING = Column.create(TABLE, "tv_sharing");
         public static final Column POLICY = Column.create(TABLE, "tv_policy");
         public static final Column MONETIZABLE = Column.create(TABLE, "tv_monetizable");
@@ -600,6 +606,9 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.WAVEFORM_URL)).as(WAVEFORM_URL.name()),
                              field(SoundView.field(TableColumns.SoundView.SNIPPET_DURATION)).as(SNIPPET_DURATION.name()),
                              field(SoundView.field(TableColumns.SoundView.FULL_DURATION)).as(FULL_DURATION.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.GENRE)).as(GENRE.name()),
+                             field(SoundView.field(TableColumns.SoundView.TAG_LIST)).as(TAG_LIST.name()),
 
                              field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(PLAY_COUNT.name()),
                              field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.name()),

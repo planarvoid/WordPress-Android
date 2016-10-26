@@ -685,7 +685,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.IS_ALBUM, playlist.isAlbum());
         cv.put(TableColumns.Sounds.SET_TYPE, playlist.getSetType());
         cv.put(TableColumns.Sounds.RELEASE_DATE, playlist.getReleaseDate());
-        cv.put(TableColumns.Sounds.RELEASE_DATE, playlist.getReleaseDate());
+        cv.put(TableColumns.Sounds.GENRE, playlist.getGenre());
         return cv;
     }
 

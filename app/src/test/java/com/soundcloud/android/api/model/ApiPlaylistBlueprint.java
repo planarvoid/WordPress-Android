@@ -44,6 +44,9 @@ public class ApiPlaylistBlueprint {
     String permalinkUrl = "http://permalink";
 
     @Default
+    String genre = "clownstep";
+
+    @Default
     String setType = Strings.EMPTY;
 
     @Default

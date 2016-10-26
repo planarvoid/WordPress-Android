@@ -28,6 +28,8 @@ public interface PlaylistRecord extends ImageResource {
 
     UserRecord getUser();
 
+    String getGenre();
+
     Iterable<String> getTags();
 
     String getPermalinkUrl();
