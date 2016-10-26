@@ -25,7 +25,6 @@ public final class ScSchedulers {
 
     public static final Scheduler HIGH_PRIO_SCHEDULER;
     public static final Scheduler LOW_PRIO_SCHEDULER;
-    private static final String TAG = "ScSchedulers";
     private static final long QUEUE_WAIT_WARNING_THRESHOLD = TimeUnit.SECONDS.toMillis(1);
     private static final long QUEUE_SIZE_WARNING_THRESHOLD = 3;
 
@@ -55,7 +54,7 @@ public final class ScSchedulers {
         }
 
         @Override
-        public void execute(final Runnable command) {
+        public void execute(@NonNull final Runnable command) {
             logExecuteWarning();
             final long startTime = System.currentTimeMillis();
             target.execute(new Runnable() {
@@ -70,14 +69,14 @@ public final class ScSchedulers {
         void logExecuteWarning() {
             final int size = target.getQueue().size();
             if (size > QUEUE_SIZE_WARNING_THRESHOLD) {
-                ErrorUtils.log(android.util.Log.WARN, TAG, "Execute Command [queuedCount = " + size + "]");
+                ErrorUtils.log(android.util.Log.WARN, OperationsInstrumentation.TAG, "Execute Command [queuedCount = " + size + "]");
             }
         }
 
         void logExecutingWarning(long startTime) {
             final long waitTime = System.currentTimeMillis() - startTime;
             if (waitTime > QUEUE_WAIT_WARNING_THRESHOLD) {
-                ErrorUtils.log(android.util.Log.WARN, TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
+                ErrorUtils.log(android.util.Log.WARN, OperationsInstrumentation.TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
             }
         }
 

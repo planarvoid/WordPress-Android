@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 public class OperationsInstrumentation {
 
+    public static final String TAG = "Performances";
+
     public static <T> Observable.Transformer<T, T> reportOverdue() {
         final TimeUnit timeUnit = TimeUnit.SECONDS;
         final int threshold = 5;
@@ -20,7 +22,10 @@ public class OperationsInstrumentation {
         return reportOverdue(threshold, timeUnit, new Action1<Long>() {
             @Override
             public void call(Long duration) {
-                final String message = String.format(Locale.US, "Operation took too long : %d ms (expected < %d)", duration, timeUnit.toMillis(threshold));
+                final String message = String.format(Locale.US,
+                                                     "Operation took too long : %d ms (expected < %d)",
+                                                     duration,
+                                                     timeUnit.toMillis(threshold));
                 ErrorUtils.handleSilentException(message, callSite);
             }
         });
@@ -70,4 +75,5 @@ public class OperationsInstrumentation {
             };
         }
     }
+
 }

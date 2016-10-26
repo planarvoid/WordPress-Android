@@ -128,13 +128,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     };
 
-    private final DefaultSubscriber<CurrentPlayQueueItemEvent> setPagerPositionFromPlayQueueManager = new DefaultSubscriber<CurrentPlayQueueItemEvent>() {
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent args) {
-            setQueuePositionToCurrent();
-        }
-    };
-
     private static final Predicate<PlayQueueItem> IS_PLAYABLE = new Predicate<PlayQueueItem>() {
         @Override
         public boolean apply(PlayQueueItem input) {
@@ -215,7 +208,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         // set position from track change
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .filter(notWaitingForScroll)
-                .subscribe(setPagerPositionFromPlayQueueManager));
+                .subscribe(new UpdateCurrentTrackSubscriber()));
     }
 
     private void setupScrollingSubscribers() {
@@ -407,6 +400,13 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void handleMessage(Message msg) {
             playerPresenter.setPositionToDisplayedTrack();
+        }
+    }
+
+    private class UpdateCurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+        @Override
+        public void onNext(CurrentPlayQueueItemEvent args) {
+            setQueuePositionToCurrent();
         }
     }
 }
