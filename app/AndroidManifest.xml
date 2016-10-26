@@ -48,10 +48,11 @@
         android:configChanges="orientation|keyboardHidden|keyboard"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
+        android:roundIcon="@mipmap/ic_round_launcher"
         android:label="@string/app_name"
         android:name="SoundCloudApplication"
         android:theme="@style/Theme.SoundCloud"
-        tools:ignore="UnusedAttribute"
+        tools:ignore="ManifestResource,UnusedAttribute"
         android:supportsRtl="false">
 
         <activity android:name=".main.LauncherActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar">
