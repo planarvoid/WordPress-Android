@@ -42,4 +42,7 @@ public interface PlayerPagePresenter<T extends PlayerItem> {
     void setCastDeviceName(View trackPage, String deviceName);
 
     void onViewSelected(View view, PlayQueueItem value, boolean isExpanded);
+
+    void onItemAdded(View view);
+
 }
