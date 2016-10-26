@@ -18,10 +18,12 @@ public class ImageProcessorJB implements ImageProcessor {
 
     private static final float DEFAULT_RADIUS = 7.f;
     private final RenderScript renderscript;
+    private final ScriptIntrinsicBlur blurScript;
 
     @Inject
     public ImageProcessorJB(Context context) {
         renderscript = RenderScript.create(context);
+        blurScript = ScriptIntrinsicBlur.create(renderscript, Element.U8_4(renderscript));
     }
 
     public Bitmap blurBitmap(Bitmap bitmap, Optional<Float> blurRadius) {
@@ -30,8 +32,6 @@ public class ImageProcessorJB implements ImageProcessor {
     }
 
     public Bitmap blurBitmap(Bitmap inBitmap, Bitmap outBitmap, Optional<Float> blurRadius) {
-        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(renderscript, Element.U8_4(renderscript));
-
         Allocation allIn = Allocation.createFromBitmap(renderscript, inBitmap);
         Allocation allOut = Allocation.createFromBitmap(renderscript, outBitmap);
 
@@ -40,6 +40,9 @@ public class ImageProcessorJB implements ImageProcessor {
         blurScript.forEach(allOut);
 
         allOut.copyTo(outBitmap);
+
+        allIn.destroy();
+        allOut.destroy();
 
         return outBitmap;
     }
