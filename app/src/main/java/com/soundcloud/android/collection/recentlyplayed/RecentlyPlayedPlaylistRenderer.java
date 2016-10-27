@@ -15,7 +15,10 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.tracks.OverflowMenuOptions;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -31,11 +34,14 @@ import java.util.List;
 @AutoFactory(allowSubclasses = true)
 class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlayableItem> {
 
+    private static final int TOUCH_DELEGATE_DP = 8;
+
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
+    private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final boolean fixedWidth;
 
     RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
@@ -43,13 +49,15 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
                                    @Provided Resources resources,
                                    @Provided Navigator navigator,
                                    @Provided ScreenProvider screenProvider,
-                                   @Provided EventBus eventBus) {
+                                   @Provided EventBus eventBus,
+                                   @Provided PlaylistItemMenuPresenter playlistItemMenuPresenter) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
+        this.playlistItemMenuPresenter = playlistItemMenuPresenter;
     }
 
     @Override
@@ -75,6 +83,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         setOfflineState(view, playlist.getOfflineState());
 
         view.setOnClickListener(goToPlaylist(playlist));
+        setupOverFlow(view.findViewById(R.id.overflow_button), playlist);
     }
 
     private void setOfflineState(View view, Optional<OfflineState> offlineState) {
@@ -120,4 +129,16 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
             }
         };
     }
+
+    private void setupOverFlow(final View button, final RecentlyPlayedPlayableItem playlistItem) {
+        final OverflowMenuOptions options = OverflowMenuOptions.builder().showOffline(true).build();
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playlistItemMenuPresenter.show(button, playlistItem.getUrn(), options);
+            }
+        });
+        ViewUtils.extendTouchArea(button, TOUCH_DELEGATE_DP);
+    }
+
 }

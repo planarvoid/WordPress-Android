@@ -2,7 +2,6 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static java.lang.Math.min;
@@ -35,14 +34,26 @@ public class RecommendedStationsOperations {
                     return calculateStationsSuggestions(suggestions, recent);
                 }
             };
+    private final Func1<SyncOperations.Result, Observable<DiscoveryItem>> loadRecommendedStations = new Func1<SyncOperations.Result, Observable<DiscoveryItem>>() {
+        @Override
+        public Observable<DiscoveryItem> call(SyncOperations.Result result) {
+            return getCollection(RECOMMENDATIONS)
+                    .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
+                    .filter(IS_NOT_EMPTY_LIST)
+                    .map(toDiscoveryItem())
+                    .switchIfEmpty(SyncOperations.<DiscoveryItem>emptyResult(result));
+        }
+    };
 
-    private final Func1<List<StationRecord>, DiscoveryItem> toRecommendedStationsBucket =
-            new Func1<List<StationRecord>, DiscoveryItem>() {
-                @Override
-                public DiscoveryItem call(List<StationRecord> stationRecords) {
-                    return RecommendedStationsBucketItem.create(transformToStationViewModels(stationRecords));
-                }
-            };
+    private Func1<List<StationRecord>, DiscoveryItem> toDiscoveryItem() {
+        return new Func1<List<StationRecord>, DiscoveryItem>() {
+            @Override
+            public DiscoveryItem call(List<StationRecord> stationRecords) {
+                return RecommendedStationsBucketItem.create(transformToStationViewModels(
+                        stationRecords));
+            }
+        };
+    }
 
     private final StationsStorage stationsStorage;
     private final PlayQueueManager playQueueManager;
@@ -61,18 +72,16 @@ public class RecommendedStationsOperations {
     }
 
     public Observable<DiscoveryItem> recommendedStations() {
-        return load(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).map(toRecommendedStationsBucket);
+        return load(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS));
     }
 
     public Observable<DiscoveryItem> refreshRecommendedStations() {
-        return load(syncOperations.failSafeSync(Syncable.RECOMMENDED_STATIONS)).map(toRecommendedStationsBucket);
+        return load(syncOperations.failSafeSync(Syncable.RECOMMENDED_STATIONS));
     }
 
-    private Observable<List<StationRecord>> load(Observable<SyncOperations.Result> source) {
+    private Observable<DiscoveryItem> load(Observable<SyncOperations.Result> source) {
         return source
-                .flatMap(continueWith(getCollection(RECOMMENDATIONS)))
-                .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
-                .filter(IS_NOT_EMPTY_LIST)
+                .flatMap(loadRecommendedStations)
                 .subscribeOn(scheduler);
     }
 

@@ -12,23 +12,11 @@ import java.util.List;
 @AutoValue
 public abstract class PreviewCollectionItem extends CollectionItem {
 
-    public static CollectionItem forLikesAndPlaylists(LikesItem likes, List<PlaylistItem> playlistItems) {
-        return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
-                                                   likes,
-                                                   Optional.<List<StationRecord>>absent(),
-                                                   Optional.of(playlistItems));
-    }
-
-    public static CollectionItem forLikesPlaylistsAndStations(LikesItem likes,
-                                                              List<PlaylistItem> playlistItems,
-                                                              List<StationRecord> stations) {
+    static CollectionItem forLikesPlaylistsAndStations(LikesItem likes,
+                                                       List<PlaylistItem> playlistItems,
+                                                       List<StationRecord> stations) {
         return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
                                                    likes, Optional.of(stations), Optional.of(playlistItems));
-    }
-
-    static PreviewCollectionItem forLikesAndStations(LikesItem likes, List<StationRecord> stations) {
-        return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
-                                                   likes, Optional.of(stations), Optional.<List<PlaylistItem>>absent());
     }
 
     abstract LikesItem getLikes();

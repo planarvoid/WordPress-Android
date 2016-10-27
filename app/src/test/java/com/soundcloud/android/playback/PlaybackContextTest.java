@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.discovery.Chart;
+import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;

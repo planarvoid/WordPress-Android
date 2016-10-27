@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.inject.Provider;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -19,7 +18,7 @@ public class MyPlaylistsSyncProviderTest {
 
     private MyPlaylistsSyncProvider syncProvider;
 
-    @Mock private Provider<MyPlaylistsSyncer> myPlaylistsSyncer;
+    @Mock private MyPlaylistsSyncerFactory myPlaylistsSyncer;
     @Mock private PlaylistStorage playlistStorage;
 
     @Before

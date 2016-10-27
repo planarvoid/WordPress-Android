@@ -9,7 +9,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, SuggestionsAdapter.SuggestionViewHolder> {
+class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerView.ViewHolder> {
 
     final static int TYPE_SEARCH = ViewTypes.DEFAULT_VIEW_TYPE;
     final static int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;
@@ -25,8 +25,8 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, Suggestions
     }
 
     @Override
-    protected SuggestionViewHolder createViewHolder(View itemView) {
-        return new SuggestionViewHolder(itemView);
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
     @Override
@@ -40,12 +40,6 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, Suggestions
                 return TYPE_USER;
             default:
                 throw new IllegalArgumentException("Unhandled suggestion item kind " + getItem(position).getKind());
-        }
-    }
-
-    static class SuggestionViewHolder extends RecyclerView.ViewHolder {
-        public SuggestionViewHolder(View itemView) {
-            super(itemView);
         }
     }
 

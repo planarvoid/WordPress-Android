@@ -49,6 +49,14 @@ public class FeatureFlagsHelper {
         return featureFlags.isDisabled(flag);
     }
 
+    public void enable(Flag flag) {
+        featureFlags.setRuntimeFeatureFlagValue(flag, true);
+    }
+
+    public void disable(Flag flag) {
+        featureFlags.setRuntimeFeatureFlagValue(flag, false);
+    }
+
     @NonNull
     private SharedPreferences createPreferencesForFeatureFlags(Context context) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE), new Obfuscator());

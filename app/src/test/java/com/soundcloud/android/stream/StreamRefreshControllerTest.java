@@ -25,7 +25,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
     private static final StreamEvent REFRESH_STREAM_EVENT = StreamEvent.fromStreamRefresh();
 
     @Mock AppCompatActivity activity;
-    @Mock SoundStreamOperations operations;
+    @Mock StreamOperations operations;
 
     private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider = new TestDateProvider();
@@ -36,7 +36,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         controller = new StreamRefreshController(eventBus, operations, dateProvider, scheduler);
-        when(operations.updatedStreamItems()).thenReturn(Observable.just(Collections.<SoundStreamItem>emptyList()));
+        when(operations.updatedStreamItems()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
     @Test
     public void onSyncErrorDoesNotPropagateToSubscriber() {
         when(operations.lastSyncTime()).thenReturn(Observable.just(-1L));
-        when(operations.updatedStreamItems()).thenReturn(Observable.<List<SoundStreamItem>>error(new Throwable()));
+        when(operations.updatedStreamItems()).thenReturn(Observable.<List<StreamItem>>error(new Throwable()));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);

@@ -20,7 +20,7 @@ class OfflineUsage {
     private boolean isUnlimited;
 
     @Inject
-    public OfflineUsage(SecureFileStorage fileStorage, OfflineSettingsStorage offlineSettings) {
+    OfflineUsage(SecureFileStorage fileStorage, OfflineSettingsStorage offlineSettings) {
         this.fileStorage = fileStorage;
         this.offlineSettings = offlineSettings;
     }
@@ -33,13 +33,13 @@ class OfflineUsage {
         this.isUnlimited = !offlineSettings.hasStorageLimit();
     }
 
-    public long getUsableOfflineLimit() {
+    long getUsableOfflineLimit() {
         return isUnlimited
                ? getUnlimitedSize()
                : Math.min(offlineLimit, getUnlimitedSize());
     }
 
-    public long getActualOfflineLimit() {
+    long getActualOfflineLimit() {
         return isUnlimited
                ? getUnlimitedSize()
                : offlineLimit;
@@ -49,23 +49,23 @@ class OfflineUsage {
         return deviceAvailable + offlineUsed;
     }
 
-    public long getOfflineUsed() {
+    long getOfflineUsed() {
         return offlineUsed;
     }
 
-    public long getDeviceAvailable() {
+    long getDeviceAvailable() {
         return deviceAvailable;
     }
 
-    public long getDeviceTotal() {
+    long getDeviceTotal() {
         return deviceTotal;
     }
 
-    public long getUsedOthers() {
+    long getUsedOthers() {
         return deviceTotal - deviceAvailable - offlineUsed;
     }
 
-    public long getOfflineAvailable() {
+    long getOfflineAvailable() {
         return Math.max(0, getUsableOfflineLimit() - offlineUsed);
     }
 
@@ -73,11 +73,15 @@ class OfflineUsage {
         return deviceAvailable - getOfflineAvailable();
     }
 
-    public int getOfflineLimitPercentage() {
-        return isUnlimited ? 100 : (int) (offlineLimit * 100 / deviceTotal);
+    int getOfflineLimitPercentage() {
+        if (isUnlimited || deviceTotal == 0) {
+            return 100;
+        } else {
+            return (int) (offlineLimit * 100 / deviceTotal);
+        }
     }
 
-    public boolean setOfflineLimitPercentage(int percentage) {
+    boolean setOfflineLimitPercentage(int percentage) {
         int step = (int) Math.max(Math.ceil(percentage / getStepPercentage()), 1);
         long calculatedLimit = Math.min((long) (step * STEP_IN_BYTES), deviceTotal);
 
@@ -92,7 +96,7 @@ class OfflineUsage {
         return true;
     }
 
-    public double getStepPercentage() {
+    private double getStepPercentage() {
         return STEP_IN_BYTES / deviceTotal * 100;
     }
 

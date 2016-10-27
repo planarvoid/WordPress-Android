@@ -2,6 +2,8 @@ package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistPushedToServer;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -35,13 +37,13 @@ import android.net.Uri;
 import android.support.v4.util.ArrayMap;
 import android.util.Pair;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+@AutoFactory(allowSubclasses = true)
 public class MyPlaylistsSyncer implements Callable<Boolean>, SyncStrategy {
 
     private static final String TAG = "MyPlaylistsSyncer";
@@ -54,20 +56,21 @@ public class MyPlaylistsSyncer implements Callable<Boolean>, SyncStrategy {
     private final RemovePlaylistCommand removePlaylistCommand;
     private final ApiClient apiClient;
     private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    private final boolean syncOfflinePlaylists;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final EventBus eventBus;
 
-    @Inject
-    public MyPlaylistsSyncer(@Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) PostsSyncer postsSyncer,
-                             LoadLocalPlaylistsCommand loadLocalPlaylists,
-                             LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
-                             ReplacePlaylistPostCommand replacePlaylist,
-                             LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand,
-                             RemovePlaylistCommand removePlaylistCommand,
-                             ApiClient apiClient,
-                             LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
-                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
-                             EventBus eventBus) {
+    public MyPlaylistsSyncer(@Provided @Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) PostsSyncer postsSyncer,
+                             @Provided LoadLocalPlaylistsCommand loadLocalPlaylists,
+                             @Provided LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
+                             @Provided ReplacePlaylistPostCommand replacePlaylist,
+                             @Provided LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand,
+                             @Provided RemovePlaylistCommand removePlaylistCommand,
+                             @Provided ApiClient apiClient,
+                             @Provided LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
+                             @Provided SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
+                             @Provided EventBus eventBus,
+                             boolean isUiRequest) {
         this.postsSyncer = postsSyncer;
         this.loadLocalPlaylists = loadLocalPlaylists;
         this.loadPlaylistTrackUrnsCommand = loadPlaylistTrackUrnsCommand;
@@ -78,6 +81,7 @@ public class MyPlaylistsSyncer implements Callable<Boolean>, SyncStrategy {
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.eventBus = eventBus;
         this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
+        this.syncOfflinePlaylists = !isUiRequest;
     }
 
     @Override
@@ -85,7 +89,7 @@ public class MyPlaylistsSyncer implements Callable<Boolean>, SyncStrategy {
         syncPendingRemovals();
         final List<Urn> pushedPlaylists = pushLocalPlaylists();
         final boolean postedPlaylistsChanged = postsSyncer.call(pushedPlaylists);
-        final boolean offlinePlaylistsChanged = syncOfflinePlaylists();
+        final boolean offlinePlaylistsChanged = syncOfflinePlaylists && syncOfflinePlaylists();
         return postedPlaylistsChanged || offlinePlaylistsChanged;
     }
 

@@ -16,12 +16,12 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.AllGenresActivity;
-import com.soundcloud.android.discovery.ChartActivity;
-import com.soundcloud.android.discovery.ChartTracksFragment;
+import com.soundcloud.android.discovery.charts.AllGenresActivity;
+import com.soundcloud.android.discovery.charts.ChartActivity;
+import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
+import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreActivity;
@@ -33,8 +33,9 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.payments.LegacyConversionActivity;
+import com.soundcloud.android.payments.TieredConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
-import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -44,6 +45,8 @@ import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.LegalActivity;
@@ -51,7 +54,6 @@ import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.LikedStationsActivity;
-import com.soundcloud.android.stations.RecentStationsActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
@@ -84,10 +86,13 @@ public class Navigator {
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
-    private final EventTracker eventTracker;
 
-    public Navigator(EventTracker eventTracker) {
+    protected final EventTracker eventTracker;
+    protected final FeatureFlags featureFlags;
+
+    public Navigator(EventTracker eventTracker, FeatureFlags featureFlags) {
         this.eventTracker = eventTracker;
+        this.featureFlags = featureFlags;
     }
 
     public void openHome(Context context) {
@@ -127,8 +132,16 @@ public class Navigator {
     }
 
     // Allow platform versions that would otherwise use SmoothNavigator to launch upgrade without the transition
+    // TODO: This work-around can be removed completely when we delete the LegacyConversionActivity!
     public void openUpgradeNoTransition(Context activityContext) {
-        activityContext.startActivity(new Intent(activityContext, WebConversionActivity.class));
+        activityContext.startActivity(new Intent(activityContext, getConversionActivity()));
+    }
+
+    @NonNull
+    private Class getConversionActivity() {
+        return featureFlags.isEnabled(Flag.MID_TIER)
+               ? TieredConversionActivity.class
+               : LegacyConversionActivity.class;
     }
 
     public void openUpgradeOnMain(Context context) {
@@ -373,10 +386,6 @@ public class Navigator {
         context.startActivity(new Intent(context, AllGenresActivity.class));
     }
 
-    public void openRecentStations(Context context) {
-        context.startActivity(new Intent(context, RecentStationsActivity.class));
-    }
-
     public void openLikedStations(Context context) {
         context.startActivity(new Intent(context, LikedStationsActivity.class));
     }
@@ -470,17 +479,29 @@ public class Navigator {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
     }
 
-    static public Intent createProfileIntent(Context context, Urn user) {
+    public Intent createHomeIntentFromNotification(Context context) {
+        final Intent intent = new Intent(context, MainActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
+
+        Screen.NOTIFICATION.addToIntent(intent);
+        Referrer.PLAYBACK_NOTIFICATION.addToIntent(intent);
+
+        return intent;
+    }
+
+    public static Intent createProfileIntent(Context context, Urn user) {
         return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 
-    static public Intent createProfileIntent(Context context, Urn user, Screen screen) {
+    private static Intent createProfileIntent(Context context, Urn user, Screen screen) {
         Intent intent = createProfileIntent(context, user);
         screen.addToIntent(intent);
         return intent;
     }
 
-    static public Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
+    private static Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
         Intent intent = createProfileIntent(context, user, screen);
         referrer.addToIntent(intent);
         return intent;

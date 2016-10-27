@@ -160,7 +160,7 @@ public class ViewFetcher {
         return Lists.newArrayList(filter(getAllOnScreenElements(), new Predicate<ViewElement>() {
             @Override
             public boolean apply(ViewElement viewElement) {
-                return viewElement.getParent().equals(parentView);
+                return parentView.equals(viewElement.getParent());
             }
         }));
     }

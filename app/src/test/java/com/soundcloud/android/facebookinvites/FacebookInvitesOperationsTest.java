@@ -13,7 +13,7 @@ import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.profile.MyProfileOperations;
-import com.soundcloud.android.stream.SoundStreamItem;
+import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -158,14 +158,14 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadForCreatorsWhenRecentPost() throws Exception {
-        final TestSubscriber<SoundStreamItem> subscriber = new TestSubscriber<>();
+        final TestSubscriber<StreamItem> subscriber = new TestSubscriber<>();
         PropertySet track = TestPropertySets.expectedPostedTrackForPostsScreen();
         when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(track));
 
         operations.creatorInvites().subscribe(subscriber);
 
-        final SoundStreamItem.FacebookCreatorInvites invitesItem = (SoundStreamItem.FacebookCreatorInvites) subscriber.getOnNextEvents()
-                                                                                                                      .get(0);
+        final StreamItem.FacebookCreatorInvites invitesItem = (StreamItem.FacebookCreatorInvites) subscriber.getOnNextEvents()
+                                                                                                            .get(0);
         assertThat(invitesItem.trackUrn()).isEqualTo(track.get(PlayableProperty.URN));
     }
 

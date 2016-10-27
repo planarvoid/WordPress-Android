@@ -151,6 +151,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
             case UIEvent.KIND_SHARE:
+            case UIEvent.KIND_FOLLOW:
+            case UIEvent.KIND_UNFOLLOW:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
 
                 if (featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)) {

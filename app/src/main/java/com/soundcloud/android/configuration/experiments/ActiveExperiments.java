@@ -12,7 +12,9 @@ public class ActiveExperiments {
     public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = Arrays.asList(ShareAsTextButtonExperiment.CONFIGURATION,
                                                                                          StationsRecoAlgorithmExperiment.CONFIGURATION,
                                                                                          OpusExperiment.CONFIGURATION,
-                                                                                         ChartsExperiment.CONFIGURATION);
+                                                                                         ChartsExperiment.CONFIGURATION,
+                                                                                         SwitchHomeExperiment.CONFIGURATION,
+                                                                                         DiscoveryModulesPositionExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 

@@ -9,7 +9,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.discovery.ChartSourceInfo;
+import com.soundcloud.android.discovery.charts.ChartSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -65,7 +65,7 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromToggleToFollow() {
         PropertySet userProperties = buildUserPropertySet(Urn.forUser(30L));
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, EntityMetadata.fromUser(userProperties));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, EntityMetadata.fromUser(userProperties), EventContextMetadata.builder().build());
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_FOLLOW);
         assertThat(uiEvent.get("creator_urn")).isEqualTo("soundcloud:users:30");
         assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
@@ -74,7 +74,7 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
         PropertySet userProperties = buildUserPropertySet(Urn.forUser(30L));
-        UIEvent uiEvent = UIEvent.fromToggleFollow(false, EntityMetadata.fromUser(userProperties));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, EntityMetadata.fromUser(userProperties), EventContextMetadata.builder().build());
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNFOLLOW);
     }
 

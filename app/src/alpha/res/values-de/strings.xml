@@ -1,0 +1,930 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--__MISC-->
+  <string name="app_name">SoundCloud</string>
+  <string name="btn_yes">Ja</string>
+  <string name="btn_no">Nein</string>
+  <string name="btn_post">Post</string>
+  <string name="btn_view">Anzeigen</string>
+  <string name="btn_apply">Anwenden</string>
+  <string name="btn_cancel">Abbrechen</string>
+  <string name="btn_continue">Fortsetzen</string>
+  <string name="btn_delete">Löschen</string>
+  <string name="btn_done">Fertig</string>
+  <string name="btn_upload">Hochladen</string>
+  <string name="btn_shuffle">Shuffle</string>
+  <string name="btn_follow">Folgen</string>
+  <string name="btn_following">Folge ich</string>
+  <string name="btn_like">Gefällt mir</string>
+  <string name="btn_unlike">Gefällt mir nicht mehr</string>
+  <string name="btn_save">Speichern</string>
+  <string name="email">E-Mail-Adresse</string>
+  <string name="password">Kennwort</string>
+  <string name="website">Website</string>
+  <string name="imprint">Impressum</string>
+  <string name="terms_of_use">Nutzungsbedingungen</string>
+  <string name="terms_of_use_go">Nutzungsbedingungen für SoundCloud Go</string>
+  <string name="privacy_policy">Datenschutzrichtlinie</string>
+  <string name="contact_support">Support kontaktieren</string>
+  <string name="copyright_information">Informationen zum Urheberrecht</string>
+  <!--@Todo from l10n: please explain-->
+  <string name="account_one_active">Du darfst nur ein aktives Konto besitzen.</string>
+  <string name="comments">Kommentare</string>
+  <string name="display_name">Name</string>
+  <string name="updated_time">Aktualisiert am %s.</string>
+  <string name="posted_time">Gepostet am %s</string>
+  <string name="filter">Filter</string>
+  <string name="following_zero">Gefolgt von dir</string>
+  <!--__ACCESSIBILITY-->
+  <string name="accessibility_stats_user_liked">Gefällt dir</string>
+  <string name="accessibility_like_action">Gefällt mir</string>
+  <plurals name="accessibility_stats_likes">
+    <item quantity="one">%d Like</item>
+    <item quantity="other">%d Likes</item>
+  </plurals>
+  <!--__ADS-->
+  <string name="ads_advertisement">Werbung</string>
+  <string name="ads_companionless">Der folgende Track wird in Kürze abgespielt.</string>
+  <string name="ads_call_to_action">WEITERE INFORMATIONEN</string>
+  <string name="ads_why_ads">Wozu Werbung?</string>
+  <string name="ads_why_ads_dialog_message">Jedes Mal, wenn du einen Werbespot siehst oder hörst, werden Künstler bezahlt. Gelegentliche Werbung ermöglicht es uns, die Künstler zu unterstützen und SoundCloud für die Hörer weiterhin kostenlos anzubieten.</string>
+  <string name="ads_skip_ad">Werbung überspringen</string>
+  <string name="ads_next_up_tracktitle_creatorname">Es folgt: %1$s (%2$s)</string>
+  <string name="ads_ad_in_progress">Werbung läuft</string>
+  <string name="ads_reopen_to_continue">Öffne die App erneut, um die Wiedergabe fortzusetzen</string>
+  <string name="ads_reopen_to_continue_short">App erneut öffnen und weiterhören</string>
+  <string name="ads_resume_playing_ad_to_continue">Zum Fortfahren Werbung weiter wiedergeben</string>
+  <string name="ads_skip_in_time">Überspringen in: %s</string>
+  <string name="ads_now_playing">Now playing</string>
+  <string name="ads_now_playing_tracktitle_username">Läuft jetzt: %1$s (%2$s)</string>
+  <!--__AUTHENTICATION-->
+  <string name="authentication_I_forgot_my_password">Kennwort vergessen?</string>
+  <string name="authentication_add_info_add_image_msg">Bitte lächeln! Dieses Bild wird in deinem Profil angezeigt.</string>
+  <string name="authentication_add_info_msg">Fast fertig. Du musst nur noch den angezeigten Namen auswählen und ein Foto hinzufügen, um dein Profil zu personalisieren.</string>
+  <string name="authentication_add_info_username_hint">Dein angezeigter Name</string>
+  <string name="authentication_choose_a_password">Mindestens 6 Zeichen</string>
+  <string name="authentication_error_incomplete_fields">Bitte fülle alle Felder aus.</string>
+  <string name="authentication_error_invalid_email">Please enter a valid email address.</string>
+  <string name="authentication_error_generic">Ups, es ist ein unerwarteter Fehler aufgetreten. Bitte versuch es erneut.</string>
+  <string name="authentication_error_no_connection_message">Es besteht ein Problem mit deiner Datenverbindung. Bitte überprüfe deine Netzwerkeinstellungen.</string>
+  <string name="authentication_error_password_too_short">Dein Kennwort muss mindestens 6 Zeichen lang sein.</string>
+  <string name="authentication_error_age_not_valid">Du musst mindestens 13 Jahre alt sein.</string>
+  <string name="authentication_error_title">Fehler</string>
+  <string name="authentication_log_in">Anmelden</string>
+  <string name="authentication_log_in_with_facebook">Mit Facebook anmelden</string>
+  <string name="authentication_login_error_password_message">Eine Anmeldung war nicht möglich. Sind deine E-Mail-Adresse und dein Kennwort korrekt?</string>
+  <string name="authentication_login_progress_message">Anmeldung läuft</string>
+  <string name="authentication_recover_password_failure">Die Wiederherstellung deines Kennworts ist derzeit nicht möglich. Versuch es später noch einmal.</string>
+  <string name="authentication_recover_password_failure_reason">Kennwort-Wiederherstellung fehlgeschlagen: %s</string>
+  <string name="authentication_recover_password_success">Öffne deinen Posteingang. Wir haben dir Anweisungen zum Ändern deines Kennworts gesendet.</string>
+  <string name="authentication_recover_progress_message">Kennwort wird zurückgesetzt</string>
+  <string name="authentication_sign_up">Erstelle ein Konto.</string>
+  <string name="authentication_signup_error_message">Leider ist ein Problem aufgetreten. Bitte registriere dich auf SoundCloud.com.</string>
+  <string name="authentication_signup_facebook_email_required">Zur Kontoerstellung benötigen wir deine Berechtigung zur Nutzung deiner Facebook-E-Mail-Adresse.</string>
+  <string name="authentication_your_email_address">Deine E-Mail-Adresse</string>
+  <string name="authentication_your_password">Dein Kennwort</string>
+  <string name="authentication_clear_image">Zum Entfernen des Bildes gedrückt halten</string>
+  <string name="authentication_login_error_message">Eine Anmeldung war nicht möglich. Versuch es später noch einmal.</string>
+  <string name="authentication_log_in_with_google_plus">Mit Google Plus anmelden</string>
+  <string name="error_google_sign_in_failed">Eine Anmeldung mit Google+ war nicht möglich. Aktiviere dein Google+-Konto auf plus.google.com und versuch es erneut.</string>
+  <string name="auth_disclaimer_title">Ein weiterer Schritt</string>
+  <string name="auth_disclaimer_message">Wenn du auf „Fortsetzen“ tippst, erklärst du dich mit den Nutzungsbedingungen und der Datenschutzrichtlinie von SoundCloud einverstanden.</string>
+  <string name="facebook_authentication_failed_message">Versuch es später noch einmal oder melde dich mit deiner E-Mail-Adresse und deinem Kennwort an.</string>
+  <string name="authentication_recover_password_msg">Wenn du deine E-Mail-Adresse eingibst, senden wir dir einen Link zur Änderung deines Kennworts zu. Bei weiteren Fragen kannst du unseren Supportbereich nutzen.</string>
+  <string name="authentication_recover_password_visit_our_Help_Center">Supportbereich</string>
+  <string name="authentication_recover_password_send">Senden</string>
+  <string name="authentication_blocked_title">Es konnte kein Konto erstellt werden</string>
+  <string name="authentication_blocked_message">Unsere Technik hält deine Registrierung für Spam. Wenn sie sich irrt, wende dich bitte an unseren Support.</string>
+  <!--@Todo from l10n: we don’t have sign-in on mobi anymore. Also unclear if this is still used?-->
+  <string name="authentication_captcha_message">Es gibt Probleme mit deiner Anmeldung. Bitte melde dich über unsere mobile Website an, bevor du es erneut versuchst.</string>
+  <string name="authentication_email_taken_message">Diese E-Mail-Adresse wird bereits für ein Konto verwendet. Melde dich mit diesem an oder gib eine andere E-Mail-Adresse ein.</string>
+  <string name="authentication_email_invalid_message">Wir können keine E-Mails an die von dir eingegebene Domain senden. Bitte überprüfe ihre Schreibweise.</string>
+  <string name="authentication_email_other_error_message">Leider ist eine Kontoerstellung mit den von dir angegebenen Daten nicht möglich.</string>
+  <string name="authentication_error_unable_to_use_google_play_services">Die Anmeldung über Google+ ist nur mit Google Play-Diensten möglich. Bitte wähle eine andere Anmeldungsoption.</string>
+  <!--__DEEPLINKS-->
+  <string name="error_toast_user_not_logged_in">Melde dich an, um diesen Link zu öffnen.</string>
+  <!--__EMPTY STATES-->
+  <string name="info_empty_other_message">Diese Person hat ihrem Profil noch keine Beschreibung hinzugefügt.</string>
+  <string name="info_empty_you_message">Dein Profil ist leer.</string>
+  <string name="info_empty_you_secondary">Melde dich zum Bearbeiten deines Profils über deinen Computer bei SoundCloud an.</string>
+  <string name="list_empty_notification_message">Du hast noch keine Benachrichtigungen.</string>
+  <string name="list_empty_notification_secondary">Folge deinen bevorzugten Künstlern, Bands und Podcasts und hör dir ihre neuesten Tracks an.</string>
+  <string name="list_empty_stream_action">LEUTE ZUM FOLGEN FINDEN</string>
+  <string name="list_empty_stream_message">Folge deinen bevorzugten Künstlern, Bands und Podcasts und hör dir ihre neuesten Tracks an.</string>
+  <string name="custom_empty_playlist_title">%1$s ist leer</string>
+  <string name="custom_empty_playlist_description">%1$s enthält noch keine Tracks.</string>
+  <string name="list_empty_you_likes_message">Markiere deine bevorzugten Tracks mit „Gefällt mir“, damit du sie erneut anhören kannst.</string>
+  <string name="list_empty_you_following_message">Folge deinen bevorzugten Künstlern, Bands und Kuratoren, um ihre neuesten Tracks zu hören.</string>
+  <string name="list_empty_you_followers_message">Du hast noch keine Follower.</string>
+  <string name="list_empty_you_followers_secondary">Teile deine bevorzugten Tracks und Playlists, damit deine Community gedeihen kann.</string>
+  <!--new profile-->
+  <!--@Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet."-->
+  <string name="new_empty_user_followers_text">Dieser Benutzer hat noch keine Follower.</string>
+  <string name="new_empty_user_followings_text">Dieser Benutzer folgt noch niemandem.</string>
+  <!--__ERRORS-->
+  <!--@Todo from l10n: move these error messages to other categories-->
+  <string name="error_unauthorized_message">Es gibt ein Problem mit deinem Konto. Melde dich noch einmal bei SoundCloud an, um die App weiter zu verwenden.</string>
+  <string name="error_unauthorized_title">Kontofehler</string>
+  <string name="error_loading_url">Beim Laden dieser URL ist ein Problem aufgetreten.</string>
+  <string name="crop_image_error">Beim Zuschneiden deines Bildes ist ein Fehler aufgetreten.</string>
+  <string name="error_server_problems_message">Beim Bearbeiten deiner Anfrage ist ein Problem aufgetreten. Versuch es später noch einmal.</string>
+  <string name="connection_list_error">Es ist ein Problem mit der Verbindung aufgetreten. Versuch es später noch einmal.</string>
+  <!--signup scope was revoked on server side-->
+  <string name="signup_scope_revoked">Ups! Eine Registrierung war leider nicht möglich.\nAktualisiere die App oder registriere dich auf SoundCloud.com.</string>
+  <string name="crop_external_permission_rationale">Berechtige SoundCloud zum Zugriff auf deinen externen Speicher, um auf das Bild zugreifen zu können.</string>
+  <string name="follow_blocked_title">Zum Folgen gesperrt</string>
+  <string name="follow_blocked_content_username">%s hat dich blockiert.</string>
+  <string name="follow_blocked_content_long_username">%s hat uns darum gebeten, dein Konto zu blockieren, damit du diesem Benutzer nicht folgen kannst.</string>
+  <string name="follow_age_restricted_title">Zum Folgen gesperrt</string>
+  <string name="follow_age_restricted_content_age_username">Benutzer über %1$s Jahren dürfen %2$s folgen.</string>
+  <string name="follow_age_restricted_content_long_age_username">Nur Benutzer ab %1$s Jahren sind berechtigt, %2$s zu folgen.</string>
+  <string name="follow_age_unknown_title">Bitte bestätige dein Alter.</string>
+  <string name="follow_age_unknown_content_username">Gib dein Alter ein, um %s zu folgen.</string>
+  <string name="follow_age_unknown_content_long_username">Bestätige, dass du alt genug bist, um %s zu folgen.</string>
+  <!--__EXPLORE-->
+  <string name="explore_genres">GENRES</string>
+  <string name="explore_genre_header_music">Musik</string>
+  <string name="explore_genre_header_audio">Audio</string>
+  <string name="explore_category_trending_music">MUSIK</string>
+  <string name="explore_category_trending_audio">AUDIO</string>
+  <string tools:ignore="UnusedResources" name="explore_alternative_rock">Alternative Rock</string>
+  <string tools:ignore="UnusedResources" name="explore_ambient">Ambient</string>
+  <string tools:ignore="UnusedResources" name="explore_classical">Klassik</string>
+  <string tools:ignore="UnusedResources" name="explore_country">Country</string>
+  <string tools:ignore="UnusedResources" name="explore_dance_and_edm">Dance &amp; EDM</string>
+  <string tools:ignore="UnusedResources" name="explore_dancehall">Dancehall</string>
+  <string tools:ignore="UnusedResources" name="explore_deep_house">Deep House</string>
+  <string tools:ignore="UnusedResources" name="explore_disco">Disco</string>
+  <string tools:ignore="UnusedResources" name="explore_drum_and_bass">Drum &amp; Bass</string>
+  <string tools:ignore="UnusedResources" name="explore_dubstep">Dubstep</string>
+  <string tools:ignore="UnusedResources" name="explore_electronic">Elektro</string>
+  <string tools:ignore="UnusedResources" name="explore_folk_and_singer_songwriter">Folk &amp; Singer-Songwriter</string>
+  <string tools:ignore="UnusedResources" name="explore_hip_hop_and_rap">Hip Hop &amp; Rap</string>
+  <string tools:ignore="UnusedResources" name="explore_house">House</string>
+  <string tools:ignore="UnusedResources" name="explore_indie">Indie</string>
+  <string tools:ignore="UnusedResources" name="explore_jazz_and_blues">Jazz &amp; Blues</string>
+  <string tools:ignore="UnusedResources" name="explore_latin">Latin</string>
+  <string tools:ignore="UnusedResources" name="explore_metal">Metal</string>
+  <string tools:ignore="UnusedResources" name="explore_piano">Klavier</string>
+  <string tools:ignore="UnusedResources" name="explore_pop">Pop</string>
+  <string tools:ignore="UnusedResources" name="explore_randb_and_soul">R&amp;B &amp; Soul</string>
+  <string tools:ignore="UnusedResources" name="explore_reggae">Reggae</string>
+  <string tools:ignore="UnusedResources" name="explore_reggaeton">Reggaeton</string>
+  <string tools:ignore="UnusedResources" name="explore_rock">Rock</string>
+  <string tools:ignore="UnusedResources" name="explore_soundtrack">Soundtrack</string>
+  <string tools:ignore="UnusedResources" name="explore_techno">Techno</string>
+  <string tools:ignore="UnusedResources" name="explore_trance">Trance</string>
+  <string tools:ignore="UnusedResources" name="explore_trap">Trap</string>
+  <string tools:ignore="UnusedResources" name="explore_trip_hop">Trip Hop</string>
+  <string tools:ignore="UnusedResources" name="explore_world">Weltmusik</string>
+  <string tools:ignore="UnusedResources" name="explore_audiobooks">Hörbücher</string>
+  <string tools:ignore="UnusedResources" name="explore_business">Business</string>
+  <string tools:ignore="UnusedResources" name="explore_comedy">Comedy</string>
+  <string tools:ignore="UnusedResources" name="explore_learning">Bildung</string>
+  <string tools:ignore="UnusedResources" name="explore_news_and_politics">News &amp; Politik</string>
+  <string tools:ignore="UnusedResources" name="explore_religion_and_spirituality">Religion &amp; Spiritualität</string>
+  <string tools:ignore="UnusedResources" name="explore_science">Wissenschaft</string>
+  <string tools:ignore="UnusedResources" name="explore_sports">Sport</string>
+  <string tools:ignore="UnusedResources" name="explore_storytelling">Erzählung</string>
+  <string tools:ignore="UnusedResources" name="explore_technology">Technik</string>
+  <string tools:ignore="UnusedResources" name="explore_entertainment">Entertainment</string>
+  <!--__IMAGES-->
+  <string name="add_image">Bild\nhinzufügen</string>
+  <string name="image_load_error">Beim Laden dieses Bildes ist ein Problem aufgetreten.</string>
+  <string name="image_where">Wie möchtest du ein Bild hinzufügen?</string>
+  <string name="take_new_picture">Neues Bild</string>
+  <string name="take_new_picture_error">Bild konnte nicht aufgenommen werden</string>
+  <string name="use_existing_image">Vorhandenes Bild</string>
+  <string name="use_existing_image_error">Vorhandenes Bild konnte nicht verwendet werden</string>
+  <!--__NAVIGATION-->
+  <string name="side_menu_notifications">Aktivität</string>
+  <string name="side_menu_record">Aufnahme</string>
+  <string name="side_menu_you">Du</string>
+  <string name="side_menu_profile">Profil</string>
+  <string name="side_menu_explore">Entdecken</string>
+  <string name="title_settings">Einstellungen</string>
+  <string name="title_feedback">Fehlerbericht senden</string>
+  <!--__ONBOARDING-->
+  <string name="try_again">Versuch es noch einmal.</string>
+  <string name="age">Alter</string>
+  <string name="enter_age_hint">Gib dein Alter ein.</string>
+  <string name="gender">Geschlecht</string>
+  <string name="onboarding_create_account">Erstelle ein Konto.</string>
+  <string name="onboarding_indicate_gender">Gib dein Geschlecht an.</string>
+  <string name="onboarding_custom_gender_hint">Geschlecht eingeben</string>
+  <string name="onboarding_gender_option_female">Weiblich</string>
+  <string name="onboarding_gender_option_male">Männlich</string>
+  <string name="onboarding_gender_option_custom">Benutzerdefiniert</string>
+  <string name="onboarding_gender_option_nopref">Enthaltung</string>
+  <string name="ok_got_it">Okay, geschafft</string>
+  <string name="onboarding_email_use_notice">Wir senden dir unter Umständen Updates und Tipps zu Produkten und Services von SoundCloud an deine E-Mail-Adresse. Du kannst diesen Dienst in deinen Benachrichtigungseinstellungen jederzeit abbestellen.</string>
+  <string name="onboarding_tou_reminder">Durch deine Anmeldung stimmst du unseren Nutzungsbedingungen zu.</string>
+  <string name="onboarding_tou_reminder_link_highlight">Nutzungsbedingungen</string>
+  <!--__LANDING-->
+  <string name="landing_title">Finde Musik, die dir gefällt.</string>
+  <string name="landing_sub_title">Entdecke neue Künstler.</string>
+  <string name="signup_button">Mit deiner E-Mail-Adresse registrieren</string>
+  <string name="login_header">Oder mit deinem Konto anmelden</string>
+  <!--__ONBOARDING CATEGORIES-->
+  <string tools:ignore="UnusedResources" name="category_facebook_friends">Facebook-Freunde</string>
+  <string tools:ignore="UnusedResources" name="category_facebook_likes">Facebook-Likes</string>
+  <string tools:ignore="UnusedResources" name="category_rock">Rock</string>
+  <string tools:ignore="UnusedResources" name="category_indie">Indie</string>
+  <string tools:ignore="UnusedResources" name="category_dubstep">Dubstep</string>
+  <string tools:ignore="UnusedResources" name="category_pop">Pop</string>
+  <string tools:ignore="UnusedResources" name="category_punk">Punk</string>
+  <string tools:ignore="UnusedResources" name="category_country">Country</string>
+  <string tools:ignore="UnusedResources" name="category_alternative">Alternative</string>
+  <string tools:ignore="UnusedResources" name="category_electronic">Elektro</string>
+  <string tools:ignore="UnusedResources" name="category_house">House</string>
+  <string tools:ignore="UnusedResources" name="category_rnb_and_soul">R&amp;B &amp; Soul</string>
+  <string tools:ignore="UnusedResources" name="category_hiphop_and_rap">Hip Hop &amp; Rap</string>
+  <string tools:ignore="UnusedResources" name="category_reggae">Reggae</string>
+  <string tools:ignore="UnusedResources" name="category_singer_songwriter">Singer-Songwriter</string>
+  <string tools:ignore="UnusedResources" name="category_jazz_and_blues">Jazz &amp; Blues</string>
+  <string tools:ignore="UnusedResources" name="category_metal">Metal</string>
+  <string tools:ignore="UnusedResources" name="category_classical">Klassik</string>
+  <string tools:ignore="UnusedResources" name="category_folk_and_world">Folk und Weltmusik</string>
+  <string tools:ignore="UnusedResources" name="category_ideas">Ideen</string>
+  <string tools:ignore="UnusedResources" name="category_business">Business</string>
+  <string tools:ignore="UnusedResources" name="category_religion_and_spirituality">Religion &amp; Spiritualität</string>
+  <string tools:ignore="UnusedResources" name="category_audiobooks">Hörbücher</string>
+  <string tools:ignore="UnusedResources" name="category_arts_and_entertainment">Kunst und Entertainment</string>
+  <string tools:ignore="UnusedResources" name="category_sports">Sport</string>
+  <string tools:ignore="UnusedResources" name="category_science_and_technology">Wissenschaft und Technik</string>
+  <string tools:ignore="UnusedResources" name="category_comedy">Comedy</string>
+  <string tools:ignore="UnusedResources" name="category_news">Nachrichten</string>
+  <string tools:ignore="UnusedResources" name="category_storytelling">Erzählung</string>
+  <string tools:ignore="UnusedResources" name="category_learning">Bildung</string>
+  <!--__PLAYABLE-->
+  <string name="private_indicator">Privat</string>
+  <string name="title_now_playing">Läuft jetzt</string>
+  <string name="like_toast_overflow_action">Deinen Likes hinzugefügt</string>
+  <string name="unlike_toast_overflow_action">Aus deinen Likes entfernt</string>
+  <string name="like_error_toast_overflow_action">Like-Status wurde nicht geändert</string>
+  <string name="reposted_to_followers">An deine Follower gerepostet</string>
+  <string name="unposted_to_followers">Post entfernt</string>
+  <string name="repost_error_toast_overflow_action">Repost-Status konnte nicht geändert werden</string>
+  <!--__PLAYER-->
+  <string name="share">Teilen</string>
+  <string name="repost">Auf SoundCloud reposten</string>
+  <string name="unpost">Repost entfernen</string>
+  <string name="comment_at_time">Kommentar bei %s</string>
+  <string name="comment_on_tracktitle">Kommentar zu %s</string>
+  <string name="comment_posted">Dein Kommentar wurde gepostet.</string>
+  <string name="comment_error">Kommentar konnte nicht erstellt werden.</string>
+  <string name="share_tracktitle_artist_link">Hör dir %1$s von %2$s an #np auf #SoundCloud\n%3$s</string>
+  <string name="share_tracktitle_link">Hör dir %1$s an #np auf #SoundCloud\n%2$s</string>
+  <string name="share_subject">%s – SoundCloud</string>
+  <string name="info">Informationen</string>
+  <string name="uploaded_xtimeago">Hochgeladen: %s</string>
+  <string name="track_info_no_description">Keine Beschreibung verfügbar</string>
+  <string name="up_next">Es folgt:</string>
+  <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
+  <string name="playback_error">Nicht spielbar</string>
+  <string name="playback_error_connection">Überprüfe deine Verbindung. Tippe, um es erneut zu versuchen.</string>
+  <string name="playback_error_unable_to_play">Track kann nicht gestreamt werden</string>
+  <string name="playback_missing_playable_tracks">Keine spielbaren Tracks</string>
+  <string name="play">Spielen</string>
+  <string name="pause">Anhalten</string>
+  <string name="previous">Zurück</string>
+  <string name="next">Vor</string>
+  <!--__COMMENTS-->
+  <string name="user_commented_at_timestamp">%1$s zu %2$s</string>
+  <plurals name="trackinfo_comments">
+    <item quantity="one">%d Kommentar zu diesem Track</item>
+    <item quantity="other">%d Kommentare zu diesem Track</item>
+  </plurals>
+  <!--__PLAYLISTS-->
+  <string name="playlist_load_error">Playlist konnte nicht geladen werden</string>
+  <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
+  <string name="shuffle_playlist">Playlist-Shuffle</string>
+  <string name="add_to_playlist">Zur Playlist hinzufügen</string>
+  <string name="remove_from_playlist">Aus Playlist entfernen</string>
+  <string name="edit_playlist">Playlist bearbeiten</string>
+  <string name="delete_playlist">Löschen</string>
+  <!--__PLAYLIST CREATION-->
+  <string name="add_track_to_playlist">Zur Playlist hinzufügen …</string>
+  <string name="added_to_playlist">Zur Playlist hinzugefügt</string>
+  <string name="create_new_playlist">Neue Playlist erstellen</string>
+  <string name="create_new_playlist_hint">Titel der Playlist eingeben</string>
+  <string name="error_new_playlist_blank_title">Gib einen gültigen Titel ein.</string>
+  <string name="add_playlist_private">Privat</string>
+  <plurals name="number_of_sounds">
+    <item quantity="one">%d Track</item>
+    <item quantity="other">%d Tracks</item>
+  </plurals>
+  <!--__PLAYLIST IN NEW STREAM-->
+  <plurals name="number_of_tracks" tools:ignore="ImpliedQuantity">
+    <item quantity="one">TRACK</item>
+    <item quantity="other">TRACKS</item>
+  </plurals>
+  <!--__PROFILE-->
+  <string name="tab_title_user_info">INFORMATIONEN</string>
+  <string name="tab_title_user_likes">LIKES</string>
+  <string name="tab_title_user_followers">FOLLOWER</string>
+  <string name="tab_title_user_followings">FOLGE ICH</string>
+  <string name="tab_title_user_sounds">TRACKS</string>
+  <!--@Todo from l10n: can we get rid of these Discogs and Myspace strings?-->
+  <string name="discogs">Discogs</string>
+  <string name="myspace">Myspace</string>
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="followers_message">
+    <item quantity="one">Gefolgt von %s Person</item>
+    <item quantity="other">Gefolgt von %s Leuten</item>
+  </plurals>
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="following_message">
+    <item quantity="one">Gefolgt von dir und %s weiterer Person</item>
+    <item quantity="other">Gefolgt von dir und %s weiteren Leuten</item>
+  </plurals>
+  <plurals name="number_of_liked_tracks_you_liked">
+    <item quantity="one">%d Track</item>
+    <item quantity="other">%d Tracks</item>
+  </plurals>
+  <!--__RECORD-->
+  <string name="rec_title_idle_rec">Aufnahme</string>
+  <string name="rec_title_recording">Aufnahme</string>
+  <string name="rec_title_idle_play">Angehalten</string>
+  <string name="rec_title_playing">Wird gespielt</string>
+  <string name="rec_title_editing">Bearbeiten</string>
+  <string name="record_insert_sd_card">Bitte führe zum Aufnehmen eine SD-Karte ein.</string>
+  <string name="record_instructions">Aufnahme</string>
+  <string name="record_default_title_sounds_from_day_time_of_day">Tracks von %s</string>
+  <string name="record_storage_is_full">Speicher voll</string>
+  <string name="recorded_dayofweek_afternoon">%s nachmittags</string>
+  <string name="recorded_dayofweek_evening">%s abends</string>
+  <string name="recorded_dayofweek_morning">%s morgens</string>
+  <string name="recorded_dayofweek_night">%s nachts</string>
+  <string name="dialog_confirm_delete_recording_message">Möchtest du diese Aufnahme wirklich löschen?</string>
+  <string name="btn_revert_to_original">Auf Originalzustand zurücksetzen</string>
+  <string name="fade_toggle_on">Ein-/Ausblenden</string>
+  <string name="dialog_revert_recording_message">Alle Änderungen gehen verloren. Trotzdem fortfahren?</string>
+  <string name="cloud_recorder_event_message_recordtime">Aufnahme für %s</string>
+  <string name="cloud_recorder_event_title">Aufnahme läuft</string>
+  <string name="cloud_recorder_playback_event_title">Wiedergabe läuft</string>
+  <string name="record_track_title">Track-Titel</string>
+  <string name="recording_pending_upload">Noch nicht hochgeladen</string>
+  <string name="recording_uploading">Wird hochgeladen ...</string>
+  <string name="recording_upload_failed">Upload fehlgeschlagen</string>
+  <string name="recording_upload_finished">Upload beendet</string>
+  <string name="record_privacy_header">Datenschutzeinstellung:</string>
+  <string name="record_tap_to_post">Zum Posten deiner Aufnahme tippen</string>
+  <string name="record_change_artwork">Cover ändern</string>
+  <string name="record_tap_to_record">Zum Starten der Aufnahme tippen</string>
+  <string name="record_tap_to_pause">Zum Anhalten der Aufnahme tippen</string>
+  <string name="record_tap_to_resume">Zum Fortsetzen der Aufnahme tippen</string>
+  <string name="record_permission_rationale">Berechtige SoundCloud zum Zugriff auf dein Mikrofon, um eine neue Aufnahme erstellen zu können.</string>
+  <!--__UPLOAD-->
+  <string name="uploader_event_processing">Wird verarbeitet</string>
+  <string name="uploader_event_processing_your_sound">Dein Track wird verarbeitet</string>
+  <string name="uploader_event_uploading_percent">Upload: %d%%</string>
+  <string name="uploader_event_cancelling">Wird abgebrochen</string>
+  <string name="cloud_upload_clear_artwork">Zum Löschen des Covers gedrückt halten</string>
+  <string name="cloud_uploader_notification_error_message_tracktitle">Beim Hochladen von %s ist ein Problem aufgetreten.</string>
+  <string name="cloud_uploader_notification_error_ticker">Upload-Fehler</string>
+  <string name="cloud_uploader_notification_error_title">Upload-Fehler</string>
+  <string name="cloud_uploader_notification_tracktitle_has_been_uploaded">%s wurde hochgeladen.</string>
+  <string name="cloud_uploader_notification_finished_ticker">Upload beendet</string>
+  <string name="cloud_uploader_notification_finished_title">Upload beendet</string>
+  <string name="dialog_cancel_upload_message">Upload abbrechen?</string>
+  <string name="sc_upload_private">\u00A0Privat</string>
+  <string name="sc_upload_public">\u00A0Öffentlich</string>
+  <!--__DISCOVERY SEARCH-->
+  <string name="search_type_all">ALLE</string>
+  <string name="search_type_tracks">TRACKS</string>
+  <string name="search_type_albums">ALBEN</string>
+  <string name="search_type_playlists">PLAYLISTS</string>
+  <string name="search_type_people">LEUTE</string>
+  <string name="search_tags_title">Beliebte Playlists entdecken</string>
+  <string name="search_tags_popular_subtitle">Bevorzugten Tag auswählen</string>
+  <string name="search_tags_recent_subtitle">Kürzlich verwendete Tags</string>
+  <string name="search_empty">Keine Ergebnisse gefunden</string>
+  <string name="search_empty_subtext">Überprüfe die Schreibweise oder versuch es mit einer anderen Suche.</string>
+  <string name="search_for_query">Nach „%s“ suchen</string>
+  <!--__DISCOVERY RECOMMENDATIONS-->
+  <string name="activity_title_view_all_recommendations">Weitere Tracks entdecken</string>
+  <string name="recommendation_view_all">Alle vorgeschlagenen Tracks anzeigen</string>
+  <string name="recommendations_footer">Das sind alle Vorschläge, die wir momentan zu bieten haben.\n\nSpiele und sammle mehr Tracks, um weitere Empfehlungen zu erhalten.</string>
+  <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
+  <string name="recommendation_reason_because_you_reason_tracktitle">Grund: %2$s %1$s</string>
+  <string name="recommendation_reason_liked">gefällt dir</string>
+  <string name="recommendation_reason_played">gespielt</string>
+  <!--https://github.com/soundcloud/personalized-tracks/-->
+  <string name="recommendation_seeds_header">Weitere Tracks entdecken</string>
+  <string name="discovery_search_hint">SoundCloud durchsuchen</string>
+  <string name="discovery_search_title">Suche</string>
+  <!--__DISCOVERY CHARTS-->
+  <string name="charts_header">SoundCloud-Charts</string>
+  <string name="charts_trending">Neu und angesagt</string>
+  <string name="charts_top">Top 50</string>
+  <string name="charts_new_and_hot_list_header">Vielversprechende neue Tracks.</string>
+  <string name="charts_top_fifty_list_header">Diese Woche auf SoundCloud am häufigsten gespielte Tracks.</string>
+  <string name="charts_genre_view_all">Alle Genres durchsuchen</string>
+  <string name="charts_by_genre">Charts nach Genre</string>
+  <string name="all_genres">Alle Genres</string>
+  <string name="charts_page_header">%s Charts</string>
+  <string tools:ignore="UnusedResources" name="charts_soundcloud">SoundCloud</string>
+  <string tools:ignore="UnusedResources" name="charts_alternativerock">Alternative Rock</string>
+  <string tools:ignore="UnusedResources" name="charts_ambient">Ambient</string>
+  <string tools:ignore="UnusedResources" name="charts_classical">Klassik</string>
+  <string tools:ignore="UnusedResources" name="charts_country">Land</string>
+  <string tools:ignore="UnusedResources" name="charts_danceedm">Dance &amp; EDM</string>
+  <string tools:ignore="UnusedResources" name="charts_dancehall">Dancehall</string>
+  <string tools:ignore="UnusedResources" name="charts_deephouse">Deep House</string>
+  <string tools:ignore="UnusedResources" name="charts_disco">Disco</string>
+  <string tools:ignore="UnusedResources" name="charts_drumbass">Drum &amp; Bass</string>
+  <string tools:ignore="UnusedResources" name="charts_dubstep">Dubstep</string>
+  <string tools:ignore="UnusedResources" name="charts_electronic">Elektro</string>
+  <string tools:ignore="UnusedResources" name="charts_folksingersongwriter">Folk &amp; Singer-Songwriter</string>
+  <string tools:ignore="UnusedResources" name="charts_hiphoprap">Hip-Hop &amp; Rap</string>
+  <string tools:ignore="UnusedResources" name="charts_house">House</string>
+  <string tools:ignore="UnusedResources" name="charts_indie">Indie</string>
+  <string tools:ignore="UnusedResources" name="charts_jazzblues">Jazz &amp; Blues</string>
+  <string tools:ignore="UnusedResources" name="charts_latin">Latin</string>
+  <string tools:ignore="UnusedResources" name="charts_metal">Metal</string>
+  <string tools:ignore="UnusedResources" name="charts_piano">Klavier</string>
+  <string tools:ignore="UnusedResources" name="charts_pop">Pop</string>
+  <string tools:ignore="UnusedResources" name="charts_rbsoul">R&amp;B &amp; Soul</string>
+  <string tools:ignore="UnusedResources" name="charts_reggae">Reggae</string>
+  <string tools:ignore="UnusedResources" name="charts_reggaeton">Reggaeton</string>
+  <string tools:ignore="UnusedResources" name="charts_rock">Rock</string>
+  <string tools:ignore="UnusedResources" name="charts_soundtrack">Soundtrack</string>
+  <string tools:ignore="UnusedResources" name="charts_speech">Sprache</string>
+  <string tools:ignore="UnusedResources" name="charts_techno">Techno</string>
+  <string tools:ignore="UnusedResources" name="charts_trance">Trance</string>
+  <string tools:ignore="UnusedResources" name="charts_trap">Trap</string>
+  <string tools:ignore="UnusedResources" name="charts_triphop">Triphop</string>
+  <string tools:ignore="UnusedResources" name="charts_world">Weltmusik</string>
+  <string tools:ignore="UnusedResources" name="charts_audiobooks">Hörbücher</string>
+  <string tools:ignore="UnusedResources" name="charts_business">Business</string>
+  <string tools:ignore="UnusedResources" name="charts_comedy">Comedy</string>
+  <string tools:ignore="UnusedResources" name="charts_entertainment">Entertainment</string>
+  <string tools:ignore="UnusedResources" name="charts_learning">Bildung</string>
+  <string tools:ignore="UnusedResources" name="charts_newspolitics">News &amp; Politik</string>
+  <string tools:ignore="UnusedResources" name="charts_religionspirituality">Religion &amp; Spiritualität</string>
+  <string tools:ignore="UnusedResources" name="charts_science">Wissenschaft</string>
+  <string tools:ignore="UnusedResources" name="charts_sports">Sport</string>
+  <string tools:ignore="UnusedResources" name="charts_storytelling">Erzählung</string>
+  <string tools:ignore="UnusedResources" name="charts_technology">Technik</string>
+  <!--__SETTINGS-->
+  <string name="pref_clear_cache">App-Cache löschen</string>
+  <string name="pref_clear_cache_desc">Lösche den Anwendungs-Cache für mehr Speicherplatz auf deinem Gerät.</string>
+  <string name="pref_privacy">Datenschutz</string>
+  <string name="pref_autoplay_related">Ähnliche Tracks automatisch spielen</string>
+  <string name="pref_autoplay_related_desc">Nach dem Ende der Playlist werden anhand des letzten Tracks ausgewählte weitere Tracks gespielt.</string>
+  <string name="pref_revoke_access">Abmelden</string>
+  <string name="pref_sync_wifi_only">Daten nur über WLAN aktualisieren</string>
+  <string name="pref_sync_wifi_only_description">Nur neue Likes etc. über WLAN aktualisieren</string>
+  <string name="pref_analytics">Analyse</string>
+  <string name="pref_analytics_desc">Wenn du die Analysefunktion aktivierst, können wir Daten über deine Verwendung dieser App sammeln, um sie zu verbessern. Weitere Informationen kannst du der Datenschutzrichtlinie entnehmen.</string>
+  <string name="pref_crashlogs">Absturzprotokolle</string>
+  <string name="pref_crashlogs_desc">Die Aktivierung des Absturzprotokolls hilft uns sehr dabei, die App zu verbessern. Wir erfassen keine personenbezogenen Daten. Weitere Informationen erhältst du in unserer Datenschutzrichtlinie.</string>
+  <string name="cache_clearing">Cache wird gelöscht</string>
+  <string name="cache_clearing_message">Zwischengespeicherte Dateien werden gelöscht...</string>
+  <string name="cache_cleared">Cache wurde gelöscht</string>
+  <!--__SETTINGS SIGN OUT-->
+  <string name="sign_out_title">Benutzerdaten löschen?</string>
+  <string name="sign_out_description">Du musst die Verbindung zu deinem SoundCloud-Konto wiederherstellen.</string>
+  <!--__SETTINGS NAVIGATION-->
+  <string name="title_about">Info</string>
+  <string name="title_legal">Rechtliches</string>
+  <string name="title_notification_settings">Benachrichtigungseinstellungen</string>
+  <!--__STATIONS-->
+  <string name="stations_collection_title_liked_stations">Sender</string>
+  <string name="liked_stations_empty_view_message">Du hast noch keinen Sender mit „Gefällt mir“ markiert</string>
+  <string name="liked_stations_onboarding_dialog_title">Jetzt neu: Markiere Sender mit „Gefällt mir“</string>
+  <string name="liked_stations_onboarding_dialog_message">Du kannst Sender jetzt mit „Gefällt mir nicht mehr“ markieren, um sie aus deiner Sammlung zu entfernen.</string>
+  <string name="liked_stations_onboarding_dialog_button">Geschafft</string>
+  <string name="stations_start_track_station">Track-Sender einschalten</string>
+  <string name="stations_start_user_station">Sender einschalten</string>
+  <string name="stations_open_station">Sender öffnen</string>
+  <string name="stations_unable_to_start_station">Der Sender kann nicht eingeschaltet werden. Versuche es später noch einmal.</string>
+  <string name="stations_loading_station">Sender wird geladen. Hab ein wenig Geduld.</string>
+  <string name="stations_collection_title_recent_stations">Aktuelle Sender</string>
+  <string name="stations_onboarding_stream_title">Schalte einen Sender ein, um dir ähnliche Tracks anzuhören. So wie im Radio.</string>
+  <string name="stations_onboarding_stream_description">Tippe dazu einfach auf die drei Punkte neben dem jeweiligen Track.</string>
+  <string name="recent_stations_empty_view_heading">Schalte einen Sender ein, um dir ähnliche Tracks anzuhören. So wie im Radio.</string>
+  <string name="recent_stations_empty_view_message">Tippe dazu einfach auf die drei Punkte neben dem jeweiligen Track.</string>
+  <string name="stations_collection_title_station_page">Sender</string>
+  <string name="stations_tracks_in_this_station">Tracks dieses Senders</string>
+  <string name="stations_see_all_tracks">Alle Tracks anzeigen</string>
+  <string name="suggested_stations">Vorgeschlagene Sender</string>
+  <string name="stations_home_station_based_on">%s, basierend auf</string>
+  <string name="stations_home_description">Eine Endlosschleife mit Musik von %1$s und vielen mehr</string>
+  <!--__TIME-->
+  <string name="format_abbreviated_seconds">%d Sek.</string>
+  <string name="format_abbreviated_minutes">%d Min.</string>
+  <plurals name="elapsed_days">
+    <item quantity="one">%d Tag</item>
+    <item quantity="other">%d Tage</item>
+  </plurals>
+  <plurals name="elapsed_days_ago">
+    <item quantity="one">Vor %d Tag</item>
+    <item quantity="other">Vor %d Tagen</item>
+  </plurals>
+  <plurals name="elapsed_hours">
+    <item quantity="one">%d Stunde</item>
+    <item quantity="other">%d Stunden</item>
+  </plurals>
+  <plurals name="elapsed_hours_ago">
+    <item quantity="one">Vor %d Stunde</item>
+    <item quantity="other">Vor %d Stunden</item>
+  </plurals>
+  <plurals name="elapsed_minutes">
+    <item quantity="one">%d Minute</item>
+    <item quantity="other">%d Minuten</item>
+  </plurals>
+  <plurals name="elapsed_minutes_ago">
+    <item quantity="one">Vor %d Minute</item>
+    <item quantity="other">Vor %d Minuten</item>
+  </plurals>
+  <plurals name="elapsed_months">
+    <item quantity="one">%d Monat</item>
+    <item quantity="other">%d Monate</item>
+  </plurals>
+  <plurals name="elapsed_months_ago">
+    <item quantity="one">Vor %d Monat</item>
+    <item quantity="other">Vor %d Monaten</item>
+  </plurals>
+  <plurals name="elapsed_seconds">
+    <item quantity="one">%d Sekunde</item>
+    <item quantity="other">%d Sekunden</item>
+  </plurals>
+  <plurals name="elapsed_seconds_ago">
+    <item quantity="one">Vor %d Sekunde</item>
+    <item quantity="other">Vor %d Sekunden</item>
+  </plurals>
+  <plurals name="elapsed_years">
+    <item quantity="one">%d Jahr</item>
+    <item quantity="other">%d Jahre</item>
+  </plurals>
+  <plurals name="elapsed_years_ago">
+    <item quantity="one">Vor %d Jahr</item>
+    <item quantity="other">Vor %d Jahren</item>
+  </plurals>
+  <!--__WIDGET-->
+  <string name="widget_touch_to_open">Zum Öffnen von SoundCloud tippen</string>
+  <!--__AGE VERFICATION-->
+  <string name="age_verify_label">Alter bestätigen</string>
+  <string name="age_verify_title">Bestätige dein Alter</string>
+  <string name="age_verify_warning">Einige der Inhalte in diesem Profil könnten für Personen unter einem bestimmten Alter unangemessen sein.</string>
+  <string name="age_verify_info">Diese Informationen werden in deinem Profil gespeichert.</string>
+  <string name="age_verify_button">Alter bestätigen</string>
+  <!--__GOOGLE CAST-->
+  <string name="cast_unable_play_track">Track kann nicht übertragen werden.</string>
+  <!--__PROMOTED TRACKS-->
+  <string name="promoted">Promoteter Track</string>
+  <string name="promoted_by_promotorname">Promoteter Track von %s</string>
+  <!--__FACEBOOK INVITES-->
+  <string name="facebook_invites_title">Mach Freunde auf SoundCloud aufmerksam</string>
+  <string name="facebook_invites_description">Zusammen noch schöner: Empfiehl SoundCloud deinen Freunden.</string>
+  <string name="facebook_invites_button">Freunde einladen</string>
+  <!--__FACEBOOK CREATOR INVITES-->
+  <string name="facebook_creator_invites_title">Mach Freunde auf deinen neuesten Track auf SoundCloud aufmerksam</string>
+  <!--__COLLECTION-->
+  <string name="collections_playlists_header">Playlists &amp; Alben</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">Playlists und Alben</item>
+    <item quantity="other">%d Playlists und Alben</item>
+  </plurals>
+  <string name="collections_your_liked_tracks">Mit „Gefällt mir“ markierte Tracks</string>
+  <string name="track_likes_title">Mit „Gefällt mir“ markierte Tracks</string>
+  <string name="collections_options_header_filters">Filter</string>
+  <string name="collections_options_header_sorting">Sortierung</string>
+  <string name="collections_options_toggle_created">Erstellt am</string>
+  <string name="collections_options_toggle_likes">Gefällt dir</string>
+  <string name="collections_options_dialog_sort_by_creation">Aktualität</string>
+  <string name="collections_options_dialog_sort_by_title">Titel</string>
+  <string name="collections_empty_playlists">Hier werden Playlists und Alben angezeigt, die dir gefallen oder die du erstellt hast.</string>
+  <string name="collections_filters_active_message">Es werden nicht alle Playlists und Alben angezeigt. Lösche die Filter, um alle anzuzeigen.</string>
+  <string name="collections_remove_filters">Filter löschen</string>
+  <string name="collections_loading_error">Beim Laden deiner Sammlung ist ein Fehler aufgetreten.\nVersuch es später noch einmal.</string>
+  <string name="collections_options_toggle_offline">Offline</string>
+  <string name="collections_with_stations_onboarding_title">Deine Likes, Playlists, Alben und Sender zentral an einem Ort.</string>
+  <string name="collections_without_stations_onboarding_title">Deine Likes und Playlists zentral an einem Ort.</string>
+  <string name="collections_onboarding_description">Deine neue Sammlung wartet auf dich: Hier findest du alle deine Tracks an einem Ort.</string>
+  <string name="collections_play_history_header">Wiedergabeverlauf</string>
+  <string name="collections_play_history_clear_action">Wiedergabeverlauf löschen</string>
+  <string name="collections_play_history_clear_dialog_title">Wiedergabeverlauf löschen?</string>
+  <string name="collections_play_history_clear_dialog_message">Möchtest du wirklich deinen Wiedergabeverlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+  <string name="collections_play_history_clear_dialog_button">Löschen</string>
+  <string name="collections_play_history_clear_error_message">Beim Löschen des Wiedergabeverlaufs ist ein Fehler aufgetreten. Versuch es später noch einmal.</string>
+  <string name="collections_play_history_empty">Hier findest du alle Tracks, die du dir angehört hast.</string>
+  <string name="collections_recently_played_header">Kürzlich gespielt</string>
+  <string name="collections_view_all_tracks">Gesamten Wiedergabeverlauf anzeigen</string>
+  <string name="collections_view_all_recently_played">Alle kürzlich gespielten Inhalte anzeigen</string>
+  <string name="dialog_playlist_delete_title">Playlist löschen?</string>
+  <string name="dialog_playlist_delete_message">Deine Playlist wird dauerhaft gelöscht. Möchtest du wirklich fortfahren?</string>
+  <string name="collections_recently_played_track_station">Track-Sender</string>
+  <string name="collections_recently_played_artist_station">Interpreten-Sender</string>
+  <string name="collections_recently_played_other_station">Sender</string>
+  <string name="collections_recently_played_playlist">Playlist</string>
+  <string name="collections_recently_played_album">Album</string>
+  <string name="collections_recently_played_profile">Profil</string>
+  <string name="collections_recently_played_clear_action">Kürzlich gespielte Inhalte löschen</string>
+  <string name="collections_recently_played_clear_dialog_title">Kürzlich gespielte Inhalte löschen?</string>
+  <string name="collections_recently_played_clear_dialog_message">Möchtest du wirklich deine kürzlich gespielten Inhalte löschen? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+  <string name="collections_recently_played_clear_dialog_button">Löschen</string>
+  <string name="collections_recently_played_clear_error_message">Beim Löschen der kürzlich gespielten Inhalte ist ein Fehler aufgetreten. Versuch es später noch einmal.</string>
+  <string name="collections_recently_played_empty">Hier findest du alle kürzlich gespielten Inhalte.</string>
+  <plurals name="collections_recently_played_header_items">
+    <item quantity="one">%d kürzlich gespieltes Element</item>
+    <item quantity="other">%d kürzlich gespielte Elemente</item>
+  </plurals>
+  <!--__TABS-->
+  <string name="tab_home">Start</string>
+  <string name="tab_discovery">Entdeckung</string>
+  <string name="tab_collection">Sammlung</string>
+  <string name="tab_more">Mehr</string>
+  <!--__MORE-->
+  <string name="more_explore">Entdecken</string>
+  <string name="more_activity">Benachrichtigungen</string>
+  <string name="more_record">Aufnahme</string>
+  <string name="more_notification_settings">Benachrichtigungseinstellungen</string>
+  <string name="more_basic_settings">Grundlegende Einstellungen</string>
+  <string name="more_report_bug">Fehler melden</string>
+  <string name="more_help_center">Supportbereich</string>
+  <string name="more_legal">Rechtliches</string>
+  <string name="more_sign_out">Abmelden</string>
+  <string name="more_view_public_profile">Öffentliches Profil anzeigen</string>
+  <string name="more_go_indicator">SOUNDCLOUD GO</string>
+  <string name="more_app_version">App-Version %s</string>
+  <!--__NEW STREAM-->
+  <string name="stream_playlist_header_text">%1$s %2$s eine Playlist</string>
+  <string name="stream_track_header_text">%1$s %2$s einen Track</string>
+  <string name="stream_album_header_text">%1$s %2$s ein Album</string>
+  <string name="stream_ep_header_text">%1$s %2$s eine EP</string>
+  <string name="stream_single_header_text">%1$s %2$s eine Single</string>
+  <string name="stream_compilation_header_text">%1$s %2$s eine Compilation</string>
+  <string name="stream_posted_action">gepostet</string>
+  <string name="stream_reposted_action">gerepostet</string>
+  <string name="stream_promoted_action">promotet</string>
+  <string name="stream_track">Track</string>
+  <string name="stream_promoted_playable">Promotete/r %s</string>
+  <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
+  <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
+        ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->
+  <string name="notification_username_liked_tracktitle">gefällt %s</string>
+  <string name="notification_username_reposted_tracktitle">hat %s gerepostet</string>
+  <string name="notification_username_commented_on_tracktitle">hat %s kommentiert</string>
+  <string name="notification_username_started_following_you">folgt dir</string>
+  <!--__SUBS-->
+  <string name="pref_subscriptions_header">Abonnements</string>
+  <string name="pref_subscription_buy_title">Upgrade</string>
+  <string name="pref_subscription_buy_summary">Aktualisiere dein Konto</string>
+  <string name="pref_subscription_restore_title">Reaktivieren</string>
+  <string name="pref_subscription_restore_summary">Reaktiviere ein bestehendes Abonnement</string>
+  <!--__CONVERSION-->
+  <string name="conversion_page_title">Abonnieren</string>
+  <string name="conversion_title">Hol dir SoundCloud Go</string>
+  <string name="conversion_price">%s/Monat</string>
+  <string name="conversion_feature_1">Offline hören, überall</string>
+  <string name="conversion_feature_2">Alle Vorschauen freigeben</string>
+  <string name="conversion_feature_3">Hol dir noch mehr Tracks</string>
+  <string name="conversion_feature_4">Werbefrei Musik hören</string>
+  <string name="conversion_buy_loading">Laden…</string>
+  <string name="conversion_buy_trial" tools:ignore="StringFormatCount">%d Tage kostenlos testen</string>
+  <string name="conversion_buy_no_trial">Upgrade jetzt durchführen</string>
+  <string name="conversion_buy_promo">Gilt nur für begrenzte Zeit</string>
+  <string name="conversion_retry_heading">Fehler... Versuch es noch einmal</string>
+  <string name="conversion_retry_message">Da ist wohl etwas schiefgegangen. Versuch es später erneut.</string>
+  <string name="conversion_retry_button">Versuch es noch einmal.</string>
+  <string name="conversion_buy_retry">Ladefehler. Noch einmal versuchen?</string>
+  <string name="conversion_restrictions">Mit Einschränkungen</string>
+  <string name="conversion_restrictions_dialog_title">Mit Einschränkungen</string>
+  <string name="ads_why_ads_upsell_dialog_message">Jedes Mal, wenn du dir einen Werbespot ansiehst oder anhörst, klingelt beim jeweiligen Interpreten die Kasse. Nur so kann die Nutzung von SoundCloud kostenfrei bleiben.\n\nSchluss mit Werbeunterbrechungen? Mit SoundCloud Go kannst du deine Lieblingskünstler auch ohne Werbespots unterstützen.</string>
+  <!--__PAYMENTS-->
+  <string name="payments_error_title_unavailable">Produkt ist nicht verfügbar</string>
+  <string name="payments_error_title_no_billing">Abrechnung nicht verfügbar</string>
+  <string name="payments_error_title_already_subscribed">Es besteht bereits ein aktives Abonnement</string>
+  <string name="payments_error_title_unconfirmed_email">Unbestätigte E-Mail-Adresse</string>
+  <string name="payments_error_title_canceled">Kaufvorgang fehlgeschlagen</string>
+  <string name="payments_error_title_stale">Zahlungsbestätigung fehlgeschlagen</string>
+  <string name="payments_error_title_wrong_user">Falsches Benutzerabonnement</string>
+  <string name="payments_error_title_verification_fail">Zahlungsverifizierung fehlgeschlagen</string>
+  <string name="payments_error_title_verification_timeout">Zeitüberschreitung für Zahlungsverifizierung</string>
+  <string name="payments_error_unavailable">Beim Verbindungsaufbau mit dem App Store ist ein Fehler aufgetreten. Versuch es noch einmal.</string>
+  <string name="payments_error_no_billing">Es gibt keinen gültigen App Store auf diesem Gerät.</string>
+  <string name="payments_error_already_subscribed">Es besteht bereits ein aktives Abonnement für dein Konto.</string>
+  <string name="payments_error_unconfirmed_email">Bestätige zum Kauf von SoundCloud Go deine E-Mail-Adresse. Anweisungen zur Bestätigung findest du in deinem Posteingang.</string>
+  <string name="payments_error_cancelled">Der Kaufvorgang konnte nicht abgeschlossen werden. Versuch es noch einmal.</string>
+  <string name="payments_error_stale">Das Zeitlimit für die Bestätigung deiner Zahlung wurde überschritten. Falls dieses Problem bestehen bleibt, wende dich an das Support-Team.</string>
+  <string name="payments_error_wrong_user">Dein Abonnement gilt für ein anderes SoundCloud-Konto. Achte darauf, dass du das Konto verwendest, das dem Abonnement in deinem Google Play-Konto entspricht.</string>
+  <string name="payments_error_verification_issue">Deine Zahlung konnte nicht verifiziert werden. Versuch es später noch einmal.</string>
+  <string name="payments_sign_out">Abmelden</string>
+  <!--__OFFLINE SYNC-->
+  <string name="offline_track_not_available">Track ist offline nicht verfügbar</string>
+  <string name="offline_update_completed_title">Alle offline gespeicherten Tracks</string>
+  <string name="offline_update_completed_message">Bereit für Offline-Wiedergabe</string>
+  <string name="offline_update_storage_limit_reached_title">Speicherbegrenzung erreicht</string>
+  <string name="offline_update_storage_limit_reached_message">Zum Anzeigen der Speichereinstellungen hier tippen</string>
+  <string name="offline_update_in_progress">Wird offline gespeichert</string>
+  <string name="offline_likes_dialog_title">Speichere deine Likes offline</string>
+  <string name="offline_likes_dialog_message">Hiermit kannst du deine aktuellen und künftigen Likes offline speichern, um sie dir auch ohne WLAN bzw. Datenverbindung anzuhören.</string>
+  <string name="make_offline_available">Offline speichern</string>
+  <string name="make_offline_unavailable">Aus dem Offline-Speicher entfernen</string>
+  <string name="offline_dialog_go_online_continue">Fortsetzen</string>
+  <string name="offline_dialog_go_online_error_title">Dein Abonnement konnte nicht bestätigt werden</string>
+  <string name="offline_dialog_go_online_error_content">Wir konnten dein Abonnement nicht bestätigen, da dieses Gerät mehr als 30 Tage offline war. Stelle mit diesem Gerät eine Internetverbindung her, um wieder auf deine Offline-Inhalte zugreifen zu können.</string>
+  <string name="offline_update_paused">Offline-Speichern unterbrochen</string>
+  <string name="no_network_connection">Keine Netzwerkverbindung</string>
+  <string name="no_wifi_connection">Keine WLAN-Verbindung</string>
+  <string name="offline_not_available_offline">Offline nicht verfügbar</string>
+  <string name="offline_no_wifi">Kein WLAN</string>
+  <string name="offline_no_connection">Keine Verbindung</string>
+  <!--__GO ONBOARDING-->
+  <string name="go_onboarding_title_1">Willkommen bei SoundCloud Go!</string>
+  <string name="go_onboarding_body_1">Du hast jetzt Zugriff auf den ständig wachsenden SoundCloud Go-Katalog und die werbefreie Offline-Wiedergabe.</string>
+  <string name="go_onboarding_title_2">Ganze Tracks abspielen</string>
+  <string name="go_onboarding_body_2">Tracks im Vorschaumodus werden mit SoundCloud Go jetzt in voller Länge abgespielt.</string>
+  <string name="go_onboarding_title_3">Offline-Wiedergabe</string>
+  <string name="go_onboarding_body_3">Lade Playlists, Alben und alle Tracks herunter, die dir gefallen.</string>
+  <string name="go_onboarding_title_4">Jetzt entdecken</string>
+  <string name="go_onboarding_body_4">Das Warten hat ein Ende: Alte Favoriten und neue Entdeckungen findest du jetzt in unserem gigantischen neuen Track-Katalog.</string>
+  <string name="go_onboarding_start">Los geht’s</string>
+  <string name="go_onboarding_retry">Ladefehler. Noch einmal versuchen?</string>
+  <string name="go_onboarding_error_dialog_title">Etwas ist schiefgegangen.</string>
+  <string name="go_onboarding_error_dialog_msg">Beim Aktivieren deiner neuen Funktionen und Inhalte ist ein Fehler aufgetreten. Starte die App neu.</string>
+  <string name="go_onboarding_error_dialog_button">Versuch es später noch einmal</string>
+  <string name="go_onboarding_offline_settings_title">Alles automatisch speichern</string>
+  <string name="go_onboarding_offline_settings_subtext">Durch Auswahl dieser Option kannst du alle deine aktuellen und künftigen Likes, Playlists und Alben automatisch offline speichern.</string>
+  <string name="go_onboarding_offline_settings_continue">Okay, geschafft</string>
+  <!--__GO OFFBOARDING-->
+  <string name="go_offboarding_title">Dein SoundCloud Go-Abonnement ist abgelaufen</string>
+  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
+  <string name="go_offboarding_description">Schade, dass du nicht mehr dabei bist (ganz ehrlich). Falls du den Offline-Zugriff auf unseren erweiterten Katalog werbefreier Tracks irgendwann vermissen solltest – kein Problem. Wir heißen dich jederzeit wieder willkommen.</string>
+  <string name="go_offboarding_primary_button_text">Neu abonnieren</string>
+  <string name="go_offboarding_secondary_button_text">Fortsetzen</string>
+  <!--__OFFLINE SETTINGS-->
+  <string name="pref_offline_offline_collection">Automatisch speichern</string>
+  <string name="pref_offline_offline_collection_description_off">Aktiviere diese Option, um alle deine aktuellen und künftigen Likes, Playlists und Alben offline zu speichern.</string>
+  <string name="pref_offline_offline_collection_description_on">Deaktiviere diese Option, wenn du keine Inhalte mehr automatisch speichern und alle zuvor gespeicherten Offline-Inhalte entfernen möchtest.</string>
+  <string name="pref_offline_wifi_only_sync">Nur über WLAN speichern</string>
+  <string name="pref_offline_wifi_only_description">Wenn diese Option aktiviert ist, werden Offline-Tracks nur über WLAN gespeichert.</string>
+  <string name="pref_offline_storage_limit">Speicherbegrenzung</string>
+  <string name="pref_offline_storage_limit_description">Hiermit legst du fest, wie viel des verfügbaren Speicherplatzes für die Offline-Wiedergabe verwendet werden soll.</string>
+  <string name="pref_offline_storage_free_gb">%1$.1f GB von %2$.1f GB frei</string>
+  <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
+  <string name="pref_offline_storage_usage">Speichernutzung</string>
+  <string name="pref_offline_used_by_other_apps">Von anderen Apps belegt</string>
+  <string name="pref_offline_used">Genutzt</string>
+  <string name="pref_offline_limit">Begrenzung</string>
+  <string name="pref_offline_remove_all_offline_content">Offline gespeicherte Inhalte entfernen</string>
+  <string name="pref_offline_remove_all_offline_content_description">Bei Auswahl dieser Option werden alle auf diesem Gerät gespeicherten Inhalte entfernt.</string>
+  <string name="remove_offline_content_title">Alle offline abspielbaren Inhalte entfernen?</string>
+  <string name="remove_offline_content_body_default">Bei Auswahl dieser Option werden alle offline abspielbaren Inhalte entfernt.</string>
+  <string name="remove_offline_content_body_sync_collection">Bei Auswahl dieser Option werden alle offline abspielbaren Inhalte entfernt. Außerdem werden deine neuen Likes, Playlists und Alben nicht mehr automatisch gespeichert.</string>
+  <string name="offline_cannot_set_limit_below_usage">Die Begrenzung kann nicht unter der aktuellen Speichernutzung liegen.</string>
+  <string name="sign_out_title_offline">Durch die Abmeldung werden alle Offline-Tracks entfernt.</string>
+  <string name="sign_out_description_offline">Bei der nächsten Anmeldung kannst du entscheiden, welche Tracks, Playlists und Alben diesmal gespeichert werden sollen.</string>
+  <string name="disable_offline_collection_title">Nicht mehr automatisch speichern?</string>
+  <string name="disable_offline_collection_body">Deine neuen Likes, Playlists und Alben werden nicht mehr automatisch gespeichert und sämtliche gespeicherten Tracks werden aus dem Offline-Speicher entfernt.</string>
+  <string name="disable_offline_collection_from_context_title">Aus dem Offline-Speicher entfernen?</string>
+  <string name="disable_offline_collection_from_context_body">Bei Auswahl dieser Option wird dieser Inhalt aus dem Offline-Speicher gelöscht. Außerdem werden Playlists und Alben, die du neu erstellst oder mit „Gefällt mir“ markierst, nicht mehr automatisch gespeichert.</string>
+  <!--offline playlist creation-->
+  <string name="add_playlist_offline">Offline verfügbar</string>
+  <!--offline settings-->
+  <string name="title_offline_settings">Offline-Speichereinstellungen</string>
+  <string name="you_offline_sync_settings">Offline-Speichereinstellungen</string>
+  <string name="unlimited">unbegrenzt</string>
+  <plurals name="downloading_track_of_tracks">
+    <item quantity="one">%1$d Track</item>
+    <item quantity="other">%1$d von %2$d Tracks</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_title">
+    <item quantity="one">Bestätige dein Abonnement innerhalb von %d Tag</item>
+    <item quantity="other">Bestätige dein Abonnement innerhalb von %d Tagen</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_content">
+    <item quantity="one">Dein Gerät muss mindestens einmal alle 30 Tage online sein, damit wir dein Abonnement bestätigen können. Wir bitten dich darum, innerhalb von %d Tag online zu gehen. Andernfalls verlierst du den Zugriff auf deine Offline-Inhalte.</item>
+    <item quantity="other">Dein Gerät muss mindestens einmal alle 30 Tage online sein, damit wir dein Abonnement bestätigen können. Wir bitten dich darum, innerhalb von %d Tagen online zu gehen. Andernfalls verlierst du den Zugriff auf deine Offline-Inhalte.</item>
+  </plurals>
+  <!--__DEVICE MANAGEMENT-->
+  <string name="device_management_limit_title">Du hast die maximale Anzahl an Geräten erreicht</string>
+  <string name="device_management_limit_active">Du hast SoundCloud Go schon auf drei Geräten installiert. Wenn du dieses Gerät für die Nutzung registrierst, wird die Registrierung desjenigen Geräts aufgehoben, das du am längsten nicht verwendet hast.</string>
+  <string name="device_management_limit_registered">Du hast SoundCloud Go schon auf 10 Geräten installiert. Du musst dich auf einem Gerät abmelden, bevor du dich mit diesem hier anmelden kannst.</string>
+  <string name="device_management_conflict_message">Da du die maximale Anzahl an Geräten für SoundCloud Go erreicht hast, wurdest du auf diesem Gerät abgemeldet und die Registrierung dieses Geräts wurde aufgehoben. Sämtliche offline gespeicherten Tracks wurden entfernt. Du musst dich wieder anmelden, bevor du dieses Gerät neu registrieren kannst.</string>
+  <string name="device_management_register">Registrieren</string>
+  <!--__PROFILE-->
+  <string name="empty_user_sounds_message">Derzeit keine Audioinhalte</string>
+  <string name="empty_user_sounds_message_secondary">Folge %1$s, um künftig Infos zu neuen Tracks zu erhalten.</string>
+  <string name="empty_you_sounds_message">Hier ist es gerade recht still</string>
+  <string name="empty_you_sounds_message_secondary">Hier werden deine Likes, Reposts und Uploads angezeigt.</string>
+  <string name="user_profile_sounds_header_spotlight">Spotlight</string>
+  <string name="user_profile_sounds_header_tracks">Tracks</string>
+  <string name="user_profile_sounds_header_albums">Alben</string>
+  <string name="user_profile_sounds_header_playlists">Playlists</string>
+  <string name="user_profile_sounds_header_reposts">Reposts</string>
+  <string name="user_profile_sounds_header_likes">Likes</string>
+  <string name="user_profile_sounds_view_all">Alles anzeigen</string>
+  <string name="user_profile_sounds_view_all_tracks">Alle Tracks anzeigen</string>
+  <string name="user_profile_sounds_view_all_albums">Alle Alben anzeigen</string>
+  <string name="user_profile_sounds_view_all_playlists">Alle Playlists anzeigen</string>
+  <string name="user_profile_sounds_view_all_reposts">Alle Reposts anzeigen</string>
+  <string name="user_profile_sounds_view_all_likes">Alle Likes anzeigen</string>
+  <string name="user_profile_sounds_tracks_empty">Dieser Benutzer hat noch keine Tracks.</string>
+  <string name="user_reposts_empty">Dieser Benutzer hat noch keine Reposts.</string>
+  <string name="user_profile_sounds_albums_empty">Dieser Benutzer hat noch keine Alben.</string>
+  <string name="user_profile_sounds_likes_empty">Dieser Benutzer hat noch keine Likes.</string>
+  <string name="user_profile_sounds_playlists_empty">Dieser Benutzer hat noch keine Playlists.</string>
+  <string name="user_reposts_label">Reposts</string>
+  <string name="user_albums_label">Alben</string>
+  <string name="user_likes_label">Likes</string>
+  <!--Set Type Labels-->
+  <string name="set_type_default_label">Playlist</string>
+  <string name="set_type_album_label">Album</string>
+  <string name="set_type_ep_label">EP</string>
+  <string name="set_type_single_label">Single</string>
+  <string name="set_type_compilation_label">Compilation</string>
+  <string name="set_type_default_label_for_text">Playlist</string>
+  <string name="set_type_album_label_for_text">Album</string>
+  <string name="set_type_ep_label_for_text">EP</string>
+  <string name="set_type_single_label_for_text">Single</string>
+  <string name="set_type_compilation_label_for_text">Compilation</string>
+  <!--__UPSELL-->
+  <string name="upsell_remove_ads">Werbefrei Musik hören</string>
+  <string name="upsell_upgrade_button">Hol dir SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_title">Tracks ganz anhören mit SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_description">Erhalte vollen Zugriff auf den weltweit größten Streaming-Katalog und hör dir Musik- und Audiotracks ohne Werbung offline an.</string>
+  <string name="upsell_playlist_upgrade_title">Tracks in voller Länge spielen – mit SoundCloud Go</string>
+  <string name="upsell_playlist_upgrade_description">Schluss mit dem Vorschaumodus: So entgeht dir keine Sekunde deiner Tracks mehr.</string>
+  <string name="upsell_track_preview">Vorschau</string>
+  <string name="upsell_track_geo_blocked">In deinem Land nicht verfügbar</string>
+  <string name="upsell_not_avaliable">Nicht verfügbar</string>
+  <!--__STATIONS-->
+  <string name="station_type_track">Track-Sender</string>
+  <string name="station_type_genre">Genre-Sender</string>
+  <string name="station_type_curator">Kuratoren-Sender</string>
+  <string name="station_type_artist">Interpreten-Sender</string>
+  <!--__STREAMING-->
+  <string name="concurrent_streaming_stopped">Wegen Wiedergabe auf einem anderen Gerät angehalten</string>
+  <!--__PLAYER-->
+  <string name="playback_error_blocked">In deinem Land nicht verfügbar</string>
+  <string name="playback_upsell_button">Ganzen Track freigeben</string>
+  <!--__SEARCH-->
+  <plurals name="search_premium_content_results_count">
+    <item quantity="one">%1$d SoundCloud Go-Ergebnis gefunden</item>
+    <item quantity="other">%1$d SoundCloud Go-Ergebnisse gefunden</item>
+  </plurals>
+  <string name="search_premium_content_view_all">Alle SoundCloud Go-Ergebnisse anzeigen</string>
+  <string name="search_premium_content_upsell">Mit Upgrade kannst du Tracks ganz anhören</string>
+  <!--__NOTIFICATION SETTINGS-->
+  <string name="push_notifications_all_title">Push-Benachrichtigungen</string>
+  <string name="push_notifications_all_summary">Aktiviere alle mobilen Benachrichtigungen oder wähle aus, welche du empfangen möchtest.</string>
+  <string name="push_notifications_follower">Neuer Follower</string>
+  <string name="push_notifications_repost">Repost deines Posts</string>
+  <string name="push_notifications_new_post">Neuer Post eines Benutzers, dem du folgst</string>
+  <string name="push_notifications_like">Like für deinen Post</string>
+  <string name="push_notifications_comment">Kommentar zu deinem Post</string>
+  <string name="push_notifications_product_updates">Neue SoundCloud-Funktionen</string>
+  <string name="push_notifications_survey">Umfragen und Feedback</string>
+  <string name="push_notifications_tips">SoundCloud-Tipps</string>
+  <string name="push_notifications_recommendations">Angesagtes</string>
+  <string name="email_notifications_all_title">E-Mail-Benachrichtigungen</string>
+  <string name="email_notifications_all_summary">Aktiviere alle E-Mail-Benachrichtigungen oder wähle aus, welche du empfangen möchtest.</string>
+  <string name="email_notifications_follower">Neuer Follower</string>
+  <string name="email_notifications_repost">Repost deines Posts</string>
+  <string name="email_notifications_new_post">Neuer Post eines Benutzers, dem du folgst</string>
+  <string name="email_notifications_like">Like für deinen Post</string>
+  <string name="email_notifications_message">Neue Nachricht</string>
+  <string name="email_notifications_comment">Kommentar zu deinem Post</string>
+  <string name="email_notifications_group">Neuer Gruppen-Post</string>
+  <string name="email_notifications_product_updates">Neue SoundCloud-Funktionen</string>
+  <string name="email_notifications_survey">Umfragen und Feedback</string>
+  <string name="email_notifications_tips">SoundCloud-Tipps</string>
+  <string name="email_notifications_recommendations">Angesagtes</string>
+  <string name="email_notifications_newsletter">SoundCloud-Newsletter</string>
+  <!--__STREAM-->
+  <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
+    <item quantity="one">1 neuer Post</item>
+    <item quantity="other">%s neue Posts</item>
+  </plurals>
+  <!--__ACTIVITIES-->
+  <plurals name="activities_new_notification" tools:ignore="ImpliedQuantity">
+    <item quantity="one">1 neue Benachrichtigung</item>
+    <item quantity="other">%s neue Benachrichtigungen</item>
+  </plurals>
+  <!--__KILL SWITCH-->
+  <string name="kill_switch_message">Aktualisiere die SoundCloud-App auf die neueste Version, um sie auch weiterhin zu nutzen.</string>
+  <string name="kill_switch_confirm">Jetzt aktualisieren</string>
+  <!--__PLAY QUEUE-->
+  <string name="play_queue_header_search">Aus den Suchergebnissen für „%1$s“</string>
+  <string name="play_queue_header_stream">Aus deinem Stream</string>
+  <string name="play_queue_header_link">Aus einem Link</string>
+  <string name="play_queue_header_profile">Aus dem Profil „%1$s“</string>
+  <string name="play_queue_header_playlist">Aus der Playlist „%1$s“</string>
+  <string name="play_queue_header_track_station">Aus Track-Sendern, basierend auf „%1$s“</string>
+  <string name="play_queue_header_artist_station">Aus Interpreten-Sendern, basierend auf „%1$s“</string>
+  <string name="play_queue_header_likes">Aus deinen Likes</string>
+  <string name="play_queue_header_listening_history">Aus dem Wiedergabeverlauf</string>
+  <string name="play_queue_header_suggested_tracks">Aus den vorgeschlagenen Tracks</string>
+  <string name="play_queue_header_charts_top">Aus den Top 50 der %1$s-Charts</string>
+  <string name="play_queue_header_charts_trending">Aus der Kategorie „Neu und angesagt“ der %1$s-Charts</string>
+  <string name="play_queue_header_explicit">Von dir hinzugefügt</string>
+  <string name="play_queue_header_auto_play">Automatische Wiedergabe</string>
+  <!--__SUGGESTED CREATORS-->
+  <string name="suggested_creators_relation_followed"></string>
+  <string name="suggested_creators_relation_uploaded"></string>
+  <string name="suggested_creators_relation_unknown"></string>
+</resources>

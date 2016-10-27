@@ -130,7 +130,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      int position,
                      EventContextMetadata.Builder builder) {
         if (track instanceof PromotedTrackItem) {
-            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET,null,
+            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null,
                  PromotedSourceInfo.fromItem((PromotedTrackItem) track), builder);
         } else {
             show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null, null, builder);
@@ -175,10 +175,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void configureStationOptions(Context context, PopupMenuWrapper menu) {
-        menu.findItem(R.id.start_station)
-            .setTitle(featureFlags.isEnabled(Flag.STATION_INFO_PAGE) ?
-                      context.getText(R.string.stations_open_station) :
-                      context.getText(R.string.stations_start_track_station));
+        menu.findItem(R.id.start_station).setTitle(context.getText(R.string.stations_open_station));
         menu.setItemEnabled(R.id.start_station, IOUtils.isConnected(context));
     }
 

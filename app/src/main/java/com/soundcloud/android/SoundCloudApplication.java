@@ -32,7 +32,6 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -119,8 +118,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         objectGraph = DaggerApplicationComponent.builder()
-                .applicationModule(new ApplicationModule(this))
-                .build();
+                                                .applicationModule(new ApplicationModule(this))
+                                                .build();
     }
 
     @Override
@@ -174,10 +173,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         trackOfflineStateProvider.subscribe();
         playQueueExtender.subscribe();
         playHistoryController.subscribe();
-
-        if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)) {
-            playlistExploder.subscribe();
-        }
+        playlistExploder.subscribe();
 
         if (applicationProperties.enforceConcurrentStreamingLimitation()) {
             playPublisher.subscribe();
@@ -271,14 +267,14 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void setupStrictMode() {
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
+                                           .detectAll()
+                                           .penaltyLog()
+                                           .build());
 
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
+                                       .detectAll()
+                                       .penaltyLog()
+                                       .build());
     }
 
     private boolean isReportingCrashes() {

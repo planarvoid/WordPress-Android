@@ -3,6 +3,8 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
+import com.soundcloud.android.cast.CastOptionsProvider;
+import com.soundcloud.android.cast.CastRedirectActivity;
 import com.soundcloud.android.collection.CollectionFragment;
 import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -28,15 +30,15 @@ import com.soundcloud.android.creators.upload.UploadMonitorFragment;
 import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.creators.upload.Uploader;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.AllGenresActivity;
-import com.soundcloud.android.discovery.ChartActivity;
-import com.soundcloud.android.discovery.ChartTracksFragment;
+import com.soundcloud.android.discovery.charts.AllGenresActivity;
+import com.soundcloud.android.discovery.charts.ChartActivity;
+import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.DiscoveryFragment;
-import com.soundcloud.android.discovery.GenresFragment;
+import com.soundcloud.android.discovery.charts.GenresFragment;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
-import com.soundcloud.android.discovery.ViewAllRecommendedTracksFragment;
+import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
+import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksFragment;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.downgrade.GoOffboardingFragment;
 import com.soundcloud.android.explore.ExploreActivity;
@@ -69,9 +71,11 @@ import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
+import com.soundcloud.android.payments.LegacyConversionActivity;
 import com.soundcloud.android.payments.NativeConversionActivity;
+import com.soundcloud.android.payments.PlanChoiceActivity;
+import com.soundcloud.android.payments.TieredConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
-import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
@@ -121,11 +125,9 @@ import com.soundcloud.android.settings.notifications.NotificationPreferencesActi
 import com.soundcloud.android.settings.notifications.NotificationPreferencesFragment;
 import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.LikedStationsFragment;
-import com.soundcloud.android.stations.RecentStationsActivity;
-import com.soundcloud.android.stations.RecentStationsFragment;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.stations.StationInfoFragment;
-import com.soundcloud.android.stream.SoundStreamFragment;
+import com.soundcloud.android.stream.StreamFragment;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -198,6 +200,10 @@ public interface ApplicationComponent {
     void inject(DevDrawerFragment devDrawerFragment);
     void inject(FullImageDialog fullImageDialog);
 
+    //Cast
+    void inject(CastRedirectActivity castRedirectActivity);
+    void inject(CastOptionsProvider castOptionsProvider);
+
     //PlayerModule
     void inject(PlayerFragment playerFragment);
     void inject(PlaybackActionReceiver playbackActionReceiver);
@@ -235,8 +241,8 @@ public interface ApplicationComponent {
     void inject(UserAlbumsActivity userAlbumsActivity);
     void inject(UserAlbumsFragment userAlbumsFragment);
 
-    //SoundStreamModule
-    void inject(SoundStreamFragment soundStreamFragment);
+    //StreamModule
+    void inject(StreamFragment streamFragment);
 
     //TrackModule
     void inject(TrackInfoFragment trackInfoFragment);
@@ -248,7 +254,9 @@ public interface ApplicationComponent {
 
     //PaymentsModule
     void inject(NativeConversionActivity nativeConversionActivity);
-    void inject(WebConversionActivity webConversionActivity);
+    void inject(LegacyConversionActivity webConversionActivity);
+    void inject(TieredConversionActivity tieredConversionActivity);
+    void inject(PlanChoiceActivity planChoiceActivity);
     void inject(WebCheckoutActivity webCheckoutActivity);
 
     //OfflineModule
@@ -298,8 +306,6 @@ public interface ApplicationComponent {
     void inject(LicensesActivity licensesActivity);
 
     //StationsModule
-    void inject(RecentStationsActivity recentStationsActivity);
-    void inject(RecentStationsFragment recentStationsFragment);
     void inject(StationInfoActivity stationInfoActivity);
     void inject(StationInfoFragment stationInfoFragment);
     void inject(LikedStationsActivity likedStationsActivity);

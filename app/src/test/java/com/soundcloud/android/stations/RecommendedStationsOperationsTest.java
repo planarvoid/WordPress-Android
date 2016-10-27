@@ -81,7 +81,6 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         syncSubject.onNext(Result.SYNCING);
 
         assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2));
-        subscriber.assertCompleted();
     }
 
     @Test

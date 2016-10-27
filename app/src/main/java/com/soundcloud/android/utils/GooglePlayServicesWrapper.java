@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import android.app.Activity;
@@ -15,7 +16,11 @@ public class GooglePlayServicesWrapper {
     public GooglePlayServicesWrapper() {
     }
 
-    public int isPlayServicesAvailable(Context context) {
+    public boolean isPlayServicesAvailable(Context context) {
+        return getPlayServicesAvailability(context) == ConnectionResult.SUCCESS;
+    }
+
+    public int getPlayServicesAvailability(Context context) {
         return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
     }
 
@@ -24,6 +29,8 @@ public class GooglePlayServicesWrapper {
     }
 
     public void showUnrecoverableErrorDialog(Activity activity, int resultCode) {
-        GoogleApiAvailability.getInstance().getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+        GoogleApiAvailability.getInstance()
+                             .getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                             .show();
     }
 }

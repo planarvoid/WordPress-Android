@@ -88,8 +88,8 @@ public class BackgroundSyncResultReceiverTest extends AndroidUnitTest {
         resultData.putParcelable(Syncable.CHARTS.name(),
                                  SyncJobResult.failure(Syncable.CHARTS.name(),
                                                        ApiRequestException.serverError(null, null)));
-        resultData.putParcelable(Syncable.RECENT_STATIONS.name(),
-                                 SyncJobResult.failure(Syncable.RECENT_STATIONS.name(),
+        resultData.putParcelable(Syncable.LIKED_STATIONS.name(),
+                                 SyncJobResult.failure(Syncable.LIKED_STATIONS.name(),
                                                        ApiRequestException.networkError(null, null)));
         resultData.putParcelable(Syncable.RECOMMENDED_STATIONS.name(),
                                  SyncJobResult.failure(Syncable.RECOMMENDED_STATIONS.name(),

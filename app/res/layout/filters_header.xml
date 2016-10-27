@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout android:id="@+id/filter_header"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout android:id="@+id/filter_header"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:auto="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    app:layout_scrollFlags="scroll">
+    android:paddingLeft="@dimen/discovery_search_cell_margin_left_right"
+    android:paddingTop="@dimen/discovery_search_cell_margin_top_bottom"
+    android:background="@color/page_background"
+    android:clipToPadding="false"
+    auto:layout_scrollFlags="scroll">
 
-    <View
-        android:id="@+id/header_top_separator"
-        style="@style/Divider.Background" />
-
-    <View style="@style/Divider.Section" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp">
+    <android.support.v7.widget.CardView
+        android:id="@+id/search_holder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/btn_filter_options"
+        auto:cardElevation="@dimen/discovery_cell_elevation"
+        auto:cardUseCompatPadding="true">
 
         <LinearLayout
-            android:id="@+id/search_holder"
             android:layout_width="match_parent"
             android:layout_height="@dimen/search_link_height"
             android:background="@color/white"
@@ -27,34 +28,29 @@
 
             <ImageView
                 android:id="@+id/search_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/search_link_padding_vertical"
-                android:paddingLeft="@dimen/search_link_padding_horizontal"
-                android:paddingRight="@dimen/search_link_padding_horizontal"
-                android:paddingTop="@dimen/search_link_padding_vertical"
+                style="@style/SearchIcon"
                 android:src="@drawable/search_icon" />
 
-            <com.soundcloud.android.view.CustomFontEditText
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/filter_text"
                 style="@style/Search.TextView.Link"
-                android:hint="@string/filter"/>
+                android:hint="@string/filter" />
 
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btn_filter_options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:src="@drawable/ic_collection_playlists_filter" />
+    </android.support.v7.widget.CardView>
 
-    </RelativeLayout>
+    <ImageButton
+        android:id="@+id/btn_filter_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/search_holder"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/search_holder"
+        android:layout_centerVertical="true"
+        android:background="?attr/selectableItemBackground"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:src="@drawable/ic_collection_playlists_filter" />
 
-    <View style="@style/Divider.Item" />
-
-</LinearLayout>
+</RelativeLayout>

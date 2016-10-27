@@ -48,7 +48,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen findAndClickFirstAlbumItem() {
-        scrollToItem(With.text(R.string.set_type_album_label)).click();
+        findAndClickFirstPlaylistItem();
         return new PlaylistDetailsScreen(testDriver);
     }
 

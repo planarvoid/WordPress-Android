@@ -39,9 +39,11 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -150,6 +152,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public View createItemView(ViewGroup container, SkipListener skipListener) {
         final View trackView = LayoutInflater.from(container.getContext())
                                              .inflate(R.layout.player_track_page, container, false);
+
         setupHolder(trackView);
         setupSkipListener(trackView, skipListener);
         return trackView;
@@ -279,6 +282,36 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         if (isExpanded && getViewHolder(view).upsellButton.getVisibility() == View.VISIBLE) {
             upsellImpressionController.recordUpsellViewed(playQueueItem);
         }
+    }
+
+    @Override
+    public void onItemAdded(View view) {
+        final View footerQueueButton = getViewHolder(view).footerQueueButton;
+        Animator alphaAnimator = ObjectAnimator.ofFloat(footerQueueButton, View.ALPHA, 0f, 1f, 0f);
+        alphaAnimator.setDuration(400);
+        alphaAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                footerQueueButton.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                footerQueueButton.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                footerQueueButton.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        alphaAnimator.setInterpolator(new FastOutSlowInInterpolator());
+        alphaAnimator.start();
     }
 
     public void setAdOverlay(View view, OverlayAdData adData) {
@@ -635,6 +668,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
         holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
         holder.footerUser = (TextView) trackView.findViewById(R.id.footer_user);
+        holder.footerQueueButton = trackView.findViewById(R.id.footer_play_queue_button);
 
         holder.adOverlayController = adOverlayControllerFactory.create(trackView, createAdOverlayListener(holder));
 
@@ -777,6 +811,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         ToggleButton footerPlayToggle;
         TextView footerTitle;
         TextView footerUser;
+        View footerQueueButton;
 
         // View sets
         Iterable<View> fullScreenViews;

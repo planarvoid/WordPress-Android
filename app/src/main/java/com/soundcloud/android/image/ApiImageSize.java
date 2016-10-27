@@ -23,8 +23,9 @@ public enum ApiImageSize {
     public final int height;
     public final String sizeSpec;
 
-    public final static int HIGH_RESOLUTION_SIZE = 960; // xhdpi, WXGA
-    public final static int MEDIUM_RESOLUTION_SIZE = 480; // hdpi, WVGA
+    public final static int RESOLUTION_1440 = 1440; // xhdpi, WXGA
+    public final static int RESOLUTION_960 = 960; // xhdpi, WXGA
+    public final static int RESOLUTION_480 = 480; // hdpi, WVGA
 
     public static final EnumSet<ApiImageSize> SMALL_SIZES = EnumSet.of(
             ApiImageSize.T47
@@ -68,9 +69,9 @@ public enum ApiImageSize {
         DisplayMetrics metrics = resources.getDisplayMetrics();
         int maxResolution = Math.max(metrics.heightPixels, metrics.widthPixels);
 
-        if (maxResolution >= HIGH_RESOLUTION_SIZE) {
+        if (maxResolution >= RESOLUTION_960) {
             return ApiImageSize.T500;
-        } else if (maxResolution >= MEDIUM_RESOLUTION_SIZE) {
+        } else if (maxResolution >= RESOLUTION_480) {
             return ApiImageSize.T300;
         } else {
             return ApiImageSize.T120;
@@ -81,7 +82,7 @@ public enum ApiImageSize {
         DisplayMetrics metrics = resources.getDisplayMetrics();
         int maxResolution = Math.max(metrics.heightPixels, metrics.widthPixels);
 
-        if (maxResolution >= HIGH_RESOLUTION_SIZE) {
+        if (maxResolution >= RESOLUTION_1440) {
             return ApiImageSize.T2480x520;
         } else {
             return ApiImageSize.T1240x260;

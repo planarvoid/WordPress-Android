@@ -14,7 +14,6 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import android.app.Fragment;
 import android.content.Intent;
-import android.view.KeyEvent;
 import android.view.Menu;
 
 import javax.inject.Inject;
@@ -95,14 +94,5 @@ public abstract class LoggedInActivity extends RootActivity {
                     .commit();
         }
     }
-
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if (castConnectionHelper.onDispatchVolumeEvent(event)) {
-            return true;
-        }
-        return super.dispatchKeyEvent(event);
-    }
-
 
 }

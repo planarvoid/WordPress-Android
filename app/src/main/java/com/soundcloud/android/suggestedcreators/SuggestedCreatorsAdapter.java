@@ -6,15 +6,22 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.Map;
 
-class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem, RecyclerItemAdapter.ViewHolder> {
+class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem, RecyclerView.ViewHolder> {
     private static final int SUGGESTED_CREATORS_TYPE = 0;
+    private final SuggestedCreatorRenderer suggestedCreatorRenderer;
 
     SuggestedCreatorsAdapter(SuggestedCreatorRenderer suggestedCreatorRenderer) {
         super(suggestedCreatorRenderer);
+        this.suggestedCreatorRenderer = suggestedCreatorRenderer;
+    }
+
+    void unsubscribe() {
+        suggestedCreatorRenderer.unsubscribe();
     }
 
     void onFollowingEntityChange(EntityStateChangedEvent event) {
@@ -27,7 +34,7 @@ class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem,
 
     private void setFollowingState(Urn urn, Boolean isFollowing) {
         for (SuggestedCreatorItem item : items) {
-            if (item.user().urn().equals(urn) && item.following != isFollowing) {
+            if (item.creator().urn().equals(urn) && item.following != isFollowing) {
                 item.following = isFollowing;
                 notifyDataSetChanged();
                 break;

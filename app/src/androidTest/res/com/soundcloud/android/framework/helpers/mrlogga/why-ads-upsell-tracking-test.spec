@@ -33,7 +33,7 @@ expected_events:
   params:
     impression_name: consumer_sub_ad
     anonymous_id: (\w|-)+
-    impression_object: soundcloud:tcode:3002
+    impression_object: soundcloud:tcode:[0-9]+
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: 3152

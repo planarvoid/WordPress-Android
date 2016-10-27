@@ -32,19 +32,21 @@ import java.util.concurrent.TimeUnit;
 class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         implements WebCheckoutInterface.Listener, WebCheckoutView.Listener {
 
+    static final String PRODUCT_INFO = "product_info";
+
     private static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(15);
 
-    public static final String PAYMENT_FORM_BASE_URL = "https://soundcloud.com/android_payment.html";
-    public static final String OAUTH_TOKEN_KEY = "oauth_token";
-    public static final String LOCALE_KEY = "locale";
-    public static final String PRICE_KEY = "price";
-    public static final String EXPIRY_DATE_KEY = "expiry_date";
-    public static final String TRIAL_DAYS_KEY = "trial_days";
-    public static final String PROMO_DAYS_KEY = "promo_days";
-    public static final String PROMO_PRICE_KEY = "promo_price";
-    public static final String PACKAGE_URN_KEY = "package_urn";
-    public static final String ENVIRONMENT_KEY = "env";
-    public static final String DISCOUNT_PRICE_KEY = "discount_price";
+    private static final String PAYMENT_FORM_BASE_URL = "https://soundcloud.com/android_payment.html";
+    private static final String OAUTH_TOKEN_KEY = "oauth_token";
+    private static final String LOCALE_KEY = "locale";
+    private static final String PRICE_KEY = "price";
+    private static final String EXPIRY_DATE_KEY = "expiry_date";
+    private static final String TRIAL_DAYS_KEY = "trial_days";
+    private static final String PROMO_DAYS_KEY = "promo_days";
+    private static final String PROMO_PRICE_KEY = "promo_price";
+    private static final String PACKAGE_URN_KEY = "package_urn";
+    private static final String ENVIRONMENT_KEY = "env";
+    private static final String DISCOUNT_PRICE_KEY = "discount_price";
 
     private final WebCheckoutView view;
     private final AccountOperations operations;
@@ -60,7 +62,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private Handler handler = new Handler();
 
     @Inject
-    public WebCheckoutPresenter(WebCheckoutView view,
+    WebCheckoutPresenter(WebCheckoutView view,
                                 AccountOperations operations,
                                 LocaleFormatter localeFormatter,
                                 Lazy<WebPaymentOperations> paymentOperations,
@@ -85,7 +87,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Nullable
     private WebProduct getProductFromIntent() {
-        return (WebProduct) activity.getIntent().getParcelableExtra(WebConversionPresenter.PRODUCT_INFO);
+        return (WebProduct) activity.getIntent().getParcelableExtra(PRODUCT_INFO);
     }
 
     private void loadProduct() {
@@ -94,13 +96,17 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
         final WebProduct product = getProductFromIntent();
         if (product == null) {
-            subscription = paymentOperations.get()
-                                            .product()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new WebProductSubscriber());
+            fetchHighTierProduct();
         } else {
             launchWebForm(product);
         }
+    }
+
+    private void fetchHighTierProduct() {
+        subscription = paymentOperations.get()
+                                        .products()
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new WebProductsSubscriber());
     }
 
     private void launchWebForm(WebProduct product) {
@@ -218,12 +224,13 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
-    private class WebProductSubscriber extends DefaultSubscriber<Optional<WebProduct>> {
+    private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {
         @Override
-        public void onNext(Optional<WebProduct> result) {
-            if (result.isPresent()) {
-                saveProduct(result.get());
-                launchWebForm(result.get());
+        public void onNext(AvailableWebProducts products) {
+            Optional<WebProduct> highTier = products.highTier();
+            if (highTier.isPresent()) {
+                saveProduct(highTier.get());
+                launchWebForm(highTier.get());
             } else {
                 setRetryState();
             }
@@ -236,7 +243,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void saveProduct(WebProduct product) {
-        activity.getIntent().putExtra(WebConversionPresenter.PRODUCT_INFO, product);
+        activity.getIntent().putExtra(PRODUCT_INFO, product);
     }
 
 }

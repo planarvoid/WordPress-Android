@@ -15,7 +15,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
@@ -46,9 +45,9 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         advancer = new PlayQueueAdvancer(
                 playQueueManager,
-                                         networkConnectionHelper,
-                                         playSessionController,
-                                         adsController, serviceInitiator);
+                networkConnectionHelper,
+                playSessionController,
+                adsController, serviceInitiator);
         trackUrn = TestPlayStates.URN;
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
@@ -59,7 +58,6 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.<Urn>newArrayList());
-        when(featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)).thenReturn(true);
     }
 
     @Test

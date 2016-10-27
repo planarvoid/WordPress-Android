@@ -21,7 +21,7 @@ public class MeSyncerProvider extends SyncerRegistry.SyncProvider {
     }
 
     @Override
-    public Callable<Boolean> syncer(@Nullable String action) {
+    public Callable<Boolean> syncer(@Nullable String action, boolean isUiRequest) {
         return meSyncerProvider.get();
     }
 

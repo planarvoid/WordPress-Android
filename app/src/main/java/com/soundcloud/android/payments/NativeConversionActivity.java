@@ -36,7 +36,7 @@ public class NativeConversionActivity extends LoggedInActivity {
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.conversion_activity);
+        super.setContentView(R.layout.legacy_conversion_activity);
         baseLayoutHelper.setupActionBar(this);
     }
 

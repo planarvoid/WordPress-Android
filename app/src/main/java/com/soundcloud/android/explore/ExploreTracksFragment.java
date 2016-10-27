@@ -94,7 +94,9 @@ public class ExploreTracksFragment extends LightCycleSupportFragment<ExploreTrac
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        connectObservable(buildObservable());
+        ConnectableObservable<List<TrackItem>> observable = buildObservable();
+        observable.subscribe(adapter);
+        connectObservable(observable);
     }
 
     @Override
@@ -111,7 +113,6 @@ public class ExploreTracksFragment extends LightCycleSupportFragment<ExploreTrac
                           .map(TrackItem.<SuggestedTracksCollection>fromApiTracks())
                           .observeOn(mainThread()).replay();
 
-        observable.subscribe(adapter);
         return observable;
     }
 

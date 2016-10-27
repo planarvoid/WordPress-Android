@@ -47,7 +47,6 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -99,7 +98,6 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private ShareOperations shareOperations;
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private EventTracker eventTracker;
-    @Mock private FeatureFlags featureFlags;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     @Captor private ArgumentCaptor<UIEvent> uiEventCaptor;
@@ -129,8 +127,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
                                                            offlineSettings,
                                                            navigator,
                                                            shareOperations,
-                                                           playQueueHelper,
-                                                           featureFlags);
+                                                           playQueueHelper);
 
         presenter.bindView(fragmentRule.getView());
         presenter.onResume(fragmentRule.getFragment());
@@ -265,8 +262,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
         final PublishSubject<PlaybackResult> subject = PublishSubject.create();
         when(playbackInitiator.playTracksShuffled(playlistTrackurns,
-                                                  getPlaySessionSource(),
-                                                  featureOperations.isOfflineContentEnabled()))
+                                                  getPlaySessionSource()))
                 .thenReturn(subject);
 
         onEngagementListener.onPlayShuffled();

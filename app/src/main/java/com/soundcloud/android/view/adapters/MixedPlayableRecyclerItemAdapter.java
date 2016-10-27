@@ -3,16 +3,16 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import android.support.annotation.VisibleForTesting;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
 
 public class MixedPlayableRecyclerItemAdapter
-        extends PagingRecyclerItemAdapter<PlayableItem, MixedPlayableRecyclerItemAdapter.MixedPlayableViewHolder> {
+        extends PagingRecyclerItemAdapter<PlayableItem, RecyclerItemAdapter.ViewHolder> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
@@ -40,14 +40,8 @@ public class MixedPlayableRecyclerItemAdapter
     }
 
     @Override
-    protected MixedPlayableViewHolder createViewHolder(View itemView) {
-        return new MixedPlayableViewHolder(itemView);
-    }
-
-    public static class MixedPlayableViewHolder extends RecyclerView.ViewHolder {
-        public MixedPlayableViewHolder(View itemView) {
-            super(itemView);
-        }
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
 }

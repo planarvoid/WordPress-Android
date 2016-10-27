@@ -21,6 +21,7 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
     private Urn urn;
     private String title;
     private ApiUser user;
+    private String genre;
     private List<String> tags;
     private int trackCount;
     private Optional<String> artworkUrlTemplate = Optional.absent();
@@ -78,12 +79,22 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
         return user;
     }
 
+    @Override
+    public String getGenre() {
+        return genre;
+    }
+
     public String getUsername() {
         return user.getUsername();
     }
 
     public void setUser(ApiUser user) {
         this.user = user;
+    }
+
+    @JsonProperty("genre")
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public List<String> getTags() {

@@ -13,7 +13,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,12 +20,13 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import java.util.Collections;
 
-class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAdapter.PlayQueueItemViewHolder> {
+class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItemAdapter.ViewHolder> {
 
     interface NowPlayingListener {
         void onNowPlayingChanged(TrackPlayQueueUIItem trackItem);
     }
 
+    private final TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
     private final Iterable<TrackPlayQueueUIItem> tracksFromItems;
     private PlayQueuePresenter.DragListener dragListener;
     private NowPlayingListener nowPlayingListener;
@@ -37,6 +37,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
         super(new CellRendererBinding<>(PlayQueueUIItem.Kind.TRACK.ordinal(), trackPlayQueueItemRenderer),
               new CellRendererBinding<>(PlayQueueUIItem.Kind.HEADER.ordinal(), headerPlayQueueItemRenderer)
         );
+        this.trackPlayQueueItemRenderer = trackPlayQueueItemRenderer;
         tracksFromItems = transform(filter(items, TrackPlayQueueUIItem.IS_TRACK), cast(TrackPlayQueueUIItem.class));
         setHasStableIds(true);
     }
@@ -52,7 +53,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
     }
 
     @Override
-    public void onBindViewHolder(final PlayQueueItemViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         ImageView overflow = (ImageView) holder.itemView.findViewById(R.id.overflow_button);
 
@@ -89,6 +90,11 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
     }
 
     public void updateNowPlaying(int position, boolean notifyListener) {
+
+        if (items.size() == position && getItem(position).isTrack()
+                && ((TrackPlayQueueUIItem) getItem(position)).getPlayState() == TrackPlayQueueUIItem.PlayState.PLAYING) {
+            return;
+        }
         for (int i = 0; i < items.size(); i++) {
             final PlayQueueUIItem item = items.get(i);
             if (item.isTrack()) {
@@ -137,14 +143,8 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
     }
 
     @Override
-    protected PlayQueueItemViewHolder createViewHolder(View itemView) {
-        return new PlayQueueItemViewHolder(itemView);
-    }
-
-    static class PlayQueueItemViewHolder extends RecyclerView.ViewHolder {
-        PlayQueueItemViewHolder(View itemView) {
-            super(itemView);
-        }
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
     int getAdapterPosition(final PlayQueueItem currentPlayQueueItem) {
@@ -174,6 +174,10 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, PlayQueueAda
             }
         }
         return 0;
+    }
+
+    void setTrackClickListener(TrackPlayQueueItemRenderer.TrackClickListener trackClickListener) {
+        trackPlayQueueItemRenderer.setTrackClickListener(trackClickListener);
     }
 
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/toggle_follow"
+        android:title="@string/btn_follow" />
+    <item
+        android:id="@+id/open_station"
+        android:title="@string/stations_open_station" />
+
+</menu>

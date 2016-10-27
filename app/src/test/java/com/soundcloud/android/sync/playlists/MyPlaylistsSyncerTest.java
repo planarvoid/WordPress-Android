@@ -85,7 +85,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
                 apiClient,
                 loadOfflinePlaylistsCommand,
                 singlePlaylistSyncerFactory,
-                eventBus
+                eventBus,
+                false
         );
     }
 

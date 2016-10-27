@@ -99,11 +99,6 @@ public class SyncInitiatorBridge {
     }
 
     public Observable<Void> refreshStations() {
-        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
-            return stationOperations.syncStations(StationsCollectionsTypes.LIKED).map(RxUtils.TO_VOID);
-        } else {
-            return stationOperations.syncStations(StationsCollectionsTypes.RECENT).map(RxUtils.TO_VOID);
-        }
-
+        return stationOperations.syncStations(StationsCollectionsTypes.LIKED).map(RxUtils.TO_VOID);
     }
 }

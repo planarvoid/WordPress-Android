@@ -324,6 +324,19 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void displayAppInstallDoesNotCacheAndHasPlaceholder() {
+        imageOperations.displayAppInstall(Urn.forAd("dfp", "123"), URL, imageView);
+
+        verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(),
+                                         displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
+        assertThat(displayOptionsCaptor.getValue().getDisplayer()).isInstanceOf(PlaceholderTransitionDisplayer.class);
+        assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isSameAs(imageView);
+    }
+
+    @Test
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
         when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(ValueProvider.class))).thenReturn(

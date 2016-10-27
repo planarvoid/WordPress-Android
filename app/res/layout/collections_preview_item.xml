@@ -37,7 +37,7 @@
         android:layout_height="match_parent"
         android:visibility="gone"
         soundcloud:collectionIcon="@drawable/ic_collection_stations"
-        soundcloud:collectionTitle="@string/stations_collection_title_recent_stations"
+        soundcloud:collectionTitle="@string/stations_collection_title_liked_stations"
         soundcloud:collectionPreviewOverlay="@drawable/stations_overlay_small"/>
 
     <View style="@style/Divider.Section" />

@@ -112,4 +112,13 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
         verify(adjustWrapper).trackEvent(AdjustEventToken.OFFLINE_SETTINGS);
     }
 
+    @Test
+    public void tracksPlanDowngraded() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forResubscribeImpression();
+
+        adjustAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(adjustWrapper).trackEvent(AdjustEventToken.PLAN_DOWNGRADED);
+    }
+
 }

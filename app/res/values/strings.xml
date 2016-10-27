@@ -16,6 +16,7 @@
     <string name="btn_shuffle">Shuffle</string>
     <string name="btn_follow">Follow</string>
     <string name="btn_following">Following</string>
+    <string name="btn_unfollow">Unfollow</string>
     <string name="btn_like">Like</string>
     <string name="btn_unlike">Unlike</string>
     <string name="btn_save">Save</string>
@@ -61,6 +62,11 @@
     <string name="ads_skip_in_time">Skip in: %s</string>
     <string name="ads_now_playing">Now playing</string>
     <string name="ads_now_playing_tracktitle_username">Now playing: %1$s (%2$s)</string>
+    <string name="ads_app">app</string>
+    <plurals name="ads_app_ratings">
+        <item quantity="one">%s rating</item>
+        <item quantity="other">%s ratings</item>
+    </plurals>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">Forgot your password?</string>
@@ -300,7 +306,7 @@
     <string name="info">Info</string>
     <string name="uploaded_xtimeago">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
-    <string name="up_next">Up next</string>
+    <string name="up_next">Next up</string>
 
     <!-- @Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this? -->
     <string name="playback_error">Not playable</string>
@@ -327,6 +333,7 @@
     <string name="remove_from_playlist">Remove from playlist</string>
     <string name="edit_playlist">Edit playlist</string>
     <string name="delete_playlist">Delete playlist</string>
+    <string name="search_playlists">search playlists</string>
 
     <!-- __PLAYLIST CREATION -->
     <string name="add_track_to_playlist">Add to playlist...</string>
@@ -336,8 +343,8 @@
     <string name="error_new_playlist_blank_title">Please enter a valid title</string>
     <string name="add_playlist_private">Private</string>
     <plurals name="number_of_sounds">
-        <item quantity="one">%d track</item>
-        <item quantity="other">%d tracks</item>
+        <item quantity="one">%s track</item>
+        <item quantity="other">%s tracks</item>
     </plurals>
 
     <!-- __PLAYLIST IN NEW STREAM -->
@@ -447,6 +454,11 @@
     <string name="recommendation_seeds_header">Discover more tracks</string>
     <string name="discovery_search_hint">Search SoundCloud</string>
     <string name="discovery_search_title">Search</string>
+    <string name="discovery_empty">No discovery items yet</string>
+
+    <!-- __DISCOVERY PLAYLISTS -->
+    <string name="recommended_playlists_reason">Playlists for %s</string>
+
 
     <!-- __DISCOVERY CHARTS -->
     <string name="charts_header">SoundCloud charts</string>
@@ -536,14 +548,11 @@
     <string name="liked_stations_onboarding_dialog_button">Got it</string>
     <string name="stations_start_track_station">Start track station</string>
     <string name="stations_start_user_station">Start station</string>
-    <string name="stations_open_station">Open station</string>
+    <string name="stations_open_station">Station</string>
     <string name="stations_unable_to_start_station">We’re unable to start this station. Try again in a few minutes.</string>
     <string name="stations_loading_station">Loading station. Stay tuned.</string>
-    <string name="stations_collection_title_recent_stations">Recent stations</string>
     <string name="stations_onboarding_stream_title">Start a station to hear a series of similar tracks. It’s just like radio.</string>
     <string name="stations_onboarding_stream_description">Just tap the three dots next to any track to get started.</string>
-    <string name="recent_stations_empty_view_heading">Start a station to hear a series of similar tracks. It’s just like radio.</string>
-    <string name="recent_stations_empty_view_message">Just tap the three dots next to any track to get started.</string>
     <string name="stations_collection_title_station_page">Station</string>
     <string name="stations_tracks_in_this_station">Tracks in this station</string>
     <string name="stations_see_all_tracks">See all tracks</string>
@@ -713,6 +722,7 @@
     <string name="stream_promoted_action">promoted</string>
     <string name="stream_track">track</string>
     <string name="stream_promoted_playable">Promoted %s</string>
+    <string name="stream_sponsored_item">Sponsored %s</string>
 
     <!-- __NOTIFICATIONS (prev. ACTIVITIES) -->
     <!--
@@ -744,6 +754,7 @@
     <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>
     <string name="conversion_buy_promo">Get it for a limited time</string>
+    <string name="conversion_more_plans">View more plans</string>
     <string name="conversion_retry_heading">Oops… try again</string>
     <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
     <string name="conversion_retry_button">Try again</string>
@@ -999,7 +1010,7 @@
     <string name="kill_switch_confirm">Update now</string>
 
     <!-- __PLAY QUEUE -->
-    <string name="play_next">Add to up next</string>
+    <string name="play_next">Add to Next up</string>
     <string name="track_removed">Track removed</string>
 
     <string name="play_queue_header_search">From search results for %1$s</string>

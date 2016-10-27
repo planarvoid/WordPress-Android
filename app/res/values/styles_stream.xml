@@ -5,6 +5,41 @@
         <item name="ariv_aspectRatio">.50</item>
     </style>
 
+    <style name="Stream.Image.AppInstall" parent="Cards.Image">
+        <item name="ariv_aspectRatio">.50</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="Stream.Text.AppInstallName" parent="ListItemText">
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/ak_almost_black</item>
+    </style>
+
+    <style name="Stream.Button.WhyAds" parent="ListItemText">
+        <item name="android:textColor">@drawable/txt_btn_gray_states</item>
+    </style>
+
+    <style name="Stream.Button.CallToAction" parent="ListItemText">
+        <item name="android:gravity">center</item>
+        <item name="android:paddingLeft">11dp</item>
+        <item name="android:paddingRight">11dp</item>
+        <item name="android:textColor">@drawable/txt_btn_promoted_states</item>
+        <item name="android:background">@drawable/btn_ad_inlay_cta</item>
+    </style>
+
+    <style name="Stream.RatingBar.AppInstall" parent="@android:style/Widget.RatingBar">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">10dp</item>
+        <item name="android:maxHeight">10dp</item>
+        <item name="android:isIndicator">true</item>
+        <item name="android:max">5</item>
+        <item name="android:stepSize">0.01</item>
+        <item name="android:progressDrawable">@drawable/ratingbar_app_install</item>
+    </style>
+
     <style name="Stream.NowPlaying" parent="Cards.StatsItem">
         <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@color/ak_sc_orange</item>

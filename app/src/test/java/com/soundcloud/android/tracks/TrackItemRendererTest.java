@@ -16,7 +16,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.discovery.ChartTrackItem;
+import com.soundcloud.android.discovery.charts.ChartTrackItem;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;

@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -42,6 +43,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     final @LightCycle ProfileScrollHelper scrollHelper;
     final @LightCycle ActivityReferringEventProvider referringEventProvider;
     final @LightCycle EnterScreenDispatcher enterScreenDispatcher;
+    private final ScreenProvider screenProvider;
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
@@ -69,7 +71,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
                             AccountOperations accountOperations,
                             EventTracker eventTracker,
                             ActivityReferringEventProvider referringEventProvider,
-                            EnterScreenDispatcher enterScreenDispatcher) {
+                            EnterScreenDispatcher enterScreenDispatcher,
+                            ScreenProvider screenProvider) {
         this.scrollHelper = scrollHelper;
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
@@ -78,6 +81,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         this.eventTracker = eventTracker;
         this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
+        this.screenProvider = screenProvider;
         this.enterScreenDispatcher.setListener(this);
         LightCycles.bind(this);
     }

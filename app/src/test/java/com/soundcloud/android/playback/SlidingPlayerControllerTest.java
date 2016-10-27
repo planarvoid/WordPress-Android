@@ -351,6 +351,22 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
+
+    @Test
+    public void shouldNotReceiveEventsAfterPause() {
+        controller.onPause(null);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+        verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
+    }
+
+    @Test
+    public void shouldReceiveEventsAfterPauseAndResume() {
+        controller.onPause(null);
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+    }
+
     private void attachController() {
         ArgumentCaptor<View.OnTouchListener> touchListenerArgumentCaptor = ArgumentCaptor.forClass(View.OnTouchListener.class);
 

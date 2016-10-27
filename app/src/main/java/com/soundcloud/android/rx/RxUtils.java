@@ -55,6 +55,13 @@ public final class RxUtils {
         }
     };
 
+    public static final Func1<Optional, Boolean> IS_PRESENT = new Func1<Optional, Boolean>() {
+        @Override
+        public Boolean call(Optional optional) {
+            return optional.isPresent();
+        }
+    };
+
     public static final Object EMPTY_VALUE = new Object();
 
     public static final Func1<List, Boolean> IS_NOT_EMPTY_LIST = new Func1<List, Boolean>() {

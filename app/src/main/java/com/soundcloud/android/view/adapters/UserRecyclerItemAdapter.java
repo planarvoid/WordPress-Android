@@ -10,7 +10,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class UserRecyclerItemAdapter
-        extends PagingRecyclerItemAdapter<UserItem, UserRecyclerItemAdapter.UserViewHolder> {
+        extends PagingRecyclerItemAdapter<UserItem, RecyclerView.ViewHolder> {
 
     @Inject
     public UserRecyclerItemAdapter(UserItemRenderer userItemRenderer) {
@@ -23,14 +23,7 @@ public class UserRecyclerItemAdapter
     }
 
     @Override
-    protected UserViewHolder createViewHolder(View itemView) {
-        return new UserViewHolder(itemView);
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
-
-    public static class UserViewHolder extends RecyclerView.ViewHolder {
-        public UserViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
 }

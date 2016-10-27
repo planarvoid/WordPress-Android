@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.mediasession;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.MoreCollections;
@@ -25,8 +26,8 @@ import java.util.Collection;
 
 public class MediaNotificationHelperTest extends AndroidUnitTest {
 
+    private static final String SUBTITLE = "SUBTITLE";
     public static final String TITLE = "TITLE";
-    public static final String SUBTITLE = "SUBTITLE";
     public static final String DESCRIPTION = "DESCRIPTION";
 
     private static final Function<NotificationCompat.Action, String> ACTION_TO_TITLE = new Function<NotificationCompat.Action, String>() {
@@ -36,13 +37,12 @@ public class MediaNotificationHelperTest extends AndroidUnitTest {
         }
     };
 
-
-    @Mock MediaSessionCompat mediaSession;
-    @Mock MediaControllerCompat mediaController;
-    @Mock MediaMetadataCompat metadata;
-    @Mock MediaDescriptionCompat description;
-    @Mock Bitmap bitmap;
-
+    private @Mock MediaSessionCompat mediaSession;
+    private @Mock MediaControllerCompat mediaController;
+    private @Mock MediaMetadataCompat metadata;
+    private @Mock MediaDescriptionCompat description;
+    private @Mock Bitmap bitmap;
+    private @Mock Navigator navigator;
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +58,7 @@ public class MediaNotificationHelperTest extends AndroidUnitTest {
 
     @Test
     public void builderHasCurrentMetadata() {
-        Builder builder = MediaNotificationHelper.from(context(), mediaSession, false).get();
+        Builder builder = MediaNotificationHelper.from(context(), navigator, mediaSession, false).get();
 
         // note: builder doesn't expose getters :(
         assertThat(builder.mContentTitle).isEqualTo(TITLE);
@@ -69,28 +69,28 @@ public class MediaNotificationHelperTest extends AndroidUnitTest {
 
     @Test
     public void builderHasPreviousAction() {
-        Builder builder = MediaNotificationHelper.from(context(), mediaSession, false).get();
+        Builder builder = MediaNotificationHelper.from(context(), navigator, mediaSession, false).get();
 
         assertHasActionWithTitle(builder, R.string.previous);
     }
 
     @Test
     public void builderHasPlayActionWhenNotPlaying() {
-        Builder builder = MediaNotificationHelper.from(context(), mediaSession, false).get();
+        Builder builder = MediaNotificationHelper.from(context(), navigator, mediaSession, false).get();
 
         assertHasActionWithTitle(builder, R.string.play);
     }
 
     @Test
     public void builderHasPauseActionWhenPlaying() {
-        Builder builder = MediaNotificationHelper.from(context(), mediaSession, true).get();
+        Builder builder = MediaNotificationHelper.from(context(), navigator, mediaSession, true).get();
 
         assertHasActionWithTitle(builder, R.string.pause);
     }
 
     @Test
     public void builderHasNextAction() {
-        Builder builder = MediaNotificationHelper.from(context(), mediaSession, false).get();
+        Builder builder = MediaNotificationHelper.from(context(), navigator, mediaSession, false).get();
 
         assertHasActionWithTitle(builder, R.string.next);
     }
@@ -99,7 +99,7 @@ public class MediaNotificationHelperTest extends AndroidUnitTest {
     public void builderIsAbsentWhenNoControllerIsAvailable() {
         when(mediaSession.getController()).thenReturn(null);
 
-        Optional<Builder> builderOptional = MediaNotificationHelper.from(context(), mediaSession, false);
+        Optional<Builder> builderOptional = MediaNotificationHelper.from(context(), navigator, mediaSession, false);
 
         assertThat(builderOptional).isEqualTo(Optional.absent());
     }
@@ -108,7 +108,7 @@ public class MediaNotificationHelperTest extends AndroidUnitTest {
     public void builderIsAbsentWhenNoMetadataIsAvailable() {
         when(mediaController.getMetadata()).thenReturn(null);
 
-        Optional<Builder> builderOptional = MediaNotificationHelper.from(context(), mediaSession, false);
+        Optional<Builder> builderOptional = MediaNotificationHelper.from(context(), navigator, mediaSession, false);
 
         assertThat(builderOptional).isEqualTo(Optional.absent());
     }

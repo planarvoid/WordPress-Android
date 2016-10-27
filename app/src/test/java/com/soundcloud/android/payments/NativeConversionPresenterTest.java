@@ -39,12 +39,12 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Mock private NativePaymentOperations paymentOperations;
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
     @Mock private PaymentErrorView paymentErrorView;
-    @Mock private ConversionView conversionView;
+    @Mock private LegacyConversionView conversionView;
     @Mock private Navigator navigator;
 
     @Mock private AppCompatActivity activity;
     @Mock private ActionBar actionBar;
-    @Captor private ArgumentCaptor<ConversionView.Listener> listenerCaptor;
+    @Captor private ArgumentCaptor<LegacyConversionView.Listener> listenerCaptor;
 
     private NativeConversionPresenter presenter;
 

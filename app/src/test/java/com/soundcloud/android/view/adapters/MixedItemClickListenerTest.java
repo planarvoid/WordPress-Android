@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
@@ -20,11 +21,11 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -33,11 +34,13 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import rx.Observable;
 
 import android.content.Context;
@@ -51,23 +54,26 @@ import java.util.List;
 
 public class MixedItemClickListenerTest extends AndroidUnitTest {
 
+    private final Screen screen = Screen.ACTIVITIES;
+    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(
+            123), "query");
     private MixedItemClickListener listener;
-
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
     @Mock private AdapterView adapterView;
     @Mock private View view;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private Navigator navigator;
     @Mock private Context context;
+    @Mock private EventBus eventBus;
+    @Mock private PlaybackToastHelper playbackToastHelper;
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
-
-    private final Screen screen = Screen.ACTIVITIES;
-    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123), "query");
+    @Spy private ExpandPlayerSubscriber expandPlayerSubscriber =
+            new ExpandPlayerSubscriber(eventBus, playbackToastHelper);
 
     @Before
     public void setUp() {
-        listener = new MixedItemClickListener(playbackInitiator, InjectionSupport.providerOf(expandPlayerSubscriber),
+        listener = new MixedItemClickListener(playbackInitiator,
+                                              providerOf(expandPlayerSubscriber),
                                               navigator, screen, searchQuerySourceInfo);
 
         when(view.getContext()).thenReturn(context);
@@ -87,8 +93,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         final List<Urn> trackList = Arrays.asList(track1.getUrn(), track2.getUrn());
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(
-                playbackResult));
+        when(playbackInitiator.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(
+                Observable.just(
+                        playbackResult));
 
         listener.onItemClick(items, view, 3);
 
@@ -106,7 +113,10 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> trackList = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
 
-        when(playbackInitiator.playPosts(eq(trackList), eq(promotedTrack.getUrn()), eq(0), not(eq(playSessionSource))))
+        when(playbackInitiator.playPosts(eq(trackList),
+                                         eq(promotedTrack.getUrn()),
+                                         eq(0),
+                                         not(eq(playSessionSource))))
                 .thenThrow(new IllegalArgumentException());
         when(playbackInitiator.playPosts(trackList, promotedTrack.getUrn(), 0, playSessionSource))
                 .thenReturn(Observable.just(playbackResult));
@@ -167,7 +177,10 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, view, 2);
 
-        verify(navigator).legacyOpenProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).legacyOpenProfile(context,
+                                            userItem.getUrn(),
+                                            screen,
+                                            searchQuerySourceInfo);
     }
 
     @Test
@@ -175,7 +188,10 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final TrackItem track1 = ModelFixtures.create(TrackItem.class);
         final Observable<List<Urn>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playTracks(tracklist, track1.getUrn(), 1, new PlaySessionSource(screen))).thenReturn(
+        when(playbackInitiator.playTracks(tracklist,
+                                          track1.getUrn(),
+                                          1,
+                                          new PlaySessionSource(screen))).thenReturn(
                 Observable.just(playbackResult));
 
         listener.onItemClick(tracklist, view, 1, track1);
@@ -215,21 +231,28 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         assertThat(uiEventArgumentCaptor.getValue()
                                         .getAttributingActivity()
-                                        .get()).isEqualTo(AttributingActivity.fromPlayableItem(playlistItem));
+                                        .get()).isEqualTo(AttributingActivity.fromPlayableItem(
+                playlistItem));
 
         assertThat(uiEventArgumentCaptor.getValue().getContextScreen()).isEqualTo(screen.get());
 
-        assertThat(uiEventArgumentCaptor.getValue().getLinkType()).isEqualTo(LinkType.SELF.getName());
+        assertThat(uiEventArgumentCaptor.getValue()
+                                        .getLinkType()).isEqualTo(LinkType.SELF.getName());
     }
 
     @Test
     public void itemClickOnLocalUserGoesToUserProfile() {
         final UserItem userItem = ModelFixtures.create(UserItem.class);
-        List<Urn> items = Arrays.asList(Urn.forTrack(123L), Urn.forPlaylist(123L), userItem.getUrn());
+        List<Urn> items = Arrays.asList(Urn.forTrack(123L),
+                                        Urn.forPlaylist(123L),
+                                        userItem.getUrn());
 
         listener.onItemClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).legacyOpenProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).legacyOpenProfile(context,
+                                            userItem.getUrn(),
+                                            screen,
+                                            searchQuerySourceInfo);
     }
 
     @Test
@@ -237,7 +260,10 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final TrackItem track1 = ModelFixtures.create(TrackItem.class);
         final Observable<List<PropertySet>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playPosts(tracklist, track1.getUrn(), 1, new PlaySessionSource(screen))).thenReturn(
+        when(playbackInitiator.playPosts(tracklist,
+                                         track1.getUrn(),
+                                         1,
+                                         new PlaySessionSource(screen))).thenReturn(
                 Observable.just(playbackResult));
 
         listener.legacyOnPostClick(tracklist, view, 1, track1);
@@ -291,7 +317,10 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.legacyOnPostClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).legacyOpenProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).legacyOpenProfile(context,
+                                            userItem.getUrn(),
+                                            screen,
+                                            searchQuerySourceInfo);
     }
 
     @NonNull

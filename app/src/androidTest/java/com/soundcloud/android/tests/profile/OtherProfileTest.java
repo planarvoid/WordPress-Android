@@ -29,6 +29,7 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     private static final String TEST_SCENARIO_REPOSTS_BUCKET = "audio-events-v1-other-profile-reposts-bucket";
     private static final String TEST_SCENARIO_PLAYLISTS_BUCKET = "other-profile-playlists-bucket";
     private static final String TEST_SCENARIO_ALBUMS_BUCKET = "other-profile-albums-bucket";
+    private static final String TEST_SCENARIO_FOLLOW_USER = "follow-user";
 
     private static final String TEST_SCENARIO_TRACKS_LIST = "audio-events-v1-other-profile-tracks-list";
     private static final String TEST_SCENARIO_LIKES_LIST = "audio-events-v1-other-profile-likes-list";
@@ -188,6 +189,14 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
         assertPlayAndPause(playerElement);
 
         endScenario(TEST_SCENARIO_LIKES_LIST);
+    }
+
+    public void testFollowUserTracking() {
+        startEventTracking();
+
+        profileScreen.clickFollowToggle();
+
+        endScenario(TEST_SCENARIO_FOLLOW_USER);
     }
 
     private void assertPlayAndPause(final VisualPlayerElement playerElement) {

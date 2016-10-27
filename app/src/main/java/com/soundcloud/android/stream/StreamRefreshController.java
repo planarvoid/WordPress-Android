@@ -26,7 +26,7 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
     private static final long REFRESH_INTERVAL_MS = TimeUnit.MINUTES.toMillis(30);
 
     private final EventBus eventBus;
-    private final SoundStreamOperations operations;
+    private final StreamOperations operations;
     private final CurrentDateProvider dateProvider;
     private final Scheduler scheduler;
 
@@ -41,7 +41,7 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
 
     @Inject
     public StreamRefreshController(EventBus eventBus,
-                                   SoundStreamOperations operations,
+                                   StreamOperations operations,
                                    CurrentDateProvider dateProvider) {
         this.eventBus = eventBus;
         this.operations = operations;
@@ -51,7 +51,7 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
 
     @VisibleForTesting
     public StreamRefreshController(EventBus eventBus,
-                                   SoundStreamOperations operations,
+                                   StreamOperations operations,
                                    CurrentDateProvider dateProvider,
                                    Scheduler scheduler) {
         this.eventBus = eventBus;

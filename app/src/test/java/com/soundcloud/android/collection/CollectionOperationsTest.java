@@ -18,7 +18,6 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
@@ -101,8 +100,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 offlineStateOperations,
                 playHistoryOperations,
                 recentlyPlayedOperations,
-                myPlaylistsOperations,
-                featureFlags);
+                myPlaylistsOperations
+        );
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
@@ -114,7 +113,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(playHistoryOperations.playHistory(3)).thenReturn(Observable.just(playHistory));
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS))
                 .thenReturn(Observable.just(recentlyPlayed));
-        when(featureFlags.isEnabled(Flag.LIKED_STATIONS)).thenReturn(true);
     }
 
     @Test

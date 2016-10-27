@@ -2,6 +2,7 @@ package com.soundcloud.android.accounts;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.comments.CommentsStorage;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -18,12 +20,15 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.stream.SoundStreamOperations;
+import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -58,13 +63,16 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private PlanStorage planStorage;
     @Mock private StationsOperations stationsOperations;
     @Mock private CollectionOperations collectionOperations;
-    @Mock private SoundStreamOperations soundStreamOperations;
+    @Mock private StreamOperations streamOperations;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
     @Mock private PlayHistoryStorage playHistoryStorage;
     @Mock private RecentlyPlayedStorage recentlyPlayedStorage;
     @Mock private GcmStorage gcmStorage;
     @Mock private PersistentStorage featureFlagsStorage;
+    @Mock private CommentsStorage commentsStorage;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private DatabaseManager databaseManager;
 
     @Before
     public void setup() {
@@ -81,18 +89,22 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           clearTableCommand,
                                           stationsOperations,
                                           collectionOperations,
-                                          soundStreamOperations,
+                                          streamOperations,
                                           configurationOperations,
                                           notificationPreferencesStorage,
                                           playHistoryStorage,
                                           recentlyPlayedStorage,
                                           gcmStorage,
-                                          featureFlagsStorage);
+                                          featureFlagsStorage,
+                                          commentsStorage,
+                                          featureFlags,
+                                          databaseManager);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
         when(context.getApplicationContext()).thenReturn(soundCloudApplication);
         when(soundCloudApplication.getAccountOperations()).thenReturn(accountOperations);
+        when(featureFlags.isEnabled(Flag.CLEAR_TABLES_ON_SIGNOUT)).thenReturn(false);
     }
 
     @Test
@@ -158,7 +170,8 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldClearCommentsTable() throws PropellerWriteException {
         action.call();
-        verify(clearTableCommand).call(Table.Comments);
+
+        verify(commentsStorage).clear();
     }
 
     @Test
@@ -224,7 +237,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveUpsellPreferences() {
         action.call();
-        verify(soundStreamOperations).clearData();
+        verify(streamOperations).clearData();
     }
 
     @Test
@@ -250,4 +263,21 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         action.call();
         verify(featureFlagsStorage).clear();
     }
+
+    @Test
+    public void shouldNotClearAllTables() {
+        action.call();
+
+        verify(databaseManager, never()).clearTables();
+    }
+
+    @Test
+    public void sholdClearAllTablesWhenFeatureFlagIsSet() {
+        when(featureFlags.isEnabled(Flag.CLEAR_TABLES_ON_SIGNOUT)).thenReturn(true);
+
+        action.call();
+
+        verify(databaseManager).clearTables();
+    }
+
 }

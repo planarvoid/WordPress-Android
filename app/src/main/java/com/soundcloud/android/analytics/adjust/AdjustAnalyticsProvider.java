@@ -15,7 +15,7 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
     private final AdjustWrapper adjustWrapper;
 
     @Inject
-    public AdjustAnalyticsProvider(AdjustWrapper adjustWrapper) {
+    AdjustAnalyticsProvider(AdjustWrapper adjustWrapper) {
         this.adjustWrapper = adjustWrapper;
     }
 
@@ -79,6 +79,9 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
                 break;
             case UpgradeFunnelEvent.ID_PLAYLIST_TRACKS:
                 adjustWrapper.trackEvent(AdjustEventToken.PLAYLIST_TRACKS_UPSELL);
+                break;
+            case UpgradeFunnelEvent.ID_RESUBSCRIBE_BUTTON:
+                adjustWrapper.trackEvent(AdjustEventToken.PLAN_DOWNGRADED);
                 break;
             default:
                 // Not all funnel events go to Adjust

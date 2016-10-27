@@ -4,11 +4,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.java.optional.Optional;
 
@@ -29,9 +28,8 @@ class TrackLikesHeaderView {
 
     private Optional<View> headerOpt;
 
-    private int trackCount;
+    private int trackCount = Consts.NOT_SET;
     private final Listener listener;
-    private final FeatureFlags featureFlags;
 
     interface Listener {
         void onShuffle();
@@ -43,12 +41,10 @@ class TrackLikesHeaderView {
 
     TrackLikesHeaderView(@Provided Resources resources,
                          @Provided DownloadStateView downloadStateView,
-                         @Provided FeatureFlags featureFlags,
                          View view,
                          Listener listener) {
         this.resources = resources;
         this.downloadStateView = downloadStateView;
-        this.featureFlags = featureFlags;
         this.listener = listener;
 
         setupView(view, downloadStateView, listener);
@@ -68,6 +64,10 @@ class TrackLikesHeaderView {
                 listener.onShuffle();
             }
         });
+
+        if (trackCount >= 0) {
+            updateTrackCount(trackCount);
+        }
     }
 
     @VisibleForTesting
@@ -82,15 +82,15 @@ class TrackLikesHeaderView {
         }
     }
 
-    public void showNoWifi() {
+    void showNoWifi() {
         downloadStateView.setHeaderText(resources.getString(R.string.offline_no_wifi));
     }
 
-    public void showNoConnection() {
+    void showNoConnection() {
         downloadStateView.setHeaderText(resources.getString(R.string.offline_no_connection));
     }
 
-    public void setDownloadedButtonState(final boolean isOffline) {
+    void setDownloadedButtonState(final boolean isOffline) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isOffline);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +103,7 @@ class TrackLikesHeaderView {
         });
     }
 
-    public void showUpsell() {
+    void showUpsell() {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(false);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
@@ -129,7 +129,7 @@ class TrackLikesHeaderView {
     }
 
     private void updateShuffleButton(int likedTracks) {
-        if (likedTracks <= 1 || featureFlags.isEnabled(Flag.PLAY_QUEUE)) {
+        if (likedTracks <= 1) {
             shuffleButton.setVisibility(View.GONE);
             shuffleButton.setEnabled(false);
         } else {

@@ -9,8 +9,8 @@ import android.support.v4.app.Fragment;
 
 public class DiscoveryNavigationTarget extends BaseNavigationTarget {
 
-    public DiscoveryNavigationTarget() {
-        super(R.string.tab_discovery, R.drawable.tab_discovery);
+    public DiscoveryNavigationTarget(boolean isHome) {
+        super(R.string.tab_discovery, isHome ? R.drawable.tab_home : R.drawable.tab_discovery);
     }
 
     @Override

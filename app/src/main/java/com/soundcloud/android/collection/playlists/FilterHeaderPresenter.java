@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection.playlists;
 
+import static com.soundcloud.android.R.id.filter_text;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -11,6 +13,8 @@ import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.view.View;
@@ -19,22 +23,24 @@ import android.widget.TextView;
 @AutoFactory(allowSubclasses = true)
 public class FilterHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> {
 
-    private static final int EXTEND_OPTIONS_HIT_DP = 8;
-
     private final Listener listener;
+    private final int hintId;
 
     @Bind(R.id.btn_filter_options) View optionsButton;
-    @Bind(R.id.filter_text) TextView filterText;
+    @Bind(filter_text) TextView filterText;
 
-    public FilterHeaderPresenter(Listener listener) {
+    public FilterHeaderPresenter(Listener listener, @StringRes int hintId) {
         this.listener = listener;
+        this.hintId = hintId;
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         ButterKnife.bind(this, view);
-        ViewUtils.extendTouchArea(optionsButton, EXTEND_OPTIONS_HIT_DP);
+        ViewUtils.extendTouchArea(optionsButton);
+        ButterKnife.<AppBarLayout>findById(view, R.id.appbar).setExpanded(false);
+        filterText.setHint(hintId);
     }
 
     @Override
@@ -48,7 +54,7 @@ public class FilterHeaderPresenter extends DefaultSupportFragmentLightCycle<Frag
         listener.onFilterOptionsClicked(view.getContext());
     }
 
-    @OnTextChanged(R.id.filter_text)
+    @OnTextChanged(filter_text)
     public void onTextChanged(Editable editable) {
         listener.onFilterQuery(editable.toString());
     }

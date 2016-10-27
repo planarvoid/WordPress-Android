@@ -7,9 +7,8 @@ import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expec
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -22,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.observers.TestSubscriber;
 
 public class EngagementsTrackingTest extends AndroidUnitTest {
 
@@ -35,12 +35,19 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     private final TestEventBus eventBus = new TestEventBus();
 
     private EngagementsTracking engagementsTracking;
+    private TestSubscriber<UIEvent> testSubscriber;
+
     @Mock private TrackRepository trackRepository;
     @Mock private UserRepository userRepository;
+    @Mock private EventTracker eventTracker;
 
     @Before
     public void setUp() {
-        engagementsTracking = new EngagementsTracking(eventBus, trackRepository, userRepository);
+        testSubscriber = new TestSubscriber<>();
+
+        when(eventTracker.trackEngagementSubscriber()).thenReturn(testSubscriber);
+
+        engagementsTracking = new EngagementsTracking(trackRepository, userRepository, eventTracker);
     }
 
     @Test
@@ -48,7 +55,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         final PromotedTrackItem trackItem = PromotedTrackItem.from(PROMOTED_TRACK);
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(trackItem);
         final EntityMetadata entityMetadata = EntityMetadata.from(PROMOTED_TRACK);
-        final EventContextMetadata eventContextMetadata = getTrackContextMetadata();
+        final EventContextMetadata eventContextMetadata = getEventContextMetadata();
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(PROMOTED_TRACK));
 
@@ -60,13 +67,13 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                                                        promotedSourceInfo,
                                                        entityMetadata);
 
-        assertExpectedEvent(expectedEvent);
+        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
     }
 
     @Test
     public void testLikeTrackUrnForPlayerTrack() {
         final EntityMetadata entityMetadata = EntityMetadata.from(PLAYER_TRACK);
-        final EventContextMetadata eventContextMetadata = getTrackContextMetadata();
+        final EventContextMetadata eventContextMetadata = getEventContextMetadata();
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(PLAYER_TRACK));
 
@@ -78,7 +85,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                                                        null,
                                                        entityMetadata);
 
-        assertExpectedEvent(expectedEvent);
+        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
     }
 
     @Test
@@ -97,31 +104,33 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                                                        null,
                                                        entityMetadata);
 
-        assertExpectedEvent(expectedEvent);
+        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
     }
 
     @Test
     public void testFollowUserUrn() {
         final EntityMetadata metadata = EntityMetadata.fromUser(FOLLOWED_USER);
+        final EventContextMetadata eventContextMetadata = getEventContextMetadata();
 
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(FOLLOWED_USER));
 
-        engagementsTracking.followUserUrn(USER_URN, true);
+        engagementsTracking.followUserUrn(USER_URN, true, eventContextMetadata);
 
-        assertExpectedEvent(UIEvent.fromToggleFollow(true, metadata));
+        final UIEvent expectedEvent = UIEvent.fromToggleFollow(true, metadata, eventContextMetadata);
+
+        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
     }
 
-    private void assertExpectedEvent(UIEvent expectedEvent) {
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+    private void assertCorrectEvent(UIEvent event, UIEvent expectedEvent) {
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+        assertThat(event.getContextScreen()).isEqualTo(expectedEvent.getContextScreen());
+        assertThat(event.getModule()).isEqualTo(expectedEvent.getModule());
     }
 
-    private EventContextMetadata getTrackContextMetadata() {
+    private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder()
                                    .invokerScreen("invoker")
                                    .contextScreen("context_screen")
                                    .pageName("page").build();
     }
-
 }

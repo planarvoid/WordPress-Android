@@ -10,6 +10,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -55,7 +56,6 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
                                                 eventBus,
                                                 featureOperations,
                                                 featureFlags);
-
     }
 
     @Test
@@ -92,6 +92,56 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
         renderer.render(playlist);
 
         verify(popupMenuWrapper).setItemVisible(R.id.play_next, true);
+    }
+
+    @Test
+    public void doNotShowOfflineWhenNotMarkedForDownloadAndNotLikedAndNotPosted() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        PlaylistItem nonDownloadablePlaylist = buildPlaylist(false, false, false);
+
+        renderer.render(nonDownloadablePlaylist);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_unavailable, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    @Test
+    public void showOfflineWhenMarkedForDownloadAndNotLikedAndNotPosted() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        PlaylistItem nonDownloadablePlaylist = buildPlaylist(true, false, false);
+
+        renderer.render(nonDownloadablePlaylist);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_unavailable, true);
+    }
+
+    @Test
+    public void showOfflineWhenLikedAndNotMarkedForDownloadAndNotPosted() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        PlaylistItem likedPlaylist = buildPlaylist(false, true, false);
+
+        renderer.render(likedPlaylist);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, true);
+    }
+
+    @Test
+    public void showOfflineWhenPostedAndNotMarkedForDownloadAndLiked() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        PlaylistItem postedPlaylist = buildPlaylist(false, false, true);
+
+        renderer.render(postedPlaylist);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, true);
+    }
+
+    private PlaylistItem buildPlaylist(boolean markedForDownload, boolean liked, boolean posted) {
+        PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        playlist.getSource().put(OfflineProperty.IS_MARKED_FOR_OFFLINE, markedForDownload);
+        playlist.getSource().put(PlaylistProperty.IS_USER_LIKE, liked);
+        playlist.getSource().put(PlaylistProperty.IS_POSTED, posted);
+        return playlist;
     }
 
 }

@@ -311,9 +311,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPlayShuffledThroughContentOperationsOnPlayShuffled() {
         setPlaylistInfo();
         final PublishSubject<PlaybackResult> subject = PublishSubject.create();
-        when(playbackInitiator.playTracksShuffled(playlistTrackurns,
-                                                  getPlaySessionSource(),
-                                                  featureOperations.isOfflineContentEnabled()))
+        when(playbackInitiator.playTracksShuffled(playlistTrackurns, getPlaySessionSource()))
                 .thenReturn(subject);
 
         presenter.onPlayShuffled();

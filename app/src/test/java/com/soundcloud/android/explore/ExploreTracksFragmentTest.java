@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observables.ConnectableObservable;
+import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
@@ -84,9 +85,14 @@ public class ExploreTracksFragmentTest extends AndroidUnitTest {
     public void shouldRefreshTracksByRecreatingObservableThatLoadsFirstPage() {
         startVisibleFragment(fragment);
 
-        fragment.refreshObservable().connect();
+        ConnectableObservable<List<TrackItem>> listConnectableObservable = fragment.refreshObservable();
+        listConnectableObservable.connect();
+
+        TestSubscriber<List<TrackItem>> testSubscriber = new TestSubscriber<>();
+        listConnectableObservable.subscribe(testSubscriber);
         verify(exploreTracksOperations, times(2)).getSuggestedTracks(ExploreGenre.POPULAR_AUDIO_CATEGORY);
-        verify(adapter, times(2)).onCompleted();
+        verify(adapter, times(1)).onCompleted();
+        testSubscriber.assertCompleted();
     }
 
     @Test

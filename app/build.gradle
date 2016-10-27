@@ -208,7 +208,6 @@ dependencies {
       transitive = true
   }
   compile libraries.butterKnife
-  compile libraries.castCompanionLibrary
   compile libraries.undoBar
   compile libraries.appBoy
   compile libraries.krux

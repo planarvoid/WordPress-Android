@@ -321,5 +321,4 @@ public class ScTextUtils {
         return word.substring(0, 1).toUpperCase(Locale.US) +
                 word.substring(1).toLowerCase(Locale.US);
     }
-
 }

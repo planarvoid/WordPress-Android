@@ -1,15 +1,15 @@
 package com.soundcloud.android.search;
 
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,18 +26,18 @@ import java.util.Map;
 @Singleton
 public class SearchTracker {
 
-    private final EventBus eventBus;
-    private final SearchTypes searchTypes;
+    private final EventTracker eventTracker;
     private final FeatureOperations featureOperations;
+    private final TrackingStateProvider trackingStateProvider;
     private Map<SearchType, ScreenData> screenDataMap;
 
     @Inject
-    public SearchTracker(EventBus eventBus,
+    public SearchTracker(EventTracker eventTracker,
                          FeatureOperations featureOperations,
-                         SearchTypes searchTypes) {
-        this.eventBus = eventBus;
-        this.searchTypes = searchTypes;
+                         TrackingStateProvider trackingStateProvider) {
+        this.eventTracker = eventTracker;
         this.featureOperations = featureOperations;
+        this.trackingStateProvider = trackingStateProvider;
         init();
     }
 
@@ -47,19 +47,20 @@ public class SearchTracker {
     }
 
     private void initializeScreenQueryUrnMap() {
-        for (SearchType searchType : searchTypes.available()) {
+        for (SearchType searchType : SearchType.values()) {
             this.screenDataMap.put(searchType, ScreenData.EMPTY);
         }
     }
 
     public void trackMainScreenEvent() {
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
+        eventTracker.trackScreen(ScreenEvent.create(Screen.SEARCH_MAIN), trackingStateProvider.getLastEvent());
     }
 
     void trackSearchSubmission(SearchType searchType, Urn queryUrn, String searchQuery) {
         if (queryUrn != Urn.NOT_SET) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(searchType.getScreen(),
-                                                                          new SearchQuerySourceInfo(queryUrn, searchQuery)));
+            eventTracker.trackSearch(SearchEvent.searchStart(searchType.getScreen(),
+                                                             new SearchQuerySourceInfo(queryUrn,
+                                                                                       searchQuery)));
         }
     }
 
@@ -77,11 +78,12 @@ public class SearchTracker {
             final Screen trackingScreen = searchType.getScreen();
             final ScreenData screenData = screenDataMap.get(searchType);
             final Urn queryUrn = screenData.queryUrn;
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(trackingScreen.get(),
-                                                                     new SearchQuerySourceInfo(queryUrn, searchQuery)));
+            eventTracker.trackScreen(ScreenEvent.create(trackingScreen.get(),
+                                                        new SearchQuerySourceInfo(queryUrn, searchQuery)),
+                                     trackingStateProvider.getLastEvent());
             final boolean hasPremiumContent = screenData.hasPremiumContent;
             if (hasPremiumContent && featureOperations.upsellHighTier()) {
-                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSearchResultsImpression(trackingScreen));
+                eventTracker.trackUpgradeFunnel(UpgradeFunnelEvent.forSearchResultsImpression(trackingScreen));
             }
         } else {
             //If the page is not loaded, we save this state and fire the event after search is performed
@@ -91,24 +93,22 @@ public class SearchTracker {
 
     void trackPremiumResultsScreenEvent(Urn queryUrn, String searchQuery) {
         if (queryUrn != null && queryUrn != Urn.NOT_SET) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getPremiumTrackingScreen().get(),
-                                                                     new SearchQuerySourceInfo(queryUrn, searchQuery)));
+            eventTracker.trackScreen(ScreenEvent.create(getPremiumTrackingScreen().get(),
+                                                        new SearchQuerySourceInfo(queryUrn, searchQuery)),
+                                     trackingStateProvider.getLastEvent());
         }
     }
 
     void trackResultsUpsellClick(SearchType searchType) {
-        eventBus.publish(EventQueue.TRACKING,
-                         UpgradeFunnelEvent.forSearchResultsClick(searchType.getScreen()));
+        eventTracker.trackUpgradeFunnel(UpgradeFunnelEvent.forSearchResultsClick(searchType.getScreen()));
     }
 
     void trackPremiumResultsUpsellImpression() {
-        eventBus.publish(EventQueue.TRACKING,
-                         UpgradeFunnelEvent.forSearchPremiumResultsImpression(getPremiumTrackingScreen()));
+        eventTracker.trackUpgradeFunnel(UpgradeFunnelEvent.forSearchPremiumResultsImpression(getPremiumTrackingScreen()));
     }
 
     void trackPremiumResultsUpsellClick() {
-        eventBus.publish(EventQueue.TRACKING,
-                         UpgradeFunnelEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
+        eventTracker.trackUpgradeFunnel(UpgradeFunnelEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
     }
 
     boolean shouldSendResultsScreenEvent(SearchType searchType) {
@@ -135,14 +135,11 @@ public class SearchTracker {
     private void publishItemClickEvent(Screen screen, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
         final SearchResultItem searchResultItem = SearchResultItem.fromUrn(urn);
         if (searchResultItem.isTrack()) {
-            eventBus.publish(EventQueue.TRACKING,
-                             SearchEvent.tapTrackOnScreen(screen, searchQuerySourceInfo));
+            eventTracker.trackSearch(SearchEvent.tapTrackOnScreen(screen, searchQuerySourceInfo));
         } else if (searchResultItem.isPlaylist()) {
-            eventBus.publish(EventQueue.TRACKING,
-                             SearchEvent.tapPlaylistOnScreen(screen, searchQuerySourceInfo));
+            eventTracker.trackSearch(SearchEvent.tapPlaylistOnScreen(screen, searchQuerySourceInfo));
         } else if (searchResultItem.isUser()) {
-            eventBus.publish(EventQueue.TRACKING,
-                             SearchEvent.tapUserOnScreen(screen, searchQuerySourceInfo));
+            eventTracker.trackSearch(SearchEvent.tapUserOnScreen(screen, searchQuerySourceInfo));
         }
     }
 

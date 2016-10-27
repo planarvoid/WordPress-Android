@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.graphics.Palette;
 
 import javax.inject.Inject;
 
@@ -46,6 +47,14 @@ public class PlaceholderGenerator {
     public GradientDrawable generateDrawable(String key) {
         int[] colorIds = COLOR_COMBINATIONS[pickCombination(key)];
         int[] colors = {resources.getColor(colorIds[0]), resources.getColor(colorIds[1])};
+        return new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
+    }
+
+    public GradientDrawable generateDrawableFromPalette(String key, Palette palette) {
+        int[] colorIds = COLOR_COMBINATIONS[pickCombination(key)];
+        final int darkMutedColor = palette.getDarkMutedColor(resources.getColor(colorIds[0]));
+        final int lightMutedColor = palette.getLightMutedColor(resources.getColor(colorIds[1]));
+        int[] colors = {darkMutedColor, lightMutedColor};
         return new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
     }
 

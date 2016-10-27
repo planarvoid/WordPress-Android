@@ -34,7 +34,7 @@ expected_events:
   params:
     impression_name: consumer_sub_ad
     anonymous_id: (\w|-)+
-    impression_object: soundcloud:tcode:3002
+    impression_object: soundcloud:tcode:[0-9]+
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: 3152
@@ -51,7 +51,7 @@ expected_events:
     client_id: 3152
     connection_type: wifi
     click_name: clickthrough::consumer_sub_ad
-    click_object: soundcloud:tcode:3002
+    click_object: soundcloud:tcode:[0-9]+
     page_name: consumer-premium:main
     click_category: consumer_subs
     user: soundcloud:users:147986827

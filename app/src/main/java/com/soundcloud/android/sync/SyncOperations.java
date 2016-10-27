@@ -23,6 +23,12 @@ public class SyncOperations {
         this.syncerRegistry = syncerRegistry;
     }
 
+    public static <T> Observable<T> emptyResult(Result result) {
+        return result == SyncOperations.Result.ERROR ?
+               Observable.<T>error(new SyncFailedException()) :
+               Observable.<T>empty();
+    }
+
     public Observable<Result> sync(Syncable syncable) {
         return syncInitiator.sync(syncable).map(returning(Result.SYNCED));
     }

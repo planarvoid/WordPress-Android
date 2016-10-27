@@ -7,6 +7,7 @@ import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.comments.CommentsStorage;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -14,12 +15,15 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.stream.SoundStreamOperations;
+import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -48,13 +52,16 @@ class AccountCleanupAction implements Action0 {
     private final ClearTableCommand clearTableCommand;
     private final StationsOperations stationsOperations;
     private final CollectionOperations collectionOperations;
-    private final SoundStreamOperations soundStreamOperations;
+    private final StreamOperations streamOperations;
     private final ConfigurationOperations configurationOperations;
     private final NotificationPreferencesStorage notificationPreferencesStorage;
     private final PlayHistoryStorage playHistoryStorage;
     private final RecentlyPlayedStorage recentlyPlayedStorage;
     private final GcmStorage gcmStorage;
     private final PersistentStorage featureFlagsStorage;
+    private final CommentsStorage commentsStorage;
+    private final FeatureFlags featureFlags;
+    private final DatabaseManager databaseManager;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -67,13 +74,16 @@ class AccountCleanupAction implements Action0 {
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionOperations collectionOperations,
-                         SoundStreamOperations soundStreamOperations,
+                         StreamOperations streamOperations,
                          ConfigurationOperations configurationOperations,
                          NotificationPreferencesStorage notificationPreferencesStorage,
                          PlayHistoryStorage playHistoryStorage,
                          RecentlyPlayedStorage recentlyPlayedStorage,
                          GcmStorage gcmStorage,
-                         @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage) {
+                         @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage,
+                         CommentsStorage commentsStorage,
+                         FeatureFlags featureFlags,
+                         DatabaseManager databaseManager) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -87,13 +97,16 @@ class AccountCleanupAction implements Action0 {
         this.clearTableCommand = clearTableCommand;
         this.stationsOperations = stationsOperations;
         this.collectionOperations = collectionOperations;
-        this.soundStreamOperations = soundStreamOperations;
+        this.streamOperations = streamOperations;
         this.configurationOperations = configurationOperations;
         this.notificationPreferencesStorage = notificationPreferencesStorage;
         this.playHistoryStorage = playHistoryStorage;
         this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.gcmStorage = gcmStorage;
         this.featureFlagsStorage = featureFlagsStorage;
+        this.commentsStorage = commentsStorage;
+        this.featureFlags = featureFlags;
+        this.databaseManager = databaseManager;
     }
 
     @Override
@@ -112,13 +125,20 @@ class AccountCleanupAction implements Action0 {
         stationsOperations.clearData();
         discoveryOperations.clearData();
         collectionOperations.clearData();
-        soundStreamOperations.clearData();
+        streamOperations.clearData();
         configurationOperations.clearConfigurationSettings();
         notificationPreferencesStorage.clear();
         playHistoryStorage.clear();
         recentlyPlayedStorage.clear();
         gcmStorage.clearTokenForRefresh();
         featureFlagsStorage.clear();
+
+        if (featureFlags.isEnabled(Flag.CLEAR_TABLES_ON_SIGNOUT)) {
+            // Once we are confident that this approach works well (clearing the entire database), and
+            // are about to get rid of the feature flag, we should clean up the code such that the table
+            // deletions are not repeated (specially the clearCollections above will not be required).
+            databaseManager.clearTables();
+        }
     }
 
     private void clearCollections() {
@@ -127,7 +147,7 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.Posts);
             clearTableCommand.call(Table.SoundStream);
             clearTableCommand.call(Table.Activities);
-            clearTableCommand.call(Table.Comments);
+            commentsStorage.clear();
             clearTableCommand.call(Table.PromotedTracks);
             clearTableCommand.call(Table.Waveforms);
             clearTableCommand.call(Table.TrackPolicies);

@@ -98,6 +98,16 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         show(button, playlist, menuOptions, null);
     }
 
+    public void show(View button, Urn playlistUrn, OverflowMenuOptions menuOptions) {
+        this.menuOptions = menuOptions;
+        this.eventContextMetadataBuilder = Optional.absent();
+        this.renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
+        this.playlistUrn = playlistUrn;
+        this.promotedSourceInfo = Optional.absent();
+        this.entityMetadata = EntityMetadata.EMPTY;
+        loadPlaylist(playlistUrn);
+    }
+
     public void show(View button,
                      PlaylistItem playlist,
                      OverflowMenuOptions menuOptions,

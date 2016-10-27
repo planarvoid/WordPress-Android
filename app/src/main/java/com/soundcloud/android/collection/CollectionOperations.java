@@ -16,14 +16,11 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -53,7 +50,6 @@ public class CollectionOperations {
     private final PlayHistoryOperations playHistoryOperations;
     private final RecentlyPlayedOperations recentlyPlayedOperations;
     private final MyPlaylistsOperations myPlaylistsOperations;
-    private final FeatureFlags featureFlags;
 
 
     private static final Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection> TO_MY_COLLECTIONS =
@@ -154,8 +150,7 @@ public class CollectionOperations {
                          OfflineStateOperations offlineStateOperations,
                          PlayHistoryOperations playHistoryOperations,
                          RecentlyPlayedOperations recentlyPlayedOperations,
-                         MyPlaylistsOperations myPlaylistsOperations,
-                         FeatureFlags featureFlags) {
+                         MyPlaylistsOperations myPlaylistsOperations) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.loadLikedTrackPreviews = loadLikedTrackPreviews;
@@ -166,10 +161,9 @@ public class CollectionOperations {
         this.playHistoryOperations = playHistoryOperations;
         this.recentlyPlayedOperations = recentlyPlayedOperations;
         this.myPlaylistsOperations = myPlaylistsOperations;
-        this.featureFlags = featureFlags;
     }
 
-    public Observable<Object> onCollectionChanged() {
+    Observable<Object> onCollectionChanged() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_CHANGE)
@@ -257,19 +251,11 @@ public class CollectionOperations {
     }
 
     private Observable<SyncJobResult> syncStations() {
-        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
-            return stationsOperations.syncStations(StationsCollectionsTypes.LIKED);
-        } else {
-            return Observable.just(SyncJobResult.success(Syncable.LIKED_STATIONS.name(), false));
-        }
+        return stationsOperations.syncStations(StationsCollectionsTypes.LIKED);
     }
 
     private Observable<List<StationRecord>> loadStations() {
-        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
-            return stationsOperations.collection(StationsCollectionsTypes.LIKED).toList();
-        } else {
-            return Observable.just(Collections.<StationRecord>emptyList());
-        }
+        return stationsOperations.collection(StationsCollectionsTypes.LIKED).toList();
     }
 
     public void clearData() {

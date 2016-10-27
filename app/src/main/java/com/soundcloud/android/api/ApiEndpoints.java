@@ -25,7 +25,6 @@ public enum ApiEndpoints {
     SEARCH_TRACKS("/search/tracks"),
     SEARCH_USERS("/search/users"),
     SEARCH_ALBUMS("/search/albums"),
-    SEARCH_PLAYLISTS("/search/playlists"),
     SEARCH_PLAYLISTS_WITHOUT_ALBUMS("/search/playlists_without_albums"),
     SEARCH_ALL("/search/universal"),
     SEARCH_SUGGESTIONS("/search/suggest"),
@@ -55,6 +54,7 @@ public enum ApiEndpoints {
 
     // ads + monetization
     ADS("/tracks/%s/ads"),
+    INLAY_ADS("/stream/ads"),
     POLICIES("/policies/tracks"),
 
     // consumer subs
@@ -74,6 +74,9 @@ public enum ApiEndpoints {
     // posts
     MY_TRACK_POSTS("/you/posts_and_reposts/tracks"),
     MY_PLAYLIST_POSTS("/you/posts_and_reposts/playlists"),
+
+    // followings
+    MY_FOLLOWINGS("/you/followings"),
 
     // profile
     MY_DOB("/you/profile/dob"),

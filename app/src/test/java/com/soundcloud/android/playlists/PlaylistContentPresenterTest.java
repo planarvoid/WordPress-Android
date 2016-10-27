@@ -6,8 +6,6 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistContentPresenter.PlaylistDefaultView;
-import com.soundcloud.android.playlists.PlaylistContentPresenter.PlaylistEditView;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;

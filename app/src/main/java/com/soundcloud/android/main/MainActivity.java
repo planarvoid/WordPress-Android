@@ -20,10 +20,10 @@ import javax.inject.Inject;
 public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
-    @Inject CastConnectionHelper castConnectionHelper;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
 
+    @Inject @LightCycle CastConnectionHelper castConnectionHelper;
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
@@ -39,7 +39,6 @@ public class MainActivity extends PlayerActivity {
         if (savedInstanceState == null) {
             playSessionController.reloadQueueAndShowPlayerIfEmpty();
         }
-        castConnectionHelper.reconnectSessionIfPossible();
     }
 
     @Override

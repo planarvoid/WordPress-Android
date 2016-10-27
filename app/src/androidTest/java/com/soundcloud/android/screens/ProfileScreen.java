@@ -200,12 +200,6 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public ProfileScreen touchLikesTab() {
-        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
-    }
-
     public ProfileScreen touchLegacyFollowingsTab() {
         final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary

@@ -10,12 +10,9 @@ import java.util.List;
 @AutoValue
 public abstract class RecommendedStationsBucketItem extends DiscoveryItem implements PlayingTrackAware {
 
-    RecommendedStationsBucketItem() {
-        super(Kind.RecommendedStationsItem);
-    }
 
     public static RecommendedStationsBucketItem create(List<StationViewModel> stations) {
-        return new AutoValue_RecommendedStationsBucketItem(stations);
+        return new AutoValue_RecommendedStationsBucketItem(Kind.RecommendedStationsItem, stations);
     }
 
     public abstract List<StationViewModel> getStations();

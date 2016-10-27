@@ -4,9 +4,11 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -14,7 +16,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class DownloadableTrackItemRenderer extends TrackItemRenderer {
 
@@ -53,16 +54,17 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
-        super.bindItemView(position, itemView, trackItems);
-        final TrackItem track = trackItems.get(position);
-
+    public void bindTrackView(TrackItem track,
+                              View itemView,
+                              int position,
+                              Optional<TrackSourceInfo> trackSourceInfo,
+                              Optional<Module> module) {
+        super.bindTrackView(track, itemView, position, trackSourceInfo, module);
         setDownloadProgressIndicator(itemView, track);
     }
 
     private void setDownloadProgressIndicator(View itemView, TrackItem track) {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.item_download_state);
-
         if (featureOperations.isOfflineContentEnabled()) {
             downloadProgressIcon.setState(track.getDownloadedState());
         } else {

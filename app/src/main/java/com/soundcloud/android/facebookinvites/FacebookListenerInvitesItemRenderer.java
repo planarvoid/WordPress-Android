@@ -1,13 +1,13 @@
 package com.soundcloud.android.facebookinvites;
 
-import static com.soundcloud.android.stream.SoundStreamItem.forFacebookListenerInvites;
+import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.stream.SoundStreamItem;
+import com.soundcloud.android.stream.StreamItem;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.view.LayoutInflater;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class FacebookListenerInvitesItemRenderer implements CellRenderer<SoundStreamItem> {
+public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamItem> {
 
     private final ImageOperations imageOperations;
     private final FacebookInvitesStorage facebookInvitesStorage;
@@ -51,8 +51,8 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<SoundSt
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<SoundStreamItem> items) {
-        final SoundStreamItem.FacebookListenerInvites item = (SoundStreamItem.FacebookListenerInvites) items.get(position);
+    public void bindItemView(int position, View itemView, List<StreamItem> items) {
+        final StreamItem.FacebookListenerInvites item = (StreamItem.FacebookListenerInvites) items.get(position);
         itemView.setEnabled(false);
         setClickListeners(itemView, position);
 
@@ -71,7 +71,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<SoundSt
         itemView.findViewById(R.id.content).setVisibility(View.INVISIBLE);
     }
 
-    private void setContent(View itemView, SoundStreamItem.FacebookListenerInvites item) {
+    private void setContent(View itemView, StreamItem.FacebookListenerInvites item) {
         itemView.findViewById(R.id.loading).setVisibility(View.GONE);
         itemView.findViewById(R.id.content).setVisibility(View.VISIBLE);
 
@@ -129,11 +129,11 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<SoundSt
 
         private final WeakReference<View> itemView;
         private final int position;
-        private final List<SoundStreamItem> items;
+        private final List<StreamItem> items;
 
         PictureLoadedSubscriber(final View itemView,
                                 final int position,
-                                final List<SoundStreamItem> items) {
+                                final List<StreamItem> items) {
             this.itemView = new WeakReference<>(itemView);
             this.position = position;
             this.items = items;
@@ -142,7 +142,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<SoundSt
         @Override
         public void onNext(List<String> friendPictureUrls) {
             if (itemView.get() != null && listContainsInvitesItem()) {
-                final SoundStreamItem.FacebookListenerInvites item = forFacebookListenerInvites(friendPictureUrls);
+                final StreamItem.FacebookListenerInvites item = forFacebookListenerInvites(friendPictureUrls);
                 items.set(position, item);
                 listener.onListenerInvitesLoaded(item.hasPictures());
                 setContent(itemView.get(), item);
@@ -152,13 +152,12 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<SoundSt
         @Override
         public void onError(Throwable e) {
             if (itemView.get() != null && listContainsInvitesItem()) {
-                setContent(itemView.get(), (SoundStreamItem.FacebookListenerInvites) items.get(position));
+                setContent(itemView.get(), (StreamItem.FacebookListenerInvites) items.get(position));
             }
         }
 
         private boolean listContainsInvitesItem() {
-            return items.size() > position && items.get(position)
-                                                   .kind() == SoundStreamItem.Kind.FACEBOOK_LISTENER_INVITES;
+            return items.size() > position && items.get(position).kind() == StreamItem.Kind.FACEBOOK_LISTENER_INVITES;
         }
     }
 }

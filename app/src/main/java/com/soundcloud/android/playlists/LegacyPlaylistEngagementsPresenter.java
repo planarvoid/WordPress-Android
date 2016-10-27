@@ -30,8 +30,6 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -80,7 +78,6 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsOperations offlineSettings;
     private final PlayQueueHelper playQueueHelper;
-    private final FeatureFlags featureFlags;
 
     private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private Subscription offlineStateSubscription = RxUtils.invalidSubscription();
@@ -103,8 +100,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
                                               OfflineSettingsOperations offlineSettings,
                                               Navigator navigator,
                                               ShareOperations shareOperations,
-                                              PlayQueueHelper playQueueHelper,
-                                              FeatureFlags featureFlags) {
+                                              PlayQueueHelper playQueueHelper) {
         this.eventBus = eventBus;
         this.eventTracker = eventTracker;
         this.repostOperations = repostOperations;
@@ -121,7 +117,6 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         this.navigator = navigator;
         this.shareOperations = shareOperations;
         this.playQueueHelper = playQueueHelper;
-        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -211,9 +206,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     }
 
     private void toggleShuffleOption() {
-        if (featureFlags.isEnabled(Flag.PLAY_QUEUE)) {
-            playlistEngagementsView.hideShuffle();
-        } else if (playlistHeaderItem.getTrackCount() > 1) {
+        if (playlistHeaderItem.getTrackCount() > 1) {
             playlistEngagementsView.enableShuffle();
         } else {
             playlistEngagementsView.disableShuffle();
@@ -307,9 +300,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     public void onPlayShuffled() {
         if (playlistHeaderItem != null) {
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistHeaderItem.getUrn());
-            playbackInitiator.playTracksShuffled(tracks,
-                                                 playlistHeaderItem.getPlaySessionSource(),
-                                                 featureOperations.isOfflineContentEnabled())
+            playbackInitiator.playTracksShuffled(tracks, playlistHeaderItem.getPlaySessionSource())
                              .doOnCompleted(publishAnalyticsEventForShuffle())
                              .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }

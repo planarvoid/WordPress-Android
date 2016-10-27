@@ -6,17 +6,18 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
+import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -35,6 +36,13 @@ import javax.inject.Inject;
 public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompatActivity>
         implements PanelSlideListener {
 
+    private Func1 notExpandedAndItemAdded = new Func1<PlayQueueEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayQueueEvent playQueueEvent) {
+            return !isExpanded() && playQueueEvent.itemAdded();
+        }
+    };
+
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
     private static final String EXTRA_PLAYQUEUE_LOCK = "playqueue_lock";
 
@@ -45,7 +53,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private SlidingUpPanelLayout slidingPanel;
     private PlayerFragment playerFragment;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private CompositeSubscription subscription = new CompositeSubscription();
 
     private boolean isLocked;
     private boolean isPlayQueueLocked;
@@ -65,7 +73,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     @Nullable
     public View getSnackbarHolder() {
         final View view = playerFragment.getView();
-        return view != null ? view.findViewById(R.id.player_pager_holder) : null;
+        return view != null ? view.findViewById(R.id.player_root) : null;
     }
 
     @Override
@@ -87,6 +95,12 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
             throw new IllegalArgumentException(
                     "Player fragment not found. Make sure it is present with the expected id.");
         }
+    }
+
+    private void setupTrackInsertedSubscriber(final View view) {
+        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE)
+                                 .filter(notExpandedAndItemAdded)
+                                 .subscribe(new ScaleAnimationSubscriber(view)));
     }
 
     private PlayerFragment getPlayerFragmentFromActivity(AppCompatActivity activity) {
@@ -167,7 +181,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         } else {
             return bundle.getBoolean(EXTRA_EXPAND_PLAYER, false) || isPlayQueueLocked;
         }
-
     }
 
     @Override
@@ -178,7 +191,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
             restorePlayerState();
         }
         expandOnResume = false;
-        subscription = eventBus.subscribe(EventQueue.PLAYER_COMMAND, new PlayerCommandSubscriber());
+        subscription.add(eventBus.subscribe(EventQueue.PLAYER_COMMAND, new PlayerCommandSubscriber()));
+        setupTrackInsertedSubscriber(activity.findViewById(R.id.player_root));
     }
 
     private void restorePlayerState() {
@@ -206,7 +220,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Override
     public void onPause(AppCompatActivity activity) {
-        subscription.unsubscribe();
+        subscription.clear();
     }
 
     @Override
@@ -243,6 +257,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
             }
         }
     }
+
 
     private void lockForPlayQueue() {
         lockExpanded();

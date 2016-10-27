@@ -18,6 +18,7 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
@@ -48,6 +49,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlayQueueAdapter adapter;
     @Mock private PlayQueueOperations playQueueOperations;
+    @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueArtworkController playerArtworkController;
     @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
     @Mock private PlayQueueItemAnimator animator;
@@ -67,6 +69,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter = new PlayQueuePresenter(
                 adapter,
                 playQueueManager,
+                playSessionController,
                 playQueueOperations,
                 playerArtworkController,
                 swipeToRemoveCallbackFactory,

@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/ConversionModal"
-    tools:showIn="@layout/conversion_activity">
+    style="@style/LegacyConversionModal"
+    tools:showIn="@layout/legacy_conversion_activity">
 
     <ImageView
         android:id="@+id/conversion_cloud"

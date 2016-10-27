@@ -5,6 +5,9 @@ import com.soundcloud.android.main.Screen;
 
 import android.content.res.Resources;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum SearchType {
     ALL(R.string.search_type_all, Screen.SEARCH_EVERYTHING, true),
     TRACKS(R.string.search_type_tracks, Screen.SEARCH_TRACKS, false),
@@ -32,5 +35,13 @@ public enum SearchType {
 
     Screen getScreen() {
         return screen;
+    }
+
+    static List<SearchType> asList() {
+        return Arrays.asList(values());
+    }
+
+    static SearchType get(int position) {
+        return asList().get(position);
     }
 }

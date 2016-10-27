@@ -2,10 +2,11 @@ package com.soundcloud.android.tracks;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.java.collections.Lists.partition;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
-import com.soundcloud.android.commands.TrackViewUrnMapper;
+import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -31,16 +32,26 @@ class TrackStorage {
 
     private final PropellerRx propeller;
     private final TrackItemMapper trackMapper = new TrackItemMapper();
-    private Func1<List<QueryResult>, Map<Urn, PropertySet>> toMapOfUrnAndPropertySet = new Func1<List<QueryResult> , Map<Urn, PropertySet>>() {
+
+    private Func1<List<QueryResult>, Map<Urn, PropertySet>> toMapOfUrnAndPropertySet = new Func1<List<QueryResult>, Map<Urn, PropertySet>>() {
         @Override
         public Map<Urn, PropertySet> call(List<QueryResult> cursorReaders) {
             return toMapOfUrnAndPropertySet(cursorReaders);
         }
     };
+
     private Func1<List<Urn>, Observable<QueryResult>> fetchTracks = new Func1<List<Urn>, Observable<QueryResult>>() {
         @Override
         public Observable<QueryResult> call(List<Urn> urns) {
             return propeller.queryResult(buildTracksQuery(urns));
+        }
+    };
+
+    private Func1<List<Urn>, Observable<Urn>> fetchAvailableTrackUrns = new Func1<List<Urn>, Observable<Urn>>() {
+        @Override
+        public Observable<Urn> call(List<Urn> urns) {
+            return propeller.query(buildAvailableTracksQuery(urns))
+                            .map(new TrackUrnMapper());
         }
     };
 
@@ -65,6 +76,10 @@ class TrackStorage {
         return Observable.from(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchTracks);
     }
 
+    private Observable<Urn> batchedAvailableTracks(List<Urn> urns) {
+        return Observable.from(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchAvailableTrackUrns);
+    }
+
     private Map<Urn, PropertySet> toMapOfUrnAndPropertySet(List<QueryResult> cursorReadersBatches) {
         final Map<Urn, PropertySet> tracks = new HashMap<>(cursorReadersBatches.size() * MAX_TRACKS_BATCH);
         for (QueryResult cursorReaders : cursorReadersBatches) {
@@ -78,11 +93,10 @@ class TrackStorage {
         return tracks;
     }
 
-    public Observable<List<Urn>> availableTracks(final List<Urn> requestedTracks) {
-        return propeller
-                .query(buildTracksQuery(requestedTracks))
-                .map(new TrackViewUrnMapper())
-                .toList();
+    Observable<List<Urn>> availableTracks(final List<Urn> requestedTracks) {
+        return batchedAvailableTracks(requestedTracks)
+                .toList()
+                .firstOrDefault(Collections.<Urn>emptyList());
     }
 
     Observable<PropertySet> loadTrackDescription(Urn urn) {
@@ -95,7 +109,7 @@ class TrackStorage {
         return Query.from(Table.SoundView.name())
                     .select(TableColumns.SoundView.DESCRIPTION)
                     .whereEq(_ID, trackUrn.getNumericId())
-                    .whereEq(_TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .whereEq(_TYPE, TYPE_TRACK);
     }
 
     private Query buildTrackQuery(Urn trackUrn) {
@@ -109,4 +123,12 @@ class TrackStorage {
                     .select("*")
                     .whereIn(Tables.TrackView.ID.name(), transform(trackUrns, Urns.TO_ID));
     }
+
+    private Query buildAvailableTracksQuery(List<Urn> trackUrns) {
+        return Query.from(Table.Sounds.name())
+                    .select(TableColumns.Sounds._ID)
+                    .whereEq(TableColumns.Sounds._TYPE, TYPE_TRACK)
+                    .whereIn(TableColumns.Sounds._ID, transform(trackUrns, Urns.TO_ID));
+    }
+
 }

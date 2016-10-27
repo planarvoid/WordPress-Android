@@ -16,7 +16,6 @@ import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicates;
@@ -40,7 +39,6 @@ import java.util.Map;
 public class PlaylistDiscoveryOperations {
 
     private final ApiClientRx apiClientRx;
-    private final NetworkConnectionHelper connectionHelper;
     private final PlaylistTagStorage tagStorage;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
@@ -88,14 +86,12 @@ public class PlaylistDiscoveryOperations {
 
     @Inject
     PlaylistDiscoveryOperations(ApiClientRx apiClientRx,
-                                NetworkConnectionHelper connectionHelper,
                                 PlaylistTagStorage tagStorage,
                                 StorePlaylistsCommand storePlaylistsCommand,
                                 LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                                 LoadPlaylistRepostStatuses loadPlaylistRepostStatuses,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
-        this.connectionHelper = connectionHelper;
         this.tagStorage = tagStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
@@ -117,7 +113,7 @@ public class PlaylistDiscoveryOperations {
         return getCachedPlaylistTags().flatMap(new Func1<List<String>, Observable<List<String>>>() {
             @Override
             public Observable<List<String>> call(List<String> tags) {
-                if ((tags.isEmpty() || tagStorage.isTagsCacheExpired()) && connectionHelper.isNetworkConnected()) {
+                if (tags.isEmpty() || tagStorage.isTagsCacheExpired()) {
                     return fetchAndCachePopularTags();
                 }
                 return Observable.just(tags);

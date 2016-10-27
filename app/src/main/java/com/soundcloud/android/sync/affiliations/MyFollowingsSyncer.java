@@ -2,18 +2,20 @@ package com.soundcloud.android.sync.affiliations;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.Endpoints;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
-import com.soundcloud.android.api.legacy.model.CollectionHolder;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.VerifyAgeActivity;
@@ -27,7 +29,9 @@ import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.http.HttpStatus;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -40,6 +44,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 
 import javax.inject.Inject;
@@ -55,6 +60,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
 
     private static final String REQUEST_NO_BACKOFF = "0";
 
+    private final ApiClient apiClient;
     private final UserAssociationStorage userAssociationStorage;
     private final FollowingOperations followingOperations;
     private final NotificationManager notificationManager;
@@ -65,6 +71,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
     @Inject
     public MyFollowingsSyncer(@Provided Context context,
                               @Provided PublicApi publicApi,
+                              @Provided ApiClient apiClient,
                               @Provided AccountOperations accountOperations,
                               @Provided FollowingOperations followingOperations,
                               @Provided NotificationManager notificationManager,
@@ -74,6 +81,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
                               @Nullable String action) {
 
         super(context, publicApi, accountOperations);
+        this.apiClient = apiClient;
         this.userAssociationStorage = userAssociationStorage;
         this.followingOperations = followingOperations;
         this.notificationManager = notificationManager;
@@ -84,7 +92,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
 
     @NotNull
     @Override
-    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws IOException {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws IOException, ApiMapperException, ApiRequestException {
         if (!isLoggedIn()) {
             Log.w(TAG, "Invalid user id, skipping sync ");
             return new LegacySyncResult(Content.ME_FOLLOWINGS.uri);
@@ -103,16 +111,13 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
         return syncContent(Content.ME_FOLLOWINGS.uri, this.action).change != LegacySyncResult.UNCHANGED;
     }
 
-    private LegacySyncResult syncLocalToRemote() throws IOException {
+    private LegacySyncResult syncLocalToRemote() throws IOException, ApiMapperException, ApiRequestException {
         LegacySyncResult result = new LegacySyncResult(Content.ME_FOLLOWINGS.uri);
 
         Set<Long> local = userAssociationStorage.loadFollowedUserIds();
-        List<Long> followedUserIds = api.readFullCollection(Request.to(Endpoints.MY_FOLLOWINGS + "/ids"),
-                                                            IdHolder.class);
+        List<Long> followedUserIds = getFollowingUserIds();
 
-        log("Cloud Api service: got followedUserIds " + followedUserIds.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), followedUserIds.size());
-
         if (checkUnchanged(result, local, followedUserIds)) {
             result.success = true;
             return result;
@@ -122,26 +127,26 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
         List<Long> itemDeletions = new ArrayList<>(local);
         itemDeletions.removeAll(followedUserIds);
         userAssociationStorage.deleteFollowingsById(itemDeletions);
-
-        int startPosition;
-
-        // load the first page of items to get proper last_seen ordering
-        // parse and add first items
-        List<PublicApiUser> followedUsers = api.readList(Request.to(Endpoints.MY_FOLLOWINGS)
-                                                                .add(PublicApi.LINKED_PARTITIONING, "1")
-                                                                .add("limit", Consts.LIST_PAGE_SIZE));
-
-        userAssociationStorage.insertFollowedUsers(followedUsers);
-
-        // remove items from master followedUserIds list and adjust start index
-        for (PublicApiUser user : followedUsers) {
-            followedUserIds.remove(user.getId());
-        }
-        startPosition = followedUsers.size();
-
-        userAssociationStorage.insertFollowedUserIds(followedUserIds, startPosition);
+        userAssociationStorage.insertFollowedUserIds(followedUserIds, 0);
         result.success = true;
         return result;
+    }
+
+    @NonNull
+    private List<Long> getFollowingUserIds() throws IOException, ApiRequestException, ApiMapperException {
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.MY_FOLLOWINGS.path())
+                                             .forPrivateApi()
+                                             .build();
+        ModelCollection<ApiFollowing> apiFollowings = apiClient.fetchMappedResponse(request,
+                                                                                    new TypeToken<ModelCollection<ApiFollowing>>() {
+                                                                         });
+        return Lists.transform(apiFollowings.getCollection(), new Function<ApiFollowing, Long>() {
+            @Nullable
+            @Override
+            public Long apply(ApiFollowing input) {
+                return input.getTargetUrn().getNumericId();
+            }
+        });
     }
 
     private LocalState getLocalSyncState(PropertySet userAssociation) {
@@ -304,8 +309,5 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
 
     private enum LocalState {
         NONE, PENDING_ADDITION, PENDING_REMOVAL
-    }
-
-    static class IdHolder extends CollectionHolder<Long> {
     }
 }

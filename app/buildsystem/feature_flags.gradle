@@ -11,19 +11,19 @@ enum Feature {
   REMOTE_FEATURE_TOGGLES,
   FILTER_COLLECTIONS,
   ARCHER_PUSH,
+  MID_TIER,
   DISCOVERY_CHARTS,
-  DISCOVERY_RECOMMENDATIONS,
-  EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
   EDIT_PLAYLIST,
   PLAY_QUEUE,
   NEW_SYNC_ADAPTER,
   HOLISTIC_TRACKING,
-  ALBUMS,
   EXPLORE,
-  STATION_PAGE,
-  LIKED_STATIONS,
   SUGGESTED_CREATORS,
-  MOAT_ADS_VIEWABILITY;
+  FORCE_SUGGESTED_CREATORS_FOR_ALL,
+  MOAT_ADS_VIEWABILITY,
+  NEW_HOME,
+  APP_INSTALLS,
+  CLEAR_TABLES_ON_SIGNOUT;
 }
 
 android {
@@ -32,95 +32,70 @@ android {
     buildConfigField FLAG, Feature.FILTER_COLLECTIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ARCHER_PUSH.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.MID_TIER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.EDIT_PLAYLIST.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.ALBUMS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PLAY_QUEUE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.EXPLORE.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.STATION_PAGE.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.LIKED_STATIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.APP_INSTALLS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
     alpha {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
 
     beta {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
 
     debug {
       buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
 
     release {
-      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
     }
 
     preRelease {
-      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
-      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
     }
   }
 }

@@ -4,7 +4,10 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.payments.WebConversionActivity;
+import com.soundcloud.android.payments.LegacyConversionActivity;
+import com.soundcloud.android.payments.TieredConversionActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -22,8 +25,8 @@ import java.util.List;
 @SuppressLint("NewApi")
 public class SmoothNavigator extends Navigator {
 
-    public SmoothNavigator(EventTracker eventTracker) {
-        super(eventTracker);
+    public SmoothNavigator(EventTracker eventTracker, FeatureFlags featureFlags) {
+        super(eventTracker, featureFlags);
     }
 
     @Override
@@ -65,7 +68,11 @@ public class SmoothNavigator extends Navigator {
     @Override
     public void openUpgrade(Context activityContext) {
         final Activity activity = getFragmentActivity(activityContext);
-        final ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
-        activity.startActivity(new Intent(activity, WebConversionActivity.class), options.toBundle());
+        if (featureFlags.isEnabled(Flag.MID_TIER)) {
+            activity.startActivity(new Intent(activity, TieredConversionActivity.class));
+        } else {
+            final ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
+            activity.startActivity(new Intent(activity, LegacyConversionActivity.class), options.toBundle());
+        }
     }
 }

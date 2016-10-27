@@ -26,7 +26,7 @@ class GoOnboardingView implements ViewPager.OnPageChangeListener {
     private final GoOnboardingAdapter adapter;
 
     @Inject
-    public GoOnboardingView(GoOnboardingAdapter adapter) {
+    GoOnboardingView(GoOnboardingAdapter adapter) {
         this.adapter = adapter;
     }
 

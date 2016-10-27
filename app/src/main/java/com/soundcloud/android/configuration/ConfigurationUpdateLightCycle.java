@@ -49,7 +49,7 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
     private final class PlanChangeSubscriber extends DefaultSubscriber<UserPlanChangedEvent> {
         private final AppCompatActivity activity;
 
-        public PlanChangeSubscriber(AppCompatActivity activity) {
+        PlanChangeSubscriber(AppCompatActivity activity) {
             this.activity = activity;
         }
 

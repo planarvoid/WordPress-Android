@@ -7,23 +7,22 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
-public class SearchPagerAdapter extends FragmentPagerAdapter {
+class SearchPagerAdapter extends FragmentPagerAdapter {
 
     private final Resources resources;
     private final String query;
     private final boolean firstTime;
     private final List<SearchType> tabs;
 
-    public SearchPagerAdapter(Resources resources,
-                              FragmentManager fm,
-                              String query,
-                              boolean firstTime,
-                              List<SearchType> tabs) {
+    SearchPagerAdapter(Resources resources,
+                       FragmentManager fm,
+                       String query,
+                       boolean firstTime) {
         super(fm);
         this.resources = resources;
         this.query = query;
         this.firstTime = firstTime;
-        this.tabs = tabs;
+        this.tabs = SearchType.asList();
     }
 
     @Override

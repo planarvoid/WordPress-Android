@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class SearchResultsAdapter
-        extends PagingRecyclerItemAdapter<ListItem, SearchResultsAdapter.SearchViewHolder>
+        extends PagingRecyclerItemAdapter<ListItem, RecyclerView.ViewHolder>
         implements PlayingTrackAware {
 
     static final int TYPE_USER = ViewTypes.DEFAULT_VIEW_TYPE;
@@ -88,14 +88,8 @@ class SearchResultsAdapter
     }
 
     @Override
-    protected SearchViewHolder createViewHolder(View itemView) {
-        return new SearchViewHolder(itemView);
-    }
-
-    static class SearchViewHolder extends RecyclerView.ViewHolder {
-        public SearchViewHolder(View itemView) {
-            super(itemView);
-        }
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
     void setPremiumContentListener(OnPremiumContentClickListener listener) {

@@ -16,8 +16,6 @@ import java.util.List;
 
 public class LegacyPlaylistHeaderRenderer implements PlaylistHeaderRenderer {
 
-    private static final int EXTEND_OPTIONS_HIT_DP = 8;
-
     private OnSettingsClickListener onSettingsClickListener;
     private final Resources resources;
 
@@ -44,7 +42,7 @@ public class LegacyPlaylistHeaderRenderer implements PlaylistHeaderRenderer {
                                         .inflate(R.layout.collection_playlist_header, parent, false);
         View optionsButton = view.findViewById(R.id.btn_collections_playlist_options);
         optionsButton.setOnClickListener(onSettingsClicked);
-        ViewUtils.extendTouchArea(optionsButton, EXTEND_OPTIONS_HIT_DP);
+        ViewUtils.extendTouchArea(optionsButton);
         return view;
     }
 

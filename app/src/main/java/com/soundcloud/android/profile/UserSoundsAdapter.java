@@ -14,7 +14,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder>
+public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, RecyclerView.ViewHolder>
         implements PlayingTrackAware {
 
     private static final int TYPE_DIVIDER = 0;
@@ -97,7 +97,7 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
     }
 
     @Override
-    public void onBindViewHolder(final UserSoundsAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         super.onBindViewHolder(holder, position);
 
         final UserSoundsItem item = getItem(position);
@@ -107,13 +107,7 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
     }
 
     @Override
-    protected UserSoundsAdapter.ViewHolder createViewHolder(View itemView) {
-        return new UserSoundsAdapter.ViewHolder(itemView);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(View itemView) {
-            super(itemView);
-        }
+    protected ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 }

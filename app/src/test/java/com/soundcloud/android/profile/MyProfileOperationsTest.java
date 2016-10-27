@@ -11,10 +11,12 @@ import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import rx.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class MyProfileOperationsTest extends AndroidUnitTest {
@@ -158,20 +161,22 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void returnsListOfFollowingsUrns() {
-        TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
-        int numberOfFollowings = 2;
-        final List<PropertySet> pageOfFollowings = createPageOfFollowings(numberOfFollowings);
-        final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
+        TestSubscriber<List<UserAssociation>> subscriber = new TestSubscriber<>();
+        final UserAssociation userAssociation1 = createUserAssociation(Urn.forUser(123L));
+        final UserAssociation userAssociation2 = createUserAssociation(Urn.forUser(124L));
+        final List<UserAssociation> followingsUrn = Arrays.asList(userAssociation1, userAssociation2);
 
-        when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
+        when(userAssociationStorage.followedUserAssociations(PAGE_SIZE)).thenReturn(Observable.just(
                 followingsUrn));
-        when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
-                pageOfFollowings));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(SHOULD_NEVER_SYNC);
 
-        operations.followingsUrns().subscribe(subscriber);
+        operations.followingsUserAssociations().subscribe(subscriber);
 
         subscriber.assertValue(followingsUrn);
+    }
+
+    private UserAssociation createUserAssociation(Urn urn) {
+        return UserAssociation.create(urn, 0, 1, Optional.<Date>absent(), Optional.<Date>absent());
     }
 
     private List<PropertySet> createPageOfFollowings(int size) {

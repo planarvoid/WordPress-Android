@@ -8,8 +8,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.discovery.ChartSourceInfo;
-import com.soundcloud.android.discovery.RecommendationsSourceInfo;
+import com.soundcloud.android.discovery.charts.ChartSourceInfo;
+import com.soundcloud.android.discovery.recommendations.RecommendationsSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -217,7 +217,7 @@ public class PlayQueueManager implements OriginProvider {
                         .build();
                 playQueue.insertPlayQueueItem(nextExplicitPosition + i, queueItem);
             }
-            publishQueueUpdate();
+            publishQueueInsertEvent();
             saveQueue();
         } else {
             throw new IllegalStateException("It is not possible to insert when the play queue is empty");
@@ -231,7 +231,7 @@ public class PlayQueueManager implements OriginProvider {
                     .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                     .build();
             playQueue.insertPlayQueueItem(nextExplicitPosition, queueItem);
-            publishQueueUpdate();
+            publishQueueInsertEvent();
             saveQueue();
         } else {
             throw new IllegalStateException("It is not possible to insert when the play queue is empty");
@@ -698,6 +698,10 @@ public class PlayQueueManager implements OriginProvider {
                          CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(),
                                                                 getCollectionUrn(),
                                                                 getCurrentPosition()));
+    }
+
+    private void publishQueueInsertEvent() {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
     }
 
     public void removeUpcomingItem(PlayQueueItem item, boolean shouldPublishQueueChange) {
