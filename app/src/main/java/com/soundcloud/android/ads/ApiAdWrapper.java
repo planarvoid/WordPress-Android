@@ -33,6 +33,7 @@ abstract class ApiAdWrapper {
         return create(null, videoAd, null, null);
     }
 
+    @VisibleForTesting
     public static ApiAdWrapper create(ApiInterstitial interstitial) {
         return create(null, null, interstitial, null);
     }

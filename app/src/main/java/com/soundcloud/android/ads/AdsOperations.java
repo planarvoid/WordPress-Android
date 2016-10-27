@@ -40,14 +40,6 @@ import java.util.List;
 
 public class AdsOperations {
 
-    private static final Func1<ApiInterstitial, ApiAdsForTrack> TO_ADS_FOR_TRACK = new Func1<ApiInterstitial, ApiAdsForTrack>() {
-        @Override
-        public ApiAdsForTrack call(ApiInterstitial apiInterstitial) {
-            final ApiAdWrapper interstitialWrapper = ApiAdWrapper.create(apiInterstitial);
-            return new ApiAdsForTrack(Collections.singletonList(interstitialWrapper));
-        }
-    };
-
     private static final Func1<ApiAdsForStream, List<AppInstallAd>> GET_APP_INSTALLS = new Func1<ApiAdsForStream, List<AppInstallAd>>() {
         @Override
         public List<AppInstallAd> call(ApiAdsForStream adsForStream) {
@@ -92,15 +84,6 @@ public class AdsOperations {
                           .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
     }
 
-    Observable<ApiAdsForTrack> interstitial(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
-        final String endpoint = String.format(ApiEndpoints.INTERSTITIAL.path(), requestData.monetizableTrackUrn.toEncodedString());
-        return apiClientRx.mappedResponse(buildAdRequest(requestData, endpoint), ApiInterstitial.class)
-                          .map(TO_ADS_FOR_TRACK)
-                          .subscribeOn(scheduler)
-                          .doOnError(onRequestFailure(requestData, endpoint, playerVisible, inForeground))
-                          .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
-    }
-
     public Observable<List<AppInstallAd>> inlaysAds() {
         if (featureFlags.isEnabled(Flag.APP_INSTALLS)) {
             final ApiRequest.Builder request = ApiRequest.get(ApiEndpoints.INLAY_ADS.path()).forPrivateApi();
@@ -127,7 +110,7 @@ public class AdsOperations {
         return new Action1<ApiAdsForTrack>() {
             @Override
             public void call(ApiAdsForTrack apiAds) {
-                Log.i(ADS_TAG, "Retrieved ads on " + endpoint + " for " + requestData.monetizableTrackUrn + ": " + apiAds.contentString());
+                Log.i(ADS_TAG, "Retrieved ads for " + requestData.monetizableTrackUrn + ": " + apiAds.contentString());
                 logRequestSuccess(apiAds, requestData, endpoint, playerVisible, inForeground);
 
             }
@@ -139,7 +122,7 @@ public class AdsOperations {
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                Log.i(ADS_TAG, "Failed to retrieve ads on" + endpoint + " for " + requestData.monetizableTrackUrn, throwable);
+                Log.i(ADS_TAG, "Failed to retrieve ads for " + requestData.monetizableTrackUrn, throwable);
                 if (throwable instanceof ApiRequestException && ((ApiRequestException) throwable).reason() == NOT_FOUND) {
                     final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
                     logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
