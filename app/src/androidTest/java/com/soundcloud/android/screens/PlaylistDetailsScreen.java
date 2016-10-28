@@ -114,10 +114,6 @@ public class PlaylistDetailsScreen extends Screen {
                 .click();
     }
 
-    public VisualPlayerElement startStationFromFirstTrack() {
-        return findAndClickFirstTrackOverflowButton().clickStartStation();
-    }
-
     private TrackItemElement scrollToAndGetFirstTrackItem() {
         return toTrackItemElement.apply(scrollToItem(With.id(R.id.track_list_item)));
     }
