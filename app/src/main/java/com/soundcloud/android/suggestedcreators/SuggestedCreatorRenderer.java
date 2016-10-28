@@ -100,6 +100,9 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         final ImageView bannerView = (ImageView) itemView.findViewById(R.id.suggested_creator_visual_banner);
         final ImageView avatarView = (ImageView) itemView.findViewById(R.id.suggested_creator_avatar);
 
+        avatarView.setImageResource(android.R.color.transparent);
+        bannerView.setImageResource(android.R.color.transparent);
+
         Observable<Notification<Bitmap>> loadBanner = bindVisualBanner(bannerView,
                                                                        suggestedCreatorItem).materialize()
                                                                                             .filter(FILTER_OUT_COMPLETED);
@@ -195,10 +198,11 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private Observable<Bitmap> bindVisualBanner(final ImageView imageView,
                                                 final SuggestedCreatorItem suggestedCreatorItem) {
         final User creator = suggestedCreatorItem.creator();
-        final Optional<Palette> palette = suggestedCreatorItem.palette;
+
         if (shouldDisplayGradientFromPalette(suggestedCreatorItem)) {
             return Observable.just(null);
         } else {
+            final Optional<Palette> palette = suggestedCreatorItem.palette;
             return imageOperations.displayInAdapterView(SimpleImageResource.create(creator.urn(),
                                                                                    creator.visualUrl()),
                                                         ApiImageSize.getFullBannerSize(resources),
@@ -269,7 +273,6 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
             if (shouldDisplayGradientFromPalette(item)) {
                 backgroundAnimator.animate(item.palette.get(), bannerView, item.creator().urn());
             }
-
         }
     }
 }
