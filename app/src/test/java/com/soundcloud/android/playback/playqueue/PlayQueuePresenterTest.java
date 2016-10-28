@@ -52,7 +52,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueArtworkController playerArtworkController;
     @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
-    @Mock private PlayQueueItemAnimator animator;
 
     @Mock private PlayQueueUIItem item;
     @Mock private FeedbackController feedbackController;
@@ -76,7 +75,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 eventBus,
                 context(),
                 feedbackController,
-                animator,
                 playQueueUIItemMapper);
         when(adapter.getItem(anyInt())).thenReturn(item);
         when(item.isTrack()).thenReturn(true);
@@ -225,7 +223,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         presenter.shuffleClicked(toggle);
 
-        verify(animator).setMode(PlayQueueItemAnimator.Mode.SHUFFLING);
         verify(playQueueManager).shuffle();
     }
 
@@ -236,7 +233,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         presenter.shuffleClicked(toggle);
 
-        verify(animator).setMode(PlayQueueItemAnimator.Mode.DEFAULT);
         verify(playQueueManager).unshuffle();
     }
 
@@ -291,7 +287,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     private void verifyRepeatModeChanged(PlayQueueManager.RepeatMode mode) {
-        verify(animator).setMode(PlayQueueItemAnimator.Mode.REPEAT);
         verify(playQueueManager).setRepeatMode(mode);
         verify(adapter).updateInRepeatMode(mode);
     }

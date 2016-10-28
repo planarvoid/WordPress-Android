@@ -20,7 +20,6 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.playqueue.PlayQueueItemAnimator.Mode;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -80,8 +79,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
     private final FeedbackController feedbackController;
-    private final PlayQueueItemAnimator animator;
-
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
 
     private Subscription updateSubscription = RxUtils.invalidSubscription();
@@ -98,7 +95,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                        EventBus eventBus,
                        Context context,
                        FeedbackController feedbackController,
-                       PlayQueueItemAnimator animator,
                        PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
@@ -109,7 +105,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         this.context = context;
         this.playQueueSwipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
         this.feedbackController = feedbackController;
-        this.animator = animator;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
     }
 
@@ -127,7 +122,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
-        recyclerView.setItemAnimator(animator);
         recyclerView.addItemDecoration(new TopPaddingDecorator(), 0);
 
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(playQueueSwipeToRemoveCallback);
@@ -229,7 +223,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     void repeatClicked(ImageView view) {
         final RepeatMode nextRepeatMode = getNextRepeatMode();
 
-        animator.setMode(Mode.REPEAT);
         playQueueManager.setRepeatMode(nextRepeatMode);
         adapter.updateInRepeatMode(nextRepeatMode);
 
@@ -249,10 +242,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @OnClick(R.id.shuffle_button)
     void shuffleClicked(ToggleButton toggle) {
         if (toggle.isChecked()) {
-            animator.setMode(Mode.SHUFFLING);
             playQueueManager.shuffle();
         } else {
-            animator.setMode(Mode.DEFAULT);
             playQueueManager.unshuffle();
         }
     }
