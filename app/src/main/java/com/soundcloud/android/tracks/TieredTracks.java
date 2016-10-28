@@ -10,6 +10,6 @@ public final class TieredTracks {
         return !track.isSnipped() && track.isSubHighTier();
     }
 
-    private TieredTracks() {
-    }
+    private TieredTracks() {}
+
 }

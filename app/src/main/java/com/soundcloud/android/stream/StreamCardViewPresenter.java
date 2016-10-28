@@ -103,9 +103,7 @@ class StreamCardViewPresenter {
         item.resetTierIndicators();
         if (playableItem instanceof TieredTrack) {
             TieredTrack tieredTrack = ((TieredTrack) playableItem);
-            if (isHighTierPreview(tieredTrack)) {
-                item.showPreview();
-            } else if (isFullHighTierTrack(tieredTrack)) {
+            if (isFullHighTierTrack(tieredTrack) || isHighTierPreview(tieredTrack)) {
                 item.showGoIndicator();
             }
         }

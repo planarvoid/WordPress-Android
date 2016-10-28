@@ -25,19 +25,11 @@
 
     <View
         android:id="@+id/go_indicator"
-        style="@style/GoIndicator.Overlay"
+        style="@style/GoIndicator"
         android:layout_alignRight="@id/image"
         android:layout_alignTop="@id/image"
         android:layout_marginTop="@dimen/go_indicator_offset"
         android:layout_marginRight="@dimen/go_indicator_offset" />
-
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/preview_indicator"
-        style="@style/PreviewIndicator.Light"
-        android:layout_alignRight="@id/image"
-        android:layout_alignTop="@id/image"
-        android:layout_marginRight="@dimen/cards_artwork_inner_padding"
-        android:layout_marginTop="@dimen/cards_artwork_inner_padding" />
 
 </RelativeLayout>
 

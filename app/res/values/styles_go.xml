@@ -23,15 +23,10 @@
     </style>
 
     <style name="GoIndicator">
-        <item name="android:layout_width">18dp</item>
-        <item name="android:layout_height">13.5dp</item>
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
         <item name="android:background">@drawable/go_indicator</item>
         <item name="android:visibility">gone</item>
-    </style>
-
-    <style name="GoIndicator.Overlay">
-        <item name="android:layout_height">18dp</item>
-        <item name="android:background">@drawable/go_indicator_overlay</item>
     </style>
 
 </resources>

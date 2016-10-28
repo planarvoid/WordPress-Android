@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<View xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/go_indicator"
-    style="@style/GoIndicator"
-    android:layout_gravity="bottom"
-    android:visibility="visible" />

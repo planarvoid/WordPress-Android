@@ -237,11 +237,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindsPreviewLabelForSnippedTrack() {
+    public void bindsGoLabelForSnippedTrackHighTierTrack() {
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem, EventContextMetadata.builder());
 
-        verify(itemView).showPreview();
+        verify(itemView).showGoIndicator();
     }
 
     @Test
@@ -254,7 +254,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void hidesHighTierLabelWhenOtherItem() {
-        PlayableItem trackItem = upsellableTrack();
+        PlayableItem trackItem = repostedTrack();
         presenter.bind(itemView, trackItem, EventContextMetadata.builder());
 
         verify(itemView, never()).showGoIndicator();

@@ -39,7 +39,6 @@ public class StreamItemViewHolder implements CardViewHolder {
 
     @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
     @Nullable @Bind(R.id.go_indicator) View goIndicator;
-    @Nullable @Bind(R.id.preview_indicator) View previewIndicator;
 
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;
@@ -177,12 +176,7 @@ public class StreamItemViewHolder implements CardViewHolder {
     }
 
     public void resetTierIndicators() {
-        safeSetVisibility(previewIndicator, View.GONE);
         safeSetVisibility(goIndicator, View.GONE);
-    }
-
-    public void showPreview() {
-        safeSetVisibility(previewIndicator, View.VISIBLE);
     }
 
     public void showGoIndicator() {

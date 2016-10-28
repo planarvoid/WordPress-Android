@@ -53,19 +53,12 @@
 
         <View
             android:id="@+id/go_indicator"
-            style="@style/GoIndicator.Overlay"
+            style="@style/GoIndicator"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/go_indicator_offset"
             android:layout_marginRight="@dimen/go_indicator_offset" />
     </RelativeLayout>
-
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/preview_indicator"
-        style="@style/PreviewIndicator"
-        android:layout_gravity="top|right"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp" />
 
     <com.soundcloud.android.view.OverflowAnchorImageView
         android:id="@+id/overflow_button"

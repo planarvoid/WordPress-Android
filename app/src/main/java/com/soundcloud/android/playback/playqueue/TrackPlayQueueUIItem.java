@@ -101,7 +101,6 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
         return playQueueItem;
     }
 
-
     public Urn getUrn() {
         return playQueueItem.getUrn();
     }
@@ -110,7 +109,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
         return trackItem.getTitle();
     }
 
-    public Optional<String> getContextTitle() {
+    Optional<String> getContextTitle() {
         return contextTitle;
     }
 
@@ -124,6 +123,11 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
 
     public boolean isBlocked() {
         return trackItem.isBlocked();
+    }
+
+    boolean isGoTrack() {
+        return TieredTracks.isHighTierPreview(trackItem)
+                || TieredTracks.isFullHighTierTrack(trackItem);
     }
 
     public ImageResource getImageResource() {
@@ -164,8 +168,6 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
             return R.layout.not_available;
         } else if (TieredTracks.isHighTierPreview(trackItem)) {
             return R.layout.preview;
-        } else if (TieredTracks.isFullHighTierTrack(trackItem)) {
-            return R.layout.go_label;
         } else if (trackItem.isPrivate()) {
             return R.layout.private_label;
         } else {

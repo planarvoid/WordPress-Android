@@ -82,7 +82,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
-    public TrackPagePresenter(WaveformOperations waveformOperations,
+    TrackPagePresenter(WaveformOperations waveformOperations,
                               FeatureOperations featureOperations,
                               TrackPageListener listener,
                               LikeButtonPresenter likeButtonPresenter,
@@ -209,10 +209,12 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                          FeatureOperations featureOperations) {
         if (isHighTierPreview(trackState)) {
             holder.previewLabel.setVisibility(View.VISIBLE);
-            holder.upsellButton.setVisibility(featureOperations.upsellHighTier() ? View.VISIBLE : View.GONE);
+            showGoLabel(holder);
+            holder.upsellButton.setVisibility(featureOperations.upsellHighTier()
+                    ? View.VISIBLE
+                    : View.GONE);
         } else if (isFullHighTierTrack(trackState)) {
-            holder.goLabel.setVisibility(View.VISIBLE);
-            repositionGoLabel(holder);
+            showGoLabel(holder);
         } else {
             holder.previewLabel.setVisibility(View.GONE);
             holder.upsellButton.setVisibility(View.GONE);
@@ -220,7 +222,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void repositionGoLabel(final TrackPageHolder holder) {
+    private void showGoLabel(final TrackPageHolder holder) {
+        holder.goLabel.setVisibility(View.VISIBLE);
         holder.title.setListener(new JaggedTextView.Listener() {
             @Override
             public void onBackgroundChange(int badgeOffset) {

@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -26,6 +25,9 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/*
+ * Doesn't support Go tracks. Indicators need to be added if we bring this feature back!
+ */
 class TrackEditItemRenderer implements CellRenderer<TrackItem> {
 
     private final ImageOperations imageOperations;
@@ -34,13 +36,11 @@ class TrackEditItemRenderer implements CellRenderer<TrackItem> {
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final TrackEditItemView.Factory trackItemViewFactory;
-    private final TrackItemMenuPresenter trackItemMenuPresenter;
 
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackEditItemRenderer(ImageOperations imageOperations,
-                                 TrackItemMenuPresenter trackItemMenuPresenter,
+    TrackEditItemRenderer(ImageOperations imageOperations,
                                  EventBus eventBus,
                                  ScreenProvider screenProvider,
                                  Navigator navigator,
@@ -48,7 +48,6 @@ class TrackEditItemRenderer implements CellRenderer<TrackItem> {
                                  TrackEditItemView.Factory trackItemViewFactory) {
 
         this.imageOperations = imageOperations;
-        this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
         this.navigator = navigator;

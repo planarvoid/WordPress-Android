@@ -35,7 +35,6 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
 
     @Nullable @Bind(R.id.go_indicator) View goIndicator;
-    @Nullable @Bind(R.id.preview_indicator) View previewIndicator;
 
     private CardEngagementsPresenter.CardEngagementClickListener clickListener;
     private final ImageOperations imageOperations;
@@ -148,20 +147,13 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     }
 
     private void setupTierIndicator(PlayableItem playableItem) {
-        resetTierIndicators();
+        safeSetVisibility(goIndicator, View.GONE);
         if (playableItem instanceof TieredTrack) {
             TieredTrack track = (TieredTrack) playableItem;
-            if (isHighTierPreview(track)) {
-                safeSetVisibility(previewIndicator, View.VISIBLE);
-            } else if (isFullHighTierTrack(track)) {
+            if (isHighTierPreview(track) || isFullHighTierTrack(track)) {
                 safeSetVisibility(goIndicator, View.VISIBLE);
             }
         }
-    }
-
-    private void resetTierIndicators() {
-        safeSetVisibility(previewIndicator, View.GONE);
-        safeSetVisibility(goIndicator, View.GONE);
     }
 
     private void safeSetVisibility(View view, int visibility) {

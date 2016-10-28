@@ -110,13 +110,14 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldShowPreviewLabelAndHideOtherLabelsIfTrackIsHighTierPreview() {
+    public void shouldShowGoLabelIfTrackIsHighTierPreview() {
         trackItem = TrackItem.from(TestPropertySets.upsellableTrack());
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).hideInfoViewsRight();
         verify(trackItemView).showPreviewLabel();
         verify(trackItemView, never()).showDuration(anyString());
+        verify(trackItemView).showGoLabel();
     }
 
     @Test

@@ -120,7 +120,7 @@
 
             <View
                 android:id="@+id/go_indicator"
-                style="@style/GoIndicator.Overlay"
+                style="@style/GoIndicator"
                 android:layout_alignTop="@id/track_page_title"
                 android:layout_alignRight="@id/track_page_title" />
         </RelativeLayout>

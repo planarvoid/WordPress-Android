@@ -30,7 +30,7 @@
     <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
 
-    <!-- allows non-flash, non-location enabled devices to use the app -->
+    <!-- allows non-location-enabled devices to use the app -->
     <uses-feature android:name="android.hardware.location.network" android:required="false"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
 

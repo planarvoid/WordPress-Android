@@ -60,7 +60,7 @@ public class StreamScreen extends Screen {
     public StreamCardElement scrollToFirstSnippedTrack() {
         return new StreamCardElement(testDriver,
                                      scrollToItem(With.id(R.id.track_list_item),
-                                                  StreamCardElement.WithPreview(testDriver)));
+                                                  StreamCardElement.WithGoIndicator(testDriver)));
     }
 
     public StreamUpsellCardElement scrollToUpsell() {

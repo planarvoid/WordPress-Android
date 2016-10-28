@@ -101,7 +101,7 @@
 
             <View
                 android:id="@+id/go_indicator"
-                style="@style/GoIndicator.Overlay"
+                style="@style/GoIndicator"
                 android:layout_alignRight="@id/image"
                 android:layout_alignTop="@id/image"
                 android:layout_marginRight="@dimen/go_indicator_offset"

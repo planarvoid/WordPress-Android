@@ -211,7 +211,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         imageOperations.displayInAdapterView(
                 track, ApiImageSize.getListItemImageSize(itemView.getResources()),
                 itemView.getImage());
-        if (isFullHighTierTrack(track)) {
+        if (isFullHighTierTrack(track) || isHighTierPreview(track)) {
             itemView.showGoLabel();
         }
     }

@@ -64,9 +64,9 @@ public class ApiTrackBlueprint {
                 model.setUser(ModelFixtures.create(ApiUser.class));
             }
             model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-" + runningId + "-{size}.jpg");
-            model.setMonetizationModel("SUB_MID_TIER");
-            model.setSubMidTier(true);
-            model.setSubHighTier(true);
+            model.setMonetizationModel("MONETIZABLE");
+            model.setSubMidTier(false);
+            model.setSubHighTier(false);
             return model;
         }
     };

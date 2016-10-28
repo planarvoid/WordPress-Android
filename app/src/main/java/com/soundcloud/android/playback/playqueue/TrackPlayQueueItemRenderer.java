@@ -60,6 +60,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         imageOperations.displayInAdapterView(item.getImageResource(),
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
                                              imageView);
+        setGoIndicator(itemView, item);
         statusPlaceHolder.removeAllViews();
         setListener(itemView, item, position);
         setClickable(itemView, item);
@@ -67,6 +68,13 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         setRepeatAlpha(item, imageView, textHolder);
         setupOverFlow(item, overFlowButton, position);
         setTitleColor(item, title);
+    }
+
+    private void setGoIndicator(View itemView, TrackPlayQueueUIItem item) {
+        itemView.findViewById(R.id.go_indicator)
+                .setVisibility(item.isGoTrack()
+                ? View.VISIBLE
+                : View.GONE);
     }
 
     private void setTitleColor(TrackPlayQueueUIItem item, TextView titleTextView) {

@@ -72,8 +72,8 @@ public class StreamCardElement {
         return wrapped.isElementOnScreen(With.id(R.id.promoted_item));
     }
 
-    public boolean isPreview() {
-        return wrapped.isElementOnScreen(With.id(R.id.preview_indicator));
+    public boolean hasGoIndicator() {
+        return wrapped.isElementOnScreen(With.id(R.id.go_indicator));
     }
 
     public boolean hasPromoter() {
@@ -116,16 +116,16 @@ public class StreamCardElement {
         return wrapped.findOnScreenElement(With.id(R.id.overflow_button));
     }
 
-    public static With WithPreview(final Han testDriver) {
+    public static With WithGoIndicator(final Han testDriver) {
         return new With() {
             @Override
             public String getSelector() {
-                return "With preview indicator";
+                return "With Go indicator";
             }
 
             @Override
             public boolean apply(ViewElement view) {
-                return new StreamCardElement(testDriver, view).isPreview();
+                return new StreamCardElement(testDriver, view).hasGoIndicator();
             }
         };
     }
