@@ -7,9 +7,9 @@ import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -57,7 +57,7 @@ public class AnalyticsModule {
     @Provides
     @Singleton
     @Named(TRACKING_HTTP_CLIENT)
-    public OkHttpClient provideOkHttpClient(@Named(API_HTTP_CLIENT) OkHttpClient apiHttpClient) {
-        return apiHttpClient.clone();
+    public OkHttpClient provideOkHttpClient(OkHttpClient.Builder clientBuilder) {
+        return clientBuilder.build();
     }
 }

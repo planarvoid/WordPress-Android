@@ -8,9 +8,9 @@ import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

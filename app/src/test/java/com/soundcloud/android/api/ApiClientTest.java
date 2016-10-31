@@ -14,7 +14,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -27,9 +26,10 @@ import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.Call;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -60,7 +60,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Mock private LocaleFormatter localeFormatter;
 
     @Captor private ArgumentCaptor<Request> apiRequestCaptor;
-    @Captor private ArgumentCaptor<com.squareup.okhttp.Request> httpRequestCaptor;
+    @Captor private ArgumentCaptor<Request> httpRequestCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -93,7 +93,7 @@ public class ApiClientTest extends AndroidUnitTest {
         assertThat(response.isSuccess()).isTrue();
         assertThat(response.hasResponseBody()).isTrue();
         assertThat(httpRequestCaptor.getValue().method()).isEqualTo("GET");
-        assertThat(httpRequestCaptor.getValue().urlString()).isEqualTo(URL);
+        assertThat(httpRequestCaptor.getValue().url().toString()).isEqualTo(URL);
     }
 
     @Test
@@ -360,7 +360,7 @@ public class ApiClientTest extends AndroidUnitTest {
         assertThat(httpRequestCaptor.getValue()
                                     .body()
                                     .contentType()
-                                    .toString()).startsWith(MultipartBuilder.FORM.toString());
+                                    .toString()).startsWith(MultipartBody.FORM.toString());
     }
 
     @Test

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.OkHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

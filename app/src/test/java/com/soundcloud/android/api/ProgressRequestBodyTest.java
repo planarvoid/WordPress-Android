@@ -3,8 +3,8 @@ package com.soundcloud.android.api;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.RequestBody;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okio.BufferedSink;
 import org.junit.Before;
 import org.junit.Test;

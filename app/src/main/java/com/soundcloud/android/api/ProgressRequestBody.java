@@ -1,8 +1,8 @@
 package com.soundcloud.android.api;
 
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.RequestBody;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.ForwardingSink;

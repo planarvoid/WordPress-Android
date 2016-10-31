@@ -7,9 +7,9 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.net.HttpHeaders;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -45,7 +45,7 @@ class StrictSSLHttpClient {
     }
 
     private void logRequest(Request request) {
-        Log.d(TAG, "[OkHttp] " + request.method() + " " + request.urlString() + "; headers = " + request.headers());
+        Log.d(TAG, "[OkHttp] " + request.method() + " " + request.url().toString() + "; headers = " + request.headers());
     }
 
     private void logResponse(Response response) {

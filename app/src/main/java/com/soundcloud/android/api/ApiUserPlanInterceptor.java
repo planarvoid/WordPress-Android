@@ -4,8 +4,8 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeDetector;
 import com.soundcloud.android.utils.Log;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Response;
+import okhttp3.Interceptor;
+import okhttp3.Response;
 
 import javax.inject.Inject;
 import java.io.IOException;

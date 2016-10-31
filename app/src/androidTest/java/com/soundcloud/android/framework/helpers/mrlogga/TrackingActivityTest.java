@@ -6,7 +6,7 @@ import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.utils.BuildHelper;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.OkHttpClient;
 
 import android.app.Activity;
 import android.content.Context;

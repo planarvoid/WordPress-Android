@@ -1,16 +1,19 @@
 package com.soundcloud.android.api;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
-import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.OkHttpClient;
 
 import android.content.Context;
 
@@ -67,13 +70,25 @@ public class ApiModule {
 
     @Provides
     @Singleton
+    public OkHttpClient.Builder provideOkHttpClientBuilder(ApiUserPlanInterceptor userPlanInterceptor,
+                                                           ApplicationProperties applicationProperties) {
+        OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
+                .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .readTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .writeTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .addInterceptor(userPlanInterceptor);
+
+        if (applicationProperties.isDevelopmentMode()) {
+            clientBuilder.addInterceptor(new StethoInterceptor());
+        }
+
+        return clientBuilder;
+    }
+
+    @Provides
+    @Singleton
     @Named(API_HTTP_CLIENT)
-    public OkHttpClient provideOkHttpClient(ApiUserPlanInterceptor userPlanInterceptor) {
-        OkHttpClient okHttpClient = new OkHttpClient();
-        okHttpClient.setConnectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        okHttpClient.setReadTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        okHttpClient.setWriteTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        okHttpClient.interceptors().add(userPlanInterceptor);
-        return okHttpClient;
+    public OkHttpClient provideOkHttpClient(OkHttpClient.Builder clientBuilder) {
+        return clientBuilder.build();
     }
 }
