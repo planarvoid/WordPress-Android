@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <style name="Toolbar.Title" parent="TextAppearance.Widget.ScAppCompat.Toolbar.Title">
+        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/ak_list_divider_horizontal_height</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="Divider.Item">
+        <item name="android:background">@drawable/ak_list_divider_item</item>
+    </style>
+
+    <style name="Divider.Section">
+        <item name="android:background">@drawable/ak_list_divider_section</item>
+    </style>
+
+    <style name="Divider.Background">
+        <item name="android:layout_height">16dp</item>
+        <item name="android:background">@color/page_background</item>
+    </style>
+
+    <style name="VerticalDivider">
+        <item name="android:layout_width">@dimen/ak_list_divider_vertical_width</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@drawable/ak_list_divider_section</item>
+    </style>
+
+    <!-- shared widget styles -->
+
+    <style name="RadioButton.Dark" parent="android:Widget.CompoundButton.RadioButton">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="HorizontalDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="btn_default" parent="@android:style/Widget.Button">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">@drawable/txt_btn_light_states</item>
+        <item name="android:shadowColor">#4DFFFFFF</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">-1</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <!-- misc -->
+
+    <style name="UnderlinedListTitle" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:background">@drawable/divider_list_orange</item>
+    </style>
+
+    <!-- Tablet layouts -->
+
+    <style name="MarginLeft">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">0.1</item>
+        <item name="android:background">@drawable/margin_left_bg</item>
+    </style>
+
+    <style name="MarginRight" parent="MarginLeft">
+        <item name="android:background">@drawable/margin_right_bg</item>
+    </style>
+
+    <style name="MarginedContent">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">0.4</item>
+    </style>
+
+    <style name="TabBarDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/tab_bar_divider</item>
+    </style>
+
+    <!-- Misc -->
+
+    <style name="CustomToggle" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+    </style>
+
+    <style name="ToolbarShadow">
+        <item name="android:id">@id/legacy_elevation</item>
+        <item name="android:background">@drawable/toolbar_shadow</item>
+        <item name="android:layout_height">5dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_below">@id/toolbar_id</item>
+    </style>
+
+    <style name="TrackLikesHeader">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingBottom">@dimen/likes_header_padding_bottom</item>
+        <item name="android:paddingLeft">@dimen/default_list_item_padding</item>
+        <item name="android:paddingRight">@dimen/likes_header_padding_right</item>
+        <item name="android:paddingTop">@dimen/likes_header_padding_top</item>
+    </style>
+
+    <!-- Notifications -->
+
+    <style name="ListItemNotificationLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">24dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="ListItemNotificationButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundColorStateList">@color/clickable_orange_background</item>
+    </style>
+
+    <style name="ListItemNotificationCloseButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">top|end</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:src">@drawable/ic_close_list_notification</item>
+    </style>
+
+    <style name="ListItemNotificationCenteredText" parent="TextAppearance.ScAppCompat.Large">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="ListItemNotificationTitle" parent="ListItemNotificationCenteredText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <style name="ListItemNotificationDescription" parent="ListItemNotificationCenteredText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/dialog_subtext</item>
+        <item name="android:maxWidth">280dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <!-- Facebook Invites List Item Notifications -->
+
+    <style name="FacebookInvitesFriends">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="FacebookInvitesFriendImage">
+        <item name="android:layout_width">42dp</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="cbiv_borderColor">@color/white</item>
+        <item name="cbiv_borderWidth">2dp</item>
+    </style>
+
+    <style name="FacebookCreatorInvitesImage">
+        <item name="android:layout_width">88dp</item>
+        <item name="android:layout_height">88dp</item>
+        <item name="android:layout_marginTop">13dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="FacebookCreatorInvitesTitle" parent="ListItemNotificationCenteredText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginTop">21dp</item>
+        <item name="android:layout_marginBottom">21dp</item>
+    </style>
+
+    <style name="FacebookInvitesFriendImageOverlap" parent="FacebookInvitesFriendImage">
+        <item name="android:layout_marginLeft">-16dp</item>
+    </style>
+
+    <style name="FacebookCreatorInvitesButton" parent="ListItemNotificationButton">
+        <item name="android:paddingBottom">1dp</item>
+    </style>
+
+    <!-- Onboarding Cards -->
+    <style name="OnboardingListItemNotificationLayout" parent="Card">
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:paddingTop">32dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <style name="OnboardingListItemNotificationLayout.Inline">
+        <item name="android:background">@color/page_background</item>
+    </style>
+
+    <style name="OnboardingListItemNotification.Title" parent="OnboardingListItemNotificationCenteredText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <style name="OnboardingListItemNotification.Description" parent="OnboardingListItemNotificationCenteredText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/dialog_subtext</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <style name="OnboardingListItemNotificationCenteredText" parent="TextAppearance.ScAppCompat.Large">
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="OnboardingListItemNotificationCloseButton" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_gravity">end</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:drawableLeft">@drawable/ic_check_mark</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="BorderlessButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="custom_font">@string/interstate_regular</item>
+    </style>
+
+    <style name="ListSeparator" parent="Widget.TextView.Separator">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="EmptyViewContent" parent="Ak.EmptyViewContent">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="NewItemsIndicator">
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:background">@drawable/indicator_pill</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="NewItemsIndicator.Text" parent="NewItemsIndicator">
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
+
+    <!-- Modules -->
+    <style name="ViewAllContainer" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/view_all_height</item>
+    </style>
+
+    <style name="ViewAllText" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/view_all_text_color</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:drawableRight">@drawable/inset_chevron</item>
+        <item name="android:drawablePadding">@dimen/view_all_chevron_padding</item>
+    </style>
+
+    <style name="HeaderPlay">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:background">@drawable/btn_header_play</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+</resources>

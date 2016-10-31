@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SignUp.Content" parent="SignUp.ContentBase">
+        <item name="android:layout_width">420dp</item>
+    </style>
+
+    <style name="SignUp.ScrollView" parent="SignUp.ScrollViewBase">
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+</resources>
