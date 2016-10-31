@@ -14,6 +14,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
 import com.soundcloud.android.api.json.JsonTransformer;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -29,7 +30,6 @@ import com.soundcloud.java.reflect.TypeToken;
 import okhttp3.Call;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -60,7 +60,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Mock private LocaleFormatter localeFormatter;
 
     @Captor private ArgumentCaptor<Request> apiRequestCaptor;
-    @Captor private ArgumentCaptor<Request> httpRequestCaptor;
+    @Captor private ArgumentCaptor<okhttp3.Request> httpRequestCaptor;
 
     @Before
     public void setUp() throws Exception {
