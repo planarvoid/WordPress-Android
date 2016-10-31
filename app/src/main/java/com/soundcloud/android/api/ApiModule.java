@@ -1,7 +1,6 @@
 package com.soundcloud.android.api;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
-import com.google.auto.factory.Provided;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
