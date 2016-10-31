@@ -233,10 +233,15 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public CastContextWrapper provideCastContext(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
-        if (googlePlayServicesWrapper.isPlayServicesAvailable(context)) {
-            return new LegacyCastContextWrapper(CastContext.getSharedInstance(context));
-        } else {
-            Log.d(TAG, "Google Play services not available - chrome cast disabled");
+        // Todo this is a temp fix for https://github.com/soundcloud/SoundCloud-Android/issues/6297
+        try {
+            if (googlePlayServicesWrapper.isPlayServicesAvailable(context)) {
+                return new LegacyCastContextWrapper(CastContext.getSharedInstance(context));
+            } else {
+                Log.d(TAG, "Google Play services not available - chrome cast disabled");
+                return new NoOpCastContextWrapper();
+            }
+        } catch (Exception exception) {
             return new NoOpCastContextWrapper();
         }
     }
