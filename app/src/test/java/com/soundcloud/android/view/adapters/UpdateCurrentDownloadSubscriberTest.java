@@ -5,6 +5,7 @@ import static com.soundcloud.android.offline.OfflineContentChangedEvent.download
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,7 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.presentation.ItemAdapter;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
@@ -29,7 +30,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
 
     private UpdateCurrentDownloadSubscriber subscriber;
 
-    @Mock private ItemAdapter<TrackItem> adapter;
+    @Mock private RecyclerItemAdapter<TrackItem, ?> adapter;
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +49,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
 
         assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADING);
         assertThat(track2.contains(OfflineProperty.OFFLINE_STATE)).isFalse();
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test
@@ -63,7 +64,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
 
         assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADED);
         assertThat(track2.contains(OfflineProperty.OFFLINE_STATE)).isFalse();
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test
@@ -75,6 +76,6 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
         final OfflineContentChangedEvent event = downloaded(singletonList(TRACK2), false);
         subscriber.onNext(event);
 
-        verify(adapter, never()).notifyDataSetChanged();
+        verify(adapter, never()).notifyItemChanged(anyInt());
     }
 }

@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -20,7 +20,7 @@ import rx.subjects.PublishSubject;
 public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
-    @Mock private ItemAdapter<ListItem> adapter;
+    @Mock private RecyclerItemAdapter<ListItem, ?> adapter;
 
     private PublishSubject<Urn> observable;
 
@@ -50,7 +50,7 @@ public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
 
         observable.onNext(TRACK_URN);
 
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemRemoved(0);
     }
 
     @Test

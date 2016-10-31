@@ -28,6 +28,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -127,6 +128,9 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         recyclerView.setPadding(itemMargin, 0, 0, 0);
         recyclerView.setClipToPadding(false);
         recyclerView.setClipChildren(false);
+
+        // remove the blinking whenever we notifyItemChanged
+        ((DefaultItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
     @Override

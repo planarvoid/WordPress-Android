@@ -3,18 +3,16 @@ package com.soundcloud.android.view.adapters;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import rx.subjects.PublishSubject;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PrependItemToListSubscriberTest {
+public class PrependItemToListSubscriberTest extends AndroidUnitTest {
 
-    @Mock private ListItemAdapter<ListItem> adapter;
+    @Mock private RecyclerItemAdapter<ListItem, ?> adapter;
     @Mock private ListItem item;
 
     private PublishSubject<ListItem> observable;
@@ -34,6 +32,6 @@ public class PrependItemToListSubscriberTest {
     @Test
     public void onNextShouldNotifyDataSetChanged() {
         observable.onNext(item);
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemInserted(0);
     }
 }

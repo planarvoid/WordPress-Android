@@ -2,6 +2,7 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,7 +52,7 @@ public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
         updateEntityListSubscriber.onNext(event);
 
         assertThat(track1.getCreatorName()).isEqualTo(UPDATED_CREATOR);
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test
@@ -66,6 +67,6 @@ public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
         final EntityStateChangedEvent event = EntityStateChangedEvent.fromFollowing(changeSet);
         updateEntityListSubscriber.onNext(event);
 
-        verify(adapter, never()).notifyDataSetChanged();
+        verify(adapter, never()).notifyItemChanged(anyInt());
     }
 }

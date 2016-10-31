@@ -17,12 +17,13 @@ import javax.inject.Inject;
 public class PlayableListUpdater extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final EventBus eventBus;
-    private final ItemAdapter<? extends ListItem> adapter;
+    private final RecyclerItemAdapter<? extends ListItem, ?> adapter;
     private final TrackItemRenderer trackItemRenderer;
 
     private CompositeSubscription fragmentLifeCycle;
 
-    public PlayableListUpdater(EventBus eventBus, ItemAdapter<? extends ListItem> adapter,
+    public PlayableListUpdater(EventBus eventBus,
+                               RecyclerItemAdapter<? extends ListItem, ?> adapter,
                                TrackItemRenderer trackItemRenderer) {
         this.eventBus = eventBus;
         this.adapter = adapter;
@@ -54,7 +55,7 @@ public class PlayableListUpdater extends DefaultSupportFragmentLightCycle<Fragme
             this.eventBus = eventBus;
         }
 
-        public PlayableListUpdater create(ItemAdapter<? extends ListItem> adapter,
+        public PlayableListUpdater create(RecyclerItemAdapter<? extends ListItem, ?> adapter,
                                           TrackItemRenderer trackItemRenderer) {
             return new PlayableListUpdater(eventBus, adapter, trackItemRenderer);
         }

@@ -30,7 +30,6 @@ import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
-
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -41,6 +40,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -140,6 +140,9 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+
+        // remove the blinking whenever we notifyItemChanged
+        ((DefaultItemAnimator) getRecyclerView().getItemAnimator()).setSupportsChangeAnimations(false);
 
         getEmptyView().setImage(R.drawable.empty_like);
         getEmptyView().setMessageText(R.string.list_empty_you_likes_message);

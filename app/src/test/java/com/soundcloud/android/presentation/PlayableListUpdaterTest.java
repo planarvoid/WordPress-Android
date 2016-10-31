@@ -1,6 +1,7 @@
 package com.soundcloud.android.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,7 +34,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     private PlayableListUpdater updater;
 
-    @Mock ItemAdapter<PlayableItem> adapter;
+    @Mock RecyclerItemAdapter<PlayableItem, ?> adapter;
     @Mock private TrackItemRenderer trackItemRenderer;
     @Mock private Fragment fragment;
     private TestEventBus eventBus = new TestEventBus();
@@ -107,7 +108,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
 
         assertThat(track1.getCreatorName()).isEqualTo(UPDATED_CREATOR);
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test
@@ -122,7 +123,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
 
         assertThat(track1.getCreatorName()).isNotEqualTo(UPDATED_CREATOR);
-        verify(adapter, never()).notifyDataSetChanged();
+        verify(adapter, never()).notifyItemChanged(anyInt());
     }
 
     @Test
@@ -138,7 +139,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         final EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
-        verify(adapter, never()).notifyDataSetChanged();
+        verify(adapter, never()).notifyItemChanged(anyInt());
 
     }
 

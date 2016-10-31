@@ -31,7 +31,7 @@ import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
+import com.soundcloud.android.view.adapters.LegacyUpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.android.view.dragdrop.SimpleItemTouchHelperCallback;
@@ -168,7 +168,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TypedL
                         .subscribe(new PlaylistPushedSubscriber()),
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                eventBus.subscribe(OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter))
+                eventBus.subscribe(OFFLINE_CONTENT_CHANGED, new LegacyUpdateCurrentDownloadSubscriber(adapter))
         );
     }
 

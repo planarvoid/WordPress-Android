@@ -182,7 +182,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         assertThat(track1.get(PlayableProperty.IS_USER_LIKE)).isTrue();
         assertThat(track1.get(PlayableProperty.LIKES_COUNT)).isEqualTo(2);
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test

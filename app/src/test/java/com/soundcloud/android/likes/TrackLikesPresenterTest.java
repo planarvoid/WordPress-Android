@@ -167,7 +167,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(trackLikesTrackItems);
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
 
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test

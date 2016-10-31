@@ -2,13 +2,13 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ItemAdapter;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
-    private final ItemAdapter adapter;
+    private final RecyclerItemAdapter adapter;
 
-    public RemoveEntityListSubscriber(ItemAdapter adapter) {
+    public RemoveEntityListSubscriber(RecyclerItemAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -29,6 +29,6 @@ public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
 
     private void removeItemFromAdapterAt(int position) {
         adapter.removeItem(position);
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemRemoved(position);
     }
 }
