@@ -6,6 +6,7 @@ import static com.soundcloud.android.rx.RxUtils.ZIP_TO_VOID;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.configuration.experiments.SuggestedCreatorsExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -50,6 +51,7 @@ public class SuggestedCreatorsOperations {
     private final Scheduler scheduler;
     private final FollowingOperations followingOperations;
     private final DateProvider dateProvider;
+    private final SuggestedCreatorsExperiment suggestedCreatorsExperiment;
 
     @Inject
     SuggestedCreatorsOperations(FeatureFlags featureFlags,
@@ -58,7 +60,8 @@ public class SuggestedCreatorsOperations {
                                 SuggestedCreatorsStorage suggestedCreatorsStorage,
                                 @Named(HIGH_PRIORITY) Scheduler scheduler,
                                 FollowingOperations followingOperations,
-                                CurrentDateProvider dateProvider) {
+                                CurrentDateProvider dateProvider,
+                                SuggestedCreatorsExperiment suggestedCreatorsExperiment) {
         this.featureFlags = featureFlags;
         this.myProfileOperations = myProfileOperations;
         this.syncOperations = syncOperations;
@@ -66,10 +69,11 @@ public class SuggestedCreatorsOperations {
         this.scheduler = scheduler;
         this.followingOperations = followingOperations;
         this.dateProvider = dateProvider;
+        this.suggestedCreatorsExperiment = suggestedCreatorsExperiment;
     }
 
     public Observable<StreamItem> suggestedCreators() {
-        if (featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)) {
+        if (featureFlags.isEnabled(Flag.SUGGESTED_CREATORS) || suggestedCreatorsExperiment.isEnabled()) {
             return myProfileOperations.followingsUserAssociations()
                                       .filter(lessThanLimitFollowers)
                                       .flatMap(loadSuggestedCreators());
