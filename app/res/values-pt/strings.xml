@@ -15,6 +15,7 @@
   <string name="btn_shuffle">Shuffle</string>
   <string name="btn_follow">Seguir</string>
   <string name="btn_following">Seguindo</string>
+  <string name="btn_unfollow">Deixar de seguir</string>
   <string name="btn_like">Curtir</string>
   <string name="btn_unlike">Deixar de curtir</string>
   <string name="btn_save">Salvar</string>
@@ -33,6 +34,7 @@
   <string name="display_name">Nome</string>
   <string name="updated_time">%s atualizado.</string>
   <string name="posted_time">%s publicado</string>
+  <string name="filter">Filtro</string>
   <string name="following_zero">Seguido por você</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Curtido por você</string>
@@ -56,6 +58,11 @@
   <string name="ads_skip_in_time">Pular em: %s</string>
   <string name="ads_now_playing">Reproduzindo agora</string>
   <string name="ads_now_playing_tracktitle_username">Reproduzindo agora: %1$s (%2$s)</string>
+  <string name="ads_app">app</string>
+  <plurals name="ads_app_ratings">
+    <item quantity="one">%s avaliação</item>
+    <item quantity="other">%s avaliações</item>
+  </plurals>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Esqueceu sua senha?</string>
   <string name="authentication_add_info_add_image_msg">Sorria! Esta imagem aparecerá em seu perfil.</string>
@@ -278,7 +285,7 @@
   <string name="info">Informações</string>
   <string name="uploaded_xtimeago">Carregado %s</string>
   <string name="track_info_no_description">Sem descrição disponível</string>
-  <string name="up_next">Avançar para cima</string>
+  <string name="up_next">Próximo para cima</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Não é reproduzível</string>
   <string name="playback_error_connection">Verifique sua conexão e toque para tentar novamente.</string>
@@ -302,6 +309,7 @@
   <string name="remove_from_playlist">Remover da playlist</string>
   <string name="edit_playlist">Editar playlist</string>
   <string name="delete_playlist">Excluir playlist</string>
+  <string name="search_playlists">pesquisar playlists</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Adicionar à playlist...</string>
   <string name="added_to_playlist">Adicionado à playlist</string>
@@ -310,8 +318,8 @@
   <string name="error_new_playlist_blank_title">Insira um título válido</string>
   <string name="add_playlist_private">Privada</string>
   <plurals name="number_of_sounds">
-    <item quantity="one">%d faixa</item>
-    <item quantity="other">%d faixas</item>
+    <item quantity="one">%s faixa</item>
+    <item quantity="other">%s faixas</item>
   </plurals>
   <!--__PLAYLIST IN NEW STREAM-->
   <plurals name="number_of_tracks" tools:ignore="ImpliedQuantity">
@@ -413,6 +421,9 @@
   <string name="recommendation_seeds_header">Descubra mais faixas</string>
   <string name="discovery_search_hint">Pesquisar no SoundCloud</string>
   <string name="discovery_search_title">Pesquisar</string>
+  <string name="discovery_empty">Ainda sem itens descobertos</string>
+  <!--__DISCOVERY PLAYLISTS-->
+  <string name="recommended_playlists_reason">Playlists para %s</string>
   <!--__DISCOVERY CHARTS-->
   <string name="charts_header">Gráficos da SoundCloud</string>
   <string name="charts_trending">Novo e irado</string>
@@ -492,10 +503,12 @@
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Estações</string>
   <string name="liked_stations_empty_view_message">Você ainda não curtiu nenhuma estação</string>
+  <string name="liked_stations_onboarding_dialog_title">Agora você poderá curtir as estações</string>
+  <string name="liked_stations_onboarding_dialog_message">Agora você pode descurtir as estações para removê-las de sua Coleção.</string>
   <string name="liked_stations_onboarding_dialog_button">Consegui</string>
   <string name="stations_start_track_station">Iniciar estação de faixa</string>
   <string name="stations_start_user_station">Iniciar estação</string>
-  <string name="stations_open_station">Abrir estação</string>
+  <string name="stations_open_station">Estação</string>
   <string name="stations_unable_to_start_station">Não conseguimos iniciar esta estação. Tente novamente em alguns minutos.</string>
   <string name="stations_loading_station">Carregando estação. Fique ligado.</string>
   <string name="stations_onboarding_stream_title">Inicie uma estação para ouvir uma série de faixas semelhantes. É como se fosse rádio.</string>
@@ -608,6 +621,8 @@ vão aparecer aqui.</string>
   <string name="collections_play_history_clear_error_message">Erro ao limpar o histórico de músicas ouvidas. Tente novamente mais tarde.</string>
   <string name="collections_play_history_empty">Encontre todas as faixas que você ouviu aqui.</string>
   <string name="collections_recently_played_header">Recém-reproduzido</string>
+  <string name="collections_view_all_tracks">Ver todo o histórico de músicas ouvidas</string>
+  <string name="collections_view_all_recently_played">Ver todas as músicas recém-reproduzidas</string>
   <string name="dialog_playlist_delete_title">Apagar playlist?</string>
   <string name="dialog_playlist_delete_message">Isso apagará permanentemente esta playlist. Tem certeza de que deseja continuar?</string>
   <string name="collections_recently_played_track_station">estação de faixa</string>
@@ -656,6 +671,7 @@ vão aparecer aqui.</string>
   <string name="stream_promoted_action">promovido</string>
   <string name="stream_track">faixa</string>
   <string name="stream_promoted_playable">Promovido %s</string>
+  <string name="stream_sponsored_item">Patrocinou %s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->
@@ -673,6 +689,7 @@ vão aparecer aqui.</string>
   <string name="conversion_page_title">Inscrever</string>
   <string name="conversion_title">Obter SoundCloud Go</string>
   <string name="conversion_price">%s / mês</string>
+  <string name="conversion_price_promo">%1$s para %2$s</string>
   <string name="conversion_feature_1">Ouça off-line, em qualquer lugar</string>
   <string name="conversion_feature_2">Desbloqueie todas as visualizações</string>
   <string name="conversion_feature_3">Acesse ainda mais faixas</string>
@@ -680,13 +697,18 @@ vão aparecer aqui.</string>
   <string name="conversion_buy_loading">Carregando…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Teste grátis por %d dias</string>
   <string name="conversion_buy_no_trial">Faz o upgrade agora</string>
+  <string name="conversion_buy_promo">Obtenha por um tempo limitado</string>
+  <string name="conversion_more_plans">Ver mais planos</string>
   <string name="conversion_retry_heading">Ups... tente novamente</string>
   <string name="conversion_retry_message">Parece que deu alguma coisa errada. Tente novamente.</string>
   <string name="conversion_retry_button">Tenta novamente</string>
   <string name="conversion_buy_retry">Falha no carregamento. Tentar novamente?</string>
   <string name="conversion_restrictions">Aplicam-se restrições</string>
+  <string name="conversion_restrictions_promo">Aplicam-se restrições, %s após</string>
   <string name="conversion_restrictions_dialog_title">Aplicam-se restrições</string>
-  <string name="conversion_restrictions_message_trial">Oferta limitada para uma avaliação de %1$d dias por usuário. Depois dos primeiros %2$d dias, o usuário será cobrado mensalmente a menos que seja cancelado antes. A avaliação poderá ser canceladas a qualquer momento nos primeiros %3$d dias.</string>
+  <string name="conversion_restrictions_message_trial">Oferta limitada para uma avaliação de %1$d dias por usuário. Depois dos primeiros %2$d dias, o usuário será cobrado mensalmente a menos que seja cancelado antes. A avaliação poderá ser cancelada a qualquer momento nos primeiros %3$d dias.\n\nOs residentes de Québec, no Canadá, não têm direito a avaliações devido a restrições locais.</string>
+  <string name="conversion_restrictions_message_no_trial">Você já utilizou sua avaliação gratuita ou é residente de Québec, não tendo direito a uma avaliação devido a restrições locais.\n\nAo adquirir o SoundCloud Go, lhe será cobrado o preço normal atual por mês, a menos que o serviço seja cancelado antes da próxima data de renovação.</string>
+  <string name="conversion_restrictions_message_promo">A oferta está disponível apenas para os usuários que não tiveram avaliação gratuita. Primeiro, %1$s da assinatura para o total de %2$s. Se o usuário não cancelar sua assinatura antes do final desses %1$s, a assinatura será renovada automaticamente a cada mês a um preço de %3$s/mês até que o usuário cancele.\n\nA opção sem anúncios é definida pela remoção das experiências de interrupção no vídeo e no áudio.</string>
   <string name="ads_why_ads_upsell_dialog_message">Todas as vezes que você ver ou ouvir um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud grátis para os ouvintes.\n\nQuer saltar as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com o SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produto indisponível</string>
@@ -728,7 +750,15 @@ vão aparecer aqui.</string>
   <string name="offline_no_wifi">Sem Wi-Fi</string>
   <string name="offline_no_connection">Sem conexão</string>
   <!--__GO ONBOARDING-->
-  <string name="go_onboarding_start">OK, entendi</string>
+  <string name="go_onboarding_title_1">Bem-vindo ao SoundCloud\u00A0Go!</string>
+  <string name="go_onboarding_body_1">Agora você tem acesso ao catálogo sempre crescente do SoundCloud Go, incluindo opções de músicas off-line sem anúncios.</string>
+  <string name="go_onboarding_title_2">Reproduzir faixas inteiras</string>
+  <string name="go_onboarding_body_2">Agora todas as visualizações têm faixas complexas com o SoundCloud\u00A0Go.</string>
+  <string name="go_onboarding_title_3">Ouvir off-line</string>
+  <string name="go_onboarding_body_3">Baixe playlists, álbuns e todas as faixas curtidas\u00A0.</string>
+  <string name="go_onboarding_title_4">Começar a explorar</string>
+  <string name="go_onboarding_body_4">Não espere — encontre os favoritos antigos e busque novos no seu catálogo novo e massivo de faixas.</string>
+  <string name="go_onboarding_start">Comece a ouvir</string>
   <string name="go_onboarding_retry">Falha no carregamento. Tentar novamente?</string>
   <string name="go_onboarding_error_dialog_title">Ocorreu um erro</string>
   <string name="go_onboarding_error_dialog_msg">Houve um problema ao ativar seus novos recursos e conteúdo. Reinicie o aplicativo.</string>
@@ -895,5 +925,31 @@ vão aparecer aqui.</string>
   <string name="kill_switch_message">Para continuar usando o aplicativo SoundCloud, atualize para a versão mais recente.</string>
   <string name="kill_switch_confirm">Atualizar agora</string>
   <!--__PLAY QUEUE-->
-  <string name="play_next">Reproduzir próxima</string>
+  <string name="play_next">Adicionar a Next up</string>
+  <string name="track_removed">Faixa removida</string>
+  <string name="play_queue_header_search">De resultados de pesquisa para %1$s</string>
+  <string name="play_queue_header_stream">De seu stream</string>
+  <string name="play_queue_header_link">De um link</string>
+  <string name="play_queue_header_profile">Do perfil %1$s</string>
+  <string name="play_queue_header_playlist">Da playlist %1$s</string>
+  <string name="play_queue_header_track_station">Da estação de faixa com base em %1$s</string>
+  <string name="play_queue_header_artist_station">Da estação de artista baseada em %1$s</string>
+  <string name="play_queue_header_likes">De suas curtidas</string>
+  <string name="play_queue_header_listening_history">Do histórico de músicas ouvidas</string>
+  <string name="play_queue_header_suggested_tracks">De faixas sugeridas</string>
+  <string name="play_queue_header_charts_top">Dos 50 gráficos principais %1$s</string>
+  <string name="play_queue_header_charts_trending">De gráficos novos e irados %1$s</string>
+  <string name="play_queue_header_explicit">Adicionado por você</string>
+  <string name="play_queue_header_auto_play">Reprodução automática</string>
+  <!--__SUGGESTED CREATORS-->
+  <string name="suggested_creators">Artistas sugeridos</string>
+  <string name="suggested_creators_blurb">Siga seus artistas favoritos, assim você nunca perde as faixas mais recentes</string>
+  <string name="suggested_creators_recent_posts">Posts recentes</string>
+  <string name="suggested_creators_relation_listened_to">Você ouviu recentemente a faixa</string>
+  <string name="suggested_creators_relation_liked">Você curtiu recentemente a faixa</string>
+  <string name="suggested_creators_relation_reposted">Você republicou recentemente a faixa</string>
+  <string name="suggested_creators_relation_curated">Você adicionou recentemente a faixa deles a uma playlist</string>
+  <string name="suggested_creators_relation_followed"></string>
+  <string name="suggested_creators_relation_uploaded"></string>
+  <string name="suggested_creators_relation_unknown"></string>
 </resources>
