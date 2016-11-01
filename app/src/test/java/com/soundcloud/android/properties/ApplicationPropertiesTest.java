@@ -83,4 +83,11 @@ public class ApplicationPropertiesTest {
         assertThat(ApplicationProperties.IS_RUNNING_ON_EMULATOR).isFalse();
     }
 
+    @Test
+    public void shouldReturnCastReceiverAppId() {
+        when(resources.getString(string.build_type)).thenReturn("debug");
+        when(resources.getString(string.cast_receiver_app_id)).thenReturn("123");
+        assertThat(new ApplicationProperties(resources).getCastReceiverAppId()).isEqualTo("123");
+    }
+
 }

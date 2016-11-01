@@ -1,9 +1,7 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
-import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.URN;
+import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueSet;
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -14,23 +12,23 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.RemoteMediaPlayer;
-import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
+import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
+import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
@@ -41,6 +39,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -52,11 +51,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
-import rx.observers.TestSubscriber;
 
-import javax.inject.Provider;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class CastPlayerTest extends AndroidUnitTest {
@@ -64,49 +61,38 @@ public class CastPlayerTest extends AndroidUnitTest {
     private static final Urn TRACK_URN1 = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(456L);
     private static final Urn TRACK_URN3 = Urn.forTrack(789L);
-    private static final List<Urn> PLAY_QUEUE = Arrays.asList(TRACK_URN1, TRACK_URN2);
 
     private static final PlayQueueItem PLAY_QUEUE_ITEM1 = TestPlayQueueItem.createTrack(TRACK_URN1);
 
     private CastPlayer castPlayer;
+
     private TestEventBus eventBus = new TestEventBus();
     private TestObserver<PlaybackResult> observer;
-    private TestSubscriber expandPlayerSubscriber = new TestSubscriber();
-    private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
 
     @Mock private CastOperations castOperations;
+    @Mock private VideoCastManager castManager;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private GoogleApiClient googleApiClient;
     @Mock private ProgressReporter progressReporter;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlayStatePublisher playStatePublisher;
-    @Mock private RemoteMediaClient remoteMediaClient;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
-    @Mock private CastProtocol castProtocol;
 
     @Captor private ArgumentCaptor<PlaybackStateTransition> transitionArgumentCaptor;
     @Captor private ArgumentCaptor<ProgressReporter.ProgressPuller> progressPusherArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        castPlayer = getCastPlayer();
-        castPlayer.onConnected(remoteMediaClient);
+        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, playQueueManager, eventBus,
+                                    playStatePublisher, new CurrentDateProvider());
         observer = new TestObserver<>();
     }
 
-    private CastPlayer getCastPlayer() {
-        return new CastPlayer(castOperations, progressReporter, playQueueManager, eventBus,
-                              playStatePublisher, new CurrentDateProvider(),
-                              castProtocol, playSessionStateProvider,
-                              expandPlayerSubscriberProvider);
-    }
-
     @Test
-    public void pushProgressSendsProgressReportToListener() {
-        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(123L);
-        when(remoteMediaClient.getStreamDuration()).thenReturn(456L);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void pushProgressSendsProgressReportToListener() throws Exception {
+        when(castManager.getCurrentMediaPosition()).thenReturn(123L);
+        when(castManager.getMediaDuration()).thenReturn(456L);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         verify(progressReporter).setProgressPuller(progressPusherArgumentCaptor.capture());
         progressPusherArgumentCaptor.getValue().pullProgress();
@@ -115,8 +101,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithPlayingStateReturnsPlayingNone() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithPlayingStateReturnsPlayingNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PLAYING, MediaStatus.IDLE_REASON_NONE);
 
@@ -126,8 +112,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithPlayingStateStartsProgressReporter() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithPlayingStateStartsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PLAYING, MediaStatus.IDLE_REASON_NONE);
 
@@ -135,8 +121,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithPausedStateReturnsIdleNone() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithPausedStateReturnsIdleNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
 
@@ -146,8 +132,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithPausedStateStopsProgressReporter() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithPausedStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
 
@@ -155,8 +141,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithBufferingStateReturnsBufferingNone() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithBufferingStateReturnsBufferingNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.IDLE_REASON_NONE);
 
@@ -166,8 +152,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithBufferingStateStopsProgressReporter() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithBufferingStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.IDLE_REASON_NONE);
 
@@ -175,8 +161,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleErrorStateReturnsIdleFailed() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleErrorStateReturnsIdleFailed() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_ERROR);
 
@@ -186,8 +172,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleErrorStateStopsProgressReporter() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleErrorStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_ERROR);
 
@@ -195,8 +181,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleFinishedStateReturnsTrackComplete() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleFinishedStateReturnsTrackComplete() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_FINISHED);
 
@@ -206,8 +192,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleFinishedStateStopsProgressReporter() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleFinishedStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_FINISHED);
 
@@ -215,8 +201,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleCancelledStateReturnsIdleNone() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleCancelledStateReturnsIdleNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_CANCELED);
 
@@ -226,8 +212,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleCancelledStateStopsProgressReporter() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleCancelledStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_CANCELED);
 
@@ -235,8 +221,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleInterruptedStateDoesNotReportTranslatedState() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleInterruptedStateDoesNotReportTranslatedState() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE,
                                                       MediaStatus.IDLE_REASON_INTERRUPTED);
@@ -245,8 +231,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStatusUpdatedWithIdleUnknownStateDoesNotReportTranslatedState() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onStatusUpdatedWithIdleUnknownStateDoesNotReportTranslatedState() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE,
                                                       MediaStatus.IDLE_REASON_INTERRUPTED);
@@ -255,65 +241,89 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playCurrentLoadsPlayQueueRemotely() {
-        final List<Urn> localPlayQueueTracks = newArrayList(TRACK_URN1, TRACK_URN2);
-        final LocalPlayQueue localPlayQueue =
-                new LocalPlayQueue(new JSONObject(), localPlayQueueTracks, createMediaInfo(TRACK_URN1), TRACK_URN1);
+    public void playWithUrnAlreadyLoadedDoesNotLoadMedia() throws Exception {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
+        castPlayer.playCurrent();
+
+        verify(castManager, never()).loadMedia(any(MediaInfo.class), anyBoolean(), anyInt());
+    }
+
+    @Test
+    public void playWithUrnAlreadyLoadedOutputsExistingState() throws Exception {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+        when(castManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
+        when(castManager.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_NONE);
+
+        castPlayer.playCurrent();
+
+        expectLastStateTransitionToBe(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN1);
+
+    }
+
+    @Test
+    public void playCurrentLoadsPlayQueueRemotely() throws TransientNetworkDisconnectionException, NoConnectionException {
+        ArrayList<Urn> localPlayQueueTracks = newArrayList(TRACK_URN1, TRACK_URN2);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(localPlayQueueTracks);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN3);
-
-        when(castOperations.loadLocalPlayQueue(TRACK_URN1, localPlayQueueTracks))
-                .thenReturn(Observable.just(localPlayQueue));
-
-        castPlayer.playCurrent();
-
-        verify(remoteMediaClient).load(eq(localPlayQueue.mediaInfo),
-                                       anyBoolean(),
-                                       anyInt(),
-                                       eq(localPlayQueue.playQueueTracksJSON));
-    }
-
-    @Test
-    public void playCurrentLoadsMediaWithAutoPlay() {
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        LocalPlayQueue localPlayQueue = new LocalPlayQueue(new JSONObject(),
+                                                           localPlayQueueTracks,
+                                                           createMediaInfo(TRACK_URN1),
+                                                           TRACK_URN1);
+        when(castOperations.loadLocalPlayQueue(TRACK_URN1, localPlayQueueTracks)).thenReturn(Observable.just(
+                localPlayQueue));
 
         castPlayer.playCurrent();
 
-        verify(remoteMediaClient).load(any(MediaInfo.class), eq(true), anyInt(), any(JSONObject.class));
+        verify(castManager).loadMedia(eq(localPlayQueue.mediaInfo),
+                                      anyBoolean(),
+                                      anyInt(),
+                                      eq(localPlayQueue.playQueueTracksJSON));
     }
 
     @Test
-    public void playCurrentLoadsMediaWithZeroedPosition() {
+    public void playCurrentLoadsMediaWithAutoPlay() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
+                LocalPlayQueue.class)));
 
         castPlayer.playCurrent();
 
-        verify(remoteMediaClient).load(any(MediaInfo.class), anyBoolean(), eq(0L), any(JSONObject.class));
+        verify(castManager).loadMedia(any(MediaInfo.class), eq(true), anyInt(), any(JSONObject.class));
     }
 
     @Test
-    public void playCurrentLoadsMediaWithNonZeroPosition() {
+    public void playCurrentLoadsMediaWithZeroedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN3);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
+                LocalPlayQueue.class)));
+
+        castPlayer.playCurrent();
+
+        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(0), any(JSONObject.class));
+    }
+
+    @Test
+    public void playCurrentLoadsMediaWithNonZeroPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
         when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
                 LocalPlayQueue.class)));
 
         castPlayer.playCurrent(123L);
 
-        verify(remoteMediaClient).load(any(MediaInfo.class), anyBoolean(), eq(123L), any(JSONObject.class));
+        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(123), any(JSONObject.class));
     }
 
     @Test
     public void playCurrentReportsBufferingEvent() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN3);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
         when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
                 LocalPlayQueue.class)));
 
@@ -323,36 +333,41 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playCurrentReportsBufferingEventBeforeLoadingFinishes() {
+    public void playCurrentReportsBufferingEventBeforeLoadingFinishes() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN3);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
         when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1),
                                                anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
 
         castPlayer.playCurrent();
 
-        expectLastStateTransitionToBe(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN1);
+        PlaybackState newState = PlaybackState.BUFFERING;
+        PlayStateReason reason = PlayStateReason.NONE;
+        Urn trackUrn = TRACK_URN1;
+        expectLastStateTransitionToBe(newState, reason, trackUrn);
     }
 
     @Test
-    public void reloadCurrentQueueSetsNewPlayQueue() {
-        final LocalPlayQueue localPlayQueue = createLocalPlayQueue();
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void reloadCurrentQueueSetsQueueWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(localPlayQueue));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(createLocalPlayQueue()));
 
         castPlayer.reloadCurrentQueue().subscribe(observer);
 
-        verify(castOperations).setNewPlayQueue(localPlayQueue, PlaySessionSource.EMPTY);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(TRACK_URN1), PlaySessionSource.EMPTY);
+        assertPlayQueueSet(playQueueManager, playQueue, PlaySessionSource.EMPTY, 0);
     }
 
     @Test
-    public void reloadCurrentQueueReportsErrorStateToEventBusOnUnsuccessfulLoad() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
+    public void reloadCurrentQueueReportsErrorStateToEventBusOnUnsuccessfulLoad() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.<LocalPlayQueue>error(new Throwable("loading error")));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
 
         castPlayer.reloadCurrentQueue().subscribe(observer);
@@ -365,15 +380,16 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
-                                                                         singletonList(TRACK_URN1),
+                                                                         Arrays.asList(TRACK_URN1),
                                                                          createMediaInfo(TRACK_URN1),
                                                                          TRACK_URN1);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(filteredLocalPlayQueue));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(filteredLocalPlayQueue));
 
-        castPlayer.setNewQueue(singletonList(TRACK_URN1), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
@@ -381,15 +397,16 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotFilteredOut() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
-                                                                         singletonList(TRACK_URN1),
+                                                                         Arrays.asList(TRACK_URN1),
                                                                          createMediaInfo(TRACK_URN1),
                                                                          TRACK_URN1);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(filteredLocalPlayQueue));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(filteredLocalPlayQueue));
 
-        castPlayer.setNewQueue(singletonList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
@@ -398,11 +415,12 @@ public class CastPlayerTest extends AndroidUnitTest {
     @Test
     public void setNewQueueEmitsTrackUnavailablePlaybackResultWhenInitialTrackIsFilteredOut() {
         final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
-                                                                         singletonList(TRACK_URN2),
+                                                                         Arrays.asList(TRACK_URN2),
                                                                          createMediaInfo(TRACK_URN2),
                                                                          TRACK_URN2);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(filteredLocalPlayQueue));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(filteredLocalPlayQueue));
 
         castPlayer.setNewQueue(Arrays.asList(TRACK_URN1, TRACK_URN2), TRACK_URN1, PlaySessionSource.EMPTY)
                   .subscribe(observer);
@@ -410,28 +428,32 @@ public class CastPlayerTest extends AndroidUnitTest {
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
         assertThat(observer.getOnNextEvents()
-                           .get(0).getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
-    }
-
-    @Test
-    public void setNewQueueEmitsTrackUnavailablePlaybackResultWhenLocalQueueIsEmpty() {
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(LocalPlayQueue.empty()));
-
-        castPlayer.setNewQueue(singletonList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
-        assertThat(observer.getOnNextEvents().get(0)
+                           .get(0)
                            .getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
     }
 
     @Test
-    public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() {
+    public void setNewQueueEmitsTrackUnavailablePlaybackResultWhenLocalQueueIsEmpty() {
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(LocalPlayQueue.empty()));
+
+        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
+        assertThat(observer.getOnNextEvents()
+                           .get(0)
+                           .getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
+    }
+
+    @Test
+    public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class)))
-                .thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1),
+                                               anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable(
+                "loading error")));
 
         castPlayer.playCurrent();
 
@@ -442,123 +464,42 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void resumeCallsResumeOnRemoteMediaPlayerWithApiClient() {
+    public void resumeCallsResumeOnRemoteMediaPlayerWithApiClient() throws Exception {
         castPlayer.resume();
 
-        verify(remoteMediaClient).play();
+        verify(castManager).play();
     }
 
     @Test
-    public void pauseCallsPauseOnRemoteMediaPlayerWithApiClient() {
+    public void pauseCallsPauseOnRemoteMediaPlayerWithApiClient() throws Exception {
         castPlayer.pause();
 
-        verify(remoteMediaClient).pause();
+        verify(castManager).pause();
     }
 
     @Test
-    public void stopCallsPausepOnRemoteMediaPlayer() {
+    public void stopCallsPausepOnRemoteMediaPlayer() throws Exception {
         castPlayer.stop();
 
-        verify(remoteMediaClient).pause();
+        verify(castManager).pause();
     }
 
     @Test
-    public void getProgressReturnsGetApproximateStreamPositionFromRemoteMediaPlayer() {
-        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(123L);
+    public void getProgressReturnsGetApproximateStreamPositionFromRemoteMediaPlayer() throws Exception {
+        when(castManager.getCurrentMediaPosition()).thenReturn(123L);
 
         assertThat(castPlayer.getProgress()).isEqualTo(123L);
     }
 
     @Test
-    public void onDisconnectedBroadcastsIdleState() {
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+    public void onDisconnectedBroadcastsIdleState() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onDisconnected();
 
         final PlaybackStateTransition stateTransition = captureLastStateTransition();
         assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
         assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.NONE);
-    }
-
-    @Test
-    public void onMetaDataUpdatedDoesNotSetPlayQueueWithSameTrackList() {
-        when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
-                .thenReturn(new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1));
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
-
-        castPlayer.onMetadataUpdated();
-
-        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyInt());
-    }
-
-    @Test
-    public void updateLocalPlayQueueAndPlayStatePlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() {
-        final RemotePlayQueue remoteQueue = new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1);
-        mockForPlayCurrent();
-
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
-        when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
-                .thenReturn(remoteQueue);
-        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
-
-        castPlayer.updateLocalPlayQueueAndPlayState();
-
-        verify(playQueueManager).setPosition(remoteQueue.getCurrentPosition(), true);
-        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyInt());
-    }
-
-    @Test
-    public void updateLocalPlayQueueAndPlayStateSetsPlayQueueWithDifferentTrackList() {
-        final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(PLAY_QUEUE, URN);
-        mockForPlayCurrent();
-
-        when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(false);
-
-        castPlayer.updateLocalPlayQueueAndPlayState();
-
-        verify(playQueueManager, never()).setPosition(anyInt(), anyBoolean());
-        verify(playQueueManager).setNewPlayQueue(any(PlayQueue.class), eq(PlaySessionSource.EMPTY),
-                                                 eq(remotePlayQueue.getCurrentPosition()));
-    }
-
-    private void mockForPlayCurrent() {
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
-        when(castOperations.loadLocalPlayQueue(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.<LocalPlayQueue>empty());
-    }
-
-    @Test
-    public void updateLocalPlayQueueAndPlayStateShowsPlayer() {
-        final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(PLAY_QUEUE, URN);
-        when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
-        mockForPlayCurrent();
-
-        castPlayer.updateLocalPlayQueueAndPlayState();
-
-        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(1);
-        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();
-    }
-
-    @Test
-    public void onMetadataUpdatesDoesUpdateLocalPlayQueueWhenRemoteQueueIsEmpty() {
-        final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(Collections.<Urn>emptyList(), Urn.NOT_SET);
-        when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
-        mockForPlayCurrent();
-
-        castPlayer.onMetadataUpdated();
-
-        verifyZeroInteractions(playQueueManager);
-    }
-
-    @Test
-    public void onDisconnectedWithoutPreviousOnConnectedDoesNotPublishStateChanges() {
-        castPlayer = getCastPlayer();
-
-        castPlayer.onDisconnected();
-
-        verifyZeroInteractions(playStatePublisher);
     }
 
     private MediaInfo createMediaInfo(Urn urn) {
@@ -587,7 +528,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     private LocalPlayQueue createLocalPlayQueue() {
         return new LocalPlayQueue(mock(JSONObject.class),
-                                  singletonList(TRACK_URN1),
+                                  Arrays.asList(TRACK_URN1),
                                   createMediaInfo(TRACK_URN1),
                                   TRACK_URN1);
     }

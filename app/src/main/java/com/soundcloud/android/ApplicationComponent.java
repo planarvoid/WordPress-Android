@@ -3,8 +3,6 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
-import com.soundcloud.android.cast.CastOptionsProvider;
-import com.soundcloud.android.cast.CastRedirectActivity;
 import com.soundcloud.android.collection.CollectionFragment;
 import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -71,11 +69,11 @@ import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
-import com.soundcloud.android.payments.LegacyConversionActivity;
 import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.PlanChoiceActivity;
 import com.soundcloud.android.payments.TieredConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
+import com.soundcloud.android.payments.LegacyConversionActivity;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
@@ -199,10 +197,6 @@ public interface ApplicationComponent {
     void inject(MetadataFragment metadataFragment);
     void inject(DevDrawerFragment devDrawerFragment);
     void inject(FullImageDialog fullImageDialog);
-
-    //Cast
-    void inject(CastRedirectActivity castRedirectActivity);
-    void inject(CastOptionsProvider castOptionsProvider);
 
     //PlayerModule
     void inject(PlayerFragment playerFragment);

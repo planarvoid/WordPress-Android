@@ -263,8 +263,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         View currentPageView = getVideoAdPageView();
 
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, videoAd.getAdUrn()),
-                                                                   videoAd.getAdUrn());
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, videoAd.getAdUrn()), videoAd.getAdUrn());
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -294,8 +293,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1_URN));
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, TRACK1_URN),
-                                                                   TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, TRACK1_URN), TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -306,8 +304,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void onPlaybackProgressEventDoNotSetsProgressForPausedAdapter() {
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, TRACK1_URN),
-                                                                   TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, TRACK1_URN), TRACK1_URN);
         presenter.onPause(playerFragment);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);

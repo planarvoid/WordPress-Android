@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -46,6 +47,7 @@ public class PlaySessionController {
     private final AdsController adsController;
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final CastConnectionHelper castConnectionHelper;
 
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
     private final PlaybackToastHelper playbackToastHelper;
@@ -87,6 +89,7 @@ public class PlaySessionController {
                                  AdsController adsController,
                                  PlayQueueManager playQueueManager,
                                  PlaySessionStateProvider playSessionStateProvider,
+                                 CastConnectionHelper castConnectionHelper,
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
                                  PlaybackServiceController playbackServiceController) {
@@ -98,6 +101,7 @@ public class PlaySessionController {
         this.playbackToastHelper = playbackToastHelper;
         this.playbackServiceController = playbackServiceController;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.castConnectionHelper = castConnectionHelper;
     }
 
     public void subscribe() {
@@ -243,7 +247,11 @@ public class PlaySessionController {
         public void onNext(CurrentPlayQueueItemEvent event) {
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
-                if (shouldPlayTrack(playQueueItem.getUrn(), event) || playSessionStateProvider.isInErrorState()) {
+                if (castConnectionHelper.isCasting()) {
+                    if (shouldPlayTrack(playQueueItem.getUrn(), event)) {
+                        playCurrent();
+                    }
+                } else if (shouldPlayTrack(playQueueItem.getUrn(), event) || playSessionStateProvider.isInErrorState()) {
                     playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                     playCurrent();
                 }

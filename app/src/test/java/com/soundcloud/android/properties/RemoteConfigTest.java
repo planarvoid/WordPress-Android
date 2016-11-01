@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -57,7 +58,7 @@ public class RemoteConfigTest {
         when(task.isSuccessful()).thenReturn(true);
         when(firebaseRemoteConfig.getInfo()).thenReturn(firebaseRemoteConfigInfo);
         when(firebaseRemoteConfig.fetch(anyLong())).thenReturn(task);
-        when(googlePlayServicesWrapper.isPlayServicesAvailable(any(Context.class))).thenReturn(true);
+        when(googlePlayServicesWrapper.isPlayServicesAvailable(any(Context.class))).thenReturn(ConnectionResult.SUCCESS);
         remoteConfig = new RemoteConfig(firebaseRemoteConfig, flagsStorage, currentDateProvider, googlePlayServicesWrapper);
     }
 
