@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="527"
-    android:versionName="2016.10.28"
+    android:versionCode="530"
+    android:versionName="2016.11.01"
     package="com.soundcloud.android">
 
     <!-- required for Robolectric to use the correct values -->
