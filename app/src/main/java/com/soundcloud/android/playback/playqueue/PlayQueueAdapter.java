@@ -1,9 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.playback.playqueue.TrackPlayQueueItemRenderer.shouldRerender;
-import static com.soundcloud.java.collections.Iterables.filter;
-import static com.soundcloud.java.collections.Iterables.transform;
-import static com.soundcloud.java.collections.ListsFunctions.cast;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -12,6 +9,7 @@ import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,7 +25,6 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     }
 
     private final TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
-    private final Iterable<TrackPlayQueueUIItem> tracksFromItems;
     private PlayQueuePresenter.DragListener dragListener;
     private NowPlayingListener nowPlayingListener;
 
@@ -38,7 +35,6 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
               new CellRendererBinding<>(PlayQueueUIItem.Kind.HEADER.ordinal(), headerPlayQueueItemRenderer)
         );
         this.trackPlayQueueItemRenderer = trackPlayQueueItemRenderer;
-        tracksFromItems = transform(filter(items, TrackPlayQueueUIItem.IS_TRACK), cast(TrackPlayQueueUIItem.class));
         setHasStableIds(true);
     }
 
@@ -78,13 +74,18 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
 
     private boolean setRepeatMode(PlayQueueManager.RepeatMode newRepeatMode) {
         boolean itemsChangedAndShouldRerender = false;
-        for (TrackPlayQueueUIItem trackItem : tracksFromItems) {
-            final PlayQueueManager.RepeatMode currentRepeatMode = trackItem.getRepeatMode();
-            final TrackPlayQueueUIItem.PlayState trackPlayState = trackItem.getPlayState();
-            final boolean shouldRerenderItem = shouldRerender(currentRepeatMode, newRepeatMode, trackPlayState);
-            trackItem.setRepeatMode(newRepeatMode);
-
-            itemsChangedAndShouldRerender = itemsChangedAndShouldRerender || shouldRerenderItem;
+        for (PlayQueueUIItem item : items) {
+            if (item.isTrack()) {
+                TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
+                final PlayQueueManager.RepeatMode currentRepeatMode = trackItem.getRepeatMode();
+                final PlayState trackPlayState = trackItem.getPlayState();
+                final boolean shouldRerenderItem = shouldRerender(currentRepeatMode, newRepeatMode, trackPlayState);
+                trackItem.setRepeatMode(newRepeatMode);
+                itemsChangedAndShouldRerender = itemsChangedAndShouldRerender || shouldRerenderItem;
+            } else if (item.isHeader()) {
+                HeaderPlayQueueUIItem headItem = (HeaderPlayQueueUIItem) item;
+                headItem.setRepeatMode(newRepeatMode);
+            }
         }
         return itemsChangedAndShouldRerender;
     }
@@ -92,14 +93,24 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     public void updateNowPlaying(int position, boolean notifyListener) {
 
         if (items.size() == position && getItem(position).isTrack()
-                && ((TrackPlayQueueUIItem) getItem(position)).getPlayState() == TrackPlayQueueUIItem.PlayState.PLAYING) {
+                && getItem(position).getPlayState() == PlayState.PLAYING) {
             return;
         }
+
+        Optional<HeaderPlayQueueUIItem> lastHeaderPlayQueueUiItem = Optional.absent();
+        boolean headerPlayStateSet = false;
         for (int i = 0; i < items.size(); i++) {
             final PlayQueueUIItem item = items.get(i);
             if (item.isTrack()) {
                 final TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
                 setPlayState(position, i, trackItem, notifyListener);
+                if (!headerPlayStateSet && lastHeaderPlayQueueUiItem.isPresent()) {
+                    headerPlayStateSet = shouldAddHeader(trackItem);
+                    lastHeaderPlayQueueUiItem.get().setPlayState(trackItem.getPlayState());
+                }
+            } else if (item.isHeader()) {
+                lastHeaderPlayQueueUiItem = Optional.of((HeaderPlayQueueUIItem) item);
+                headerPlayStateSet = false;
             }
         }
         notifyDataSetChanged();
@@ -110,17 +121,22 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
         notifyDataSetChanged();
     }
 
-    private void setPlayState(int position, int index, TrackPlayQueueUIItem item, boolean notifyListener) {
-        if (position == index) {
-            item.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYING);
+    private void setPlayState(int currentlyPlayingPosition, int itemPosition, TrackPlayQueueUIItem item, boolean notifyListener) {
+        if (currentlyPlayingPosition == itemPosition) {
+            item.setPlayState(PlayState.PLAYING);
             if (notifyListener && nowPlayingListener != null) {
                 nowPlayingListener.onNowPlayingChanged(item);
             }
-        } else if (index > position) {
-            item.setPlayState(TrackPlayQueueUIItem.PlayState.COMING_UP);
+        } else if (itemPosition > currentlyPlayingPosition) {
+            item.setPlayState(PlayState.COMING_UP);
         } else {
-            item.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYED);
+            item.setPlayState(PlayState.PLAYED);
         }
+    }
+
+    private boolean shouldAddHeader(TrackPlayQueueUIItem trackItem) {
+        return trackItem.getPlayState() == PlayState.PLAYING ||
+                trackItem.getPlayState() == PlayState.COMING_UP;
     }
 
     void setNowPlayingChangedListener(NowPlayingListener nowPlayingListener) {

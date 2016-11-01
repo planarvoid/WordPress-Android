@@ -24,4 +24,15 @@ class PlayQueueFixtures {
         return new TrackPlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someResourceId, color, null,
                                         Optional.<String>absent(), PlayQueueManager.RepeatMode.REPEAT_NONE);
     }
+
+    static HeaderPlayQueueUIItem getHeaderPlayQueueUiItem() {
+        final PlaybackContext playbackContext = PlaybackContext.create(PlaySessionSource.EMPTY);
+        final Optional<String> title = Optional.of("Title");
+        return new HeaderPlayQueueUIItem(playbackContext,
+                                         title,
+                                         PlayState.COMING_UP,
+                                         PlayQueueManager.RepeatMode.REPEAT_NONE);
+    }
+
+
 }

@@ -21,8 +21,6 @@ import android.support.v4.content.ContextCompat;
 
 class TrackPlayQueueUIItem extends PlayQueueUIItem {
 
-    enum PlayState {PLAYING, COMING_UP, PLAYED}
-
     static final Predicate<PlayQueueUIItem> IS_TRACK = new Predicate<PlayQueueUIItem>() {
         @Override
         public boolean apply(PlayQueueUIItem input) {
@@ -44,8 +42,6 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
     private final ImageResource imageResource;
     private final int titleTextColor;
     private final Optional<String> contextTitle;
-    private PlayQueueManager.RepeatMode repeatMode;
-    private PlayState currentPlayingState;
 
     TrackPlayQueueUIItem(PlayQueueItem playQueueItem,
                          TrackItem trackItem,
@@ -55,6 +51,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
                          ImageResource imageResource,
                          Optional<String> contextTitle,
                          PlayQueueManager.RepeatMode repeatMode) {
+        super(PlayState.COMING_UP, repeatMode);
         this.playQueueItem = playQueueItem;
         this.trackItem = trackItem;
         this.uniqueId = uniqueId;
@@ -62,8 +59,6 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
         this.imageResource = imageResource;
         this.titleTextColor = titleTextColor;
         this.contextTitle = contextTitle;
-        this.repeatMode = repeatMode;
-        this.currentPlayingState = PlayState.COMING_UP;
     }
 
     static TrackPlayQueueUIItem from(PlayQueueItem playQueueItem,
@@ -132,22 +127,6 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
 
     public ImageResource getImageResource() {
         return imageResource;
-    }
-
-    PlayQueueManager.RepeatMode getRepeatMode() {
-        return repeatMode;
-    }
-
-    void setRepeatMode(PlayQueueManager.RepeatMode repeatMode) {
-        this.repeatMode = repeatMode;
-    }
-
-    PlayState getPlayState() {
-        return currentPlayingState;
-    }
-
-    public void setPlayState(PlayState currentPlayingState) {
-        this.currentPlayingState = currentPlayingState;
     }
 
     @ColorInt

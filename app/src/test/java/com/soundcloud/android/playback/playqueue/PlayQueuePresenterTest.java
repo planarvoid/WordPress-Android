@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromNewQueue;
 import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromPositionChanged;
-import static com.soundcloud.android.playback.playqueue.TrackPlayQueueUIItem.PlayState.COMING_UP;
+import static com.soundcloud.android.playback.playqueue.PlayState.COMING_UP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -22,7 +22,6 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.playqueue.TrackPlayQueueUIItem.PlayState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -296,7 +295,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     private HeaderPlayQueueUIItem headerPlayQueueUIItem() {
-        return new HeaderPlayQueueUIItem(null, Optional.<String>absent());
+        return new HeaderPlayQueueUIItem(null, Optional.<String>absent(), PlayState.PLAYING, PlayQueueManager.RepeatMode.REPEAT_ONE);
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState, Optional<String> contextTitle) {

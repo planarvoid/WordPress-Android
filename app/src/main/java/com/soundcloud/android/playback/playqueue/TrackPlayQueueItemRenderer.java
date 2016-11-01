@@ -24,8 +24,6 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         void trackClicked(int listPosition);
     }
 
-    static final float ALPHA_DISABLED = 0.3f;
-    static final float ALPHA_ENABLED = 1.0f;
     private static final int EXTENDED_TOUCH_DP = 6;
 
     private final ImageOperations imageOperations;
@@ -48,7 +46,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     @Override
     public void bindItemView(final int position, View itemView, List<TrackPlayQueueUIItem> items) {
         final TrackPlayQueueUIItem item = items.get(position);
-        itemView.setSelected(item.getPlayState() == TrackPlayQueueUIItem.PlayState.PLAYING);
+        itemView.setSelected(item.getPlayState() == PlayState.PLAYING);
         ViewGroup statusPlaceHolder = (ViewGroup) itemView.findViewById(R.id.status_place_holder);
         View textHolder = itemView.findViewById(R.id.text_holder);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.image);
@@ -84,7 +82,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     private void setStatusLabel(ViewGroup statusPlaceHolder,
                                 View itemView,
                                 TrackPlayQueueUIItem trackPlayQueueUIItem) {
-        if (trackPlayQueueUIItem.getPlayState() == TrackPlayQueueUIItem.PlayState.PLAYING) {
+        if (trackPlayQueueUIItem.getPlayState() == PlayState.PLAYING) {
             View.inflate(itemView.getContext(), R.layout.playing, statusPlaceHolder);
         } else if (trackPlayQueueUIItem.getStatusLabelId() != -1) {
             View.inflate(itemView.getContext(), trackPlayQueueUIItem.getStatusLabelId(), statusPlaceHolder);
@@ -111,41 +109,20 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     }
 
     private void setRepeatAlpha(TrackPlayQueueUIItem item, ImageView imageView, View textHolder) {
-        float alpha = getAlpha(item.getRepeatMode(), item.getPlayState());
+        float alpha = QueueUtils.getAlpha(item.getRepeatMode(), item.getPlayState());
         imageView.setAlpha(alpha);
         textHolder.setAlpha(alpha);
     }
 
-    static float getAlpha(PlayQueueManager.RepeatMode repeatMode, TrackPlayQueueUIItem.PlayState playstate) {
-        switch (repeatMode) {
-            case REPEAT_NONE:
-                if (playstate == TrackPlayQueueUIItem.PlayState.PLAYED) {
-                    return ALPHA_DISABLED;
-                } else {
-                    return ALPHA_ENABLED;
-                }
-            case REPEAT_ONE:
-                if (playstate == TrackPlayQueueUIItem.PlayState.PLAYING) {
-                    return ALPHA_ENABLED;
-                } else {
-                    return ALPHA_DISABLED;
-                }
-            case REPEAT_ALL:
-                return ALPHA_ENABLED;
-            default:
-                throw new IllegalStateException("Unknown value of repeat mode");
-        }
-    }
-
     static boolean shouldRerender(PlayQueueManager.RepeatMode oldRepeatMode,
                                   PlayQueueManager.RepeatMode newRepeatMode,
-                                  TrackPlayQueueUIItem.PlayState playstate) {
+                                  PlayState playstate) {
         if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE) {
-            return playstate == TrackPlayQueueUIItem.PlayState.COMING_UP;
+            return playstate == PlayState.COMING_UP;
         } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL) {
-            return playstate == TrackPlayQueueUIItem.PlayState.PLAYED || playstate == TrackPlayQueueUIItem.PlayState.COMING_UP;
+            return playstate == PlayState.PLAYED || playstate == PlayState.COMING_UP;
         } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE) {
-            return playstate == TrackPlayQueueUIItem.PlayState.PLAYED;
+            return playstate == PlayState.PLAYED;
         } else {
             throw new IllegalStateException("New repeat mode: " + newRepeatMode.toString()
                                                     + " cannot follow and old repeat mode: " + oldRepeatMode.toString());
@@ -155,7 +132,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     private void setupOverFlow(final TrackPlayQueueUIItem item, final ImageView overflowButton, final int position) {
         ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), EXTENDED_TOUCH_DP));
         overflowButton.setSelected(false);
-        if (item.getPlayState() == TrackPlayQueueUIItem.PlayState.COMING_UP) {
+        if (item.getPlayState() == PlayState.COMING_UP) {
             overflowButton.setImageResource(R.drawable.drag_handle);
             overflowButton.setOnClickListener(null);
         } else {

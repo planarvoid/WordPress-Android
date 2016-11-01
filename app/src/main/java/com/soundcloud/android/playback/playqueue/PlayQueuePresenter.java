@@ -257,8 +257,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     boolean isRemovable(int adapterPosition) {
         final PlayQueueUIItem item = adapter.getItem(adapterPosition);
-        return item.isTrack()
-                && TrackPlayQueueUIItem.PlayState.COMING_UP.equals(((TrackPlayQueueUIItem) item).getPlayState());
+        return item.isTrack() && PlayState.COMING_UP.equals(item.getPlayState());
     }
 
     public void remove(int adapterPosition) {

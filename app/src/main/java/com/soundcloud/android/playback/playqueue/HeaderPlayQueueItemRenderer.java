@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.playqueue;
 
+import static com.soundcloud.android.playback.playqueue.QueueUtils.getAlpha;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -32,8 +34,8 @@ class HeaderPlayQueueItemRenderer implements CellRenderer<HeaderPlayQueueUIItem>
     public void bindItemView(final int position, View itemView, List<HeaderPlayQueueUIItem> items) {
         final HeaderPlayQueueUIItem item = items.get(position);
         final TextView textHolder = (TextView) itemView.findViewById(R.id.title);
-
         textHolder.setText(getTitle(item));
+        itemView.setAlpha(getAlpha(item.getRepeatMode(), item.getPlayState()));
     }
 
     private String getTitle(HeaderPlayQueueUIItem item) {
@@ -41,7 +43,7 @@ class HeaderPlayQueueItemRenderer implements CellRenderer<HeaderPlayQueueUIItem>
         final String query = item.getPlaybackContext().query().or(Strings.EMPTY);
         final String contentTitle = item.getContentTitle().or(Strings.EMPTY);
 
-        switch(bucket) {
+        switch (bucket) {
             case SEARCH_RESULT:
                 return resources.getString(R.string.play_queue_header_search, query);
             case STREAM:
@@ -71,7 +73,7 @@ class HeaderPlayQueueItemRenderer implements CellRenderer<HeaderPlayQueueUIItem>
             case AUTO_PLAY:
                 return resources.getString(R.string.play_queue_header_auto_play);
             default:
-                throw(new IllegalArgumentException("can't render header of type: " + bucket.name()));
+                throw new IllegalArgumentException("can't render header of type: " + bucket.name());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
+import static com.soundcloud.android.playback.playqueue.PlayQueueFixtures.getHeaderPlayQueueUiItem;
 import static com.soundcloud.android.playback.playqueue.PlayQueueFixtures.getPlayQueueItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -19,6 +20,8 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     @Mock private HeaderPlayQueueItemRenderer headerPlayQueueItemRenderer;
     @Mock private PlayQueueAdapter.NowPlayingListener nowPlayingListener;
 
+    private final HeaderPlayQueueUIItem headerPlayQueueItem1 = getHeaderPlayQueueUiItem();
+    private final HeaderPlayQueueUIItem headerPlayQueueItem2 = getHeaderPlayQueueUiItem();
     private final TrackPlayQueueUIItem playQueueItem1 = getPlayQueueItem(1);
     private final TrackPlayQueueUIItem playQueueItem2 = getPlayQueueItem(2);
     private final TrackPlayQueueUIItem playQueueItem3 = getPlayQueueItem(3);
@@ -27,26 +30,33 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         adapter = new PlayQueueAdapter(trackPlayQueueItemRenderer, headerPlayQueueItemRenderer);
 
-        playQueueItem2.setPlayState(TrackPlayQueueUIItem.PlayState.PLAYING);
+        playQueueItem2.setPlayState(PlayState.PLAYING);
 
+        adapter.addItem(headerPlayQueueItem1);
         adapter.addItem(playQueueItem1);
         adapter.addItem(playQueueItem2);
+        adapter.addItem(headerPlayQueueItem2);
         adapter.addItem(playQueueItem3);
     }
 
     @Test
     public void updateNowPlayingSetsDraggableStateOnItems() {
-        adapter.updateNowPlaying(1, true);
+        adapter.updateNowPlaying(2, true);
 
-        assertThat(playQueueItem1.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.PLAYED);
-        assertThat(playQueueItem2.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.PLAYING);
-        assertThat(playQueueItem3.getPlayState()).isEqualTo(TrackPlayQueueUIItem.PlayState.COMING_UP);
+        assertThat(headerPlayQueueItem1.getPlayState()).isEqualTo(PlayState.PLAYING);
+        assertThat(headerPlayQueueItem2.getPlayState()).isEqualTo(PlayState.COMING_UP);
+        assertThat(playQueueItem1.getPlayState()).isEqualTo(PlayState.PLAYED);
+        assertThat(playQueueItem2.getPlayState()).isEqualTo(PlayState.PLAYING);
+        assertThat(playQueueItem3.getPlayState()).isEqualTo(PlayState.COMING_UP);
     }
 
     @Test
     public void updateRepeatModeStateOnItems() {
         adapter.updateInRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ONE);
 
+
+        assertThat(headerPlayQueueItem1.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
+        assertThat(headerPlayQueueItem2.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
         assertThat(playQueueItem1.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
         assertThat(playQueueItem2.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
         assertThat(playQueueItem3.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
@@ -56,7 +66,7 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     public void notifyNowPlayingListenerWhenPlayStateChangedToPlaying() {
         adapter.setNowPlayingChangedListener(nowPlayingListener);
 
-        adapter.updateNowPlaying(0, true);
+        adapter.updateNowPlaying(1, true);
 
         verify(nowPlayingListener).onNowPlayingChanged(playQueueItem1);
     }
@@ -65,7 +75,7 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     public void doNotNotifyNowPlayingListenerWhenPlayStateChangedToPlayingAndNotifyFlagSetToFalse() {
         adapter.setNowPlayingChangedListener(nowPlayingListener);
 
-        adapter.updateNowPlaying(0, false);
+        adapter.updateNowPlaying(1, false);
 
         verify(nowPlayingListener, never()).onNowPlayingChanged(playQueueItem1);
     }
@@ -74,7 +84,7 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     public void doNotUpdateWhenUpdatingTheSameTrack() {
         adapter.setNowPlayingChangedListener(nowPlayingListener);
 
-        adapter.updateNowPlaying(1, true);
+        adapter.updateNowPlaying(2, true);
 
         verify(nowPlayingListener, never()).onNowPlayingChanged(playQueueItem1);
     }

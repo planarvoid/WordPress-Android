@@ -20,6 +20,6 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@color/ak_medium_gray"
-        android:textSize="18sp" />
+        android:textSize="15sp" />
 
 </LinearLayout>

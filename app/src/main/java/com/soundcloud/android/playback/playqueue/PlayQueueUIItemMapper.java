@@ -38,7 +38,8 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
 
             if (!playQueueManager.isShuffled() && shouldAddNewHeader(lastContext, playbackContext)) {
                 lastContext = Optional.of(playbackContext);
-                uiItems.add(new HeaderPlayQueueUIItem(playbackContext, title));
+                uiItems.add(new HeaderPlayQueueUIItem(playbackContext, title, PlayState.COMING_UP,
+                                                      repeatMode));
             }
 
             uiItems.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context, title, repeatMode));
