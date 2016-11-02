@@ -11,7 +11,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TieredTracks;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
@@ -20,13 +19,6 @@ import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 
 class TrackPlayQueueUIItem extends PlayQueueUIItem {
-
-    static final Predicate<PlayQueueUIItem> IS_TRACK = new Predicate<PlayQueueUIItem>() {
-        @Override
-        public boolean apply(PlayQueueUIItem input) {
-            return input.isTrack();
-        }
-    };
 
     static final Func1<PlayQueueUIItem, Boolean> ONLY_TRACKS = new Func1<PlayQueueUIItem, Boolean>() {
         @Override
@@ -145,8 +137,6 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
     private static int createStatusLabelId(TrackItem trackItem) {
         if (trackItem.isBlocked()) {
             return R.layout.not_available;
-        } else if (TieredTracks.isHighTierPreview(trackItem)) {
-            return R.layout.preview;
         } else if (trackItem.isPrivate()) {
             return R.layout.private_label;
         } else {

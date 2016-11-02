@@ -20,7 +20,6 @@ import java.util.List;
 class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
     interface TrackClickListener {
-
         void trackClicked(int listPosition);
     }
 
@@ -53,24 +52,25 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         TextView title = (TextView) itemView.findViewById(R.id.title);
         TextView creator = (TextView) itemView.findViewById(R.id.creator);
         ImageView overFlowButton = (ImageView) itemView.findViewById(R.id.overflow_button);
+        View goIndicator = itemView.findViewById(R.id.go_indicator);
+
         title.setText(item.getTitle());
         creator.setText(item.getCreator());
         imageOperations.displayInAdapterView(item.getImageResource(),
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
                                              imageView);
-        setGoIndicator(itemView, item);
+        setGoIndicator(goIndicator, item);
         statusPlaceHolder.removeAllViews();
-        setListener(itemView, item, position);
+        setListener(itemView, position);
         setClickable(itemView, item);
         setStatusLabel(statusPlaceHolder, itemView, item);
-        setRepeatAlpha(item, imageView, textHolder);
+        setRepeatAlpha(item, imageView, textHolder, goIndicator);
         setupOverFlow(item, overFlowButton, position);
         setTitleColor(item, title);
     }
 
-    private void setGoIndicator(View itemView, TrackPlayQueueUIItem item) {
-        itemView.findViewById(R.id.go_indicator)
-                .setVisibility(item.isGoTrack()
+    private void setGoIndicator(View indicator, TrackPlayQueueUIItem item) {
+        indicator.setVisibility(item.isGoTrack()
                 ? View.VISIBLE
                 : View.GONE);
     }
@@ -90,7 +90,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
     }
 
-    private void setListener(final View itemView, final TrackPlayQueueUIItem item, final int position) {
+    private void setListener(final View itemView, final int position) {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -108,10 +108,11 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         }
     }
 
-    private void setRepeatAlpha(TrackPlayQueueUIItem item, ImageView imageView, View textHolder) {
+    private void setRepeatAlpha(TrackPlayQueueUIItem item, ImageView imageView, View textHolder, View goIndicator) {
         float alpha = QueueUtils.getAlpha(item.getRepeatMode(), item.getPlayState());
         imageView.setAlpha(alpha);
         textHolder.setAlpha(alpha);
+        goIndicator.setAlpha(alpha);
     }
 
     static boolean shouldRerender(PlayQueueManager.RepeatMode oldRepeatMode,

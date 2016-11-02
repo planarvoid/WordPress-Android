@@ -635,7 +635,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
 
         assertThat(getHolder(trackView).previewLabel).isGone();
-        assertThat(getHolder(trackView).goLabel).isGone();
     }
 
     @Test
@@ -643,7 +642,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         bindSnippedTrack();
 
         assertThat(getHolder(trackView).previewLabel).isVisible();
-        assertThat(getHolder(trackView).goLabel).isVisible();
     }
 
     @Test
