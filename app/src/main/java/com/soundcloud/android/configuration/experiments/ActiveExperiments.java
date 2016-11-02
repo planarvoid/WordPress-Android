@@ -13,6 +13,7 @@ public class ActiveExperiments {
                                                                                          StationsRecoAlgorithmExperiment.CONFIGURATION,
                                                                                          OpusExperiment.CONFIGURATION,
                                                                                          ChartsExperiment.CONFIGURATION,
+                                                                                         SuggestedCreatorsExperiment.CONFIGURATION,
                                                                                          SwitchHomeExperiment.CONFIGURATION,
                                                                                          DiscoveryModulesPositionExperiment.CONFIGURATION);
 

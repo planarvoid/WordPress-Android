@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.configuration.experiments.SuggestedCreatorsExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -50,6 +51,7 @@ public class SuggestedCreatorsOperationsTest {
     @Mock private SyncOperations syncOperations;
     @Mock private SuggestedCreatorsStorage suggestedCreatorsStorage;
     @Mock private FollowingOperations followingOperations;
+    @Mock private SuggestedCreatorsExperiment suggestedCreatorsExperiment;
     private Scheduler scheduler = Schedulers.immediate();
     private CurrentDateProvider dateProvider;
 
@@ -65,8 +67,10 @@ public class SuggestedCreatorsOperationsTest {
                                                      suggestedCreatorsStorage,
                                                      scheduler,
                                                      followingOperations,
-                                                     dateProvider);
+                                                     dateProvider,
+                                                     suggestedCreatorsExperiment);
         when(featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)).thenReturn(true);
+        when(suggestedCreatorsExperiment.isEnabled()).thenReturn(true);
         when(featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL)).thenReturn(false);
         when(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS)).thenReturn(Observable.just(
                 SYNCED));
