@@ -10,17 +10,15 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksBucketItem;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
 import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -90,40 +88,6 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         verify(playlistTagRenderer).setOnTagClickListener(itemListener);
         verify(searchItemRenderer).setSearchListener(itemListener);
         verify(recommendedStationsBucketRenderer).setListener(itemListener);
-    }
-
-    @Test
-    public void updatesNowPlayingWithCollection() {
-        final Urn nowPlayingCollection = Urn.forTrackStation(123L);
-        final Urn nowPlayingTrack = Urn.forTrack(123L);
-
-        adapter.onNext(asList(searchItem,
-                              playlistTagItem,
-                              tracksBucketItem,
-                              stationsBucketItem,
-                              chartsBucketItem));
-
-        adapter.updateNowPlayingWithCollection(nowPlayingCollection, nowPlayingTrack);
-
-        verify(stationsBucketItem).updateNowPlaying(nowPlayingCollection);
-        verify(recommendedStationsBucketRenderer).notifyAdapter();
-        verify(tracksBucketItem).updateNowPlaying(nowPlayingTrack);
-    }
-
-    @Test
-    public void updatesNowPlayingTrack() {
-        final Urn nowPlayingTrack = Urn.forTrack(123L);
-
-        adapter.onNext(asList(searchItem,
-                              playlistTagItem,
-                              tracksBucketItem,
-                              stationsBucketItem,
-                              chartsBucketItem));
-
-        adapter.updateNowPlaying(nowPlayingTrack);
-
-        verify(tracksBucketItem).updateNowPlaying(nowPlayingTrack);
-        verify(stationsBucketItem, never()).updateNowPlaying(nowPlayingTrack);
     }
 
     @Test

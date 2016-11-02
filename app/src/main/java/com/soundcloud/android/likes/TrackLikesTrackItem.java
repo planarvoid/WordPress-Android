@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -22,21 +23,6 @@ class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, Li
     }
 
     @Override
-    public Urn getPlayableUrn() {
-        return trackItem.getUrn();
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return trackItem.isPlaying();
-    }
-
-    @Override
-    public void setIsPlaying(boolean isPlaying) {
-        trackItem.setIsPlaying(isPlaying);
-    }
-
-    @Override
     public Urn getUrn() {
         return trackItem.getUrn();
     }
@@ -49,5 +35,15 @@ class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, Li
     @Override
     public ListItem update(PropertySet sourceSet) {
         return trackItem.update(sourceSet);
+    }
+
+    @Override
+    public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
+        final boolean isCurrent = trackItem.getUrn().equals(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+        if (trackItem.isPlaying() || isCurrent) {
+            trackItem.setIsPlaying(isCurrent);
+            return true;
+        }
+        return false;
     }
 }

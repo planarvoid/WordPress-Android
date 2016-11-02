@@ -4,6 +4,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +21,8 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -51,6 +54,9 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private Bundle bundle;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<DiscoveryItem> discoveryItems;
+    @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
+
+    private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private ViewAllRecommendedTracksPresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
 
@@ -66,13 +72,16 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         when(adapterFactory.create(any(RecommendationBucketRenderer.class))).thenReturn(adapter);
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
+        updatePlayableAdapterSubscriber = spy(new UpdatePlayableAdapterSubscriber(adapter));
+        when(updatePlayableAdapterSubscriberFactory.create(adapter)).thenReturn(updatePlayableAdapterSubscriber);
 
         this.presenter = new ViewAllRecommendedTracksPresenter(swipeRefreshAttacher,
                                                                recommendedTracksOperations,
                                                                recommendationBucketRendererFactory,
                                                                adapterFactory,
                                                                eventBus,
-                                                               trackRecommendationPlaybackInitiator);
+                                                               trackRecommendationPlaybackInitiator,
+                                                               updatePlayableAdapterSubscriberFactory);
     }
 
     @Test
@@ -80,12 +89,11 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, bundle);
         presenter.onViewCreated(fragment, view, null);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_QUEUE_ITEM,
-                                                                       Urn.NOT_SET,
-                                                                       1));
-
-        verify(adapter).updateNowPlaying(Urn.forTrack(123L));
+        final CurrentPlayQueueItemEvent event = CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_QUEUE_ITEM,
+                                                                                              Urn.NOT_SET,
+                                                                                              1);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
+        verify(updatePlayableAdapterSubscriber).onNext(event);
         presenter.onDestroyView(fragment);
     }
 
@@ -100,7 +108,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
                                                                        Urn.NOT_SET,
                                                                        1));
 
-        verify(adapter, never()).updateNowPlaying(Urn.forTrack(123L));
+        verify(updatePlayableAdapterSubscriber, never()).onNext(any(CurrentPlayQueueItemEvent.class));
     }
 
     @Test

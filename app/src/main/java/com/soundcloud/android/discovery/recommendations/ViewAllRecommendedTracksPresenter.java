@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -28,6 +28,7 @@ import java.util.List;
 class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
         implements TrackRecommendationListener {
     private final RecommendedTracksOperations operations;
+    private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final DiscoveryAdapter adapter;
     private final EventBus eventBus;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
@@ -40,9 +41,11 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
                                       RecommendationBucketRendererFactory recommendationBucketRendererFactory,
                                       DiscoveryAdapterFactory adapterFactory,
                                       EventBus eventBus,
-                                      TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator) {
+                                      TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
+                                      UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
         super(swipeRefreshAttacher, Options.custom().build());
         this.operations = operations;
+        this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(false, this));
         this.eventBus = eventBus;
         this.trackRecommendationPlaybackInitiator = trackRecommendationPlaybackInitiator;
@@ -57,7 +60,8 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        subscription = eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter));
+        subscription = eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
+                                          updatePlayableAdapterSubscriberFactory.create(adapter));
     }
 
     @Override

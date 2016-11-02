@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +24,8 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
@@ -57,7 +60,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private StartStationHandler startStationHandler;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<DiscoveryItem> discoveryItems;
+    @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
 
+    private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private EventBus eventBus = new TestEventBus();
     private DiscoveryPresenter presenter;
 
@@ -68,6 +73,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(dataSource.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
         when(recommendationBucketRendererFactory
                      .create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
+        updatePlayableAdapterSubscriber = spy(new UpdatePlayableAdapterSubscriber(adapter));
+        when(updatePlayableAdapterSubscriberFactory.create(adapter)).thenReturn(updatePlayableAdapterSubscriber);
 
         this.presenter = new DiscoveryPresenter(
                 dataSource,
@@ -78,7 +85,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 navigator,
                 eventBus,
                 startStationHandler,
-                trackRecommendationPlaybackInitiator);
+                trackRecommendationPlaybackInitiator,
+                updatePlayableAdapterSubscriberFactory);
 
         presenter.onCreate(fragment, bundle);
     }
@@ -107,13 +115,13 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdateAdapterOnTrackChange() {
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(
-                                 TestPlayQueueItem.createTrack(TRACK_URN),
-                                 Urn.NOT_SET,
-                                 1));
+        final CurrentPlayQueueItemEvent event = CurrentPlayQueueItemEvent.fromPositionChanged(
+                TestPlayQueueItem.createTrack(TRACK_URN),
+                Urn.NOT_SET,
+                1);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(adapter).updateNowPlayingWithCollection(Urn.NOT_SET, TRACK_URN);
+        verify(updatePlayableAdapterSubscriber).onNext(event);
     }
 
     @Test
@@ -126,7 +134,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                                  Urn.NOT_SET,
                                  1));
 
-        verify(adapter, never()).updateNowPlaying(TRACK_URN);
+        verify(updatePlayableAdapterSubscriber, never()).onNext(any(CurrentPlayQueueItemEvent.class));
     }
 
     @Test

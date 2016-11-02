@@ -9,7 +9,6 @@ import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperati
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
@@ -21,11 +20,11 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.utils.EmptyThrowable;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -51,6 +50,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         implements DiscoveryAdapter.DiscoveryItemListenerBucket, TrackRecommendationListener {
 
     private final DataSource dataSource;
+    private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
@@ -76,9 +76,11 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        Navigator navigator,
                        EventBus eventBus,
                        StartStationHandler startStationPresenter,
-                       TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator) {
+                       TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
+                       UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
         super(swipeRefreshAttacher, Options.defaults());
         this.dataSource = dataSource;
+        this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
@@ -96,7 +98,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private void subscribeToUpdates() {
         subscription.unsubscribe();
         subscription = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingUrnSubscriber())
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                                   updatePlayableAdapterSubscriberFactory.create(adapter))
         );
     }
 
@@ -173,17 +176,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     public void onRecommendedStationClicked(Context context, StationRecord station) {
         startStationPresenter.startStation(context, station.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
-    }
-
-    private class UpdatePlayingUrnSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
-
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent event) {
-            if (adapter != null) {
-                adapter.updateNowPlayingWithCollection(event.getCollectionUrn(),
-                                                       event.getCurrentPlayQueueItem().getUrnOrNotSet());
-            }
-        }
     }
 
     static class DataSource {

@@ -1,12 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 
 public interface PlayableViewItem {
-
-    Urn getPlayableUrn();
-
-    boolean isPlaying();
-
-    void setIsPlaying(boolean isCurrent);
+    boolean updateNowPlaying(CurrentPlayQueueItemEvent event);
 }

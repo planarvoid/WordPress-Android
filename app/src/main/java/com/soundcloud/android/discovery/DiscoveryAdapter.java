@@ -15,12 +15,10 @@ import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylist
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
-import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 
@@ -28,8 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, RecyclerView.ViewHolder>
-        implements PlayingTrackAware {
+public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, RecyclerView.ViewHolder> {
 
     private final PlaylistTagRenderer playlistTagRenderer;
     private final SearchItemRenderer searchItemRenderer;
@@ -80,17 +77,6 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
         this.stationsBucketRenderer.setListener(itemListener);
     }
 
-    @Override
-    public void updateNowPlaying(Urn playingUrn) {
-        for (int position = 0; position < getItemCount(); position++) {
-            DiscoveryItem discoveryItem = getItem(position);
-            if (RecommendedTracksItem.equals(discoveryItem.getKind())) {
-                ((PlayingTrackAware) discoveryItem).updateNowPlaying(playingUrn);
-                notifyItemChanged(position);
-            }
-        }
-    }
-
     void setItem(int position, DiscoveryItem item) {
         if (containsItem(item)) {
             items.set(position, item);
@@ -113,22 +99,4 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
             }
         });
     }
-
-    void updateNowPlayingWithCollection(Urn collectionUrn, Urn trackUrn) {
-        for (int position = 0; position < getItemCount(); position++) {
-            DiscoveryItem discoveryItem = getItem(position);
-            if (discoveryItem instanceof PlayingTrackAware) {
-                final PlayingTrackAware playingTrackAware = (PlayingTrackAware) discoveryItem;
-                if (RecommendedTracksItem.equals(discoveryItem.getKind())) {
-                    playingTrackAware.updateNowPlaying(trackUrn);
-                    notifyItemChanged(position);
-                }
-                if (RecommendedStationsItem.equals(discoveryItem.getKind())) {
-                    playingTrackAware.updateNowPlaying(collectionUrn);
-                    stationsBucketRenderer.notifyAdapter();
-                }
-            }
-        }
-    }
-
 }
