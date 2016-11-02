@@ -90,20 +90,19 @@ public class MyProfileOperations {
 
     public Observable<List<UserAssociation>> followingsUserAssociations() {
         return loadFollowingUserAssociationsFromStorage()
-                .subscribeOn(scheduler)
                 .filter(IS_NOT_EMPTY_LIST)
-                    .switchIfEmpty(Observable.defer(new Func0<Observable<List<UserAssociation>>>() {
-                        @Override
-                        public Observable<List<UserAssociation>> call() {
-                            return syncInitiatorBridge.refreshFollowings()
-                                                      .flatMap(continueWith(
-                                                              loadFollowingUserAssociationsFromStorage()));
-                        }
-                    }));
+                .switchIfEmpty(Observable.defer(new Func0<Observable<List<UserAssociation>>>() {
+                    @Override
+                    public Observable<List<UserAssociation>> call() {
+                        return syncInitiatorBridge.refreshFollowings()
+                                                  .flatMap(continueWith(
+                                                          loadFollowingUserAssociationsFromStorage()));
+                    }
+                }));
     }
 
     private Observable<List<UserAssociation>> loadFollowingUserAssociationsFromStorage() {
-        return userAssociationStorage.followedUserAssociations(PAGE_SIZE);
+        return userAssociationStorage.followedUserAssociations(PAGE_SIZE).subscribeOn(scheduler);
     }
 
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {
@@ -122,7 +121,7 @@ public class MyProfileOperations {
                     return Observable.just(Collections.<PropertySet>emptyList());
                 } else {
                     return syncInitiator.batchSyncUsers(urns)
-                                              .flatMap(loadFollowings(pageSize, fromPosition));
+                                        .flatMap(loadFollowings(pageSize, fromPosition));
                 }
             }
         };

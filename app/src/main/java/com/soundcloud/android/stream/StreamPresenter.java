@@ -14,6 +14,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.StreamAdsController;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -30,7 +31,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.FacebookListenerInvites;
@@ -79,16 +80,18 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final StreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final StreamAdsController streamAdsController;
+    private final StreamSwipeRefreshAttacher swipeRefreshAttacher;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
+    private final FollowingOperations followingOperations;
     private final StationsOperations stationsOperations;
     private final Navigator navigator;
     private final NewItemsIndicator newItemsIndicator;
     private final WhyAdsDialogPresenter whyAdsDialogPresenter;
 
-    private CompositeSubscription viewLifeCycle;
+    private CompositeSubscription viewLifeCycleSubscription;
     private Fragment fragment;
 
     @Inject
@@ -97,12 +100,13 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     StationsOperations stationsOperations,
                     ImagePauseOnScrollListener imagePauseOnScrollListener,
                     StreamAdsController streamAdsController,
-                    SwipeRefreshAttacher swipeRefreshAttacher,
+                    StreamSwipeRefreshAttacher swipeRefreshAttacher,
                     EventBus eventBus,
                     MixedItemClickListener.Factory itemClickListenerFactory,
                     FacebookInvitesDialogPresenter invitesDialogPresenter,
                     Navigator navigator,
                     NewItemsIndicator newItemsIndicator,
+                    FollowingOperations followingOperations,
                     WhyAdsDialogPresenter whyAdsDialogPresenter,
                     UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
@@ -112,6 +116,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.streamAdsController = streamAdsController;
+        this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
         this.navigator = navigator;
@@ -120,6 +125,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
+        this.followingOperations = followingOperations;
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
@@ -160,13 +166,14 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         configureEmptyView();
         addScrollListeners();
 
-        viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                                   updatePlayableAdapterSubscriberFactory.create(adapter)),
+        viewLifeCycleSubscription = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, updatePlayableAdapterSubscriberFactory.create(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateStreamEntitySubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
-                        .filter(FILTER_STREAM_REFRESH_EVENTS)
-                        .flatMap(continueWith(updateIndicatorFromMostRecent())))
+                                      .filter(FILTER_STREAM_REFRESH_EVENTS)
+                                      .flatMap(continueWith(updateIndicatorFromMostRecent()))),
+                followingOperations.onUserFollowed().subscribe(buildFollowSubscription()),
+                followingOperations.onUserUnfollowed().subscribe(buildFollowSubscription())
         );
     }
 
@@ -179,7 +186,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onDestroyView(Fragment fragment) {
         streamAdsController.clear();
-        viewLifeCycle.unsubscribe();
+        viewLifeCycleSubscription.unsubscribe();
         adapter.unsubscribe();
         newItemsIndicator.destroy();
         super.onDestroyView(fragment);
@@ -286,6 +293,15 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private void removeItem(int position) {
         adapter.removeItem(position);
         adapter.notifyItemRemoved(position);
+    }
+
+    private DefaultSubscriber<Urn> buildFollowSubscription() {
+        return new DefaultSubscriber<Urn>() {
+            @Override
+            public void onNext(Urn urn) {
+                swipeRefreshAttacher.forceRefresh();
+            }
+        };
     }
 
     private void trackInvitesEvent(FacebookInvitesEvent event) {

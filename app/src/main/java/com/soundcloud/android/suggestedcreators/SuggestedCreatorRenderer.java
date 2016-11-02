@@ -81,15 +81,13 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (suggestedCreatorItem.following != isChecked) {
-                    suggestedCreatorItem.following = isChecked;
-                    suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
-                                       .subscribe(new DefaultSubscriber<Void>());
+                suggestedCreatorItem.following = isChecked;
+                suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
+                                           .subscribe(new DefaultSubscriber<Void>());
 
-                    engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
-                                                      isChecked,
-                                                      buildEventContextMetadata(position));
-                }
+                engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
+                                                  isChecked,
+                                                  buildEventContextMetadata(position));
             }
         });
     }
