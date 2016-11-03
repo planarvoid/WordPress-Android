@@ -1,12 +1,12 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -17,6 +17,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Func0;
 import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
@@ -64,7 +65,7 @@ public class MyProfileOperations {
     Observable<List<PropertySet>> pagedFollowings() {
         return pagedFollowingsFromPosition(Consts.NOT_SET)
                 .subscribeOn(scheduler)
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .filter(IS_NOT_EMPTY_LIST)
                 .switchIfEmpty(updatedFollowings());
     }
 
@@ -90,8 +91,15 @@ public class MyProfileOperations {
     public Observable<List<UserAssociation>> followingsUserAssociations() {
         return loadFollowingUserAssociationsFromStorage()
                 .subscribeOn(scheduler)
-                .switchIfEmpty(syncInitiatorBridge.refreshFollowings()
-                                                  .flatMap(continueWith(loadFollowingUserAssociationsFromStorage())));
+                .filter(IS_NOT_EMPTY_LIST)
+                    .switchIfEmpty(Observable.defer(new Func0<Observable<List<UserAssociation>>>() {
+                        @Override
+                        public Observable<List<UserAssociation>> call() {
+                            return syncInitiatorBridge.refreshFollowings()
+                                                      .flatMap(continueWith(
+                                                              loadFollowingUserAssociationsFromStorage()));
+                        }
+                    }));
     }
 
     private Observable<List<UserAssociation>> loadFollowingUserAssociationsFromStorage() {

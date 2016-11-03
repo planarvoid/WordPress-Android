@@ -2,6 +2,10 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.MyProfileOperations.PAGE_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
@@ -172,7 +176,26 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
         operations.followingsUserAssociations().subscribe(subscriber);
 
+        subscriber.assertCompleted();
         subscriber.assertValue(followingsUrn);
+
+        verify(syncInitiatorBridge, never()).refreshFollowings();
+    }
+
+    @Test
+    public void syncsWhenStoredFollowingsListEmpty() {
+    TestSubscriber<List<UserAssociation>> subscriber = new TestSubscriber<>();
+
+        when(userAssociationStorage.followedUserAssociations(PAGE_SIZE)).thenReturn(Observable.just(Collections.<UserAssociation>emptyList()));
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
+
+        operations.followingsUserAssociations().subscribe(subscriber);
+
+        subscriber.assertCompleted();
+        subscriber.assertValue(Collections.<UserAssociation>emptyList());
+
+        verify(syncInitiatorBridge).refreshFollowings();
+        verify(userAssociationStorage, times(2)).followedUserAssociations(PAGE_SIZE);
     }
 
     private UserAssociation createUserAssociation(Urn urn) {
