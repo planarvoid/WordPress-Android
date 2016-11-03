@@ -42,6 +42,9 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_COMMENT = "comment";
     public static final String KIND_SHARE = "share";
     public static final String KIND_SHUFFLE = "shuffle";
+    public static final String KIND_SWIPE_SKIP = "swipe_skip";
+    public static final String KIND_SYSTEM_SKIP = "system_skip";
+    public static final String KIND_BUTTON_SKIP = "button_skip";
     public static final String KIND_NAVIGATION = "navigation";
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
@@ -116,6 +119,18 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromShuffle(@NotNull EventContextMetadata contextMetadata) {
         return new UIEvent(KIND_SHUFFLE).putEventContextMetadata(contextMetadata);
+    }
+
+    public static UIEvent fromSystemSkip() {
+        return new UIEvent(KIND_SYSTEM_SKIP);
+    }
+
+    public static UIEvent fromButtonSkip() {
+        return new UIEvent(KIND_BUTTON_SKIP);
+    }
+
+    public static UIEvent fromSwipeSkip() {
+        return new UIEvent(KIND_SWIPE_SKIP);
     }
 
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {

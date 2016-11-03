@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -24,6 +25,7 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
+import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationRecord;
@@ -59,7 +61,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<PlayerFragment>
-        implements CastConnectionHelper.OnConnectionChangeListener {
+        implements CastConnectionHelper.OnConnectionChangeListener, ViewPagerSwipeDetector.SwipeListener {
 
     static final int PAGE_VIEW_POOL_SIZE = 6;
     private static final int TYPE_TRACK_VIEW = 0;
@@ -181,6 +183,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     public void onViewCreated(PlayerFragment fragment, View view, Bundle savedInstanceState) {
         final PlayerTrackPager trackPager = (PlayerTrackPager) view.findViewById(R.id.player_track_pager);
         trackPager.addOnPageChangeListener(pageChangeListener);
+        trackPager.setSwipeListener(this);
         selectedPage = trackPager.getCurrentItem();
 
         viewVisibilityProvider = new PlayerViewVisibilityProvider(trackPager);
@@ -291,19 +294,31 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         super.onDestroyView(playerFragment);
     }
 
-    @NonNull
     private SkipListener createSkipListener(final PlayerTrackPager trackPager) {
         return new SkipListener() {
             @Override
             public void onNext() {
+                sendTrackingEvent();
+
                 trackPager.setCurrentItem(trackPager.getCurrentItem() + 1);
             }
 
             @Override
             public void onPrevious() {
+                sendTrackingEvent();
+
                 trackPager.setCurrentItem(trackPager.getCurrentItem() - 1);
             }
+
+            private void sendTrackingEvent() {
+                eventBus.publish(EventQueue.TRACKING, UIEvent.fromButtonSkip());
+            }
         };
+    }
+
+    @Override
+    public void onSwipe() {
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromSwipeSkip());
     }
 
     private void populateScrapViews(PlayerTrackPager trackPager) {

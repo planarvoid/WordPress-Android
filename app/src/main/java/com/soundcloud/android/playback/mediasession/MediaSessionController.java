@@ -2,12 +2,12 @@ package com.soundcloud.android.playback.mediasession;
 
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
-import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
-import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.STATE_BUFFERING;
 import static android.support.v4.media.session.PlaybackStateCompat.STATE_PLAYING;
 
@@ -16,6 +16,8 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -24,6 +26,7 @@ import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -55,6 +58,7 @@ public class MediaSessionController {
     private final MediaSessionCompat mediaSession;
     private final AudioManager audioManager;
     private final Navigator navigator;
+    private final EventBus eventBus;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private int playbackState;
@@ -67,7 +71,8 @@ public class MediaSessionController {
                                   @Provided MetadataOperations metadataOperations,
                                   @Provided PlayQueueManager playQueueManager,
                                   @Provided AdsOperations adsOperations,
-                                  @Provided Navigator navigator) {
+                                  @Provided Navigator navigator,
+                                  @Provided EventBus eventBus) {
         this.context = context;
         this.listener = listener;
         this.mediaSessionWrapper = mediaSessionWrapper;
@@ -77,6 +82,7 @@ public class MediaSessionController {
 
         audioFocusListener = new AudioFocusListener(listener);
         this.navigator = navigator;
+        this.eventBus = eventBus;
         audioManager = mediaSessionWrapper.getAudioManager(context);
         mediaSession = mediaSessionWrapper.getMediaSession(context, TAG);
         mediaSession.setCallback(new MediaSessionListener(this,
@@ -120,6 +126,7 @@ public class MediaSessionController {
     }
 
     public void onSkip() {
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromSystemSkip());
         final PlayQueueItem queueItem = playQueueManager.getCurrentPlayQueueItem();
 
         if (!queueItem.isEmpty()) {

@@ -85,7 +85,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                         InjectionSupport.lazyOf(dataBuilderv1),
                                                                         sharedPreferences, featureFlags);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
-        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"), "query");
+        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"),
+                                                          5,
+                                                          new Urn("some:clicked:urn"),
+                                                          "query");
     }
 
     @Test
@@ -157,6 +160,32 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTrackingManager).trackEvent(captor.capture());
         assertEventTracked(captor.getValue(), "url", event.getTimestamp());
+    }
+
+    @Test
+    public void shouldSwipeSkipEvent() {
+        assertSwipeEvent(UIEvent.fromSwipeSkip());
+    }
+
+    @Test
+    public void shouldButtonSkipEvent() {
+        assertSwipeEvent(UIEvent.fromButtonSkip());
+    }
+
+    @Test
+    public void shouldSystemSkipEvent() {
+        assertSwipeEvent(UIEvent.fromSystemSkip());
+    }
+
+    private void assertSwipeEvent(UIEvent uiEvent) {
+        UIEvent event = uiEvent;
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForSkip");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForSkip");
     }
 
     @Test
@@ -377,7 +406,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdPlaybackErrorEvents() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd, TestPlayerTransitions.buffering(), videoAd.getFirstSource());
+        AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd,
+                                                                       TestPlayerTransitions.buffering(),
+                                                                       videoAd.getFirstSource());
         when(dataBuilderv1.buildForRichMediaErrorEvent(event)).thenReturn("AdPlaybackErrorEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -403,7 +434,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdPlaybackImpressionEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                              TestPlayerTransitions.playing(),
+                                                                              "123");
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, adArgs);
         when(dataBuilderv1.buildForAdImpression(adEvent)).thenReturn("AdImpressionEvent");
         when(dataBuilderv1.buildForRichMediaSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
@@ -422,7 +455,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackAdResumeEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         videoAd.setStartReported();
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                              TestPlayerTransitions.playing(),
+                                                                              "123");
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, adArgs);
 
         when(dataBuilderv1.buildForRichMediaSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
@@ -440,7 +475,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
                                                                               TestPlayerTransitions.idle(),
                                                                               "123");
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, adArgs, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
+                                                                        adArgs,
+                                                                        PlaybackSessionEvent.STOP_REASON_PAUSE);
         when(dataBuilderv1.buildForRichMediaSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -456,7 +493,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
                                                                               TestPlayerTransitions.idle(),
                                                                               "123");
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, adArgs, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
+                                                                        adArgs,
+                                                                        PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdFinishedEvent");
         when(dataBuilderv1.buildForRichMediaSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);

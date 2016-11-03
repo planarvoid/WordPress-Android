@@ -14,6 +14,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -25,6 +27,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -66,6 +69,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
     @Mock MediaMetadataCompat currentMediaMetadata;
     @Mock MediaDescriptionCompat currentMediaDescription;
     @Mock Navigator navigator;
+    private TestEventBus eventBus = new TestEventBus();
 
     private MediaSessionController controller;
 
@@ -77,7 +81,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
 
         controller = new MediaSessionController(context(), listener, mediaSessionWrapper,
                                                 actionController, metadataOperations, playQueueManager, adsOperations,
-                                                navigator);
+                                                navigator, eventBus);
 
         setupMetadataMocks();
     }
@@ -199,6 +203,13 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
         controller.onStop();
 
         verify(mediaSession).setActive(false);
+    }
+
+    @Test
+    public void onSkipSendsTrackingEvent() {
+        controller.onSkip();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromSystemSkip().getKind());
     }
 
     @Test

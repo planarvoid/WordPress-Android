@@ -23,6 +23,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -190,6 +191,31 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         skipListenerArgumentCaptor.getValue().onPrevious();
 
         verify(playerTrackPager).setCurrentItem(eq(2));
+    }
+
+    @Test
+    public void onPreviousOnSkipListenerSendsTrackingEvent() {
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+
+        skipListenerArgumentCaptor.getValue().onPrevious();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromButtonSkip().getKind());
+    }
+
+    @Test
+    public void onNextOnSkipListenerSendsTrackingEvent() {
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+
+        skipListenerArgumentCaptor.getValue().onNext();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromButtonSkip().getKind());
+    }
+
+    @Test
+    public void onSwipeSendsTrackingEvent() {
+        presenter.onSwipe();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromSwipeSkip().getKind());
     }
 
     @Test

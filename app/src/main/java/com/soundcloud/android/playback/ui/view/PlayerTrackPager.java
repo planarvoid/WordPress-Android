@@ -9,16 +9,24 @@ import android.view.MotionEvent;
 
 public class PlayerTrackPager extends SafeViewPager {
 
+    private final ViewPagerSwipeDetector swipeDetector;
     private boolean isPagingEnabled;
 
     public PlayerTrackPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        isPagingEnabled = true;
+
+        this.isPagingEnabled = true;
+        this.swipeDetector = ViewPagerSwipeDetector.forPager(this);
+    }
+
+    public void setSwipeListener(ViewPagerSwipeDetector.SwipeListener swipeListener) {
+        swipeDetector.setListener(swipeListener);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (isPagingEnabled) {
+            swipeDetector.onTouchEvent(event);
             return super.onTouchEvent(event);
         }
         return true;

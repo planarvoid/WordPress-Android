@@ -330,6 +330,12 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildEngagementEvent("like::remove", event));
             case UIEvent.KIND_SHUFFLE:
                 return transform(buildPlaybackClickEvent("shuffle:on", event));
+            case UIEvent.KIND_SWIPE_SKIP:
+                return transform(buildPlayerClickEvent("swipe_skip", event));
+            case UIEvent.KIND_SYSTEM_SKIP:
+                return transform(buildPlayerClickEvent("system_skip", event));
+            case UIEvent.KIND_BUTTON_SKIP:
+                return transform(buildPlayerClickEvent("button_skip", event));
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
                 return transform(buildClickEvent("ad::full_screen", event));
             case UIEvent.KIND_VIDEO_AD_SHRINK:
@@ -421,6 +427,11 @@ class EventLoggerV1JsonDataBuilder {
             eventData.pageUrn(pageUrn);
         }
         return eventData;
+    }
+
+    private EventLoggerEventData buildPlayerClickEvent(String clickName, UIEvent event) {
+        return buildClickEvent(clickName, event)
+                .clickCategory(EventLoggerClickCategories.PLAYER);
     }
 
     private EventLoggerEventData buildCollectionEvent(String clickName, CollectionEvent event) {

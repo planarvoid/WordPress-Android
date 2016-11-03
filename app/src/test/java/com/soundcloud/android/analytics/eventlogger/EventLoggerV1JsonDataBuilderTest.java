@@ -164,6 +164,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
+
     @Test
     public void createsAudioEventJsonForAudioPlaybackStartEvent() throws ApiMapperException {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
@@ -955,6 +956,39 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonForSwipeSkipUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromSwipeSkip();
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("swipe_skip")
+                                               .clickCategory("player_interaction"));
+    }
+
+    @Test
+    public void createsJsonForSystemSkipUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromSystemSkip();
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("system_skip")
+                                               .clickCategory("player_interaction"));
+    }
+
+    @Test
+    public void createsJsonForButtonSkipUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromButtonSkip();
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("button_skip")
+                                               .clickCategory("player_interaction"));
+    }
+
+    @Test
     public void createsJsonForShrinkVideoAdUIEvent() throws ApiMapperException {
         final UIEvent event = UIEvent.fromVideoAdShrink(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
@@ -1060,17 +1094,20 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(navigationEvent);
 
-        verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, navigationEvent.getTimestamp())
-                .clientEventId(navigationEvent.getId())
-                .item(TRACK_URN.toString())
-                .pageviewId(pageviewId)
-                .pageName(PAGE_NAME)
-                .action(ACTION_NAVIGATION)
-                .linkType(LinkType.SELF.getName())
-                .pageUrn(pageUrn.toString())
-                .attributingActivity(attributingActivity.getType(), attributingActivity.getResource())
-                .module(module.getName())
-                .modulePosition(position)
+        verify(jsonTransformer).toJson(getEventData("item_interaction",
+                                                    BOOGALOO_VERSION,
+                                                    navigationEvent.getTimestamp())
+                                               .clientEventId(navigationEvent.getId())
+                                               .item(TRACK_URN.toString())
+                                               .pageviewId(pageviewId)
+                                               .pageName(PAGE_NAME)
+                                               .action(ACTION_NAVIGATION)
+                                               .linkType(LinkType.SELF.getName())
+                                               .pageUrn(pageUrn.toString())
+                                               .attributingActivity(attributingActivity.getType(),
+                                                                    attributingActivity.getResource())
+                                               .module(module.getName())
+                                               .modulePosition(position)
         );
     }
 
@@ -1101,7 +1138,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(navigationEvent);
 
-        verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, navigationEvent.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("item_interaction",
+                                                    BOOGALOO_VERSION,
+                                                    navigationEvent.getTimestamp())
                                                .clientEventId(navigationEvent.getId())
                                                .item(TRACK_URN.toString())
                                                .pageviewId(pageviewId)
@@ -1161,10 +1200,10 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                                .clickName(FOLLOW_ADD)
-                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                                                .clickObject(userMetadata.creatorUrn.toString())
-                                                .pageName(PAGE_NAME));
+                                               .clickName(FOLLOW_ADD)
+                                               .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                                               .clickObject(userMetadata.creatorUrn.toString())
+                                               .pageName(PAGE_NAME));
     }
 
     @Test
@@ -1459,7 +1498,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsScreenEventJsonWithQueryUrn() throws ApiMapperException {
         ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(),
-                                                     new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), "query"));
+                                                     new SearchQuerySourceInfo(new Urn("soundcloud:search:123"),
+                                                                               "query"));
 
 
         jsonDataBuilder.buildForScreenEvent(screenEvent);
