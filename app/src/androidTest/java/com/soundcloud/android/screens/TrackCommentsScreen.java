@@ -28,6 +28,11 @@ public class TrackCommentsScreen extends Screen {
         return new ProfileScreen(testDriver);
     }
 
+    public ActivitiesScreen goBackToActivitiesScreen() {
+        testDriver.goBack();
+        return new ActivitiesScreen(testDriver);
+    }
+
     private ListElement getListView() {
         return testDriver.findOnScreenElement(With.className(ListView.class)).toListView();
     }

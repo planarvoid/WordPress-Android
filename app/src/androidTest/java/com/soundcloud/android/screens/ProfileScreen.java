@@ -72,6 +72,16 @@ public class ProfileScreen extends Screen {
         testDriver.goBack();
     }
 
+    public ActivitiesScreen goBackToActivitiesScreen() {
+        goBack();
+        return new ActivitiesScreen(testDriver);
+    }
+
+    public TrackCommentsScreen goBackToTrackCommentsScreen() {
+        goBack();
+        return new TrackCommentsScreen(testDriver);
+    }
+
     public VisualPlayerElement playTrack(int index) {
         VisualPlayerElement visualPlayerElement = getTracks().get(index).click();
         visualPlayerElement.waitForExpandedPlayer();
