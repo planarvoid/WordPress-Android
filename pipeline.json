@@ -48,7 +48,8 @@
       "next-stages": [
         "test",
         "performances",
-        "deploy"
+        "deploy",
+        "statistics"
       ]
     }, 
     {
@@ -120,6 +121,18 @@
             "artifacts": [
               "app/build/outputs/apk/app-prod-alpha.apk"
             ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "statistics",
+      "jobs": [
+        {
+          "daily_acceptance_test_statistics": {
+            "cmd": "./scripts/acceptance_test_slack_stats.sh",
+            "manual": true,
+            "schedule": "H 09 * * 2-6"
           }
         }
       ]
