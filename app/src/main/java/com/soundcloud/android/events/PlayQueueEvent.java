@@ -57,6 +57,6 @@ public abstract class PlayQueueEvent {
     }
 
     public boolean itemChanged() {
-        return itemRemoved() || itemMoved() || itemAdded();
+        return itemRemoved() || itemMoved();
     }
 }

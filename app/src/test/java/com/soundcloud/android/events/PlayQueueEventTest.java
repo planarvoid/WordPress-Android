@@ -43,4 +43,25 @@ public class PlayQueueEventTest {
         assertThat(playQueueEvent.isQueueUpdate()).isTrue();
     }
 
+    @Test
+    public void shouldBeItemChangedWhenRemoved() {
+        PlayQueueEvent playQueueEvent = PlayQueueEvent.fromQueueUpdateRemoved(Urn.NOT_SET);
+        assertThat(playQueueEvent.itemRemoved()).isTrue();
+        assertThat(playQueueEvent.itemChanged()).isTrue();
+    }
+
+    @Test
+    public void shouldBeItemChangedWhenMoved() {
+        PlayQueueEvent playQueueEvent = PlayQueueEvent.fromQueueUpdateMoved(Urn.NOT_SET);
+        assertThat(playQueueEvent.itemMoved()).isTrue();
+        assertThat(playQueueEvent.itemChanged()).isTrue();
+    }
+
+    @Test
+    public void shouldNotBeItemChangedWhenAdded() {
+        PlayQueueEvent playQueueEvent = PlayQueueEvent.fromQueueInsert(Urn.NOT_SET);
+        assertThat(playQueueEvent.itemAdded()).isTrue();
+        assertThat(playQueueEvent.itemChanged()).isFalse();
+    }
+
 }
