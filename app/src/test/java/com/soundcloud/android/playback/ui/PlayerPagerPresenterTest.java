@@ -85,6 +85,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private ViewGroup container;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
+    @Mock private PlayerTrackPager viewPager;
     @Mock private View view1;
     @Mock private View view2;
     @Mock private View view3;
@@ -137,12 +138,12 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                              videoSurfaceProvider,
                                              eventBus
         );
-
-        presenter.setCurrentPlayQueue(playQueue, 0);
-
+        when(container.findViewById(anyInt())).thenReturn(viewPager);
         when(container.findViewById(R.id.player_track_pager)).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
         presenter.onViewCreated(playerFragment, container, null);
+        presenter.setCurrentPlayQueue(playQueue, 0);
+
         final ArgumentCaptor<PagerAdapter> pagerAdapterCaptor = ArgumentCaptor.forClass(PagerAdapter.class);
         verify(playerTrackPager).setAdapter(pagerAdapterCaptor.capture());
         adapter = pagerAdapterCaptor.getValue();

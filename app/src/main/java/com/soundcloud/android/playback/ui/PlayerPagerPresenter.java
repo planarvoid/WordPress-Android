@@ -36,7 +36,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -46,7 +45,6 @@ import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -94,7 +92,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private SkipListener skipListener;
 
     private List<PlayQueueItem> currentPlayQueue = Collections.emptyList();
-    @NotNull private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
+    private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
     private PlayerUIEvent lastPlayerUIEvent;
     private PlayStateEvent lastPlayStateEvent;
     private boolean isForeground;
@@ -127,6 +125,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     };
 
     private int selectedPage = Consts.NOT_SET;
+    private PlayerTrackPager trackPager;
 
     @Inject
     PlayerPagerPresenter(PlayQueueManager playQueueManager,
@@ -155,7 +154,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.trackPageRecycler = new TrackPageRecycler();
     }
 
-    public void setCurrentPlayQueue(List<PlayQueueItem> playQueue, int currentItem) {
+    void setCurrentPlayQueue(List<PlayQueueItem> playQueue, int currentItem) {
         selectedPage = currentItem;
         currentPlayQueue = playQueue;
         trackPagerAdapter.notifyDataSetChanged();
@@ -165,23 +164,35 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         return currentPlayQueue;
     }
 
-    void onPlayerSlide(float slideOffset) {
-        for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-            pagePresenter(entry.getValue()).onPlayerSlide(entry.getKey(), slideOffset);
-        }
+    void setCurrentItem(int position, boolean smoothscroll) {
+        trackPager.setCurrentItem(position, smoothscroll);
+    }
+
+    PlayQueueItem getCurrentItem() {
+        return getItemAtPosition(trackPager.getCurrentItem());
+    }
+
+    int getCount() {
+        return trackPager.getAdapter().getCount();
+    }
+
+    int getCurrentItemPosition() {
+        return trackPager.getCurrentItem();
     }
 
     PlayQueueItem getItemAtPosition(int position) {
         return currentPlayQueue.get(position);
     }
 
-    boolean isAdPageAtPosition(int position) {
-        return currentPlayQueue.get(position).isAd();
+    void onPlayerSlide(float slideOffset) {
+        for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
+            pagePresenter(entry.getValue()).onPlayerSlide(entry.getKey(), slideOffset);
+        }
     }
 
     @Override
     public void onViewCreated(PlayerFragment fragment, View view, Bundle savedInstanceState) {
-        final PlayerTrackPager trackPager = (PlayerTrackPager) view.findViewById(R.id.player_track_pager);
+        trackPager = (PlayerTrackPager) view.findViewById(R.id.player_track_pager);
         trackPager.addOnPageChangeListener(pageChangeListener);
         trackPager.setSwipeListener(this);
         selectedPage = trackPager.getCurrentItem();
@@ -290,8 +301,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
         backgroundSubscription.unsubscribe();
         backgroundSubscription = new CompositeSubscription();
-
-        super.onDestroyView(playerFragment);
     }
 
     private SkipListener createSkipListener(final PlayerTrackPager trackPager) {
@@ -328,7 +337,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    public int getItemViewType(int position) {
+    int getItemViewType(int position) {
         final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
         if (playQueueItem.isAd()) {
             return playQueueItem.isVideoAd() ? TYPE_VIDEO_AD_VIEW : TYPE_AUDIO_AD_VIEW;
@@ -337,7 +346,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    public boolean isTrackView(Object object) {
+    boolean isTrackView(Object object) {
         return trackPagePresenter.accept((View) object);
     }
 
@@ -435,7 +444,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         );
     }
 
-    @NonNull
     private Func1<PropertySet, PlayerTrackState> toPlayerTrackState(final PlayQueueItem playQueueItem) {
         return new Func1<PropertySet, PlayerTrackState>() {
             @Override
@@ -472,7 +480,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                 }).map(TO_PLAYER_AD);
     }
 
-    @NonNull
     private Func1<PlayerItem, Boolean> isPlayerItemRelatedToView(final View pageView) {
         return new Func1<PlayerItem, Boolean>() {
             @Override
@@ -540,11 +547,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForItem(urn));
     }
 
-    private static class PlayerItemSubscriber extends DefaultSubscriber<PlayerItem> {
+    static class PlayerItemSubscriber extends DefaultSubscriber<PlayerItem> {
         private final PlayerPagePresenter presenter;
         private final View pageView;
 
-        public PlayerItemSubscriber(PlayerPagePresenter presenter, View pageView) {
+        PlayerItemSubscriber(PlayerPagePresenter presenter, View pageView) {
             this.presenter = presenter;
             this.pageView = pageView;
         }
@@ -555,7 +562,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
             lastPlayerUIEvent = event;
@@ -568,7 +575,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class PlayNextSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    final class PlayNextSubscriber extends DefaultSubscriber<PlayQueueEvent> {
 
         @Override
         public void onNext(PlayQueueEvent playQueueEvent) {
@@ -578,7 +585,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
+    final class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
         public void onNext(PlayStateEvent playStateEvent) {
             lastPlayStateEvent = playStateEvent;
@@ -592,7 +599,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+    final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
         public void onNext(PlaybackProgressEvent progress) {
             for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
@@ -612,7 +619,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private class TrackMetadataChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    class TrackMetadataChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(EntityStateChangedEvent event) {
             trackObservableCache.remove(event.getFirstUrn());
@@ -627,7 +634,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class ClearAdOverlaySubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+    final class ClearAdOverlaySubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent ignored) {
             for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
@@ -685,7 +692,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         return selectedPage != Consts.NOT_SET && playQueueItem.equals(currentPlayQueue.get(selectedPage));
     }
 
-    private class TrackPagerAdapter extends PagerAdapter {
+    class TrackPagerAdapter extends PagerAdapter {
 
         @Override
         public int getItemPosition(Object object) {

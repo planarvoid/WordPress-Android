@@ -52,8 +52,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private static final int CHANGE_TRACKS_DELAY = 350;
     private static final int UNSKIPPABLE_UNLOCK = 500;
 
-    @LightCycle
-    final PlayerPagerPresenter presenter;
+    @LightCycle final PlayerPagerPresenter presenter;
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
@@ -67,7 +66,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private Subscription unblockPagerSubscription = RxUtils.invalidSubscription();
     private Handler changeTracksHandler;
 
-    private PlayerTrackPager trackPager;
     private boolean isResumed;
     private boolean setPlayQueueAfterScroll;
     private FragmentManager fragmentManager;
@@ -252,7 +250,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setPager(final PlayerTrackPager trackPager) {
-        this.trackPager = trackPager;
         refreshPlayQueue();
         playerPagerScrollListener.initialize(trackPager, presenter);
     }
@@ -262,7 +259,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         final int indexOfCurrentPlayQueueitem = getIndexOfPlayQueueItem(playQueueItems);
 
         presenter.setCurrentPlayQueue(playQueueItems, indexOfCurrentPlayQueueitem);
-        trackPager.setCurrentItem(indexOfCurrentPlayQueueitem, false);
+        presenter.setCurrentItem(indexOfCurrentPlayQueueitem, false);
         setPlayQueueAfterScroll = false;
     }
 
@@ -277,7 +274,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private void setAdPlayQueue() {
         presenter.setCurrentPlayQueue(newArrayList(playQueueManager.getCurrentPlayQueueItem()), 0);
-        trackPager.setCurrentItem(0, false);
+        presenter.setCurrentItem(0, false);
     }
 
     private void showAd() {
@@ -291,8 +288,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private void setQueuePositionToCurrent() {
         int position = getIndexOfCurrentPlayQueueitem();
-        boolean isAdjacentTrack = Math.abs(trackPager.getCurrentItem() - position) <= 1;
-        trackPager.setCurrentItem(position, isAdjacentTrack);
+        boolean isAdjacentTrack = Math.abs(presenter.getCurrentItemPosition() - position) <= 1;
+        presenter.setCurrentItem(position, isAdjacentTrack);
     }
 
     private boolean isShowingCurrentAd() {
@@ -301,7 +298,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private PlayQueueItem getDisplayedItem() {
-        return presenter.getItemAtPosition(trackPager.getCurrentItem());
+        return presenter.getCurrentItem();
     }
 
     private void refreshPlayQueue() {
@@ -341,7 +338,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         public void onNext(PlayQueueEvent event) {
             if (event.adsRemoved() && isLookingAtAdWithFullQueue()) {
                 setPlayQueueAfterScroll = true;
-                trackPager.setCurrentItem(trackPager.getCurrentItem() + 1, true);
+                presenter.setCurrentItem(presenter.getCurrentItemPosition() + 1, true);
             } else if (!setPlayQueueAfterScroll) {
                 refreshPlayQueue();
             }
@@ -349,8 +346,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private boolean isLookingAtAdWithFullQueue() {
-        return presenter.isAdPageAtPosition(trackPager.getCurrentItem()) &&
-                isResumed && trackPager.getAdapter().getCount() > 1;
+        return presenter.getCurrentItem().isAd() && isResumed && presenter.getCount() > 1;
     }
 
     private final class SetQueueOnScrollSubscriber extends DefaultSubscriber<Integer> {
