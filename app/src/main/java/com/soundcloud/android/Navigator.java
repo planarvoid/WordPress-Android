@@ -16,11 +16,11 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
+import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.ChartActivity;
 import com.soundcloud.android.discovery.charts.ChartTracksFragment;
-import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
@@ -33,8 +33,7 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.LegacyConversionActivity;
-import com.soundcloud.android.payments.TieredConversionActivity;
+import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -46,7 +45,6 @@ import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.LegalActivity;
@@ -127,21 +125,8 @@ public class Navigator {
         context.startActivity(intent);
     }
 
-    public void openUpgrade(Context activityContext) {
-        openUpgradeNoTransition(activityContext);
-    }
-
-    // Allow platform versions that would otherwise use SmoothNavigator to launch upgrade without the transition
-    // TODO: This work-around can be removed completely when we delete the LegacyConversionActivity!
-    public void openUpgradeNoTransition(Context activityContext) {
-        activityContext.startActivity(new Intent(activityContext, getConversionActivity()));
-    }
-
-    @NonNull
-    private Class getConversionActivity() {
-        return featureFlags.isEnabled(Flag.MID_TIER)
-               ? TieredConversionActivity.class
-               : LegacyConversionActivity.class;
+    public void openUpgrade(Context context) {
+        context.startActivity(new Intent(context, ConversionActivity.class));
     }
 
     public void openUpgradeOnMain(Context context) {

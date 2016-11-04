@@ -13,7 +13,7 @@ import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.images.BackgroundDecoder;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -215,7 +215,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         private boolean isErrorDialogShown;
 
         private GoOnboardingViewStub() {
-            super(new GoOnboardingAdapter(context(), mock(DeviceHelper.class)));
+            super(new GoOnboardingAdapter(context(), mock(BackgroundDecoder.class)));
         }
 
         @Override

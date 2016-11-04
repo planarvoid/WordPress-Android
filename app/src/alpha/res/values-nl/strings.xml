@@ -677,13 +677,9 @@
   <string name="pref_subscription_restore_summary">Een bestaand abonnement herstellen</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonneren</string>
-  <string name="conversion_title">Abonneer je op SoundCloud Go</string>
+  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s per maand</string>
   <string name="conversion_price_promo">%1$s voor %2$s</string>
-  <string name="conversion_feature_1">Offline luisteren, overal</string>
-  <string name="conversion_feature_2">Alle previews ontgrendelen</string>
-  <string name="conversion_feature_3">Krijg nog meer tracks</string>
-  <string name="conversion_feature_4">Kies voor reclamevrij</string>
   <string name="conversion_buy_loading">Laden…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Probeer het %d dagen gratis</string>
   <string name="conversion_buy_no_trial">Upgrade nu</string>

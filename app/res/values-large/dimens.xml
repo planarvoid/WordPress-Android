@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Conversion -->
+    <dimen name="conversion_margin">80dp</dimen>
+    <dimen name="conversion_content">440dp</dimen>
+    <dimen name="conversion_title_text">36dp</dimen>
+    <dimen name="conversion_headline_text">56sp</dimen>
+    <dimen name="conversion_headline_width">360dp</dimen>
+    <dimen name="conversion_feature_text">26sp</dimen>
+    <dimen name="conversion_button_text">20sp</dimen>
+    <dimen name="conversion_divider_width">104dp</dimen>
+    <dimen name="conversion_divider_height">3dp</dimen>
+    <dimen name="conversion_divider_top_margin">72dp</dimen>
+    <dimen name="conversion_check_margin">16dp</dimen>
+
+</resources>

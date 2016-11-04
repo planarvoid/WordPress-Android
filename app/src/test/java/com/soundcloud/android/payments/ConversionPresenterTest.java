@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -19,23 +21,27 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.util.Arrays;
 
-public class LegacyConversionPresenterTest extends AndroidUnitTest {
+public class ConversionPresenterTest extends AndroidUnitTest {
 
     private static final AvailableWebProducts DEFAULT = AvailableWebProducts.single(TestProduct.highTier());
+    private static final AvailableWebProducts BOTH_PLANS = new AvailableWebProducts(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
     private static final AvailableWebProducts PROMO = AvailableWebProducts.single(TestProduct.highTierPromo());
+    private static final AvailableWebProducts INVALID = AvailableWebProducts.single(TestProduct.midTier());
 
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private WebPaymentOperations paymentOperations;
-    @Mock private LegacyConversionView conversionView;
+    @Mock private ConversionView view;
+    @Mock private FeatureFlags featureFlags;
 
     private AppCompatActivity activity = new AppCompatActivity();
-    private LegacyConversionPresenter presenter;
+    private ConversionPresenter presenter;
 
     @Before
-    public void setUp() throws Exception {
-        presenter = new LegacyConversionPresenter(paymentOperations, conversionView, eventBus);
+    public void setUp() {
+        presenter = new ConversionPresenter(paymentOperations, view, eventBus, featureFlags);
     }
 
     @Test
@@ -44,8 +50,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(conversionView).showPrice("$2", 30);
-        verify(conversionView).setBuyButtonReady();
+        verify(view).showDetails("$2", 30);
     }
 
     @Test
@@ -54,31 +59,29 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(conversionView).showPromo("$1", 90, "$2");
-        verify(conversionView).setBuyButtonReady();
+        verify(view).showPromo("$1", 90, "$2");
     }
 
     @Test
     public void enablePurchaseIfProductSavedInBundle() {
         Bundle savedInstanceState = new Bundle();
-        savedInstanceState.putParcelable(LegacyConversionPresenter.LOADED_PRODUCT, TestProduct.highTier());
+        savedInstanceState.putParcelable(ConversionPresenter.LOADED_PRODUCTS, DEFAULT);
 
         presenter.onCreate(activity, savedInstanceState);
 
         verifyZeroInteractions(paymentOperations);
-        verify(conversionView).showPrice("$2", 30);
-        verify(conversionView).setBuyButtonReady();
+        verify(view).showDetails("$2", 30);
     }
 
     @Test
-    public void savesLoadedProductToBundle() {
+    public void savesLoadedProductsToBundle() {
         Bundle savedInstanceState = new Bundle();
         when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.onSaveInstanceState(activity, savedInstanceState);
 
-        assertThat(savedInstanceState.getParcelable(LegacyConversionPresenter.LOADED_PRODUCT)).isEqualTo(DEFAULT.highTier().get());
+        assertThat(savedInstanceState.getParcelable(ConversionPresenter.LOADED_PRODUCTS)).isEqualTo(DEFAULT);
     }
 
     @Test
@@ -87,7 +90,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(conversionView).setBuyButtonRetry();
+        verify(view).showRetryState();
     }
 
     @Test
@@ -95,12 +98,12 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
         when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
         presenter.onCreate(activity, null);
 
-        presenter.startPurchase();
+        presenter.onPurchasePrimary();
 
         Assertions.assertThat(activity)
-                  .nextStartedIntent()
-                  .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, DEFAULT.highTier().get())
-                  .opensActivity(WebCheckoutActivity.class);
+                .nextStartedIntent()
+                .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, DEFAULT.highTier().get())
+                .opensActivity(WebCheckoutActivity.class);
     }
 
     @Test
@@ -108,7 +111,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
         when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
         presenter.onCreate(activity, null);
 
-        presenter.startPurchase();
+        presenter.onPurchasePrimary();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).get(UpgradeFunnelEvent.KEY_ID))
                 .isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_BUTTON);
@@ -119,10 +122,43 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
         when(paymentOperations.products()).thenReturn(Observable.just(PROMO));
         presenter.onCreate(activity, null);
 
-        presenter.startPurchase();
+        presenter.onPurchasePrimary();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).get(UpgradeFunnelEvent.KEY_ID))
                 .isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_PROMO);
+    }
+
+    @Test
+    public void moreProductsButtonEnabledWhenMidTierIsAvailable() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).showDetails("$2", 30);
+        verify(view).enableMorePlans();
+    }
+
+    @Test
+    public void loadingFailsIfOnlyMidTierIsAvailable() {
+        when(paymentOperations.products()).thenReturn(Observable.just(INVALID));
+
+        presenter.onCreate(activity, null);
+
+        verify(view).showRetryState();
+    }
+
+    @Test
+    public void moreProductsCallbackOpensSelectionScreen() {
+        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+        presenter.onCreate(activity, null);
+
+        presenter.onMoreProducts();
+
+        Assertions.assertThat(activity)
+                .nextStartedIntent()
+                .containsExtra(PlanChoiceActivity.AVAILABLE_PRODUCTS, DEFAULT)
+                .opensActivity(PlanChoiceActivity.class);
     }
 
     @Test
@@ -130,7 +166,7 @@ public class LegacyConversionPresenterTest extends AndroidUnitTest {
         when(paymentOperations.products()).thenReturn(Observable.<AvailableWebProducts>empty());
         presenter.onCreate(activity, null);
 
-        presenter.close();
+        presenter.onClose();
 
         assertThat(activity.isFinishing()).isTrue();
     }

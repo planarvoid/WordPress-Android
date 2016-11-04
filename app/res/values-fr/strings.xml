@@ -674,12 +674,8 @@
   <string name="pref_subscription_restore_summary">Restaurer un abonnement existant</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">S\'abonner</string>
-  <string name="conversion_title">Avec SoundCloud Go</string>
+  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mois</string>
-  <string name="conversion_feature_1">Écoutez hors connexion</string>
-  <string name="conversion_feature_2">Débloquez tous les aperçus</string>
-  <string name="conversion_feature_3">Écoutez tous les titres</string>
-  <string name="conversion_feature_4">Aucune publicité</string>
   <string name="conversion_buy_loading">Chargement…</string>
   <string name="conversion_buy_trial">Essai gratuit pendant %d jours</string>
   <string name="conversion_buy_no_trial">Abonnez-vous maintenant</string>

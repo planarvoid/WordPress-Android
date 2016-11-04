@@ -34,8 +34,7 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.LegacyConversionActivity;
-import com.soundcloud.android.payments.TieredConversionActivity;
+import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -167,21 +166,12 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void openLegacyUpgrade() {
-        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(false);
-
-        navigator.openUpgrade(activityContext);
-
-        assertThat(activityContext).nextStartedIntent().opensActivity(LegacyConversionActivity.class);
-    }
-
-    @Test
-    public void openTieredUpgrade() {
+    public void openUpgrade() {
         when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
 
         navigator.openUpgrade(activityContext);
 
-        assertThat(activityContext).nextStartedIntent().opensActivity(TieredConversionActivity.class);
+        assertThat(activityContext).nextStartedIntent().opensActivity(ConversionActivity.class);
     }
 
     @Test

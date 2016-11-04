@@ -2,78 +2,92 @@
 
 <resources>
 
-    <style name="LegacyConversionModal">
-        <item name="android:layout_width">@dimen/conversion_width</item>
-        <item name="android:layout_height">@dimen/conversion_height</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:animateLayoutChanges">true</item>
-        <item name="android:background">@drawable/conversion_background</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">false</item>
-    </style>
-
     <style name="ConversionFullScreen">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:animateLayoutChanges">true</item>
-        <item name="android:background">@drawable/conversion_background</item>
-        <item name="android:paddingTop">@dimen/android_status_bar_stub_height</item>
-    </style>
-
-    <style name="LegacyConversionScrollable">
-        <item name="android:layout_width">@dimen/conversion_width</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:layout_marginTop">32dp</item>
-        <item name="android:layout_marginBottom">32dp</item>
     </style>
 
     <style name="ConversionText" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:layout_centerHorizontal">true</item>
     </style>
 
     <style name="ConversionText.Title">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">@dimen/conversion_title_text</item>
+    </style>
+
+    <style name="ConversionText.Headline">
+        <item name="android:textSize">@dimen/conversion_headline_text</item>
+        <item name="android:width">@dimen/conversion_headline_width</item>
+        <item name="android:lineSpacingMultiplier">0.9</item>
+    </style>
+
+    <style name="ConversionCloud">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:src">@drawable/conversion_cloud</item>
+    </style>
+
+    <style name="ConversionClose">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:src">@drawable/conversion_close</item>
     </style>
 
     <style name="ConversionText.Price">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/translucent_white</item>
+        <item name="android:textSize">@dimen/conversion_title_text</item>
         <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="ConversionDivider">
+        <item name="android:layout_width">@dimen/conversion_divider_width</item>
+        <item name="android:layout_height">@dimen/conversion_divider_height</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="ConversionCheck">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:src">@drawable/conversion_check</item>
+        <item name="android:layout_marginTop">@dimen/conversion_check_margin</item>
+        <item name="android:layout_marginRight">@dimen/conversion_check_margin</item>
     </style>
 
     <style name="ConversionText.Feature">
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:drawableLeft">@drawable/conversion_check</item>
-        <item name="android:drawablePadding">6dp</item>
+        <item name="android:textSize">@dimen/conversion_feature_text</item>
         <item name="android:layout_marginTop">4dp</item>
-        <item name="android:paddingRight">18dp</item> <!-- conversion_check width + drawablePadding -->
     </style>
 
     <style name="ConversionText.Restrictions">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:gravity">center_vertical</item>
         <item name="android:layout_height">32dp</item>
-        <item name="android:gravity">center</item>
         <item name="android:clickable">true</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
         <item name="android:textColor">@drawable/conversion_restriction_text_states</item>
+        <item name="android:visibility">invisible</item>
+    </style>
+
+    <style name="ConversionButtons">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
     </style>
 
     <style name="ConversionButton" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:background">@drawable/btn_primary</item>
-        <item name="android:layout_marginTop">12dp</item>
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:layout_marginBottom">0dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+        <item name="textSize">@dimen/conversion_button_text</item>
         <item name="textColor">@color/white</item>
         <item name="loadingColor">@color/white</item>
     </style>

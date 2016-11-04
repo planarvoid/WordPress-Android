@@ -8,11 +8,11 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import javax.inject.Inject;
 
-public class TieredConversionActivity extends LoggedInActivity {
+public class ConversionActivity extends LoggedInActivity {
 
-    @Inject @LightCycle TieredConversionPresenter presenter;
+    @Inject @LightCycle ConversionPresenter presenter;
 
-    public TieredConversionActivity() {
+    public ConversionActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -23,7 +23,7 @@ public class TieredConversionActivity extends LoggedInActivity {
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.tiered_conversion_activity);
+        super.setContentView(R.layout.conversion_activity);
     }
 
     @Override

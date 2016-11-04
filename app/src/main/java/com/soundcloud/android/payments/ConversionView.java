@@ -3,26 +3,44 @@ package com.soundcloud.android.payments;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.images.BackgroundDecoder;
 import com.soundcloud.android.view.LoadingButton;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func0;
+import rx.schedulers.Schedulers;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 
-class TieredConversionView {
+class ConversionView {
 
     private static final String RESTRICTIONS_DIALOG_TAG = "product_info";
+    private static final int BACKGROUND_ID = R.drawable.conversion_background;
 
     private final Resources resources;
+    private final BackgroundDecoder backgroundDecoder;
+
+    private final Func0<Bitmap> loadBackground = new Func0<Bitmap>() {
+        @Override
+        public Bitmap call() {
+            return backgroundDecoder.decode(BACKGROUND_ID);
+        }
+    };
 
     private FragmentManager fragmentManager;
 
+    @Bind(R.id.conversion_background) ImageView background;
     @Bind(R.id.conversion_buy) LoadingButton buyButton;
     @Bind(R.id.conversion_price) TextView priceView;
     @Bind(R.id.conversion_restrictions) TextView restrictionsView;
@@ -30,8 +48,9 @@ class TieredConversionView {
     @Bind(R.id.conversion_close) View closeButton;
 
     @Inject
-    TieredConversionView(Resources resources) {
+    ConversionView(Resources resources, BackgroundDecoder backgroundDecoder) {
         this.resources = resources;
+        this.backgroundDecoder = backgroundDecoder;
     }
 
     interface Listener {
@@ -43,7 +62,15 @@ class TieredConversionView {
     void setupContentView(AppCompatActivity activity, Listener listener) {
         this.fragmentManager = activity.getSupportFragmentManager();
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
+        loadBackground();
         setupListener(listener);
+    }
+
+    private void loadBackground() {
+        Observable.fromCallable(loadBackground)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BackgroundSubscriber());
     }
 
     private void setupListener(final Listener listener) {
@@ -70,11 +97,20 @@ class TieredConversionView {
         moreButton.setOnClickListener(clickListener);
     }
 
+    void showDetails(String price) {
+        showPrice(price);
+        enableBuyButton();
+    }
+
     void showDetails(String price, int trialDays) {
-        priceView.setText(resources.getString(R.string.conversion_price, price));
-        priceView.setVisibility(View.VISIBLE);
+        showPrice(price);
         showTrialDays(trialDays);
         enableBuyButton();
+    }
+
+    private void showPrice(String price) {
+        priceView.setText(resources.getString(R.string.conversion_price, price));
+        priceView.setVisibility(View.VISIBLE);
     }
 
     void showPromo(String promoPrice, int promoDays, String regularPrice) {
@@ -128,7 +164,7 @@ class TieredConversionView {
         restrictionsView.setVisibility(View.VISIBLE);
     }
 
-    private void enableBuyButton() {
+    void enableBuyButton() {
         buyButton.setEnabled(true);
         buyButton.setLoading(false);
     }
@@ -145,6 +181,13 @@ class TieredConversionView {
 
     void enableMorePlans() {
         moreButton.setVisibility(View.VISIBLE);
+    }
+
+    private class BackgroundSubscriber extends DefaultSubscriber<Bitmap> {
+        @Override
+        public void onNext(Bitmap image) {
+            background.setImageBitmap(image);
+        }
     }
 
 }

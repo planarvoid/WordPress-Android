@@ -3,16 +3,20 @@ package com.soundcloud.android.payments;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.images.BackgroundDecoder;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
-public class TieredConversionViewTest extends AndroidUnitTest {
+public class ConversionViewTest extends AndroidUnitTest {
 
-    private TieredConversionView view;
+    @Mock BackgroundDecoder decoder;
+
+    private ConversionView view;
 
     @Before
     public void setUp() throws Exception {
-        view = new TieredConversionView(resources());
+        view = new ConversionView(resources(), decoder);
     }
 
     @Test

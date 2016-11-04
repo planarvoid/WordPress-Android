@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,12 +38,12 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Mock private NativePaymentOperations paymentOperations;
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
     @Mock private PaymentErrorView paymentErrorView;
-    @Mock private LegacyConversionView conversionView;
+    @Mock private ConversionView conversionView;
     @Mock private Navigator navigator;
 
     @Mock private AppCompatActivity activity;
     @Mock private ActionBar actionBar;
-    @Captor private ArgumentCaptor<LegacyConversionView.Listener> listenerCaptor;
+    @Captor private ArgumentCaptor<ConversionView.Listener> listenerCaptor;
 
     private NativeConversionPresenter presenter;
 
@@ -81,8 +80,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(conversionView).showPrice(PRICE);
-        verify(conversionView).setBuyButtonReady();
+        verify(conversionView).showDetails(PRICE);
     }
 
     @Test
@@ -92,18 +90,17 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(conversionView).showPrice(PRICE);
-        verify(conversionView).setBuyButtonReady();
+        verify(conversionView).showDetails(PRICE);
     }
 
     @Test
     public void onCreateWithPurchaseStateDoesNotShowBuyButton() {
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(),
                                                                                                null));
-
         presenter.onCreate(activity, null);
 
-        verify(conversionView, never()).setBuyButtonReady();
+        verify(conversionView, never()).showDetails(anyString());
+        verify(conversionView, never()).enableBuyButton();
     }
 
     @Test
@@ -158,7 +155,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(purchase);
 
         presenter.onCreate(activity, null);
-        presenter.startPurchase();
+        presenter.onPurchasePrimary();
         final TransactionState state = presenter.getState();
 
         assertThat(state.isRetrievingStatus()).isFalse();
@@ -244,7 +241,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
         presenter.handleBillingResult(TestBillingResults.cancelled());
 
-        verify(conversionView).setBuyButtonReady();
+        verify(conversionView).showDetails(PRICE);
     }
 
     @Test
@@ -284,7 +281,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(conversionView).setBuyButtonReady();
+        verify(conversionView).showDetails(PRICE);
     }
 
     @Test
@@ -294,9 +291,9 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
 
         verify(conversionView).setupContentView(eq(activity), listenerCaptor.capture());
-        listenerCaptor.getValue().startPurchase();
+        listenerCaptor.getValue().onPurchasePrimary();
 
-        verify(conversionView).setBuyButtonLoading();
+        verify(conversionView).showLoadingState();
     }
 
     @Test
@@ -307,10 +304,10 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
 
         verify(conversionView).setupContentView(eq(activity), listenerCaptor.capture());
-        listenerCaptor.getValue().startPurchase();
+        listenerCaptor.getValue().onPurchasePrimary();
 
         verify(paymentErrorPresenter).onError(exception);
-        verify(conversionView, times(2)).setBuyButtonReady();
+        verify(conversionView).enableBuyButton();
     }
 
     @Test
@@ -321,7 +318,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.cancelled());
 
-        verify(conversionView, times(2)).setBuyButtonReady();
+        verify(conversionView).enableBuyButton();
     }
 
     @Test

@@ -4,6 +4,8 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -19,24 +21,29 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class TieredConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements TieredConversionView.Listener {
+class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ConversionView.Listener {
 
     @VisibleForTesting
     static final String LOADED_PRODUCTS = "available_products";
 
     private final WebPaymentOperations operations;
-    private final TieredConversionView view;
+    private final ConversionView view;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
 
     private Subscription subscription = RxUtils.invalidSubscription();
     private AvailableWebProducts products = AvailableWebProducts.empty();
     private Activity activity;
 
     @Inject
-    TieredConversionPresenter(WebPaymentOperations operations, TieredConversionView view, EventBus eventBus) {
+    ConversionPresenter(WebPaymentOperations operations,
+                        ConversionView view,
+                        EventBus eventBus,
+                        FeatureFlags featureFlags) {
         this.operations = operations;
         this.view = view;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -65,7 +72,8 @@ class TieredConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     private void displayProducts() {
         if (products.highTier().isPresent()) {
             displayPrimaryProduct(products.highTier().get());
-            if (products.midTier().isPresent()) {
+            if (featureFlags.isEnabled(Flag.MID_TIER)
+                    && products.midTier().isPresent()) {
                 view.enableMorePlans();
             }
         } else {
@@ -101,7 +109,11 @@ class TieredConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void onPurchasePrimary() {
-        startWebCheckout(products.highTier().get());
+        if (products.highTier().isPresent()) {
+            startWebCheckout(products.highTier().get());
+        } else {
+            loadProducts();
+        }
     }
 
     @Override

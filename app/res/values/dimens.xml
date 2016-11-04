@@ -76,6 +76,9 @@
     <dimen name="dialog_item_min_height">48dp</dimen>
     <dimen name="dialog_content_text_size">14sp</dimen>
 
+    <dimen name="loading_button_text">16sp</dimen>
+    <dimen name="translucent_status_height">0dp</dimen>
+
     <!-- Notifications -->
     <dimen name="notification_title_text_size">18sp</dimen>
     <dimen name="notification_user_text_size">14sp</dimen>
@@ -167,10 +170,6 @@
     <dimen name="explore_padding_left_right">0dp</dimen>
     <dimen name="explore_padding_top_bottom">16dp</dimen>
 
-    <!-- Conversion -->
-    <dimen name="conversion_width">272dp</dimen>
-    <dimen name="conversion_height">400dp</dimen>
-
     <!-- Go -->
     <dimen name="go_indicator_offset">-5dp</dimen>
 
@@ -212,5 +211,18 @@
     <!-- Ads -->
     <dimen name="ad_inlay_cta_border_width">1dp</dimen>
     <dimen name="ad_inlay_cta_border_radius">3dp</dimen>
+
+    <!-- Conversion -->
+    <dimen name="conversion_margin">32dp</dimen>
+    <dimen name="conversion_content">380dp</dimen>
+    <dimen name="conversion_title_text">24dp</dimen>
+    <dimen name="conversion_headline_text">38sp</dimen>
+    <dimen name="conversion_headline_width">250dp</dimen>
+    <dimen name="conversion_feature_text">16sp</dimen>
+    <dimen name="conversion_button_text">16sp</dimen>
+    <dimen name="conversion_divider_width">80dp</dimen>
+    <dimen name="conversion_divider_height">2dp</dimen>
+    <dimen name="conversion_divider_top_margin">56dp</dimen>
+    <dimen name="conversion_check_margin">10dp</dimen>
 
 </resources>

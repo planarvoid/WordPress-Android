@@ -71,10 +71,9 @@ import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
-import com.soundcloud.android.payments.LegacyConversionActivity;
 import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.PlanChoiceActivity;
-import com.soundcloud.android.payments.TieredConversionActivity;
+import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
@@ -254,8 +253,7 @@ public interface ApplicationComponent {
 
     //PaymentsModule
     void inject(NativeConversionActivity nativeConversionActivity);
-    void inject(LegacyConversionActivity webConversionActivity);
-    void inject(TieredConversionActivity tieredConversionActivity);
+    void inject(ConversionActivity conversionActivity);
     void inject(PlanChoiceActivity planChoiceActivity);
     void inject(WebCheckoutActivity webCheckoutActivity);
 

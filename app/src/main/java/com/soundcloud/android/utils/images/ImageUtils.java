@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public final class ImageUtils {
+
     private static final String TAG = ImageUtils.class.getSimpleName();
     private static final String ERROR = "error";
 
@@ -61,10 +62,10 @@ public final class ImageUtils {
         return options;
     }
 
-    public static BitmapFactory.Options determineResizeOptions(File imageFile,
-                                                               int targetWidth,
-                                                               int targetHeight,
-                                                               boolean crop) throws IOException {
+    private static BitmapFactory.Options determineResizeOptions(File imageFile,
+                                                                int targetWidth,
+                                                                int targetHeight,
+                                                                boolean crop) throws IOException {
 
         if (targetWidth == 0 || targetHeight == 0) {
             // some devices report 0
@@ -92,7 +93,7 @@ public final class ImageUtils {
         return options;
     }
 
-    public static int getExifRotation(File imageFile) {
+    private static int getExifRotation(File imageFile) {
         if (imageFile == null) {
             return -1;
         }
@@ -293,7 +294,7 @@ public final class ImageUtils {
                 }).show();
     }
 
-    public static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {
+    private static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {
         if (destinationFile != null) {
             Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                     .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destinationFile));
@@ -305,7 +306,7 @@ public final class ImageUtils {
         }
     }
 
-    public static void startPickImageIntent(Activity activity, int requestCode) {
+    private static void startPickImageIntent(Activity activity, int requestCode) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
         try {
             activity.startActivityForResult(intent, requestCode);
@@ -323,7 +324,7 @@ public final class ImageUtils {
         sendCropIntent(activity, inputUri, outputUri, RECOMMENDED_IMAGE_SIZE, RECOMMENDED_IMAGE_SIZE);
     }
 
-    public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri, int width, int height) {
+    private static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri, int width, int height) {
         Crop.of(inputUri, outputUri).asSquare().withMaxSize(width, height).start(activity);
     }
 

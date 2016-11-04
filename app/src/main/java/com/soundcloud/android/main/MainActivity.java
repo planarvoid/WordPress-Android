@@ -70,7 +70,7 @@ public class MainActivity extends PlayerActivity {
     private void setupUpgradeUpsell() {
         if (getIntent().getBooleanExtra(Navigator.EXTRA_UPGRADE_INTENT, false)) {
             getIntent().removeExtra(Navigator.EXTRA_UPGRADE_INTENT);
-            navigator.openUpgradeNoTransition(this);
+            navigator.openUpgrade(this);
         }
     }
 

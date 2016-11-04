@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -68,6 +69,7 @@ public class LoadingButton extends RelativeLayout {
         retryActionTextAttr = getRetryActionTextAttr(typedArray);
         label.setText(actionText);
         label.setTextColor(getTextColor(typedArray));
+        label.setTextSize(TypedValue.COMPLEX_UNIT_PX, getTextSize(typedArray));
         progress.getIndeterminateDrawable().setColorFilter(getLoadingColor(typedArray), PorterDuff.Mode.SRC_IN);
         typedArray.recycle();
     }
@@ -78,6 +80,10 @@ public class LoadingButton extends RelativeLayout {
 
     private int getTextColor(TypedArray typedArray) {
         return typedArray.getColor(R.styleable.LoadingButton_textColor, 0);
+    }
+
+    private float getTextSize(TypedArray typedArray) {
+        return typedArray.getDimensionPixelSize(R.styleable.LoadingButton_textSize, 0);
     }
 
     private String getLoadingTextAttr(TypedArray typedArray) {

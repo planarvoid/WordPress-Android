@@ -77,6 +77,7 @@
 
     <declare-styleable name="LoadingButton">
         <attr name="textColor" format="color" />
+        <attr name="textSize" format="dimension" />
         <attr name="loadingText" format="string" />
         <attr name="actionText" format="string" />
         <attr name="retryText" format="string" />

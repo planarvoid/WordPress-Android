@@ -276,11 +276,10 @@
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
         <!-- payments -->
-        <activity android:name=".payments.LegacyConversionActivity" android:theme="@style/Theme.SoundCloud.Conversion" />
-        <activity android:name=".payments.NativeConversionActivity" android:theme="@style/Theme.SoundCloud.Conversion" />
-        <activity android:name=".payments.TieredConversionActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
+        <activity android:name=".payments.NativeConversionActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
+        <activity android:name=".payments.ConversionActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
         <activity android:name=".payments.PlanChoiceActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
-        <activity android:label="@string/conversion_page_title" android:name=".payments.WebCheckoutActivity" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".payments.WebCheckoutActivity" android:label="@string/conversion_page_title" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
 
         <!-- discovery -->
         <activity android:label="@string/activity_title_view_all_recommendations" android:name=".discovery.recommendations.ViewAllRecommendedTracksActivity"/>

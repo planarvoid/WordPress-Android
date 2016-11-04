@@ -671,10 +671,6 @@
   <string name="conversion_page_title">Suscribirse</string>
   <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mes</string>
-  <string name="conversion_feature_1">Escucha sin conexión, donde quieras</string>
-  <string name="conversion_feature_2">Todas las canciones completas</string>
-  <string name="conversion_feature_3">Consigue aún más canciones</string>
-  <string name="conversion_feature_4">Sin anuncios</string>
   <string name="conversion_buy_loading">Cargando…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Pruébalo gratis durante %d días</string>
   <string name="conversion_buy_no_trial">Mejorar la cuenta</string>

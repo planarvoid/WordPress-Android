@@ -21,11 +21,11 @@ import android.support.v7.app.AppCompatActivity;
 import javax.inject.Inject;
 
 class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity>
-        implements LegacyConversionView.Listener {
+        implements ConversionView.Listener {
 
     private final NativePaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;
-    private final LegacyConversionView conversionView;
+    private final ConversionView conversionView;
     private final EventBus eventBus;
     private final Navigator navigator;
 
@@ -39,7 +39,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
 
     @Inject
     NativeConversionPresenter(NativePaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                              LegacyConversionView conversionView, EventBus eventBus, Navigator navigator) {
+                              ConversionView conversionView, EventBus eventBus, Navigator navigator) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.conversionView = conversionView;
@@ -55,6 +55,23 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         restoreState = (TransactionState) activity.getLastCustomNonConfigurationInstance();
         clearExistingError(activity);
         initConnection();
+    }
+
+    @Override
+    public void onPurchasePrimary() {
+        subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
+        conversionView.showLoadingState();
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonClick());
+    }
+
+    @Override
+    public void onMoreProducts() {
+        // No-op for this presenter!
+    }
+
+    @Override
+    public void onClose() {
+        activity.finish();
     }
 
     private void initConnection() {
@@ -81,23 +98,11 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         paymentOperations.disconnect();
     }
 
-    @Override
-    public void startPurchase() {
-        subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
-        conversionView.setBuyButtonLoading();
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonClick());
-    }
-
-    @Override
-    public void close() {
-        activity.supportFinishAfterTransition();
-    }
-
-    public void handleBillingResult(BillingResult result) {
+    void handleBillingResult(BillingResult result) {
         if (result.isForRequest()) {
             if (result.isOk()) {
                 restoreState = null;
-                conversionView.setBuyButtonLoading();
+                conversionView.showLoadingState();
                 subscribeToStatus(paymentOperations.verify(result.getPayload()).cache());
             } else {
                 paymentErrorPresenter.showCancelled();
@@ -105,7 +110,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
                 if (details == null) {
                     initConnection();
                 } else {
-                    conversionView.setBuyButtonReady();
+                    conversionView.enableBuyButton();
                 }
             }
         }
@@ -155,8 +160,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         public void onNext(ProductStatus result) {
             if (result.isSuccess()) {
                 details = result.getDetails();
-                conversionView.showPrice(details.getPrice());
-                conversionView.setBuyButtonReady();
+                conversionView.showDetails(details.getPrice());
                 eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonImpression());
             } else {
                 paymentErrorPresenter.showConnectionError();
@@ -175,7 +179,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         public void onError(Throwable e) {
             super.onError(e);
             paymentErrorPresenter.onError(e);
-            conversionView.setBuyButtonReady();
+            conversionView.enableBuyButton();
         }
     }
 

@@ -743,15 +743,15 @@
 
     <!-- __CONVERSION -->
     <string name="conversion_page_title">Subscribe</string>
-    <string name="conversion_title">Get SoundCloud Go</string>
+    <string name="conversion_title">SoundCloud Go</string>
     <string name="conversion_price">%s / month</string>
     <string name="conversion_price_promo">%1$s for %2$s</string>
-    <string name="conversion_feature_1">Listen offline, anywhere</string>
-    <string name="conversion_feature_2">Unlock all previews</string>
-    <string name="conversion_feature_3">Get even more tracks</string>
-    <string name="conversion_feature_4">Go ad-free</string>
+    <string name="conversion_headline">Listen offline and ad-free</string>
+    <string name="conversion_plus">Plus:</string>
+    <string name="conversion_feature_1">Get 135+ million tracks - The world’s largest music and audio streaming catalog</string>
+    <string name="conversion_feature_2">No more previews - All of every SoundCloud Go track, every time</string>
     <string name="conversion_buy_loading">Loading</string>
-    <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Try it free for %d days</string>
+    <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Start your free %d day trial</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>
     <string name="conversion_buy_promo">Get it for a limited time</string>
     <string name="conversion_more_plans">View more plans</string>

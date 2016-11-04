@@ -4,15 +4,14 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.images.BackgroundDecoder;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func0;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -33,18 +32,16 @@ import java.util.WeakHashMap;
 
 class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
-    private static final int BG_SAMPLE_SIZE = 2;
-
     private final Context context;
-    private final DeviceHelper deviceHelper;
+    private final BackgroundDecoder backgroundDecoder;
 
     private WeakHashMap<Integer, AnimationDrawable> pendingAnimationMap =
             new WeakHashMap<>(OnboardingPage.values().length - 1); // No animation on title page
 
     @Inject
-    public GoOnboardingAdapter(Context context, DeviceHelper deviceHelper) {
+    GoOnboardingAdapter(Context context, BackgroundDecoder backgroundDecoder) {
         this.context = context;
-        this.deviceHelper = deviceHelper;
+        this.backgroundDecoder = backgroundDecoder;
     }
 
     @Override
@@ -75,33 +72,12 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
         Observable.fromCallable(new Func0<Bitmap>() {
             @Override
             public Bitmap call() {
-                BitmapFactory.Options decodeOpts = new BitmapFactory.Options();
-                if (deviceHelper.isLowMemoryDevice() || shouldResampleBackground(page)) {
-                    // Scale background image to half source size
-                    decodeOpts.inSampleSize = BG_SAMPLE_SIZE;
-                }
-                return BitmapFactory.decodeResource(context.getResources(), page.background, decodeOpts);
+                return backgroundDecoder.decode(page.background);
             }
         })
         .subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER)
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new BackgroundSubscriber((ImageView) view.findViewById(R.id.go_onboarding_background)));
-    }
-
-    private BitmapFactory.Options measureBackground(OnboardingPage page) {
-        BitmapFactory.Options measureOpts = new BitmapFactory.Options();
-        measureOpts.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(context.getResources(), page.background, measureOpts);
-        return measureOpts;
-    }
-
-    private boolean shouldResampleBackground(OnboardingPage page) {
-        final BitmapFactory.Options options = measureBackground(page);
-        int fullWidth = options.outWidth;
-        int resampleWidth = options.outWidth / BG_SAMPLE_SIZE;
-        int screenWidth = deviceHelper.getDisplayMetrics().widthPixels;
-        // Resample if screen width is closer to sampled width than source width
-        return Math.abs(fullWidth - screenWidth) > Math.abs(resampleWidth - screenWidth);
     }
 
     private void bindBasicViews(int position, OnboardingPage page, ViewGroup view) {
@@ -141,7 +117,7 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
 
         private final WeakReference<ImageView> viewRef;
 
-        public BackgroundSubscriber(ImageView view) {
+        BackgroundSubscriber(ImageView view) {
             this.viewRef = new WeakReference<>(view);
         }
 
@@ -173,7 +149,7 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
     @Override
     public void onPageScrollStateChanged(int state) {}
 
-    enum OnboardingPage {
+    private enum OnboardingPage {
 
         WELCOME(R.drawable.go_onboarding_1, R.drawable.conversion_cloud,  R.string.go_onboarding_title_1, R.string.go_onboarding_body_1),
         FULL_TRACKS(R.drawable.go_onboarding_2, R.drawable.go_onboarding_previewpeel, R.string.go_onboarding_title_2, R.string.go_onboarding_body_2),
