@@ -34,4 +34,8 @@ public class CustomFontTitleToolbar extends Toolbar {
     public void setTitle(CharSequence title) {
         titleText.setText(title);
     }
+
+    public void setTitleAlpha(float alpha) {
+        titleText.setAlpha(alpha);
+    }
 }

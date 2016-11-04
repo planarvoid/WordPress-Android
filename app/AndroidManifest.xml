@@ -194,7 +194,7 @@
             android:label="@string/app_name" />
 
         <activity android:label="@string/age_verify_label" android:name=".profile.VerifyAgeActivity" android:theme="@style/Theme.SoundCloud"/>
-        <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud">
+        <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud.TransparentStatus">
             <intent-filter>
                 <action android:name="${applicationId}.action.USER_BROWSER"/>
                 <category android:name="android.intent.category.DEFAULT"/>

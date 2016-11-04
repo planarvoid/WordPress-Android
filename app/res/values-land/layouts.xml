@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="go_offboarding_buttons" type="layout">@layout/go_offboarding_buttons_wide_screen</item>
+    <item name="profile" type="layout">@layout/profile_no_banner</item>
 </resources>

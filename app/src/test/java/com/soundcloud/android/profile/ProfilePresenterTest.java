@@ -60,7 +60,6 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private RootActivity activity;
     @Mock private TabLayout tabLayout;
     @Mock private MultiSwipeRefreshLayout swipeRefreshLayout;
-    @Mock private ProfileHeaderPresenter.ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     @Mock private ProfileHeaderPresenter profileHeaderPresenter;
     @Mock private UserProfileOperations profileOperations;
     @Mock private View headerView;
@@ -98,18 +97,17 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(activity.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(activity.findViewById(R.id.profile_header)).thenReturn(headerView);
         when(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width)).thenReturn(DIVIDER_WIDTH);
-        when(profileHeaderPresenterFactory.create(activity, USER_URN)).thenReturn(profileHeaderPresenter);
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
         profilePresenter = new ProfilePresenter(profileScrollHelper,
-                                                profileHeaderPresenterFactory,
+                                                profileHeaderPresenter,
                                                 profileOperations,
                                                 eventBus,
                                                 accountOperations,
                                                 eventTracker,
                                                 referringEventProvider,
-                                                enterScreenDispatcher,
-                                                screenProvider);
+                                                enterScreenDispatcher
+        );
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.profile.ProfileHeaderPresenter.ProfileHeaderPresenterFactory;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWERS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWINGS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_INFO;
@@ -10,7 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -21,7 +19,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycles;
@@ -30,10 +27,11 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
-import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -43,8 +41,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     final @LightCycle ProfileScrollHelper scrollHelper;
     final @LightCycle ActivityReferringEventProvider referringEventProvider;
     final @LightCycle EnterScreenDispatcher enterScreenDispatcher;
-    private final ScreenProvider screenProvider;
-    private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
+    final @LightCycle ProfileHeaderPresenter headerPresenter;
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
@@ -53,7 +50,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     private ViewPager pager;
     private Subscription userSubscription = RxUtils.invalidSubscription();
     private Subscription userUpdatedSubscription = RxUtils.invalidSubscription();
-    private ProfileHeaderPresenter headerPresenter;
+
     private Urn user;
 
     private final Func1<EntityStateChangedEvent, Boolean> isProfileUser = new Func1<EntityStateChangedEvent, Boolean>() {
@@ -65,23 +62,21 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
     @Inject
     public ProfilePresenter(ProfileScrollHelper scrollHelper,
-                            ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
+                            ProfileHeaderPresenter profileHeaderPresenter,
                             UserProfileOperations profileOperations,
                             EventBus eventBus,
                             AccountOperations accountOperations,
                             EventTracker eventTracker,
                             ActivityReferringEventProvider referringEventProvider,
-                            EnterScreenDispatcher enterScreenDispatcher,
-                            ScreenProvider screenProvider) {
+                            EnterScreenDispatcher enterScreenDispatcher) {
         this.scrollHelper = scrollHelper;
-        this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
+        this.headerPresenter = profileHeaderPresenter;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.eventTracker = eventTracker;
         this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
-        this.screenProvider = screenProvider;
         this.enterScreenDispatcher.setListener(this);
         LightCycles.bind(this);
     }
@@ -90,11 +85,14 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
 
-        user = getUserUrnFromIntent(activity.getIntent());
+        if (activity.findViewById(R.id.profile_banner) != null && Build.VERSION.SDK_INT >= 16) {
+            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                                                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+
+        user = ProfileActivity.getUserUrnFromIntent(activity.getIntent());
 
         activity.setTitle(accountOperations.isLoggedInUser(user) ? R.string.side_menu_you : R.string.side_menu_profile);
-
-        headerPresenter = profileHeaderPresenterFactory.create(activity, user);
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
 
@@ -154,16 +152,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
                 return Screen.USER_FOLLOWERS;
             default:
                 return Screen.UNKNOWN;
-        }
-    }
-
-    private Urn getUserUrnFromIntent(Intent intent) {
-        if (intent.hasExtra(ProfileActivity.EXTRA_USER_URN)) {
-            return intent.getParcelableExtra(ProfileActivity.EXTRA_USER_URN);
-        } else if (intent.getData() != null) {
-            return Urn.forUser(UriUtils.getLastSegmentAsLong(intent.getData()));
-        } else {
-            throw new IllegalStateException("User identifier not provided to Profile activity");
         }
     }
 

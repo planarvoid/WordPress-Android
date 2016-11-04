@@ -51,6 +51,11 @@
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
+    <style name="Theme.SoundCloud.TransparentStatus">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
     <style name="LollipopDialogStyle" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/ak_sc_orange</item>
     </style>

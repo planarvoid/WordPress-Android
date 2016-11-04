@@ -18,6 +18,8 @@ public final class UserMapper extends RxResultMapper<PropertySet> {
         propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, cursorReader.getBoolean(Tables.UsersView.IS_FOLLOWING.name()));
         propertySet.put(UserProperty.IMAGE_URL_TEMPLATE,
                         Optional.fromNullable(cursorReader.getString(Tables.UsersView.AVATAR_URL.name())));
+        propertySet.put(UserProperty.VISUAL_URL,
+                        Optional.fromNullable(cursorReader.getString(Tables.UsersView.VISUAL_URL.name())));
 
         putOptionalFields(cursorReader, propertySet);
 

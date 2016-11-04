@@ -26,6 +26,10 @@ class ProfileUser implements ImageResource {
         return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
     }
 
+    public Optional<String> getVisualUrl() {
+        return source.getOrElse(UserProperty.VISUAL_URL, Optional.<String>absent());
+    }
+
     public Optional<Urn> getArtistStationUrn() {
         return source.getOrElse(UserProperty.ARTIST_STATION, Optional.<Urn>absent());
     }

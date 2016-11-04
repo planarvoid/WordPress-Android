@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StartStationHandler;
@@ -19,8 +20,10 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.ProfileToggleButton;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 
-import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,38 +31,56 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-class ProfileHeaderPresenter {
+class ProfileHeaderPresenter extends ActivityLightCycleDispatcher<RootActivity> {
 
     private static final int POSITION_IN_CONTEXT = 0;
 
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
+    private final AccountOperations accountOperations;
+    private final FollowingOperations followingOperations;
+    private final EngagementsTracking engagementsTracking;
     private final StartStationHandler stationHandler;
+    private final ScreenProvider screenProvider;
+    private final ProfileImageHelper profileImageHelper;
 
     @Bind(R.id.header_info_layout) View headerInfoLayout;
     @Bind(R.id.tab_indicator) View tabs;
     @Bind(R.id.username) TextView username;
     @Bind(R.id.image) ImageView image;
+    @Nullable @Bind(R.id.profile_banner) ImageView banner; // not present in certain configurations
     @Bind(R.id.followers_count) TextView followerCount;
     @Bind(R.id.toggle_btn_follow) ToggleButton followButton;
     @Bind(R.id.btn_station) ToggleButton stationButton;
 
     private Urn lastUser;
 
-    public ProfileHeaderPresenter(ImageOperations imageOperations,
-                                  CondensedNumberFormatter numberFormatter,
-                                  AccountOperations accountOperations,
-                                  final Urn user, final AppCompatActivity profileActivity,
-                                  final FollowingOperations followingOperations,
-                                  final EngagementsTracking engagementsTracking,
-                                  final StartStationHandler stationHandler,
-                                  final ScreenProvider screenProvider) {
+    @Inject
+    ProfileHeaderPresenter(ImageOperations imageOperations,
+                           CondensedNumberFormatter numberFormatter,
+                           AccountOperations accountOperations,
+                           FollowingOperations followingOperations,
+                           EngagementsTracking engagementsTracking,
+                           StartStationHandler stationHandler,
+                           ScreenProvider screenProvider,
+                           ProfileImageHelper profileImageHelper) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
+        this.accountOperations = accountOperations;
+        this.followingOperations = followingOperations;
+        this.engagementsTracking = engagementsTracking;
         this.stationHandler = stationHandler;
+        this.screenProvider = screenProvider;
+        this.profileImageHelper = profileImageHelper;
+    }
 
-        ButterKnife.bind(this, profileActivity);
+    @Override
+    public void onCreate(final RootActivity activity, @Nullable Bundle bundle) {
+        super.onCreate(activity, bundle);
 
+        ButterKnife.bind(this, activity);
+
+        final Urn user = ProfileActivity.getUserUrnFromIntent(activity.getIntent());
         if (accountOperations.isLoggedInUser(user)) {
             followButton.setVisibility(View.GONE);
         } else {
@@ -68,15 +89,19 @@ class ProfileHeaderPresenter {
                                                                   engagementsTracking,
                                                                   screenProvider));
         }
-
         stationButton.setVisibility(View.GONE);
-
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FullImageDialog.show(profileActivity.getSupportFragmentManager(), user);
+                FullImageDialog.show(activity.getSupportFragmentManager(), user);
             }
         });
+    }
+
+    @Override
+    public void onDestroy(RootActivity activity) {
+        profileImageHelper.unsubscribe();
+        super.onDestroy(activity);
     }
 
     private View.OnClickListener createOnClickListener(final Urn user,
@@ -117,9 +142,14 @@ class ProfileHeaderPresenter {
     private void setUserImage(ProfileUser user) {
         if (!user.getUrn().equals(lastUser)) {
             lastUser = user.getUrn();
-            imageOperations.displayCircularWithPlaceholder(user,
-                                                           ApiImageSize.getFullImageSize(image.getResources()),
-                                                           image);
+
+            if (banner != null) {
+                profileImageHelper.bindImages(new ProfileImageSource(user), banner, image);
+            } else {
+                imageOperations.displayCircularWithPlaceholder(user,
+                                                               ApiImageSize.getFullImageSize(image.getResources()),
+                                                               image);
+            }
         }
     }
 
@@ -172,39 +202,4 @@ class ProfileHeaderPresenter {
 
         stationButton.setChecked(notFollowing && followButtonVisible);
     }
-
-    public static class ProfileHeaderPresenterFactory {
-
-        private final ImageOperations imageOperations;
-        private final CondensedNumberFormatter numberFormatter;
-        private final AccountOperations accountOperations;
-        private final FollowingOperations followingOperations;
-        private final EngagementsTracking engagementsTracking;
-        private final StartStationHandler stationHandler;
-        private final ScreenProvider screenProvider;
-
-        @Inject
-        public ProfileHeaderPresenterFactory(ImageOperations imageOperations,
-                                             CondensedNumberFormatter numberFormatter,
-                                             AccountOperations accountOperations,
-                                             FollowingOperations followingOperations,
-                                             EngagementsTracking engagementsTracking,
-                                             StartStationHandler stationHandler,
-                                             ScreenProvider screenProvider) {
-            this.imageOperations = imageOperations;
-            this.numberFormatter = numberFormatter;
-            this.accountOperations = accountOperations;
-            this.followingOperations = followingOperations;
-            this.engagementsTracking = engagementsTracking;
-            this.stationHandler = stationHandler;
-            this.screenProvider = screenProvider;
-        }
-
-        ProfileHeaderPresenter create(AppCompatActivity profileActivity, Urn user) {
-            return new ProfileHeaderPresenter(imageOperations, numberFormatter, accountOperations,
-                                              user, profileActivity, followingOperations, engagementsTracking,
-                                              stationHandler, screenProvider);
-        }
-    }
-
 }

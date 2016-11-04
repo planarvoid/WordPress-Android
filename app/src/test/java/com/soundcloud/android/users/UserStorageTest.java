@@ -113,6 +113,7 @@ public class UserStorageTest extends StorageIntegrationTest {
                 UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
                 UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getImageUrlTemplate()),
                 UserProperty.IS_FOLLOWED_BY_ME.bind(false),
+                UserProperty.VISUAL_URL.bind(Optional.<String>absent()),
                 UserProperty.ARTIST_STATION.bind(Optional.<Urn>absent())
         );
     }

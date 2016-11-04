@@ -143,6 +143,10 @@
 
     <style name="Profile.Toolbar" />
 
+    <style name="Profile.CollapsingToolbar" />
+
+    <style name="Profile.CollapsingToolbar.Elevation" />
+
     <style name="Profile.Stats" parent="ListItemText.Numeric">
         <item name="android:layout_marginTop">6dp</item>
         <item name="android:visibility">gone</item>

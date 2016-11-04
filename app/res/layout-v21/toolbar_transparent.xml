@@ -1,0 +1,10 @@
+<com.soundcloud.android.view.CustomFontTitleToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@id/toolbar_id"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@android:color/transparent"
+    android:theme="@style/Theme.SoundCloud.Toolbar"
+    app:layout_collapseMode="pin">
+
+</com.soundcloud.android.view.CustomFontTitleToolbar>

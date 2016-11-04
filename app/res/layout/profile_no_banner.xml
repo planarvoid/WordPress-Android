@@ -14,10 +14,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <include layout="@layout/toolbar" />
 
         <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar_id">
 
             <android.support.design.widget.AppBarLayout
                 android:id="@+id/appbar"
@@ -26,32 +28,12 @@
                 android:fitsSystemWindows="true"
                 app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
 
-                <android.support.design.widget.CollapsingToolbarLayout
-                    android:id="@+id/collapsing_toolbar"
+                <include
+                    layout="@layout/profile_header_no_banner"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/white"
-                    android:fitsSystemWindows="true"
-                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                    style="@style/Profile.CollapsingToolbar.Elevation">
-
-                    <include
-                        layout="@layout/profile_header"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fitsSystemWindows="true"
-                        app:layout_collapseMode="none" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/white"
-                        android:fitsSystemWindows="true"
-                        android:id="@+id/header_scrim" />
-
-                    <include layout="@layout/toolbar_transparent" />
-
-                </android.support.design.widget.CollapsingToolbarLayout>
+                    android:layout_height="wrap_content"
+                    app:layout_collapseMode="none"
+                    app:layout_scrollFlags="scroll" />
 
                 <com.soundcloud.android.view.CustomFontTabLayout
                     android:id="@+id/tab_indicator"
@@ -63,7 +45,6 @@
                     app:layout_collapseMode="pin"
                     android:paddingLeft="@dimen/profile_tabs_padding"
                     android:clipToPadding="false" />
-
             </android.support.design.widget.AppBarLayout>
 
             <FrameLayout

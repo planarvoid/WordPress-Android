@@ -29,6 +29,7 @@ public enum Flag {
     MOAT_ADS_VIEWABILITY(BuildConfig.MOAT_ADS_VIEWABILITY),
     NEW_HOME(BuildConfig.NEW_HOME),
     APP_INSTALLS(BuildConfig.APP_INSTALLS),
+    PROFILE_BANNER(BuildConfig.PROFILE_BANNER),
     CLEAR_TABLES_ON_SIGNOUT(BuildConfig.CLEAR_TABLES_ON_SIGNOUT);
 
     private final State state;

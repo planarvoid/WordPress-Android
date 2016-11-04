@@ -131,6 +131,7 @@
     <dimen name="fixed_tab_padding">4dp</dimen>
 
     <!-- Profile -->
+    <dimen name="profile_image_top_margin">-52dp</dimen>
     <dimen name="profile_image_dimen">104dp</dimen>
     <dimen name="profile_tabs_padding">38dp</dimen>
 
