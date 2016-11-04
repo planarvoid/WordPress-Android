@@ -15,7 +15,8 @@ public class ActiveExperiments {
                                                                                          ChartsExperiment.CONFIGURATION,
                                                                                          SuggestedCreatorsExperiment.CONFIGURATION,
                                                                                          SwitchHomeExperiment.CONFIGURATION,
-                                                                                         DiscoveryModulesPositionExperiment.CONFIGURATION);
+                                                                                         DiscoveryModulesPositionExperiment.CONFIGURATION,
+                                                                                         PlayerSwipeToSkipExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 

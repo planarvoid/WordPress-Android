@@ -1,152 +1,169 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.R;
+import static com.soundcloud.android.utils.ViewUtils.dpToPx;
+
 import com.soundcloud.android.configuration.experiments.PlayerSwipeToSkipExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import android.animation.Animator;
-import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.view.ViewPager;
-import android.util.DisplayMetrics;
-import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
 class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<PlayerFragment> {
-    private final PlayerSwipeToSkipExperiment experiment;
-    private final EventBus eventBus;
+    private static final String TAG = "PlayerPagerOnboardingPresenter";
 
-    private PlayerTrackPager pager;
+    private static final int MAX_ONBOARDING_RUN = 3;
+    private static final int ANIMATION_IN_DURATION_MS = 350;
+    private static final int ANIMATION_DISTANCE_DP = 70;
+    private static final float ANIMATION_IN_ACCELERATION_FACTOR = 0.88f;
+    private static final int HOLD_ON_TIME_BEFORE_RELEASING = 350;
+
+    private final PlayerSwipeToSkipExperiment experiment;
+    private final PlayerPagerOnboardingStorage storage;
+    private final EventBus eventBus;
+    private final Handler handler;
+
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    PlayerPagerOnboardingPresenter(PlayerSwipeToSkipExperiment experiment, EventBus eventBus) {
+    PlayerPagerOnboardingPresenter(PlayerSwipeToSkipExperiment experiment,
+                                   PlayerPagerOnboardingStorage storage,
+                                   EventBus eventBus) {
         this.experiment = experiment;
+        this.storage = storage;
         this.eventBus = eventBus;
-    }
-
-    @Override
-    public void onViewCreated(PlayerFragment fragment, View view, Bundle savedInstanceState) {
-        pager = (PlayerTrackPager) view.findViewById(R.id.player_track_pager);
+        this.handler = new Handler();
     }
 
     @Override
     public void onResume(PlayerFragment fragment) {
-        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExtendedSubscriber());
+        if (experiment.isEnabled() && !hasReachedMaxOnboardingRun()) {
+            final PlayerTrackPager pager = fragment.getPlayerPager();
+
+            subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new ShowOnboardingSubscriber(pager));
+        }
     }
 
     @Override
     public void onPause(PlayerFragment fragment) {
         subscription.unsubscribe();
+        handler.removeCallbacksAndMessages(null);
     }
 
-    private void showOnboarding() {
-        if (isExperimentEnabled()) {
-            start(pager);
-        }
+    private boolean hasReachedMaxOnboardingRun() {
+        return storage.numberOfOnboardingRun() >= MAX_ONBOARDING_RUN;
     }
 
-    private boolean isExperimentEnabled() {
-        return experiment.isEnabled();
-    }
-
-    private void start(PlayerTrackPager pager) {
-        start(pager, 50, 350, 0.88f, 350);
-    }
-
-    private void start(ViewPager pager,
-                       int distanceDp,
-                       int duration,
-                       float accelerationFactor,
-                       int holdOnTime) {
-        final NudgedView view = new NudgedView(pager);
-        final Context context = pager.getContext();
-        if (view.isAvailable() && view.start()) {
-            final int distancePx = dpToPixel(context, distanceDp);
-            show(context,
-                 "Duration: " + duration + "," +
-                         "Distance: " + distanceDp + "dp (" + distancePx + " px)" + "," +
-                         "Acceleration: " + accelerationFactor + "," +
-                         "Hold on ime (ms): " + holdOnTime
-            );
-
-            final ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, distancePx);
-
-            final TimeInterpolator value = new AccelerateInterpolator(accelerationFactor);
-            valueAnimator.setInterpolator(value);
-            valueAnimator.setDuration(duration);
-            valueAnimator.addUpdateListener(new MyAnimatorUpdateListener(view));
-            valueAnimator.addListener(new MyAnimatorListener(view, holdOnTime));
-            valueAnimator.start();
+    private void showOnboarding(PlayerTrackPager pager) {
+        if (!pager.isFakeDragging() && pager.beginFakeDrag()) {
+            startAnimation(pager);
         } else {
-            show(context, "Failed to start fake drag");
+            Log.e(TAG, "Fake dragging failed to start.");
         }
     }
 
-    private static int dpToPixel(Context context, int dp) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    private void startAnimation(PlayerTrackPager pager) {
+        final int nudgeDistancePx = dpToPx(pager.getContext(), ANIMATION_DISTANCE_DP);
+        final ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, nudgeDistancePx);
+        valueAnimator.setInterpolator(new AccelerateInterpolator(ANIMATION_IN_ACCELERATION_FACTOR));
+        valueAnimator.setDuration(ANIMATION_IN_DURATION_MS);
+        valueAnimator.addUpdateListener(new DragPagerListener(pager));
+        valueAnimator.addListener(new AnimationListener(pager, HOLD_ON_TIME_BEFORE_RELEASING, handler));
+        valueAnimator.start();
     }
 
-    private static void show(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    void onOnboardingShown() {
+        storage.increaseNumberOfOnboardingRun();
+        if (hasReachedMaxOnboardingRun()) {
+            subscription.unsubscribe();
+        }
     }
 
-    private static class MyAnimatorUpdateListener implements ValueAnimator.AnimatorUpdateListener {
-        private final NudgedView view;
+    class ShowOnboardingSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        private final PlayerTrackPager playerPager;
 
-        private MyAnimatorUpdateListener(NudgedView view) {
-            this.view = view;
+        ShowOnboardingSubscriber(PlayerTrackPager playerPager) {
+            this.playerPager = playerPager;
+        }
+
+        @Override
+        public void onNext(PlayerUIEvent event) {
+            if (isExpanded(event) && hasNextPage(playerPager)) {
+                showOnboarding(playerPager);
+                onOnboardingShown();
+            }
+        }
+
+        private boolean isExpanded(PlayerUIEvent event) {
+            return event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
+        }
+
+        private boolean hasNextPage(PlayerTrackPager pager) {
+            return pager.getChildCount() > 1;
+        }
+    }
+
+    static class DragPagerListener implements ValueAnimator.AnimatorUpdateListener {
+        private final PlayerTrackPager pager;
+        private float lastPositionPx;
+
+        private DragPagerListener(PlayerTrackPager pager) {
+            this.pager = pager;
         }
 
         @Override
         public void onAnimationUpdate(ValueAnimator valueAnimator) {
             final float currentValue = (float) valueAnimator.getAnimatedValue();
-            view.move(-currentValue);
+            fakeDragTo(pager, -currentValue);
+        }
+
+        private void fakeDragTo(PlayerTrackPager pager, float nextPositionPx) {
+            final float distance = nextPositionPx - lastPositionPx;
+            pager.fakeDragBy(distance);
+            lastPositionPx = nextPositionPx;
         }
     }
 
-    private static class MyAnimatorListener implements Animator.AnimatorListener {
-        private final NudgedView view;
+    static class AnimationListener implements Animator.AnimatorListener {
+        private final PlayerTrackPager pager;
         private final int timeBeforeDeceleration;
+        private final Handler handler;
 
-        private MyAnimatorListener(NudgedView view, int timeBeforeDeceleration) {
-            this.view = view;
+        private AnimationListener(PlayerTrackPager pager, int timeBeforeDeceleration, Handler handler) {
+            this.pager = pager;
             this.timeBeforeDeceleration = timeBeforeDeceleration;
-        }
-
-        @Override
-        public void onAnimationStart(Animator animator) {
-            view.start();
+            this.handler = handler;
         }
 
         @Override
         public void onAnimationEnd(Animator animator) {
-            new Handler().postDelayed(new Runnable() {
+            handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    view.stop();
-
+                    pager.endFakeDrag();
                 }
             }, timeBeforeDeceleration);
         }
 
         @Override
         public void onAnimationCancel(Animator animator) {
-            view.stop();
+            pager.endFakeDrag();
+        }
+
+        @Override
+        public void onAnimationStart(Animator animator) {
+            // no-op
         }
 
         @Override
@@ -154,43 +171,5 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
             // no-op
         }
     }
-
-    private static class NudgedView {
-        private final ViewPager pager;
-
-        private float lastPosition;
-
-        NudgedView(ViewPager pager) {
-            this.pager = pager;
-        }
-
-        boolean isAvailable() {
-            return !pager.isFakeDragging();
-        }
-
-        boolean start() {
-            this.lastPosition = 0;
-            return pager.beginFakeDrag();
-        }
-
-        void move(float nextPositionPx) {
-            final float distance = nextPositionPx - lastPosition;
-            System.out.println("fakeDragBy: distance:" + distance + " nextPositionPx = [" + nextPositionPx + "]");
-            pager.fakeDragBy(distance);
-            lastPosition = nextPositionPx;
-        }
-
-        void stop() {
-            pager.endFakeDrag();
-        }
-    }
-
-    private class PlayerExtendedSubscriber extends DefaultSubscriber<PlayerUIEvent> {
-        @Override
-        public void onNext(PlayerUIEvent event) {
-            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
-                showOnboarding();
-            }
-        }
-    }
 }
+

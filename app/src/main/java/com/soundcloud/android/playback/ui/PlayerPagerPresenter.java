@@ -34,7 +34,9 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycles;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -58,7 +60,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<PlayerFragment>
+public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment>
         implements CastConnectionHelper.OnConnectionChangeListener, ViewPagerSwipeDetector.SwipeListener {
 
     static final int PAGE_VIEW_POOL_SIZE = 6;
@@ -66,6 +68,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private static final int TYPE_AUDIO_AD_VIEW = 1;
     private static final int TYPE_VIDEO_AD_VIEW = 2;
     private static final int TRACK_CACHE_SIZE = 10;
+
+    @LightCycle final PlayerPagerOnboardingPresenter onboardingPresenter;
 
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
@@ -138,6 +142,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                          CastConnectionHelper castConnectionHelper,
                          AdsOperations adOperations,
                          VideoSurfaceProvider videoSurfaceProvider,
+                         PlayerPagerOnboardingPresenter onboardingPresenter,
                          EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
@@ -148,10 +153,12 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.castConnectionHelper = castConnectionHelper;
         this.adOperations = adOperations;
         this.videoSurfaceProvider = videoSurfaceProvider;
+        this.onboardingPresenter = onboardingPresenter;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
+        LightCycles.bind(this);
     }
 
     void setCurrentPlayQueue(List<PlayQueueItem> playQueue, int currentItem) {
@@ -192,7 +199,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     @Override
     public void onViewCreated(PlayerFragment fragment, View view, Bundle savedInstanceState) {
-        trackPager = (PlayerTrackPager) view.findViewById(R.id.player_track_pager);
+        super.onViewCreated(fragment, view, savedInstanceState);
+        trackPager = fragment.getPlayerPager();
         trackPager.addOnPageChangeListener(pageChangeListener);
         trackPager.setSwipeListener(this);
         selectedPage = trackPager.getCurrentItem();
@@ -236,6 +244,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     @Override
     public void onResume(PlayerFragment playerFragment) {
+        super.onResume(playerFragment);
         isForeground = true;
 
         setupPlaybackStateSubscriber();
@@ -277,6 +286,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
             pagePresenter(entry.getValue()).onBackground(entry.getKey());
         }
+        super.onPause(playerFragment);
     }
 
     @Override
@@ -291,8 +301,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             videoSurfaceProvider.onDestroy();
         }
 
-        final PlayerTrackPager trackPager = (PlayerTrackPager) playerFragment.getView()
-                                                                             .findViewById(R.id.player_track_pager);
+        final PlayerTrackPager trackPager = playerFragment.getPlayerPager();
         trackPager.removeOnPageChangeListener(pageChangeListener);
 
         castConnectionHelper.removeOnConnectionChangeListener(this);
@@ -301,6 +310,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
         backgroundSubscription.unsubscribe();
         backgroundSubscription = new CompositeSubscription();
+        super.onDestroyView(playerFragment);
     }
 
     private SkipListener createSkipListener(final PlayerTrackPager trackPager) {

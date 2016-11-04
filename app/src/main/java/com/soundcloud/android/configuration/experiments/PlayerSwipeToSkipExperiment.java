@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 public class PlayerSwipeToSkipExperiment {
     private static final String NAME = "player_swipe_to_skip_onboarding";
-    // TODO: 11/3/16 check the variants
     private static final String VARIANT_CONTROL = "control";
     private static final String VARIANT_ENABLED = "nudge";
 

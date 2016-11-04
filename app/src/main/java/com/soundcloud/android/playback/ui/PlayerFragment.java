@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -31,5 +32,9 @@ public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
 
     public boolean handleBackPressed() {
         return presenter.handleBackPressed();
+    }
+
+    public PlayerTrackPager getPlayerPager() {
+        return (PlayerTrackPager) getView().findViewById(R.id.player_track_pager);
     }
 }

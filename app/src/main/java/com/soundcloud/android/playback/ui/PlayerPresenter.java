@@ -184,7 +184,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     public void onViewCreated(PlayerFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        setPager((PlayerTrackPager) view.findViewById(R.id.player_track_pager));
+        setPager(fragment.getPlayerPager());
         setupTrackChangeSubscribers();
         setupScrollingSubscribers();
     }
