@@ -55,7 +55,7 @@ ext {
 
           // Utility libraries
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
-          okHttp                      : "com.squareup.okhttp3:okhttp:3.4.1",
+          okHttp                      : "com.squareup.okhttp3:okhttp:3.4.2",
           rxAndroid                   : "io.reactivex:rxandroid:1.2.1",
           rxJava                      : "io.reactivex:rxjava:1.2.1",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
