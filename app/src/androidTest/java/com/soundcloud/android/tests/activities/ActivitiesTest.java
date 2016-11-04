@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.activities;
 
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 
@@ -13,8 +15,6 @@ import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class ActivitiesTest extends ActivityTest<MainActivity> {
-
-    private ActivitiesScreen activitiesScreen;
 
     public ActivitiesTest() {
         super(MainActivity.class);
@@ -30,27 +30,45 @@ public class ActivitiesTest extends ActivityTest<MainActivity> {
         super.setUp();
 
         waiter = new Waiter(solo);
-        activitiesScreen = mainNavHelper.goToActivities();
     }
 
-    public void testNewFollowerGoesToProfile() {
+    public void testActivities() {
+        ActivitiesScreen activitiesScreenFromMainNav = mainNavHelper.goToActivities();
+        ActivitiesScreen activitiesScreenFromFollowersProfile = assertNewFollowerGoesToProfile(activitiesScreenFromMainNav);
+        ActivitiesScreen activitiesScreenFromLikesProfile = assertLikeGoesToProfile(activitiesScreenFromFollowersProfile);
+        ActivitiesScreen activitiesScreenFromRepostsProfile = assertRepostGoesToProfile(activitiesScreenFromLikesProfile);
+        assertCommentGoesToCommentsScreen(activitiesScreenFromRepostsProfile);
+    }
+
+    private ActivitiesScreen assertNewFollowerGoesToProfile(ActivitiesScreen activitiesScreen) {
         ProfileScreen profileScreen = activitiesScreen.clickFollower();
         assertThat(profileScreen.getUserName(), not(isEmptyOrNullString()));
+        return profileScreen.goBackToActivitiesScreen();
     }
 
-    public void testLikeGoesToProfile() {
+    private ActivitiesScreen assertLikeGoesToProfile(ActivitiesScreen activitiesScreen) {
         ProfileScreen profileScreen = activitiesScreen.clickLike();
         assertThat(profileScreen.getUserName(), not(isEmptyOrNullString()));
+        return profileScreen.goBackToActivitiesScreen();
     }
 
-    public void testRepostGoesToProfile() {
+    private ActivitiesScreen assertRepostGoesToProfile(ActivitiesScreen activitiesScreen) {
         ProfileScreen profileScreen = activitiesScreen.clickRepost();
         assertThat(profileScreen.getUserName(), not(isEmptyOrNullString()));
+        return profileScreen.goBackToActivitiesScreen();
     }
 
-    public void testCommentGoesToCommentsScreen() {
+    private ActivitiesScreen assertCommentGoesToCommentsScreen(ActivitiesScreen activitiesScreen) {
         TrackCommentsScreen commentScreen = activitiesScreen.clickComment();
         assertThat(commentScreen.getTitle(), not(isEmptyOrNullString()));
+        return assertClickingUserRowOpensUserProfile(commentScreen)
+                .goBackToActivitiesScreen();
+    }
+
+    private static TrackCommentsScreen assertClickingUserRowOpensUserProfile(TrackCommentsScreen trackCommentsScreen) {
+        ProfileScreen profileScreen = trackCommentsScreen.clickFirstUser();
+        assertThat(profileScreen, is(visible()));
+        return profileScreen.goBackToTrackCommentsScreen();
     }
 
 }
