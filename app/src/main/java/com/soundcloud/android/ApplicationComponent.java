@@ -28,13 +28,13 @@ import com.soundcloud.android.creators.upload.UploadMonitorFragment;
 import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.creators.upload.Uploader;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.DiscoveryFragment;
+import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
+import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.ChartActivity;
 import com.soundcloud.android.discovery.charts.ChartTracksFragment;
-import com.soundcloud.android.discovery.DiscoveryFragment;
 import com.soundcloud.android.discovery.charts.GenresFragment;
-import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksFragment;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
@@ -69,11 +69,10 @@ import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
+import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.PlanChoiceActivity;
-import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
-import com.soundcloud.android.payments.LegacyConversionActivity;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
@@ -138,8 +137,7 @@ import dagger.Component;
 import javax.inject.Singleton;
 
 @Singleton
-@Component(modules = { ApplicationModule.class }
-)
+@Component(modules = { ApplicationModule.class })
 public interface ApplicationComponent {
     void inject(SoundCloudApplication application);
 
