@@ -1,21 +1,14 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.MediaRouteButton;
+import android.view.KeyEvent;
 import android.view.Menu;
 
 public class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
         implements CastConnectionHelper {
-
-    @Override
-    public void notifyConnectionChange(boolean castAvailable, Optional<String> deviceName) {
-        // no-op
-    }
 
     @Override
     public void addOnConnectionChangeListener(OnConnectionChangeListener listener) {
@@ -28,22 +21,38 @@ public class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompa
     }
 
     @Override
-    public void addMediaRouterButton(Context context, Menu menu, int itemId) {
+    public void addMediaRouterButton(Menu menu, int itemId) {
         // no-op
     }
 
     @Override
-    public void addMediaRouterButton(MediaRouteButton mediaRouteButton) {
+    public void addMediaRouterButton(android.support.v7.app.MediaRouteButton mediaRouteButton) {
         // no-op
     }
 
     @Override
-    public void removeMediaRouterButton(MediaRouteButton mediaRouteButton) {
+    public void removeMediaRouterButton(android.support.v7.app.MediaRouteButton mediaRouteButton) {
         // no-op
+    }
+
+    @Override
+    public void reconnectSessionIfPossible() {
+        // no-op
+    }
+
+    @Override
+    public boolean onDispatchVolumeEvent(KeyEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean isCasting() {
+        return false;
     }
 
     @Override
     public String getDeviceName() {
         return Strings.EMPTY;
     }
+
 }

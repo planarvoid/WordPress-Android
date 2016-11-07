@@ -28,6 +28,16 @@ public class Station implements StationRecord {
         this.artworkUrlTemplate = artworkUrlTemplate;
     }
 
+    static Station stationWithTracks(Station station, List<StationTrack> tracks) {
+        return new Station(station.getUrn(),
+                           station.getTitle(),
+                           station.getType(),
+                           tracks,
+                           station.getPermalink(),
+                           station.getPreviousPosition(),
+                           station.getImageUrlTemplate());
+    }
+
     static Station stationWithSeedTrack(StationRecord station, Urn seed) {
         final List<StationTrack> recommendations = station.getTracks();
         final List<StationTrack> tracks = new ArrayList<>(recommendations.size() + 1);

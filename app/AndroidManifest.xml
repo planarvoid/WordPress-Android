@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="524"
-    android:versionName="2016.10.25"
+    android:versionCode="530"
+    android:versionName="2016.11.01"
     package="com.soundcloud.android">
 
     <!-- required for Robolectric to use the correct values -->
@@ -425,15 +425,25 @@
         </service>
 
         <!-- Google Cast Companion -->
-        <meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-                   android:value="com.soundcloud.android.cast.CastOptionsProvider"/>
+        <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">
+            <intent-filter>
+                <action android:name="com.google.android.libraries.cast.companionlibrary.action.toggleplayback"/>
+                <action android:name="com.google.android.libraries.cast.companionlibrary.action.stop"/>
+            </intent-filter>
+        </receiver>
 
-        <activity android:name=".cast.CastRedirectActivity"/>
+        <service android:exported="false" android:name="com.google.android.libraries.cast.companionlibrary.notification.VideoCastNotificationService">
+            <intent-filter>
+                <action android:name="com.google.android.libraries.cast.companionlibrary.action.toggleplayback"/>
+                <action android:name="com.google.android.libraries.cast.companionlibrary.action.stop"/>
+                <action android:name="com.google.android.libraries.cast.companionlibrary.action.notificationvisibility"/>
+            </intent-filter>
+        </service>
 
-        <!-- Crashlytics -->
+        <service android:name="com.google.android.libraries.cast.companionlibrary.cast.reconnection.ReconnectionService"/>
+
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
 
-        <!-- Facebook -->
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/production_facebook_app_id"/>
 
     </application>

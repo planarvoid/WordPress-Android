@@ -36,14 +36,14 @@ public class StationsOperations {
     private static final Func1<StationRecord, Boolean> HAS_TRACKS = new Func1<StationRecord, Boolean>() {
         @Override
         public Boolean call(StationRecord station) {
-            return station.getTracks().size() > 0;
+            return station != null && station.getTracks().size() > 0;
         }
     };
 
     private static final Func1<StationWithTracks, Boolean> STATIONS_CONTAINING_TRACKS = new Func1<StationWithTracks, Boolean>() {
         @Override
         public Boolean call(StationWithTracks station) {
-            return station.getStationInfoTracks().size() > 0;
+            return station != null && station.getStationInfoTracks().size() > 0;
         }
     };
 

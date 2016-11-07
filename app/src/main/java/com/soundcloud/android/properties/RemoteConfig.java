@@ -2,6 +2,7 @@ package com.soundcloud.android.properties;
 
 import static com.soundcloud.android.storage.StorageModule.FEATURES_FLAGS;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -43,7 +44,7 @@ class RemoteConfig {
     }
 
     void fetchFeatureFlags(Context context) {
-        if (googlePlayServicesWrapper.isPlayServicesAvailable(context) && shouldFetchRemoteConfig()) {
+        if (isGooglePlayServicesAvailable(context) && shouldFetchRemoteConfig()) {
             firebaseRemoteConfig
                     .fetch(CACHE_EXPIRATION_TIME)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -80,6 +81,10 @@ class RemoteConfig {
     private boolean isCacheExpired() {
         final long lastFetchTime = firebaseRemoteConfig.getInfo().getFetchTimeMillis();
         return (currentDateProvider.getCurrentTime() - lastFetchTime >= CACHE_EXPIRATION_TIME);
+    }
+
+    private boolean isGooglePlayServicesAvailable(Context context) {
+        return googlePlayServicesWrapper.isPlayServicesAvailable(context) == ConnectionResult.SUCCESS;
     }
 
     boolean getFlagValue(Flag flag, boolean defaultValue) {

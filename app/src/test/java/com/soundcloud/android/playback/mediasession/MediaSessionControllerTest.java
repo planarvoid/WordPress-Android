@@ -69,6 +69,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
     @Mock MediaMetadataCompat currentMediaMetadata;
     @Mock MediaDescriptionCompat currentMediaDescription;
     @Mock Navigator navigator;
+
     private TestEventBus eventBus = new TestEventBus();
 
     private MediaSessionController controller;

@@ -33,7 +33,7 @@ public class GcmManager extends DefaultActivityLightCycle<AppCompatActivity> {
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
         if (bundle == null) {
-            int resultCode = googlePlayServices.getPlayServicesAvailability(activity);
+            int resultCode = googlePlayServices.isPlayServicesAvailable(activity);
             if (resultCode == ConnectionResult.SUCCESS) {
                 ensureRegistration(activity);
             } else {

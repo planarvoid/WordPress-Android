@@ -41,7 +41,6 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import com.soundcloud.propeller.schema.Column;
 import rx.Observable;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import android.content.ContentValues;
 import android.content.SharedPreferences;
@@ -53,6 +52,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 class StationsStorage {
@@ -62,20 +62,6 @@ class StationsStorage {
     private static final String ONBOARDING_STREAM_ITEM_DISABLED = "ONBOARDING_STREAM_ITEM_DISABLED";
     private static final String MIGRATE_RECENT_TO_LIKED_STATIONS = "MIGRATE_RECENT_TO_LIKED_STATIONS";
     private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
-
-    private static final Func1<CursorReader, Station> TO_STATION_WITHOUT_TRACKS = new Func1<CursorReader, Station>() {
-        @Override
-        public Station call(CursorReader cursorReader) {
-            return new Station(
-                    new Urn(cursorReader.getString(Stations.STATION_URN)),
-                    cursorReader.getString(Stations.TITLE),
-                    cursorReader.getString(Stations.TYPE),
-                    Collections.<StationTrack>emptyList(),
-                    cursorReader.getString(Stations.PERMALINK),
-                    mapLastPosition(cursorReader),
-                    fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
-        }
-    };
 
     private static final ResultMapper<Urn> STATIONS_COLLECTIONS_TO_URN = new ResultMapper<Urn>() {
         @Override
@@ -88,15 +74,6 @@ class StationsStorage {
         @Override
         public Urn map(CursorReader reader) {
             return new Urn(reader.getString(Stations.STATION_URN));
-        }
-    };
-
-    private static final Func2<StationWithTracks, List<StationInfoTrack>, StationWithTracks> ZIP_STATION_WITH_TRACKS = new Func2<StationWithTracks, List<StationInfoTrack>, StationWithTracks>() {
-        @Override
-        public StationWithTracks call(StationWithTracks stationWithTracks,
-                                      List<StationInfoTrack> stationInfoTracks) {
-            stationWithTracks.setTracks(stationInfoTracks);
-            return stationWithTracks;
         }
     };
 
@@ -143,16 +120,6 @@ class StationsStorage {
                NEVER_PLAYED : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION);
     }
 
-    private static final Func1<CursorReader, StationTrack> TO_STATION_TRACK = new Func1<CursorReader, StationTrack>() {
-        @Override
-        public StationTrack call(CursorReader cursorReader) {
-            return StationTrack.create(
-                    Urn.forTrack(cursorReader.getLong(StationsPlayQueues.TRACK_ID)),
-                    new Urn(cursorReader.getString(StationsPlayQueues.QUERY_URN))
-            );
-        }
-    };
-
     private final Func1<CursorReader, Observable<StationRecord>> toStation = new Func1<CursorReader, Observable<StationRecord>>() {
         @Override
         public Observable<StationRecord> call(CursorReader cursorReader) {
@@ -181,7 +148,7 @@ class StationsStorage {
                             .whereEq(StationsPlayQueues.STATION_URN, station.toString())
                             .whereGe(StationsPlayQueues.POSITION, startPosition)
                             .order(StationsPlayQueues.POSITION, Query.Order.ASC))
-                .map(TO_STATION_TRACK);
+                .map(new StationTrackMapper());
     }
 
     Observable<TxnResult> clearExpiredPlayQueue(final Urn stationUrn) {
@@ -246,39 +213,68 @@ class StationsStorage {
                     .order(StationsCollections.POSITION, Query.Order.ASC);
     }
 
-    Observable<StationRecord> station(Urn stationUrn) {
-        return Observable.zip(
-                propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, stationUrn))
-                           .map(TO_STATION_WITHOUT_TRACKS),
-                propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_STATION_TRACK).toList(),
-                new Func2<Station, List<StationTrack>, StationRecord>() {
-                    @Override
-                    public StationRecord call(Station station, List<StationTrack> tracks) {
-                        return new Station(
-                                station.getUrn(),
-                                station.getTitle(),
-                                station.getType(),
-                                tracks,
-                                station.getPermalink(),
-                                station.getPreviousPosition(),
-                                station.getImageUrlTemplate());
-                    }
+    Observable<StationRecord> station(final Urn station) {
+        return Observable.fromCallable(new Callable<StationRecord>() {
+            @Override
+            public StationRecord call() throws Exception {
+                final Station result = propellerDatabase
+                        .query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, station))
+                        .firstOrDefault(new StationMapper(), null);
+
+                if (result != null) {
+                    final List<StationTrack> stationTracks = propellerDatabase
+                            .query(buildTracksListQuery(station)).toList(new StationTrackMapper());
+
+                    return Station.stationWithTracks(result, stationTracks);
                 }
-        );
+                return null;
+            }
+        });
     }
 
     Observable<StationWithTracks> stationWithTracks(final Urn station) {
-        return propellerRx.query(Query.from(Stations.TABLE)
-                                      .select(Stations.STATION_URN,
-                                              Stations.TITLE,
-                                              Stations.TYPE,
-                                              Stations.LAST_PLAYED_TRACK_POSITION,
-                                              Stations.ARTWORK_URL_TEMPLATE,
-                                              Stations.PERMALINK,
-                                              exists(likeQuery(station)).as(STATION_LIKE))
-                                      .whereEq(Stations.STATION_URN, station))
-                          .map(new StationWithTracksMapper())
-                          .zipWith(stationTracks(station).toList(), ZIP_STATION_WITH_TRACKS);
+        return Observable.fromCallable(new Callable<StationWithTracks>() {
+            @Override
+            public StationWithTracks call() throws Exception {
+                final StationWithTracks stationWithTracks =
+                        propellerDatabase.query(stationInfoQuery(station))
+                                         .firstOrDefault(new StationWithTracksMapper(), null);
+
+                if (stationWithTracks != null) {
+                    final List<StationInfoTrack> stationInfoTracks = propellerDatabase
+                            .query(stationInfoTracksQuery(station))
+                            .toList(new StationInfoTrackMapper());
+                    stationWithTracks.setTracks(stationInfoTracks);
+                }
+                return stationWithTracks;
+            }
+        });
+    }
+
+    private static Query stationInfoTracksQuery(Urn station) {
+        return Query.from(Table.SoundView.name())
+                    .innerJoin(StationsPlayQueues.TABLE.name(), SoundView._ID, StationsPlayQueues.TRACK_ID.name())
+                    .select(SoundView._ID,
+                            SoundView.TITLE,
+                            SoundView.USERNAME,
+                            SoundView.USER_ID,
+                            SoundView.PLAYBACK_COUNT,
+                            SoundView.ARTWORK_URL)
+                    .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                    .whereEq(StationsPlayQueues.STATION_URN, station.toString())
+                    .order(StationsPlayQueues.POSITION, Query.Order.ASC);
+    }
+
+    private static Query stationInfoQuery(Urn station) {
+        return Query.from(Stations.TABLE)
+                    .select(Stations.STATION_URN,
+                            Stations.TITLE,
+                            Stations.TYPE,
+                            Stations.LAST_PLAYED_TRACK_POSITION,
+                            Stations.ARTWORK_URL_TEMPLATE,
+                            Stations.PERMALINK,
+                            exists(likeQuery(station)).as(STATION_LIKE))
+                    .whereEq(Stations.STATION_URN, station);
     }
 
     private static Query likeQuery(Urn stationUrn) {
@@ -289,19 +285,7 @@ class StationsStorage {
     }
 
     Observable<StationInfoTrack> stationTracks(Urn stationUrn) {
-        final Query query = Query.from(Table.SoundView.name())
-                                 .innerJoin(StationsPlayQueues.TABLE.name(),
-                                            SoundView._ID,
-                                            StationsPlayQueues.TRACK_ID.name())
-                                 .select(SoundView._ID,
-                                         SoundView.TITLE,
-                                         SoundView.USERNAME,
-                                         SoundView.USER_ID,
-                                         SoundView.PLAYBACK_COUNT,
-                                         SoundView.ARTWORK_URL)
-                                 .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                                 .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
-                                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
+        final Query query = stationInfoTracksQuery(stationUrn);
         return propellerRx.query(query).map(new StationInfoTrackMapper());
     }
 
@@ -434,4 +418,31 @@ class StationsStorage {
             );
         }
     }
+
+    private final class StationMapper extends RxResultMapper<Station> {
+        @Override
+        public Station map(CursorReader cursorReader) {
+            return new Station(
+                    new Urn(cursorReader.getString(Stations.STATION_URN)),
+                    cursorReader.getString(Stations.TITLE),
+                    cursorReader.getString(Stations.TYPE),
+                    Collections.<StationTrack>emptyList(),
+                    cursorReader.getString(Stations.PERMALINK),
+                    mapLastPosition(cursorReader),
+                    fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
+        }
+    }
+
+    private final class StationTrackMapper extends RxResultMapper<StationTrack> {
+        @Override
+        public StationTrack map(CursorReader cursorReader) {
+            return StationTrack.create(
+                    Urn.forTrack(cursorReader.getLong(StationsPlayQueues.TRACK_ID)),
+                    new Urn(cursorReader.getString(StationsPlayQueues.QUERY_URN))
+            );
+        }
+    }
+
+    ;
+
 }

@@ -24,24 +24,21 @@
             android:title="@string/dev_drawer_action_reset_flags_title" />
         <Preference
             android:key="@string/dev_drawer_action_config_update_key"
-            android:title="@string/dev_drawer_action_config_update_title" />
+            android:title="@string/dev_drawer_action_config_update_title"/>
         <Preference
             android:key="@string/dev_drawer_action_policy_sync_key"
-            android:title="@string/dev_drawer_action_policy_sync_title" />
+            android:title="@string/dev_drawer_action_policy_sync_title"/>
         <Preference
             android:key="@string/dev_drawer_action_crash_key"
-            android:title="@string/dev_drawer_action_crash_title" />
+            android:title="@string/dev_drawer_action_crash_title"/>
         <Preference
             android:key="@string/dev_drawer_action_concurrent_key"
-            android:title="@string/dev_drawer_action_concurrent_title" />
-        <Preference
-            android:key="@string/dev_drawer_action_cast_id_key"
-            android:title="@string/dev_drawer_action_cast_id_title" />
+            android:title="@string/dev_drawer_action_concurrent_title"/>
 
         <CheckBoxPreference
-            android:defaultValue="false"
             android:key="@string/dev_drawer_flush_eventlogger_instantly_key"
-            android:title="@string/dev_drawer_flush_eventlogger_instantly_title" />
+            android:title="@string/dev_drawer_flush_eventlogger_instantly_title"
+            android:defaultValue="false" />
 
     </PreferenceCategory>
 </PreferenceScreen>

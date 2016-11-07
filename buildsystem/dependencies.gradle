@@ -67,6 +67,7 @@ ext {
           facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
           butterKnife                 : "com.jakewharton:butterknife:7.0.1",
+          castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
           tSnackBar                   : "com.androidadvance:topsnackbar:0.0.9",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
 
@@ -82,7 +83,7 @@ ext {
           androidDesign                   : "com.android.support:design:$androidSupportVersion",
           androidPlayServicesBase         : "com.google.android.gms:play-services-base:$googleServicesVersion",
           androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$googleServicesVersion",
-          androidPlayServicesCast         : "com.google.android.gms:play-services-cast-framework:$googleServicesVersion",
+          androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$googleServicesVersion",
           firebaseCore                    : "com.google.firebase:firebase-core:$googleServicesVersion",
           firebaseConfig                  : "com.google.firebase:firebase-config:$googleServicesVersion",
           firebaseMessaging               : "com.google.firebase:firebase-messaging:$googleServicesVersion"

@@ -746,29 +746,25 @@ public interface Tables {
 
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
 
-                             exists(likeQuery()).as(IS_USER_LIKE.name()),
-                             exists(repostQuery()).as(IS_USER_REPOST.name()))
+                             field(Table.Likes.field(_ID) + " IS NOT NULL").as(IS_USER_LIKE.name()),
+                             field(TableColumns.Posts.TYPE + " IS NOT NULL").as(IS_USER_REPOST.name()))
 
+                     .leftJoin(Table.Likes.name(), getLikeJoinConditions())
+                     .leftJoin(Table.Posts.name(), getRepostJoinConditions())
                      .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Sounds.TYPE_TRACK);
 
-        static Query likeQuery() {
-            final Where joinConditions = filter()
-                    .whereEq(Table.SoundView.field(Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
-                    .whereEq(Table.SoundView.field(Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
-
-            return Query.from(Table.Likes.name())
-                        .innerJoin(Table.Sounds.name(), joinConditions)
-                        .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+        private static Where getLikeJoinConditions() {
+            return Filter.filter()
+                         .whereEq(Table.SoundView.field(_ID), Table.Likes.field(_ID))
+                         .whereEq(Table.SoundView.field(_TYPE), Table.Likes.field(TableColumns.Likes._TYPE))
+                         .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
         }
 
-        static Query repostQuery() {
-            final Where joinConditions = Filter.filter()
-                                               .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
-                                               .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE);
-
-            return Query.from(Table.Posts.name())
-                        .innerJoin(Table.Sounds.name(), joinConditions)
-                        .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
+        private static Where getRepostJoinConditions() {
+            return Filter.filter()
+                         .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
+                         .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE)
+                         .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
         }
 
         private static String typeRepostDelimited() {

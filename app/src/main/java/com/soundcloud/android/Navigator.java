@@ -464,19 +464,7 @@ public class Navigator {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
     }
 
-    public Intent createHomeIntentFromNotification(Context context) {
-        final Intent intent = new Intent(context, MainActivity.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
-
-        Screen.NOTIFICATION.addToIntent(intent);
-        Referrer.PLAYBACK_NOTIFICATION.addToIntent(intent);
-
-        return intent;
-    }
-
-    public static Intent createProfileIntent(Context context, Urn user) {
+    static public Intent createProfileIntent(Context context, Urn user) {
         return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 

@@ -73,6 +73,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                                                adsController,
                                                playQueueManager,
                                                playSessionStateProvider,
+                                               castConnectionHelper,
                                                InjectionSupport.providerOf(playbackStrategy),
                                                playbackToastHelper,
                                                playbackServiceController);
@@ -147,6 +148,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playQueueTrackChangeWhenCastingPlaysTrackWhenCurrentTrackIsDifferentAndPlaying() {
+        when(castConnectionHelper.isCasting()).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 

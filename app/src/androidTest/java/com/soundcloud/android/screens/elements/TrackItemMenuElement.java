@@ -56,14 +56,9 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     private void clickItemWithText(String text) {
-        final ViewElement item = findOnScreenElement(With.text(text));
+        final ViewElement item = getRootViewElement().findOnScreenElement(With.text(text));
         assertThat(item, is(visible()));
         item.click();
-    }
-
-    public VisualPlayerElement clickStartStation() {
-        clickItemWithText(testDriver.getString(R.string.stations_start_track_station));
-        return new VisualPlayerElement(testDriver);
     }
 
     public StationHomeScreen clickStation() {

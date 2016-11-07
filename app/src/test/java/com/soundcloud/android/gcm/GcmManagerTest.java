@@ -39,17 +39,17 @@ public class GcmManagerTest extends AndroidUnitTest {
 
     @Test
     public void checksForPlayServicesWhenBundleIsNull() {
-        when(googlePlayServices.getPlayServicesAvailability(activity)).thenReturn(ConnectionResult.SUCCESS);
+        when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
 
-        verify(googlePlayServices).getPlayServicesAvailability(activity);
+        verify(googlePlayServices).isPlayServicesAvailable(activity);
     }
 
     @Test
     public void showsErrorDialogWhenPlayServicesAvailableReturnsRecoverableErrorWhenBundleIsNull() {
         when(applicationProperties.isGooglePlusEnabled()).thenReturn(true);
-        when(googlePlayServices.getPlayServicesAvailability(activity)).thenReturn(123);
+        when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(123);
         when(googlePlayServices.isUserRecoverableError(123)).thenReturn(true);
 
         gcmManager.onCreate(activity, null);
@@ -60,7 +60,7 @@ public class GcmManagerTest extends AndroidUnitTest {
     @Test
     public void doesNotShowErrorDialogForNonPlayStoreReleases() {
         when(applicationProperties.isGooglePlusEnabled()).thenReturn(false);
-        when(googlePlayServices.getPlayServicesAvailability(activity)).thenReturn(123);
+        when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(123);
         when(googlePlayServices.isUserRecoverableError(123)).thenReturn(true);
 
         gcmManager.onCreate(activity, null);
@@ -71,7 +71,7 @@ public class GcmManagerTest extends AndroidUnitTest {
     @Test
     public void startsRegistrationServiceWhenShouldRegister() {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(googlePlayServices.getPlayServicesAvailability(activity)).thenReturn(ConnectionResult.SUCCESS);
+        when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
 
@@ -81,7 +81,7 @@ public class GcmManagerTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStartRegistrationIfShouldNotRegister() {
-        when(googlePlayServices.getPlayServicesAvailability(activity)).thenReturn(ConnectionResult.SUCCESS);
+        when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
 

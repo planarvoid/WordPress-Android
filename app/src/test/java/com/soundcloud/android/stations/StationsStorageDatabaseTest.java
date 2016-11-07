@@ -46,7 +46,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     public void shouldReturnEmptyIfStationIsAbsent() {
         storage.station(stationUrn).subscribe(subscriber);
 
-        subscriber.assertNoValues();
+        subscriber.assertValue(null);
         subscriber.assertCompleted();
     }
 
