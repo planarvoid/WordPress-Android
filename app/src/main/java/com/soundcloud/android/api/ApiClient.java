@@ -18,12 +18,12 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.java.strings.Charsets;
 import com.soundcloud.java.strings.Strings;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import android.os.Looper;
 
@@ -73,7 +73,7 @@ public class ApiClient {
                        "Detected execution of API request on main thread");
         }
         try {
-            final com.squareup.okhttp.Request.Builder builder = new com.squareup.okhttp.Request.Builder();
+            final Request.Builder builder = new Request.Builder();
 
             final MultiMap<String, String> existingParams = request.getQueryParameters();
             builder.url(urlBuilder.from(request).withQueryParams(existingParams).build());
@@ -112,16 +112,16 @@ public class ApiClient {
         }
     }
 
-    private void logRequest(com.squareup.okhttp.Request request) {
+    private void logRequest(Request request) {
         Log.d(TAG, "[Req][" + Thread.currentThread().getName() + "] " + request.method() + " "
-                + request.urlString() + "; headers = " + request.headers().toString().replaceAll("\\n", " | "));
+                + request.url().toString() + "; headers = " + request.headers().toString().replaceAll("\\n", " | "));
     }
 
     private void logResponse(Response response) {
         Log.d(TAG, "[Rsp][" + Thread.currentThread().getName() + "] " + response);
     }
 
-    private void setHttpHeaders(ApiRequest request, com.squareup.okhttp.Request.Builder builder) {
+    private void setHttpHeaders(ApiRequest request, Request.Builder builder) {
         // default headers
         builder.header(HttpHeaders.ACCEPT, request.getAcceptMediaType());
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
@@ -175,7 +175,7 @@ public class ApiClient {
     }
 
     private RequestBody getMultipartRequestBody(ApiMultipartRequest request) {
-        final MultipartBuilder builder = new MultipartBuilder().type(MultipartBuilder.FORM);
+        final MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         final List<FormPart> parts = request.getParts();
         for (FormPart part : parts) {
             if (part instanceof StringPart) {

@@ -3,9 +3,9 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.api.ApiModule.API_HTTP_CLIENT;
 
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.OkHttpClient;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -19,11 +19,10 @@ public class OfflineModule {
     @Singleton
     @Named(STRICT_SSL_CLIENT)
     public OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties,
-                                            @Named(API_HTTP_CLIENT) OkHttpClient defaultClient) {
-        final OkHttpClient client = defaultClient.clone();
+                                            OkHttpClient.Builder clientBuilder) {
         if (!applicationProperties.isDevelopmentMode()) {
-            client.setHostnameVerifier(new SoundCloudHostnameVerifier());
+            clientBuilder.hostnameVerifier(new SoundCloudHostnameVerifier());
         }
-        return client;
+        return clientBuilder.build();
     }
 }

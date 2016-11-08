@@ -5,7 +5,7 @@ import static com.soundcloud.android.analytics.AnalyticsModule.TRACKING_HTTP_CLI
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.OkHttpClient;
 
 import android.content.res.Resources;
 

@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport;
 
-import com.squareup.okhttp.Request;
+import okhttp3.Request;
 
 public final class TestHttpRequests {
 

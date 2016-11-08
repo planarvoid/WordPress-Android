@@ -6,9 +6,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,7 +42,7 @@ public class StrictSSLHttpClientTest extends AndroidUnitTest {
     public void downloadFileRequestUsesGivenUrl() throws Exception {
         httpClient.getFileStream(FILE_URL);
 
-        assertThat(requestCaptor.getValue().urlString()).isEqualTo(FILE_URL);
+        assertThat(requestCaptor.getValue().url().toString()).isEqualTo(FILE_URL);
     }
 
     @Test
