@@ -29,7 +29,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        playlist = "Playlist " + System.currentTimeMillis();
+        playlist = String.valueOf(System.currentTimeMillis());
     }
 
     public void testAddTrackToPlaylistFromStream() {
