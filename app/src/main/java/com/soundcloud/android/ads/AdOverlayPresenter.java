@@ -21,7 +21,7 @@ public abstract class AdOverlayPresenter {
     private final ImageView adImage;
     private final View leaveBehindHeader;
     protected final ImageOperations imageOperations;
-    private final EventBus eventBus;
+    protected final EventBus eventBus;
 
     private final ImageListener imageListener = new ImageListener() {
 

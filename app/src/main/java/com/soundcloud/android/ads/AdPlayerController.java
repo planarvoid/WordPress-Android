@@ -92,8 +92,12 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         @Override
         public void onNext(PlayerState event) {
             final PlayQueueItem currentItem = event.playQueueItem;
-            if (currentItem.isVideoAd()) {
+
+            if (currentItem.isAd()) {
                 eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
+            }
+
+            if (currentItem.isVideoAd()) {
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
                 lastSeenAdUrn = currentItem.getUrn();
             } else {

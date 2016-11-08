@@ -3,10 +3,12 @@ package com.soundcloud.android.ads;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -62,6 +64,7 @@ public class InterstitialPresenter extends AdOverlayPresenter {
         super.onAdVisible(playQueueItem, data, trackSourceInfo);
         interstitialImageHolder.setVisibility(View.VISIBLE);
         previewContainer.setVisibility(View.VISIBLE);
+        eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
     }
 
     @Override

@@ -81,6 +81,15 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void hidesPlayQueueWhenAudioAd() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
+
+        resumeFromBackground();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_UI).isHideEvent()).isTrue();
+    }
+
+    @Test
     public void emitPlayerOpenWhenAudioAdIsPlaying() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
