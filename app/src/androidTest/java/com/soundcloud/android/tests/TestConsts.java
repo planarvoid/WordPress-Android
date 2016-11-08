@@ -48,7 +48,11 @@ public final class TestConsts {
 
     public static final Uri HOME_URI = Uri.parse("soundcloud://home");
     public static final Uri UPGRADE_URI = Uri.parse("soundcloud://soundcloudgo");
-    public static final Uri OFFLINE_SETTINGS_URI = Uri.parse("soundcloud://settings_offlinelistening");
+    public static final Uri OFFLINE_SETTINGS_URI_DEEPLINK = Uri.parse("soundcloud://settings_offlinelistening");
+    public static final Uri OFFLINE_SETTINGS_URI_PERMALINK = Uri.parse("https://soundcloud.com/settings_offlinelistening");
+
+    public static final Uri NOTIFICATION_PREFERENCES_URI_DEEPLINK = Uri.parse("soundcloud://notification_preferences");
+    public static final Uri NOTIFICATION_PREFERENCES_URI_PERMALINK = Uri.parse("https://soundcloud.com/notification_preferences");
 
     public static final Uri OTHER_PROFILE_USER_URI = Uri.parse("https://soundcloud.com/" + TestUser.profileTestUser
             .getPermalink());
@@ -56,4 +60,7 @@ public final class TestConsts {
             "https://soundcloud.com/slawek-smiechura/sounds-from-thursday-afternoon/s-vw1Yl");
 
     public static final Uri HT_CREATOR_PROFILE_URI = Uri.parse("https://soundcloud.com/" + TestUser.htCreator.getPermalink());
+
+    public static final Uri ALL_TRACK_RECOMMENDATIONS_PERMALINK = Uri.parse("https://soundcloud.com/suggestedtracks_all");
+    public static final Uri ALL_TRACK_RECOMMENDATIONS_DEEPLINK = Uri.parse("soundcloud://suggestedtracks_all");
 }

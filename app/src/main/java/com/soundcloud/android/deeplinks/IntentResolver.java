@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.provider.Settings;
 
 import javax.inject.Inject;
 
@@ -138,6 +139,12 @@ public class IntentResolver {
                 break;
             case TRACK_ENTITY:
                 showTrack(context, uri, referrer);
+                break;
+            case SHARE_APP:
+                shareApp(context, uri, referrer);
+                break;
+            case SYSTEM_SETTINGS:
+                showSystemSettings(context);
                 break;
             default:
                 resolve(context, uri, referrer);
@@ -295,6 +302,34 @@ public class IntentResolver {
             Log.e(TAG, "Could not show track from deeplink: " + uri);
             AndroidUtils.showToast(context, R.string.error_loading_url);
         }
+    }
+
+    private void shareApp(Context context, Uri uri, String referrer) {
+        final String title = uri.getQueryParameter("title");
+        final String text = uri.getQueryParameter("text");
+        final String path = uri.getQueryParameter("path");
+        if (!title.isEmpty() && !text.isEmpty() && !path.isEmpty()) {
+            final String textToShare = text + " " + path;
+            final Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_TITLE, title);
+            intent.putExtra(Intent.EXTRA_SUBJECT, title);
+            intent.putExtra(Intent.EXTRA_TEXT, textToShare);
+            intent.setType("message/rfc822");
+            context.startActivity(Intent.createChooser(intent, title));
+        } else {
+            openFallback(context, referrer);
+        }
+    }
+
+    private void showSystemSettings(Context context) {
+        final Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.setData(Uri.parse("package:" + context.getPackageName()));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        context.startActivity(intent);
     }
 
     private long getIdFromDeeplinkUri(Uri uri) {

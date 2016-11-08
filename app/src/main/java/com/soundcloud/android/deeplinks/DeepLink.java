@@ -9,14 +9,41 @@ import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 public enum DeepLink {
-    HOME, STREAM, EXPLORE, TRACK_RECOMMENDATIONS, DISCOVERY, SEARCH, RECORD, WEB_VIEW, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
-    NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS, CHARTS, TRACK_ENTITY, PLAYLIST_ENTITY, USER_ENTITY;
+    HOME, 
+    STREAM, 
+    EXPLORE, 
+    TRACK_RECOMMENDATIONS, 
+    DISCOVERY, 
+    SEARCH,
+    RECORD,
+    WEB_VIEW,
+    ENTITY,
+    SOUNDCLOUD_GO_UPSELL,
+    SOUNDCLOUD_GO_BUY,
+    NOTIFICATION_PREFERENCES,
+    COLLECTION,
+    OFFLINE_SETTINGS,
+    CHARTS,
+    TRACK_ENTITY,
+    PLAYLIST_ENTITY,
+    USER_ENTITY,
+    SHARE_APP,
+    SYSTEM_SETTINGS;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
     private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
-            EnumSet.of(EXPLORE, DISCOVERY, SEARCH, RECORD, ENTITY, TRACK_ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
-                       NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS);
+            EnumSet.of(EXPLORE,
+                       DISCOVERY,
+                       SEARCH,
+                       RECORD,
+                       ENTITY,
+                       TRACK_ENTITY,
+                       SOUNDCLOUD_GO_UPSELL,
+                       SOUNDCLOUD_GO_BUY,
+                       NOTIFICATION_PREFERENCES,
+                       COLLECTION,
+                       OFFLINE_SETTINGS);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
@@ -83,6 +110,7 @@ public enum DeepLink {
             case "explore":
                 return EXPLORE;
             case "discover":
+            case "suggestedtracks_all":
                 return TRACK_RECOMMENDATIONS;
             case "discovery":
                 return DISCOVERY;
@@ -116,6 +144,12 @@ public enum DeepLink {
                 return USER_ENTITY;
             case "playlists":
                 return PLAYLIST_ENTITY;
+            case "share":
+                if ("/app".equals(uri.getPath())) {
+                    return SHARE_APP;
+                }
+            case "open-notification-settings":
+                return SYSTEM_SETTINGS;
             default:
                 return ENTITY;
         }
@@ -139,6 +173,7 @@ public enum DeepLink {
             case "/upload":
                 return RECORD;
             case "/discover":
+            case "/suggestedtracks_all":
                 return TRACK_RECOMMENDATIONS;
             case "/charts":
                 return CHARTS;
@@ -155,6 +190,14 @@ public enum DeepLink {
             case "/soundcloudgo":
             case "/go":
                 return SOUNDCLOUD_GO_UPSELL;
+            case "/notification_preferences":
+                return NOTIFICATION_PREFERENCES;
+            case "/settings_offlinelistening":
+                return OFFLINE_SETTINGS;
+            case "/share/app":
+                return SHARE_APP;
+            case "/open-notification-settings":
+                return SYSTEM_SETTINGS;
             default:
                 if (isWebViewUrl(uri)) {
                     return WEB_VIEW;

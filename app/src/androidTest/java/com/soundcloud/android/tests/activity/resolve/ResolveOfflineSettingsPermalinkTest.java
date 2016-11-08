@@ -11,7 +11,7 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolveOfflineSettingsDeeplinkTest extends ResolveBaseTest {
+public class ResolveOfflineSettingsPermalinkTest extends ResolveBaseTest {
 
     public void testShouldOpenOfflineSettings() {
         assertThat(new OfflineSettingsScreen(solo), is(visible()));
@@ -25,7 +25,7 @@ public class ResolveOfflineSettingsDeeplinkTest extends ResolveBaseTest {
 
     @Override
     protected Uri getUri() {
-        return TestConsts.OFFLINE_SETTINGS_URI_DEEPLINK;
+        return TestConsts.OFFLINE_SETTINGS_URI_PERMALINK;
     }
 
 }

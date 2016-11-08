@@ -76,6 +76,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.RECORD, "soundcloud://record");
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://discover");
+        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://suggestedtracks_all");
         assertDeeplink(DeepLink.DISCOVERY, "soundcloud://discovery");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://go");
@@ -88,6 +89,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.TRACK_ENTITY, "soundcloud://tracks/123");
         assertDeeplink(DeepLink.PLAYLIST_ENTITY, "soundcloud://playlists/123");
         assertDeeplink(DeepLink.USER_ENTITY, "soundcloud://users/123");
+        assertDeeplink(DeepLink.SHARE_APP, "soundcloud://share/app");
+        assertDeeplink(DeepLink.SYSTEM_SETTINGS, "soundcloud://open-notification-settings");
     }
 
     @Test
@@ -104,6 +107,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.EXPLORE, "https://www.soundcloud.com/explore");
         assertDeeplink(DeepLink.RECORD, "https://www.soundcloud.com/upload");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "https://www.soundcloud.com/discover");
+        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "https://www.soundcloud.com/suggestedtracks_all");
         assertDeeplink(DeepLink.CHARTS, "https://www.soundcloud.com/charts");
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search");
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/sounds");
@@ -116,6 +120,10 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/people/search");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://www.soundcloud.com/soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://www.soundcloud.com/go");
+        assertDeeplink(DeepLink.OFFLINE_SETTINGS, "https://www.soundcloud.com/settings_offlinelistening");
+        assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "https://www.soundcloud.com/notification_preferences");
+        assertDeeplink(DeepLink.SHARE_APP, "https://www.soundcloud.com/share/app");
+        assertDeeplink(DeepLink.SYSTEM_SETTINGS, "https://www.soundcloud.com/open-notification-settings");
     }
 
     @Test

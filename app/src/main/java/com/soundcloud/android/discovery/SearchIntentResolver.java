@@ -60,7 +60,7 @@ class SearchIntentResolver {
     private boolean isInterceptedSearchUrl(Intent intent) {
         final Uri uri = intent.getData();
         return uri != null
-                && (uri.getHost().equals(INTENT_URL_HOST) || DeepLink.SOUNDCLOUD_SCHEME.equals(uri.getScheme()))
+                && (uri.getHost().contains(INTENT_URL_HOST) || DeepLink.SOUNDCLOUD_SCHEME.equals(uri.getScheme()))
                 && Strings.isNotBlank(uri.getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
