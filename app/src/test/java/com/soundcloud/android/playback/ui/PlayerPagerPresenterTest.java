@@ -12,7 +12,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.InterstitialAd;
@@ -77,6 +76,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private AdsOperations adOperations;
     @Mock private StationsOperations stationsOperations;
     @Mock private VideoSurfaceProvider videoSurfaceProvider;
+    @Mock private PlayerPagerOnboardingPresenter onboardingPresenter;
 
     @Mock private PlayerTrackPager playerTrackPager;
 
@@ -135,14 +135,14 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                              castConnectionHelper,
                                              adOperations,
                                              videoSurfaceProvider,
+                                             onboardingPresenter,
                                              eventBus
         );
-
-        presenter.setCurrentPlayQueue(playQueue, 0);
-
-        when(container.findViewById(R.id.player_track_pager)).thenReturn(playerTrackPager);
+        when(playerFragment.getPlayerPager()).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
         presenter.onViewCreated(playerFragment, container, null);
+        presenter.setCurrentPlayQueue(playQueue, 0);
+
         final ArgumentCaptor<PagerAdapter> pagerAdapterCaptor = ArgumentCaptor.forClass(PagerAdapter.class);
         verify(playerTrackPager).setAdapter(pagerAdapterCaptor.capture());
         adapter = pagerAdapterCaptor.getValue();

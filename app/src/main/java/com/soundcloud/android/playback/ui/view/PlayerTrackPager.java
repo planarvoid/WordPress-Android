@@ -50,4 +50,16 @@ public class PlayerTrackPager extends SafeViewPager {
     public void setPagingEnabled(boolean enabled) {
         isPagingEnabled = enabled;
     }
+
+    @Override
+    public boolean beginFakeDrag() {
+        isPagingEnabled = false;
+        return super.beginFakeDrag();
+    }
+
+    @Override
+    public void endFakeDrag() {
+        super.endFakeDrag();
+        isPagingEnabled = true;
+    }
 }

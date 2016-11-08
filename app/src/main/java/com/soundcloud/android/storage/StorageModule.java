@@ -41,6 +41,7 @@ public class StorageModule {
     public static final String FACEBOOK_INVITES = "FacebookInvites";
     public static final String COLLECTIONS = "collections";
     public static final String STATIONS = "stations";
+    public static final String PLAYER = "player";
     public static final String SYNCER = "syncer";
     public static final String UPSELL = "upsell";
     public static final String NOTIFICATION_PREFERENCES = "NotificationPreferences";
@@ -66,6 +67,7 @@ public class StorageModule {
     private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
     private static final String PREFS_COLLECTIONS = "collections";
     private static final String PREFS_STATIONS = "stations";
+    private static final String PREFS_PLAYER = "player";
     private static final String PREFS_SYNCER = "syncer";
     private static final String PREFS_UPSELL = "upsell";
     private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
@@ -201,6 +203,12 @@ public class StorageModule {
     @Named(STATIONS)
     public SharedPreferences provideStationsPreferences(Context context) {
         return context.getSharedPreferences(PREFS_STATIONS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(PLAYER)
+    public SharedPreferences providePlayerPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_PLAYER, Context.MODE_PRIVATE);
     }
 
     @Provides
