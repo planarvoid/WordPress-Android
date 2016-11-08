@@ -28,9 +28,10 @@
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/upsell_text"
             style="@style/PlayerUpsell"
-            android:layout_alignBaseline="@+id/upsell_button"
             android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@+id/upsell_button"
+            android:layout_alignTop="@+id/upsell_button"
+            android:layout_alignBottom="@+id/upsell_button"
             android:layout_marginRight="14dp"
             android:text="@string/playback_upsell_1" />
 
