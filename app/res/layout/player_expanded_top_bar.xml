@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_below="@+id/upsell_container"
     android:paddingBottom="8dp"
     android:paddingLeft="16dp"
     android:paddingRight="12dp"
@@ -13,33 +14,10 @@
         android:id="@+id/player_close_indicator"
         style="@style/PlayerCloseBase.PlayerClose" />
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/preview_indicator"
-        style="@style/PreviewIndicator.Light"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp"
-        android:layout_toRightOf="@id/player_close_indicator" />
-
     <ImageView
         android:id="@+id/play_queue_button"
         style="@style/PlayerQueue"
-        android:layout_alignBottom="@+id/player_close_indicator" />
-
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="12dp"
-        android:layout_toRightOf="@id/preview_indicator">
-
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/upsell_button"
-            style="@style/Upsell"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_gravity="right"
-            android:ellipsize="end"
-            android:maxLines="1" />
-    </FrameLayout>
+        android:layout_alignBottom="@+id/player_close_indicator" />
 
 </RelativeLayout>

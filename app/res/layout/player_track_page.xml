@@ -4,15 +4,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:id="@+id/player_strip"
+        style="@style/PlayerStrip" />
+
     <com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView
         android:id="@+id/track_page_artwork"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/player_strip" />
 
     <View android:id="@+id/artwork_overlay_dark"
-        style="@style/PlayerTrackArtworkOverlay"/>
+        style="@style/PlayerTrackArtworkOverlay"
+        android:layout_below="@id/player_strip" />
 
     <include layout="@layout/player_gradient" />
+
+    <RelativeLayout
+        android:id="@+id/upsell_container"
+        style="@style/PlayerUpsellContainer"
+        android:layout_below="@+id/player_strip">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/upsell_text"
+            style="@style/PlayerUpsell"
+            android:layout_alignBaseline="@+id/upsell_button"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/upsell_button"
+            android:layout_marginRight="14dp"
+            android:text="@string/playback_upsell_1" />
+
+        <com.soundcloud.android.view.CustomFontButton
+            android:id="@+id/upsell_button"
+            style="@style/PlayerUpsell.Button"
+            android:layout_alignParentRight="true"
+            android:text="@string/playback_upsell_button" />
+    </RelativeLayout>
 
     <include layout="@layout/player_expanded_top_bar" />
 
@@ -20,7 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_above="@+id/player_bottom_close"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/player_strip"
         android:orientation="vertical">
 
         <View
@@ -48,7 +75,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_above="@+id/player_bottom_close"
-        android:layout_alignParentTop="true" />
+        android:layout_below="@+id/player_strip" />
 
     <LinearLayout
         android:id="@id/player_bottom_close"
@@ -97,6 +124,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="16dp"
         android:layout_marginTop="@dimen/player_title_top"
+        android:layout_below="@+id/upsell_container"
         android:paddingLeft="16dp"
         android:orientation="vertical">
 
@@ -124,7 +152,10 @@
             style="@style/PlayerContext" />
     </LinearLayout>
 
-    <include layout="@layout/player_footer_controls" />
+    <include layout="@layout/player_footer_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/player_strip" />
 
     <ViewStub
         android:id="@+id/leave_behind_stub"
@@ -138,7 +169,8 @@
     <FrameLayout
         android:id="@+id/interstitial_holder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/player_strip">
 
         <ViewStub
             android:id="@+id/interstitial_stub"
@@ -153,6 +185,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:inflatedId="@+id/track_page_error"
-        android:layout="@layout/track_page_error" />
+        android:layout="@layout/track_page_error"
+        android:layout_below="@+id/player_strip" />
 
 </RelativeLayout>

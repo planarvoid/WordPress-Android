@@ -862,7 +862,6 @@
   <string name="concurrent_streaming_stopped">Gepauzeerd omdat je op een ander apparaat bent begonnen met afspelen</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Niet beschikbaar in\njouw land</string>
-  <string name="playback_upsell_button">Volledige track ontgrendelen</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">%1$d SoundCloud Go-resultaat gevonden</item>

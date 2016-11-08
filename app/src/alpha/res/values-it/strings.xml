@@ -857,7 +857,6 @@
   <string name="concurrent_streaming_stopped">In pausa, in quanto hai iniziato ad ascoltare da un altro dispositivo</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Non disponibile nel\ntuo paese</string>
-  <string name="playback_upsell_button">Sblocca traccia completa</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Trovato %1$d risultato SoundCloud Go</item>

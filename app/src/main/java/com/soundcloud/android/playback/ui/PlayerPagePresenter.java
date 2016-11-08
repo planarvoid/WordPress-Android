@@ -8,7 +8,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import android.view.View;
 import android.view.ViewGroup;
 
-public interface PlayerPagePresenter<T extends PlayerItem> {
+interface PlayerPagePresenter<T extends PlayerItem> {
 
     View createItemView(ViewGroup container, SkipListener skipListener);
 

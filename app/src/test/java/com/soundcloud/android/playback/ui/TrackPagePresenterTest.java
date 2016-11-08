@@ -17,6 +17,7 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -84,6 +85,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private ShareAsTextButtonExperiment shareExperiment;
+    @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -110,6 +112,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            resources(),
                                            upsellImpressionController,
                                            shareExperiment,
+                                           upsellCopyExperiment,
                                            featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
@@ -118,6 +121,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(
                 adOverlayController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
+        when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_1);
         trackView = presenter.createItemView(container, skipListener);
         dateProvider = new TestDateProvider();
     }
@@ -152,8 +156,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void clearItemViewHidesSnippedAndUpsell() {
         presenter.clearItemView(trackView);
 
-        assertThat(getHolder(trackView).previewLabel).isGone();
-        assertThat(getHolder(trackView).upsellButton).isGone();
+        assertThat(getHolder(trackView).upsellContainer).isGone();
     }
 
     @Test
@@ -631,17 +634,19 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void previewLabelIsNotVisibleForNormalTracks() {
+    public void upsellIsNotVisibleForNormalTracks() {
         populateTrackPage();
 
-        assertThat(getHolder(trackView).previewLabel).isGone();
+        assertThat(getHolder(trackView).upsellContainer).isGone();
     }
 
     @Test
-    public void bindingSnippedTrackInHighTierShowsPreviewIcon() {
+    public void bindingSnippedTrackInHighTierShowsUpsell() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
         bindSnippedTrack();
 
-        assertThat(getHolder(trackView).previewLabel).isVisible();
+        assertThat(getHolder(trackView).upsellContainer).isVisible();
     }
 
     @Test
@@ -649,7 +654,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(featureOperations.upsellHighTier()).thenReturn(false);
         bindUpsellableHighTierTrack();
 
-        assertThat(getHolder(trackView).upsellButton).isGone();
+        assertThat(getHolder(trackView).upsellContainer).isGone();
     }
 
     @Test
@@ -760,6 +765,17 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         assertThat(getHolder(trackView).shareButton).isVisible();
         assertThat(getHolder(trackView).shareButtonText).isGone();
+    }
+
+    @Test
+    public void bindingHighTierTrackSetsExperimentalCopyOnUpsellCta() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_2);
+
+        bindUpsellableHighTierTrack();
+
+        assertThat(getHolder(trackView).upsellText.getText())
+                .isEqualTo(resources().getText(R.string.playback_upsell_2));
     }
 
     private TrackPageHolder getHolder(View trackView) {

@@ -870,7 +870,6 @@
   <string name="concurrent_streaming_stopped">Puesto en pausa porque iniciaste la reproducción en otro dispositivo</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">No disponible\nen tu país</string>
-  <string name="playback_upsell_button">Desbloquear pista entera</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Encontramos %1$d resultado de SoundCloud Go</item>

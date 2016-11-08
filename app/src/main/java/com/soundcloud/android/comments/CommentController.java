@@ -83,7 +83,7 @@ public class CommentController extends ActivityLightCycleDispatcher<AppCompatAct
 
         private final Urn trackUrn;
 
-        public CommentAddedSubscriber(Urn trackUrn) {
+        CommentAddedSubscriber(Urn trackUrn) {
             this.trackUrn = trackUrn;
         }
 

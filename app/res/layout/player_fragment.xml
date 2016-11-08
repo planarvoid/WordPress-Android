@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout android:id="@+id/player_layout"
+<FrameLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/player_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <View
-        android:id="@+id/player_strip"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/player_strip"
-        android:background="@color/ak_sc_orange" />
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/player_pager_holder"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
+        <!-- Play queue fragment can't be added to the root layout? -->
 
         <com.soundcloud.android.playback.ui.view.PlayerTrackPager
             android:id="@+id/player_track_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:overScrollMode="always" />
-
     </FrameLayout>
-
-</LinearLayout>
+</FrameLayout>

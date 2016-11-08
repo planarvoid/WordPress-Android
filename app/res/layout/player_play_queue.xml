@@ -36,6 +36,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <View style="@style/PlayerStrip" />
+
         <com.soundcloud.android.view.GlassLinearLayout
             android:id="@+id/play_queue_header"
             android:layout_width="match_parent"

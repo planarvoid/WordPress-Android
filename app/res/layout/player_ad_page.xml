@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/player_ad_page"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/ad_default_background"
-                android:id="@+id/player_ad_page">
+                android:background="@color/ad_default_background">
 
-    <include layout="@layout/player_ad_artwork_view"/>
-    <include layout="@layout/player_gradient"/>
+    <View
+        android:id="@+id/player_strip"
+        style="@style/PlayerStrip" />
+
+    <include layout="@layout/player_ad_artwork_view" />
+
+    <include layout="@layout/ad_gradient"/>
     <include layout="@layout/player_ad_footer_controls"/>
     <include layout="@layout/player_ad_expanded_header"/>
 

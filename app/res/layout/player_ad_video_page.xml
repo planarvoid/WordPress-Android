@@ -7,8 +7,12 @@
         android:background="@color/ad_default_background"
         android:id="@+id/player_ad_page">
 
+    <View
+        android:id="@+id/player_strip"
+        style="@style/PlayerStrip" />
+
     <include layout="@layout/player_ad_video_container"/>
-    <include layout="@layout/player_gradient"/>
+    <include layout="@layout/ad_gradient"/>
     <include layout="@layout/player_ad_expanded_header"/>
 
     <com.soundcloud.android.playback.ui.view.RoundedColorButton

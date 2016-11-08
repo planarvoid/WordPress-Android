@@ -37,7 +37,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Mock private CommentsOperations commentOperations;
     @Mock private AppCompatActivity activity;
-    @Mock private View playerStrip;
+    @Mock private View player;
     @Mock private FeedbackController feedbackController;
     @Mock private Navigator navigator;
     @Captor private ArgumentCaptor<Feedback> feedbackArgumentCaptor;
@@ -54,8 +54,6 @@ public class CommentControllerTest extends AndroidUnitTest {
 
         controller = new CommentController(eventBus, InjectionSupport.lazyOf(commentOperations), feedbackController, navigator);
         controller.onCreate(activity, null);
-
-        when(activity.findViewById(R.id.player_strip)).thenReturn(playerStrip);
     }
 
     @Test

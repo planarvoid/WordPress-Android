@@ -134,13 +134,13 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     };
 
     @Inject
-    public PlayerPresenter(PlayerPagerPresenter presenter,
-                           EventBus eventBus,
-                           PlayQueueManager playQueueManager,
-                           PlaySessionController playSessionController,
-                           PlayerPagerScrollListener playerPagerScrollListener,
-                           final AdsOperations adsOperations,
-                           PlayQueueFragmentFactory playQueueFragmentFactory) {
+    PlayerPresenter(PlayerPagerPresenter presenter,
+                    EventBus eventBus,
+                    PlayQueueManager playQueueManager,
+                    PlaySessionController playSessionController,
+                    PlayerPagerScrollListener playerPagerScrollListener,
+                    final AdsOperations adsOperations,
+                    PlayQueueFragmentFactory playQueueFragmentFactory) {
         this.presenter = presenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
@@ -235,7 +235,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         super.onDestroyView(playerFragment);
     }
 
-    public boolean handleBackPressed() {
+    boolean handleBackPressed() {
         Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
         if (fragment == null) {
             return false;

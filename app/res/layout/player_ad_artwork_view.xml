@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/player_strip">
     <ImageView
         android:id="@+id/fullbleed_ad_artwork"
         style="@style/PlayerAdArtwork"
@@ -18,4 +21,4 @@
             android:id="@+id/centered_ad_clickable_overlay"
             style="@style/PlayerIABAdArtwork"
             android:visibility="invisible"/>
-</merge>
+</RelativeLayout>

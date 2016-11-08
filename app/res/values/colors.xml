@@ -189,5 +189,6 @@
     <color name="conversion_restrictions_text">#80ffffff</color>
     <color name="conversion_restrictions_text_focused">#bbffffff</color>
     <color name="conversion_restrictions_text_pressed">#ffffffff</color>
+    <color name="go_gradient_start">#7d02a1</color>
 
 </resources>

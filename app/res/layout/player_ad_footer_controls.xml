@@ -4,7 +4,8 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/footer_controls"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/player_footer_control">
+        android:layout_height="@dimen/player_footer_control"
+        android:layout_below="@+id/player_strip">
 
     <com.soundcloud.android.view.CustomFontToggleButton
             android:id="@+id/footer_toggle"

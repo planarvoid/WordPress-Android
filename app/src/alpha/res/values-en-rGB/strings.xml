@@ -845,7 +845,6 @@
   <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Not available in\nyour country</string>
-  <string name="playback_upsell_button">Unlock full track</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Found %1$d SoundCloud Go result</item>

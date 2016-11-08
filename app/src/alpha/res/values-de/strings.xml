@@ -857,7 +857,6 @@
   <string name="concurrent_streaming_stopped">Wegen Wiedergabe auf einem anderen Gerät angehalten</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">In deinem Land nicht verfügbar</string>
-  <string name="playback_upsell_button">Ganzen Track freigeben</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">%1$d SoundCloud Go-Ergebnis gefunden</item>
