@@ -25,12 +25,10 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
     private SuggestedCreatorsStorage suggestedCreatorsStorage;
     private TestSubscriber<List<SuggestedCreator>> subscriber;
     private final long NOW = 1;
-    private TestDateProvider dateProvider;
 
     @Before
     public void setup() {
-        dateProvider = new TestDateProvider(NOW);
-        suggestedCreatorsStorage = new SuggestedCreatorsStorage(propellerRx(), dateProvider);
+        suggestedCreatorsStorage = new SuggestedCreatorsStorage(propellerRx(), propeller(), new TestDateProvider(NOW));
         subscriber = new TestSubscriber<>();
     }
 
@@ -65,5 +63,15 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
         assertThat(suggestedCreator.getCreator().urn()).isEqualTo(apiSuggestedCreator.getSeedUser().getUrn());
         assertThat(suggestedCreator.followedAt()).is(PRESENT);
         assertThat(suggestedCreator.followedAt().get().getTime()).isEqualTo(NOW);
+    }
+
+    @Test
+    public void clearsAllDataFromTheTable() {
+        final ApiSuggestedCreator apiSuggestedCreator = SuggestedCreatorsFixtures.createApiSuggestedCreator();
+        testFixtures().insertSuggestedCreator(apiSuggestedCreator);
+
+        suggestedCreatorsStorage.clear();
+
+        databaseAssertions().assertNoSuggestedCreators();
     }
 }

@@ -25,6 +25,7 @@ import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.StreamOperations;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -64,6 +65,7 @@ class AccountCleanupAction implements Action0 {
     private final CommentsStorage commentsStorage;
     private final FeatureFlags featureFlags;
     private final DatabaseManager databaseManager;
+    private final SuggestedCreatorsStorage suggestedCreatorsStorage;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -86,7 +88,8 @@ class AccountCleanupAction implements Action0 {
                          @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage,
                          CommentsStorage commentsStorage,
                          FeatureFlags featureFlags,
-                         DatabaseManager databaseManager) {
+                         DatabaseManager databaseManager,
+                         SuggestedCreatorsStorage suggestedCreatorsStorage) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -111,6 +114,7 @@ class AccountCleanupAction implements Action0 {
         this.commentsStorage = commentsStorage;
         this.featureFlags = featureFlags;
         this.databaseManager = databaseManager;
+        this.suggestedCreatorsStorage = suggestedCreatorsStorage;
     }
 
     @Override
@@ -130,6 +134,7 @@ class AccountCleanupAction implements Action0 {
         discoveryOperations.clearData();
         collectionOperations.clearData();
         streamOperations.clearData();
+        suggestedCreatorsStorage.clear();
         configurationOperations.clearConfigurationSettings();
         notificationPreferencesStorage.clear();
         playHistoryStorage.clear();
