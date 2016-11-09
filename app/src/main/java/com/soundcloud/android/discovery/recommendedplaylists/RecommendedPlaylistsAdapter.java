@@ -37,8 +37,8 @@ class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistItem, Recy
         return key.get();
     }
 
-    void setRecommendedTracksBucketItem(RecommendedPlaylists recommendedPlaylists) {
-        this.key = Optional.of(recommendedPlaylists.key());
+    void setRecommendedTracksBucketItem(RecommendedPlaylistsBucketItem recommendedPlaylists) {
+        key = Optional.of(recommendedPlaylists.key());
         clear();
         onNext(recommendedPlaylists.playlists());
     }

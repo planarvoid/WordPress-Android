@@ -30,7 +30,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 100;
+    public static final int DATABASE_VERSION = 101;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -335,6 +335,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 100:
                             success = upgradeTo100(db, oldVersion);
+                            break;
+                        case 101:
+                            success = upgradeTo101(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1284,6 +1287,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Add tables for recommended playlists and recreate PlaylistView
+     */
+    private boolean upgradeTo101(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.RecommendedPlaylistBucket.SQL);
+            db.execSQL(Tables.RecommendedPlaylist.SQL);
+            dropView(Tables.PlaylistView.TABLE.name(), db);
+            db.execSQL(Tables.PlaylistView.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 101);
+        }
+        return false;
+    }
+
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
             db.execSQL(Tables.RecentlyPlayed.MIGRATE_SQL);
@@ -1365,7 +1384,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 Tables.ChartTracks.TABLE,
                 Tables.PlayHistory.TABLE,
                 Tables.RecentlyPlayed.TABLE,
-                Tables.SuggestedCreators.TABLE
+                Tables.SuggestedCreators.TABLE,
+                Tables.RecommendedPlaylist.TABLE,
+                Tables.RecommendedPlaylistBucket.TABLE
         );
     }
 

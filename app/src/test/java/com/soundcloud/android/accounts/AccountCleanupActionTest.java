@@ -18,6 +18,7 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -68,6 +69,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
     @Mock private PlayHistoryStorage playHistoryStorage;
     @Mock private RecentlyPlayedStorage recentlyPlayedStorage;
+    @Mock private RecommendedPlaylistsStorage recommendedPlaylistStorage;
     @Mock private GcmStorage gcmStorage;
     @Mock private PersistentStorage featureFlagsStorage;
     @Mock private CommentsStorage commentsStorage;
@@ -94,6 +96,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           notificationPreferencesStorage,
                                           playHistoryStorage,
                                           recentlyPlayedStorage,
+                                          recommendedPlaylistStorage,
                                           gcmStorage,
                                           featureFlagsStorage,
                                           commentsStorage,

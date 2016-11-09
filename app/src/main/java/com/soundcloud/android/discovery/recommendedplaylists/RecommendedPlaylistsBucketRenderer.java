@@ -33,7 +33,7 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
     private final Resources resources;
 
     @Inject
-    public RecommendedPlaylistsBucketRenderer(RecommendedPlaylistItemRenderer playlistItemRenderer, Resources resources) {
+    RecommendedPlaylistsBucketRenderer(RecommendedPlaylistItemRenderer playlistItemRenderer, Resources resources) {
         this.playlistItemRenderer = playlistItemRenderer;
         this.resources = resources;
     }
@@ -67,7 +67,7 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
 
     private void bindReasonView(View bucketView, final RecommendedPlaylistsBucketItem bucket) {
         final TextView reasonView = ButterKnife.findById(bucketView, reason);
-        reasonView.setText(getReasonText(bucketView.getContext(), bucket.recommendedPlaylists()));
+        reasonView.setText(getReasonText(bucketView.getContext(), bucket));
     }
 
     private void bindCarousel(View bucketView, RecommendedPlaylistsBucketItem recommendedTracksItem) {
@@ -78,7 +78,7 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
             scrollingState.put(adapter.bucketId(), recyclerView.getLayoutManager().onSaveInstanceState());
         }
         //Set new content
-        adapter.setRecommendedTracksBucketItem(recommendedTracksItem.recommendedPlaylists());
+        adapter.setRecommendedTracksBucketItem(recommendedTracksItem);
         if (scrollingState.containsKey(adapter.bucketId())) {
             //Apply previous scrolling state
             recyclerView.getLayoutManager().onRestoreInstanceState(scrollingState.get(adapter.bucketId()));
@@ -87,7 +87,7 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
         }
     }
 
-    private Spannable getReasonText(Context context, RecommendedPlaylists recommendedPlaylists) {
+    private Spannable getReasonText(Context context, RecommendedPlaylistsBucketItem recommendedPlaylists) {
         final String playlistName = nameForKey(recommendedPlaylists.key(), recommendedPlaylists.displayName(), context);
 
         final String reasonText = context.getString(R.string.recommended_playlists_reason, playlistName);

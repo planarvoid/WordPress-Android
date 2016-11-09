@@ -13,6 +13,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
+import com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemListenerBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;

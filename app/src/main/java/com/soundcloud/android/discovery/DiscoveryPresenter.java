@@ -255,7 +255,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             }
 
             if (featureFlags.isEnabled(Flag.NEW_HOME)) {
-                discoveryItems.add(recommendedPlaylistsOperations.recommendedPlaylists());
+                discoveryItems.add(recommendedPlaylistsOperations.refreshRecommendedPlaylists());
             }
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {

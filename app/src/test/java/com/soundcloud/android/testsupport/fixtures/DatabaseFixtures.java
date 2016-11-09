@@ -13,6 +13,7 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.ApiComment;
+import com.soundcloud.android.discovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
 import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.discovery.charts.ChartBucketType;
 import com.soundcloud.android.model.Urn;
@@ -224,6 +225,22 @@ public class DatabaseFixtures {
         insertInto(Tables.SuggestedCreators.TABLE, cv);
     }
 
+    public void insertRecommendedPlaylist(ApiRecommendedPlaylistBucket playlistBucket) {
+        insertPlaylists(playlistBucket.playlists());
+        final ContentValues contentValues = new ContentValues();
+        contentValues.put(Tables.RecommendedPlaylistBucket.KEY.name(), playlistBucket.key());
+        contentValues.put(Tables.RecommendedPlaylistBucket.DISPLAY_NAME.name(), playlistBucket.displayName());
+        contentValues.put(Tables.RecommendedPlaylistBucket.ARTWORK_URL.name(), playlistBucket.artworkUrl().orNull());
+        long bucketId = insertInto(Tables.RecommendedPlaylistBucket.TABLE, contentValues);
+
+        for (ApiPlaylist apiPlaylist : playlistBucket.playlists()) {
+            final ContentValues matcherValues = new ContentValues();
+            matcherValues.put(Tables.RecommendedPlaylist.BUCKET_ID.name(), bucketId);
+            matcherValues.put(Tables.RecommendedPlaylist.PLAYLIST_ID.name(), apiPlaylist.getId());
+            insertInto(Tables.RecommendedPlaylist.TABLE, matcherValues);
+        }
+    }
+
     private void insertPolicy(ApiTrack track) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackPolicies.TRACK_ID, track.getId());
@@ -290,6 +307,12 @@ public class DatabaseFixtures {
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
+    }
+
+    public void insertPlaylists(List<ApiPlaylist> playlists) {
+        for (ApiPlaylist playlist : playlists) {
+            insertPlaylist(playlist);
+        }
     }
 
     public void insertPlaylist(ApiPlaylist playlist) {

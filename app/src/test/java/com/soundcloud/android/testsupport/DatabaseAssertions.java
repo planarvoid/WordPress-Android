@@ -96,6 +96,7 @@ import static com.soundcloud.android.storage.Tables.StationsCollections.COLLECTI
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.TABLE;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
+import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 
@@ -106,6 +107,7 @@ import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.CommentRecord;
+import com.soundcloud.android.discovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
@@ -116,6 +118,7 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.ChartTracks;
 import com.soundcloud.android.storage.Tables.Charts;
 import com.soundcloud.android.storage.Tables.Comments;
@@ -141,6 +144,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.test.assertions.QueryBinding;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -373,7 +377,7 @@ public class DatabaseAssertions {
 
     public void assertLikedStationHasSize(int number) {
         assertThat(select(from(StationsCollections.TABLE)
-                .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)))
+                                  .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)))
                 .counts(number);
     }
 

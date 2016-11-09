@@ -23,11 +23,23 @@ import rx.functions.Func2;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PlaylistOperations {
 
+    private static final Func1<List<PlaylistItem>, Map<Urn, PlaylistItem>> TO_URN_MAP = new Func1<List<PlaylistItem>, Map<Urn, PlaylistItem>>() {
+        @Override
+        public Map<Urn, PlaylistItem> call(List<PlaylistItem> playlistEntities) {
+            HashMap<Urn, PlaylistItem> entityMap = new HashMap<>(playlistEntities.size());
+            for (PlaylistItem entity : playlistEntities) {
+                entityMap.put(entity.getUrn(), entity);
+            }
+            return entityMap;
+        }
+    };
     private final Action1<PropertySet> publishTrackAddedToPlaylistEvent = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newPlaylistTrackData) {
@@ -196,6 +208,14 @@ public class PlaylistOperations {
 
     public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
         return playlistWithTracks(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
+    }
+
+    public Observable<List<PlaylistItem>> playlists(final Set<Urn> playlistUrns) {
+        return playlistStorage.loadPlaylists(playlistUrns);
+    }
+
+    public Observable<Map<Urn, PlaylistItem>> playlistsMap(final Set<Urn> playlistUrns) {
+        return playlists(playlistUrns).map(TO_URN_MAP);
     }
 
     Observable<PlaylistWithTracks> updatedPlaylistInfo(final Urn playlistUrn) {

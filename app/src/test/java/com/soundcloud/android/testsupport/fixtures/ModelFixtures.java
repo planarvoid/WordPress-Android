@@ -18,6 +18,7 @@ import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;

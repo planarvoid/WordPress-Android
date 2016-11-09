@@ -13,6 +13,7 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -57,6 +58,7 @@ class AccountCleanupAction implements Action0 {
     private final NotificationPreferencesStorage notificationPreferencesStorage;
     private final PlayHistoryStorage playHistoryStorage;
     private final RecentlyPlayedStorage recentlyPlayedStorage;
+    private final RecommendedPlaylistsStorage recommendedPlaylistsStorage;
     private final GcmStorage gcmStorage;
     private final PersistentStorage featureFlagsStorage;
     private final CommentsStorage commentsStorage;
@@ -79,6 +81,7 @@ class AccountCleanupAction implements Action0 {
                          NotificationPreferencesStorage notificationPreferencesStorage,
                          PlayHistoryStorage playHistoryStorage,
                          RecentlyPlayedStorage recentlyPlayedStorage,
+                         RecommendedPlaylistsStorage recommendedPlaylistsStorage,
                          GcmStorage gcmStorage,
                          @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage,
                          CommentsStorage commentsStorage,
@@ -102,6 +105,7 @@ class AccountCleanupAction implements Action0 {
         this.notificationPreferencesStorage = notificationPreferencesStorage;
         this.playHistoryStorage = playHistoryStorage;
         this.recentlyPlayedStorage = recentlyPlayedStorage;
+        this.recommendedPlaylistsStorage = recommendedPlaylistsStorage;
         this.gcmStorage = gcmStorage;
         this.featureFlagsStorage = featureFlagsStorage;
         this.commentsStorage = commentsStorage;
@@ -130,6 +134,7 @@ class AccountCleanupAction implements Action0 {
         notificationPreferencesStorage.clear();
         playHistoryStorage.clear();
         recentlyPlayedStorage.clear();
+        recommendedPlaylistsStorage.clear();
         gcmStorage.clearTokenForRefresh();
         featureFlagsStorage.clear();
 

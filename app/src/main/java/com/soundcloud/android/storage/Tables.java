@@ -560,11 +560,17 @@ public interface Tables {
         public static final Column USERNAME = Column.create(TABLE, "pv_username");
         public static final Column USER_ID = Column.create(TABLE, "pv_user_id");
         public static final Column TRACK_COUNT = Column.create(TABLE, "pv_track_count");
+        public static final Column DURATION = Column.create(TABLE, "pv_duration");
         public static final Column LIKES_COUNT = Column.create(TABLE, "pv_likes_count");
+        public static final Column REPOSTS_COUNT = Column.create(TABLE, "pv_reposts_count");
         public static final Column SHARING = Column.create(TABLE, "pv_sharing");
         public static final Column ARTWORK_URL = Column.create(TABLE, "pv_artwork_url");
+        public static final Column PERMALINK_URL = Column.create(TABLE, "pv_permalink_url");
         public static final Column GENRE = Column.create(TABLE, "pv_genre");
         public static final Column TAG_LIST = Column.create(TABLE, "pv_tag_list");
+        public static final Column CREATED_AT = Column.create(TABLE, "pv_created_at");
+        public static final Column RELEASE_DATE = Column.create(TABLE, "pv_release_date");
+        public static final Column SET_TYPE = Column.create(TABLE, "pv_set_type");
         public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "pv_local_track_count");
         public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE,
                                                                                 "pv_has_pending_download_request");
@@ -572,6 +578,7 @@ public interface Tables {
         public static final Column HAS_UNAVAILABLE_TRACKS = Column.create(TABLE, "pv_has_unavailable_tracks");
         public static final Column IS_MARKED_FOR_OFFLINE = Column.create(TABLE, "pv_is_marked_for_offline");
         public static final Column IS_USER_LIKE = Column.create(TABLE, "pv_is_user_like");
+        public static final Column IS_USER_REPOST = Column.create(TABLE, "pv_is_user_repost");
         public static final Column IS_ALBUM = Column.create(TABLE, "pv_is_album");
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS PlaylistView AS " +
@@ -581,20 +588,26 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.USERNAME)).as(USERNAME.name()),
                              field(SoundView.field(TableColumns.SoundView.USER_ID)).as(USER_ID.name()),
                              field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TRACK_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.DURATION)).as(DURATION.name()),
                              field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.REPOSTS_COUNT)).as(REPOSTS_COUNT.name()),
                              field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.name()),
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.PERMALINK_URL)).as(PERMALINK_URL.name()),
                              field(SoundView.field(TableColumns.SoundView.GENRE)).as(GENRE.name()),
                              field(SoundView.field(TableColumns.SoundView.TAG_LIST)).as(TAG_LIST.name()),
+                             field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(CREATED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.RELEASE_DATE)).as(RELEASE_DATE.name()),
+                             field(SoundView.field(TableColumns.SoundView.SET_TYPE)).as(SET_TYPE.name()),
                              field(SoundView.field(TableColumns.SoundView.IS_ALBUM)).as(IS_ALBUM.name()),
                              field("(" + PlaylistQueries.LOCAL_TRACK_COUNT.build() + ")").as(LOCAL_TRACK_COUNT.name()),
                              exists(likeQuery()).as(IS_USER_LIKE.name()),
+                             exists(repostQuery()).as(IS_USER_REPOST.name()),
                              exists(PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST.name()),
                              exists(PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_DOWNLOADED_TRACKS.name()),
                              exists(PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS.name()),
                              exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE.name()))
                      .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Sounds.TYPE_PLAYLIST);
-
 
         static Query likeQuery() {
             final Where joinConditions = filter()
@@ -605,6 +618,21 @@ public interface Tables {
                         // do not use SoundView here. The exists query will fail, in spite of passing tests
                         .innerJoin(Table.Sounds.name(), joinConditions)
                         .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+        }
+
+        static Query repostQuery() {
+            final Where joinConditions = filter()
+                    .whereEq(Table.SoundView.field(Sounds._ID), TableColumns.Posts.TARGET_ID)
+                    .whereEq(Table.SoundView.field(Sounds._TYPE), TableColumns.Posts.TARGET_TYPE);
+
+            return Query.from(Table.Posts)
+                        .innerJoin(Table.Sounds.name(), joinConditions)
+                        .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
+                        .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
+        }
+
+        private static String typeRepostDelimited() {
+            return "'" + TableColumns.Posts.TYPE_REPOST + "'";
         }
 
         @Override
@@ -777,4 +805,52 @@ public interface Tables {
         }
     }
 
+    class RecommendedPlaylistBucket extends SCBaseTable {
+        public static final RecommendedPlaylistBucket TABLE = new RecommendedPlaylistBucket();
+
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column KEY = Column.create(TABLE, "key");
+        public static final Column DISPLAY_NAME = Column.create(TABLE, "display_name");
+        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS RecommendedPlaylistBucket (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "key TEXT, " +
+                "display_name TEXT, " +
+                "artwork_url TEXT" +
+                ");";
+
+        protected RecommendedPlaylistBucket() {
+            super("RecommendedPlaylistBucket", PrimaryKey.of("_id"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
+
+    class RecommendedPlaylist extends SCBaseTable {
+        public static final RecommendedPlaylist TABLE = new RecommendedPlaylist();
+
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column BUCKET_ID = Column.create(TABLE, "bucket_id");
+        public static final Column PLAYLIST_ID = Column.create(TABLE, "playlist_id");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS RecommendedPlaylist (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "bucket_id INTEGER, " +
+                "playlist_id INTEGER, " +
+                "FOREIGN KEY(bucket_id) REFERENCES RecommendedPlaylistBucket(_id) " +
+                ");";
+
+        protected RecommendedPlaylist() {
+            super("RecommendedPlaylist", PrimaryKey.of("_id"));
+        }
+
+        @Override
+        String getCreateSQL() {
+            return SQL;
+        }
+    }
 }

@@ -40,6 +40,9 @@ public enum ApiEndpoints {
     PLAYLIST_DISCOVERY("/suggestions/playlists"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
 
+    // recommended playlists
+    RECOMMENDED_PLAYLISTS("/suggestions/playlists/fresh"),
+
     // personalized recommendations
     TRACK_RECOMMENDATIONS("/you/personalized-tracks"),
     STATION_RECOMMENDATIONS("/you/personalized-stations"),

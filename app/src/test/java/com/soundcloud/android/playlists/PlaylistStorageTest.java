@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
@@ -16,11 +17,16 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Sets;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import rx.observers.TestSubscriber;
 
+import java.text.DateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
@@ -70,6 +76,37 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         assertThat(storage.getPlaylistsDueForSync()).contains(playlistWithAddition.getUrn(),
                                                               playlistWithRemoval.getUrn());
+    }
+
+    @Test
+    public void loadPlaylistEntities() throws Exception {
+        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+
+        TestSubscriber<List<PlaylistItem>> testSubscriber = new TestSubscriber<>();
+        storage.loadPlaylists(Sets.newHashSet(apiPlaylist.getUrn())).subscribe(testSubscriber);
+
+        testSubscriber.awaitTerminalEvent();
+        testSubscriber.assertValueCount(1);
+        List<PlaylistItem> playlistEntities = testSubscriber.getOnNextEvents().get(0);
+        assertThat(playlistEntities.size()).isEqualTo(1);
+
+        PlaylistItem entity = playlistEntities.get(0);
+        assertPlaylistsMatch(apiPlaylist, entity);
+    }
+
+    private void assertPlaylistsMatch(ApiPlaylist apiPlaylist, PlaylistItem entity) {
+        assertThat(entity.getUrn()).isEqualTo(apiPlaylist.getUrn());
+        assertThat(entity.getTitle()).isEqualTo(apiPlaylist.getTitle());
+        assertThat(entity.getCreatorName()).isEqualTo(apiPlaylist.getUsername());
+        assertThat(entity.getUserUrn()).isEqualTo(apiPlaylist.getUser().getUrn());
+        assertThat(entity.getDuration()).isEqualTo(apiPlaylist.getDuration());
+        assertThat(entity.getTrackCount()).isEqualTo(apiPlaylist.getTrackCount());
+        assertThat(entity.getLikesCount()).isEqualTo(apiPlaylist.getLikesCount());
+        assertThat(entity.getRepostCount()).isEqualTo(apiPlaylist.getRepostsCount());
+        assertThat(entity.getCreatedAt()).isEqualTo(apiPlaylist.getCreatedAt());
+        assertThat(entity.getImageUrlTemplate()).isEqualTo(apiPlaylist.getImageUrlTemplate());
+        assertThat(entity.isAlbum()).isEqualTo(apiPlaylist.isAlbum());
+        assertThat(entity.isMarkedForOffline()).isEqualTo(Optional.of(false));
     }
 
     @Test
