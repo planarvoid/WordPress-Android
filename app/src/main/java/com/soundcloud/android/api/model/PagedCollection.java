@@ -64,9 +64,7 @@ public abstract class PagedCollection<T> implements Iterable<T> {
 
         PagedCollection<?> that = (PagedCollection<?>) o;
 
-        if (items != null ? !items.equals(that.items) : that.items != null) return false;
-
-        return true;
+        return items != null ? items.equals(that.items) : that.items == null;
     }
 
     @Override

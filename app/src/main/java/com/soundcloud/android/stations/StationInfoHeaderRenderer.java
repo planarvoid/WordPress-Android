@@ -10,7 +10,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleBlurredImageLoader;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 
 import android.content.res.Resources;
@@ -48,18 +47,15 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
 
     private final StationInfoClickListener clickListener;
     private final SimpleBlurredImageLoader simpleBlurredImageLoader;
-    private final FeatureFlags featureFlags;
     private final ImageOperations imageOperations;
     private final Resources resources;
 
     StationInfoHeaderRenderer(StationInfoClickListener listener,
                               @Provided SimpleBlurredImageLoader simpleBlurredImageLoader,
                               @Provided Resources resources,
-                              @Provided FeatureFlags featureFlags,
                               @Provided ImageOperations imageOperations) {
         this.clickListener = listener;
         this.simpleBlurredImageLoader = simpleBlurredImageLoader;
-        this.featureFlags = featureFlags;
         this.imageOperations = imageOperations;
         this.resources = resources;
     }

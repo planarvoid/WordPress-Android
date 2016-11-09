@@ -16,7 +16,6 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchOperations.ContentType;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -78,7 +77,6 @@ class SearchStrategyFactory {
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final LoadFollowingCommand loadFollowingCommand;
-    private final FeatureFlags featureFlags;
 
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -156,7 +154,7 @@ class SearchStrategyFactory {
                           StoreUsersCommand storeUsersCommand,
                           CacheUniversalSearchCommand cacheUniversalSearchCommand,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
-                          LoadFollowingCommand loadFollowingCommand, FeatureFlags featureFlags) {
+                          LoadFollowingCommand loadFollowingCommand) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.storePlaylistsCommand = storePlaylistsCommand;
@@ -165,7 +163,6 @@ class SearchStrategyFactory {
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.loadFollowingCommand = loadFollowingCommand;
-        this.featureFlags = featureFlags;
     }
 
     SearchStrategy getSearchStrategy(SearchType searchType) {

@@ -6,9 +6,9 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.java.functions.Function;
 
 @AutoValue
-public abstract class ApiAudioAdSource {
+abstract class ApiAudioAdSource {
 
-    public static Function<ApiAudioAdSource, AudioAdSource> toAudioAdSource =
+    static final Function<ApiAudioAdSource, AudioAdSource> toAudioAdSource =
             new Function<ApiAudioAdSource, AudioAdSource>() {
                 @Override
                 public AudioAdSource apply(ApiAudioAdSource apiAudioAdSource) {

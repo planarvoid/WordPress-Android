@@ -14,7 +14,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleBlurredImageLoader;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,6 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private StationInfoAdapter.StationInfoClickListener listener;
     @Mock private SimpleBlurredImageLoader simpleBlurredImageLoader;
-    @Mock private FeatureFlags featureFlags;
 
     private View itemView;
     private StationInfoHeaderRenderer renderer;
@@ -46,8 +44,7 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         itemView = LayoutInflater.from(context()).inflate(
                 R.layout.station_info_view, new FrameLayout(context()), false);
-        renderer = new StationInfoHeaderRenderer(listener, simpleBlurredImageLoader, resources(),
-                                                 featureFlags, imageOperations);
+        renderer = new StationInfoHeaderRenderer(listener, simpleBlurredImageLoader, resources(), imageOperations);
     }
 
     @Test

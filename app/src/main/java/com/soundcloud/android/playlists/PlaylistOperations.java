@@ -40,6 +40,7 @@ public class PlaylistOperations {
             return entityMap;
         }
     };
+
     private final Action1<PropertySet> publishTrackAddedToPlaylistEvent = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newPlaylistTrackData) {

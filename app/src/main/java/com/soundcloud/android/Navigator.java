@@ -464,7 +464,7 @@ public class Navigator {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
     }
 
-    static public Intent createProfileIntent(Context context, Urn user) {
+    public static Intent createProfileIntent(Context context, Urn user) {
         return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 

@@ -202,7 +202,7 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
         final RoundedColorButton ctaButton;
         final View whyAds;
 
-        Iterable<View> skipDisableViews;
+        final Iterable<View> skipDisableViews;
         boolean isSkippable;
 
         final Predicate<View> presentInConfig = new Predicate<View>() {

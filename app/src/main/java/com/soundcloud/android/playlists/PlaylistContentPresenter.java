@@ -1,11 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

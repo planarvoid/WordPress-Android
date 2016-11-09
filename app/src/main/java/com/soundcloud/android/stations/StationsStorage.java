@@ -443,6 +443,4 @@ class StationsStorage {
         }
     }
 
-    ;
-
 }

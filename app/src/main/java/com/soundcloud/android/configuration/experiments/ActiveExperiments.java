@@ -22,7 +22,7 @@ public class ActiveExperiments {
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 
-    private ApplicationProperties applicationProperties;
+    private final ApplicationProperties applicationProperties;
 
     @Inject
     ActiveExperiments(ApplicationProperties applicationProperties) {

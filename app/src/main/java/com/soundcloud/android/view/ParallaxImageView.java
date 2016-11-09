@@ -11,8 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 /**
- * Offsets the imageview source by 20% from the top
- * Used by {@link com.soundcloud.android.explore.ExploreTracksAdapter}
+ * Offsets the imageView source by 20% from the top
  */
 public class ParallaxImageView extends AspectRatioImageView {
 

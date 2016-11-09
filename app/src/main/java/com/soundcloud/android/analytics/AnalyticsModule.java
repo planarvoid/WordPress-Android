@@ -1,7 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.api.ApiModule.API_HTTP_CLIENT;
-
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
@@ -22,9 +20,9 @@ import java.util.List;
 @Module
 public class AnalyticsModule {
 
-    public static final String TRACKING_DB = "TrackingDB";
-    public static final String BASE_PROVIDERS = "BaseProviders";
-    public static final String TRACKING_HTTP_CLIENT = "TrackingHttpClient";
+    static final String TRACKING_DB = "TrackingDB";
+    static final String BASE_PROVIDERS = "BaseProviders";
+    static final String TRACKING_HTTP_CLIENT = "TrackingHttpClient";
 
     @Provides
     @Nullable

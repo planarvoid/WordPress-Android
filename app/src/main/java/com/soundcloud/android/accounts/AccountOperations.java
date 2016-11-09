@@ -160,17 +160,17 @@ public class AccountOperations {
      */
     @Nullable
     public Account addOrReplaceSoundCloudAccount(ApiUser user, Token token, SignupVia via) {
-        boolean accountexists = false;
+        boolean accountExists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
             if (account.name.equals(user.getPermalink())) {
-                accountexists = true; // same username, do not replace account
+                accountExists = true; // same username, do not replace account
             } else {
                 accountManager.removeAccount(account, null, null);
             }
         }
 
-        if (!accountexists) {
+        if (!accountExists) {
             account = new Account(user.getPermalink(), context.getString(R.string.account_type));
 
             // workaround for https://code.google.com/p/android/issues/detail?id=210992
@@ -179,10 +179,10 @@ public class AccountOperations {
                 accountManager.removeAccountExplicitly(account);
             }
 
-            accountexists = accountManager.addAccountExplicitly(account, null, null);
+            accountExists = accountManager.addAccountExplicitly(account, null, null);
         }
 
-        if (accountexists) {
+        if (accountExists) {
             tokenOperations.storeSoundCloudTokenData(account, token);
             accountManager.setUserData(account, AccountInfoKeys.USER_ID.getKey(), Long.toString(user.getId()));
             accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());

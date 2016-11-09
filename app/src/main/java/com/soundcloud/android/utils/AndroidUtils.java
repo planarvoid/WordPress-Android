@@ -198,7 +198,7 @@ public final class AndroidUtils {
     }
 
     private static class MapValueComparator implements Comparator<String> {
-        Map<String, Integer> map;
+        final Map<String, Integer> map;
 
         MapValueComparator(Map<String, Integer> map) {
             this.map = map;

@@ -75,7 +75,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                                    offlineState);
                 }
             };
-    ;
 
     private Fragment fragment;
 

@@ -102,18 +102,16 @@ public class ExploreTracksFragment extends LightCycleSupportFragment<ExploreTrac
     @Override
     public ConnectableObservable<List<TrackItem>> buildObservable() {
         final ExploreGenre category = getArguments().getParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA);
-        final ConnectableObservable<List<TrackItem>> observable =
-                operations.pager().page(operations.getSuggestedTracks(category))
-                          .doOnNext(new Action1<SuggestedTracksCollection>() {
-                              @Override
-                              public void call(SuggestedTracksCollection page) {
-                                  trackingTag = page.getTrackingTag();
-                              }
-                          })
-                          .map(TrackItem.<SuggestedTracksCollection>fromApiTracks())
-                          .observeOn(mainThread()).replay();
 
-        return observable;
+        return operations.pager().page(operations.getSuggestedTracks(category))
+                 .doOnNext(new Action1<SuggestedTracksCollection>() {
+                      @Override
+                      public void call(SuggestedTracksCollection page) {
+                          trackingTag = page.getTrackingTag();
+                      }
+                  })
+                 .map(TrackItem.<SuggestedTracksCollection>fromApiTracks())
+                 .observeOn(mainThread()).replay();
     }
 
     @Override

@@ -47,9 +47,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final EventBus eventBus;
     private final AnalyticsProviderFactory analyticsProviderFactory;
     private final Scheduler scheduler;
+    private final AtomicBoolean pendingFlush = new AtomicBoolean(true);
 
     private Collection<AnalyticsProvider> analyticsProviders;
-    private AtomicBoolean pendingFlush = new AtomicBoolean(true);
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
     private final Action0 flushAction = new Action0() {

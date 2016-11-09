@@ -26,12 +26,12 @@ class StationMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private PopupMenuWrapper menu;
 
-    public StationMenuRenderer(Listener listener,
-                               View button,
-                               @Provided PopupMenuWrapper.Factory menuFactory) {
+    StationMenuRenderer(Listener listener,
+                        View button,
+                        @Provided PopupMenuWrapper.Factory menuFactory) {
 
         this.listener = listener;
-        this.menu = menuFactory.build(button.getContext(), button);;
+        this.menu = menuFactory.build(button.getContext(), button);
         menu.inflate(R.menu.station_item_actions);
         menu.setOnMenuItemClickListener(this);
         menu.setOnDismissListener(this);

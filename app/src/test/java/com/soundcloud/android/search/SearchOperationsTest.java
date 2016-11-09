@@ -90,8 +90,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                     storeUsersCommand,
                                                                     cacheUniversalSearchCommand,
                                                                     loadPlaylistLikedStatuses,
-                                                                    loadFollowingCommand,
-                                                                    featureFlags));
+                                                                    loadFollowingCommand
+        ));
     }
 
     @Test
