@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -971,12 +972,13 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromVideoAdClickThrough() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
-        UIEvent uiEvent = UIEvent.fromAdClickThrough(videoAd, trackSourceInfo);
+        UIEvent uiEvent = UIEvent.fromPlayerAdClickThrough(videoAd, trackSourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo("http://clickthrough.videoad.com");
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND)).isEqualTo("clickthrough::video_ad");
         assertThat(uiEvent.getAdClickthroughUrls()).contains("video_click1", "video_click2");
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
     }
@@ -984,14 +986,27 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromAudioAdClickThrough() {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(321L));
-        UIEvent uiEvent = UIEvent.fromAdClickThrough(audioAd, trackSourceInfo);
+        UIEvent uiEvent = UIEvent.fromPlayerAdClickThrough(audioAd, trackSourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo("http://clickthrough.visualad.com");
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND)).isEqualTo("clickthrough::audio_ad");
         assertThat(uiEvent.getAdClickthroughUrls()).contains("comp_click1", "comp_click2");
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
+    }
+
+    @Test
+    public void shouldCreateEventFromAppInstallClickThrough() {
+        AppInstallAd appInstall = AppInstallAd.create(AdFixtures.getApiAppInstall());
+        UIEvent uiEvent = UIEvent.fromAppInstallAdClickThrough(appInstall);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(appInstall.getAdUrn().toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("mobile_inlay");
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo("http://clickthrough.com");
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND)).isEqualTo("clickthrough::app_install");
+        assertThat(uiEvent.getAdClickthroughUrls()).contains("app_click1", "app_click2");
     }
 
     @Test

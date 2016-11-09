@@ -1,5 +1,7 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
@@ -27,6 +29,7 @@ public final class UIEvent extends TrackingEvent {
     private static final String SIZE_CHANGES = "SIZE_CHANGES";
     private static final String TYPE_VIDEO_AD = "video_ad";
     private static final String TYPE_AUDIO_AD = "audio_ad";
+    private static final String TYPE_MOBILE_INLAY = "mobile_inlay";
 
     private final Map<String, List<String>> promotedTrackingUrls;
     private EventContextMetadata eventContextMetadata;
@@ -135,27 +138,26 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
         final UIEvent event = new UIEvent(KIND_VIDEO_AD_FULLSCREEN, System.currentTimeMillis());
-        return withBasicAdAttributes(event, videoAd, trackSourceInfo)
+        return withPlayerAdAttributes(event, videoAd, trackSourceInfo)
                 .addPromotedTrackingUrls(SIZE_CHANGES, videoAd.getFullScreenUrls());
     }
 
     public static UIEvent fromVideoAdShrink(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
         final UIEvent event = new UIEvent(KIND_VIDEO_AD_SHRINK, System.currentTimeMillis());
-        return withBasicAdAttributes(event, videoAd, trackSourceInfo)
+        return withPlayerAdAttributes(event, videoAd, trackSourceInfo)
                 .addPromotedTrackingUrls(SIZE_CHANGES, videoAd.getExitFullScreenUrls());
     }
 
     public static UIEvent fromSkipAdClick(PlayerAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {
         final UIEvent event = new UIEvent(KIND_SKIP_AD_CLICK, System.currentTimeMillis());
-        return withBasicAdAttributes(event, adData, trackSourceInfo)
+        return withPlayerAdAttributes(event, adData, trackSourceInfo)
                 .addPromotedTrackingUrls(SKIPS, adData.getSkipUrls());
     }
 
-    public static UIEvent fromAdClickThrough(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        final UIEvent event = withBasicAdAttributes(new UIEvent(KIND_AD_CLICKTHROUGH, System.currentTimeMillis()),
-                                                    adData,
-                                                    trackSourceInfo)
-                .addPromotedTrackingUrls(CLICKTHROUGHS, adData.getClickUrls());
+    public static UIEvent fromPlayerAdClickThrough(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        final UIEvent event = withPlayerAdAttributes(new UIEvent(KIND_AD_CLICKTHROUGH), adData, trackSourceInfo)
+                .addPromotedTrackingUrls(CLICKTHROUGHS, adData.getClickUrls())
+                .put(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND, "clickthrough::" + getMonetizationType(adData));
 
         if (adData instanceof AudioAd) {
             final AudioAd audioAd = (AudioAd) adData;
@@ -166,6 +168,13 @@ public final class UIEvent extends TrackingEvent {
         }
 
         return event;
+    }
+
+    public static UIEvent fromAppInstallAdClickThrough(AppInstallAd adData) {
+        return withBasicAdAttributes(new UIEvent(KIND_AD_CLICKTHROUGH), adData)
+                .addPromotedTrackingUrls(CLICKTHROUGHS, adData.getClickUrls())
+                .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, adData.getClickThroughUrl())
+                .put(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND, "clickthrough::app_install");
     }
 
     public static UIEvent fromStartStation() {
@@ -186,15 +195,28 @@ public final class UIEvent extends TrackingEvent {
         return linkType == null ? null : linkType.getName();
     }
 
-    private static UIEvent withBasicAdAttributes(UIEvent adEvent,
-                                                 PlayerAdData adData,
-                                                 TrackSourceInfo trackSourceInfo) {
-        return adEvent
-                .put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString())
+    private static UIEvent withPlayerAdAttributes(UIEvent adEvent,
+                                                  PlayerAdData adData,
+                                                  TrackSourceInfo trackSourceInfo)  {
+        return withBasicAdAttributes(adEvent, adData)
                 .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString())
-                .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE,
-                     (adData instanceof VideoAd) ? TYPE_VIDEO_AD : TYPE_AUDIO_AD)
                 .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
+    }
+
+    private static UIEvent withBasicAdAttributes(UIEvent adEvent,
+                                                 AdData adData) {
+        return adEvent.put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString())
+                      .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, getMonetizationType(adData));
+    }
+
+    private static String getMonetizationType(AdData adData) {
+        if (adData instanceof AudioAd) {
+            return TYPE_AUDIO_AD;
+        } else if (adData instanceof VideoAd) {
+            return TYPE_VIDEO_AD;
+        } else {
+            return TYPE_MOBILE_INLAY;
+        }
     }
 
     public static UIEvent fromCreatePlaylist(EntityMetadata metadata) {

@@ -23,6 +23,7 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
     private final FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer;
     private final SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer;
     private final StreamUpsellItemRenderer upsellItemRenderer;
+    private final AppInstallItemRenderer appInstallItemRenderer;
 
     @Inject
     public StreamAdapter(StreamTrackItemRenderer trackItemRenderer,
@@ -46,6 +47,7 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;
         this.upsellItemRenderer = upsellItemRenderer;
         this.suggestedCreatorsItemRenderer = suggestedCreatorsItemRenderer;
+        this.appInstallItemRenderer = appInstallItemRenderer;
     }
 
     @Override
@@ -87,5 +89,9 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     void setOnUpsellClickListener(UpsellItemRenderer.Listener listener) {
         this.upsellItemRenderer.setListener(listener);
+    }
+
+    void setOnAppInstallClickListener(AppInstallItemRenderer.Listener listener) {
+        this.appInstallItemRenderer.setListener(listener);
     }
 }

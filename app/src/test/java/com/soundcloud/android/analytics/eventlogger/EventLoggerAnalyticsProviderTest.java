@@ -525,7 +525,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldVideoAdClickthroughEvent() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        UIEvent adEvent = UIEvent.fromAdClickThrough(videoAd, trackSourceInfo);
+        UIEvent adEvent = UIEvent.fromPlayerAdClickThrough(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

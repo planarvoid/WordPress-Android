@@ -191,10 +191,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildAdClickThroughEvent(UIEvent event) {
-        final String clickName = event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE).equals("video_ad") ?
-                                 "clickthrough::video_ad" :
-                                 "clickthrough::audio_ad";
-        return buildClickEvent(clickName, event)
+        return buildClickEvent(event.get(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND), event)
                 .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL));
     }
 

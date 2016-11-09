@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -8,8 +7,8 @@ import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.AppInstall;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 
+import android.content.Context;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -33,20 +32,25 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
     private final Resources resources;
     private final CondensedNumberFormatter numberFormatter;
     private final ImageOperations imageOperations;
-    private final Navigator navigator;
-    private final WhyAdsDialogPresenter whyAdsPresenter;
+
+    public interface Listener {
+        void onAppInstallItemClicked(Context context, AppInstallAd appInstallAd);
+        void onWhyAdsClicked(Context context);
+    }
+
+    private Listener listener;
 
     @Inject
     public AppInstallItemRenderer(Resources resources,
                                   CondensedNumberFormatter numberFormatter,
-                                  ImageOperations imageOperations,
-                                  Navigator navigator,
-                                  WhyAdsDialogPresenter whyAdsPresenter) {
+                                  ImageOperations imageOperations) {
         this.resources = resources;
         this.numberFormatter = numberFormatter;
         this.imageOperations = imageOperations;
-        this.navigator = navigator;
-        this.whyAdsPresenter = whyAdsPresenter;
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -54,7 +58,6 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
         final View adView = LayoutInflater.from(parent.getContext())
                                           .inflate(R.layout.stream_app_install_card, parent, false);
         adView.setTag(new Holder(adView));
-
         return adView;
     }
 
@@ -74,23 +77,27 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
         holder.ratingBar.setRating(appInstall.getRating());
 
         bindWhyAdsListener(holder);
-        bindClickthroughListener(holder, appInstall.getClickThroughUrl());
+        bindClickthroughListener(holder, appInstall);
     }
 
     private void bindWhyAdsListener(Holder holder) {
         holder.whyAds.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                whyAdsPresenter.show(view.getContext());
+                if (listener != null) {
+                    listener.onWhyAdsClicked(view.getContext());
+                }
             }
         });
     }
 
-    private void bindClickthroughListener(Holder holder, final String clickthrough) {
+    private void bindClickthroughListener(Holder holder, final AppInstallAd appInstallAd) {
         final View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.openAdClickthrough(view.getContext(), Uri.parse(clickthrough));
+                if (listener != null) {
+                    listener.onAppInstallItemClicked(view.getContext(), appInstallAd);
+                }
             }
         };
         holder.callToAction.setOnClickListener(clickListener);

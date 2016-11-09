@@ -95,7 +95,7 @@ class AdPageListener extends PageListener {
         }
 
         eventBus.publish(EventQueue.TRACKING,
-                         UIEvent.fromAdClickThrough(adData, playQueueManager.getCurrentTrackSourceInfo()));
+                         UIEvent.fromPlayerAdClickThrough(adData, playQueueManager.getCurrentTrackSourceInfo()));
     }
 
     private void openUserOrPlaylistDeeplink(Context activityContext, DeepLink deeplink, Uri uri) {

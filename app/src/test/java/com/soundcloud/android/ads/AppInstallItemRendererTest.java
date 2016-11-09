@@ -2,12 +2,10 @@ package com.soundcloud.android.ads;
 
 
 import android.content.res.Resources;
-import android.net.Uri;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.stream.StreamItem;
@@ -40,8 +38,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
 
     @Mock private Resources resources;
     @Mock private ImageOperations imageOperations;
-    @Mock private Navigator navigator;
-    @Mock private WhyAdsDialogPresenter whyAdsPresenter;
+    @Mock private AppInstallItemRenderer.Listener listener;
 
     private AppInstallItemRenderer renderer;
     private View adView;
@@ -49,7 +46,8 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
-        renderer = new AppInstallItemRenderer(resources(), numberFormatter, imageOperations, navigator, whyAdsPresenter);
+        renderer = new AppInstallItemRenderer(resources(), numberFormatter, imageOperations);
+        renderer.setListener(listener);
         adView = renderer.createItemView(new FrameLayout(context()));
     }
 
@@ -59,7 +57,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.why_ads).performClick();
 
-        verify(whyAdsPresenter).show(adView.getContext());
+        verify(listener).onWhyAdsClicked(adView.getContext());
     }
 
     @Test
@@ -67,9 +65,8 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, adView, ITEMS);
 
         adView.findViewById(R.id.call_to_action).performClick();
-        final Uri uri = Uri.parse(APP_INSTALLS.get(0).getClickThroughUrl());
 
-        verify(navigator).openAdClickthrough(adView.getContext(), uri);
+        verify(listener).onAppInstallItemClicked(adView.getContext(), APP_INSTALLS.get(0));
     }
 
     @Test
@@ -77,9 +74,8 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, adView, ITEMS);
 
         adView.findViewById(R.id.image).performClick();
-        final Uri uri = Uri.parse(APP_INSTALLS.get(0).getClickThroughUrl());
 
-        verify(navigator).openAdClickthrough(adView.getContext(), uri);
+        verify(listener).onAppInstallItemClicked(adView.getContext(), APP_INSTALLS.get(0));
     }
 
     @Test

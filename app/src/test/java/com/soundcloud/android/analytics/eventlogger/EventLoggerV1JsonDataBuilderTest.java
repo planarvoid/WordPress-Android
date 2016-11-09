@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -1018,7 +1019,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdClickthroughUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromAdClickThrough(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final UIEvent event = UIEvent.fromPlayerAdClickThrough(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
         jsonDataBuilder.buildForUIEvent(event);
 
@@ -1065,6 +1066,19 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName("collection:likes")
                                                .monetizationType("video_ad")
                                                .clickName("ad::finish"));
+    }
+
+    @Test
+    public void createsJsonForAppInstallClickthroughUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromAppInstallAdClickThrough(AppInstallAd.create(AdFixtures.getApiAppInstall()));
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .adUrn("dfp:ads:111")
+                                               .monetizationType("mobile_inlay")
+                                               .clickName("clickthrough::app_install")
+                                               .clickTarget("http://clickthrough.com"));
     }
 
     @Test

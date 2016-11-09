@@ -15,12 +15,16 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.StreamAdsController;
+import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.StreamEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -54,6 +58,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 
+import android.net.Uri;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.TextView;
@@ -87,6 +92,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private View view;
     @Mock private NewItemsIndicator newItemsIndicator;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
+    @Mock private WhyAdsDialogPresenter whyAdsDialogPresenter;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
@@ -109,6 +115,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 facebookInvitesDialogPresenter,
                 navigator,
                 newItemsIndicator,
+                whyAdsDialogPresenter,
                 updatePlayableAdapterSubscriberFactory);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
@@ -432,5 +439,28 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragmentRule.getFragment());
 
         verify(streamAdsController).clear();
+    }
+
+    @Test
+    public void shouldForwardOpenWhyAdsCallToPresenter() {
+        when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        presenter.onWhyAdsClicked(view.getContext());
+
+        verify(whyAdsDialogPresenter).show(view.getContext());
+    }
+
+    @Test
+    public void shouldNavigateAndEmitTrackingEventForAppInstallClickthroughs() {
+        final AppInstallAd appInstall = AppInstallAd.create(AdFixtures.getApiAppInstall());
+
+        when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        presenter.onAppInstallItemClicked(view.getContext(), appInstall);
+
+        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(appInstall.getClickThroughUrl()));
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
     }
 }

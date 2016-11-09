@@ -53,7 +53,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksAdClickthroughs() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        UIEvent event = UIEvent.fromAdClickThrough(audioAd, trackSourceInfo);
+        UIEvent event = UIEvent.fromPlayerAdClickThrough(audioAd, trackSourceInfo);
 
         analyticsProvider.handleTrackingEvent(event);
 
@@ -71,7 +71,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksAudioAdClickthrough() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        UIEvent event = UIEvent.fromAdClickThrough(videoAd, trackSourceInfo);
+        UIEvent event = UIEvent.fromPlayerAdClickThrough(videoAd, trackSourceInfo);
 
         analyticsProvider.handleTrackingEvent(event);
 
@@ -103,7 +103,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksVideoAdClickthrough() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        UIEvent event = UIEvent.fromAdClickThrough(videoAd, trackSourceInfo);
+        UIEvent event = UIEvent.fromPlayerAdClickThrough(videoAd, trackSourceInfo);
 
         analyticsProvider.handleTrackingEvent(event);
 

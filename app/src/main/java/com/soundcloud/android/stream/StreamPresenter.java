@@ -11,11 +11,15 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AppInstallAd;
+import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.StreamAdsController;
+import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.StreamEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
@@ -47,6 +51,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -60,6 +65,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         StationsOnboardingStreamItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
         UpsellItemRenderer.Listener,
+        AppInstallItemRenderer.Listener,
         NewItemsIndicator.Listener {
 
     private static final Func1<StreamEvent, Boolean> FILTER_STREAM_REFRESH_EVENTS = new Func1<StreamEvent, Boolean>() {
@@ -80,6 +86,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final StationsOperations stationsOperations;
     private final Navigator navigator;
     private final NewItemsIndicator newItemsIndicator;
+    private final WhyAdsDialogPresenter whyAdsDialogPresenter;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -96,6 +103,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     FacebookInvitesDialogPresenter invitesDialogPresenter,
                     Navigator navigator,
                     NewItemsIndicator newItemsIndicator,
+                    WhyAdsDialogPresenter whyAdsDialogPresenter,
                     UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
               newItemsIndicator, streamOperations, adapter);
@@ -108,6 +116,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.invitesDialogPresenter = invitesDialogPresenter;
         this.navigator = navigator;
         this.newItemsIndicator = newItemsIndicator;
+        this.whyAdsDialogPresenter = whyAdsDialogPresenter;
 
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
@@ -115,6 +124,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
         adapter.setOnUpsellClickListener(this);
+        adapter.setOnAppInstallClickListener(this);
     }
 
     @Override
@@ -285,5 +295,16 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public int getNewItemsTextResourceId() {
         return R.plurals.stream_new_posts;
+    }
+
+    @Override
+    public void onAppInstallItemClicked(Context context, AppInstallAd appInstallAd) {
+        navigator.openAdClickthrough(context, Uri.parse(appInstallAd.getClickThroughUrl()));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAppInstallAdClickThrough(appInstallAd));
+    }
+
+    @Override
+    public void onWhyAdsClicked(Context context) {
+        whyAdsDialogPresenter.show(context);
     }
 }
