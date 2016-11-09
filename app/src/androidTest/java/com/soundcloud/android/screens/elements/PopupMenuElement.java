@@ -13,10 +13,9 @@ import java.util.List;
 public class PopupMenuElement extends Element {
 
     public PopupMenuElement(Han testDriver) {
-        super(testDriver, With.className("android.widget.PopupWindow$PopupViewContainer"));
-        waiter.waitForElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
+        super(testDriver, With.className("android.support.v7.widget.ListPopupWindow$DropDownListView"));
+        waiter.waitForElement(With.className("android.support.v7.widget.ListPopupWindow$DropDownListView"));
     }
-
     protected List<ViewElement> getRootMenuElements() {
         waiter.waitForElement(TextView.class);
         return getRootViewElement().findOnScreenElements(With.classSimpleName("ListMenuItemView"));
