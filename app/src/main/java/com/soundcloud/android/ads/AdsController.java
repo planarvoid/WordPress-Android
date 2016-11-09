@@ -53,6 +53,7 @@ public class AdsController {
 
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final AdViewabilityController adViewabilityController;
     private final VisualAdImpressionOperations visualAdImpressionOperations;
     private final AdOverlayImpressionOperations adOverlayImpressionOperations;
     private final VideoSourceProvider videoSourceProvider;
@@ -142,27 +143,31 @@ public class AdsController {
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
+                         AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository) {
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             videoSourceProvider, playQueueManager, trackRepository, AndroidSchedulers.mainThread());
+             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
+                         AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider, PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
                          Scheduler scheduler) {
 
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             videoSourceProvider, playQueueManager, trackRepository, scheduler, DEFAULT_OPERATION_STALE_TIME);
+             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, scheduler,
+             DEFAULT_OPERATION_STALE_TIME);
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
+                         AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
@@ -172,6 +177,7 @@ public class AdsController {
         this.adsOperations = adsOperations;
         this.visualAdImpressionOperations = visualAdImpressionOperations;
         this.adOverlayImpressionOperations = adOverlayImpressionOperations;
+        this.adViewabilityController = adViewabilityController;
         this.videoSourceProvider = videoSourceProvider;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
@@ -362,6 +368,7 @@ public class AdsController {
                                                          Log.i(ADS_TAG,
                                                                "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
                                                          eventBus.publish(EventQueue.TRACKING, createErrorEvent(state));
+                                                         adViewabilityController.stopVideoTracking();
                                                          playQueueManager.autoMoveToNextPlayableItem();
                                                      }
                                                  });

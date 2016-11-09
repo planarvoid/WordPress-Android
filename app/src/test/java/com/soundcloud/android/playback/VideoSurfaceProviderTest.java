@@ -6,6 +6,7 @@ import android.view.TextureView;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,6 +82,13 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void settingSurfaceTextureForwardsUpdateToListener() {
+        videoSurfaceProvider.setTextureView(URN, textureView);
+
+        verify(listener).onTextureViewUpdate(URN, textureView);
+    }
+
+    @Test
     public void onConfigurationChangeReleasesTextureViewReferenceFromContainer() {
         videoSurfaceProvider.setTextureView(URN, textureView);
         videoSurfaceProvider.onConfigurationChange();
@@ -108,5 +116,19 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
     @Test
     public void getSurfaceReturnsNullIfContainerDoesNotExist() {
         assertThat(videoSurfaceProvider.getSurface(URN)).isNull();
+    }
+
+     @Test
+    public void getTextureViewReturnsViewIfContainerForUrnExists() {
+        when(textureContainer.getTextureView()).thenReturn(textureView);
+
+        videoSurfaceProvider.setTextureView(URN, textureView);
+
+        assertThat(videoSurfaceProvider.getTextureView(URN)).isEqualTo(Optional.of(textureView));
+    }
+
+    @Test
+    public void getTextureViewReturnsAbsentIfContainerDoesNotExist() {
+        assertThat(videoSurfaceProvider.getTextureView(URN)).isEqualTo(Optional.absent());
     }
 }

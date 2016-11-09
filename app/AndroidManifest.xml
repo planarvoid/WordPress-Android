@@ -7,7 +7,7 @@
     package="com.soundcloud.android">
 
     <!-- required for Robolectric to use the correct values -->
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="21" tools:overrideLibrary="me.everything, com.moat.analytics.mobile"/>
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="21" tools:overrideLibrary="me.everything, com.moat.analytics.mobile.scl"/>
 
     <supports-screens android:anyDensity="true"/>
 

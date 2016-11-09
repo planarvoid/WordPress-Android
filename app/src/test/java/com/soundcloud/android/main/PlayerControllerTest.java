@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.ads.AdOrientationController;
 import com.soundcloud.android.ads.AdPlayerController;
-import com.soundcloud.android.ads.AdViewabilityMoatController;
+import com.soundcloud.android.ads.AdViewabilityController;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -21,7 +21,7 @@ public class PlayerControllerTest extends AndroidUnitTest {
     @Mock private SlidingPlayerController slidingPlayerController;
     @Mock private AdPlayerController adPlayerController;
     @Mock private AdOrientationController adOrienetationController;
-    @Mock private AdViewabilityMoatController adViewabilityController;
+    @Mock private AdViewabilityController adViewabilityController;
     @Mock private FeedbackController feedbackController;
     @Mock private AppCompatActivity appCompatActivity;
 

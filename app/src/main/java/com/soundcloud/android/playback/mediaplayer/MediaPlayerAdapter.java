@@ -7,6 +7,7 @@ import static com.soundcloud.android.playback.PlaybackType.VIDEO_AD;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdViewabilityController;
 import com.soundcloud.android.ads.AudioAdSource;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.EventQueue;
@@ -46,6 +47,7 @@ import android.os.PowerManager;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.view.Surface;
+import android.view.TextureView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -81,6 +83,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private final VideoSurfaceProvider videoSurfaceProvider;
     private final StreamUrlBuilder urlBuilder;
     private final CurrentDateProvider dateProvider;
+    private final AdViewabilityController adViewabilityController;
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
@@ -110,7 +113,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                               VideoSourceProvider videoSourceProvider,
                               VideoSurfaceProvider videoSurfaceProvider,
                               StreamUrlBuilder urlBuilder,
-                              CurrentDateProvider dateProvider) {
+                              CurrentDateProvider dateProvider,
+                              AdViewabilityController adViewabilityController) {
         this.bufferUnderrunListener = bufferUnderrunListener;
         this.urlBuilder = urlBuilder;
         this.dateProvider = dateProvider;
@@ -124,6 +128,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         this.videoSourceProvider = videoSourceProvider;
         this.videoSurfaceProvider = videoSurfaceProvider;
         this.videoSurfaceProvider.setListener(this);
+        this.adViewabilityController = adViewabilityController;
     }
 
     @Override
@@ -197,8 +202,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             return;
         }
         if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
-
             if (playerListener != null) {
+                if (isPlayingVideo()) {
+                    adViewabilityController.startVideoTracking(mediaPlayer, currentItem.getUrn());
+                }
+
                 play();
                 publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
 
@@ -266,10 +274,12 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                 play(currentItem, resumePosition);
             } else {
                 Log.d(TAG, "stream disconnected, giving up");
+                adViewabilityController.stopVideoTracking();
                 setInternalState(PlaybackState.ERROR);
                 mp.release();
                 resetConnectionRetries();
                 mediaPlayer = null;
+
             }
         }
         return true;
@@ -361,6 +371,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     void onPlaybackEnded() {
+        adViewabilityController.onVideoCompletion();
         setInternalState(PlaybackState.COMPLETED);
         clearSurface();
         resetConnectionRetries();
@@ -641,6 +652,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                 mediaPlayer.stop();
             }
 
+            adViewabilityController.stopVideoTracking();
             clearSurface();
             mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
@@ -661,6 +673,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                 mediaPlayer.setSurface(surface);
             }
         }
+    }
+
+    @Override
+    public void onTextureViewUpdate(Urn urn, TextureView textureView) {
+        adViewabilityController.updateVideoView(urn, textureView);
     }
 
     private void clearSurface() {

@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdViewabilityController;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.api.oauth.Token;
@@ -59,6 +60,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
 import android.view.Surface;
+import android.view.TextureView;
 
 import java.io.IOException;
 import java.util.Date;
@@ -82,7 +84,9 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Mock private CurrentDateProvider dateProvider;
     @Mock private VideoSourceProvider videoSourceProvider;
     @Mock private VideoSurfaceProvider videoSurfaceProvider;
+    @Mock private AdViewabilityController adViewabilityController;
     @Mock private Surface surface;
+    @Mock private TextureView textureView;
 
     @Captor private ArgumentCaptor<PlaybackStateTransition> stateCaptor;
 
@@ -128,7 +132,8 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
                                                     videoSourceProvider,
                                                     videoSurfaceProvider,
                                                     urlBuilder,
-                                                    dateProvider);
+                                                    dateProvider,
+                                                    adViewabilityController);
         mediaPlayerAdapter.setListener(listener);
     }
 
@@ -461,6 +466,17 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playVideoOnPreparedStartsTracking() throws IOException {
+        final VideoAdSource videoSource = VideoAdSource.create(AdFixtures.getApiVideoSource(1, 2));
+        when(videoSourceProvider.selectOptimalSource(videoItem)).thenReturn(videoSource);
+
+        mediaPlayerAdapter.play(videoItem);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+
+        verify(adViewabilityController).startVideoTracking(mediaPlayer, videoItem.getUrn());
+    }
+
+    @Test
     public void setsSurfaceOnVideoPlay() throws IOException {
         when(videoSurfaceProvider.getSurface(videoItem.getUrn())).thenReturn(surface);
         mediaPlayerAdapter.play(videoItem);
@@ -516,6 +532,16 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onPlaybackEndedForVideoCallsOnVideoCompletion() throws IOException {
+        mediaPlayerAdapter.play(videoItem);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+
+        mediaPlayerAdapter.onPlaybackEnded();
+
+        verify(adViewabilityController).onVideoCompletion();
+    }
+
+    @Test
     public void onErrorShouldReportErrorForVideoAdsWithoutPlaybackRetries() throws IOException {
         mediaPlayerAdapter.play(videoItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
@@ -536,6 +562,15 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
                                                                   0,
                                                                   -1,
                                                                   dateProvider)));
+    }
+
+    @Test
+    public void onErrorForVideoAdsShouldStopTracking() throws IOException {
+        mediaPlayerAdapter.play(videoItem);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(1);
+
+        verify(adViewabilityController).stopVideoTracking();
     }
 
     @Test
@@ -676,6 +711,16 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void stopShouldDoNothingWithIncorrectMediaPlayer() {
         mediaPlayerAdapter.stop(mediaPlayer);
         verifyZeroInteractions(listener);
+    }
+
+    @Test
+    public void stopShouldStopVideoTracking() {
+        mediaPlayerAdapter.play(videoItem);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+
+        mediaPlayerAdapter.stop(mediaPlayer);
+
+        verify(adViewabilityController).stopVideoTracking();
     }
 
     @Test
@@ -888,6 +933,13 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         verifyZeroInteractions(mediaPlayer);
+    }
+
+    @Test
+    public void onTextureViewUpdateShouldForwardVideoViewUpdatesToAdViewability() {
+        mediaPlayerAdapter.onTextureViewUpdate(videoItem.getUrn(), textureView);
+
+        verify(adViewabilityController).updateVideoView(videoItem.getUrn(), textureView);
     }
 
     private void playUrlAndSetPrepared(PlaybackItem item) {

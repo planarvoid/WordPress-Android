@@ -3,6 +3,8 @@ package com.soundcloud.android;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.facebook.FacebookSdk;
+import com.moat.analytics.mobile.scl.MoatAnalytics;
+import com.moat.analytics.mobile.scl.MoatOptions;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.AdsController;
@@ -147,6 +149,8 @@ public class SoundCloudApplication extends MultiDexApplication {
             Log.i(TAG, DeviceHelper.getBuildInfo());
         }
 
+        setupMoatAnalytics();
+
         adIdHelper.init();
 
         uncaughtExceptionHandlerController.reportSystemMemoryStats();
@@ -210,6 +214,14 @@ public class SoundCloudApplication extends MultiDexApplication {
             FabricProvider.initialize(this);
         }
         uncaughtExceptionHandlerController.setHandler();
+    }
+
+    private void setupMoatAnalytics() {
+        if (applicationProperties.canUseMoatForAdViewability() && featureFlags.isEnabled(Flag.MOAT_ADS_VIEWABILITY)) {
+            final MoatOptions options = new MoatOptions();
+            options.disableAdIdCollection = true;
+            MoatAnalytics.getInstance().start(options, this);
+        }
     }
 
     private void setupCurrentUserAccount() {

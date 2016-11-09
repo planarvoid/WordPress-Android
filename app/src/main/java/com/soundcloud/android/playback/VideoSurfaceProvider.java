@@ -6,6 +6,7 @@ import android.view.TextureView;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,8 @@ public class VideoSurfaceProvider {
             removeContainers(videoTexture);
             videoTextureContainers.put(urn, containerFactory.build(urn, videoTexture, listener));
         }
+
+        listener.onTextureViewUpdate(urn, videoTexture);
     }
 
     private void removeContainers(TextureView videoTexture) {
@@ -70,11 +73,16 @@ public class VideoSurfaceProvider {
 
     @Nullable
     public Surface getSurface(Urn urn) {
-       return videoTextureContainers.containsKey(urn) ? videoTextureContainers.get(urn).getSurface() : null;
+        return videoTextureContainers.containsKey(urn) ? videoTextureContainers.get(urn).getSurface() : null;
+    }
+
+    public Optional<TextureView> getTextureView(Urn urn) {
+        final TextureView textureView = videoTextureContainers.containsKey(urn) ? videoTextureContainers.get(urn).getTextureView() : null;
+        return Optional.fromNullable(textureView);
     }
 
     public interface Listener {
         void attemptToSetSurface(Urn urn);
+        void onTextureViewUpdate(Urn urn, TextureView textureView);
     }
-
 }

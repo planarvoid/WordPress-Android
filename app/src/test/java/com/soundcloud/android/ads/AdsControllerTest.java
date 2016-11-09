@@ -74,6 +74,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     private final PropertySet nextNonMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
                                                                                TrackProperty.MONETIZABLE.bind(false));
 
+    @Mock private AdViewabilityController adViewabilityController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
     @Mock private TrackRepository trackRepository;
@@ -105,6 +106,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                                           adsOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
+                                          adViewabilityController,
                                           videoSourceProvider,
                                           playQueueManager,
                                           trackRepository,
@@ -506,6 +508,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                                           adsOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
+                                          adViewabilityController,
                                           videoSourceProvider,
                                           playQueueManager,
                                           trackRepository,
@@ -590,6 +593,28 @@ public class AdsControllerTest extends AndroidUnitTest {
         assertThat(event.getKind()).isEqualTo(AdPlaybackErrorEvent.KIND_FAIL_TO_BUFFER);
         assertThat(event.getBitrate()).isEqualTo(source.getBitRateKbps());
         assertThat(event.getHost()).isEqualTo(source.getUrl());
+    }
+
+    @Test
+    public void playStateChangedEventWhenBufferingAVideoAdStopsVideoTracking() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final VideoAdSource source = videoAd.getFirstSource();
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(videoAd));
+        when(videoSourceProvider.getCurrentSource()).thenReturn(Optional.of(source));
+
+        adsController.subscribe();
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    Urn.forAd("dfp", "video-ad"),
+                                                                                    12,
+                                                                                    1200);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.wrap(stateTransition));
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
+
+        verify(adViewabilityController).stopVideoTracking();
     }
 
     @Test

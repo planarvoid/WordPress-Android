@@ -52,6 +52,11 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
     }
 
     @Nullable
+    TextureView getTextureView() {
+        return currentTextureView;
+    }
+
+    @Nullable
     Surface getSurface() {
         return surface;
     }
