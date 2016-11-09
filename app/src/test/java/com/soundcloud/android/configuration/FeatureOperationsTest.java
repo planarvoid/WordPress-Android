@@ -73,6 +73,23 @@ public class FeatureOperationsTest {
     }
 
     @Test
+    public void shouldRequestAdsIsTrueByDefault() {
+        assertThat(featureOperations.shouldRequestAds()).isTrue();
+    }
+
+    @Test
+    public void shouldRequestAdsIsTrueWhenStorageContainsFeatureFalse() {
+        when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
+        assertThat(featureOperations.shouldRequestAds()).isTrue();
+    }
+
+    @Test
+    public void shouldRequestAdsIsFalseWhenStorageContainsFeatureTrue() {
+        when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(true);
+        assertThat(featureOperations.shouldRequestAds()).isFalse();
+    }
+
+    @Test
     public void isOfflineContentOrUpsellEnabledFalseByDefault() {
         assertThat(featureOperations.isOfflineContentOrUpsellEnabled()).isFalse();
     }

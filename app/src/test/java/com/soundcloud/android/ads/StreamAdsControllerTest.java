@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import android.support.v7.widget.RecyclerView;
 
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -33,6 +34,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Mock private AdsOperations adsOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private FeatureOperations featureOperations;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private InlayAdInsertionHelper insertionHelper;
     @Mock private RecyclerView recycler;
@@ -41,10 +43,11 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        controller = spy(new StreamAdsController(adsOperations, featureFlags, dateProvider));
+        controller = spy(new StreamAdsController(adsOperations, featureFlags, featureOperations, dateProvider));
         controller.set(insertionHelper);
 
         when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(true);
+        when(featureOperations.shouldRequestAds()).thenReturn(true);
     }
 
     @Test
@@ -62,6 +65,25 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.onScrollStateChanged(recycler, RecyclerView.SCROLL_STATE_DRAGGING);
 
         verify(controller, never()).insertAds();
+    }
+
+    @Test
+    public void insertAdsDoesNotFetchInlayAdsIfUserHasShouldntFetchAdsFeature() {
+        when(featureOperations.shouldRequestAds()).thenReturn(false);
+
+        controller.insertAds();
+
+        verify(adsOperations, never()).inlaysAds();
+    }
+
+    @Test
+    public void insertAdsFetchesInlayAdsIfUserHasFetchAdsFeature() {
+        when(featureOperations.shouldRequestAds()).thenReturn(true);
+        when(adsOperations.inlaysAds()).thenReturn(justAppInstalls());
+
+        controller.insertAds();
+
+        verify(adsOperations).inlaysAds();
     }
 
     @Test

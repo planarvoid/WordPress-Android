@@ -4,6 +4,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
@@ -33,6 +34,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
     private final AdsOperations adsOperations;
     private final FeatureFlags featureFlags;
+    private final FeatureOperations featureOperations;
     private final DateProvider dateProvider;
 
     private Optional<InlayAdInsertionHelper> inlayAdInsertionHelper = Optional.absent();
@@ -44,9 +46,13 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private boolean wasScrollingUp;
 
     @Inject
-    public StreamAdsController(AdsOperations adsOperations, FeatureFlags featureFlags, CurrentDateProvider dateProvider) {
+    public StreamAdsController(AdsOperations adsOperations,
+                               FeatureFlags featureFlags,
+                               FeatureOperations featureOperations,
+                               CurrentDateProvider dateProvider) {
         this.adsOperations = adsOperations;
         this.featureFlags = featureFlags;
+        this.featureOperations = featureOperations;
         this.dateProvider = dateProvider;
     }
 
@@ -77,9 +83,9 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     }
 
     public void insertAds() {
-        if (featureFlags.isEnabled(Flag.APP_INSTALLS)) {
+        if (featureFlags.isEnabled(Flag.APP_INSTALLS) && featureOperations.shouldRequestAds()) {
             clearExpiredAds();
-            if (inlayAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldRequestAds()) {
+            if (inlayAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldFetchMoreAds()) {
                 fetchSubscription = adsOperations.inlaysAds()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new AppInstallSubscriber());
@@ -98,7 +104,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         }));
     }
 
-    private boolean shouldRequestAds() {
+    private boolean shouldFetchMoreAds() {
         return !(lastEmptyResponseTime.isPresent()
                 && Math.abs(dateProvider.getCurrentTime() - lastEmptyResponseTime.get()) < EMPTY_ADS_RESPONSE_BACKOFF_MS);
     }

@@ -40,6 +40,10 @@ public class FeatureOperations {
         return featureStorage.isEnabled(FeatureName.KRUX_ADS, false);
     }
 
+    public boolean shouldRequestAds() {
+        return !featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false);
+    }
+
     public boolean isOfflineContentOrUpsellEnabled() {
         return isOfflineContentEnabled() || upsellOfflineContent();
     }
