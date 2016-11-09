@@ -214,7 +214,7 @@ public class MediaSessionController {
 
     private void showNotification() {
         Optional<NotificationCompat.Builder> builderOpt =
-                MediaNotificationHelper.from(context, mediaSession, isPlaying());
+                MediaNotificationHelper.from(context, navigator, mediaSession, isPlaying());
 
         if (builderOpt.isPresent()) {
             listener.showNotification(builderOpt.get().build());

@@ -32,7 +32,6 @@ public class ApplicationProperties {
     private boolean enforceConcurrentStreamingLimitation;
     private boolean logQueries;
 
-    private final String castReceiverAppId;
     @VisibleForTesting
     static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
     @VisibleForTesting
@@ -72,7 +71,6 @@ public class ApplicationProperties {
         verboseLogging = resources.getBoolean(R.bool.verbose_logging);
         googlePlusEnabled = resources.getBoolean(R.bool.google_plus_enabled);
         enforceConcurrentStreamingLimitation = resources.getBoolean(R.bool.enforce_concurrent_streaming_limitation);
-        castReceiverAppId = resources.getString(R.string.cast_receiver_app_id);
         logQueries = resources.getBoolean(R.bool.log_queries);
     }
 
@@ -139,10 +137,6 @@ public class ApplicationProperties {
 
     public boolean canUseMoatForAdViewability() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
-    }
-
-    public String getCastReceiverAppId() {
-        return castReceiverAppId;
     }
 
     @Override

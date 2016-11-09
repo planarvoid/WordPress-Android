@@ -5,9 +5,10 @@ import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
 import static android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS;
 import static android.view.KeyEvent.KEYCODE_MEDIA_STOP;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.java.optional.Optional;
@@ -23,12 +24,13 @@ import android.support.v7.app.NotificationCompat;
 import android.view.KeyEvent;
 
 class MediaNotificationHelper {
-    public static final int NOTIFICATION_ICON = R.drawable.ic_notification_cloud;
-    public static final int PREVIOUS_ACTION_POSITION = 0;
-    public static final int PLAY_PAUSE_ACTION_POSITION = 1;
-    public static final int NEXT_ACTION_POSITION = 2;
+    private static final int NOTIFICATION_ICON = R.drawable.ic_notification_cloud;
+    private static final int PREVIOUS_ACTION_POSITION = 0;
+    private static final int PLAY_PAUSE_ACTION_POSITION = 1;
+    private static final int NEXT_ACTION_POSITION = 2;
 
     static Optional<NotificationCompat.Builder> from(Context context,
+                                                     Navigator navigator,
                                                      MediaSessionCompat mediaSession,
                                                      boolean playing) {
         Optional<MediaDescriptionCompat> descriptionOpt = getMediaDescription(mediaSession);
@@ -43,7 +45,7 @@ class MediaNotificationHelper {
                     .setSubText(description.getDescription())
                     .setSmallIcon(NOTIFICATION_ICON)
                     .setLargeIcon(description.getIconBitmap())
-                    .setContentIntent(getContentIntent(context))
+                    .setContentIntent(getContentIntent(context, navigator))
                     .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                     .setShowWhen(false)
                     .setAutoCancel(true)
@@ -95,8 +97,8 @@ class MediaNotificationHelper {
         return PendingIntent.getBroadcast(context, keyCode, intent, 0);
     }
 
-    private static PendingIntent getContentIntent(Context context) {
-        final Intent intent = new Intent(context, LauncherActivity.class);
+    private static PendingIntent getContentIntent(Context context, Navigator navigator) {
+        final Intent intent = new Intent(context, MainActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
@@ -104,7 +106,10 @@ class MediaNotificationHelper {
         Screen.NOTIFICATION.addToIntent(intent);
         Referrer.PLAYBACK_NOTIFICATION.addToIntent(intent);
 
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getActivity(context,
+                                         0,
+                                         navigator.createHomeIntentFromNotification(context),
+                                         PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     private enum Action {

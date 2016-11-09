@@ -12,6 +12,7 @@ import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
+import com.soundcloud.android.cast.CastConfigStorage;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.LegacyCastPlayer;
@@ -229,13 +230,13 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public CastConnectionHelper provideCastConnectionHelper(Context context,
-                                                            ApplicationProperties applicationProperties,
+                                                            CastConfigStorage castConfigStorage,
                                                             FeatureFlags featureFlags) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
         if ("Dalvik".equals(System.getProperty("java.vm.name")) && featureFlags.isDisabled(Flag.CAST_V3)) {
-            return new DefaultCastConnectionHelper(provideVideoCastManager(context, applicationProperties));
+            return new DefaultCastConnectionHelper(provideVideoCastManager(context, castConfigStorage));
         } else {
             return new NoOpCastConnectionHelper();
         }
@@ -243,11 +244,11 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties) {
+    public VideoCastManager provideVideoCastManager(Context context, CastConfigStorage castConfigStorage) {
         return VideoCastManager
                 .initialize(
                         context,
-                        new CastConfiguration.Builder(applicationProperties.getCastReceiverAppId())
+                        new CastConfiguration.Builder(castConfigStorage.getReceiverID())
                                 .setTargetActivity(MainActivity.class)
                                 .addNamespace("urn:x-cast:com.soundcloud.cast.sender")
                                 .enableLockScreen()

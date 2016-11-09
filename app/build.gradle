@@ -224,7 +224,7 @@ dependencies {
   compile libraries.androidCardView
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesAuth
-  compile libraries.androidPlayServicesCast
+  compile libraries.androidPlayServicesCastLegacy
   compile libraries.firebaseCore
   compile libraries.firebaseConfig
   compile libraries.firebaseMessaging
