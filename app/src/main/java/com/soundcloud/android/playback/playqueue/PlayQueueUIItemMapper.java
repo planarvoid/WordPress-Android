@@ -5,6 +5,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.PlaybackContext;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.java.optional.Optional;
 import rx.functions.Func2;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Urn, String>, List<PlayQueueUIItem>> {
+
     private final Context context;
     private final PlayQueueManager playQueueManager;
 
@@ -27,36 +29,65 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
 
     @Override
     public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> items, Map<Urn, String> urnStringMap) {
-        final List<PlayQueueUIItem> uiItems = new ArrayList<>();
-        final PlayQueueManager.RepeatMode repeatMode = playQueueManager.getRepeatMode();
+        return new Mapper(urnStringMap).map(items);
+    }
+
+    private class Mapper {
+        private final List<PlayQueueUIItem> uiItems = new ArrayList<>();
+        private final PlayQueueManager.RepeatMode repeatMode;
+        private final PlayQueueItem currentPlayQueueItem;
+        private final Map<Urn, String> urnStringMap;
+        private final boolean isShuffled;
+
+        boolean pastCurrent = false;
         Optional<PlaybackContext> lastContext = Optional.absent();
 
-        for (TrackAndPlayQueueItem item : items) {
-            final PlayQueueItem playQueueItem = item.playQueueItem;
-            final PlaybackContext playbackContext = ((PlayableQueueItem) playQueueItem).getPlaybackContext();
-            final Optional<String> title = getTitle(urnStringMap, playbackContext);
-
-            if (!playQueueManager.isShuffled() && shouldAddNewHeader(lastContext, playbackContext)) {
-                lastContext = Optional.of(playbackContext);
-                uiItems.add(new HeaderPlayQueueUIItem(playbackContext, title, PlayState.COMING_UP,
-                                                      repeatMode));
-            }
-
-            uiItems.add(TrackPlayQueueUIItem.from(playQueueItem, item.trackItem, context, title, repeatMode));
+        Mapper(Map<Urn, String> urnStringMap) {
+            this.urnStringMap = urnStringMap;
+            this.repeatMode = playQueueManager.getRepeatMode();
+            this.isShuffled = playQueueManager.isShuffled();
+            this.currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         }
-        return uiItems;
-    }
 
-    private static boolean shouldAddNewHeader(Optional<PlaybackContext> lastContext,
-                                              PlaybackContext playbackContext) {
-        return !lastContext.isPresent() || !playbackContext.equals(lastContext.get());
-    }
+        public List<PlayQueueUIItem> map(List<TrackAndPlayQueueItem> items) {
+            for (TrackAndPlayQueueItem item : items) {
+                final TrackQueueItem playQueueItem = item.playQueueItem;
+                addHeaderIfNecessary(playQueueItem);
+                addTrack(item);
+                setPastCurrent(playQueueItem);
+            }
+            return uiItems;
+        }
 
-    private static Optional<String> getTitle(Map<Urn, String> urnTitles, PlaybackContext playbackContext) {
-        final Optional<Urn> urn = playbackContext.urn();
-        return urn.isPresent() ?
-               Optional.fromNullable(urnTitles.get(urn.get())) :
-               Optional.<String>absent();
-    }
+        private void addHeaderIfNecessary(PlayableQueueItem playQueueItem) {
+            final PlaybackContext playbackContext = playQueueItem.getPlaybackContext();
+            final boolean canAddHeader = !pastCurrent || !isShuffled;
 
+            if (canAddHeader && shouldAddNewHeader(playbackContext)) {
+                lastContext = Optional.of(playbackContext);
+                uiItems.add(new HeaderPlayQueueUIItem(playbackContext, getTitle(playQueueItem),
+                                                      PlayState.COMING_UP, repeatMode));
+            }
+        }
+
+        private boolean addTrack(TrackAndPlayQueueItem item) {
+            return uiItems.add(TrackPlayQueueUIItem.from(item.playQueueItem, item.trackItem, context,
+                                                         getTitle(item.playQueueItem), repeatMode));
+        }
+
+        private void setPastCurrent(PlayQueueItem playQueueItem) {
+            if (playQueueItem.equals(currentPlayQueueItem)) {
+                pastCurrent = true;
+            }
+        }
+
+        private boolean shouldAddNewHeader(PlaybackContext playbackContext) {
+            return !lastContext.isPresent() || !playbackContext.equals(lastContext.get());
+        }
+
+        private Optional<String> getTitle(PlayableQueueItem item) {
+            final Optional<Urn> urn = item.getPlaybackContext().urn();
+            return urn.isPresent() ? Optional.fromNullable(urnStringMap.get(urn.get())) : Optional.<String>absent();
+        }
+    }
 }
