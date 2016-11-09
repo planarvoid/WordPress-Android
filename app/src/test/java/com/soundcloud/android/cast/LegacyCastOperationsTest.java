@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CastOperationsTest extends AndroidUnitTest {
+public class LegacyCastOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
@@ -42,7 +42,7 @@ public class CastOperationsTest extends AndroidUnitTest {
     private static final List<Urn> PLAY_QUEUE = newArrayList(TRACK1, TRACK2);
     private static final String IMAGE_URL = "http://image.url";
 
-    private CastOperations castOperations;
+    private LegacyCastOperations castOperations;
 
     @Mock private VideoCastManager videoCastManager;
     @Mock private TrackRepository trackRepository;
@@ -54,12 +54,12 @@ public class CastOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        castOperations = new CastOperations(videoCastManager,
-                                            trackRepository,
-                                            policyOperations,
-                                            imageOperations,
-                                            resources,
-                                            Schedulers.immediate());
+        castOperations = new LegacyCastOperations(videoCastManager,
+                                                  trackRepository,
+                                                  policyOperations,
+                                                  imageOperations,
+                                                  resources,
+                                                  Schedulers.immediate());
         observer = new TestObserver<>();
         when(imageOperations.getUrlForLargestImage(resources, TRACK1)).thenReturn(IMAGE_URL);
     }

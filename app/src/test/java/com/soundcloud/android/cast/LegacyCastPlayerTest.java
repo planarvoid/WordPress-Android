@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CastPlayerTest extends AndroidUnitTest {
+public class LegacyCastPlayerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN1 = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(456L);
@@ -64,12 +64,12 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     private static final PlayQueueItem PLAY_QUEUE_ITEM1 = TestPlayQueueItem.createTrack(TRACK_URN1);
 
-    private CastPlayer castPlayer;
+    private LegacyCastPlayer castPlayer;
 
     private TestEventBus eventBus = new TestEventBus();
     private TestObserver<PlaybackResult> observer;
 
-    @Mock private CastOperations castOperations;
+    @Mock private LegacyCastOperations castOperations;
     @Mock private VideoCastManager castManager;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private GoogleApiClient googleApiClient;
@@ -83,8 +83,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, playQueueManager, eventBus,
-                                    playStatePublisher, new CurrentDateProvider());
+        castPlayer = new LegacyCastPlayer(castOperations, castManager, progressReporter, playQueueManager, eventBus,
+                                          playStatePublisher, new CurrentDateProvider());
         observer = new TestObserver<>();
     }
 

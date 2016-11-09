@@ -12,7 +12,7 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.cast.CastSessionController;
+import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
@@ -32,6 +32,7 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -97,7 +98,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject ScreenProvider screenProvider;
     @Inject AdIdHelper adIdHelper;
-    @Inject CastSessionController castSessionController;
+    @Inject LegacyCastSessionController castSessionController;
     @Inject StationsController stationsController;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject AppboyPlaySessionState appboyPlaySessionState;
@@ -169,7 +170,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         adsController.subscribe();
         screenProvider.subscribe();
         appboyPlaySessionState.subscribe();
-        castSessionController.startListening();
+
+        configureCast();
+
         trackOfflineStateProvider.subscribe();
         playQueueExtender.subscribe();
         playHistoryController.subscribe();
@@ -188,6 +191,12 @@ public class SoundCloudApplication extends MultiDexApplication {
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
+    }
+
+    private void configureCast() {
+        if (featureFlags.isDisabled(Flag.CAST_V3)) {
+            castSessionController.startListening();
+        }
     }
 
     private void initializePreInjectionObjects() {

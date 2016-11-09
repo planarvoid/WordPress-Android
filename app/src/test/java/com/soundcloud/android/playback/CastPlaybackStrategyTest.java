@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.cast.CastPlayer;
+import com.soundcloud.android.cast.LegacyCastPlayer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import org.junit.Before;
@@ -19,7 +19,7 @@ public class CastPlaybackStrategyTest {
 
     private CastPlaybackStrategy strategy;
 
-    @Mock private CastPlayer castPlayer;
+    @Mock private LegacyCastPlayer castPlayer;
 
     @Before
     public void setUp() {

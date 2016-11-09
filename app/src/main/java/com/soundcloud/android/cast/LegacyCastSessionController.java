@@ -36,11 +36,11 @@ import java.util.List;
 import java.util.Locale;
 
 @Singleton
-public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
+public class LegacyCastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
 
-    private final CastOperations castOperations;
+    private final LegacyCastOperations castOperations;
     private final PlaybackServiceController serviceController;
-    private final CastPlayer castPlayer;
+    private final LegacyCastPlayer castPlayer;
     private final PlayQueueManager playQueueManager;
     private final VideoCastManager videoCastManager;
     private final EventBus eventBus;
@@ -48,14 +48,14 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriber;
 
     @Inject
-    public CastSessionController(CastOperations castOperations,
-                                 PlaybackServiceController serviceController,
-                                 CastPlayer castPlayer,
-                                 PlayQueueManager playQueueManager,
-                                 VideoCastManager videoCastManager,
-                                 EventBus eventBus,
-                                 PlaySessionStateProvider playSessionStateProvider,
-                                 Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+    public LegacyCastSessionController(LegacyCastOperations castOperations,
+                                       PlaybackServiceController serviceController,
+                                       LegacyCastPlayer castPlayer,
+                                       PlayQueueManager playQueueManager,
+                                       VideoCastManager videoCastManager,
+                                       EventBus eventBus,
+                                       PlaySessionStateProvider playSessionStateProvider,
+                                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.castOperations = castOperations;
         this.serviceController = serviceController;
         this.castPlayer = castPlayer;
@@ -73,7 +73,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     @Override
     public void onApplicationConnected(ApplicationMetadata appMetadata, String sessionId, boolean wasLaunched) {
-        Log.d(CastOperations.TAG, "On Application Connected, launched: " + wasLaunched);
+        Log.d(LegacyCastOperations.TAG, "On Application Connected, launched: " + wasLaunched);
         serviceController.stopPlaybackService();
         if (wasLaunched && !playQueueManager.isQueueEmpty()) {
             playLocalPlayQueueOnRemote();
@@ -81,7 +81,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
     }
 
     private void playLocalPlayQueueOnRemote() {
-        Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
+        Log.d(LegacyCastOperations.TAG, "Sending current track and queue to cast receiver");
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         final PlaybackProgress lastProgressForTrack = currentPlayQueueItem.isEmpty() ? PlaybackProgress.empty() :
                                                       playSessionStateProvider.getLastProgressForItem(
@@ -97,14 +97,14 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
         return new Action1<PlaybackResult>() {
             @Override
             public void call(PlaybackResult playbackResult) {
-                CastSessionController.this.castPlayer.playCurrent(lastProgressForTrack.getPosition());
+                LegacyCastSessionController.this.castPlayer.playCurrent(lastProgressForTrack.getPosition());
             }
         };
     }
 
     @Override
     public void onRemoteMediaPlayerStatusUpdated() {
-        Log.d(CastOperations.TAG,
+        Log.d(LegacyCastOperations.TAG,
               "On Status updated, status: " + videoCastManager.getRemoteMediaPlayer()
                                                               .getMediaStatus()
                                                               .getPlayerState());
@@ -113,7 +113,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     @Override
     public void onRemoteMediaPlayerMetadataUpdated() {
-        Log.d(CastOperations.TAG, "On metadata updated.");
+        Log.d(LegacyCastOperations.TAG, "On metadata updated.");
         final RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
         if (!remotePlayQueue.getTrackList().isEmpty()) {
             updateLocalPlayQueueAndPlayState(remotePlayQueue);
@@ -125,17 +125,17 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
         final Urn remoteCurrentUrn = remotePlayQueue.getCurrentTrackUrn();
         final int remotePosition = remotePlayQueue.getCurrentPosition();
 
-        Log.d(CastOperations.TAG, String.format(Locale.US,
-                                                "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
-                                                remoteCurrentUrn, remoteTrackList.size()));
+        Log.d(LegacyCastOperations.TAG, String.format(Locale.US,
+                                                      "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
+                                                      remoteCurrentUrn, remoteTrackList.size()));
         if (playQueueManager.hasSameTrackList(remoteTrackList)) {
-            Log.d(CastOperations.TAG, "Has the same tracklist, setting remotePosition");
+            Log.d(LegacyCastOperations.TAG, "Has the same tracklist, setting remotePosition");
             playQueueManager.setPosition(remotePosition, true);
             if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
                 castPlayer.playCurrent();
             }
         } else {
-            Log.d(CastOperations.TAG, "Does not have the same tracklist, updating locally");
+            Log.d(LegacyCastOperations.TAG, "Does not have the same tracklist, updating locally");
             List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
             final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns,
                                                                    PlaySessionSource.EMPTY,

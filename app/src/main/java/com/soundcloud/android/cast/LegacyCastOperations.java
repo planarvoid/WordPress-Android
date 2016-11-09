@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class CastOperations {
+public class LegacyCastOperations {
 
     public static final String TAG = "GoogleCast";
 
@@ -72,12 +72,12 @@ public class CastOperations {
     };
 
     @Inject
-    public CastOperations(VideoCastManager videoCastManager,
-                          TrackRepository trackRepository,
-                          PolicyOperations policyOperations,
-                          ImageOperations imageOperations,
-                          Resources resources,
-                          @Named(LOW_PRIORITY) Scheduler progressPullIntervalScheduler) {
+    public LegacyCastOperations(VideoCastManager videoCastManager,
+                                TrackRepository trackRepository,
+                                PolicyOperations policyOperations,
+                                ImageOperations imageOperations,
+                                Resources resources,
+                                @Named(LOW_PRIORITY) Scheduler progressPullIntervalScheduler) {
         this.videoCastManager = videoCastManager;
         this.trackRepository = trackRepository;
         this.policyOperations = policyOperations;

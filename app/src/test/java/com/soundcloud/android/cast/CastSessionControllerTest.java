@@ -46,11 +46,11 @@ public class CastSessionControllerTest extends AndroidUnitTest {
     private static final Urn URN2 = Urn.forTrack(456L);
     private static final List<Urn> PLAY_QUEUE = Arrays.asList(URN, URN2);
 
-    private CastSessionController castSessionController;
+    private LegacyCastSessionController castSessionController;
 
-    @Mock private CastOperations castOperations;
+    @Mock private LegacyCastOperations castOperations;
     @Mock private PlaybackServiceController serviceInitiator;
-    @Mock private CastPlayer castPlayer;
+    @Mock private LegacyCastPlayer castPlayer;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private VideoCastManager videoCastManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
@@ -62,14 +62,14 @@ public class CastSessionControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        castSessionController = new CastSessionController(castOperations,
-                                                          serviceInitiator,
-                                                          castPlayer,
-                                                          playQueueManager,
-                                                          videoCastManager,
-                                                          eventBus,
-                                                          playSessionStateProvider,
-                                                          expandPlayerSubscriberProvider);
+        castSessionController = new LegacyCastSessionController(castOperations,
+                                                                serviceInitiator,
+                                                                castPlayer,
+                                                                playQueueManager,
+                                                                videoCastManager,
+                                                                eventBus,
+                                                                playSessionStateProvider,
+                                                                expandPlayerSubscriberProvider);
         when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(Collections.<Urn>emptyList(),
                                                                                   Urn.NOT_SET));
     }

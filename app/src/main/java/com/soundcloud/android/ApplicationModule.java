@@ -13,8 +13,8 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
+import com.soundcloud.android.cast.LegacyCastPlayer;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
@@ -42,6 +42,7 @@ import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncModule;
@@ -228,11 +229,12 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public CastConnectionHelper provideCastConnectionHelper(Context context,
-                                                            ApplicationProperties applicationProperties) {
+                                                            ApplicationProperties applicationProperties,
+                                                            FeatureFlags featureFlags) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
-        if ("Dalvik".equals(System.getProperty("java.vm.name"))) {
+        if ("Dalvik".equals(System.getProperty("java.vm.name")) && featureFlags.isDisabled(Flag.CAST_V3)) {
             return new DefaultCastConnectionHelper(provideVideoCastManager(context, applicationProperties));
         } else {
             return new NoOpCastConnectionHelper();
@@ -260,7 +262,7 @@ public class ApplicationModule {
     public PlaybackStrategy providePlaybackStrategy(PlaybackServiceController serviceController,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
-                                                    Lazy<CastPlayer> castPlayer,
+                                                    Lazy<LegacyCastPlayer> castPlayer,
                                                     TrackRepository trackRepository,
                                                     OfflinePlaybackOperations offlinePlaybackOperations,
                                                     PlaySessionStateProvider playSessionStateProvider,

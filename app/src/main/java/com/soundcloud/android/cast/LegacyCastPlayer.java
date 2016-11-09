@@ -46,9 +46,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Singleton
-public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPuller {
+public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPuller {
 
-    private final CastOperations castOperations;
+    private final LegacyCastOperations castOperations;
     private final VideoCastManager castManager;
     private final ProgressReporter progressReporter;
     private final PlayQueueManager playQueueManager;
@@ -59,13 +59,13 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
 
     @Inject
-    public CastPlayer(CastOperations castOperations,
-                      VideoCastManager castManager,
-                      ProgressReporter progressReporter,
-                      PlayQueueManager playQueueManager,
-                      EventBus eventBus,
-                      PlayStatePublisher playStatePublisher,
-                      CurrentDateProvider dateProvider) {
+    public LegacyCastPlayer(LegacyCastOperations castOperations,
+                            VideoCastManager castManager,
+                            ProgressReporter progressReporter,
+                            PlayQueueManager playQueueManager,
+                            EventBus eventBus,
+                            PlayStatePublisher playStatePublisher,
+                            CurrentDateProvider dateProvider) {
         this.castOperations = castOperations;
         this.castManager = castManager;
         this.progressReporter = progressReporter;
@@ -142,7 +142,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                              PlaybackProgressEvent.create(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
-            Log.e(CastOperations.TAG, "Unable to report progress", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to report progress", e);
         }
     }
 
@@ -271,7 +271,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                                   (int) progressPosition,
                                   localPlayQueue.playQueueTracksJSON);
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
-            Log.e(CastOperations.TAG, "Unable to load track", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to load track", e);
         }
     }
 
@@ -309,7 +309,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
             castManager.play();
             return true;
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(CastOperations.TAG, "Unable to resume playback", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to resume playback", e);
         }
         return false;
     }
@@ -318,7 +318,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             castManager.pause();
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(CastOperations.TAG, "Unable to pause playback", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to pause playback", e);
         }
     }
 
@@ -326,7 +326,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             castManager.togglePlayback();
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(CastOperations.TAG, "Unable to pause playback", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to pause playback", e);
         }
     }
 
@@ -335,7 +335,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
             castManager.seek((int) ms);
             progressReporter.stop();
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(CastOperations.TAG, "Unable to seek", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to seek", e);
         }
         return ms;
     }
@@ -344,7 +344,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             return castManager.getCurrentMediaPosition();
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(CastOperations.TAG, "Unable to get progress", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to get progress", e);
         }
         return 0;
     }
@@ -353,7 +353,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             return castManager.getMediaDuration();
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(CastOperations.TAG, "Unable to get duration", e);
+            Log.e(LegacyCastOperations.TAG, "Unable to get duration", e);
         }
         return 0;
     }

@@ -24,7 +24,8 @@ enum Feature {
   NEW_HOME,
   APP_INSTALLS,
   PROFILE_BANNER,
-  CLEAR_TABLES_ON_SIGNOUT;
+  CLEAR_TABLES_ON_SIGNOUT,
+  CAST_V3;
 }
 
 android {
@@ -46,6 +47,7 @@ android {
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APP_INSTALLS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {

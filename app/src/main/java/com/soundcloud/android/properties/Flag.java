@@ -30,7 +30,8 @@ public enum Flag {
     NEW_HOME(BuildConfig.NEW_HOME),
     APP_INSTALLS(BuildConfig.APP_INSTALLS),
     PROFILE_BANNER(BuildConfig.PROFILE_BANNER),
-    CLEAR_TABLES_ON_SIGNOUT(BuildConfig.CLEAR_TABLES_ON_SIGNOUT);
+    CLEAR_TABLES_ON_SIGNOUT(BuildConfig.CLEAR_TABLES_ON_SIGNOUT),
+    CAST_V3(BuildConfig.CAST_V3);
 
     private final State state;
 
