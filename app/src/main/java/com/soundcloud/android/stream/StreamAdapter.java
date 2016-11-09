@@ -4,24 +4,19 @@ import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsItemRenderer;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.StreamUpsellItemRenderer;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
-import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class StreamAdapter
-        extends PagingRecyclerItemAdapter<StreamItem, RecyclerView.ViewHolder>
-        implements PlayingTrackAware {
+public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, RecyclerView.ViewHolder> {
 
     private final FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer;
     private final StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer;
@@ -58,17 +53,6 @@ public class StreamAdapter
     @Override
     public int getBasicItemViewType(int position) {
         return getItem(position).kind().ordinal();
-    }
-
-    @Override
-    public void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (StreamItem viewModel : getItems()) {
-            if (viewModel.kind() == StreamItem.Kind.TRACK) {
-                final TrackItem trackModel = ((StreamItem.Track) viewModel).trackItem();
-                trackModel.setIsPlaying(trackModel.getUrn().equals(currentlyPlayingUrn));
-            }
-        }
-        notifyDataSetChanged();
     }
 
     void unsubscribe() {

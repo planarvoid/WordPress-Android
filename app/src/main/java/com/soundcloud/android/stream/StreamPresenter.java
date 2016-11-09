@@ -32,7 +32,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.FacebookListenerInvites;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -76,6 +76,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
+    private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final StationsOperations stationsOperations;
     private final Navigator navigator;
     private final NewItemsIndicator newItemsIndicator;
@@ -94,7 +95,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     MixedItemClickListener.Factory itemClickListenerFactory,
                     FacebookInvitesDialogPresenter invitesDialogPresenter,
                     Navigator navigator,
-                    NewItemsIndicator newItemsIndicator) {
+                    NewItemsIndicator newItemsIndicator,
+                    UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
               newItemsIndicator, streamOperations, adapter);
         this.streamOperations = streamOperations;
@@ -108,6 +110,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.newItemsIndicator = newItemsIndicator;
 
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
+        this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
@@ -148,7 +151,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         addScrollListeners();
 
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                                   updatePlayableAdapterSubscriberFactory.create(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateStreamEntitySubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                         .filter(FILTER_STREAM_REFRESH_EVENTS)

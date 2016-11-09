@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +39,8 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
@@ -83,11 +86,16 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private View view;
     @Mock private NewItemsIndicator newItemsIndicator;
+    @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
 
+    private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
+
+        updatePlayableAdapterSubscriber = spy(new UpdatePlayableAdapterSubscriber(adapter));
+        when(updatePlayableAdapterSubscriberFactory.create(adapter)).thenReturn(updatePlayableAdapterSubscriber);
         when(itemClickListenerFactory.create(Screen.STREAM, null)).thenReturn(itemClickListener);
         presenter = new StreamPresenter(
                 streamOperations,
@@ -100,7 +108,8 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 itemClickListenerFactory,
                 facebookInvitesDialogPresenter,
                 navigator,
-                newItemsIndicator);
+                newItemsIndicator,
+                updatePlayableAdapterSubscriberFactory);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
@@ -111,10 +120,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void canLoadStreamItems() {
         final PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(expectedPromotedTrack());
-        StreamItem.Track promotedTrackStreamItem = StreamItem.Track.createForPromoted(promotedTrackItem,
-                                                                                      CREATED_AT);
+        TrackStreamItem promotedTrackStreamItem = TrackStreamItem.createForPromoted(promotedTrackItem,
+                                                                                    CREATED_AT);
         final TrackItem trackItem = TrackItem.from(expectedTrackForListItem(Urn.forTrack(123L)));
-        StreamItem.Track normalTrackStreamItem = StreamItem.Track.create(trackItem, CREATED_AT);
+        TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT);
         final PlaylistItem playlistItem = PlaylistItem.from(expectedLikedPlaylistForPlaylistsScreen());
         StreamItem.Playlist playlistStreamItem = StreamItem.Playlist.create(playlistItem, CREATED_AT);
         final List<StreamItem> items = Arrays.asList(promotedTrackStreamItem,
@@ -132,7 +141,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void canRefreshStreamItems() {
         final TrackItem trackItem = TrackItem.from(expectedTrackForListItem(Urn.forTrack(123L)));
-        final StreamItem streamItem = StreamItem.Track.create(trackItem, CREATED_AT);
+        final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT);
         when(streamOperations.updatedStreamItems()).thenReturn(Observable.just(
                 Collections.singletonList(streamItem)
         ));
@@ -150,7 +159,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(clickedTrack.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(StreamItem.Track.create(clickedTrack, clickedTrack.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -164,7 +173,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(clickedTrack.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(StreamItem.Track.createForPromoted(clickedTrack, clickedTrack.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(TrackStreamItem.createForPromoted(clickedTrack, clickedTrack.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -218,12 +227,15 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
+        final CurrentPlayQueueItemEvent event = CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(
+                playingTrack),
+                                                                                              Urn.NOT_SET,
+                                                                                              0);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack),
-                                                                       Urn.NOT_SET,
-                                                                       0));
+                         event);
 
-        verify(adapter).updateNowPlaying(playingTrack);
+
+        verify(updatePlayableAdapterSubscriber).onNext(event);
     }
 
     @Test
@@ -231,13 +243,14 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final Urn playingTrack = Urn.forTrack(123L);
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
+        final CurrentPlayQueueItemEvent event = CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(
+                playingTrack),
+                                                                                       Urn.NOT_SET,
+                                                                                       0);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack),
-                                                                Urn.NOT_SET,
-                                                                0));
+                         event);
 
-        verify(adapter).updateNowPlaying(playingTrack);
+        verify(updatePlayableAdapterSubscriber).onNext(event);
     }
 
     @Test

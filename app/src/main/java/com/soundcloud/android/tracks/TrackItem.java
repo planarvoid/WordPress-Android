@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -134,5 +135,14 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     @Override
     public int hashCode() {
         return MoreObjects.hashCode(source, isPlaying);
+    }
+
+    public boolean updateNowPlaying(Urn nowPlaying) {
+        final boolean isCurrent = getUrn().equals(nowPlaying);
+        if (isPlaying() || isCurrent) {
+            setIsPlaying(isCurrent);
+            return true;
+        }
+        return false;
     }
 }

@@ -208,7 +208,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        StreamItem.Track track = (StreamItem.Track) streamItemsWithPromoted.get(0);
+        TrackStreamItem track = (TrackStreamItem) streamItemsWithPromoted.get(0);
         verify(markPromotedItemAsStaleCommand).call((PromotedListItem) track.trackItem());
     }
 
@@ -219,7 +219,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
         operations.updatedStreamItems().subscribe(observer);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        StreamItem.Track track = (StreamItem.Track) streamItemsWithPromoted.get(0);
+        TrackStreamItem track = (TrackStreamItem) streamItemsWithPromoted.get(0);
         verify(markPromotedItemAsStaleCommand).call((PromotedListItem) track.trackItem());
     }
 
@@ -490,7 +490,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     private void assertTrackStreamItemAtPosition(Urn urn, int index) {
         final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
-        final StreamItem.Track firstItem = (StreamItem.Track) subscriber.getOnNextEvents().get(0).get(index);
+        final TrackStreamItem firstItem = (TrackStreamItem) subscriber.getOnNextEvents().get(0).get(index);
         assertThat(firstItem.trackItem().getUrn()).isEqualTo(urn);
     }
 

@@ -38,8 +38,8 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final TrackItem postedTrack = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final StreamItem.Track postedTrackStreamItem = StreamItem.Track.create(postedTrack,
-                                                                                   postedTrack.getCreatedAt());
+    private final TrackStreamItem postedTrackStreamItem = TrackStreamItem.create(postedTrack,
+                                                                                 postedTrack.getCreatedAt());
 
     private StreamTrackItemRenderer renderer;
     private View itemView;

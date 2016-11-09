@@ -60,9 +60,9 @@ public abstract class StreamItem {
 
     static StreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
         if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
-            return Track.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
+            return TrackStreamItem.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof TrackItem) {
-            return Track.create((TrackItem)streamPlayable.playableItem(), streamPlayable.createdAt());
+            return TrackStreamItem.create((TrackItem)streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof PromotedPlaylistItem) {
             return Playlist.createForPromoted((PromotedPlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof PlaylistItem) {
@@ -74,7 +74,7 @@ public abstract class StreamItem {
 
     Optional<ListItem> getListItem() {
         if (kind() == Kind.TRACK) {
-            return Optional.<ListItem>of(((Track) this).trackItem());
+            return Optional.<ListItem>of(((TrackStreamItem) this).trackItem());
         } else if (kind() == Kind.PLAYLIST) {
             return Optional.<ListItem>of(((Playlist) this).playlistItem());
         }
@@ -84,7 +84,7 @@ public abstract class StreamItem {
     public abstract Kind kind();
 
     public boolean isPromoted() {
-        return (this.kind() == Kind.TRACK && ((Track)this).promoted())
+        return (this.kind() == Kind.TRACK && ((TrackStreamItem)this).promoted())
                 || (this.kind() == Kind.PLAYLIST && ((Playlist)this).promoted());
     }
 
@@ -103,7 +103,7 @@ public abstract class StreamItem {
     @AutoValue
     public abstract static class FacebookCreatorInvites extends StreamItem {
         public abstract Urn trackUrn();
-        public abstract String trackUrl();
+        abstract String trackUrl();
 
         private static FacebookCreatorInvites create(Urn trackUrn, String trackUrl) {
             return new AutoValue_StreamItem_FacebookCreatorInvites(Kind.FACEBOOK_CREATORS, trackUrn, trackUrl);
@@ -135,21 +135,6 @@ public abstract class StreamItem {
 
         static Playlist createForPromoted(PromotedPlaylistItem playlistItem, Date createdAt) {
             return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, playlistItem, true, createdAt);
-        }
-    }
-
-    @AutoValue
-    public abstract static class Track extends StreamItem {
-        public abstract TrackItem trackItem();
-        public abstract boolean promoted();
-        public abstract Date createdAt();
-
-        static Track create(TrackItem trackItem, Date createdAt) {
-            return new AutoValue_StreamItem_Track(Kind.TRACK, trackItem, false, createdAt);
-        }
-
-        static Track createForPromoted(PromotedTrackItem trackItem, Date createdAt) {
-            return new AutoValue_StreamItem_Track(Kind.TRACK, trackItem, true, createdAt);
         }
     }
 

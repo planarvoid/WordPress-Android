@@ -39,11 +39,6 @@ class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, Li
 
     @Override
     public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
-        final boolean isCurrent = trackItem.getUrn().equals(event.getCurrentPlayQueueItem().getUrnOrNotSet());
-        if (trackItem.isPlaying() || isCurrent) {
-            trackItem.setIsPlaying(isCurrent);
-            return true;
-        }
-        return false;
+        return trackItem.updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
     }
 }

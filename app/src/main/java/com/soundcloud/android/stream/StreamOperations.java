@@ -226,7 +226,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     private Optional<StreamItem> getFirstUpsellable(List<StreamItem> streamItems) {
         for (StreamItem streamItem : streamItems) {
             if (streamItem.kind() == Kind.TRACK
-                    && isHighTierPreview(((StreamItem.Track) streamItem).trackItem())) {
+                    && isHighTierPreview(((TrackStreamItem) streamItem).trackItem())) {
                 return Optional.of(streamItem);
             }
 
@@ -249,7 +249,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     @Nullable
     private Date getCreatedAt(StreamItem streamItem) {
         if (Kind.TRACK.equals(streamItem.kind())) {
-            return ((StreamItem.Track)streamItem).createdAt();
+            return ((TrackStreamItem)streamItem).createdAt();
         } else if (Kind.PLAYLIST.equals(streamItem.kind())) {
             return ((StreamItem.Playlist)streamItem).createdAt();
         }
