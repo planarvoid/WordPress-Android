@@ -978,8 +978,8 @@
     <string name="push_notifications_comment">Comment on your post</string>
     <string name="push_notifications_product_updates">New SoundCloud features</string>
     <string name="push_notifications_survey">Surveys and feedback</string>
-    <string name="push_notifications_tips">SoundCloud tips</string>
-    <string name="push_notifications_recommendations">What’s hot</string>
+    <string name="push_notifications_tips">SoundCloud tips and offers</string>
+    <string name="push_notifications_recommendations">Recommended content</string>
 
     <string name="email_notifications_all_title">Email notifications</string>
     <string name="email_notifications_all_summary">Turn on all email notifications\nor select which to receive.</string>
@@ -992,8 +992,8 @@
     <string name="email_notifications_group">New group post</string>
     <string name="email_notifications_product_updates">New SoundCloud features</string>
     <string name="email_notifications_survey">Surveys and feedback</string>
-    <string name="email_notifications_tips">SoundCloud tips</string>
-    <string name="email_notifications_recommendations">What’s hot</string>
+    <string name="email_notifications_tips">SoundCloud tips and offers</string>
+    <string name="email_notifications_recommendations">Recommended content</string>
     <string name="email_notifications_newsletter">SoundCloud newsletter</string>
 
     <!-- __STREAM -->
