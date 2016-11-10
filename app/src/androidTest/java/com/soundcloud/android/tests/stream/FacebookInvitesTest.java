@@ -31,8 +31,7 @@ public class FacebookInvitesTest extends TrackingActivityTest<LauncherActivity> 
         streamUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    // https://github.com/soundcloud/SoundCloud-Android/issues/6342
-    public void ignore_testShouldHideFacebookInvitesNotification() {
+    public void testShouldHideFacebookInvitesNotification() {
         FacebookInvitesItemElement notification = new StreamScreen(solo)
                 .getFirstFacebookInvitesNotification();
 
