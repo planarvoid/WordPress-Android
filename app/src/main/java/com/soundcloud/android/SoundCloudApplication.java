@@ -14,6 +14,7 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
@@ -44,6 +45,7 @@ import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -63,6 +65,7 @@ import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import java.io.File;
 
 public class SoundCloudApplication extends MultiDexApplication {
@@ -100,7 +103,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject ScreenProvider screenProvider;
     @Inject AdIdHelper adIdHelper;
-    @Inject LegacyCastSessionController castSessionController;
+    @Inject Provider<LegacyCastSessionController> legacyCastControllerProvider;
+    @Inject Provider<DefaultCastSessionController> castControllerProvider;
     @Inject StationsController stationsController;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject AppboyPlaySessionState appboyPlaySessionState;
@@ -110,6 +114,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;
     @Inject SyncInitiatorBridge syncInitiatorBridge;
+    @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -199,7 +204,9 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void configureCast() {
         if (featureFlags.isDisabled(Flag.CAST_V3)) {
-            castSessionController.startListening();
+            legacyCastControllerProvider.get().startListening();
+        } else if (googlePlayServicesWrapper.isPlayServiceAvailable(this)) {
+            castControllerProvider.get().startListening();
         }
     }
 

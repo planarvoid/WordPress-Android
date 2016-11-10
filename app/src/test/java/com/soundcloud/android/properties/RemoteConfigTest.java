@@ -58,7 +58,7 @@ public class RemoteConfigTest {
         when(task.isSuccessful()).thenReturn(true);
         when(firebaseRemoteConfig.getInfo()).thenReturn(firebaseRemoteConfigInfo);
         when(firebaseRemoteConfig.fetch(anyLong())).thenReturn(task);
-        when(googlePlayServicesWrapper.isPlayServicesAvailable(any(Context.class))).thenReturn(ConnectionResult.SUCCESS);
+        when(googlePlayServicesWrapper.getPlayServicesAvailableStatus(any(Context.class))).thenReturn(ConnectionResult.SUCCESS);
         remoteConfig = new RemoteConfig(firebaseRemoteConfig, flagsStorage, currentDateProvider, googlePlayServicesWrapper);
     }
 

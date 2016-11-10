@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import android.app.Activity;
@@ -15,8 +16,16 @@ public class GooglePlayServicesWrapper {
     public GooglePlayServicesWrapper() {
     }
 
-    public int isPlayServicesAvailable(Context context) {
+    public int getPlayServicesAvailableStatus(Context context) {
         return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+    }
+
+    public boolean isPlayServiceAvailable(Context context){
+        try {
+            return getPlayServicesAvailableStatus(context) ==  ConnectionResult.SUCCESS;
+        } catch (Exception exception){
+            return false;
+        }
     }
 
     public boolean isUserRecoverableError(int resultCode) {

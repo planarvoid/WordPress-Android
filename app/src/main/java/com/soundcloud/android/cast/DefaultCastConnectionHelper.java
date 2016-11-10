@@ -1,13 +1,14 @@
 package com.soundcloud.android.cast;
 
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
-import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
-import org.jetbrains.annotations.Nullable;
+import com.appboy.support.StringUtils;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
-import android.content.Intent;
-import android.os.Bundle;
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.MediaRouteButton;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,23 +20,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Singleton
-public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implements CastConnectionHelper {
+public class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
+        implements CastConnectionHelper {
 
     private static final int EXPECTED_MEDIA_BUTTON_CAPACITY = 6;
 
-    private final VideoCastManager videoCastManager;
     private final Set<MediaRouteButton> mediaRouteButtons;
     private final Set<OnConnectionChangeListener> connectionChangeListeners;
 
     private boolean isCastableDeviceAvailable;
-
+    private String deviceName;
 
     @Inject
-    public DefaultCastConnectionHelper(VideoCastManager videoCastManager) {
-        this.videoCastManager = videoCastManager;
-        mediaRouteButtons = new HashSet<>(EXPECTED_MEDIA_BUTTON_CAPACITY);
-        connectionChangeListeners = new HashSet<>();
-        videoCastManager.addVideoCastConsumer(this);
+    public DefaultCastConnectionHelper() {
+        this.mediaRouteButtons = new HashSet<>(EXPECTED_MEDIA_BUTTON_CAPACITY);
+        this.connectionChangeListeners = new HashSet<>();
     }
 
     public void addOnConnectionChangeListener(OnConnectionChangeListener listener) {
@@ -46,32 +45,27 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
         connectionChangeListeners.remove(listener);
     }
 
-    @Override
-    public void onConnected() {
-        notifyConnectionChange();
-    }
+    public void notifyConnectionChange(boolean castAvailable, Optional<String> optionalDeviceName) {
+        this.deviceName = optionalDeviceName.or(StringUtils.EMPTY_STRING);
+        this.isCastableDeviceAvailable = castAvailable;
 
-    @Override
-    public void onDisconnected() {
-        notifyConnectionChange();
-    }
-
-    private void notifyConnectionChange() {
         for (CastConnectionHelper.OnConnectionChangeListener listener : connectionChangeListeners) {
             listener.onCastConnectionChange();
         }
+        updateMediaRouteButtons();
     }
 
     @Override
-    public void addMediaRouterButton(Menu menu, int itemId) {
-        videoCastManager.addMediaRouterButton(menu, itemId);
+    public void addMediaRouterButton(Context context, Menu menu, int itemId) {
+        CastButtonFactory.setUpMediaRouteButton(context, menu, itemId);
     }
 
     @Override
     public void addMediaRouterButton(MediaRouteButton mediaRouteButton) {
-        videoCastManager.addMediaRouterButton(mediaRouteButton);
+        Log.d("Cast", "AddMediaRouterButton called for " + mediaRouteButton);
+        CastButtonFactory.setUpMediaRouteButton(mediaRouteButton.getContext(), mediaRouteButton);
         mediaRouteButtons.add(mediaRouteButton);
-        updateMediaRouteButtonVisibility(mediaRouteButton);
+        mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -80,9 +74,13 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void onResume(AppCompatActivity activity) {
-        videoCastManager.startCastDiscovery();
-        videoCastManager.incrementUiCounter();
+    public boolean onDispatchVolumeEvent(KeyEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean isCasting() {
+        return isCastableDeviceAvailable && !deviceName.isEmpty();
     }
 
     @Override
@@ -91,80 +89,14 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void onPause(AppCompatActivity activity) {
-        videoCastManager.stopCastDiscovery();
-        videoCastManager.decrementUiCounter();
-    }
-
-    @Override
-    public void reconnectSessionIfPossible() {
-        videoCastManager.reconnectSessionIfPossible();
-    }
-
-    @Override
-    public boolean onDispatchVolumeEvent(KeyEvent event) {
-        return videoCastManager.onDispatchVolumeKeyEvent(event, .1);
-    }
-
-    @Override
-    public boolean isCasting() {
-        return videoCastManager.isConnected();
-    }
-
-    @Override
     public String getDeviceName() {
-        return videoCastManager.getDeviceName();
-    }
-
-    @Override
-    public void onCastAvailabilityChanged(boolean castPresent) {
-        isCastableDeviceAvailable = castPresent;
-        updateMediaRouteButtons();
+        return deviceName;
     }
 
     private void updateMediaRouteButtons() {
         for (MediaRouteButton mediaRouteButton : mediaRouteButtons) {
-            updateMediaRouteButtonVisibility(mediaRouteButton);
+            mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
         }
-    }
-
-    private void updateMediaRouteButtonVisibility(MediaRouteButton mediaRouteButton) {
-        mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
-        /* no-op */
-    }
-
-    @Override
-    public void onNewIntent(AppCompatActivity activity, Intent intent) {
-        /* no-op */
-    }
-
-    @Override
-    public void onStart(AppCompatActivity activity) {
-        /* no-op */
-    }
-
-    @Override
-    public void onStop(AppCompatActivity activity) {
-        /* no-op */
-    }
-
-    @Override
-    public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
-        /* no-op */
-    }
-
-    @Override
-    public void onRestoreInstanceState(AppCompatActivity activity, Bundle bundle) {
-        /* no-op */
-    }
-
-    @Override
-    public void onDestroy(AppCompatActivity activity) {
-        /* no-op */
     }
 }
 

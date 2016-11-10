@@ -4,19 +4,15 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 
 import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
-import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
-import com.soundcloud.android.cast.CastConfigStorage;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.cast.DefaultCastConnectionHelper;
-import com.soundcloud.android.cast.LegacyCastPlayer;
-import com.soundcloud.android.cast.NoOpCastConnectionHelper;
+import com.soundcloud.android.cast.CastModule;
+import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryModule;
@@ -24,7 +20,6 @@ import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
@@ -43,7 +38,6 @@ import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncModule;
@@ -96,7 +90,8 @@ import java.util.Locale;
                 CommentsModule.class,
                 OfflineModule.class,
                 DiscoveryModule.class,
-                AnalyticsModule.class
+                AnalyticsModule.class,
+                CastModule.class
         })
 public class ApplicationModule {
 
@@ -228,43 +223,11 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Singleton
-    public CastConnectionHelper provideCastConnectionHelper(Context context,
-                                                            CastConfigStorage castConfigStorage,
-                                                            FeatureFlags featureFlags) {
-        // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
-        // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
-
-        if ("Dalvik".equals(System.getProperty("java.vm.name")) && featureFlags.isDisabled(Flag.CAST_V3)) {
-            return new DefaultCastConnectionHelper(provideVideoCastManager(context, castConfigStorage));
-        } else {
-            return new NoOpCastConnectionHelper();
-        }
-    }
-
-    @Provides
-    @Singleton
-    public VideoCastManager provideVideoCastManager(Context context, CastConfigStorage castConfigStorage) {
-        return VideoCastManager
-                .initialize(
-                        context,
-                        new CastConfiguration.Builder(castConfigStorage.getReceiverID())
-                                .setTargetActivity(MainActivity.class)
-                                .addNamespace("urn:x-cast:com.soundcloud.cast.sender")
-                                .enableLockScreen()
-                                .enableDebug()
-                                .enableNotification()
-                                .enableWifiReconnection()
-                                .build()
-                );
-    }
-
-    @Provides
     public PlaybackStrategy providePlaybackStrategy(PlaybackServiceController serviceController,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
-                                                    Lazy<LegacyCastPlayer> castPlayer,
                                                     TrackRepository trackRepository,
+                                                    Lazy<CastPlayer> castPlayer,
                                                     OfflinePlaybackOperations offlinePlaybackOperations,
                                                     PlaySessionStateProvider playSessionStateProvider,
                                                     EventBus eventBus) {

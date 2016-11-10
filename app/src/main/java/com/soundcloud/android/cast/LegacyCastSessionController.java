@@ -36,7 +36,8 @@ import java.util.List;
 import java.util.Locale;
 
 @Singleton
-public class LegacyCastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
+public class LegacyCastSessionController extends VideoCastConsumerImpl
+        implements VideoCastManager.MediaRouteDialogListener {
 
     private final LegacyCastOperations castOperations;
     private final PlaybackServiceController serviceController;
@@ -78,6 +79,10 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl implement
         if (wasLaunched && !playQueueManager.isQueueEmpty()) {
             playLocalPlayQueueOnRemote();
         }
+    }
+
+    public void reconnectSessionIfPossible() {
+        videoCastManager.reconnectSessionIfPossible();
     }
 
     private void playLocalPlayQueueOnRemote() {

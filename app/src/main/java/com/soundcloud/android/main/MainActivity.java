@@ -2,7 +2,8 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.cast.DefaultCastSessionController;
+import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
@@ -16,11 +17,13 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
-    @Inject CastConnectionHelper castConnectionHelper;
+    @Inject Provider<DefaultCastSessionController> castSessionController;
+    @Inject Provider<LegacyCastSessionController> legacyCastSessionController;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
 
@@ -39,7 +42,9 @@ public class MainActivity extends PlayerActivity {
         if (savedInstanceState == null) {
             playSessionController.reloadQueueAndShowPlayerIfEmpty();
         }
-        castConnectionHelper.reconnectSessionIfPossible();
+        if (featureFlags.isDisabled(Flag.CAST_V3)) {
+            legacyCastSessionController.get().reconnectSessionIfPossible();
+        }
     }
 
     @Override
@@ -101,6 +106,13 @@ public class MainActivity extends PlayerActivity {
     protected void onPostResume() {
         super.onPostResume();
         fetchFeatureFlags();
+        castSessionController.get().onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        castSessionController.get().onPause(this);
     }
 
     @Override

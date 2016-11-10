@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class LegacyCastOperations {
+public class LegacyCastOperations implements CastOperations {
 
     public static final String TAG = "GoogleCast";
 
@@ -214,6 +214,7 @@ public class LegacyCastOperations {
         return mediaInfo == null ? Urn.NOT_SET : new Urn(mediaInfo.getMetadata().getString(KEY_URN));
     }
 
+    @Override
     public Observable<TimeInterval<Long>> intervalForProgressPull() {
         return Observable.interval(PlaybackConstants.PROGRESS_DELAY_MS,
                                    TimeUnit.MILLISECONDS,

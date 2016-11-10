@@ -84,6 +84,7 @@ ext {
           androidPlayServicesBase         : "com.google.android.gms:play-services-base:$googleServicesVersion",
           androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$googleServicesVersion",
           androidPlayServicesCastLegacy   : "com.google.android.gms:play-services-cast:$googleServicesVersion",
+          androidPlayServicesCast         : "com.google.android.gms:play-services-cast-framework:$googleServicesVersion",
           firebaseCore                    : "com.google.firebase:firebase-core:$googleServicesVersion",
           firebaseConfig                  : "com.google.firebase:firebase-config:$googleServicesVersion",
           firebaseMessaging               : "com.google.firebase:firebase-messaging:$googleServicesVersion"

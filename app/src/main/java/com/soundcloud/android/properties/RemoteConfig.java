@@ -84,7 +84,7 @@ class RemoteConfig {
     }
 
     private boolean isGooglePlayServicesAvailable(Context context) {
-        return googlePlayServicesWrapper.isPlayServicesAvailable(context) == ConnectionResult.SUCCESS;
+        return googlePlayServicesWrapper.getPlayServicesAvailableStatus(context) == ConnectionResult.SUCCESS;
     }
 
     boolean getFlagValue(Flag flag, boolean defaultValue) {

@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_U
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPositionLegacy;
 
 import com.google.android.gms.cast.MediaStatus;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
@@ -46,7 +47,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Singleton
-public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPuller {
+public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPuller, CastPlayer {
 
     private final LegacyCastOperations castOperations;
     private final VideoCastManager castManager;
@@ -82,6 +83,21 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     public void onDisconnected() {
         reportStateChange(getStateTransition(PlaybackState.IDLE,
                                              PlayStateReason.NONE)); // possibly show disconnect error here instead?
+    }
+
+    @Override
+    public void onConnected(RemoteMediaClient remoteMediaClient) {
+        //no-op
+    }
+
+    @Override
+    public void updateLocalPlayQueueAndPlayState() {
+        //no-op
+    }
+
+    @Override
+    public void playLocalPlayQueueOnRemote() {
+        //no-op
     }
 
     @Override

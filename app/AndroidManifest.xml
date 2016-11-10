@@ -424,7 +424,7 @@
             android:exported="false">
         </service>
 
-        <!-- Google Cast Companion -->
+        <!-- Legacy Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">
             <intent-filter>
                 <action android:name="com.google.android.libraries.cast.companionlibrary.action.toggleplayback"/>
@@ -442,8 +442,16 @@
 
         <service android:name="com.google.android.libraries.cast.companionlibrary.cast.reconnection.ReconnectionService"/>
 
+        <!-- Google Cast V3 -->
+        <meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+                   android:value="com.soundcloud.android.cast.CastOptionsProvider"/>
+
+        <activity android:name=".cast.CastRedirectActivity"/>
+
+        <!-- Crashlytics -->
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
 
+        <!-- Facebook -->
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/production_facebook_app_id"/>
 
     </application>

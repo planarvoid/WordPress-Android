@@ -225,6 +225,7 @@ dependencies {
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesAuth
   compile libraries.androidPlayServicesCastLegacy
+  compile libraries.androidPlayServicesCast
   compile libraries.firebaseCore
   compile libraries.firebaseConfig
   compile libraries.firebaseMessaging

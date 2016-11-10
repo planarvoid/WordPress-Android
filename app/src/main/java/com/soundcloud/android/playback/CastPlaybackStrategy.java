@@ -1,14 +1,14 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.cast.LegacyCastPlayer;
+import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
 
 public class CastPlaybackStrategy implements PlaybackStrategy {
 
-    private final LegacyCastPlayer castPlayer;
+    private final CastPlayer castPlayer;
 
-    public CastPlaybackStrategy(LegacyCastPlayer castPlayer) {
+    public CastPlaybackStrategy(CastPlayer castPlayer) {
         this.castPlayer = castPlayer;
     }
 
