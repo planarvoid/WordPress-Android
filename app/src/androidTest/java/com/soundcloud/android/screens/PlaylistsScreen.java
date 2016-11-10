@@ -17,7 +17,7 @@ public class PlaylistsScreen extends Screen {
 
     public PlaylistsScreen(Han solo) {
         super(solo);
-        waiter.waitForActivity(getActivity());
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public PlaylistElement scrollToPlaylistWithTitle(final String title) {
