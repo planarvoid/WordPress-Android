@@ -48,6 +48,7 @@ public class StorageModule {
     public static final String IMAGE_CONFIG = "ImageConfiguration";
     public static final String PLAY_SESSION_STATE = "PlaySessionState";
     public static final String FEATURES_FLAGS = "FeatureFlags";
+    public static final String UNAUTHORIZED_ERRORS = "UnauthorizedErrors";
 
     public static final String PREFS_NOTIFICATION_PREFERENCES = "notification_preferences";
     public static final String PREFS_FEATURE_FLAGS = "feature_flags";
@@ -74,6 +75,7 @@ public class StorageModule {
     private static final String PREFS_CONFIGURATION_SETTINGS = "device_config_settings";
     private static final String PREFS_IMAGE_CONFIG = "image_configuration";
     private static final String PREFS_PLAY_SESSION_STATE = "play_session_state";
+    private static final String PREFS_UNAUTHORIZED_ERRORS = "unauthorized_errors";
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY)
@@ -243,6 +245,12 @@ public class StorageModule {
     }
 
     @Provides
+    @Named(UNAUTHORIZED_ERRORS)
+    public SharedPreferences provideUnauthorizedErrorsPreferences(Context context) {
+        return getUnauthorizedErrorsSharedPreferences(context);
+    }
+
+    @Provides
     public SQLiteDatabase provideDatabase(Context context, ApplicationProperties applicationProperties) {
         return provideDatabaseManager(context, applicationProperties).getWritableDatabase();
     }
@@ -274,4 +282,11 @@ public class StorageModule {
     public PropellerRx providePropellerRxWrapper(PropellerDatabase propeller) {
         return new PropellerRx(propeller);
     }
+
+    // Exposing this, since a the dependent class (UnauthorisedRequestRegistry) is also used by legacy code
+    // not using Dagger
+    public static SharedPreferences getUnauthorizedErrorsSharedPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_UNAUTHORIZED_ERRORS, Context.MODE_PRIVATE);
+    }
+
 }
