@@ -638,10 +638,10 @@
     <string name="facebook_creator_invites_title">Invite friends to listen to your latest track on SoundCloud</string>
 
     <!-- __COLLECTION -->
-    <string name="collections_playlists_header">Playlists &amp; Albums</string>
+    <string name="collections_playlists_header">Playlists &amp; albums</string>
     <plurals name="collections_playlists_header_plural">
-        <item quantity="one">Playlists &amp; Albums</item>
-        <item quantity="other">%d Playlists &amp; Albums</item>
+        <item quantity="one">Playlists &amp; albums</item>
+        <item quantity="other">%d playlists &amp; albums</item>
     </plurals>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Liked tracks</string>
@@ -936,7 +936,7 @@
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>
     <string name="upsell_upgrade_button">Get SoundCloud Go</string>
-    <string name="upsell_stream_upgrade_title">Unlock Previews with SoundCloud Go</string>
+    <string name="upsell_stream_upgrade_title">Unlock previews with SoundCloud Go</string>
     <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalog, with ad-free and offline listening.</string>
     <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go</string>
     <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
