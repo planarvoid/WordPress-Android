@@ -26,7 +26,7 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListener {
+class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private final Context context;
     private final Resources resources;
@@ -36,23 +36,20 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     private final DownloadStateView downloadStateView;
     private final LikeButtonPresenter likeButtonPresenter;
 
-    private PopupMenuWrapper popupMenuWrapper;
+    private PopupMenuWrapper menu;
     private OnEngagementListener listener;
     private PlaylistHeaderItem playlistHeaderItem;
 
-    @Bind(R.id.toggle_like)
-    ToggleButton likeToggle;
-    @Bind(R.id.toggle_download)
-    IconToggleButton downloadToggle;
-    @Bind(R.id.playlist_details_overflow_button)
-    View overflowButton;
+    @Bind(R.id.toggle_like) ToggleButton likeToggle;
+    @Bind(R.id.toggle_download) IconToggleButton downloadToggle;
+    @Bind(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
-    public PlaylistEngagementsView(Context context,
-                                   FeatureFlags featureFlags,
-                                   PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                   DownloadStateView downloadStateView,
-                                   LikeButtonPresenter likeButtonPresenter) {
+    PlaylistEngagementsView(Context context,
+                            FeatureFlags featureFlags,
+                            PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                            DownloadStateView downloadStateView,
+                            LikeButtonPresenter likeButtonPresenter) {
         this.context = context;
         this.featureFlags = featureFlags;
         this.likeButtonPresenter = likeButtonPresenter;
@@ -79,9 +76,9 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
         ButterKnife.bind(this, bar);
         bar.setVisibility(View.VISIBLE);
-        popupMenuWrapper = popupMenuWrapperFactory.build(view.getContext(), overflowButton);
-        popupMenuWrapper.inflate(R.menu.playlist_details_actions);
-        popupMenuWrapper.setOnMenuItemClickListener(this);
+        menu = popupMenuWrapperFactory.build(view.getContext(), overflowButton);
+        menu.inflate(R.menu.playlist_details_actions);
+        menu.setOnMenuItemClickListener(this);
         downloadStateView.onViewCreated(bar);
         bar.setVisibility(isEditMode ? View.GONE : View.VISIBLE);
         configurePlayNext();
@@ -122,14 +119,14 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     @OnClick(R.id.playlist_details_overflow_button)
     void onOverflowButtonClicked() {
-        popupMenuWrapper.show();
+        menu.show();
     }
 
     public void onDestroyView() {
         ButterKnife.unbind(this);
     }
 
-    void showMakeAvailableOfflineButton(final boolean isAvailable) {
+    void showOfflineOptions(final boolean isAvailable) {
         downloadToggle.setVisibility(View.VISIBLE);
         setOfflineAvailability(isAvailable);
 
@@ -146,51 +143,82 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     void setOfflineAvailability(boolean isAvailable) {
         downloadToggle.setChecked(isAvailable);
+        if (isAvailable) {
+            showMenuRemove();
+        } else {
+            showMenuDownload();
+        }
     }
 
     void showUpsell() {
         downloadToggle.setVisibility(View.VISIBLE);
-        setOfflineAvailability(false);
+        showMenuUpsell();
+        downloadToggle.setChecked(false);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onUpsell(v.getContext());
-                setOfflineAvailability(false);
+                downloadToggle.setChecked(false);
             }
         });
     }
 
-    void hideMakeAvailableOfflineButton() {
+    void hideOfflineOptions() {
         downloadToggle.setVisibility(View.GONE);
+        hideOfflineMenuItems();
     }
 
     void showMyOptions() {
-        popupMenuWrapper.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.EDIT_PLAYLIST));
-        popupMenuWrapper.setItemVisible(R.id.delete_playlist, true);
+        menu.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.EDIT_PLAYLIST));
+        menu.setItemVisible(R.id.delete_playlist, true);
     }
 
     void hideMyOptions() {
-        popupMenuWrapper.setItemVisible(R.id.edit_playlist, false);
-        popupMenuWrapper.setItemVisible(R.id.delete_playlist, false);
+        menu.setItemVisible(R.id.edit_playlist, false);
+        menu.setItemVisible(R.id.delete_playlist, false);
     }
 
     void showPublicOptions(boolean repostedByUser) {
-        popupMenuWrapper.setItemVisible(R.id.share, true);
-        popupMenuWrapper.setItemVisible(R.id.repost, !repostedByUser);
-        popupMenuWrapper.setItemVisible(R.id.unpost, repostedByUser);
+        menu.setItemVisible(R.id.share, true);
+        menu.setItemVisible(R.id.repost, !repostedByUser);
+        menu.setItemVisible(R.id.unpost, repostedByUser);
     }
 
     void hidePublicOptions() {
-        popupMenuWrapper.setItemVisible(R.id.share, false);
-        popupMenuWrapper.setItemVisible(R.id.repost, false);
-        popupMenuWrapper.setItemVisible(R.id.unpost, false);
+        menu.setItemVisible(R.id.share, false);
+        menu.setItemVisible(R.id.repost, false);
+        menu.setItemVisible(R.id.unpost, false);
     }
 
-    void configurePlayNext() {
-        popupMenuWrapper.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
+    private void showMenuUpsell() {
+        menu.setItemVisible(R.id.make_offline_available, false);
+        menu.setItemVisible(R.id.make_offline_unavailable, false);
+        menu.setItemVisible(R.id.upsell_offline_content, true);
     }
 
-    public void updateLikeItem(int likesCount, boolean likedByUser) {
+    private void showMenuDownload() {
+        menu.setItemVisible(R.id.make_offline_available, true);
+        menu.setItemVisible(R.id.make_offline_unavailable, false);
+        menu.setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    private void showMenuRemove() {
+        menu.setItemVisible(R.id.make_offline_available, false);
+        menu.setItemVisible(R.id.make_offline_unavailable, true);
+        menu.setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    private void hideOfflineMenuItems() {
+        menu.setItemVisible(R.id.make_offline_available, false);
+        menu.setItemVisible(R.id.make_offline_unavailable, false);
+        menu.setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    private void configurePlayNext() {
+        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
+    }
+
+    void updateLikeItem(int likesCount, boolean likedByUser) {
         updateToggleButton(likeToggle,
                            R.string.accessibility_like_action,
                            R.plurals.accessibility_stats_likes,
@@ -200,11 +228,11 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     void enableShuffle() {
-        popupMenuWrapper.setItemEnabled(R.id.shuffle, true);
+        menu.setItemEnabled(R.id.shuffle, true);
     }
 
     void disableShuffle() {
-        popupMenuWrapper.setItemEnabled(R.id.shuffle, false);
+        menu.setItemEnabled(R.id.shuffle, false);
     }
 
     void setInfoText(String message) {
@@ -236,6 +264,15 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
                 return true;
             case R.id.edit_playlist:
                 getListener().onEditPlaylist();
+                return true;
+            case R.id.upsell_offline_content:
+                getListener().onUpsell(context);
+                return true;
+            case R.id.make_offline_available:
+                getListener().onMakeOfflineAvailable(true);
+                return true;
+            case R.id.make_offline_unavailable:
+                getListener().onMakeOfflineAvailable(false);
                 return true;
             case R.id.delete_playlist:
                 getListener().onDeletePlaylist();
@@ -279,7 +316,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         }
     }
 
-    public interface OnEngagementListener {
+    interface OnEngagementListener {
 
         void onPlayNext(Urn playlistUrn);
 

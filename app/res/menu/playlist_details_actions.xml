@@ -23,6 +23,18 @@
         android:title="@string/edit_playlist"
         android:visible="false" />
     <item
+        android:id="@+id/upsell_offline_content"
+        android:title="@string/make_offline_available"
+        android:visible="false" />
+    <item
+        android:id="@+id/make_offline_available"
+        android:title="@string/make_offline_available"
+        android:visible="false" />
+    <item
+        android:id="@+id/make_offline_unavailable"
+        android:title="@string/make_offline_unavailable"
+        android:visible="false" />
+    <item
         android:id="@+id/delete_playlist"
         android:title="@string/delete_playlist"
         android:visible="false" />

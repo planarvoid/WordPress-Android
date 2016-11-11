@@ -85,22 +85,22 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     private View rootView;
 
     @Inject
-    public LegacyPlaylistEngagementsPresenter(EventBus eventBus,
-                                              EventTracker eventTracker,
-                                              RepostOperations repostOperations,
-                                              AccountOperations accountOperations,
-                                              LikeOperations likeOperations,
-                                              PlaylistEngagementsView playlistEngagementsView,
-                                              FeatureOperations featureOperations,
-                                              OfflineContentOperations offlineOperations,
-                                              PlaybackInitiator playbackInitiator,
-                                              PlaylistOperations playlistOperations,
-                                              PlaybackToastHelper playbackToastHelper,
-                                              NetworkConnectionHelper connectionHelper,
-                                              OfflineSettingsOperations offlineSettings,
-                                              Navigator navigator,
-                                              ShareOperations shareOperations,
-                                              PlayQueueHelper playQueueHelper) {
+    LegacyPlaylistEngagementsPresenter(EventBus eventBus,
+                                       EventTracker eventTracker,
+                                       RepostOperations repostOperations,
+                                       AccountOperations accountOperations,
+                                       LikeOperations likeOperations,
+                                       PlaylistEngagementsView playlistEngagementsView,
+                                       FeatureOperations featureOperations,
+                                       OfflineContentOperations offlineOperations,
+                                       PlaybackInitiator playbackInitiator,
+                                       PlaylistOperations playlistOperations,
+                                       PlaybackToastHelper playbackToastHelper,
+                                       NetworkConnectionHelper connectionHelper,
+                                       OfflineSettingsOperations offlineSettings,
+                                       Navigator navigator,
+                                       ShareOperations shareOperations,
+                                       PlayQueueHelper playQueueHelper) {
         this.eventBus = eventBus;
         this.eventTracker = eventTracker;
         this.repostOperations = repostOperations;
@@ -249,11 +249,11 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     private void updateOfflineAvailability(boolean isPlaylistOfflineAvailable) {
         if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
-            playlistEngagementsView.showMakeAvailableOfflineButton(isPlaylistOfflineAvailable);
+            playlistEngagementsView.showOfflineOptions(isPlaylistOfflineAvailable);
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
         } else {
-            playlistEngagementsView.hideMakeAvailableOfflineButton();
+            playlistEngagementsView.hideOfflineOptions();
         }
     }
 

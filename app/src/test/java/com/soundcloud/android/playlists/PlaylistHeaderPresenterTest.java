@@ -336,7 +336,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          requested(singletonList(playlistWithTracks.getUrn()), false));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(true);
+        verify(engagementsView).showOfflineOptions(true);
     }
 
     @Test
@@ -346,7 +346,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(false);
+        verify(engagementsView).showOfflineOptions(false);
     }
 
     @Test
@@ -395,7 +395,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                 .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
                                 .put(PlaylistProperty.IS_POSTED, true));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(true);
+        verify(engagementsView).showOfflineOptions(true);
     }
 
     @Test
@@ -405,7 +405,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC)
                                 .put(PlaylistProperty.IS_POSTED, true));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(false);
+        verify(engagementsView).showOfflineOptions(false);
     }
 
     @Test
@@ -425,7 +425,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                 .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
                                 .put(PlaylistProperty.IS_POSTED, true));
 
-        verify(engagementsView).hideMakeAvailableOfflineButton();
+        verify(engagementsView).hideOfflineOptions();
     }
 
     @Test
@@ -434,7 +434,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC));
 
-        verify(engagementsView).hideMakeAvailableOfflineButton();
+        verify(engagementsView).hideOfflineOptions();
     }
 
     @Test
@@ -444,7 +444,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC)
                                 .put(PlaylistProperty.IS_USER_LIKE, true));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(false);
+        verify(engagementsView).showOfflineOptions(false);
     }
 
     @Test
@@ -453,7 +453,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC));
 
-        verify(engagementsView).hideMakeAvailableOfflineButton();
+        verify(engagementsView).hideOfflineOptions();
     }
 
     @Test
