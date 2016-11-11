@@ -347,6 +347,10 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildEngagementEvent(FOLLOW_ADD, event));
             case UIEvent.KIND_UNFOLLOW:
                 return transform(buildEngagementEvent(FOLLOW_REMOVE, event));
+            case UIEvent.KIND_PLAYER_OPEN:
+                return transform(buildClickEvent("player::max", event));
+            case UIEvent.KIND_PLAYER_CLOSE:
+                return transform(buildClickEvent("player::min", event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -456,7 +460,8 @@ class EventLoggerV1JsonDataBuilder {
                 .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
                 .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
-                .clickObject(getClickObjectFromEvent(event));
+                .clickObject(getClickObjectFromEvent(event))
+                .clickTrigger(event.get(PlayableTrackingKeys.KEY_TRIGGER));
     }
 
     private EventLoggerEventData buildEngagementEvent(String engagementClickName, UIEvent event) {

@@ -156,6 +156,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SWIPE_SKIP:
             case UIEvent.KIND_SYSTEM_SKIP:
             case UIEvent.KIND_BUTTON_SKIP:
+            case UIEvent.KIND_PLAYER_OPEN:
+            case UIEvent.KIND_PLAYER_CLOSE:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
 
                 if (featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)) {

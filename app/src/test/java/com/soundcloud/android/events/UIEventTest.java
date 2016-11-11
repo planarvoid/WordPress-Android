@@ -51,16 +51,35 @@ public class UIEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateEventFromPlayerClose() {
-        UIEvent uiEvent = UIEvent.fromPlayerClose();
+    public void shouldCreateEventFromManualPlayerClose() {
+        final UIEvent uiEvent = UIEvent.fromPlayerClose(true);
+
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAYER_CLOSE);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_TRIGGER)).isEqualTo("manual");
     }
 
     @Test
-    public void shouldCreateEventFromPlayerOpen() {
-        UIEvent uiEvent = UIEvent.fromPlayerOpen();
+    public void shouldCreateEventFromManualPlayerOpen() {
+        final UIEvent uiEvent = UIEvent.fromPlayerOpen(true);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAYER_OPEN);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_TRIGGER)).isEqualTo("manual");
+    }
+
+    @Test
+    public void shouldCreateEventFromAutomaticPlayerClose() {
+        final UIEvent uiEvent = UIEvent.fromPlayerClose(false);
+
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAYER_CLOSE);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_TRIGGER)).isEqualTo("auto");
+    }
+
+    @Test
+    public void shouldCreateEventFromAutomaticPlayerOpen() {
+        final UIEvent uiEvent = UIEvent.fromPlayerOpen(false);
+
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAYER_OPEN);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_TRIGGER)).isEqualTo("auto");
     }
 
     @Test

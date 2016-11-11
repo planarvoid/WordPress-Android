@@ -18,7 +18,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -131,7 +130,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onClickthroughForPlaylistDeeplinkShouldCloserPlayer() {
+    public void onClickthroughForPlaylistDeeplinkShouldClosePlayer() {
         final AudioAd playlistAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://playlists/42", Urn.forTrack(123L));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(playlistAudioAd));
 
@@ -139,32 +138,6 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isCollapse()).isTrue();
-    }
-
-    @Test
-    public void onClickthroughForUserProfileDeeplinkEmitsUIEventClosePlayer() {
-        final AudioAd userAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://users/42", Urn.forTrack(123L));
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(userAudioAd));
-
-        listener.onClickThrough(context());
-
-        TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose();
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
-    }
-
-    @Test
-    public void onClickthroughForPlaylistDeeplinkEmitsUIEventClosePlayer() {
-        final AudioAd playlistAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://playlists/42", Urn.forTrack(123L));
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(playlistAudioAd));
-
-        listener.onClickThrough(context());
-
-        TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose();
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test

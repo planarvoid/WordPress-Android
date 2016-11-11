@@ -495,6 +495,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData clickTrigger(String trigger) {
+        // Not supported by v0
+        return this;
+    }
+
     protected void addToPayload(String key, boolean value) {
         addToPayload(key, String.valueOf(value));
     }

@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -23,12 +22,10 @@ public class PageListener {
 
     public void onFooterTap() {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen());
     }
 
     public void onPlayerClose() {
         requestPlayerCollapse();
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
     }
 
     public void onFooterTogglePlay() {

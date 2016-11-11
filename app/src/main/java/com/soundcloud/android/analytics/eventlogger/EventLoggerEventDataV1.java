@@ -6,6 +6,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONN
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OVERFLOW_MENU;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_URN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRIGGER;
 
 import com.soundcloud.java.strings.Strings;
 
@@ -53,6 +54,14 @@ final class EventLoggerEventDataV1 extends EventLoggerEventData {
     public EventLoggerEventData clickSourceUrn(String sourceUrn) {
         if (Strings.isNotBlank(sourceUrn)) {
             getClickAttributes().put(SOURCE_URN, sourceUrn);
+        }
+        return this;
+    }
+
+    @Override
+    public EventLoggerEventData clickTrigger(String trigger) {
+        if (Strings.isNotBlank(trigger)) {
+            getClickAttributes().put(TRIGGER, trigger);
         }
         return this;
     }

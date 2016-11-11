@@ -272,7 +272,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensProfileActivity() {
-        UIEvent uiEvent = UIEvent.fromPlayerOpen();
+        UIEvent uiEvent = UIEvent.fromPlayerOpen(false);
 
         navigator.openProfile(activityContext, USER_URN, uiEvent);
 

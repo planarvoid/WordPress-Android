@@ -9,7 +9,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -145,7 +144,6 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             @Override
             public void handleMessage(Message msg) {
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
             }
         }
 
@@ -172,7 +170,6 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         private void collapsePlayerOnDelay(Context context) {
             subscribeToCollapsedEvent(context);
             collapseDelayHandler.sendEmptyMessageDelayed(0, COLLAPSE_DELAY_MILLIS);
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
         }
 
         private void subscribeToCollapsedEvent(Context context) {

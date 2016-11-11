@@ -252,7 +252,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPanelCollapsed(slidingPanel);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expected = UIEvent.fromPlayerClose();
+        UIEvent expected = UIEvent.fromPlayerClose(true);
         assertThat(event.getKind()).isEqualTo(expected.getKind());
         assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
     }
@@ -265,7 +265,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPanelExpanded(slidingPanel);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expected = UIEvent.fromPlayerOpen();
+        UIEvent expected = UIEvent.fromPlayerOpen(true);
         assertThat(event.getKind()).isEqualTo(expected.getKind());
         assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
     }
@@ -338,19 +338,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         assertThat(controller.handleBackPressed()).isTrue();
         verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
     }
-
-    @Test
-    public void onBackPressedWithExpandedPlayerEmitsPlayerClosedUIEvent() {
-        expandPanel();
-
-        controller.handleBackPressed();
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose();
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
-    }
-
 
     @Test
     public void shouldNotReceiveEventsAfterPause() {

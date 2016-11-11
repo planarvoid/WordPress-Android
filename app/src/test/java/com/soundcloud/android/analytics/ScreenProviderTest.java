@@ -31,7 +31,7 @@ public class ScreenProviderTest extends AndroidUnitTest {
     @Test
     public void ignoresNonScreenEvent() throws Exception {
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC.get("postfix")));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen());
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(false));
         assertThat(screenProvider.getLastScreenTag()).isEqualTo("explore:trending_music:postfix");
     }
 }

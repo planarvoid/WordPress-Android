@@ -148,7 +148,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         } else {
             if (!isLocked && isExpanded()) {
                 collapse();
-                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
                 return true;
             } else if (isLocked && isPlayQueueLocked) {
                 unlockForPlayQueue();
@@ -286,21 +285,19 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public void onPanelCollapsed(View panel) {
         setStatusBarColor(collapsedStatusColor);
         notifyCollapsedState();
-        trackPlayerSlide(UIEvent.fromPlayerClose());
+        trackPlayerSlide(UIEvent.fromPlayerClose(wasDragged));
     }
 
     @Override
     public void onPanelExpanded(View panel) {
         setStatusBarColor(expandedStatusColor);
         notifyExpandedState();
-        trackPlayerSlide(UIEvent.fromPlayerOpen());
+        trackPlayerSlide(UIEvent.fromPlayerOpen(wasDragged));
     }
 
     private void trackPlayerSlide(UIEvent event) {
-        if (wasDragged) {
-            wasDragged = false;
-            eventBus.publish(EventQueue.TRACKING, event);
-        }
+        wasDragged = false;
+        eventBus.publish(EventQueue.TRACKING, event);
     }
 
     private void notifyExpandedState() {

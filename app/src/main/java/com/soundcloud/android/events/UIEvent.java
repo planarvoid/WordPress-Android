@@ -30,6 +30,8 @@ public final class UIEvent extends TrackingEvent {
     private static final String TYPE_VIDEO_AD = "video_ad";
     private static final String TYPE_AUDIO_AD = "audio_ad";
     private static final String TYPE_MOBILE_INLAY = "mobile_inlay";
+    private static final String TRIGGER_AUTO = "auto";
+    private static final String TRIGGER_MANUAL = "manual";
 
     private final Map<String, List<String>> promotedTrackingUrls;
     private EventContextMetadata eventContextMetadata;
@@ -57,12 +59,14 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_SKIP_AD_CLICK = "skip_ad_click";
     public static final String KIND_START_STATION = "start_station";
 
-    public static UIEvent fromPlayerOpen() {
-        return new UIEvent(KIND_PLAYER_OPEN);
+    public static UIEvent fromPlayerOpen(boolean manual) {
+        return new UIEvent(KIND_PLAYER_OPEN)
+                .put(PlayableTrackingKeys.KEY_TRIGGER, manual ? TRIGGER_MANUAL : TRIGGER_AUTO);
     }
 
-    public static UIEvent fromPlayerClose() {
-        return new UIEvent(KIND_PLAYER_CLOSE);
+    public static UIEvent fromPlayerClose(boolean manual) {
+        return new UIEvent(KIND_PLAYER_CLOSE)
+                .put(PlayableTrackingKeys.KEY_TRIGGER, manual ? TRIGGER_MANUAL : TRIGGER_AUTO);
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow,

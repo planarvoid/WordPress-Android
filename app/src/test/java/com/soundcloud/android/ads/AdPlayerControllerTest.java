@@ -9,8 +9,6 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -90,18 +88,6 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void emitPlayerOpenWhenAudioAdIsPlaying() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
-
-        resumeFromBackground();
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen();
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
-    }
-
-    @Test
     public void doesNotExpandAudioAdIfItHasAlreadyBeenExpanded() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
@@ -110,17 +96,6 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
         resumeFromBackground();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).doesNotContain(PlayerUICommand.expandPlayer());
-    }
-
-    @Test
-    public void doNotEmitPlayerOpenIfItHasAlreadyBeenExpanded() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
-
-        resumeFromBackground();
-        resumeFromBackground();
-
-        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test

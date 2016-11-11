@@ -8,13 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -122,16 +121,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isCollapse()).isTrue();
-    }
-
-    @Test
-    public void onGotoUserEmitsUIEventClosePlayer() {
-        listener.onGotoUser(context(), Urn.forUser(42L));
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose();
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test

@@ -5,7 +5,6 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -41,16 +40,6 @@ public class PageListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onFooterTapEmitsUIEventOpenPlayer() {
-        listener.onFooterTap();
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen();
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
-    }
-
-    @Test
     public void onFooterTapPostsEventToExpandPlayer() {
         listener.onFooterTap();
 
@@ -64,16 +53,6 @@ public class PageListenerTest extends AndroidUnitTest {
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isCollapse()).isTrue();
-    }
-
-    @Test
-    public void onPlayerCloseEmitsUIEventClosePlayer() {
-        listener.onPlayerClose();
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose();
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
 }

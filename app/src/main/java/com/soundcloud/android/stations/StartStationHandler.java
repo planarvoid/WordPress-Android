@@ -6,7 +6,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -49,7 +48,6 @@ public class StartStationHandler {
                 .subscribe(new StartStationPageSubscriber(context, trackUrn, trackBlocked));
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
     }
 
     private class StartStationPageSubscriber extends DefaultSubscriber<PlayerUIEvent> {

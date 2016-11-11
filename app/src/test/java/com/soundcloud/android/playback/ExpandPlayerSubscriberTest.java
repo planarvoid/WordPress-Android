@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -31,16 +30,6 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
 
         Robolectric.flushForegroundThreadScheduler();
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
-    }
-
-    @Test
-    public void emitsOpenPlayerOnPlaybackResultSuccess() {
-        subscriber.onNext(PlaybackResult.success());
-
-        Robolectric.flushForegroundThreadScheduler();
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen();
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
