@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -33,6 +34,7 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
     @Mock private UserMenuRendererFactory userMenuRenderFactory;
     @Mock private UserMenuRenderer userMenuRenderer;
     @Mock private EngagementsTracking engagementsTracking;
+    @Mock private AccountOperations accountOperations;
     @Mock private View button;
 
     private UserMenuPresenter presenter;
@@ -47,7 +49,8 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
                                           followingOperations,
                                           userRepository,
                                           stationHandler,
-                                          engagementsTracking);
+                                          engagementsTracking,
+                                          accountOperations);
 
         when(userMenuRenderFactory.create(presenter, button)).thenReturn(userMenuRenderer);
     }

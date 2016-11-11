@@ -4,6 +4,7 @@ import com.google.auto.factory.AutoFactory;
 
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
 import android.content.Context;
@@ -41,18 +42,25 @@ class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
         menu.setOnDismissListener(this);
     }
 
-    void render(UserItem user) {
+    void render(UserItem user, Urn loggedInUser) {
         this.user = user;
-        setupMenu();
-    }
 
-    private void setupMenu() {
-        updateFollowActionTitle(user.isFollowedByMe());
+        final boolean isLoggedInUser = user.getUrn().equals(loggedInUser);
+        updateFollowAction(user, isLoggedInUser);
         menu.show();
     }
 
-    private void updateFollowActionTitle(boolean isFollowed) {
+    private void updateFollowAction(UserItem user, boolean isLoggedInUser) {
         final MenuItem item = menu.findItem(R.id.toggle_follow);
+        updateFollowActionVisibility(item, isLoggedInUser);
+        updateFollowActionTitle(item, user.isFollowedByMe());
+    }
+
+    private void updateFollowActionVisibility(MenuItem item, boolean isLoggedInUser) {
+        item.setVisible(!isLoggedInUser);
+    }
+
+    private void updateFollowActionTitle(MenuItem item, boolean isFollowed) {
         item.setTitle(isFollowed ? R.string.btn_unfollow : R.string.btn_follow);
     }
 
