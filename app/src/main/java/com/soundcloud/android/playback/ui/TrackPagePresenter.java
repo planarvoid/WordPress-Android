@@ -227,8 +227,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                     : R.string.playback_upsell_button);
             holder.upsellText.setText(upsellCopyExperiment.getUpsellCtaId());
             holder.upsellContainer.setVisibility(View.VISIBLE);
+            holder.timestamp.setPreview(true);
         } else {
             holder.upsellContainer.setVisibility(View.GONE);
+            holder.timestamp.setPreview(false);
         }
     }
 
@@ -342,6 +344,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerUser.setText(Strings.EMPTY);
         holder.footerTitle.setText(Strings.EMPTY);
 
+        holder.timestamp.setPreview(false);
         holder.timestamp.setVisibility(View.GONE);
         holder.errorViewController.hideError();
 

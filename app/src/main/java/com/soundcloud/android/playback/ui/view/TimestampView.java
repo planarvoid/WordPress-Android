@@ -40,6 +40,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
 
     private final View timestampLayout;
     private final View timestampHolder;
+    private final View timestampPreview;
     private final TextView progressText;
     private final TextView durationText;
     private final View background;
@@ -48,6 +49,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private final float timestampOriginalHeight;
     private final View dividerView;
 
+    private boolean inPreviewMode;
     private boolean inBufferingMode;
     private boolean isScrubbing;
     private long playableDuration;
@@ -86,6 +88,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         background = findViewById(R.id.timestamp_background);
         timestampLayout = findViewById(R.id.timestamp_layout);
         timestampHolder = findViewById(R.id.timestamp_holder);
+        timestampPreview = findViewById(R.id.timestamp_preview);
         dividerView = findViewById(R.id.timestamp_divider);
 
         animatePercentage = getResources().getInteger(R.integer.timestamp_animate_percentage);
@@ -119,6 +122,12 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         this.duration = duration;
         progressText.setText(format(0));
         durationText.setText(format(playableDuration));
+    }
+
+    public void setPreview(boolean previewMode) {
+        this.inPreviewMode = previewMode;
+        timestampLayout.setVisibility(previewMode ? INVISIBLE : VISIBLE);
+        timestampPreview.setVisibility(previewMode ? VISIBLE : INVISIBLE);
     }
 
     @Override
@@ -158,7 +167,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     public void showBackground(boolean visible) {
-        background.setVisibility(visible ? View.VISIBLE : View.GONE);
+        background.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
     @VisibleForTesting
@@ -198,8 +207,12 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         clearAnimations();
 
         if (isScrubbing) {
+            timestampPreview.setVisibility(INVISIBLE);
+            timestampLayout.setVisibility(VISIBLE);
             animateToScrubMode();
         } else if (timestampLayout.getTranslationY() != 0 || newScrubState == SCRUB_STATE_CANCELLED) {
+            timestampPreview.setVisibility(inPreviewMode ? VISIBLE : INVISIBLE);
+            timestampLayout.setVisibility(inPreviewMode ? INVISIBLE : VISIBLE);
             animateFromScrubMode();
         }
     }
@@ -261,4 +274,5 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
             }
         });
     }
+
 }

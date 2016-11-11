@@ -236,6 +236,14 @@
         <item name="android:textColor">@color/timestamp_secondary</item>
     </style>
 
+    <style name="TimestampText.Preview">
+        <item name="custom_font">@string/interstate_light</item>
+        <item name="android:layout_height">@dimen/timestamp_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:background">@color/black</item>
+    </style>
+
     <style name="PlayerUpsellContainer">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">57dp</item>

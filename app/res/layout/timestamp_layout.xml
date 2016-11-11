@@ -11,12 +11,13 @@
                  android:layout_weight="@integer/waveform_ratio_bottom"
                  android:id="@+id/timestamp_holder">
 
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="@dimen/timestamp_height"
-                        android:id="@+id/timestamp_layout"
-                        android:layout_gravity="top"
-                        android:layout_marginTop="@dimen/waveform_baseline"
-                        tools:ignore="UselessParent">
+        <RelativeLayout
+            android:id="@+id/timestamp_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/timestamp_height"
+            android:layout_gravity="top"
+            android:layout_marginTop="@dimen/waveform_baseline"
+            tools:ignore="UselessParent">
 
             <View android:id="@+id/timestamp_background"
                   android:layout_width="wrap_content"
@@ -40,7 +41,14 @@
                     android:id="@+id/timestamp_progress"
                     style="@style/TimestampText"
                     android:layout_toLeftOf="@id/timestamp_divider"/>
-
         </RelativeLayout>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/timestamp_preview"
+            style="@style/TimestampText.Preview"
+            android:layout_marginTop="@dimen/waveform_baseline"
+            android:layout_gravity="top|center_horizontal"
+            android:text="@string/upsell_track_preview"
+            android:visibility="invisible" />
     </FrameLayout>
 </merge>
