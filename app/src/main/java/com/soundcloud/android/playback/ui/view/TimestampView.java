@@ -168,6 +168,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
 
     public void showBackground(boolean visible) {
         background.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        timestampPreview.setBackgroundResource(visible ? R.color.black : android.R.color.transparent);
     }
 
     @VisibleForTesting
