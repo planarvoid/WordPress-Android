@@ -62,6 +62,7 @@ import java.util.List;
 class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.OnClickListener {
 
     private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
+    private static final long ANIMATION_DURATION = 600;
 
     private final WaveformOperations waveformOperations;
     private final FeatureOperations featureOperations;
@@ -288,7 +289,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public void onItemAdded(View view) {
         final View footerQueueButton = getViewHolder(view).footerQueueButton;
         Animator alphaAnimator = ObjectAnimator.ofFloat(footerQueueButton, View.ALPHA, 0f, 1f, 0f);
-        alphaAnimator.setDuration(400);
+        alphaAnimator.setDuration(ANIMATION_DURATION);
         alphaAnimator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {

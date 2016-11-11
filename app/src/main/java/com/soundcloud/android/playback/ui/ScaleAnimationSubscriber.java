@@ -12,6 +12,8 @@ import android.view.View;
 
 class ScaleAnimationSubscriber extends DefaultSubscriber<PlayQueueEvent> {
 
+    private static final long ANIMATION_DURATION = 600;
+
     private final View view;
 
     public ScaleAnimationSubscriber(View view) {
@@ -27,7 +29,7 @@ class ScaleAnimationSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         Animator scaleXAnimator = ObjectAnimator.ofFloat(view, View.SCALE_X, 1.0f, 1.1f, 1.0f);
         Animator scaleYAnimator = ObjectAnimator.ofFloat(view, View.SCALE_Y, 1.0f, 1.1f, 1.0f);
         AnimatorSet scaleAnimator = new AnimatorSet();
-        scaleAnimator.setDuration(400);
+        scaleAnimator.setDuration(ANIMATION_DURATION);
         scaleAnimator.setInterpolator(new FastOutSlowInInterpolator());
         scaleAnimator.playTogether(scaleXAnimator, scaleYAnimator);
         scaleAnimator.start();
