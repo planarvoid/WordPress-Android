@@ -40,6 +40,8 @@ public abstract class PlayQueueItem {
         return isVideoAd() || isAudioAd();
     }
 
+    public boolean isPlayable() {return isTrack() || isPlaylist();}
+
     public boolean isEmpty() {
         return this.getKind() == Kind.EMPTY;
     }

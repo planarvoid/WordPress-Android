@@ -729,4 +729,17 @@ public class PlayQueueManager implements OriginProvider {
         playQueue.moveItem(fromPosition, toPosition);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
     }
+
+    public List<PlayQueueItem> getExplicitQueueItems() {
+        List<PlayQueueItem> explicitPlayQueueItems = new ArrayList<>();
+        for (PlayQueueItem playQueueItem : playQueue) {
+            if (playQueueItem.isPlayable()) {
+                PlayableQueueItem playableQueueItem = (PlayableQueueItem) playQueueItem;
+                if (playableQueueItem.playbackContext.bucket() == PlaybackContext.Bucket.EXPLICIT) {
+                    explicitPlayQueueItems.add(playQueueItem);
+                }
+            }
+        }
+        return explicitPlayQueueItems;
+    }
 }
