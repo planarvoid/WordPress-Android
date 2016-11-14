@@ -12,6 +12,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -96,9 +97,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             unblockPagerSubscription = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                    .first(isBecomingSkippable)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(getRestoreQueueSubscriber());
+                                               .first(isBecomingSkippable)
+                                               .observeOn(AndroidSchedulers.mainThread())
+                                               .subscribe(getRestoreQueueSubscriber());
         }
     };
 
@@ -124,6 +125,17 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public Boolean call(CurrentPlayQueueItemEvent currentItemEvent) {
             return !setPlayQueueAfterScroll;
+        }
+    };
+
+    private final Func1<PlayerUIEvent, PlayQueueUIEvent> toPlayQueueUiEvent = new Func1<PlayerUIEvent, PlayQueueUIEvent>() {
+        @Override
+        public PlayQueueUIEvent call(PlayerUIEvent playerUIEvent) {
+            if (playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
+                return PlayQueueUIEvent.createHideEvent();
+            } else {
+                return PlayQueueUIEvent.createDisplayEvent();
+            }
         }
     };
 
@@ -173,6 +185,10 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     public void onResume(PlayerFragment fragment) {
         super.onResume(fragment);
         isResumed = true;
+        subscription.add(eventBus.queue(EventQueue.PLAYER_UI)
+                                 .filter(PlayerUIEvent.PLAYER_IS_COLLAPSED)
+                                 .map(toPlayQueueUiEvent)
+                                 .subscribe(new PlayQueueVisibilitySubscriber()));
     }
 
     @Override
@@ -199,15 +215,15 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
         // setup player ad
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                .doOnNext(onItemChanged)
-                .filter(isCurrentItemAd)
-                .doOnNext(allowScrollAfterAdSkipTimeout)
-                .subscribe(new ShowAudioAdSubscriber()));
+                                 .doOnNext(onItemChanged)
+                                 .filter(isCurrentItemAd)
+                                 .doOnNext(allowScrollAfterAdSkipTimeout)
+                                 .subscribe(new ShowAudioAdSubscriber()));
 
         // set position from track change
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                .filter(notWaitingForScroll)
-                .subscribe(new UpdateCurrentTrackSubscriber()));
+                                 .filter(notWaitingForScroll)
+                                 .subscribe(new UpdateCurrentTrackSubscriber()));
     }
 
     private void setupScrollingSubscribers() {
@@ -215,12 +231,12 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                 .getPageChangedObservable();
 
         subscription.add(pageChangedObservable
-                .subscribe(new SetQueueOnScrollSubscriber()));
+                                 .subscribe(new SetQueueOnScrollSubscriber()));
 
         subscription.add(pageChangedObservable
-                .doOnNext(updateAdapter)
-                .filter(isInForeground)
-                .subscribe(new ChangeTracksSubscriber()));
+                                 .doOnNext(updateAdapter)
+                                 .filter(isInForeground)
+                                 .subscribe(new ChangeTracksSubscriber()));
     }
 
     @Override
@@ -242,9 +258,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
             return false;
         } else {
             fragmentManager.beginTransaction()
-                    .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                    .remove(fragment)
-                    .commitAllowingStateLoss();
+                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                           .remove(fragment)
+                           .commitAllowingStateLoss();
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
             return true;
@@ -316,18 +332,18 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                 if (fragment == null) {
                     eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
                     fragmentManager.beginTransaction()
-                            .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                            .add(R.id.player_pager_holder,
-                                    playQueueFragmentFactory.create(),
-                                    PlayQueueFragment.TAG)
-                            .commitAllowingStateLoss();
+                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                                   .add(R.id.player_pager_holder,
+                                        playQueueFragmentFactory.create(),
+                                        PlayQueueFragment.TAG)
+                                   .commitAllowingStateLoss();
                 }
             } else if (playQueueUIEvent.isHideEvent()) {
                 if (fragment != null) {
                     fragmentManager.beginTransaction()
-                            .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                            .remove(fragment)
-                            .commitAllowingStateLoss();
+                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                                   .remove(fragment)
+                                   .commitAllowingStateLoss();
                     eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
                 }
             }
