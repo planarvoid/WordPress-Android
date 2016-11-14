@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-class UserProfileOperations {
+public class UserProfileOperations {
 
     private final ProfileApi profileApi;
     private final Scheduler scheduler;
@@ -125,7 +125,7 @@ class UserProfileOperations {
         });
     }
 
-    Observable<PagedRemoteCollection> pagedPostItems(Urn user) {
+    public Observable<PagedRemoteCollection> pagedPostItems(Urn user) {
         return profileApi
                 .userPosts(user)
                 .doOnNext(writeMixedRecordsCommand.toAction1())

@@ -6,14 +6,14 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -25,10 +25,10 @@ import javax.inject.Named;
  */
 public class FollowingOperations {
     private final Scheduler scheduler;
-    private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
     private final UpdateFollowingCommand storeFollowingCommand;
     private final UserAssociationStorage userAssociationStorage;
+    private final SyncOperations syncOperations;
 
     private final Action1<PropertySet> publishFollowingChanged = new Action1<PropertySet>() {
         @Override
@@ -40,14 +40,7 @@ public class FollowingOperations {
     private final Func1<Urn, Observable<PropertySet>> loadFollowedUser = new Func1<Urn, Observable<PropertySet>>() {
         @Override
         public Observable<PropertySet> call(Urn urn) {
-            return userAssociationStorage.followedUser(urn);
-        }
-    };
-
-    private final Action0 syncFollowings = new Action0() {
-        @Override
-        public void call() {
-            syncInitiator.requestSystemSync();
+            return userAssociationStorage.followedUser(urn).subscribeOn(scheduler);
         }
     };
 
@@ -70,23 +63,26 @@ public class FollowingOperations {
     };
 
     @Inject
-    public FollowingOperations(SyncInitiator syncInitiator,
-                               EventBus eventBus,
+    public FollowingOperations(EventBus eventBus,
                                UpdateFollowingCommand storeFollowingCommand,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                               UserAssociationStorage userAssociationStorage) {
-        this.syncInitiator = syncInitiator;
+                               UserAssociationStorage userAssociationStorage,
+                               SyncOperations syncOperations) {
         this.eventBus = eventBus;
         this.storeFollowingCommand = storeFollowingCommand;
         this.scheduler = scheduler;
         this.userAssociationStorage = userAssociationStorage;
+        this.syncOperations = syncOperations;
     }
 
-    public Observable<PropertySet> onUserFollowed() {
+    public Observable<PropertySet> populatedOnUserFollowed() {
+        return onUserFollowed().flatMap(loadFollowedUser);
+    }
+
+    public Observable<Urn> onUserFollowed() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
                        .filter(IS_FOLLOWING_EVENT)
-                       .map(EntityStateChangedEvent.TO_URN)
-                       .flatMap(loadFollowedUser);
+                       .map(EntityStateChangedEvent.TO_URN);
     }
 
     public Observable<Urn> onUserUnfollowed() {
@@ -102,9 +98,23 @@ public class FollowingOperations {
         return storeFollowingCommand
                 .toObservable(params)
                 .map(toChangeSet(targetUrn, following))
+                .flatMap(syncFollowings())
                 .doOnNext(publishFollowingChanged)
-                .doOnCompleted(syncFollowings)
                 .subscribeOn(scheduler);
+    }
+
+    private Func1<PropertySet, Observable<PropertySet>> syncFollowings() {
+        return new Func1<PropertySet, Observable<PropertySet>>() {
+            @Override
+            public Observable<PropertySet> call(final PropertySet propertyBindings) {
+                return syncOperations.failSafeSync(Syncable.MY_FOLLOWINGS).map(new Func1<SyncOperations.Result, PropertySet>() {
+                    @Override
+                    public PropertySet call(SyncOperations.Result result) {
+                        return propertyBindings;
+                    }
+                });
+            }
+        };
     }
 
     private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn, final boolean following) {
