@@ -348,7 +348,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          requested(singletonList(playlistWithTracks.getUrn()), false));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(true);
+        verify(engagementsView).showOfflineOptions(true);
     }
 
     @Test
@@ -358,7 +358,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(false);
+        verify(engagementsView).showOfflineOptions(false);
     }
 
     @Test
@@ -418,7 +418,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithTracks(sourceSet),
                                                             getPlaySessionSource()));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(true);
+        verify(engagementsView).showOfflineOptions(true);
     }
 
     @Test
@@ -430,7 +430,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithTracks(sourceSet),
                                                             getPlaySessionSource()));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(false);
+        verify(engagementsView).showOfflineOptions(false);
     }
 
     @Test
@@ -454,7 +454,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithTracks(sourceSet),
                                                             getPlaySessionSource()));
 
-        verify(engagementsView).hideMakeAvailableOfflineButton();
+        verify(engagementsView).hideOfflineOptions();
     }
 
     @Test
@@ -465,7 +465,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithTracks(sourceSet),
                                                             getPlaySessionSource()));
 
-        verify(engagementsView).hideMakeAvailableOfflineButton();
+        verify(engagementsView).hideOfflineOptions();
     }
 
     @Test
@@ -477,7 +477,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithTracks(sourceSet),
                                                             getPlaySessionSource()));
 
-        verify(engagementsView).showMakeAvailableOfflineButton(false);
+        verify(engagementsView).showOfflineOptions(false);
     }
 
     @Test
@@ -488,7 +488,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithTracks(sourceSet),
                                                             getPlaySessionSource()));
 
-        verify(engagementsView).hideMakeAvailableOfflineButton();
+        verify(engagementsView).hideOfflineOptions();
     }
 
     @Test

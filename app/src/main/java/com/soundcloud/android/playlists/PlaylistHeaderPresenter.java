@@ -290,11 +290,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private void updateOfflineAvailability(boolean isPlaylistOfflineAvailable) {
         if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
-            playlistEngagementsView.showMakeAvailableOfflineButton(isPlaylistOfflineAvailable);
+            playlistEngagementsView.showOfflineOptions(isPlaylistOfflineAvailable);
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
         } else {
-            playlistEngagementsView.hideMakeAvailableOfflineButton();
+            playlistEngagementsView.hideOfflineOptions();
         }
     }
 
