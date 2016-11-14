@@ -14,17 +14,18 @@ public abstract class RecommendedPlaylistsEntity {
     public abstract String key();
     public abstract String displayName();
     public abstract Optional<String> artworkUrl();
+    public abstract Optional<Urn> queryUrn();
     public abstract List<Urn> playlistUrns();
 
-    public static RecommendedPlaylistsEntity create(long localId, String key, String displayName, Optional<String> artworkUrl, List<Urn> playlists) {
-        return new AutoValue_RecommendedPlaylistsEntity(localId, key, displayName, artworkUrl, playlists);
+    public static RecommendedPlaylistsEntity create(long localId, String key, String displayName, Optional<String> artworkUrl, Optional<Urn> queryUrn, List<Urn> playlists) {
+        return new AutoValue_RecommendedPlaylistsEntity(localId, key, displayName, artworkUrl, queryUrn, playlists);
     }
 
     public RecommendedPlaylistsEntity copyWithPlaylistUrns(List<Urn> playlists) {
-        return new AutoValue_RecommendedPlaylistsEntity(localId(), key(), displayName(), artworkUrl(), playlists);
+        return new AutoValue_RecommendedPlaylistsEntity(localId(), key(), displayName(), artworkUrl(), queryUrn(), playlists);
     }
 
-    public static RecommendedPlaylistsEntity create(long localId, String key, String displayName, Optional<String> artworkUrl) {
-        return new AutoValue_RecommendedPlaylistsEntity(localId, key, displayName, artworkUrl, Collections.<Urn>emptyList());
+    public static RecommendedPlaylistsEntity create(long localId, String key, String displayName, Optional<String> artworkUrl, Optional<Urn> queryUrn) {
+        return new AutoValue_RecommendedPlaylistsEntity(localId, key, displayName, artworkUrl, queryUrn, Collections.<Urn>emptyList());
     }
 }

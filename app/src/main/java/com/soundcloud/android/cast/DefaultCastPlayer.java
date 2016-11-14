@@ -96,24 +96,29 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
     }
 
     public void onConnected(RemoteMediaClient client) {
+        Log.d(TAG, "On Connected with client " + client);
         remoteMediaClient = client;
         remoteMediaClient.addListener(this);
     }
 
     @Override
     public void onStatusUpdated() {
+        Log.d(TAG, "On Status updated, status: " + remoteMediaClient.getPlayerState());
+
         onMediaPlayerStatusUpdatedListener(remoteMediaClient.getPlayerState(),
                                            remoteMediaClient.getIdleReason());
     }
 
     @Override
     public void onMetadataUpdated() {
-        // no-op
+        Log.d(TAG, "On metadata updated, status: " + remoteMediaClient.getPlayerState());
+
+        updateLocalPlayQueueAndPlayState();
     }
 
     @Override
     public void onQueueStatusUpdated() {
-        // no-op
+        Log.d(TAG, "On queue updated, status: " + remoteMediaClient.getPlayerState());
     }
 
     @Override
@@ -242,12 +247,9 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
             Log.d(TAG, "Empty track list, not updating locally");
 
         } else if (playQueueManager.hasSameTrackList(remoteTrackList)) {
-            Log.d(TAG, "Has the same tracklist, setting remotePosition");
-            playQueueManager.setPosition(remotePosition, true);
-            if (remoteMediaClient.getPlayerState() == MediaStatus.PLAYER_STATE_PLAYING) {
-                playCurrent();
+            if (isNotInterruptedIdle()) {
+                updatePositionAndPlay(remotePosition);
             }
-
         } else {
             Log.d(TAG, "Does not have the same tracklist, updating locally");
             List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
@@ -262,6 +264,22 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
     }
 
+    private boolean isNotInterruptedIdle() {
+        // when moving manually to the next track receiver will send an idle interrupted event for the previous
+        // track first before buffering state of the current track. This causes player to move back and forward, that
+        // is why we decided to ignore this particular event
+        return !(remoteMediaClient.getPlayerState() == MediaStatus.PLAYER_STATE_IDLE
+                && remoteMediaClient.getIdleReason() == MediaStatus.IDLE_REASON_INTERRUPTED);
+    }
+
+    private void updatePositionAndPlay(int remotePosition) {
+        Log.d(TAG, "Has the same tracklist, setting remotePosition");
+        playQueueManager.setPosition(remotePosition, true);
+        if (remoteMediaClient.getPlayerState() == MediaStatus.PLAYER_STATE_PLAYING) {
+            playCurrent();
+        }
+    }
+
     public void playCurrent() {
         playCurrent(0L);
     }
@@ -269,12 +287,24 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
     public void playCurrent(long position) {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         final Urn currentTrackUrn = currentPlayQueueItem.getUrn();
-        reportStateChange(createStateTransition(currentTrackUrn, PlaybackState.BUFFERING, PlayStateReason.NONE));
+        if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
+            reconnectToExistingSession();
+        } else {
+            reportStateChange(createStateTransition(currentTrackUrn, PlaybackState.BUFFERING, PlayStateReason.NONE));
+            playCurrentSubscription.unsubscribe();
+            playCurrentSubscription = castOperations
+                    .loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns())
+                    .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn, position));
+        }
+    }
 
-        playCurrentSubscription.unsubscribe();
-        playCurrentSubscription = castOperations
-                .loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns())
-                .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn, position));
+    private boolean isCurrentlyLoadedOnRemotePlayer(Urn urn) {
+        final Urn currentPlayingUrn = castProtocol.getRemoteCurrentTrackUrn(remoteMediaClient.getMediaInfo());
+        return currentPlayingUrn != Urn.NOT_SET && currentPlayingUrn.equals(urn);
+    }
+
+    private void reconnectToExistingSession() {
+        onMediaPlayerStatusUpdatedListener(remoteMediaClient.getPlayerState(), remoteMediaClient.getIdleReason());
     }
 
     private class PlayCurrentLocalQueueOnRemote extends DefaultSubscriber<LocalPlayQueue> {
@@ -298,6 +328,7 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
     }
 
     private void playLocalQueueOnRemote(LocalPlayQueue localPlayQueue, long progressPosition) {
+        Log.d(TAG, "Play local queue on the remote");
         remoteMediaClient.load(localPlayQueue.mediaInfo, true, progressPosition, localPlayQueue.playQueueTracksJSON);
     }
 

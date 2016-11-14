@@ -11,6 +11,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -163,6 +164,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @OnClick(R.id.close_play_queue)
     void closePlayQueue() {
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
     }
 
     @OnClick(R.id.up_next)
@@ -241,11 +243,13 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     @OnClick(R.id.shuffle_button)
     void shuffleClicked(ToggleButton toggle) {
-        if (toggle.isChecked()) {
+        final boolean isShuffled = toggle.isChecked();
+        if (isShuffled) {
             playQueueManager.shuffle();
         } else {
             playQueueManager.unshuffle();
         }
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueShuffle(isShuffled));
     }
 
     private RepeatMode getNextRepeatMode() {

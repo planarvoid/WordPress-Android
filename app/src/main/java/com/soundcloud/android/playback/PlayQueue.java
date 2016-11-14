@@ -15,7 +15,6 @@ import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     private static final String DEFAULT_SOURCE_VERSION = "default";
 
     public static PlayQueue empty() {
-        return new SimplePlayQueue(Collections.<PlayQueueItem>emptyList());
+        return new SimplePlayQueue(new ArrayList(0));
     }
 
     public static PlayQueue fromTrackUrnList(List<Urn> trackUrns, PlaySessionSource playSessionSource,
@@ -42,6 +41,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     private static List<PlayQueueItem> playQueueItemsFromUrns(List<Urn> urns,
                                                               final PlaySessionSource playSessionSource,
                                                               final Map<Urn, Boolean> blockedTracks) {
+
         return newArrayList(Lists.transform(urns, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn playable) {
@@ -172,6 +172,8 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     public abstract boolean hasNextItem(int position);
 
     public abstract boolean hasTrackAsNextItem(int position);
+
+    public abstract void insertAllItems(int position, List<PlayQueueItem> playQueueItems);
 
     @Override
     public abstract Iterator<PlayQueueItem> iterator();

@@ -68,6 +68,11 @@ class SimplePlayQueue extends PlayQueue {
     }
 
     @Override
+    public void insertAllItems(int position, List<PlayQueueItem> newplayQueueItems) {
+        playQueueItems.addAll(position, newplayQueueItems);
+    }
+
+    @Override
     public Iterator<PlayQueueItem> iterator() {
         return playQueueItems.iterator();
     }

@@ -115,7 +115,8 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
     }
 
     public void removeItem() {
-        playQueue = PlayQueue.fromPlayQueueItems(Lists.<PlayQueueItem>newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2));
+        playQueue = PlayQueue.fromPlayQueueItems(Lists.<PlayQueueItem>newArrayList(TRACK_QUEUE_ITEM_1,
+                                                                                   TRACK_QUEUE_ITEM_2));
 
         playQueue.removeItem(TRACK_QUEUE_ITEM_1);
 
@@ -203,7 +204,8 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final List<StationTrack> tracks = station.getTracks();
-        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO, Urn.forArtistStation(123L));
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO,
+                                                                                 Urn.forArtistStation(123L));
         PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks, playSessionSource);
 
         assertThat(playQueue).hasSize(1);
@@ -263,7 +265,9 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final List<StationTrack> tracks = station.getTracks();
-        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO.get(), Urn.forArtistStation(123L), DiscoverySource.STATIONS_SUGGESTIONS);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO.get(),
+                                                                                 Urn.forArtistStation(123L),
+                                                                                 DiscoverySource.STATIONS_SUGGESTIONS);
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks, playSessionSource);
 
         assertThat(playQueue).hasSize(1);
@@ -310,6 +314,50 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
         playQueue.moveItem(0, 5);
     }
+
+    @Test
+    public void shouldAddAllItemsAtPosition() {
+        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
+        PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
+        final PlayQueueItem firstPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(5));
+        final PlayQueueItem secondPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(6));
+        final List<PlayQueueItem> addedTracks = Arrays.asList(firstPlayQueueItem, secondPlayQueueItem);
+        playQueue.insertAllItems(1, addedTracks);
+
+        assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(1),
+                                                                         Urn.forTrack(5),
+                                                                         Urn.forTrack(6),
+                                                                         Urn.forTrack(2),
+                                                                         Urn.forTrack(3)));
+    }
+
+    @Test
+    public void shouldAddItemsToEmptyList() {
+        PlayQueue playQueue = PlayQueue.empty();
+        final PlayQueueItem firstPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(1));
+        final PlayQueueItem secondPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(2));
+        final List<PlayQueueItem> addedTracks = Arrays.asList(firstPlayQueueItem, secondPlayQueueItem);
+        playQueue.insertAllItems(0, addedTracks);
+
+        assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2)));
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void shouldThrowIndexOutOfBoundExceptionOnInsertAll() {
+        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
+        PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
+        final PlayQueueItem firstPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(5));
+        final PlayQueueItem secondPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(6));
+        final List<PlayQueueItem> addedTracks = Arrays.asList(firstPlayQueueItem, secondPlayQueueItem);
+        playQueue.insertAllItems(4, addedTracks);
+
+        assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(1),
+                                                                         Urn.forTrack(5),
+                                                                         Urn.forTrack(6),
+                                                                         Urn.forTrack(2),
+                                                                         Urn.forTrack(3)));
+    }
+
 
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn) {
         assertThat(playQueueItem.isTrack()).isTrue();

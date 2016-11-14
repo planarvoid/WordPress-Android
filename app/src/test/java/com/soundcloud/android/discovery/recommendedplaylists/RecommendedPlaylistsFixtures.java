@@ -1,7 +1,6 @@
 package com.soundcloud.android.discovery.recommendedplaylists;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -13,11 +12,12 @@ import java.util.List;
 public class RecommendedPlaylistsFixtures {
 
     static RecommendedPlaylistsEntity createEntity(List<Urn> urns) {
-        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.<String>absent(), urns);
+        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.<String>absent(),
+                                                 Optional.of(Urn.forDayZero(1234)), urns);
     }
 
     static RecommendedPlaylistsEntity createEmptyEntity() {
-        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.<String>absent());
+        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.<String>absent(), Optional.of(Urn.forDayZero(1234)));
     }
 
     static ApiRecommendedPlaylistBucket createApiBucket() {

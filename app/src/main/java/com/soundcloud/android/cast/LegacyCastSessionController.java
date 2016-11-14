@@ -134,10 +134,12 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl
                                                       "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
                                                       remoteCurrentUrn, remoteTrackList.size()));
         if (playQueueManager.hasSameTrackList(remoteTrackList)) {
-            Log.d(LegacyCastOperations.TAG, "Has the same tracklist, setting remotePosition");
-            playQueueManager.setPosition(remotePosition, true);
-            if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
-                castPlayer.playCurrent();
+            if (!isIdleWithInterrupted()) {
+                Log.d(LegacyCastOperations.TAG, "Has the same tracklist, setting remotePosition");
+                playQueueManager.setPosition(remotePosition, true);
+                if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
+                    castPlayer.playCurrent();
+                }
             }
         } else {
             Log.d(LegacyCastOperations.TAG, "Does not have the same tracklist, updating locally");
@@ -150,6 +152,11 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl
         }
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+    }
+
+    private boolean isIdleWithInterrupted() {
+        return videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_IDLE
+                && videoCastManager.getIdleReason() == MediaStatus.IDLE_REASON_INTERRUPTED;
     }
 
     @Override

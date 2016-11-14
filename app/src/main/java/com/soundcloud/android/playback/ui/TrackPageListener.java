@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
@@ -79,6 +80,7 @@ class TrackPageListener extends PageListener {
 
     void onPlayQueue() {
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createDisplayEvent());
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueOpen());
     }
 
     private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final Urn userUrn) {

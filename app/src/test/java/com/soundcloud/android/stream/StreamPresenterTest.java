@@ -18,6 +18,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.StreamAdsController;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -33,7 +34,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -57,6 +57,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.subjects.PublishSubject;
 
 import android.net.Uri;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -81,7 +82,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private StreamAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private StreamAdsController streamAdsController;
-    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
+    @Mock private StreamSwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DateProvider dateProvider;
     @Mock private Observer<Iterable<StreamItem>> itemObserver;
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
@@ -91,11 +92,14 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private View view;
     @Mock private NewItemsIndicator newItemsIndicator;
+    @Mock private FollowingOperations followingOperations;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     @Mock private WhyAdsDialogPresenter whyAdsDialogPresenter;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
+    private PublishSubject<Urn> followSubject = PublishSubject.create();
+    private PublishSubject<Urn> unfollowSubject = PublishSubject.create();
 
     @Before
     public void setUp() throws Exception {
@@ -115,6 +119,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 facebookInvitesDialogPresenter,
                 navigator,
                 newItemsIndicator,
+                followingOperations,
                 whyAdsDialogPresenter,
                 updatePlayableAdapterSubscriberFactory);
 
@@ -122,6 +127,8 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
+        when(followingOperations.onUserFollowed()).thenReturn(followSubject);
+        when(followingOperations.onUserUnfollowed()).thenReturn(unfollowSubject);
     }
 
     @Test
@@ -439,6 +446,17 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragmentRule.getFragment());
 
         verify(streamAdsController).clear();
+    }
+
+    @Test
+    public void shouldForceRefreshOnFollowAndUnfollow() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        followSubject.onNext(Urn.forUser(123L));
+        unfollowSubject.onNext(Urn.forUser(456L));
+
+        verify(swipeRefreshAttacher, times(2)).forceRefresh();
     }
 
     @Test

@@ -17,7 +17,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
@@ -70,6 +69,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 policyOperations);
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
         when(policyOperations.blockedStatuses(anyListOf(Urn.class))).thenReturn(Observable.just(Collections.<Urn, Boolean>emptyMap()));
 
@@ -343,27 +343,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         assertThat(urnArgumentCaptor.getValue()).isNotEqualTo(Urn.NOT_SET);
     }
 
-/*    @Test todo
-    public void playTrackShuffledCreatesPlayQueueWithOfflineTrackPriority() {
-        final List<Urn> offlineTracks = singletonList(TRACK2);
-        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
-
-        when(offlinePlaybackOperations.findOfflineAvailableTracks(tracksToPlay)).thenReturn(offlineTracks);
-
-        playbackInitiator
-                .playTracksShuffled(Observable.just(tracksToPlay), playSessionSource)
-                .subscribe(observer);
-
-        verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(),
-                                                   any(Urn.class),
-                                                   eq(0),
-                                                   eq(playSessionSource));
-        final PlayQueue actualQueue = playQueueTracksCaptor.getValue();
-        assertThat(offlineTracks).contains(actualQueue.getUrn(0));
-        assertThat(actualQueue.getTrackItemUrns()).contains(TRACK1, TRACK2, TRACK3);
-    }*/
-
     @Test
     public void playTracksWithNonEmptyTrackListPlaysNewQueue() {
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
@@ -479,6 +458,30 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                    any(Urn.class),
                                                    anyInt(),
                                                    any(PlaySessionSource.class));
+    }
+
+    @Test
+    public void includeExplicitContentFromPreviousQueue() {
+        final PlayQueueItem explicitTrack = TestPlayQueueItem.createTrack(Urn.forTrack(123l));
+        final List<PlayQueueItem> currentPlayQueue = Collections.singletonList(explicitTrack);
+        when(playQueueManager.getExplicitQueueItems()).thenReturn(currentPlayQueue);
+
+        final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
+        playbackInitiator.playTracks(newTrackList, 1, PlaySessionSource.EMPTY).subscribe();
+
+        verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(),
+                                                   eq(Urn.forTrack(2)),
+                                                   eq(1),
+                                                   eq(PlaySessionSource.EMPTY));
+
+
+        PlayQueue createdPlayQueue = playQueueTracksCaptor.getValue();
+        assertThat(createdPlayQueue.size()).isEqualTo(4);
+        assertThat(createdPlayQueue.getUrn(0).getNumericId()).isEqualTo(1);
+        assertThat(createdPlayQueue.getUrn(1).getNumericId()).isEqualTo(123);
+        assertThat(createdPlayQueue.getUrn(2).getNumericId()).isEqualTo(2);
+        assertThat(createdPlayQueue.getUrn(3).getNumericId()).isEqualTo(3);
+
     }
 
     private void expectSuccessPlaybackResult() {

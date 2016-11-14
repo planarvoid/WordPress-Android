@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -8,6 +9,7 @@ import com.soundcloud.java.optional.Optional;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import javax.inject.Inject;
@@ -40,6 +42,7 @@ public class ApiSyncService extends Service {
 
     @Inject SyncRequestFactory syncIntentSyncRequestFactory;
     @Inject SyncStateStorage syncStateStorage;
+    @Inject UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
     private int activeTaskCount;
 
@@ -53,16 +56,24 @@ public class ApiSyncService extends Service {
     }
 
     @VisibleForTesting
-    ApiSyncService(SyncRequestFactory syncRequestFactory, SyncStateStorage syncStateStorage) {
+    ApiSyncService(SyncRequestFactory syncRequestFactory,
+                   SyncStateStorage syncStateStorage,
+                   UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         this.syncIntentSyncRequestFactory = syncRequestFactory;
         this.syncStateStorage = syncStateStorage;
+        this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG, "startListening(" + intent + ")");
         if (intent != null) {
-            enqueueRequest(syncIntentSyncRequestFactory.create(intent));
+            SyncRequest syncRequest = syncIntentSyncRequestFactory.create(intent);
+            syncRequests.add(syncRequest);
+
+            if (shouldEnqueueJobs(intent)) {
+                enqueueRequest(syncRequest);
+            }
         }
         flushSyncRequests();
         return START_NOT_STICKY;
@@ -100,8 +111,30 @@ public class ApiSyncService extends Service {
         runningJobs.remove(syncJob);
     }
 
+    @VisibleForTesting
+    boolean shouldEnqueueJobs(Intent intent) {
+        return !isUiRequestExtraDefined(intent) ||
+                isUiRequest(intent) ||
+                isAuthTokenValid();
+    }
+
+    // Adding additional check to be SURE this is a background sync request.
+    // Otherwise, foreground request might not end up getting queued and
+    // thus TokenExpiredDialogFragment won't be presented when it should.
+    private boolean isUiRequestExtraDefined(Intent intent) {
+        Bundle extras = intent.getExtras();
+        return extras != null && extras.containsKey(ApiSyncService.EXTRA_IS_UI_REQUEST);
+    }
+
+    private boolean isUiRequest(Intent intent) {
+        return intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false);
+    }
+
+    private boolean isAuthTokenValid() {
+        return !unauthorisedRequestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit();
+    }
+
     private void enqueueRequest(SyncRequest syncRequest) {
-        syncRequests.add(syncRequest);
         for (SyncJob syncJob : syncRequest.getPendingJobs()) {
             if (!runningJobs.contains(syncJob)) {
                 if (!pendingJobs.contains(syncJob)) {

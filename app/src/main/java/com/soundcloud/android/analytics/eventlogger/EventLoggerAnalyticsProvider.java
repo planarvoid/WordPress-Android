@@ -158,6 +158,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_BUTTON_SKIP:
             case UIEvent.KIND_PLAYER_OPEN:
             case UIEvent.KIND_PLAYER_CLOSE:
+            case UIEvent.KIND_PLAY_QUEUE_OPEN:
+            case UIEvent.KIND_PLAY_QUEUE_CLOSE:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
 
                 if (featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)) {
@@ -171,6 +173,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_VIDEO_AD_SHRINK:
             case UIEvent.KIND_AD_CLICKTHROUGH:
             case UIEvent.KIND_SKIP_AD_CLICK:
+            case UIEvent.KIND_PLAY_QUEUE_SHUFFLE:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

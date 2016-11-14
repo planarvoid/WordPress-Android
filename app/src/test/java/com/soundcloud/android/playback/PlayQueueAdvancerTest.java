@@ -11,6 +11,7 @@ import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
@@ -38,6 +39,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private PlaySessionController playSessionController;
     @Mock private PlaybackServiceController serviceInitiator;
+    @Mock private CastConnectionHelper castConnectionHelper;
 
     private PlayQueueAdvancer advancer;
 
@@ -47,7 +49,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
                 playQueueManager,
                 networkConnectionHelper,
                 playSessionController,
-                adsController, serviceInitiator);
+                adsController, serviceInitiator, castConnectionHelper);
         trackUrn = TestPlayStates.URN;
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
@@ -142,6 +144,14 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     @Test
     public void onStateTransitionDoesNotAdvanceTracksIfNotCurrentPlayQueueTrack() {
         when(playQueueManager.isCurrentItem(trackUrn)).thenReturn(false);
+        assertThat(advancer.onPlayStateChanged(TestPlayStates.complete())).isSameAs(PlayQueueAdvancer.Result.NO_OP);
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
+    }
+
+    @Test
+    public void onStateTransitionDoesNotAdvanceTracksIfCasting() {
+        when(castConnectionHelper.isCasting()).thenReturn(true);
+
         assertThat(advancer.onPlayStateChanged(TestPlayStates.complete())).isSameAs(PlayQueueAdvancer.Result.NO_OP);
         verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }

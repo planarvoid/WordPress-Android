@@ -351,6 +351,12 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("player::max", event));
             case UIEvent.KIND_PLAYER_CLOSE:
                 return transform(buildClickEvent("player::min", event));
+            case UIEvent.KIND_PLAY_QUEUE_OPEN:
+                return transform(buildClickEvent("play_queue::max", event));
+            case UIEvent.KIND_PLAY_QUEUE_CLOSE:
+                return transform(buildClickEvent("play_queue::min", event));
+            case UIEvent.KIND_PLAY_QUEUE_SHUFFLE:
+                return transform(buildClickEvent(event.get(UIEvent.KEY_CLICK_NAME), event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }

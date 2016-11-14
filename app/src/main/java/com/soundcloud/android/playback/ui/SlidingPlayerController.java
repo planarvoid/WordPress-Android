@@ -151,6 +151,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                 return true;
             } else if (isLocked && isPlayQueueLocked) {
                 unlockForPlayQueue();
+                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
                 return true;
             }
         }

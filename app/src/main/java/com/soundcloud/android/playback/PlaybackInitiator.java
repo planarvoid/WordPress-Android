@@ -13,6 +13,7 @@ import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
@@ -122,16 +123,27 @@ public class PlaybackInitiator {
 
     private Observable<PlaybackResult> playTracksList(Observable<PlayQueue> playQueue,
                                                       Urn initialTrack,
-                                                      int startPosition,
+                                                      final int startPosition,
                                                       final PlaySessionSource playSessionSource) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             playSessionController.playCurrent();
             return Observable.just(PlaybackResult.success());
         } else {
             return playQueue
+                    .doOnNext(addExplicitContentFromCurrentPlayQueue(startPosition))
                     .flatMap(toPlaybackResult(initialTrack, startPosition, playSessionSource))
                     .observeOn(AndroidSchedulers.mainThread());
         }
+    }
+
+    private Action1<PlayQueue> addExplicitContentFromCurrentPlayQueue(final int startPosition) {
+        return new Action1<PlayQueue>() {
+            @Override
+            public void call(PlayQueue playQueueItems) {
+                List<PlayQueueItem> explicitQueueItems = playQueueManager.getExplicitQueueItems();
+                playQueueItems.insertAllItems(startPosition, explicitQueueItems);
+            }
+        };
     }
 
     private Func1<List<PropertySet>, Observable<PlayQueue>> playablesToPlayQueue(final PlaySessionSource playSessionSource) {

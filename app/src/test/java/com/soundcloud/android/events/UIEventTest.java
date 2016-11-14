@@ -1128,6 +1128,22 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(event.getQueryPosition()).isEqualTo(Optional.<Integer>absent());
     }
 
+    @Test
+    public void shouldCreateEventFromPlayQueueShuffleOn() {
+        final UIEvent uiEvent = UIEvent.fromPlayQueueShuffle(true);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_SHUFFLE);
+        assertThat(uiEvent.get(UIEvent.KEY_CLICK_NAME)).isEqualTo("shuffle::on");
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(Screen.PLAY_QUEUE.get());
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayQueueShuffleOff() {
+        final UIEvent uiEvent = UIEvent.fromPlayQueueShuffle(false);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_SHUFFLE);
+        assertThat(uiEvent.get(UIEvent.KEY_CLICK_NAME)).isEqualTo("shuffle::off");
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(Screen.PLAY_QUEUE.get());
+    }
+
 
     private EventContextMetadata.Builder eventContextBuilder() {
         return eventContextNoInvokerScreen().invokerScreen("invoker_screen");

@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 
 import javax.inject.Inject;
@@ -15,6 +16,7 @@ public class PlayQueueAdvancer {
     private final PlaySessionController playSessionController;
     private final AdsController adsController;
     private final PlaybackServiceController serviceController;
+    private final CastConnectionHelper castConnectionHelper;
 
     public enum Result {
         NO_OP, ADVANCED, QUEUE_COMPLETE
@@ -24,12 +26,15 @@ public class PlayQueueAdvancer {
     public PlayQueueAdvancer(PlayQueueManager playQueueManager,
                              NetworkConnectionHelper connectionHelper,
                              PlaySessionController playSessionController,
-                             AdsController adsController, PlaybackServiceController serviceController) {
+                             AdsController adsController,
+                             PlaybackServiceController serviceController,
+                             CastConnectionHelper castConnectionHelper) {
         this.playQueueManager = playQueueManager;
         this.connectionHelper = connectionHelper;
         this.playSessionController = playSessionController;
         this.adsController = adsController;
         this.serviceController = serviceController;
+        this.castConnectionHelper = castConnectionHelper;
     }
 
     public Result onPlayStateChanged(PlayStateEvent playStateEvent) {
@@ -50,7 +55,8 @@ public class PlayQueueAdvancer {
     }
 
     private boolean shouldAdvanceItems(PlayStateEvent playStateEvent) {
-        return playQueueManager.isCurrentItem(playStateEvent.getPlayingItemUrn())
+        return !castConnectionHelper.isCasting() &&
+                playQueueManager.isCurrentItem(playStateEvent.getPlayingItemUrn())
                 && playStateEvent.isPlayerIdle()
                 && !playStateEvent.isPlayQueueComplete()
                 && (playStateEvent.playbackEnded()

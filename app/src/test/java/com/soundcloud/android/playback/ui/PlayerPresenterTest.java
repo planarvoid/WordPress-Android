@@ -81,7 +81,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     @Mock private PlayQueueFragmentFactory playQueueFragmentFactory;
     @Captor private ArgumentCaptor<List<PlayQueueItem>> playQueueItemsCaptor;
 
-    private PlayerPresenter controller;
+    private PlayerPresenter playerPresenter;
     private PublishSubject<Integer> scrollStateObservable = PublishSubject.create();
     private TestEventBus eventBus = new TestEventBus();
     private final List<PlayQueueItem> fullPlayQueue = Arrays.asList(
@@ -92,20 +92,20 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         setUpFragment();
-        controller = new PlayerPresenter(playerPagerPresenter,
-                                         eventBus,
-                                         playQueueManager,
-                                         playSessionController,
-                                         playerPagerScrollListener,
-                                         adsOperations,
-                                         playQueueFragmentFactory);
+        playerPresenter = new PlayerPresenter(playerPagerPresenter,
+                                              eventBus,
+                                              playQueueManager,
+                                              playSessionController,
+                                              playerPagerScrollListener,
+                                              adsOperations,
+                                              playQueueFragmentFactory);
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(fullPlayQueue);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TRACK_PLAY_QUEUE_ITEM);
         when(playerPagerPresenter.getCurrentPlayQueue()).thenReturn(fullPlayQueue);
         when(container.getResources()).thenReturn(resources());
         when(playerPagerScrollListener.getPageChangedObservable()).thenReturn(scrollStateObservable);
-        controller.onCreate(fragment, null);
-        controller.onViewCreated(fragment, container, null);
+        playerPresenter.onCreate(fragment, null);
+        playerPresenter.onViewCreated(fragment, container, null);
     }
 
     private void setUpFragment() {
@@ -123,7 +123,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setPagerInitializesCurrentPosition() {
-        controller.onViewCreated(fragment, container, null);
+        playerPresenter.onViewCreated(fragment, container, null);
 
         verify(playerPagerPresenter, times(2)).setCurrentItem(eq(1), anyBoolean());
     }
@@ -166,7 +166,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldUnsubscribeFromQueuesOnUnsubscribe() {
-        controller.onDestroyView(fragment);
+        playerPresenter.onDestroyView(fragment);
 
         eventBus.verifyUnsubscribed();
     }
@@ -193,7 +193,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     public void changesPlayQueuePositionWhenInForegroundOnIdleStateAfterPageSelected() {
         when(playerPagerPresenter.getCurrentItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
 
-        controller.onResume(fragment);
+        playerPresenter.onResume(fragment);
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
         Robolectric.flushForegroundThreadScheduler();
@@ -214,8 +214,8 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     public void doesNotChangePlayQueuePositionWhenInBackgroundOnIdleStateAfterPageSelected() {
         when(playerPagerPresenter.getCurrentItemPosition()).thenReturn(2);
         when(playerPagerPresenter.getItemAtPosition(2)).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
-        controller.onResume(fragment);
-        controller.onPause(fragment);
+        playerPresenter.onResume(fragment);
+        playerPresenter.onPause(fragment);
 
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
@@ -331,7 +331,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         setupCurrentItemAsAd(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         setupPositionsForAd(1);
-        controller.onResume(fragment);
+        playerPresenter.onResume(fragment);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(AUDIO_AD_PLAY_QUEUE_ITEM, Urn.NOT_SET, 0));
@@ -378,7 +378,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         when(playerPagerPresenter.getCurrentItemPosition()).thenReturn(0);
         when(playerPagerPresenter.getCurrentItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         when(playerPagerPresenter.getCount()).thenReturn(1);
-        controller.onResume(fragment);
+        playerPresenter.onResume(fragment);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAdsRemoved(Urn.NOT_SET));
 
@@ -391,7 +391,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         when(playerPagerPresenter.getCurrentItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         when(playerPagerPresenter.getCount()).thenReturn(3);
 
-        controller.onResume(fragment);
+        playerPresenter.onResume(fragment);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAdsRemoved(Urn.NOT_SET));
 
@@ -443,6 +443,14 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         verify(fragmentManager, times(2)).beginTransaction();
         verify(fragmentTransaction, times(1)).remove(any(Fragment.class));
         subscriber.assertValue(PlayerUICommand.unlockPlayQueue());
+    }
+
+    @Test
+    public void shouldHidePlayQueueOnPlayerCollapse() {
+        when(fragmentManager.findFragmentByTag(PlayQueueFragment.TAG)).thenReturn(playQueueFragment);
+        playerPresenter.onResume(null);
+
+        verify(fragmentTransaction, times(1)).remove(any(Fragment.class));
     }
 
     private void setupPositionsForAd(int pagerPosition) {

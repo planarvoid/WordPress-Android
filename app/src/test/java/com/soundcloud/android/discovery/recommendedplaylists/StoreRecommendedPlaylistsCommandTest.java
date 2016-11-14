@@ -4,7 +4,6 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.util.Collections.singletonList;
-import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -13,12 +12,10 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Where;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,46 +32,45 @@ public class StoreRecommendedPlaylistsCommandTest extends StorageIntegrationTest
 
     @Test
     public void shouldStoreEmptyRecommendedPlaylists() {
-        final List<ApiPlaylist> apiPlaylists = Collections.emptyList();
-        final ApiRecommendedPlaylistBucket chill = ApiRecommendedPlaylistBucket.create("chill",
+        ApiRecommendedPlaylistBucket chill = ApiRecommendedPlaylistBucket.create("chill",
                                                                                        "Chill-Out",
                                                                                        null,
-                                                                                       new ModelCollection<>(apiPlaylists));
+                                                                                       new ModelCollection<>(Collections.<ApiPlaylist>emptyList()));
 
-        command.call(singletonList(chill));
+        command.call(new ModelCollection<>(singletonList(chill)));
 
         assertRecommendedPlaylistBucketInserted(chill);
     }
 
     @Test
     public void shouldStoreRecommendedPlaylists() {
-        final List<ApiPlaylist> apiPlaylists = Collections.singletonList(ModelFixtures.create(ApiPlaylist.class));
-        final ApiRecommendedPlaylistBucket chill = ApiRecommendedPlaylistBucket.create("chill",
+        List<ApiPlaylist> apiPlaylists = singletonList(ModelFixtures.create(ApiPlaylist.class));
+        ApiRecommendedPlaylistBucket chill = ApiRecommendedPlaylistBucket.create("chill",
                                                                                        "Chill-Out",
                                                                                        "http://www.soundcloud.com/mostbeautifulartworkever.bmp/",
                                                                                        new ModelCollection<>(apiPlaylists));
 
-        command.call(singletonList(chill));
+        command.call(new ModelCollection<>(singletonList(chill)));
 
         assertRecommendedPlaylistBucketInserted(chill);
     }
 
     @Test
     public void shouldDeleteOldRecommendedPlaylists() throws Exception {
-        final List<ApiPlaylist> oldPlaylists = Collections.singletonList(ModelFixtures.create(ApiPlaylist.class));
-        final List<ApiPlaylist> newPlaylists = Collections.singletonList(ModelFixtures.create(ApiPlaylist.class));
-        final ApiRecommendedPlaylistBucket oldBucket = ApiRecommendedPlaylistBucket.create("oldBucket",
+        List<ApiPlaylist> oldPlaylists = singletonList(ModelFixtures.create(ApiPlaylist.class));
+        List<ApiPlaylist> newPlaylists = singletonList(ModelFixtures.create(ApiPlaylist.class));
+        ApiRecommendedPlaylistBucket oldBucket = ApiRecommendedPlaylistBucket.create("oldBucket",
                                                                                            "Chill-Out",
                                                                                            "http://www.soundcloud.com/mostbeautifulartworkever.bmp/",
                                                                                            new ModelCollection<>(oldPlaylists));
 
-        final ApiRecommendedPlaylistBucket newBucket = ApiRecommendedPlaylistBucket.create("newBucket",
+        ApiRecommendedPlaylistBucket newBucket = ApiRecommendedPlaylistBucket.create("newBucket",
                                                                                            "Chill-Out",
                                                                                            "http://www.soundcloud.com/mostbeautifulartworkever.bmp/",
                                                                                            new ModelCollection<>(newPlaylists));
 
-        command.call(singletonList(oldBucket));
-        command.call(singletonList(newBucket));
+        command.call(new ModelCollection<>(singletonList(oldBucket)));
+        command.call(new ModelCollection<>(singletonList(newBucket)));
 
         assertRecommendedPlaylistBucketRemoved(oldBucket);
         assertRecommendedPlaylistBucketInserted(newBucket);

@@ -10,6 +10,7 @@ enum UrnCollection {
     TRACK_STATIONS("track-stations"),
     ARTIST_STATIONS("artist-stations"),
     COMMENTS("comments"),
+    DAY_ZERO("dayzero"),
     ADS("ads"),
     SOUNDS("sounds"),
     UNKNOWN("unknown");
