@@ -1,5 +1,7 @@
 package com.soundcloud.android.suggestedcreators;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
@@ -9,10 +11,11 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.profile.ProfileImageHelper;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
 
 import android.content.res.Resources;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +35,8 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private final Navigator navigator;
     private final EngagementsTracking engagementsTracking;
     private final ScreenProvider screenProvider;
+    private final long followDelay = 150L;
+    private final Handler followHandler = new Handler();
 
     @Inject
     SuggestedCreatorRenderer(ProfileImageHelper profileImageHelper, Resources resources,
@@ -80,16 +85,32 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         toggleButton.setChecked(suggestedCreatorItem.following);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
                 suggestedCreatorItem.following = isChecked;
-                suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
-                                           .subscribe(new DefaultSubscriber<Void>());
+
+                followHandler.removeCallbacksAndMessages(null);
+
+                followHandler.postDelayed(buildOnFollowCheckedRunnable(isChecked, suggestedCreatorItem, position),
+                                          followDelay);
+            }
+        });
+    }
+
+    @NonNull
+    private Runnable buildOnFollowCheckedRunnable(final boolean isChecked,
+                                                  final SuggestedCreatorItem suggestedCreatorItem,
+                                                  final int position) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                fireAndForget(suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(),
+                                                                       isChecked));
 
                 engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
                                                   isChecked,
                                                   buildEventContextMetadata(position));
             }
-        });
+        };
     }
 
     private void bindArtistName(View view, final User creator, final int position) {
