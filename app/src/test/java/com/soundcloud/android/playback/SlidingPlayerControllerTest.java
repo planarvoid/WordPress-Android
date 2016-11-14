@@ -340,6 +340,30 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onBackPressedShouldCollapsePlayQueue() {
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+
+        assertThat(controller.handleBackPressed()).isTrue();
+
+        assertThat(slidingPanel.getPanelState()).isEqualTo(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(true);
+    }
+
+    @Test
+    public void onBackPressedShouldTrackPlayerClose() {
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+
+        controller.handleBackPressed();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_CLOSE);
+    }
+
+
+    @Test
     public void shouldNotReceiveEventsAfterPause() {
         controller.onPause(null);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());

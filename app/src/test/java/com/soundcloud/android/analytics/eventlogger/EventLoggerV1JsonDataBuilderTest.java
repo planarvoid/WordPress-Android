@@ -1426,6 +1426,27 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonForPlayQueueOpenUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayQueueOpen();
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("play_queue::max"));
+    }
+
+    @Test
+    public void createsJsonForPlayQueueCloseUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayQueueClose();
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("play_queue::min"));
+    }
+
+
+    @Test
     public void createsPlayerUpsellImpressionJson() throws Exception {
         UpgradeFunnelEvent impression = UpgradeFunnelEvent.forPlayerImpression(TRACK_URN);
 

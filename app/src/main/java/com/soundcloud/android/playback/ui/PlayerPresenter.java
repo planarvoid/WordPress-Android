@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -245,6 +246,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                     .remove(fragment)
                     .commitAllowingStateLoss();
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
             return true;
         }
     }

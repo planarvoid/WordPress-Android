@@ -58,6 +58,8 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_AD_CLICKTHROUGH = "ad_click_through";
     public static final String KIND_SKIP_AD_CLICK = "skip_ad_click";
     public static final String KIND_START_STATION = "start_station";
+    public static final String KIND_PLAY_QUEUE_OPEN = "play_queue_open";
+    public static final String KIND_PLAY_QUEUE_CLOSE = "play_queue_close";
 
     public static UIEvent fromPlayerOpen(boolean manual) {
         return new UIEvent(KIND_PLAYER_OPEN)
@@ -183,6 +185,14 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromStartStation() {
         return new UIEvent(KIND_START_STATION);
+    }
+
+    public static UIEvent fromPlayQueueOpen() {
+        return new UIEvent(KIND_PLAY_QUEUE_OPEN);
+    }
+
+    public static UIEvent fromPlayQueueClose() {
+        return new UIEvent(KIND_PLAY_QUEUE_CLOSE);
     }
 
     public Optional<AttributingActivity> getAttributingActivity() {

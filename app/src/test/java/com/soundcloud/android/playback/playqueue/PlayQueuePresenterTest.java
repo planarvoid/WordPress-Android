@@ -14,6 +14,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -283,6 +284,13 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         final TrackPlayQueueUIItem receivedTrack = (TrackPlayQueueUIItem) receivedItems.get(1);
         assertThat(receivedTrack.getContextTitle()).isEqualTo(contextTitle);
+    }
+
+    @Test
+    public void shouldEmitUIEventWhenClosing() {
+        presenter.closePlayQueue();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_CLOSE);
     }
 
     private void verifyRepeatModeChanged(PlayQueueManager.RepeatMode mode) {
