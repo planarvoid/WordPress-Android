@@ -26,7 +26,7 @@ public class RecommendPlaylistsSyncer implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         final ModelCollection<ApiRecommendedPlaylistBucket> apiRecommendedPlaylistBuckets = getApiRecommendedPlaylists();
-        final WriteResult writeResult = storeRecommendedPlaylistsCommand.call(apiRecommendedPlaylistBuckets.getCollection());
+        final WriteResult writeResult = storeRecommendedPlaylistsCommand.call(apiRecommendedPlaylistBuckets);
         return writeResult.success();
     }
 

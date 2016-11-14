@@ -812,12 +812,14 @@ public interface Tables {
         public static final Column KEY = Column.create(TABLE, "key");
         public static final Column DISPLAY_NAME = Column.create(TABLE, "display_name");
         public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
+        public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS RecommendedPlaylistBucket (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "key TEXT, " +
                 "display_name TEXT, " +
-                "artwork_url TEXT" +
+                "artwork_url TEXT, " +
+                "query_urn TEXT" +
                 ");";
 
         protected RecommendedPlaylistBucket() {

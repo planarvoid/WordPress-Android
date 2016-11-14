@@ -68,6 +68,7 @@ public class RecommendedPlaylistsStorage {
                                          Tables.RecommendedPlaylistBucket.KEY,
                                          Tables.RecommendedPlaylistBucket.DISPLAY_NAME,
                                          Tables.RecommendedPlaylistBucket.ARTWORK_URL,
+                                         Tables.RecommendedPlaylistBucket.QUERY_URN,
                                          Tables.RecommendedPlaylist.PLAYLIST_ID)
                                  .leftJoin(Tables.RecommendedPlaylist.TABLE, Tables.RecommendedPlaylistBucket._ID, Tables.RecommendedPlaylist.BUCKET_ID)
                                  .order(Tables.RecommendedPlaylist._ID, Query.Order.ASC);
@@ -82,12 +83,21 @@ public class RecommendedPlaylistsStorage {
     private static final class RecommendedPlaylistEntityMapper extends RxResultMapper<Pair<RecommendedPlaylistsEntity, Urn>> {
         @Override
         public Pair<RecommendedPlaylistsEntity, Urn> map(CursorReader cursorReader) {
-            final RecommendedPlaylistsEntity chart = RecommendedPlaylistsEntity.create(cursorReader.getLong(Tables.RecommendedPlaylistBucket._ID),
-                                                                                       cursorReader.getString(Tables.RecommendedPlaylistBucket.KEY),
-                                                                                       cursorReader.getString(Tables.RecommendedPlaylistBucket.DISPLAY_NAME),
-                                                                                       Optional.fromNullable(cursorReader.getString(Tables.RecommendedPlaylistBucket.ARTWORK_URL)));
+            Optional<Urn> queryUrn = Optional.absent();
+            String queryUrnString = cursorReader.getString(Tables.RecommendedPlaylistBucket.QUERY_URN);
+
+            if (queryUrnString != null) {
+                queryUrn = Optional.of(new Urn(queryUrnString));
+            }
+
+            final RecommendedPlaylistsEntity playlist = RecommendedPlaylistsEntity.create(
+                    cursorReader.getLong(Tables.RecommendedPlaylistBucket._ID),
+                    cursorReader.getString(Tables.RecommendedPlaylistBucket.KEY),
+                    cursorReader.getString(Tables.RecommendedPlaylistBucket.DISPLAY_NAME),
+                    Optional.fromNullable(cursorReader.getString(Tables.RecommendedPlaylistBucket.ARTWORK_URL)),
+                    queryUrn);
             final Urn playlistUrn = Urn.forPlaylist(cursorReader.getLong(Tables.RecommendedPlaylist.PLAYLIST_ID));
-            return new Pair<>(chart, playlistUrn);
+            return new Pair<>(playlist, playlistUrn);
         }
     }
 }
