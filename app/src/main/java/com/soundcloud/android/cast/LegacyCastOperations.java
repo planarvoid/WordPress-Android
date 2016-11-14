@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 public class LegacyCastOperations implements CastOperations {
 
-    public static final String TAG = "GoogleCast";
+    public static final String TAG = "LegacyGoogleCast";
 
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";

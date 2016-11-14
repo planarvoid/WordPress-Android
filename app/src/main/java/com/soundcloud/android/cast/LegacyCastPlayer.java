@@ -281,6 +281,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     }
 
     private void playLocalQueueOnRemote(LocalPlayQueue localPlayQueue, long progressPosition) {
+        Log.d(LegacyCastOperations.TAG, "Play local queue on the remote");
         try {
             castManager.loadMedia(localPlayQueue.mediaInfo,
                                   true,

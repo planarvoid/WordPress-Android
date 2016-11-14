@@ -59,7 +59,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CastPlayerTest extends AndroidUnitTest {
+public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN1 = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(456L);
@@ -335,6 +335,18 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playCurrentReconnectsToCurrentSessionIfTrackAlreadyLoaded() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
+        when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
+        when(remoteMediaClient.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_NONE);
+
+        castPlayer.playCurrent();
+
+        expectLastStateTransitionToBe(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN1);
+    }
+
+    @Test
     public void reloadCurrentQueueSetsNewPlayQueue() {
         final LocalPlayQueue localPlayQueue = createLocalPlayQueue();
         when(castProtocol.getRemoteCurrentTrackUrn(any(MediaInfo.class))).thenReturn(TRACK_URN1);
@@ -492,6 +504,20 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onMetadataUpdatedDoesNotUpdateTrackPositionWhenReceivedIdleInterrupted() {
+        when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
+                .thenReturn(new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1));
+        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
+        when(remoteMediaClient.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_INTERRUPTED);
+
+        castPlayer.onMetadataUpdated();
+
+        verify(playQueueManager, never()).setPosition(anyInt(), anyBoolean());
+        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyInt());
+    }
+
+    @Test
     public void onMetaDataUpdatedPlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() {
         final RemotePlayQueue remoteQueue = new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1);
         mockForPlayCurrent();
@@ -501,10 +527,9 @@ public class CastPlayerTest extends AndroidUnitTest {
                 .thenReturn(remoteQueue);
         when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
 
-        castPlayer.updateLocalPlayQueueAndPlayState();
+        castPlayer.onMetadataUpdated();
 
         verify(playQueueManager).setPosition(remoteQueue.getCurrentPosition(), true);
-        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyInt());
     }
 
     @Test
@@ -515,7 +540,7 @@ public class CastPlayerTest extends AndroidUnitTest {
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
         when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(false);
 
-        castPlayer.updateLocalPlayQueueAndPlayState();
+        castPlayer.onMetadataUpdated();
 
         verify(playQueueManager, never()).setPosition(anyInt(), anyBoolean());
         verify(playQueueManager).setNewPlayQueue(any(PlayQueue.class), eq(PlaySessionSource.EMPTY),
@@ -535,7 +560,7 @@ public class CastPlayerTest extends AndroidUnitTest {
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
         mockForPlayCurrent();
 
-        castPlayer.updateLocalPlayQueueAndPlayState();
+        castPlayer.onMetadataUpdated();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(1);
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();
@@ -560,6 +585,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         verifyZeroInteractions(playStatePublisher);
     }
+
 
     private MediaInfo createMediaInfo(Urn urn) {
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
