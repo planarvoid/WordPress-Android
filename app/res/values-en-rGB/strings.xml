@@ -15,6 +15,7 @@
   <string name="btn_shuffle">Shuffle</string>
   <string name="btn_follow">Follow</string>
   <string name="btn_following">Following</string>
+  <string name="btn_unfollow">Unfollow</string>
   <string name="btn_like">Like</string>
   <string name="btn_unlike">Unlike</string>
   <string name="btn_save">Save</string>
@@ -33,6 +34,7 @@
   <string name="display_name">Name</string>
   <string name="updated_time">Updated %s.</string>
   <string name="posted_time">Posted %s</string>
+  <string name="filter">Filter</string>
   <string name="following_zero">Followed by you</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Liked by you</string>
@@ -56,6 +58,11 @@
   <string name="ads_skip_in_time">Skip in: %s</string>
   <string name="ads_now_playing">Now playing</string>
   <string name="ads_now_playing_tracktitle_username">Now playing: %1$s (%2$s)</string>
+  <string name="ads_app">app</string>
+  <plurals name="ads_app_ratings">
+    <item quantity="one">%s rating</item>
+    <item quantity="other">%s ratings</item>
+  </plurals>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Forgot your password?</string>
   <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
@@ -280,7 +287,7 @@
   <string name="info">Info</string>
   <string name="uploaded_xtimeago">Uploaded %s</string>
   <string name="track_info_no_description">No description available</string>
-  <string name="up_next">Up next</string>
+  <string name="up_next">Next up</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Not playable</string>
   <string name="playback_error_connection">Check your connection, and tap to try again.</string>
@@ -304,6 +311,7 @@
   <string name="remove_from_playlist">Remove from playlist</string>
   <string name="edit_playlist">Edit playlist</string>
   <string name="delete_playlist">Delete playlist</string>
+  <string name="search_playlists">search playlists</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Add to playlist...</string>
   <string name="added_to_playlist">Added to playlist</string>
@@ -312,8 +320,8 @@
   <string name="error_new_playlist_blank_title">Please enter a valid title</string>
   <string name="add_playlist_private">Private</string>
   <plurals name="number_of_sounds">
-    <item quantity="one">%d track</item>
-    <item quantity="other">%d tracks</item>
+    <item quantity="one">%s track</item>
+    <item quantity="other">%s tracks</item>
   </plurals>
   <!--__PLAYLIST IN NEW STREAM-->
   <plurals name="number_of_tracks" tools:ignore="ImpliedQuantity">
@@ -415,6 +423,9 @@
   <string name="recommendation_seeds_header">Discover more tracks</string>
   <string name="discovery_search_hint">Search SoundCloud</string>
   <string name="discovery_search_title">Search</string>
+  <string name="discovery_empty">No discovery items yet</string>
+  <!--__DISCOVERY PLAYLISTS-->
+  <string name="recommended_playlists_reason">Playlists for %s</string>
   <!--__DISCOVERY CHARTS-->
   <string name="charts_header">SoundCloud charts</string>
   <string name="charts_trending">New &amp; hot</string>
@@ -493,10 +504,13 @@
   <string name="title_notification_settings">Notification settings</string>
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Stations</string>
+  <string name="liked_stations_empty_view_message">You have not liked any station yet</string>
+  <string name="liked_stations_onboarding_dialog_title">We’ve introduced liking stations</string>
+  <string name="liked_stations_onboarding_dialog_message">You can now unlike stations to remove them from your Collection.</string>
   <string name="liked_stations_onboarding_dialog_button">Got it</string>
   <string name="stations_start_track_station">Start track station</string>
   <string name="stations_start_user_station">Start station</string>
-  <string name="stations_open_station">Open station</string>
+  <string name="stations_open_station">Station</string>
   <string name="stations_unable_to_start_station">We’re unable to start this station. Try again in a few minutes.</string>
   <string name="stations_loading_station">Loading station. Stay tuned.</string>
   <string name="stations_onboarding_stream_title">Start a station to hear a series of similar tracks. It’s just like radio.</string>
@@ -607,6 +621,8 @@
   <string name="collections_play_history_clear_error_message">Error clearing your listening history. Try again later.</string>
   <string name="collections_play_history_empty">Find all the tracks you’ve listened to here.</string>
   <string name="collections_recently_played_header">Recently played</string>
+  <string name="collections_view_all_tracks">See all listening history</string>
+  <string name="collections_view_all_recently_played">See all recently played</string>
   <string name="dialog_playlist_delete_title">Delete playlist?</string>
   <string name="dialog_playlist_delete_message">This will permanently delete this playlist. Are you sure you want to continue?</string>
   <string name="collections_recently_played_track_station">track station</string>
@@ -655,6 +671,7 @@
   <string name="stream_promoted_action">promoted</string>
   <string name="stream_track">track</string>
   <string name="stream_promoted_playable">Promoted %s</string>
+  <string name="stream_sponsored_item">Sponsored %s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->
@@ -672,15 +689,19 @@
   <string name="conversion_page_title">Subscribe</string>
   <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / month</string>
+  <string name="conversion_price_promo">%1$s for %2$s</string>
   <string name="conversion_buy_loading">Loading…</string>
-  <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Try it free for %d days</string>
   <string name="conversion_buy_no_trial">Upgrade now</string>
+  <string name="conversion_buy_promo">Get it for a limited time</string>
+  <string name="conversion_more_plans">View more plans</string>
   <string name="conversion_retry_heading">Oops… try again</string>
   <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
   <string name="conversion_retry_button">Try again</string>
   <string name="conversion_buy_retry">Loading failed. Retry?</string>
   <string name="conversion_restrictions">Restrictions apply</string>
+  <string name="conversion_restrictions_promo">Restrictions apply, %s after</string>
   <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
+  <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd-free is defined by the removal of interruptive audio and visual experiences.</string>
   <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad-free and continue to support your favourite artists with SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product unavailable</string>
@@ -722,7 +743,14 @@
   <string name="offline_no_wifi">No Wi-Fi</string>
   <string name="offline_no_connection">No connection</string>
   <!--__GO ONBOARDING-->
+  <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
+  <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalogue and ad-free offline listening.</string>
+  <string name="go_onboarding_title_2">Play full tracks</string>
+  <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud\u00A0Go.</string>
   <string name="go_onboarding_title_3">Listen offline</string>
+  <string name="go_onboarding_body_3">Download playlists, albums, and all your liked\u00A0tracks.</string>
+  <string name="go_onboarding_title_4">Start exploring</string>
+  <string name="go_onboarding_body_4">Don’t wait — find old favourites and look for new ones in your massive new catalogue of tracks.</string>
   <string name="go_onboarding_start">Start listening</string>
   <string name="go_onboarding_retry">Loading failed. Retry?</string>
   <string name="go_onboarding_error_dialog_title">Something went wrong</string>
@@ -842,6 +870,8 @@
   <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Not available in\nyour country</string>
+  <string name="playback_upsell_button">Get SoundCloud Go</string>
+  <string name="playback_upsell_button_trial">Get SoundCloud Go</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Found %1$d SoundCloud Go result</item>
@@ -889,7 +919,30 @@
   <string name="kill_switch_message">In order to continue using the SoundCloud app, please update to the latest version.</string>
   <string name="kill_switch_confirm">Update now</string>
   <!--__PLAY QUEUE-->
+  <string name="play_next">Add to Next up</string>
+  <string name="track_removed">Track removed</string>
+  <string name="play_queue_header_search">From search results for %1$s</string>
+  <string name="play_queue_header_stream">From your stream</string>
+  <string name="play_queue_header_link">From a link</string>
+  <string name="play_queue_header_profile">From profile %1$s</string>
+  <string name="play_queue_header_playlist">From playlist %1$s</string>
+  <string name="play_queue_header_track_station">From track station based on %1$s</string>
+  <string name="play_queue_header_artist_station">From artist station based on %1$s</string>
+  <string name="play_queue_header_likes">From your likes</string>
+  <string name="play_queue_header_listening_history">From listening history</string>
+  <string name="play_queue_header_suggested_tracks">From suggested tracks</string>
+  <string name="play_queue_header_charts_top">From %1$s top 50 charts</string>
+  <string name="play_queue_header_charts_trending">From %1$s New &amp; Hot charts </string>
+  <string name="play_queue_header_explicit">Added by you</string>
+  <string name="play_queue_header_auto_play">Auto play</string>
   <!--__SUGGESTED CREATORS-->
+  <string name="suggested_creators">Suggested artists</string>
+  <string name="suggested_creators_blurb">Follow your favourite artists so you never miss any of their latest tracks</string>
+  <string name="suggested_creators_recent_posts">Recent posts</string>
+  <string name="suggested_creators_relation_listened_to">You recently listened to their track</string>
+  <string name="suggested_creators_relation_liked">You recently liked their track</string>
+  <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
+  <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
   <string name="suggested_creators_relation_followed"></string>
   <string name="suggested_creators_relation_uploaded"></string>
   <string name="suggested_creators_relation_unknown"></string>
