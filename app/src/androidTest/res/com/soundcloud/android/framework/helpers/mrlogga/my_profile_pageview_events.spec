@@ -8,7 +8,7 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     client_id: '3152'
-    page_name: you:info
+    page_name: user:info
     user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
@@ -19,7 +19,7 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     client_id: '3152'
-    page_name: you:main
+    page_name: user:main
     user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
@@ -30,7 +30,7 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     client_id: '3152'
-    page_name: you:followers
+    page_name: user:followers
     user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
@@ -41,7 +41,7 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     client_id: '3152'
-    page_name: you:followings
+    page_name: user:followings
     user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
