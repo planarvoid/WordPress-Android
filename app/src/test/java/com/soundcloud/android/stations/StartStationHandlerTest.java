@@ -35,13 +35,13 @@ public class StartStationHandlerTest {
     public void opensInfoPageFromRecommendation() {
         stationHandler.startStation(context, STATION_URN, DiscoverySource.STATIONS_SUGGESTIONS);
 
-        verify(navigator).openStationInfo(context, STATION_URN, DiscoverySource.STATIONS_SUGGESTIONS);
+        verify(navigator).legacyOpenStationInfo(context, STATION_URN, DiscoverySource.STATIONS_SUGGESTIONS);
     }
 
     @Test
     public void opensInfoPage() {
         stationHandler.startStation(context, STATION_URN);
 
-        verify(navigator).openStationInfo(context, STATION_URN, DiscoverySource.STATIONS);
+        verify(navigator).legacyOpenStationInfo(context, STATION_URN, DiscoverySource.STATIONS);
     }
 }

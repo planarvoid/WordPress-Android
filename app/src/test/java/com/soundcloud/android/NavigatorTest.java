@@ -17,10 +17,10 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
+import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.ChartActivity;
 import com.soundcloud.android.discovery.charts.ChartTracksFragment;
-import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -622,12 +622,30 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void openStationInfo() {
+    public void legacyOpenStationInfo() {
         final Urn someStation = Urn.forArtistStation(123L);
-        navigator.openStationInfo(activityContext, someStation, DiscoverySource.STATIONS);
+        navigator.legacyOpenStationInfo(activityContext, someStation, DiscoverySource.STATIONS);
 
         assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
                                    .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
                                    .opensActivity(StationInfoActivity.class);
+    }
+
+    @Test
+    public void openStationInfo() {
+        final Urn someStation = Urn.forArtistStation(123L);
+        final Urn seedTrack = Urn.forTrack(123L);
+        final UIEvent navigationEvent = UIEvent.fromNavigation(seedTrack, EventContextMetadata.builder().build());
+
+        navigator.openStationInfo(activityContext, someStation, seedTrack, DiscoverySource.STATIONS, navigationEvent);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
+                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
+                                   .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack)
+                                   .opensActivity(StationInfoActivity.class);
+
+        verify(eventTracker).trackNavigation(navigationEvent);
     }
 }
