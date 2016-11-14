@@ -173,6 +173,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_VIDEO_AD_SHRINK:
             case UIEvent.KIND_AD_CLICKTHROUGH:
             case UIEvent.KIND_SKIP_AD_CLICK:
+            case UIEvent.KIND_PLAY_QUEUE_SHUFFLE:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

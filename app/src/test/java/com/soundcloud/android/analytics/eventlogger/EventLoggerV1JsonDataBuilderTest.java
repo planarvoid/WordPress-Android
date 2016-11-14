@@ -39,6 +39,7 @@ import com.soundcloud.android.events.LinkType;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
@@ -1598,6 +1599,17 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
                                                .impressionName("consumer_sub_upgrade_success"));
+    }
+
+    @Test
+    public void createsPlayQueueShuffleJson() throws Exception {
+        UIEvent shuffleEvent = UIEvent.fromPlayQueueShuffle(true);
+
+        jsonDataBuilder.buildForUIEvent(shuffleEvent);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, shuffleEvent.getTimestamp())
+                                       .clickName(shuffleEvent.get(UIEvent.KEY_CLICK_NAME))
+                                       .pageName(shuffleEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {

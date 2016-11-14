@@ -65,6 +65,9 @@ public enum Screen {
     PLAYER_REPOSTS("tracks:reposts"),
     PLAYER_COMMENTS("tracks:comments"),
 
+    // play queue
+    PLAY_QUEUE("play_queue:main"),
+
     // search
     SEARCH_MAIN("search:main"),
     SEARCH_EVERYTHING("search:everything"),

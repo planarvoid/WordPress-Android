@@ -6,6 +6,7 @@ import static com.soundcloud.android.playback.playqueue.PlayState.COMING_UP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +15,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
@@ -291,6 +293,30 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter.closePlayQueue();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_CLOSE);
+    }
+
+    @Test
+    public void shouldTrackShufflingOn() {
+        ToggleButton toggleButton = mock(ToggleButton.class);
+        when(toggleButton.isChecked()).thenReturn(true);
+
+        presenter.shuffleClicked(toggleButton);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_SHUFFLE);
+        assertThat(event.get(UIEvent.KEY_CLICK_NAME)).isEqualTo("shuffle::on");
+    }
+
+    @Test
+    public void shouldTrackShufflingOff() {
+        ToggleButton toggleButton = mock(ToggleButton.class);
+        when(toggleButton.isChecked()).thenReturn(false);
+
+        presenter.shuffleClicked(toggleButton);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_SHUFFLE);
+        assertThat(event.get(UIEvent.KEY_CLICK_NAME)).isEqualTo("shuffle::off");
     }
 
     private void verifyRepeatModeChanged(PlayQueueManager.RepeatMode mode) {

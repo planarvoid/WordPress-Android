@@ -243,11 +243,13 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     @OnClick(R.id.shuffle_button)
     void shuffleClicked(ToggleButton toggle) {
-        if (toggle.isChecked()) {
+        final boolean isShuffled = toggle.isChecked();
+        if (isShuffled) {
             playQueueManager.shuffle();
         } else {
             playQueueManager.unshuffle();
         }
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueShuffle(isShuffled));
     }
 
     private RepeatMode getNextRepeatMode() {

@@ -6,6 +6,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;
@@ -32,11 +33,13 @@ public final class UIEvent extends TrackingEvent {
     private static final String TYPE_MOBILE_INLAY = "mobile_inlay";
     private static final String TRIGGER_AUTO = "auto";
     private static final String TRIGGER_MANUAL = "manual";
-
+    private static final String SHUFFLE_ON = "shuffle::on";
+    private static final String SHUFFLE_OFF = "shuffle::off";
     private final Map<String, List<String>> promotedTrackingUrls;
-    private EventContextMetadata eventContextMetadata;
 
+    private EventContextMetadata eventContextMetadata;
     public static final String KIND_FOLLOW = "follow";
+
     public static final String KIND_UNFOLLOW = "unfollow";
     public static final String KIND_LIKE = "like";
     public static final String KIND_UNLIKE = "unlike";
@@ -47,6 +50,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_COMMENT = "comment";
     public static final String KIND_SHARE = "share";
     public static final String KIND_SHUFFLE = "shuffle";
+    public static final String KIND_PLAY_QUEUE_SHUFFLE = "play_queue_shuffle";
     public static final String KIND_SWIPE_SKIP = "swipe_skip";
     public static final String KIND_SYSTEM_SKIP = "system_skip";
     public static final String KIND_BUTTON_SKIP = "button_skip";
@@ -58,6 +62,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_AD_CLICKTHROUGH = "ad_click_through";
     public static final String KIND_SKIP_AD_CLICK = "skip_ad_click";
     public static final String KIND_START_STATION = "start_station";
+    public static final String KEY_CLICK_NAME = "click_name";
     public static final String KIND_PLAY_QUEUE_OPEN = "play_queue_open";
     public static final String KIND_PLAY_QUEUE_CLOSE = "play_queue_close";
 
@@ -243,6 +248,12 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_NAVIGATION)
                 .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, itemUrn.toString())
                 .putEventContextMetadata(contextMetadata);
+    }
+
+    public static UIEvent fromPlayQueueShuffle(boolean isShuffled) {
+        return new UIEvent(KIND_PLAY_QUEUE_SHUFFLE)
+                .put(KEY_CLICK_NAME, isShuffled ? SHUFFLE_ON : SHUFFLE_OFF)
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, Screen.PLAY_QUEUE.get());
     }
 
     private static String getNotNullOriginScreen(@Nullable TrackSourceInfo trackSourceInfo) {
