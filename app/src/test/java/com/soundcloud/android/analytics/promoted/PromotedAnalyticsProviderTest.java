@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.VideoAd;
@@ -18,6 +19,7 @@ import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -132,6 +134,21 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         assertPromotedTrackingRecord(event1, "comp_impression1", 333L);
         final TrackingRecord event2 = captor.getAllValues().get(1);
         assertPromotedTrackingRecord(event2, "comp_impression2", 333L);
+    }
+
+    @Test
+    public void tracksInlayAdImpressions() {
+        final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
+        final InlayAdImpressionEvent impressionEvent = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+        final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        analyticsProvider.handleTrackingEvent(impressionEvent);
+
+        verify(eventTrackingManager, times(2)).trackEvent(eventCaptor.capture());
+
+        final List<TrackingRecord> promotedEvents = eventCaptor.getAllValues();
+        assertPromotedTrackingRecord(promotedEvents.get(0), "app_impression1", 9876543210L);
+        assertPromotedTrackingRecord(promotedEvents.get(1), "app_impression2", 9876543210L);
     }
 
     @Test

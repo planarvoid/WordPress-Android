@@ -17,6 +17,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLIC
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLIENT_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONNECTION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONTEXT_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
@@ -180,6 +181,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData impressionName(String impressionName) {
         addToPayload(IMPRESSION_NAME, impressionName);
+        return this;
+    }
+
+    public EventLoggerEventData contextPosition(int position) {
+        addToPayload(CONTEXT_POSITION, position);
         return this;
     }
 

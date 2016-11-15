@@ -55,7 +55,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -160,8 +159,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
-        streamAdsController.set((StaggeredGridLayoutManager) getRecyclerView().getLayoutManager(), adapter);
 
         configureEmptyView();
         addScrollListeners();

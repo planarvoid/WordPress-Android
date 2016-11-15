@@ -17,7 +17,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, RecyclerView.ViewHolder> {
 
     private final FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer;

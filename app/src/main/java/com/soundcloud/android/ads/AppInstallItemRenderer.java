@@ -1,14 +1,20 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.InlayAdEvent;
+import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.AppInstall;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -19,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,6 +39,8 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
     private final Resources resources;
     private final CondensedNumberFormatter numberFormatter;
     private final ImageOperations imageOperations;
+    private final CurrentDateProvider dateProvider;
+    private final EventBus eventBus;
 
     public interface Listener {
         void onAppInstallItemClicked(Context context, AppInstallAd appInstallAd);
@@ -43,10 +52,12 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
     @Inject
     public AppInstallItemRenderer(Resources resources,
                                   CondensedNumberFormatter numberFormatter,
-                                  ImageOperations imageOperations) {
+                                  ImageOperations imageOperations, CurrentDateProvider dateProvider, EventBus eventBus) {
         this.resources = resources;
         this.numberFormatter = numberFormatter;
         this.imageOperations = imageOperations;
+        this.dateProvider = dateProvider;
+        this.eventBus = eventBus;
     }
 
     public void setListener(Listener listener) {
@@ -66,7 +77,10 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
         final AppInstallAd appInstall = ((AppInstall) items.get(position)).appInstall();
         final Holder holder = getHolder(itemView);
 
-        imageOperations.displayAppInstall(appInstall.getAdUrn(), appInstall.getImageUrl(), holder.image);
+        imageOperations.displayAppInstall(appInstall.getAdUrn(),
+                                          appInstall.getImageUrl(),
+                                          holder.image,
+                                          new ImageLoadTimeListener(position, appInstall));
 
         holder.headerText.setText(getSponsoredHeaderText());
         holder.appNameText.setText(appInstall.getName());
@@ -133,5 +147,25 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
         Holder(View view) {
             ButterKnife.bind(this, view);
         }
+    }
+
+    class ImageLoadTimeListener implements ImageListener {
+        private final int position;
+        private final AppInstallAd ad;
+
+        ImageLoadTimeListener(int position, AppInstallAd ad) {
+            this.position = position;
+            this.ad = ad;
+        }
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            final Date now = dateProvider.getCurrentDate();
+            ad.setImageLoadTimeOnce(now);
+            eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ImageLoaded.create(position, ad, now));
+        }
+
+        @Override public void onLoadingStarted(String imageUri, View view) {}
+        @Override public void onLoadingFailed(String imageUri, View view, String failedReason) {}
     }
 }

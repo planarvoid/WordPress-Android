@@ -60,7 +60,6 @@ import rx.Observer;
 import rx.subjects.PublishSubject;
 
 import android.net.Uri;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.TextView;
 
@@ -430,15 +429,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSetStreamAdControllerOnViewCreated() {
-        presenter.onCreate(fragmentRule.getFragment(), null);
-
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
-        verify(streamAdsController).set((StaggeredGridLayoutManager) presenter.getRecyclerView().getLayoutManager(), adapter);
-    }
-
-    @Test
     public void shouldClearStreamAdControllerOnViewDestroy() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -471,7 +461,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNavigateAndEmitTrackingEventForAppInstallClickthroughs() {
-        final AppInstallAd appInstall = AppInstallAd.create(AdFixtures.getApiAppInstall());
+        final AppInstallAd appInstall = AppInstallAd.create(AdFixtures.getApiAppInstall(), 42424242);
 
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);

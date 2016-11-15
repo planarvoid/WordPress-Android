@@ -2,15 +2,23 @@ package com.soundcloud.android.ads;
 
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
+import com.soundcloud.java.collections.Pair;
+import com.soundcloud.rx.eventbus.TestEventBus;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Spy;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,11 +28,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class InlayAdInsertionHelperTest extends AndroidUnitTest {
+public class InlayAdHelperTest extends AndroidUnitTest {
+    private static AppInstallAd appInstall() {
+        return AppInstallAd.create(AdFixtures.getApiAppInstall(), 434343);
+    }
 
+    private static final Date CURRENT_DATE = new Date();
     private static final boolean SCROLLING_UP = true;
     private static final boolean SCROLLING_DOWN = false;
-    private static final AppInstallAd APP_INSTALL = AppInstallAd.create(AdFixtures.getApiAppInstall());
+    private static final AppInstallAd APP_INSTALL = appInstall();
     private static final StreamItem APP_INSTALL_ITEM = StreamItem.forAppInstall(APP_INSTALL);
     private static final StreamItem GO_UPSELL_ITEM = new StreamItem() {
         @Override
@@ -42,12 +54,14 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
     @Mock StaggeredGridLayoutManager layoutManager;
     @Mock StreamAdapter adapter;
     @Mock List<StreamItem> list;
+    @Spy TestEventBus eventBus = new TestEventBus();
+    CurrentDateProvider dateProvider = new TestDateProvider(CURRENT_DATE.getTime());
 
-    private InlayAdInsertionHelper insertionHelper;
+    private InlayAdHelper inlayAdHelper;
 
     @Before
     public void setUp() {
-        insertionHelper = new InlayAdInsertionHelper(layoutManager, adapter);
+        inlayAdHelper = new InlayAdHelper(adapter, dateProvider, eventBus);
     }
 
     @After
@@ -62,7 +76,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(0);
         setStreamItems(0, TRACK_ITEM);
 
-        assertThat(insertionHelper.insertAd(APP_INSTALL, SCROLLING_DOWN)).isFalse();
+        assertThat(inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN)).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
     }
 
@@ -71,7 +85,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(0);
         setStreamItems(0, TRACK_ITEM);
 
-        assertThat(insertionHelper.insertAd(APP_INSTALL, SCROLLING_UP)).isFalse();
+        assertThat(inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP)).isFalse();
     }
 
     @Test
@@ -79,7 +93,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(6);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(7, APP_INSTALL_ITEM);
@@ -90,7 +104,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(6);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_UP);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(5, APP_INSTALL_ITEM);
@@ -101,7 +115,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(5);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_UP);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP);
 
         assertThat(inserted).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
@@ -112,7 +126,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(2);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(5, APP_INSTALL_ITEM);
@@ -126,7 +140,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         when(adapter.getItem(1)).thenReturn(APP_INSTALL_ITEM);
         when(adapter.getItem(10)).thenReturn(APP_INSTALL_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
@@ -140,7 +154,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(APP_INSTALL_ITEM);
         when(adapter.getItem(9)).thenReturn(APP_INSTALL_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
@@ -152,7 +166,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setItemListSize(Integer.MAX_VALUE);
         when(adapter.getItem(anyInt())).thenReturn(APP_INSTALL_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isFalse();
     }
@@ -163,7 +177,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setStreamItems(10, TRACK_ITEM);
         when(adapter.getItem(6)).thenReturn(GO_UPSELL_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(7, APP_INSTALL_ITEM);
@@ -175,7 +189,7 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
         setStreamItems(10, TRACK_ITEM);
         when(adapter.getItem(7)).thenReturn(GO_UPSELL_ITEM);
 
-        boolean inserted = insertionHelper.insertAd(APP_INSTALL, SCROLLING_UP);
+        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(6, APP_INSTALL_ITEM);
@@ -183,13 +197,62 @@ public class InlayAdInsertionHelperTest extends AndroidUnitTest {
 
     @Test
     public void ensureThatMaxSearchDistanceIsGreaterThanMinDistanceBetweenAds() {
-        assertThat(InlayAdInsertionHelper.MAX_SEARCH_DISTANCE).isGreaterThan(InlayAdInsertionHelper.MIN_DISTANCE_BETWEEN_ADS);
+        assertThat(InlayAdHelper.MAX_SEARCH_DISTANCE).isGreaterThan(InlayAdHelper.MIN_DISTANCE_BETWEEN_ADS);
+    }
+
+    @Test
+    public void onScrollTracksVisibleIndices() {
+        setEdgeVisiblePosition(99, 101);
+
+        assertThat(visibleRange(inlayAdHelper)).isEqualTo(Pair.of(-1, -1));
+        inlayAdHelper.onScroll(layoutManager);
+        assertThat(visibleRange(inlayAdHelper)).isEqualTo(Pair.of(99, 101));
+    }
+
+    private Pair<Integer, Integer> visibleRange(InlayAdHelper helper) {
+        return Pair.of(helper.minimumVisibleIndex, helper.maximumVisibleIndex);
+    }
+
+    @Test
+    public void onScrollFiresOnScreenEventsForUntrackedEvents() {
+        final AppInstallAd untracked = appInstall();
+        final AppInstallAd tracked = appInstall();
+        tracked.setImpressionReported();
+
+        setEdgeVisiblePosition(7, 10);
+        setStreamItems(15, TRACK_ITEM);
+        when(adapter.getItem(8)).thenReturn(StreamItem.forAppInstall(tracked));
+        when(adapter.getItem(10)).thenReturn(StreamItem.forAppInstall(untracked));
+
+        inlayAdHelper.onScroll(layoutManager);
+
+        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(10, untracked, CURRENT_DATE));
+    }
+
+    @Test
+    public void isOnScreenUsesLastStoredVisibleIndicesInclusive() {
+        setEdgeVisiblePosition(5, 6);
+        inlayAdHelper.onScroll(layoutManager);
+
+        setEdgeVisiblePosition(7, 10);
+        inlayAdHelper.onScroll(layoutManager);
+
+        assertThat(inlayAdHelper.isOnScreen(6)).isFalse();
+        assertThat(inlayAdHelper.isOnScreen(7)).isTrue();
+        assertThat(inlayAdHelper.isOnScreen(10)).isTrue();
+        assertThat(inlayAdHelper.isOnScreen(11)).isFalse();
     }
 
     private void setEdgeVisiblePosition(int position) {
-        int[] edgeVisiblePositions = new int[]{position};
-        when(layoutManager.findFirstVisibleItemPositions(any(int[].class))).thenReturn(edgeVisiblePositions);
-        when(layoutManager.findLastVisibleItemPositions(any(int[].class))).thenReturn(edgeVisiblePositions);
+        setEdgeVisiblePosition(position, position);
+    }
+
+    private void setEdgeVisiblePosition(int firstPosition, int lastPosition) {
+        int[] firstEdge = new int[]{firstPosition};
+        int[] lastEdge = new int[]{lastPosition};
+
+        when(layoutManager.findFirstVisibleItemPositions(any(int[].class))).thenReturn(firstEdge);
+        when(layoutManager.findLastVisibleItemPositions(any(int[].class))).thenReturn(lastEdge);
     }
 
     private void setStreamItems(int size, StreamItem item) {

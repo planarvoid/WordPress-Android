@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
@@ -41,10 +42,10 @@ import java.util.UUID;
 
 public class AdsOperations {
 
-    private static final Func1<ApiAdsForStream, List<AppInstallAd>> GET_APP_INSTALLS = new Func1<ApiAdsForStream, List<AppInstallAd>>() {
+    private final Func1<ApiAdsForStream, List<AppInstallAd>> GET_APP_INSTALLS = new Func1<ApiAdsForStream, List<AppInstallAd>>() {
         @Override
         public List<AppInstallAd> call(ApiAdsForStream adsForStream) {
-            return adsForStream.getAppInstalls();
+            return adsForStream.getAppInstalls(dateProvider);
         }
     };
 
@@ -55,11 +56,12 @@ public class AdsOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final EventBus eventBus;
+    private final CurrentDateProvider dateProvider;
 
     @Inject
     AdsOperations(PlayQueueManager playQueueManager, FeatureOperations featureOperations, FeatureFlags featureFlags,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider) {
+                  EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider, CurrentDateProvider dateProvider) {
         this.playQueueManager = playQueueManager;
         this.featureOperations = featureOperations;
         this.featureFlags = featureFlags;
@@ -67,6 +69,7 @@ public class AdsOperations {
         this.scheduler = scheduler;
         this.eventBus = eventBus;
         this.kruxSegmentProvider = kruxSegmentProvider;
+        this.dateProvider = dateProvider;
     }
 
     public Observable<Optional<String>> kruxSegments() {

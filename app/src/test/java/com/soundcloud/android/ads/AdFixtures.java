@@ -1,13 +1,13 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
-
 import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
 import com.soundcloud.android.model.Urn;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
 public class AdFixtures {
 
@@ -269,8 +269,12 @@ public class AdFixtures {
     }
 
     public static List<AppInstallAd> getAppInstalls() {
-        return Arrays.asList(AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "1"))),
-                             AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "2"))));
+        return getAppInstalls(42424242);
+    }
+
+    public static List<AppInstallAd> getAppInstalls(long createdAt) {
+        return Arrays.asList(AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "1")), createdAt),
+                             AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "2")), createdAt));
     }
 
     public static ApiAdTracking getApiAppInstallTracking() {

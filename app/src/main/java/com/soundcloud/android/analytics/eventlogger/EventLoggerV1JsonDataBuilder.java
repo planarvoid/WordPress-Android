@@ -35,6 +35,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -119,6 +120,16 @@ class EventLoggerV1JsonDataBuilder {
         }
 
         return transform(data);
+    }
+
+    public String buildForStreamAd(InlayAdImpressionEvent event) {
+        return transform(buildBaseEvent(IMPRESSION_EVENT, event.getTimestamp())
+                                .clientEventId(event.getId())
+                                .impressionName(event.getImpressionName())
+                                .adUrn(event.getAd().toString())
+                                .pageName(event.getPageName())
+                                .contextPosition(event.getContextPosition())
+                                .monetizationType(event.getMonetizationType()));
     }
 
     public String buildForAdDelivery(AdDeliveryEvent event) {

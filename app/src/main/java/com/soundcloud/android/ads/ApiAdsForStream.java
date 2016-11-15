@@ -5,6 +5,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
@@ -27,10 +28,16 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
         }
     };
 
-    private static final Function<ApiAdWrapper, AppInstallAd> TO_APP_INSTALL = new Function<ApiAdWrapper, AppInstallAd>() {
+    private static final class ToAppInstall implements Function<ApiAdWrapper, AppInstallAd> {
+        private final DateProvider dateProvider;
+
+        private ToAppInstall(DateProvider dateProvider) {
+            this.dateProvider = dateProvider;
+        }
+
         @Override
         public AppInstallAd apply(ApiAdWrapper input) {
-            return AppInstallAd.create(input.getAppInstall().get());
+            return AppInstallAd.create(input.getAppInstall().get(), dateProvider.getCurrentTime());
         }
     };
 
@@ -45,11 +52,11 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
         super(collection);
     }
 
-    public List<AppInstallAd> getAppInstalls() {
+    public List<AppInstallAd> getAppInstalls(DateProvider dateProvider) {
         final ArrayList<ApiAdWrapper> appInstallWrappers =
                 Lists.newArrayList(Iterables.filter(getCollection(), IS_APP_INSTALL));
 
-        return Lists.transform(appInstallWrappers, TO_APP_INSTALL);
+        return Lists.transform(appInstallWrappers, new ToAppInstall(dateProvider));
     }
 
     @Override

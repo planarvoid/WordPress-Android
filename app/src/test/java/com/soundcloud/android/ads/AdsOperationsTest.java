@@ -30,6 +30,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 
@@ -43,10 +44,12 @@ import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class AdsOperationsTest extends AndroidUnitTest {
 
+    private static final Date CURRENT_DATE = new Date();
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private final TrackQueueItem trackQueueItem = TestPlayQueueItem.createTrack(TRACK_URN);
 
@@ -60,6 +63,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private ApiClientRx apiClientRx;
     @Mock private PlayQueueManager playQueueManager;
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
+    private TestDateProvider dateProvider = new TestDateProvider(CURRENT_DATE);
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -71,7 +75,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
                                           apiClientRx,
                                           Schedulers.immediate(),
                                           eventBus,
-                                          InjectionSupport.lazyOf(kruxSegmentProvider));
+                                          InjectionSupport.lazyOf(kruxSegmentProvider),
+                                          dateProvider);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         fullAdsForStream = AdFixtures.fullAdsForStream();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
@@ -165,7 +170,10 @@ public class AdsOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(fullAdsForStream));
 
         final AdRequestData requestData = AdRequestData.forStreamAds(Optional.<String>absent());
-        assertThat(adsOperations.inlaysAds(requestData).toBlocking().first()).isEqualTo(fullAdsForStream.getAppInstalls());
+        final List<AppInstallAd> actual = adsOperations.inlaysAds(requestData).toBlocking().first();
+        final List<AppInstallAd> expected = fullAdsForStream.getAppInstalls(dateProvider);
+
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test

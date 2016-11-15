@@ -357,11 +357,19 @@ public class ImageOperations {
     }
 
     public void displayAppInstall(Urn urn, String imageUri, ImageView imageView) {
+        displayAppInstall(urn, imageUri, imageView, notFoundListener);
+    }
+
+    public void displayAppInstall(Urn urn, String imageUri, ImageView imageView, final ImageListener listener) {
+        displayAppInstall(urn, imageUri, imageView, new ImageListenerUILAdapter(listener));
+    }
+
+    private void displayAppInstall(Urn urn, String imageUri, ImageView imageView, ImageLoadingListener listener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final Drawable drawable = getPlaceholderDrawable(urn, imageAware);
         final DisplayImageOptions options = ImageOptionsFactory.streamAdImage(drawable, deviceHelper);
 
-        imageLoader.displayImage(imageUri, imageAware, options, notFoundListener);
+        imageLoader.displayImage(imageUri, imageAware, options, listener);
     }
 
     public void displayLeaveBehind(Uri uri, ImageView imageView, ImageListener imageListener) {

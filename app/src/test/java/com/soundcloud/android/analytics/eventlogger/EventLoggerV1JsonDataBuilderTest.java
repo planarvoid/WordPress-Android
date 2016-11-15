@@ -46,6 +46,7 @@ import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
@@ -958,6 +959,22 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName("collection:likes")
                                                .monetizationType("video_ad")
                                                .clickName("ad::full_screen"));
+    }
+
+    @Test
+    public void createJsonForStreamAdImpressionEvent() throws ApiMapperException {
+        final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
+        final InlayAdImpressionEvent event = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+
+        jsonDataBuilder.buildForStreamAd(event);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, 9876543210L)
+                .monetizationType("mobile_inlay")
+                .adUrn("dfp:ads:1")
+                .pageName("stream:main")
+                .impressionName("app_install")
+                .contextPosition(42)
+                .clientEventId(event.getId()));
     }
 
     @Test

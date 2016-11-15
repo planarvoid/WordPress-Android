@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -34,6 +35,8 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -599,6 +602,20 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdRequestEvent");
+    }
+
+    @Test
+    public void shouldTrackStreamAdImpressionEvents() {
+        final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
+        final InlayAdImpressionEvent event = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+        final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        when(dataBuilderv1.buildForStreamAd(event)).thenReturn("StreamAdImpression");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getData()).isEqualTo("StreamAdImpression");
     }
 
     @Test

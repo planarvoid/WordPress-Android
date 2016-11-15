@@ -50,6 +50,9 @@ class EventLoggerParam {
     static final String AD_REQUEST_ID= "ad_request_event_id";
     static final String PLAYER_VISIBLE = "is_player_visible";
 
+    // list view
+    static final String CONTEXT_POSITION = "context_position";
+
     // performance & error event params
     static final String LATENCY = "latency";
     static final String PROTOCOL = "protocol";

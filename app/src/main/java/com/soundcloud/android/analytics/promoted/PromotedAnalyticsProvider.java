@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -39,6 +40,8 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
             handleUIEvent((UIEvent) event);
         } else if (event instanceof VisualAdImpressionEvent) {
             handleVisualAdImpression((VisualAdImpressionEvent) event);
+        } else if (event instanceof InlayAdImpressionEvent) {
+            handleInlayAdImpression((InlayAdImpressionEvent) event);
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindImpression((AdOverlayTrackingEvent) event);
         } else if (event instanceof PromotedTrackingEvent) {
@@ -53,6 +56,10 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
+        trackAllUrls(event.getTimestamp(), event.getImpressionUrls());
+    }
+
+    private void handleInlayAdImpression(InlayAdImpressionEvent event) {
         trackAllUrls(event.getTimestamp(), event.getImpressionUrls());
     }
 
