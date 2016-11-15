@@ -9,7 +9,6 @@ import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -40,7 +39,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         implements EnterScreenDispatcher.Listener {
 
     final @LightCycle ProfileScrollHelper scrollHelper;
-    final @LightCycle ActivityReferringEventProvider referringEventProvider;
     final @LightCycle EnterScreenDispatcher enterScreenDispatcher;
     final @LightCycle ProfileHeaderPresenter headerPresenter;
     private final UserProfileOperations profileOperations;
@@ -68,7 +66,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
                             EventBus eventBus,
                             AccountOperations accountOperations,
                             EventTracker eventTracker,
-                            ActivityReferringEventProvider referringEventProvider,
                             EnterScreenDispatcher enterScreenDispatcher) {
         this.scrollHelper = scrollHelper;
         this.headerPresenter = profileHeaderPresenter;
@@ -76,7 +73,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.eventTracker = eventTracker;
-        this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.enterScreenDispatcher.setListener(this);
         LightCycles.bind(this);
@@ -120,9 +116,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         int position = pager.getCurrentItem();
 
         if (accountOperations.isLoggedInUser(user)) {
-            eventTracker.trackScreen(ScreenEvent.create(getYourScreen(position)), referringEventProvider.getReferringEvent());
+            eventTracker.trackScreen(ScreenEvent.create(getYourScreen(position)), activity.getReferringEvent());
         } else {
-            eventTracker.trackScreen(ScreenEvent.create(getOtherScreen(position), Urn.forUser(user.getNumericId())), referringEventProvider.getReferringEvent());
+            eventTracker.trackScreen(ScreenEvent.create(getOtherScreen(position), Urn.forUser(user.getNumericId())), activity.getReferringEvent());
         }
     }
 

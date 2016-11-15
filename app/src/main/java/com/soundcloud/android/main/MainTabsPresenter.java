@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ScreenEvent;
@@ -49,7 +48,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    @LightCycle final ActivityReferringEventProvider referringEventProvider;
     @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
 
     @Inject
@@ -58,7 +56,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                       MainPagerAdapter.Factory pagerAdapterFactory,
                       Navigator navigator,
                       EventTracker eventTracker,
-                      ActivityReferringEventProvider referringEventProvider,
                       EnterScreenDispatcher enterScreenDispatcher,
                       FeatureOperations featureOperations) {
         this.navigationModel = navigationModel;
@@ -66,7 +63,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.navigator = navigator;
         this.eventTracker = eventTracker;
-        this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.featureOperations = featureOperations;
         enterScreenDispatcher.setListener(this);
@@ -120,7 +116,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     @Override
     public void onEnterScreen(RootActivity activity) {
-        eventTracker.trackScreen(ScreenEvent.create(getScreen()), referringEventProvider.getReferringEvent());
+        eventTracker.trackScreen(ScreenEvent.create(getScreen()), activity.getReferringEvent());
     }
 
     private void startDevelopmentMenuStream() {

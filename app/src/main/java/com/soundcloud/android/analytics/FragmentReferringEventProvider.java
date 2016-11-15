@@ -9,6 +9,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
+// When used, we plan on moving this to a base fragment implementation
 public class FragmentReferringEventProvider extends DefaultSupportFragmentLightCycle<Fragment> {
     private final ReferringEventProvider referringEventProvider;
 

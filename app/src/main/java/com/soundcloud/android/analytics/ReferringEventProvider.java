@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class ReferringEventProvider {
+public class ReferringEventProvider {
 
     private final TrackingStateProvider trackingStateProvider;
 
@@ -18,11 +18,11 @@ class ReferringEventProvider {
         this.trackingStateProvider = trackingStateProvider;
     }
 
-    void setupReferringEvent() {
+    public void setupReferringEvent() {
         referringEvent = trackingStateProvider.getLastEvent();
     }
 
-    void restoreReferringEvent(Bundle bundle) {
+    public void restoreReferringEvent(Bundle bundle) {
         if (bundle != null) {
             final ReferringEvent restoredReferringEvent = bundle.getParcelable(ReferringEvent.REFERRING_EVENT_KEY);
 
@@ -32,13 +32,13 @@ class ReferringEventProvider {
         }
     }
 
-    void saveReferringEvent(Bundle bundle) {
+    public void saveReferringEvent(Bundle bundle) {
         if (referringEvent.isPresent()) {
             bundle.putParcelable(ReferringEvent.REFERRING_EVENT_KEY, referringEvent.get());
         }
     }
 
-    Optional<ReferringEvent> getReferringEvent() {
+    public Optional<ReferringEvent> getReferringEvent() {
         return referringEvent;
     }
 }
