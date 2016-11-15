@@ -6,8 +6,9 @@ import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 
-public class NoOpCastContextWrapper implements CastContextWrapper {
+class NoOpCastContextWrapper implements CastContextWrapper {
 
     @Override
     public Optional<CastSession> getCurrentCastSession() {
@@ -35,7 +36,8 @@ public class NoOpCastContextWrapper implements CastContextWrapper {
     }
 
     @Override
-    public void removeSessionManagerListener(SessionManagerListener castSessionController) {
-        // no - op
+    public boolean onDispatchVolumeKeyEventBeforeJellyBean(KeyEvent event) {
+        return false;
     }
+
 }

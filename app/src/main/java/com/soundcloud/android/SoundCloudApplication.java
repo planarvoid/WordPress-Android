@@ -51,6 +51,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
+import dagger.Lazy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +66,6 @@ import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 import java.io.File;
 
 public class SoundCloudApplication extends MultiDexApplication {
@@ -103,8 +103,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject ScreenProvider screenProvider;
     @Inject AdIdHelper adIdHelper;
-    @Inject Provider<LegacyCastSessionController> legacyCastControllerProvider;
-    @Inject Provider<DefaultCastSessionController> castControllerProvider;
+    @Inject Lazy<LegacyCastSessionController> legacyCastControllerProvider;
+    @Inject Lazy<DefaultCastSessionController> castControllerProvider;
     @Inject StationsController stationsController;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject AppboyPlaySessionState appboyPlaySessionState;

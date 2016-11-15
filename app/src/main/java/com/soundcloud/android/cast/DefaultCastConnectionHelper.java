@@ -27,12 +27,14 @@ public class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCo
 
     private final Set<MediaRouteButton> mediaRouteButtons;
     private final Set<OnConnectionChangeListener> connectionChangeListeners;
+    private final CastContextWrapper castContextWrapper;
 
     private boolean isCastableDeviceAvailable;
     private String deviceName;
 
     @Inject
-    public DefaultCastConnectionHelper() {
+    public DefaultCastConnectionHelper(CastContextWrapper castContextWrapper) {
+        this.castContextWrapper = castContextWrapper;
         this.mediaRouteButtons = new HashSet<>(EXPECTED_MEDIA_BUTTON_CAPACITY);
         this.connectionChangeListeners = new HashSet<>();
     }
@@ -75,7 +77,7 @@ public class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCo
 
     @Override
     public boolean onDispatchVolumeEvent(KeyEvent event) {
-        return false;
+        return castContextWrapper.onDispatchVolumeKeyEventBeforeJellyBean(event);
     }
 
     @Override
