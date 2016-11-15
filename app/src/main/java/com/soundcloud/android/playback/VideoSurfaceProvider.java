@@ -23,7 +23,7 @@ public class VideoSurfaceProvider {
     final private VideoTextureContainer.Factory containerFactory;
     final private ApplicationProperties applicationProperties;
 
-    private Listener listener;
+    private Optional<Listener> listener = Optional.absent();
 
     @Inject
     VideoSurfaceProvider(ApplicationProperties applicationProperties,
@@ -33,7 +33,10 @@ public class VideoSurfaceProvider {
     }
 
     public void setListener(Listener listener) {
-        this.listener = listener;
+        this.listener = Optional.of(listener);
+        for (VideoTextureContainer container: videoTextureContainers.values()) {
+           container.setListener(listener);
+        }
     }
 
     public void setTextureView(Urn urn, TextureView videoTexture) {
@@ -45,7 +48,9 @@ public class VideoSurfaceProvider {
             videoTextureContainers.put(urn, containerFactory.build(urn, videoTexture, listener));
         }
 
-        listener.onTextureViewUpdate(urn, videoTexture);
+        if (listener.isPresent()) {
+            listener.get().onTextureViewUpdate(urn, videoTexture);
+        }
     }
 
     private void removeContainers(TextureView videoTexture) {

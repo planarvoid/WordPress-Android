@@ -24,19 +24,22 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
     @Mock ApplicationProperties applicationProperties;
     @Mock VideoTextureContainer.Factory containerFactory;
     @Mock VideoTextureContainer textureContainer;
-    @Mock VideoSurfaceProvider.Listener listener;
+    @Mock VideoSurfaceProvider.Listener surfaceProviderListener;
     @Mock TextureView textureView;
     @Mock Surface surface;
 
     private VideoSurfaceProvider videoSurfaceProvider;
+    private Optional<VideoSurfaceProvider.Listener> listener;
 
     private static final Urn URN = Urn.forAd("dfp", "video-ad");
     private static final Urn URN2 = Urn.forAd("dfp", "video-ad-2");
 
     @Before
     public void setUp() {
+        listener = Optional.of(surfaceProviderListener);
+
         videoSurfaceProvider = new VideoSurfaceProvider(applicationProperties, containerFactory);
-        videoSurfaceProvider.setListener(listener);
+        videoSurfaceProvider.setListener(surfaceProviderListener);
 
         when(containerFactory.build(URN, textureView, listener)).thenReturn(textureContainer);
         when(applicationProperties.canReattachSurfaceTexture()).thenReturn(true);
@@ -85,7 +88,17 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
     public void settingSurfaceTextureForwardsUpdateToListener() {
         videoSurfaceProvider.setTextureView(URN, textureView);
 
-        verify(listener).onTextureViewUpdate(URN, textureView);
+        verify(surfaceProviderListener).onTextureViewUpdate(URN, textureView);
+    }
+
+    @Test
+    public void canSetSurfaceTextureWithoutListener() {
+        videoSurfaceProvider = new VideoSurfaceProvider(applicationProperties, containerFactory);
+
+        videoSurfaceProvider.setTextureView(URN, textureView);
+
+        verify(surfaceProviderListener, never()).onTextureViewUpdate(URN, textureView);
+        verify(containerFactory).build(URN, textureView, Optional.<VideoSurfaceProvider.Listener>absent());
     }
 
     @Test
