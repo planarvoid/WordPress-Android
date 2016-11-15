@@ -102,7 +102,7 @@ public class MyProfileOperations {
     }
 
     private Observable<List<UserAssociation>> loadFollowingUserAssociationsFromStorage() {
-        return userAssociationStorage.followedUserAssociations(PAGE_SIZE).subscribeOn(scheduler);
+        return userAssociationStorage.followedUserAssociations().subscribeOn(scheduler);
     }
 
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {

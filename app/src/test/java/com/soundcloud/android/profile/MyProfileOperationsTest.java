@@ -3,7 +3,6 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.profile.MyProfileOperations.PAGE_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -170,7 +169,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final UserAssociation userAssociation2 = createUserAssociation(Urn.forUser(124L));
         final List<UserAssociation> followingsUrn = Arrays.asList(userAssociation1, userAssociation2);
 
-        when(userAssociationStorage.followedUserAssociations(PAGE_SIZE)).thenReturn(Observable.just(
+        when(userAssociationStorage.followedUserAssociations()).thenReturn(Observable.just(
                 followingsUrn));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(SHOULD_NEVER_SYNC);
 
@@ -186,7 +185,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void syncsWhenStoredFollowingsListEmpty() {
     TestSubscriber<List<UserAssociation>> subscriber = new TestSubscriber<>();
 
-        when(userAssociationStorage.followedUserAssociations(PAGE_SIZE)).thenReturn(Observable.just(Collections.<UserAssociation>emptyList()));
+        when(userAssociationStorage.followedUserAssociations()).thenReturn(Observable.just(Collections.<UserAssociation>emptyList()));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
 
         operations.followingsUserAssociations().subscribe(subscriber);
@@ -195,7 +194,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         subscriber.assertValue(Collections.<UserAssociation>emptyList());
 
         verify(syncInitiatorBridge).refreshFollowings();
-        verify(userAssociationStorage, times(2)).followedUserAssociations(PAGE_SIZE);
+        verify(userAssociationStorage, times(2)).followedUserAssociations();
     }
 
     private UserAssociation createUserAssociation(Urn urn) {

@@ -167,7 +167,7 @@ public class UserAssociationStorage {
         return propellerRx.query(query).map(new UserUrnMapper()).toList();
     }
 
-    public Observable<List<UserAssociation>> followedUserAssociations(int limit) {
+    public Observable<List<UserAssociation>> followedUserAssociations() {
         Query query = Query.from(UserAssociations)
                            .select(field(TARGET_ID).as(BaseColumns._ID),
                                    UserAssociations.field(ASSOCIATION_TYPE),
@@ -176,8 +176,7 @@ public class UserAssociationStorage {
                                    UserAssociations.field(REMOVED_AT)
                            )
                            .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING)
-                           .whereNull(UserAssociations.field(REMOVED_AT))
-                           .limit(limit);
+                           .whereNull(UserAssociations.field(REMOVED_AT));
 
         return propellerRx.query(query).map(new UserAssociationEntityMapper()).toList();
     }
