@@ -103,12 +103,6 @@
             android:id="@+id/track_page_share"
             style="@style/PlayerShare" />
 
-        <com.soundcloud.android.view.CustomFontButton
-            android:id="@+id/track_page_share_text"
-            android:visibility="gone"
-            android:text="@string/share"
-            style="@style/PlayerShareTextBase.PlayerShareText" />
-
         <com.soundcloud.android.view.CustomFontToggleButton
             android:id="@+id/track_page_like"
             style="@style/PlayerLikeBase.PlayerLike" />

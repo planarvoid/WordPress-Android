@@ -11,7 +11,6 @@ import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
-import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -77,7 +76,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
-    private final ShareAsTextButtonExperiment shareExperiment;
     private final PlayerUpsellCopyExperiment upsellCopyExperiment;
     private final FeatureFlags featureFlags;
 
@@ -97,7 +95,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               CastConnectionHelper castConnectionHelper,
                               Resources resources,
                               PlayerUpsellImpressionController upsellImpressionController,
-                              ShareAsTextButtonExperiment shareExperiment,
                               PlayerUpsellCopyExperiment upsellCopyExperiment,
                               FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
@@ -113,7 +110,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.castConnectionHelper = castConnectionHelper;
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
-        this.shareExperiment = shareExperiment;
         this.upsellCopyExperiment = upsellCopyExperiment;
         this.featureFlags = featureFlags;
     }
@@ -192,7 +188,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(trackState.getUrn());
         holder.shareButton.setTag(trackState.getUrn());
-        holder.shareButtonText.setTag(trackState.getUrn());
 
         holder.footerUser.setText(trackState.getUserName());
         holder.footerTitle.setText(trackState.getTitle());
@@ -277,7 +272,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public void setCastDeviceName(View view, String deviceName) {
         TrackPageHolder viewHolder = getViewHolder(view);
         viewHolder.castDeviceName.setText(deviceName);
-        setupShareButtons(viewHolder);
+        setupShareButton(viewHolder);
     }
 
     @Override
@@ -655,8 +650,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.profileLink = trackView.findViewById(R.id.profile_link);
 
         holder.shareButton = trackView.findViewById(R.id.track_page_share);
-        holder.shareButtonText = trackView.findViewById(R.id.track_page_share_text);
-        setupShareButtons(holder);
+        setupShareButton(holder);
 
         holder.playQueueButton = trackView.findViewById(R.id.play_queue_button);
         holder.topStrip = trackView.findViewById(R.id.player_strip);
@@ -713,7 +707,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         };
 
         holder.shareButton.setOnClickListener(shareClickListener);
-        holder.shareButtonText.setOnClickListener(shareClickListener);
 
         holder.likeToggle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -728,21 +721,18 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.errorViewController = errorControllerFactory.create(trackView);
     }
 
-    private void setupShareButtons(TrackPageHolder holder) {
+    private void setupShareButton(TrackPageHolder holder) {
         boolean hasCastDeviceName = Strings.isNotBlank(castConnectionHelper.getDeviceName());
 
         if (hasCastDeviceName) {
-            setShareButtonVisibility(holder, View.GONE, View.GONE);
-        } else if (shareExperiment.showAsText()) {
-            setShareButtonVisibility(holder, View.GONE, View.VISIBLE);
+            setShareButtonVisibility(holder, View.GONE);
         } else {
-            setShareButtonVisibility(holder, View.VISIBLE, View.GONE);
+            setShareButtonVisibility(holder, View.VISIBLE);
         }
     }
 
-    private void setShareButtonVisibility(TrackPageHolder holder, int iconVisibility, int textVisibility) {
+    private void setShareButtonVisibility(TrackPageHolder holder, int iconVisibility) {
         holder.shareButton.setVisibility(iconVisibility);
-        holder.shareButtonText.setVisibility(textVisibility);
     }
 
     private AdOverlayController.AdOverlayListener createAdOverlayListener(final TrackPageHolder holder) {
@@ -756,7 +746,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 if (fullscreen) {
                     AnimUtils.hideViews(holder.hideOnAdViews);
                     castConnectionHelper.removeMediaRouterButton(holder.mediaRouteButton);
-                    setShareButtonVisibility(holder, View.GONE, View.GONE);
+                    setShareButtonVisibility(holder, View.GONE);
                 }
             }
 
@@ -769,7 +759,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 if (fullscreen) {
                     AnimUtils.showViews(holder.hideOnAdViews);
                     castConnectionHelper.addMediaRouterButton(holder.mediaRouteButton);
-                    setupShareButtons(holder);
+                    setupShareButton(holder);
                 }
             }
         };
@@ -801,7 +791,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         View playControlsHolder;
         View interstitialHolder;
         View shareButton;
-        View shareButtonText;
         View playQueueButton;
         View topGradient;
 

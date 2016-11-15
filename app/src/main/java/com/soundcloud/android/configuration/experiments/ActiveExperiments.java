@@ -9,8 +9,7 @@ import java.util.List;
 public class ActiveExperiments {
     static final String LISTENING_LAYER = "android_listening";
 
-    public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = Arrays.asList(ShareAsTextButtonExperiment.CONFIGURATION,
-                                                                                         StationsRecoAlgorithmExperiment.CONFIGURATION,
+    public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = Arrays.asList(StationsRecoAlgorithmExperiment.CONFIGURATION,
                                                                                          OpusExperiment.CONFIGURATION,
                                                                                          ChartsExperiment.CONFIGURATION,
                                                                                          SuggestedCreatorsExperiment.CONFIGURATION,

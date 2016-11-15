@@ -18,7 +18,6 @@ import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
-import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -84,7 +83,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
-    @Mock private ShareAsTextButtonExperiment shareExperiment;
     @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
@@ -111,7 +109,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            castConnectionHelper,
                                            resources(),
                                            upsellImpressionController,
-                                           shareExperiment,
                                            upsellCopyExperiment,
                                            featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
@@ -734,7 +731,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
 
         assertThat(getHolder(trackView).shareButton).isGone();
-        assertThat(getHolder(trackView).shareButtonText).isGone();
     }
 
     @Test
@@ -744,27 +740,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
 
         assertThat(getHolder(trackView).shareButton).isVisible();
-        assertThat(getHolder(trackView).shareButtonText).isGone();
-    }
-
-    @Test
-    public void shouldShowShareTextButtonWhenExperimentIsEnabled() {
-        when(shareExperiment.showAsText()).thenReturn(true);
-
-        populateTrackPage();
-
-        assertThat(getHolder(trackView).shareButton).isGone();
-        assertThat(getHolder(trackView).shareButtonText).isVisible();
-    }
-
-    @Test
-    public void shouldHideShareTextButtonWhenExperimentIsNotEnabled() {
-        when(shareExperiment.showAsText()).thenReturn(false);
-
-        populateTrackPage();
-
-        assertThat(getHolder(trackView).shareButton).isVisible();
-        assertThat(getHolder(trackView).shareButtonText).isGone();
     }
 
     @Test
