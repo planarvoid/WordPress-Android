@@ -21,6 +21,7 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -198,29 +199,40 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldCycleRepeatModeToRepatOneFromRepeatNoneOnClick() {
-        when(playQueueManager.getRepeatMode()).thenReturn(PlayQueueManager.RepeatMode.REPEAT_NONE);
+        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
 
         presenter.repeatClicked(new ImageView(context()));
 
-        verifyRepeatModeChanged(PlayQueueManager.RepeatMode.REPEAT_ONE);
+        verifyRepeatModeChanged(RepeatMode.REPEAT_ONE);
     }
 
     @Test
     public void shouldCycleRepeatModeToRepeatAllFromRepeatOneOnClick() {
-        when(playQueueManager.getRepeatMode()).thenReturn(PlayQueueManager.RepeatMode.REPEAT_ONE);
+        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_ONE);
 
         presenter.repeatClicked(new ImageView(context()));
 
-        verifyRepeatModeChanged(PlayQueueManager.RepeatMode.REPEAT_ALL);
+        verifyRepeatModeChanged(RepeatMode.REPEAT_ALL);
     }
 
     @Test
     public void shouldCycleRepeatModeOnClickOnLastMode() {
-        when(playQueueManager.getRepeatMode()).thenReturn(PlayQueueManager.RepeatMode.REPEAT_ALL);
+        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_ALL);
 
         presenter.repeatClicked(new ImageView(context()));
 
-        verifyRepeatModeChanged(PlayQueueManager.RepeatMode.REPEAT_NONE);
+        verifyRepeatModeChanged(RepeatMode.REPEAT_NONE);
+    }
+
+    @Test
+    public void shouldTrackRepeatModeChanges() {
+        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
+
+        presenter.repeatClicked(new ImageView(context()));
+
+        final TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_REPEAT);
+        assertThat(trackingEvent.get(UIEvent.KEY_PLAY_QUEUE_REPEAT_MODE)).isEqualTo(RepeatMode.REPEAT_ONE.get());
     }
 
     @Test
@@ -363,7 +375,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         }
     }
 
-    private void verifyRepeatModeChanged(PlayQueueManager.RepeatMode mode) {
+    private void verifyRepeatModeChanged(RepeatMode mode) {
         verify(playQueueManager).setRepeatMode(mode);
         verify(adapter).updateInRepeatMode(mode);
     }
@@ -376,7 +388,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         return new HeaderPlayQueueUIItem(null,
                                          Optional.<String>absent(),
                                          PlayState.PLAYING,
-                                         PlayQueueManager.RepeatMode.REPEAT_ONE);
+                                         RepeatMode.REPEAT_ONE);
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState, Optional<String> contextTitle) {
@@ -386,7 +398,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                       new TrackItem(TestPropertySets.expectedTrackForListItem(track)),
                       context(),
                       contextTitle,
-                      PlayQueueManager.RepeatMode.REPEAT_ONE);
+                      RepeatMode.REPEAT_ONE);
 
         playQueueUIItem.setPlayState(playState);
 

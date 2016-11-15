@@ -14,6 +14,7 @@ import com.soundcloud.android.discovery.charts.ChartSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -1144,6 +1145,14 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(Screen.PLAY_QUEUE.get());
     }
 
+    @Test
+    public void shouldCreateEventFromPlayQueueRepeat() {
+        final UIEvent uiEvent = UIEvent.fromPlayQueueRepeat(Screen.PLAY_QUEUE, RepeatMode.REPEAT_ALL);
+
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_REPEAT);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(Screen.PLAY_QUEUE.get());
+        assertThat(uiEvent.get(UIEvent.KEY_PLAY_QUEUE_REPEAT_MODE)).isEqualTo(RepeatMode.REPEAT_ALL.get());
+    }
 
     private EventContextMetadata.Builder eventContextBuilder() {
         return eventContextNoInvokerScreen().invokerScreen("invoker_screen");

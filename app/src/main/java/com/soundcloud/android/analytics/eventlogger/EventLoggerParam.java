@@ -14,6 +14,7 @@ class EventLoggerParam {
     static final String TRACK_LENGTH = "track_length";
     static final String PAGE_NAME = "page_name";
     static final String TRIGGER = "trigger";
+    static final String REPEAT = "repeat";
     static final String SOURCE = "source";
     static final String SOURCE_URN = "source_urn";
     static final String SOURCE_VERSION = "source_version";

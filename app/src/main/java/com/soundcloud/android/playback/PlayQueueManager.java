@@ -40,7 +40,21 @@ import java.util.List;
 @Singleton
 public class PlayQueueManager implements OriginProvider {
 
-    public enum RepeatMode {REPEAT_NONE, REPEAT_ONE, REPEAT_ALL}
+    public enum RepeatMode {
+        REPEAT_NONE(""),
+        REPEAT_ONE("one"),
+        REPEAT_ALL("all");
+
+        private final String repeatMode;
+
+        RepeatMode(String repeatMode) {
+            this.repeatMode = repeatMode;
+        }
+
+        public String get() {
+            return repeatMode;
+        }
+    }
 
     private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
 

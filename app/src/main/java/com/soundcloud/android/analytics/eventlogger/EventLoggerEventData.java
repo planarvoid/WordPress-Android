@@ -500,6 +500,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData clickRepeat(String repeat_mode) {
+        // Not supported by v0
+        return this;
+    }
+
     protected void addToPayload(String key, boolean value) {
         addToPayload(key, String.valueOf(value));
     }

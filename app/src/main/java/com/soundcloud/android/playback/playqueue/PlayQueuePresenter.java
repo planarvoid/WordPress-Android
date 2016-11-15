@@ -240,6 +240,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
             default:
                 view.setImageResource(R.drawable.ic_repeat_off);
         }
+
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRepeat(Screen.PLAY_QUEUE, nextRepeatMode));
     }
 
     @OnClick(R.id.shuffle_button)

@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -25,19 +26,8 @@ import java.util.Map;
 public final class UIEvent extends TrackingEvent {
 
     public static final String TYPE_MONETIZABLE_PROMOTED = "promoted";
-    private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
-    private static final String SKIPS = "SKIPS";
-    private static final String SIZE_CHANGES = "SIZE_CHANGES";
-    private static final String TYPE_VIDEO_AD = "video_ad";
-    private static final String TYPE_AUDIO_AD = "audio_ad";
-    private static final String TYPE_MOBILE_INLAY = "mobile_inlay";
-    private static final String TRIGGER_AUTO = "auto";
-    private static final String TRIGGER_MANUAL = "manual";
-    private static final String SHUFFLE_ON = "shuffle::on";
-    private static final String SHUFFLE_OFF = "shuffle::off";
-    private final Map<String, List<String>> promotedTrackingUrls;
+    public static final String KEY_PLAY_QUEUE_REPEAT_MODE = "repeat_mode";
 
-    private EventContextMetadata eventContextMetadata;
     public static final String KIND_FOLLOW = "follow";
 
     public static final String KIND_UNFOLLOW = "unfollow";
@@ -68,6 +58,21 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_PLAY_QUEUE_TRACK_REORDER = "play_queue_track_reorder";
     public static final String KIND_PLAY_QUEUE_TRACK_REMOVE = "play_queue_track_remove";
     public static final String KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO = "play_queue_track_remove_undo";
+    public static final String KIND_PLAY_QUEUE_REPEAT = "play_queue_repeat";
+
+    private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
+    private static final String SKIPS = "SKIPS";
+    private static final String SIZE_CHANGES = "SIZE_CHANGES";
+    private static final String TYPE_VIDEO_AD = "video_ad";
+    private static final String TYPE_AUDIO_AD = "audio_ad";
+    private static final String TYPE_MOBILE_INLAY = "mobile_inlay";
+    private static final String TRIGGER_AUTO = "auto";
+    private static final String TRIGGER_MANUAL = "manual";
+    private static final String SHUFFLE_ON = "shuffle::on";
+    private static final String SHUFFLE_OFF = "shuffle::off";
+
+    private final Map<String, List<String>> promotedTrackingUrls;
+    private EventContextMetadata eventContextMetadata;
 
     public static UIEvent fromPlayerOpen(boolean manual) {
         return new UIEvent(KIND_PLAYER_OPEN)
@@ -232,6 +237,7 @@ public final class UIEvent extends TrackingEvent {
         return linkType == null ? null : linkType.getName();
     }
 
+
     private static UIEvent withPlayerAdAttributes(UIEvent adEvent,
                                                   PlayerAdData adData,
                                                   TrackSourceInfo trackSourceInfo) {
@@ -272,6 +278,11 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_PLAY_QUEUE_SHUFFLE)
                 .put(KEY_CLICK_NAME, isShuffled ? SHUFFLE_ON : SHUFFLE_OFF)
                 .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, Screen.PLAY_QUEUE.get());
+    }
+
+    public static UIEvent fromPlayQueueRepeat(Screen screen, PlayQueueManager.RepeatMode repeatMode) {
+        return new UIEvent(KIND_PLAY_QUEUE_REPEAT).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get())
+                                                  .put(KEY_PLAY_QUEUE_REPEAT_MODE, repeatMode.get());
     }
 
     private static String getNotNullOriginScreen(@Nullable TrackSourceInfo trackSourceInfo) {

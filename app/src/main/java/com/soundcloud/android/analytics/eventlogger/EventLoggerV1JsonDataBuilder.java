@@ -363,8 +363,20 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("track_in_play_queue::remove", event));
             case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO:
                 return transform(buildClickEvent("track_in_play_queue::remove_undo", event));
+            case UIEvent.KIND_PLAY_QUEUE_REPEAT:
+                return transform(buildRepeatClickEvent(event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
+        }
+    }
+
+    private EventLoggerEventData buildRepeatClickEvent(UIEvent event) {
+        String repeatMode = event.get(UIEvent.KEY_PLAY_QUEUE_REPEAT_MODE);
+
+        if (Strings.isNotBlank(repeatMode)) {
+            return buildClickEvent("repeat::on", event).clickRepeat(repeatMode);
+        } else {
+            return buildClickEvent("repeat::off", event);
         }
     }
 

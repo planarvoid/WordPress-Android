@@ -51,6 +51,7 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
+import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackType;
@@ -1446,6 +1447,40 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clickName("play_queue::min"));
     }
 
+    @Test
+    public void createsJsonForPlayQueueRepeatAll() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayQueueRepeat(Screen.PLAY_QUEUE, RepeatMode.REPEAT_ALL);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName(Screen.PLAY_QUEUE.get())
+                                               .clickName("repeat::on")
+                                               .clickRepeat("all"));
+    }
+
+    @Test
+    public void createsJsonForPlayQueueRepeatOne() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayQueueRepeat(Screen.PLAY_QUEUE, RepeatMode.REPEAT_ONE);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName(Screen.PLAY_QUEUE.get())
+                                               .clickName("repeat::on")
+                                               .clickRepeat("one"));
+    }
+
+    @Test
+    public void createsJsonForPlayQueueRepeatNone() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayQueueRepeat(Screen.PLAY_QUEUE, RepeatMode.REPEAT_NONE);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName(Screen.PLAY_QUEUE.get())
+                                               .clickName("repeat::off"));
+    }
 
     @Test
     public void createsPlayerUpsellImpressionJson() throws Exception {
