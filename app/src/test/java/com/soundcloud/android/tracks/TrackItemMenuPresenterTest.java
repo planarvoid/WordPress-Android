@@ -17,6 +17,8 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.PlayableTrackingKeys;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -36,6 +38,8 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import rx.Observable;
@@ -70,6 +74,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PopupMenuWrapper popupMenuWrapper;
     @Mock MenuItem menuItem;
     @Mock View view;
+    @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final TestEventBus eventBus = new TestEventBus();
     private TrackItem trackItem = createTrackItem();
@@ -169,6 +174,18 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
         verify(playbackInitiator).playTracks(singletonList(trackItem.getUrn()), 0, playSessionSource);
         verify(playQueueManager, never()).insertNext(trackItem.getUrn());
+    }
+
+    @Test
+    public void clickOnStationShouldProxyToStationHandler() {
+        when(menuItem.getItemId()).thenReturn(R.id.start_station);
+
+        presenter.show(activity, view, trackItem, 0);
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(stationHandler).openStationWithSeedTrack(any(Context.class), eq(trackItem.getUrn()), uiEventArgumentCaptor.capture());
+        assertThat(uiEventArgumentCaptor.getValue().getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
+        assertThat(uiEventArgumentCaptor.getValue().get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(trackItem.getUrn().toString());
     }
 
     @Test

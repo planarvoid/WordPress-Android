@@ -375,14 +375,27 @@ public class Navigator {
         context.startActivity(new Intent(context, LikedStationsActivity.class));
     }
 
-    public void openStationInfo(Context context, Urn stationUrn, Urn seedTrack, DiscoverySource source) {
+    public void openStationInfo(Context context,
+                                      Urn stationUrn,
+                                      Urn seedTrack,
+                                      DiscoverySource source,
+                                      UIEvent navigationEvent) {
+        eventTracker.trackNavigation(navigationEvent);
+
         context.startActivity(new Intent(context, StationInfoActivity.class)
                                       .putExtra(StationInfoActivity.EXTRA_SOURCE, source.value())
                                       .putExtra(StationInfoActivity.EXTRA_URN, stationUrn)
                                       .putExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack));
     }
 
-    public void openStationInfo(Context context, Urn stationUrn, DiscoverySource source) {
+    public void legacyOpenStationInfo(Context context, Urn stationUrn, Urn seedTrack, DiscoverySource source) {
+        context.startActivity(new Intent(context, StationInfoActivity.class)
+                                      .putExtra(StationInfoActivity.EXTRA_SOURCE, source.value())
+                                      .putExtra(StationInfoActivity.EXTRA_URN, stationUrn)
+                                      .putExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack));
+    }
+
+    public void legacyOpenStationInfo(Context context, Urn stationUrn, DiscoverySource source) {
         context.startActivity(new Intent(context, StationInfoActivity.class)
                                       .putExtra(StationInfoActivity.EXTRA_SOURCE, source.value())
                                       .putExtra(StationInfoActivity.EXTRA_URN, stationUrn));

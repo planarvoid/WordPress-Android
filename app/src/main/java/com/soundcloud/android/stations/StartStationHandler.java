@@ -6,6 +6,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -27,15 +28,19 @@ public class StartStationHandler {
     }
 
     public void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
-        navigator.openStationInfo(context, stationUrn, discoverySource);
+        navigator.legacyOpenStationInfo(context, stationUrn, discoverySource);
     }
 
     public void startStation(Context context, Urn stationUrn) {
-        navigator.openStationInfo(context, stationUrn, STATIONS);
+        navigator.legacyOpenStationInfo(context, stationUrn, STATIONS);
     }
 
-    public void startStationWithSeedTrack(Context context, Urn seedTrack) {
-        navigator.openStationInfo(context, Urn.forTrackStation(seedTrack.getNumericId()), seedTrack, STATIONS);
+    public void openStationWithSeedTrack(Context context, Urn seedTrack, UIEvent navigationEvent) {
+        navigator.openStationInfo(context,
+                                  Urn.forTrackStation(seedTrack.getNumericId()),
+                                  seedTrack,
+                                  STATIONS,
+                                  navigationEvent);
     }
 
     public void startStationFromPlayer(Context context, Urn trackUrn, boolean trackBlocked) {
@@ -66,9 +71,9 @@ public class StartStationHandler {
             final Urn stationUrn = Urn.forTrackStation(trackUrn.getNumericId());
 
             if (trackBlocked) {
-                navigator.openStationInfo(context, stationUrn, trackUrn, STATIONS);
+                navigator.legacyOpenStationInfo(context, stationUrn, trackUrn, STATIONS);
             } else {
-                navigator.openStationInfo(context, stationUrn, STATIONS);
+                navigator.legacyOpenStationInfo(context, stationUrn, STATIONS);
             }
         }
     }

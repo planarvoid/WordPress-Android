@@ -242,7 +242,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                                   });
                 return true;
             case R.id.start_station:
-                stationHandler.startStationWithSeedTrack(context, track.getUrn());
+                handleStation(context);
                 return true;
             case R.id.play_next:
                 playNext(track.getUrn());
@@ -250,6 +250,12 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
             default:
                 return false;
         }
+    }
+
+    private void handleStation(Context context) {
+        stationHandler.openStationWithSeedTrack(context,
+                                                track.getUrn(),
+                                                UIEvent.fromNavigation(track.getUrn(), eventContextMetadata));
     }
 
     private void playNext(Urn trackUrn) {
@@ -312,7 +318,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         private final TrackItem track;
         private final PopupMenuWrapper menu;
 
-        public TrackSubscriber(TrackItem track, PopupMenuWrapper menu) {
+        TrackSubscriber(TrackItem track, PopupMenuWrapper menu) {
             this.track = track;
             this.menu = menu;
         }
