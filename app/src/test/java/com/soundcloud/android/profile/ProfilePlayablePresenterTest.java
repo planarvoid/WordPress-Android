@@ -39,6 +39,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
 
 import java.util.List;
@@ -58,6 +59,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
     @Mock private View fragmentView;
     @Mock private View itemView;
     @Mock private RecyclerView recyclerView;
+    @Mock private SimpleItemAnimator itemAnimator;
     @Mock private EmptyView emptyView;
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlayableListUpdater.Factory playableListUpdaterFactory;
@@ -80,6 +82,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         when(fragmentView.getResources()).thenReturn(resources);
         when(resources.getDrawable(R.drawable.ak_list_divider_item)).thenReturn(divider);
         when(recyclerView.getResources()).thenReturn(resources);
+        when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
         when(fragment.getArguments()).thenReturn(arguments);
         when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);

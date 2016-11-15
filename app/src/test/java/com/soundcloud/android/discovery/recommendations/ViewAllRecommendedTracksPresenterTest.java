@@ -33,6 +33,7 @@ import rx.Observable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
 
 import java.util.List;
@@ -51,6 +52,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private DiscoveryAdapterFactory adapterFactory;
     @Mock private DiscoveryAdapter adapter;
+    @Mock private SimpleItemAnimator itemAnimator;
     @Mock private Bundle bundle;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<DiscoveryItem> discoveryItems;
@@ -63,6 +65,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(recyclerView.getAdapter()).thenReturn(adapter);
+        when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
         when(adapter.getItems()).thenReturn(discoveryItems);
         when(recommendedTracksOperations.allBuckets()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.<List<TrackItem>>empty());

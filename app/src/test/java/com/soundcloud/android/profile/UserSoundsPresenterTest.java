@@ -46,6 +46,7 @@ import rx.observers.TestSubscriber;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
 
 import java.util.List;
@@ -74,6 +75,8 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private UserSoundsItem userSoundsItem;
     @Mock private View view;
+    @Mock private RecyclerView recyclerView;
+    @Mock private SimpleItemAnimator itemAnimator;
 
     @Captor private ArgumentCaptor<Observable<List<PropertySet>>> argumentCaptor;
 
@@ -94,6 +97,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         doReturn(clickListener).when(clickListenerFactory).create(SEARCH_QUERY_SOURCE_INFO);
         when(operations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
         when(resources.getInteger(R.integer.user_profile_card_grid_span_count)).thenReturn(1);
+        when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
     }
 
     @Test
@@ -215,7 +219,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     private View view(EmptyView emptyView) {
         View view = mock(View.class);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        when(view.findViewById(R.id.ak_recycler_view)).thenReturn(mock(RecyclerView.class));
+        when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.getResources()).thenReturn(resources);
         return view;
     }
