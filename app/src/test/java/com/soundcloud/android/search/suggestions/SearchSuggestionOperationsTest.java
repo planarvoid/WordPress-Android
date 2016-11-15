@@ -12,6 +12,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.WriteMixedRecordsCommand;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
@@ -41,16 +42,17 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Mock private ApiClientRx apiClientRx;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private SearchSuggestionStorage suggestionStorage;
+    @Mock private FeatureFlags featureFlags;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
 
     private SearchSuggestionOperations operations;
-    private TestSubscriber<SuggestionsResult> suggestionsResultSubscriber;
+    private TestSubscriber<List<SuggestionItem>> suggestionsResultSubscriber;
     private ApiTrack track;
 
     @Before
     public void setUp() throws Exception {
         operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
-                                                    Schedulers.immediate(), suggestionStorage);
+                                                    Schedulers.immediate(), suggestionStorage, featureFlags);
         suggestionsResultSubscriber = new TestSubscriber<>();
         track = ModelFixtures.create(ApiTrack.class);
     }
