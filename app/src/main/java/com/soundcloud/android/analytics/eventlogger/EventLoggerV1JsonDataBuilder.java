@@ -357,6 +357,12 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("play_queue::min", event));
             case UIEvent.KIND_PLAY_QUEUE_SHUFFLE:
                 return transform(buildClickEvent(event.get(UIEvent.KEY_CLICK_NAME), event));
+            case UIEvent.KIND_PLAY_QUEUE_TRACK_REORDER:
+                return transform(buildClickEvent("track_in_play_queue::reorder", event));
+            case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE:
+                return transform(buildClickEvent("track_in_play_queue::remove", event));
+            case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO:
+                return transform(buildClickEvent("track_in_play_queue::remove_undo", event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }

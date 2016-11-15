@@ -13,6 +13,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -275,6 +276,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
             showFeedback(adapterPosition, item, playQueueItem, removalPosition);
             rebuildLabels();
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemove(Screen.PLAY_QUEUE));
         }
     }
 
@@ -298,6 +300,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         playQueueManager.moveItem(adapter.getQueuePosition(fromAdapterPosition),
                                   adapter.getQueuePosition(toAdapterPosition));
         rebuildLabels();
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE));
     }
 
     private void rebuildLabels() {
@@ -455,6 +458,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
             playQueueManager.insertItemAtPosition(playQueuePosition, playQueueItem);
             adapter.addItem(adapterPosition, playQueueUIItem);
             rebuildLabels();
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemoveUndo(Screen.PLAY_QUEUE));
         }
     }
 

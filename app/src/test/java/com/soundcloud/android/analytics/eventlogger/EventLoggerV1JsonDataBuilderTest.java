@@ -1608,8 +1608,41 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(shuffleEvent);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, shuffleEvent.getTimestamp())
-                                       .clickName(shuffleEvent.get(UIEvent.KEY_CLICK_NAME))
-                                       .pageName(shuffleEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+                                               .clickName(shuffleEvent.get(UIEvent.KEY_CLICK_NAME))
+                                               .pageName(shuffleEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+    }
+
+    @Test
+    public void createsPlayQueueReorderJson() throws Exception {
+        UIEvent event = UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("track_in_play_queue::reorder")
+                                               .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+    }
+
+    @Test
+    public void createsPlayQueueRemoveJson() throws Exception {
+        UIEvent event = UIEvent.fromPlayQueueRemove(Screen.PLAY_QUEUE);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("track_in_play_queue::remove")
+                                               .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+    }
+
+    @Test
+    public void createsPlayQueueRemoveUndoJson() throws Exception {
+        UIEvent event = UIEvent.fromPlayQueueRemoveUndo(Screen.PLAY_QUEUE);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("track_in_play_queue::remove_undo")
+                                               .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {

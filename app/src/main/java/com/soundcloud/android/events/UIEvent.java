@@ -65,6 +65,9 @@ public final class UIEvent extends TrackingEvent {
     public static final String KEY_CLICK_NAME = "click_name";
     public static final String KIND_PLAY_QUEUE_OPEN = "play_queue_open";
     public static final String KIND_PLAY_QUEUE_CLOSE = "play_queue_close";
+    public static final String KIND_PLAY_QUEUE_TRACK_REORDER = "play_queue_track_reorder";
+    public static final String KIND_PLAY_QUEUE_TRACK_REMOVE = "play_queue_track_remove";
+    public static final String KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO = "play_queue_track_remove_undo";
 
     public static UIEvent fromPlayerOpen(boolean manual) {
         return new UIEvent(KIND_PLAYER_OPEN)
@@ -200,6 +203,21 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_PLAY_QUEUE_CLOSE);
     }
 
+    public static UIEvent fromPlayQueueReorder(Screen screen) {
+        return new UIEvent(KIND_PLAY_QUEUE_TRACK_REORDER)
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get());
+    }
+
+    public static UIEvent fromPlayQueueRemove(Screen screen) {
+        return new UIEvent(KIND_PLAY_QUEUE_TRACK_REMOVE)
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get());
+    }
+
+    public static UIEvent fromPlayQueueRemoveUndo(Screen screen) {
+        return new UIEvent(KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO)
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get());
+    }
+
     public Optional<AttributingActivity> getAttributingActivity() {
         return Optional.fromNullable(eventContextMetadata.attributingActivity());
     }
@@ -216,7 +234,7 @@ public final class UIEvent extends TrackingEvent {
 
     private static UIEvent withPlayerAdAttributes(UIEvent adEvent,
                                                   PlayerAdData adData,
-                                                  TrackSourceInfo trackSourceInfo)  {
+                                                  TrackSourceInfo trackSourceInfo) {
         return withBasicAdAttributes(adEvent, adData)
                 .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString())
                 .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));

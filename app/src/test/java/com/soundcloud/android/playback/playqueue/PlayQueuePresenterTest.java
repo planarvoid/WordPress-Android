@@ -34,6 +34,8 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
@@ -43,6 +45,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,6 +61,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlayQueueUIItem item;
     @Mock private FeedbackController feedbackController;
     @Mock private View view;
+
+    @Captor private ArgumentCaptor<Feedback> feedbackCaptor;
 
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
@@ -319,6 +324,45 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         assertThat(event.get(UIEvent.KEY_CLICK_NAME)).isEqualTo("shuffle::off");
     }
 
+    @Test
+    public void shouldTrackReorder() {
+        presenter.moveItems(0, 1);
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)
+                           .getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_TRACK_REORDER);
+    }
+
+    @Test
+    public void shouldTrackRemoval() {
+        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
+        when(adapter.getItem(2)).thenReturn(upcomingTrack);
+
+        presenter.remove(2);
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
+                .isEqualTo(UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE);
+    }
+
+    @Test
+    public void shouldTrackRemovalUndo() {
+        when(adapter.getItem(2)).thenReturn(trackPlayQueueUIItemWithPlayState(COMING_UP));
+
+        presenter.remove(2);
+        feedbackUndo();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
+                .isEqualTo(UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO);
+    }
+
+    private void feedbackUndo() {
+        verify(feedbackController).showFeedback(feedbackCaptor.capture());
+        final WeakReference<View.OnClickListener> actionListener = feedbackCaptor.getValue().getActionListener();
+
+        if (actionListener != null) {
+            actionListener.get().onClick(mock(View.class));
+        }
+    }
+
     private void verifyRepeatModeChanged(PlayQueueManager.RepeatMode mode) {
         verify(playQueueManager).setRepeatMode(mode);
         verify(adapter).updateInRepeatMode(mode);
@@ -329,7 +373,10 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     private HeaderPlayQueueUIItem headerPlayQueueUIItem() {
-        return new HeaderPlayQueueUIItem(null, Optional.<String>absent(), PlayState.PLAYING, PlayQueueManager.RepeatMode.REPEAT_ONE);
+        return new HeaderPlayQueueUIItem(null,
+                                         Optional.<String>absent(),
+                                         PlayState.PLAYING,
+                                         PlayQueueManager.RepeatMode.REPEAT_ONE);
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState, Optional<String> contextTitle) {
