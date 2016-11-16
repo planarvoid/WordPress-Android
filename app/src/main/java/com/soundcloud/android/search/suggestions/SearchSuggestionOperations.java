@@ -1,6 +1,5 @@
 package com.soundcloud.android.search.suggestions;
 
-import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Iterables.transform;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
@@ -14,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.WriteMixedRecordsCommand;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
@@ -50,16 +50,6 @@ class SearchSuggestionOperations {
                 }
             };
 
-    public static final Func2<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>> COMBINE_LOCAL_AND_REMOTE = new Func2<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>>() {
-        @Override
-        public List<SuggestionItem> call(
-                List<SuggestionItem> local,
-                List<SuggestionItem> remote) {
-            return newArrayList(concat(
-                    local,
-                    remote));
-        }
-    };
 
     private final ApiClientRx apiClientRx;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
@@ -86,14 +76,13 @@ class SearchSuggestionOperations {
 
     private final TypeToken<ModelCollection<Autocompletion>> autocompletionTypeToken = new TypeToken<ModelCollection<Autocompletion>>() {
     };
-    private final Func2<SuggestionItem, List<SuggestionItem>, List<SuggestionItem>> COMBINE_SEARCH_AND_LOCAL = new Func2<SuggestionItem, List<SuggestionItem>, List<SuggestionItem>>() {
+    private final Func2<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>> ACCUMULATE_RESULTS = new Func2<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>>() {
         @Override
-        public List<SuggestionItem> call(
-                SuggestionItem suggestionItem,
-                List<SuggestionItem> suggestionsResults) {
-            return newArrayList(concat(Collections.singletonList(
-                    suggestionItem),
-                                       suggestionsResults));
+        public List<SuggestionItem> call(List<SuggestionItem> first, List<SuggestionItem> second) {
+            final List<SuggestionItem> result = new ArrayList<>(first.size() + second.size());
+            result.addAll(first);
+            result.addAll(second);
+            return result;
         }
     };
 
@@ -111,20 +100,30 @@ class SearchSuggestionOperations {
     }
 
     Observable<List<SuggestionItem>> suggestionsFor(String query) {
-        return localSuggestions(query).concatWith(localSuggestions(query).zipWith(remoteSuggestions(query),
-                                                                                  COMBINE_LOCAL_AND_REMOTE));
+        return localSuggestions(query)
+                .concatWith(remoteSuggestions(query))
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .scan(ACCUMULATE_RESULTS);
     }
 
     private Observable<List<SuggestionItem>> localSuggestions(String query) {
-        return Observable.just(SuggestionItem.forSearch(query))
-                         .zipWith(localCollectionSuggestions(query), COMBINE_SEARCH_AND_LOCAL);
+        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
+            return localCollectionSuggestions(query).concatWith(defaultSearchItem(query));
+        } else {
+            return defaultSearchItem(query).concatWith(localCollectionSuggestions(query));
+        }
+
+    }
+
+    private Observable<List<SuggestionItem>> defaultSearchItem(String query) {
+        return Observable.just(Collections.singletonList(SuggestionItem.forSearch(query)));
     }
 
     private Observable<List<SuggestionItem>> localCollectionSuggestions(String query) {
         return suggestionStorage.getSuggestions(query, MAX_SUGGESTIONS_NUMBER)
                                 .map(localToSuggestionResult(query))
-                                .onErrorResumeNext(Observable.just(
-                                        Collections.<SuggestionItem>emptyList()))
+                                .onErrorResumeNext(Observable.<List<SuggestionItem>>empty())
+                                .filter(RxUtils.IS_NOT_EMPTY_LIST)
                                 .subscribeOn(scheduler);
     }
 
@@ -165,7 +164,8 @@ class SearchSuggestionOperations {
         return apiClientRx.mappedResponse(request, ApiSearchSuggestions.class)
                           .doOnNext(writeDependencies)
                           .map(REMOTE_TO_SUGGESTION_ITEM)
-                          .onErrorResumeNext(Observable.just(Collections.<SuggestionItem>emptyList()))
+                          .onErrorResumeNext(Observable.<List<SuggestionItem>>empty())
+                          .filter(RxUtils.IS_NOT_EMPTY_LIST)
                           .subscribeOn(scheduler);
     }
 
@@ -185,7 +185,14 @@ class SearchSuggestionOperations {
                                                                 autocompletionToSuggestionItem(autocompletions.getQueryUrn())));
                               }
                           })
-                          .onErrorResumeNext(Observable.just(Collections.<SuggestionItem>emptyList()))
+                          .doOnError(new Action1<Throwable>() {
+                              @Override
+                              public void call(Throwable throwable) {
+                                  throwable.printStackTrace();
+                              }
+                          })
+                          .onErrorResumeNext(Observable.<List<SuggestionItem>>empty())
+                          .filter(RxUtils.IS_NOT_EMPTY_LIST)
                           .subscribeOn(scheduler);
     }
 
