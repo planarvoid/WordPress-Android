@@ -3,10 +3,9 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.discovery.charts.ChartSourceInfo;
-import com.soundcloud.android.discovery.recommendations.RecommendationsSourceInfo;
+import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
@@ -43,7 +42,7 @@ public class PlaySessionSource implements Parcelable {
     private String exploreVersion;
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
-    private RecommendationsSourceInfo recommendationsSourceInfo;
+    private QuerySourceInfo querySourceInfo;
     private DiscoverySource discoverySource;
     private ChartSourceInfo chartSourceInfo;
 
@@ -92,7 +91,8 @@ public class PlaySessionSource implements Parcelable {
 
     public static PlaySessionSource forRecommendations(Screen screen, int queryPosition, Urn queryUrn) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
-        playSessionSource.recommendationsSourceInfo = RecommendationsSourceInfo.create(queryPosition, queryUrn);
+        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
+        playSessionSource.discoverySource = DiscoverySource.RECOMMENDATIONS;
         return playSessionSource;
     }
 
@@ -100,9 +100,10 @@ public class PlaySessionSource implements Parcelable {
                                              int queryPosition,
                                              Urn queryUrn,
                                              ChartType chartType,
-                                             ChartCategory chartCategory, Urn genre) {
+                                             Urn genre) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
-        playSessionSource.chartSourceInfo = ChartSourceInfo.create(queryPosition, queryUrn, chartType, chartCategory, genre);
+        playSessionSource.chartSourceInfo = ChartSourceInfo.create(chartType, genre);
+        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
         return playSessionSource;
     }
 
@@ -214,8 +215,12 @@ public class PlaySessionSource implements Parcelable {
         return discoverySource != null;
     }
 
-    public boolean isFromRecommendations() {
-        return recommendationsSourceInfo != null;
+    public boolean hasQuerySourceInfo() {
+        return querySourceInfo != null;
+    }
+
+    boolean isFromRecommendations() {
+        return discoverySource != null && discoverySource == DiscoverySource.RECOMMENDATIONS;
     }
 
     public boolean isFromChart() {
@@ -274,7 +279,7 @@ public class PlaySessionSource implements Parcelable {
                 && MoreObjects.equal(exploreVersion, that.exploreVersion)
                 && MoreObjects.equal(originScreen, that.originScreen)
                 && MoreObjects.equal(promotedSourceInfo, that.promotedSourceInfo)
-                && MoreObjects.equal(recommendationsSourceInfo, that.recommendationsSourceInfo)
+                && MoreObjects.equal(querySourceInfo, that.querySourceInfo)
                 && MoreObjects.equal(chartSourceInfo, that.chartSourceInfo)
                 && MoreObjects.equal(discoverySource, that.discoverySource);
     }
@@ -286,7 +291,7 @@ public class PlaySessionSource implements Parcelable {
                                     collectionSize,
                                     exploreVersion,
                                     originScreen,
-                                    recommendationsSourceInfo,
+                                    querySourceInfo,
                                     chartSourceInfo,
                                     discoverySource);
     }
@@ -301,8 +306,8 @@ public class PlaySessionSource implements Parcelable {
     }
 
     @Nullable
-    public RecommendationsSourceInfo getRecommendationsSourceInfo() {
-        return recommendationsSourceInfo;
+    public QuerySourceInfo getQuerySourceInfo() {
+        return querySourceInfo;
     }
 
     public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {

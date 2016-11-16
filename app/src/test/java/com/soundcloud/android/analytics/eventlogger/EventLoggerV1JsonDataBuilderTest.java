@@ -18,12 +18,10 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.discovery.charts.ChartSourceInfo;
+import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
@@ -1124,6 +1122,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                     attributingActivity.getResource())
                                                .module(module.getName())
                                                .modulePosition(position)
+                                               .queryUrn(navigationEvent.getQueryUrn().get().toString())
+                                               .queryPosition(navigationEvent.getQueryPosition().get())
         );
     }
 
@@ -1166,6 +1166,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageUrn(pageUrn.toString())
                                                .module(module.getName())
                                                .modulePosition(position)
+                                               .queryUrn(navigationEvent.getQueryUrn().get().toString())
+                                               .queryPosition(navigationEvent.getQueryPosition().get())
         );
     }
 
@@ -1723,10 +1725,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
         trackSourceInfo.setSource(SOURCE, "0.0");
         trackSourceInfo.setStationSourceInfo(STATION_URN, StationsSourceInfo.create(QUERY_URN));
-        trackSourceInfo.setChartSourceInfo(ChartSourceInfo.create(QUERY_POSITION, QUERY_URN,
-                                                                  ChartType.TOP,
-                                                                  ChartCategory.MUSIC,
-                                                                  new Urn("genre")));
+        trackSourceInfo.setQuerySourceInfo(QuerySourceInfo.create(QUERY_POSITION, QUERY_URN));
 
         return trackSourceInfo;
     }

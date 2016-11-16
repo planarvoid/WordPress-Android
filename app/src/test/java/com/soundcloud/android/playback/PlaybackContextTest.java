@@ -6,7 +6,6 @@ import static com.soundcloud.android.playback.PlaybackContext.create;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.main.Screen;
@@ -162,8 +161,7 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = Chart.GLOBAL_GENRE;
 
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.AUDIO, Bucket.CHARTS_TRENDING);
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.MUSIC, Bucket.CHARTS_TRENDING);
+        assertFromCharts(queryUrn, genre, ChartType.TRENDING, Bucket.CHARTS_TRENDING);
     }
 
     @Test
@@ -171,8 +169,7 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = new Urn("soundcloud:genres:all-music:some_genre");
 
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.AUDIO, Bucket.CHARTS_TRENDING);
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, ChartCategory.MUSIC, Bucket.CHARTS_TRENDING);
+        assertFromCharts(queryUrn, genre, ChartType.TRENDING, Bucket.CHARTS_TRENDING);
     }
 
     @Test
@@ -180,8 +177,7 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = Chart.GLOBAL_GENRE;
 
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.AUDIO, Bucket.CHARTS_TOP);
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.MUSIC, Bucket.CHARTS_TOP);
+        assertFromCharts(queryUrn, genre, ChartType.TOP, Bucket.CHARTS_TOP);
     }
 
     @Test
@@ -189,16 +185,15 @@ public class PlaybackContextTest {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final Urn genre = new Urn("soundcloud:genres:all-music:some_genre");
 
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.AUDIO, Bucket.CHARTS_TOP);
-        assertFromCharts(queryUrn, genre, ChartType.TOP, ChartCategory.MUSIC, Bucket.CHARTS_TOP);
+        assertFromCharts(queryUrn, genre, ChartType.TOP, Bucket.CHARTS_TOP);
     }
 
 
     private void assertFromCharts(Urn queryUrn,
                                   Urn genre,
                                   ChartType chartType,
-                                  ChartCategory chartCategory, Bucket charts) {
-        final PlaySessionSource playSessionSource = forChart(ANY_SCREEN.get(), 0, queryUrn, chartType, chartCategory, genre);
+                                  Bucket charts) {
+        final PlaySessionSource playSessionSource = forChart(ANY_SCREEN.get(), 0, queryUrn, chartType, genre);
 
         final PlaybackContext context = create(playSessionSource);
 

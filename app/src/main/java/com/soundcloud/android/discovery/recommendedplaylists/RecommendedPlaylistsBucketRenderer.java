@@ -29,12 +29,13 @@ import java.util.Map;
 public class RecommendedPlaylistsBucketRenderer implements CellRenderer<RecommendedPlaylistsBucketItem> {
 
     private final Map<String, Parcelable> scrollingState = new HashMap<>();
-    private final RecommendedPlaylistItemRenderer playlistItemRenderer;
+    private final RecommendedPlaylistsAdapterFactory recommendedPlaylistsAdapterFactory;
     private final Resources resources;
+    private RecommendedPlaylistsAdapter.QueryPositionProvider queryPositionProvider;
 
     @Inject
-    RecommendedPlaylistsBucketRenderer(RecommendedPlaylistItemRenderer playlistItemRenderer, Resources resources) {
-        this.playlistItemRenderer = playlistItemRenderer;
+    RecommendedPlaylistsBucketRenderer(RecommendedPlaylistsAdapterFactory recommendedPlaylistsAdapterFactory, Resources resources) {
+        this.recommendedPlaylistsAdapterFactory = recommendedPlaylistsAdapterFactory;
         this.resources = resources;
     }
 
@@ -46,9 +47,13 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
         return view;
     }
 
+    public void setQueryPositionProvider(RecommendedPlaylistsAdapter.QueryPositionProvider queryPositionProvider) {
+        this.queryPositionProvider = queryPositionProvider;
+    }
+
     private void initCarousel(View bucketView, final RecyclerView recyclerView) {
         final Context context = recyclerView.getContext();
-        final RecommendedPlaylistsAdapter adapter = new RecommendedPlaylistsAdapter(playlistItemRenderer);
+        final RecommendedPlaylistsAdapter adapter = recommendedPlaylistsAdapterFactory.create(queryPositionProvider);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));

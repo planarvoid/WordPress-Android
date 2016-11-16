@@ -11,10 +11,12 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsAdapter;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketItem;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
@@ -26,7 +28,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, RecyclerView.ViewHolder> {
+public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, RecyclerView.ViewHolder>
+        implements RecommendedPlaylistsAdapter.QueryPositionProvider {
 
     private final PlaylistTagRenderer playlistTagRenderer;
     private final SearchItemRenderer searchItemRenderer;
@@ -59,6 +62,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
         this.playlistTagRenderer = playlistTagRenderer;
         this.stationsBucketRenderer = stationsBucketRenderer;
         this.searchItemRenderer = searchItemRenderer;
+        recommendedPlaylistsBucketRenderer.setQueryPositionProvider(this);
     }
 
     @Override
@@ -69,6 +73,20 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     @Override
     protected ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
+    }
+
+    @Override
+    public int queryPosition(String bucketKey, int bucketPosition) {
+        int queryPosition = bucketPosition;
+        for (DiscoveryItem discoveryItem : getItems()) {
+            if (discoveryItem.getKind() == DiscoveryItem.Kind.RecommendedPlaylistsItem) {
+                final RecommendedPlaylistsBucketItem playlistsBucketItem = (RecommendedPlaylistsBucketItem) discoveryItem;
+                if (!playlistsBucketItem.key().equals(bucketKey)) {
+                    queryPosition += playlistsBucketItem.playlists().size();
+                }
+            }
+        }
+        return queryPosition;
     }
 
     void setDiscoveryListener(DiscoveryItemListenerBucket itemListener) {

@@ -3,20 +3,14 @@ package com.soundcloud.android.discovery.recommendedplaylists;
 import static butterknife.ButterKnife.findById;
 
 import butterknife.ButterKnife;
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.events.CollectionEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.rx.eventbus.EventBus;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,24 +22,19 @@ import javax.inject.Inject;
 import java.util.List;
 
 class RecommendedPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
+    interface PlaylistListener {
+        void onPlaylistClick(Context context, PlaylistItem playlist, int position);
+    }
 
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final Navigator navigator;
-    private final ScreenProvider screenProvider;
-    private final EventBus eventBus;
+
+    private PlaylistListener playlistListener;
 
     @Inject
-    RecommendedPlaylistItemRenderer(ImageOperations imageOperations,
-                         Resources resources,
-                         Navigator navigator,
-                         ScreenProvider screenProvider,
-                         EventBus eventBus) {
+    RecommendedPlaylistItemRenderer(ImageOperations imageOperations, Resources resources) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.navigator = navigator;
-        this.screenProvider = screenProvider;
-        this.eventBus = eventBus;
     }
 
     @Override
@@ -63,9 +52,14 @@ class RecommendedPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         setTrackCount(view, playlist);
         setCreator(view, playlist.getCreatorName());
 
-        view.setOnClickListener(goToPlaylist(playlist));
+        view.setOnClickListener(goToPlaylist(playlist, position));
         findById(view, R.id.overflow_button).setVisibility(View.GONE);
     }
+
+    void setPlaylistListener(PlaylistListener playlistListener) {
+        this.playlistListener = playlistListener;
+    }
+
 
     private void setTitle(View view, String title) {
         ButterKnife.<TextView>findById(view, R.id.title).setText(title);
@@ -85,14 +79,11 @@ class RecommendedPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         trackCount.setText(String.valueOf(playlist.getTrackCount()));
     }
 
-    private View.OnClickListener goToPlaylist(final PlaylistItem playlist) {
+    private View.OnClickListener goToPlaylist(final PlaylistItem playlist, final int position) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Urn urn = playlist.getUrn();
-                Screen lastScreen = screenProvider.getLastScreen();
-                eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-                navigator.legacyOpenPlaylist(view.getContext(), urn, lastScreen);
+                playlistListener.onPlaylistClick(view.getContext(), playlist, position);
             }
         };
     }

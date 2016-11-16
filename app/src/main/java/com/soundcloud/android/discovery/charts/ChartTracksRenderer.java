@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery.charts;
 
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -37,11 +38,8 @@ class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
         Optional<TrackSourceInfo> trackSourceInfo = track.chartTrackItem.queryUrn().transform(new Function<Urn, TrackSourceInfo>() {
             public TrackSourceInfo apply(Urn queryUrn) {
                 TrackSourceInfo info = new TrackSourceInfo(screenProvider.getLastScreenTag(), true);
-                info.setChartSourceInfo(ChartSourceInfo.create(position - ChartTracksPresenter.NUM_EXTRA_ITEMS,
-                                                               queryUrn,
-                                                               track.chartTrackItem.chartType(),
-                                                               track.chartTrackItem.chartCategory(),
-                                                               track.chartTrackItem.genre()));
+                final int queryPosition = position - ChartTracksPresenter.NUM_EXTRA_ITEMS;
+                info.setQuerySourceInfo(QuerySourceInfo.create(queryPosition, queryUrn));
                 return info;
             }
         });

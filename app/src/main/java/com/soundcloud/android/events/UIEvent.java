@@ -356,8 +356,8 @@ public final class UIEvent extends TrackingEvent {
 
         if (sourceInfo != null && sourceInfo.hasStationsSourceInfo()) {
             return Optional.of(sourceInfo.getStationsSourceInfo().getQueryUrn());
-        } else if (sourceInfo != null && sourceInfo.isFromChart()) {
-            return Optional.of(sourceInfo.getChartSourceInfo().getQueryUrn());
+        } else if (sourceInfo != null && sourceInfo.hasQuerySourceInfo()) {
+            return Optional.of(sourceInfo.getQuerySourceInfo().getQueryUrn());
         } else {
             return Optional.absent();
         }
@@ -366,8 +366,8 @@ public final class UIEvent extends TrackingEvent {
     public Optional<Integer> getQueryPosition() {
         final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
 
-        if (sourceInfo != null && sourceInfo.isFromChart()) {
-            return Optional.of(sourceInfo.getChartSourceInfo().getQueryPosition());
+        if (sourceInfo != null && sourceInfo.hasQuerySourceInfo()) {
+            return Optional.of(sourceInfo.getQuerySourceInfo().getQueryPosition());
         } else {
             return Optional.absent();
         }

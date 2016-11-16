@@ -121,8 +121,9 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
 
             final Optional<Urn> queryUrn = trackItem.queryUrn();
             final PlaySessionSource playSessionSource = (queryUrn.isPresent()) ?
-                                                        PlaySessionSource.forChart(screen, queryPosition, queryUrn.get(),
-                                                                                   trackItem.chartType(), trackItem.chartCategory(),
+                                                        PlaySessionSource.forChart(screen, queryPosition,
+                                                                                   queryUrn.get(),
+                                                                                   trackItem.chartType(),
                                                                                    trackItem.genre()) :
                                                         PlaySessionSource.EMPTY;
             playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.getUrn()), playSessionSource)

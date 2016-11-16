@@ -108,7 +108,6 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
                                                                                queryPosition,
                                                                                QUERY_URN,
                                                                                chartTrackItem.chartType(),
-                                                                               chartTrackItem.chartCategory(),
                                                                                chartTrackItem.genre());
         verify(playbackInitiator).playTracks(expectedPlayQueue, expectedPlayQueuePosition, playSessionSource);
     }

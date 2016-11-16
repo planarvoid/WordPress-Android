@@ -2,8 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.discovery.charts.ChartSourceInfo;
-import com.soundcloud.android.discovery.recommendations.RecommendationsSourceInfo;
+import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.java.objects.MoreObjects;
@@ -25,8 +24,7 @@ public class TrackSourceInfo {
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private StationsSourceInfo stationsSourceInfo;
-    private RecommendationsSourceInfo recommendationsSourceInfo;
-    private ChartSourceInfo chartSourceInfo;
+    private QuerySourceInfo querySourceInfo;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
         this.originScreen = originScreen;
@@ -49,8 +47,8 @@ public class TrackSourceInfo {
         this.stationsSourceInfo = sourceInfo;
     }
 
-    public void setRecommendationsSourceInfo(RecommendationsSourceInfo sourceInfo) {
-        this.recommendationsSourceInfo = sourceInfo;
+    public void setQuerySourceInfo(QuerySourceInfo sourceInfo) {
+        this.querySourceInfo = sourceInfo;
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -59,10 +57,6 @@ public class TrackSourceInfo {
 
     public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
         this.promotedSourceInfo = promotedSourceInfo;
-    }
-
-    public void setChartSourceInfo(ChartSourceInfo chartSourceInfo) {
-        this.chartSourceInfo = chartSourceInfo;
     }
 
     public void setReposter(Urn reposter) {
@@ -81,8 +75,8 @@ public class TrackSourceInfo {
         return stationsSourceInfo;
     }
 
-    public RecommendationsSourceInfo getRecommendationsSourceInfo() {
-        return recommendationsSourceInfo;
+    public QuerySourceInfo getQuerySourceInfo() {
+        return querySourceInfo;
     }
 
     public boolean hasStationsSourceInfo() {
@@ -121,10 +115,6 @@ public class TrackSourceInfo {
         return playlistOwnerUrn;
     }
 
-    public ChartSourceInfo getChartSourceInfo() {
-        return chartSourceInfo;
-    }
-
     public boolean hasSource() {
         return Strings.isNotBlank(source);
     }
@@ -137,16 +127,12 @@ public class TrackSourceInfo {
         return collectionUrn != Urn.NOT_SET && collectionUrn.isStation();
     }
 
-    public boolean isFromRecommendations() {
-        return recommendationsSourceInfo != null;
+    public boolean hasQuerySourceInfo() {
+        return querySourceInfo != null;
     }
 
     public boolean isFromSearchQuery() {
         return searchQuerySourceInfo != null;
-    }
-
-    public boolean isFromChart() {
-        return chartSourceInfo != null;
     }
 
     public boolean hasReposter() {
@@ -212,13 +198,9 @@ public class TrackSourceInfo {
         if (stationsSourceInfo != null ?
             !stationsSourceInfo.equals(that.stationsSourceInfo) :
             that.stationsSourceInfo != null) return false;
-        if (recommendationsSourceInfo != null ?
-            !recommendationsSourceInfo.equals(that.recommendationsSourceInfo) :
-            that.recommendationsSourceInfo != null) return false;
-        return chartSourceInfo != null ?
-               chartSourceInfo.equals(that.chartSourceInfo) :
-               that.chartSourceInfo == null;
-
+        return (querySourceInfo != null ?
+            querySourceInfo.equals(that.querySourceInfo) :
+            that.querySourceInfo == null);
     }
 
     @Override
@@ -234,8 +216,7 @@ public class TrackSourceInfo {
         result = 31 * result + (searchQuerySourceInfo != null ? searchQuerySourceInfo.hashCode() : 0);
         result = 31 * result + (promotedSourceInfo != null ? promotedSourceInfo.hashCode() : 0);
         result = 31 * result + (stationsSourceInfo != null ? stationsSourceInfo.hashCode() : 0);
-        result = 31 * result + (recommendationsSourceInfo != null ? recommendationsSourceInfo.hashCode() : 0);
-        result = 31 * result + (chartSourceInfo != null ? chartSourceInfo.hashCode() : 0);
+        result = 31 * result + (querySourceInfo != null ? querySourceInfo.hashCode() : 0);
         return result;
     }
 }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -44,7 +45,7 @@ public class ChartTracksRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldRenderPositionalTrack() {
-        TRACK_SOURCE_INFO.setChartSourceInfo(ChartSourceInfo.create(0, QUERY_URN.get(), TOP, MUSIC, GENRE_URN));
+        TRACK_SOURCE_INFO.setQuerySourceInfo(QuerySourceInfo.create(0, QUERY_URN.get()));
 
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
 

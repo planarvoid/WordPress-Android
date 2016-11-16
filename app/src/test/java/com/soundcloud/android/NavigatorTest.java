@@ -218,6 +218,24 @@ public class NavigatorTest extends AndroidUnitTest {
                                    .containsScreen(Screen.SEARCH_PLAYLISTS);
     }
 
+
+    @Test
+    public void opensPlaylistWithoutSearchQuerySourceInfo() {
+        PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        Urn playlistUrn = playlist.getUrn();
+
+        final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
+
+        navigator.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, event);
+
+        verify(eventTracker).trackNavigation(event);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsAction(Actions.PLAYLIST)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
+    }
+
     @Test
     public void opensLegacyPlaylist() {
         PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
@@ -237,7 +255,7 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensPlaylistWithoutSearchQuerySourceInfo() {
+    public void opensLegacyPlaylistWithoutSearchQuerySourceInfo() {
         Urn playlist = Urn.forPlaylist(123L);
 
         navigator.legacyOpenPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS);

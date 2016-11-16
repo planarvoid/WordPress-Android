@@ -150,6 +150,12 @@ public class Navigator {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
     }
 
+    public void openPlaylist(Context context, Urn playlist, Screen screen, UIEvent event) {
+        eventTracker.trackNavigation(event);
+
+        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false));
+    }
+
     public void openPlaylist(Context context, Urn playlist, Screen screen,
                              SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo, UIEvent event) {
         eventTracker.trackNavigation(event);

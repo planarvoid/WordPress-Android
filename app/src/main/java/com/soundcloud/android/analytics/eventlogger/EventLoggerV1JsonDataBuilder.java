@@ -17,8 +17,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.discovery.charts.ChartSourceInfo;
-import com.soundcloud.android.discovery.recommendations.RecommendationsSourceInfo;
+import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
@@ -550,6 +549,14 @@ class EventLoggerV1JsonDataBuilder {
             eventData.modulePosition(module.get().getPosition());
         }
 
+        if (event.getQueryUrn().isPresent()) {
+            eventData.queryUrn(event.getQueryUrn().get().toString());
+        }
+
+        if (event.getQueryPosition().isPresent()) {
+            eventData.queryPosition(event.getQueryPosition().get());
+        }
+
         return eventData;
     }
 
@@ -700,16 +707,10 @@ class EventLoggerV1JsonDataBuilder {
             }
         }
 
-        if (sourceInfo.isFromRecommendations()) {
-            RecommendationsSourceInfo recommendationsSourceInfo = sourceInfo.getRecommendationsSourceInfo();
-            data.queryUrn(recommendationsSourceInfo.getQueryUrn().toString());
-            data.queryPosition(recommendationsSourceInfo.getQueryPosition());
-        }
-
-        if (sourceInfo.isFromChart()) {
-            final ChartSourceInfo chartSourceInfo = sourceInfo.getChartSourceInfo();
-            data.queryPosition(chartSourceInfo.getQueryPosition());
-            data.queryUrn(chartSourceInfo.getQueryUrn().toString());
+        if (sourceInfo.hasQuerySourceInfo()) {
+            QuerySourceInfo querySourceInfo = sourceInfo.getQuerySourceInfo();
+            data.queryUrn(querySourceInfo.getQueryUrn().toString());
+            data.queryPosition(querySourceInfo.getQueryPosition());
         }
 
         return data;

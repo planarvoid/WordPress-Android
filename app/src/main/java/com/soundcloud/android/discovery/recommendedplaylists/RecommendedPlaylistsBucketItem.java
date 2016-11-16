@@ -10,11 +10,11 @@ import java.util.List;
 
 @AutoValue
 public abstract class RecommendedPlaylistsBucketItem extends DiscoveryItem {
-    abstract String key();
+    public abstract String key();
     abstract String displayName();
     abstract Optional<String> artworkUrl();
     abstract Optional<Urn> queryUrn();
-    abstract List<PlaylistItem> playlists();
+    public abstract List<PlaylistItem> playlists();
 
     public static RecommendedPlaylistsBucketItem create(RecommendedPlaylistsEntity entity,
                                                         List<PlaylistItem> playlists) {
