@@ -29,12 +29,12 @@ class DebugQueryHook implements DatabaseHook {
 
     @Override
     public void onQueryStarted(Query query) {
-        started(query.toString());
+        started(query.build());
     }
 
     @Override
     public void onQueryFinished(Query query, long duration) {
-        finished(query.toString(), duration);
+        finished(query.build(), duration);
     }
 
     @Override
