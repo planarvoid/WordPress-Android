@@ -1,5 +1,6 @@
 package com.soundcloud.android.testsupport;
 
+import com.google.firebase.FirebaseApp;
 import com.soundcloud.android.BuildConfig;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -41,6 +42,16 @@ public abstract class AndroidUnitTest {
         @Override
         public Statement apply(Statement base, Description description) {
             MockitoAnnotations.initMocks(AndroidUnitTest.this);
+            return base;
+        }
+    };
+
+    @Rule public TestRule firebaseInitializationRule = new TestRule() {
+        @Override
+        public Statement apply(Statement base, Description description) {
+            if (FirebaseApp.getApps(context()).size() == 0) {
+                FirebaseApp.initializeApp(context());
+            }
             return base;
         }
     };

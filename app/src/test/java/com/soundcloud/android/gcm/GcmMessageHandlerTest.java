@@ -50,7 +50,6 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStopPlaybackWhenWhenMessageForADifferentUser() throws UnsupportedEncodingException, EncryptionException {
-
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":234}");
 
         handler.handleMessage(getRemoteMessage());
