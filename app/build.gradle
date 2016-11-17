@@ -148,6 +148,12 @@ configurations {
   testSupport // for exporting our test helpers
 }
 
+configurations.all {
+  resolutionStrategy {
+    force unitTestLibraries.androidSupportAnnotations
+  }
+}
+
 task testSupportJar(type: Jar, dependsOn: ':app:compileDevDebugUnitTestSources') {
   from "$project.buildDir/intermediates/classes/test/dev/debug"
   exclude "**/*Test.class"
