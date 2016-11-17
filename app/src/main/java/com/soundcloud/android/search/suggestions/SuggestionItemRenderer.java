@@ -58,7 +58,7 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
 
     private SuggestionHighlight findLocalSuggestionHighlight(SearchSuggestionItem suggestionItem) {
         final Locale locale = Locale.getDefault();
-        final String query = suggestionItem.getQuery();
+        final String query = suggestionItem.query();
         final int startIndex = suggestionItem.getDisplayedText().toLowerCase(locale).indexOf(query.toLowerCase(locale));
         final int stopIndex = startIndex + query.length();
         return new SuggestionHighlight(startIndex, stopIndex);

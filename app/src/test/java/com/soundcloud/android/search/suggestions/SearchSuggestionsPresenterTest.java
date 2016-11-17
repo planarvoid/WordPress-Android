@@ -1,7 +1,6 @@
 package com.soundcloud.android.search.suggestions;
 
 import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.SuggestionListener;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -12,12 +11,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +26,6 @@ import rx.observers.TestSubscriber;
 import android.os.Bundle;
 import android.view.View;
 
-import java.util.Collections;
 import java.util.List;
 
 public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
@@ -43,6 +39,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     @Mock private SuggestionsAdapter adapter;
     @Mock private SearchSuggestionOperations operations;
     @Mock private SuggestionListener suggestionListener;
+    @Mock private List<SuggestionItem> suggestionItems;
 
     @Rule public FragmentRule fragmentRule = new FragmentRule(R.layout.recyclerview_with_emptyview);
 
@@ -51,7 +48,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         presenter = new SearchSuggestionsPresenter(swipeRefreshAttacher, adapter, operations);
-        when(operations.suggestionsFor(anyString())).thenReturn(Observable.just(mock(SuggestionsResult.class)));
+        when(operations.suggestionsFor(anyString())).thenReturn(Observable.just(suggestionItems));
         presenter.setSuggestionListener(suggestionListener);
     }
 
@@ -69,7 +66,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     public void triggersTrackClickEventOnTrackItemClicked() {
         final Urn trackUrn = Urn.forTrack(123);
         final SuggestionItem suggestionItem = mock(SuggestionItem.class);
-        when(suggestionItem.getKind()).thenReturn(SuggestionItem.Kind.TrackItem);
+        when(suggestionItem.kind()).thenReturn(SuggestionItem.Kind.TrackItem);
         when(suggestionItem.getUrn()).thenReturn(trackUrn);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
@@ -82,7 +79,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     public void triggersUserClickEventOnUserItemClicked() {
         final Urn trackUrn = Urn.forUser(123);
         final SuggestionItem suggestionItem = mock(SuggestionItem.class);
-        when(suggestionItem.getKind()).thenReturn(SuggestionItem.Kind.UserItem);
+        when(suggestionItem.kind()).thenReturn(SuggestionItem.Kind.UserItem);
         when(suggestionItem.getUrn()).thenReturn(trackUrn);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
@@ -103,20 +100,8 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldContainSearchItemOnFirstPosition() {
-        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.just(SuggestionsResult.emptyLocal()));
-
-        presenter.showSuggestionsFor(SEARCH_QUERY);
-        presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
-
-        final SuggestionItem firstSuggestionItem = testSubscriber.getOnNextEvents().get(0).get(0);
-        assertThat(firstSuggestionItem.getKind()).isEqualTo(SuggestionItem.Kind.SearchItem);
-        testSubscriber.assertCompleted();
-    }
-
-    @Test
     public void doesNotRepeatSearchWithTheSameQuery() {
-        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.<SuggestionsResult>empty());
+        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.<List<SuggestionItem>>empty());
 
         presenter.showSuggestionsFor(SEARCH_QUERY);
         presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
@@ -125,47 +110,5 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
         presenter.showSuggestionsFor(SEARCH_QUERY);
         verifyZeroInteractions(operations);
-    }
-
-    @Test
-    public void shouldShowLocalAndRemoteSuggestions() {
-        final PropertySet localSuggestion = PropertySet.create();
-        localSuggestion.put(SearchSuggestionProperty.URN, Urn.forTrack(123));
-        final List<PropertySet> localItems = Collections.singletonList(localSuggestion);
-        final SuggestionsResult localSuggestionsResult = SuggestionsResult.localFromPropertySets(localItems);
-
-        final PropertySet remoteSuggestion = PropertySet.create();
-        remoteSuggestion.put(SearchSuggestionProperty.URN, Urn.forUser(123));
-        final PropertySetSource propertySetSource = new RemoteSuggestions(remoteSuggestion);
-        final List<PropertySetSource> remoteItems = Collections.singletonList(propertySetSource);
-        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(remoteItems);
-
-        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.just(localSuggestionsResult,
-                                                                                 remoteSuggestionsResult));
-
-        presenter.showSuggestionsFor(SEARCH_QUERY);
-        presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
-
-        final SuggestionItem firstItem = testSubscriber.getOnNextEvents().get(0).get(0);
-        final SuggestionItem secondItem = testSubscriber.getOnNextEvents().get(0).get(1);
-        final SuggestionItem thirdItem = testSubscriber.getOnNextEvents().get(0).get(2);
-
-        assertThat(firstItem.getKind()).isEqualTo(SuggestionItem.Kind.SearchItem);
-        assertThat(secondItem.getKind()).isEqualTo(SuggestionItem.Kind.TrackItem);
-        assertThat(thirdItem.getKind()).isEqualTo(SuggestionItem.Kind.UserItem);
-        testSubscriber.assertCompleted();
-    }
-
-    private static class RemoteSuggestions implements PropertySetSource {
-        private PropertySet source;
-
-        private RemoteSuggestions(PropertySet source) {
-            this.source = source;
-        }
-
-        @Override
-        public PropertySet toPropertySet() {
-            return source;
-        }
     }
 }

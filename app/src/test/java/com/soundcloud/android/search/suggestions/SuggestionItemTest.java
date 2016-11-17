@@ -19,9 +19,9 @@ public class SuggestionItemTest {
         final SuggestionItem trackItem = forTrack(PropertySet.create(), SEARCH_QUERY);
         final SuggestionItem userItem = forUser(PropertySet.create(), SEARCH_QUERY);
 
-        assertThat(searchItem.getKind()).isEqualTo(Kind.SearchItem);
-        assertThat(trackItem.getKind()).isEqualTo(Kind.TrackItem);
-        assertThat(userItem.getKind()).isEqualTo(Kind.UserItem);
+        assertThat(searchItem.kind()).isEqualTo(Kind.SearchItem);
+        assertThat(trackItem.kind()).isEqualTo(Kind.TrackItem);
+        assertThat(userItem.kind()).isEqualTo(Kind.UserItem);
     }
 
 }

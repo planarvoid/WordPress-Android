@@ -7,11 +7,8 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,10 +18,9 @@ import android.view.View;
 import android.widget.NumberPicker;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
-public class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult, SuggestionItem> {
+public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<SuggestionItem>, SuggestionItem> {
 
     public interface SuggestionListener {
         void onScrollChanged();
@@ -36,50 +32,10 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
         void onUserClicked(Urn userUrn);
     }
 
-    private Func1<SuggestionsResult, List<SuggestionItem>> toPresentationModels(final String searchQuery) {
-        return new Func1<SuggestionsResult, List<SuggestionItem>>() {
-            @Override
-            public List<SuggestionItem> call(SuggestionsResult suggestionsResult) {
-                final List<SuggestionItem> itemList = new ArrayList<>(localSuggestionResult.size() + remoteSuggestionResult
-                        .size() + 1);
-                itemList.add(SuggestionItem.forSearch(searchQuery));
-                addSuggestionItemsToList(localSuggestionResult, itemList, searchQuery);
-                addSuggestionItemsToList(remoteSuggestionResult, itemList, searchQuery);
-                return itemList;
-            }
-
-            private void addSuggestionItemsToList(SuggestionsResult searchResult,
-                                                  List<SuggestionItem> itemList,
-                                                  String searchQuery) {
-                for (PropertySet propertySet : searchResult.getItems()) {
-                    final Urn urn = propertySet.get(SearchSuggestionProperty.URN);
-                    if (urn.isTrack()) {
-                        itemList.add(SuggestionItem.forTrack(propertySet, searchQuery));
-                    } else if (urn.isUser()) {
-                        itemList.add(SuggestionItem.forUser(propertySet, searchQuery));
-                    }
-                }
-            }
-        };
-    }
-
-    private Action1<SuggestionsResult> cacheSuggestionsResults = new Action1<SuggestionsResult>() {
-        @Override
-        public void call(SuggestionsResult suggestionsResult) {
-            if (suggestionsResult.isLocal()) {
-                localSuggestionResult = suggestionsResult;
-            } else {
-                remoteSuggestionResult = suggestionsResult;
-            }
-        }
-    };
-
     private final SuggestionsAdapter adapter;
     private final SearchSuggestionOperations operations;
 
-    private CollectionBinding<SuggestionsResult, SuggestionItem> collectionBinding;
-    private SuggestionsResult localSuggestionResult = SuggestionsResult.emptyLocal();
-    private SuggestionsResult remoteSuggestionResult = SuggestionsResult.emptyRemote();
+    private CollectionBinding<List<SuggestionItem>, SuggestionItem> collectionBinding;
     private SuggestionListener suggestionListener;
     private String searchQuery;
 
@@ -105,7 +61,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     }
 
     @Override
-    protected CollectionBinding<SuggestionsResult, SuggestionItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<SuggestionItem>, SuggestionItem> onBuildBinding(Bundle fragmentArgs) {
         return createCollection(Strings.EMPTY);
     }
 
@@ -114,15 +70,15 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private CollectionBinding<SuggestionsResult, SuggestionItem> createCollection(String query) {
+    private CollectionBinding<List<SuggestionItem>, SuggestionItem> createCollection(String query) {
         return CollectionBinding
-                .from(buildCollectionBinding(query), toPresentationModels(query))
+                .from(buildCollectionBinding(query))
                 .withAdapter(adapter)
                 .build();
     }
 
-    private Observable<SuggestionsResult> buildCollectionBinding(String query) {
-        return operations.suggestionsFor(query).doOnNext(cacheSuggestionsResults);
+    private Observable<List<SuggestionItem>> buildCollectionBinding(String query) {
+        return operations.suggestionsFor(query);
     }
 
     void showSuggestionsFor(String query) {
@@ -144,9 +100,9 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     protected void onItemClicked(View view, int position) {
         final SuggestionItem item = adapter.getItem(position);
         if (suggestionListener != null) {
-            switch (item.getKind()) {
+            switch (item.kind()) {
                 case SearchItem:
-                    suggestionListener.onSearchClicked(item.getQuery());
+                    suggestionListener.onSearchClicked(item.query());
                     break;
                 case TrackItem:
                     suggestionListener.onTrackClicked(item.getUrn());
@@ -155,7 +111,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
                     suggestionListener.onUserClicked(item.getUrn());
                     break;
                 default:
-                    throw new IllegalArgumentException("Unhandled clicked item kind " + item.getKind());
+                    throw new IllegalArgumentException("Unhandled clicked item kind " + item.kind());
             }
         }
     }
@@ -170,7 +126,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     }
 
     @VisibleForTesting
-    CollectionBinding<SuggestionsResult, SuggestionItem> getCollectionBinding() {
+    CollectionBinding<List<SuggestionItem>, SuggestionItem> getCollectionBinding() {
         return collectionBinding;
     }
 }

@@ -31,7 +31,7 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerVie
 
     @Override
     public int getBasicItemViewType(int position) {
-        switch (getItem(position).getKind()) {
+        switch (getItem(position).kind()) {
             case SearchItem:
                 return TYPE_SEARCH;
             case TrackItem:
@@ -39,7 +39,7 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerVie
             case UserItem:
                 return TYPE_USER;
             default:
-                throw new IllegalArgumentException("Unhandled suggestion item kind " + getItem(position).getKind());
+                throw new IllegalArgumentException("Unhandled suggestion item kind " + getItem(position).kind());
         }
     }
 

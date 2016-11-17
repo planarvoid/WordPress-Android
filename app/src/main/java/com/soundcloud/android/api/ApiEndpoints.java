@@ -28,6 +28,7 @@ public enum ApiEndpoints {
     SEARCH_PLAYLISTS_WITHOUT_ALBUMS("/search/playlists_without_albums"),
     SEARCH_ALL("/search/universal"),
     SEARCH_SUGGESTIONS("/search/suggest"),
+    SEARCH_AUTOCOMPLETE("/search/autocomplete"),
 
     // search premium content
     SEARCH_PREMIUM_TRACKS("/search/tracks/premium_content"),
