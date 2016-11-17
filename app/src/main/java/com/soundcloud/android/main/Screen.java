@@ -37,13 +37,13 @@ public enum Screen {
     ONBOARDING_FACEBOOK("onboarding:facebook"),
 
     // your own profile
-    YOUR_POSTS("you:posts"),
-    YOUR_INFO("you:info"),
-    YOUR_PLAYLISTS("you:playlists"),
-    YOUR_LIKES("you:likes"),
-    YOUR_FOLLOWINGS("you:followings"),
-    YOUR_FOLLOWERS("you:followers"),
-    YOUR_MAIN("you:main"),
+    YOUR_POSTS("user:posts"),
+    YOUR_INFO("user:info"),
+    YOUR_PLAYLISTS("user:playlists"),
+    YOUR_LIKES("user:likes"),
+    YOUR_FOLLOWINGS("user:followings"),
+    YOUR_FOLLOWERS("user:followers"),
+    YOUR_MAIN("user:main"),
 
     // other user's profiles
     USER_HEADER("users:header"),

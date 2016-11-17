@@ -15,7 +15,7 @@ expected_events:
     action: play
     client_id: '3152'
     anonymous_id: (\w|-)+
-    page_name: you:likes
+    page_name: user:likes
     user: soundcloud:users:107904111
     connection_type: wifi
     playhead_position: '[0-9]+'
@@ -40,7 +40,7 @@ expected_events:
     player_type: Skippy
     action: pause
     client_id: '3152'
-    page_name: you:likes
+    page_name: user:likes
     user: soundcloud:users:107904111
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
