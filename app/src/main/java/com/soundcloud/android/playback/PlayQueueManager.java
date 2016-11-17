@@ -22,6 +22,7 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -226,6 +227,7 @@ public class PlayQueueManager implements OriginProvider {
             int nextExplicitPosition = nextExplicitPositionFromCurrent();
             for (int i = 0; i < trackUrns.size(); i++) {
                 TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i))
+                        .fromSource(DiscoverySource.PLAY_NEXT.value(), Strings.EMPTY)
                         .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                         .build();
                 playQueue.insertPlayQueueItem(nextExplicitPosition + i, queueItem);
@@ -241,6 +243,7 @@ public class PlayQueueManager implements OriginProvider {
         if (!playQueue.isEmpty()) {
             int nextExplicitPosition = nextExplicitPositionFromCurrent();
             TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn)
+                    .fromSource(DiscoverySource.PLAY_NEXT.value(), Strings.EMPTY)
                     .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                     .build();
             playQueue.insertPlayQueueItem(nextExplicitPosition, queueItem);

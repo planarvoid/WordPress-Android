@@ -19,6 +19,8 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -165,7 +167,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnPlayNextStartsPlaybackWhenQueueIsEmpty() {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlayNext(screenProvider.getLastScreenTag());
         when(menuItem.getItemId()).thenReturn(R.id.play_next);
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
@@ -195,6 +197,20 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(activity, view, trackItem, 0);
 
         verify(popupMenuWrapper).setItemEnabled(R.id.play_next, false);
+    }
+
+    @Test
+    public void clickingOnPlayNextPublishesTrackingEvent() {
+        when(menuItem.getItemId()).thenReturn(R.id.play_next);
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
+
+        presenter.show(activity, view, trackItem, 0);
+        presenter.onMenuItemClick(menuItem, context);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_NEXT);
+        assertThat(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(trackItem.getUrn().toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(SCREEN);
     }
 
     private TrackItem createTrackItem() {

@@ -1234,6 +1234,24 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.insertNext(playlistUrns);
 
         assertThat(playQueueManager.getUpcomingPlayQueueItems(5)).isEqualTo(playlistUrns);
+
+        playQueueManager.moveToNextPlayableItem();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo()
+                                       .getSource()).isEqualTo(DiscoverySource.PLAY_NEXT.value());
+    }
+
+    @Test
+    public void insertMultipleUrnsSetsSource() {
+        final List<Urn> playlistUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final List<Urn> tracksUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrns, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(playlistUrns);
+        playQueueManager.moveToNextPlayableItem();
+
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getSource())
+                .isEqualTo(DiscoverySource.PLAY_NEXT.value());
     }
 
     @Test
@@ -1285,6 +1303,20 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.insertNext(nextTrackUrn);
 
         assertThat(playQueueManager.getNextPlayQueueItem().getUrn()).isEqualTo(nextTrackUrn);
+    }
+
+    @Test
+    public void insertNextSetsSource() {
+        final Urn nextTrackUrn = Urn.forTrack(100L);
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(nextTrackUrn);
+        playQueueManager.moveToNextPlayableItem();
+
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getSource())
+                .isEqualTo(DiscoverySource.PLAY_NEXT.value());
     }
 
     @Test

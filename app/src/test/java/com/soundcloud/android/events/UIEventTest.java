@@ -1149,6 +1149,19 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.get(UIEvent.KEY_PLAY_QUEUE_REPEAT_MODE)).isEqualTo(RepeatMode.REPEAT_ALL.get());
     }
 
+    @Test
+    public void shouldCreateEventFromPlayNext() {
+        final EventContextMetadata eventContextMetadata = EventContextMetadata.builder().build();
+        final String screen = Screen.STREAM.get();
+        final Urn urn = Urn.forTrack(123L);
+
+        final UIEvent uiEvent = UIEvent.fromPlayNext(urn, screen, eventContextMetadata);
+
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAY_NEXT);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(urn.toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(screen);
+    }
+
     private EventContextMetadata.Builder eventContextBuilder() {
         return eventContextNoInvokerScreen().invokerScreen("invoker_screen");
     }

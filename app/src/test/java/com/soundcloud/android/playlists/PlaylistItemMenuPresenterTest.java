@@ -21,6 +21,8 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.PlayableTrackingKeys;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -54,6 +56,7 @@ import java.util.List;
 
 public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
+    public static final String SCREEN = "some tag";
     @Mock private Context context;
     @Mock private FragmentActivity activity;
     @Mock private PlaylistOperations playlistOperations;
@@ -82,7 +85,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     private PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
     private OverflowMenuOptions menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
 
-
     @Before
     public void setUp() throws Exception {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
@@ -97,7 +99,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.<PropertySet>empty());
 
-        when(screenProvider.getLastScreenTag()).thenReturn("some tag");
+        when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         presenter = new PlaylistItemMenuPresenter(context,
                                                   eventBus,
                                                   playlistOperations,
@@ -183,10 +185,10 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                                         .invokerScreen(ScreenElement.LIST.get())
                                                                         .build();
 
-            verify(shareOperations).share(context,
-                                          playlist.getSource().get(PlayableProperty.PERMALINK_URL),
-                                          eventContextMetadata, null,
-                                          EntityMetadata.from(playlist.getSource()));
+        verify(shareOperations).share(context,
+                                      playlist.getSource().get(PlayableProperty.PERMALINK_URL),
+                                      eventContextMetadata, null,
+                                      EntityMetadata.from(playlist.getSource()));
     }
 
     @Test
@@ -294,6 +296,19 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.handlePlayNext();
 
         verify(playQueueHelper, times(1)).playNext(any(Urn.class));
+    }
+
+    @Test
+    public void clickingOnPlayNextShouldPublishTrackingEvent() {
+        when(menuItem.getItemId()).thenReturn(R.id.play_next);
+
+        presenter.show(button, playlist, menuOptions);
+        presenter.handlePlayNext();
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_NEXT);
+        assertThat(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(playlist.getUrn().toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(SCREEN);
     }
 
 }

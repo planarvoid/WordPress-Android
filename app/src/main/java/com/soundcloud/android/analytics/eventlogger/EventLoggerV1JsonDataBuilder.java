@@ -73,6 +73,7 @@ class EventLoggerV1JsonDataBuilder {
 
     static final String FOLLOW_ADD = "follow::add";
     static final String FOLLOW_REMOVE = "follow::remove";
+    static final String PLAY_NEXT = "play_next";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -364,6 +365,8 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("track_in_play_queue::remove_undo", event));
             case UIEvent.KIND_PLAY_QUEUE_REPEAT:
                 return transform(buildRepeatClickEvent(event));
+            case UIEvent.KIND_PLAY_NEXT:
+                return transform(buildEngagementEvent(PLAY_NEXT, event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }

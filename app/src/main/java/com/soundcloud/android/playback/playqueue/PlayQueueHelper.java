@@ -24,7 +24,8 @@ public class PlayQueueHelper {
     private final Func1<List<Urn>, Observable<PlaybackResult>> playTracks = new Func1<List<Urn>, Observable<PlaybackResult>>() {
         @Override
         public Observable<PlaybackResult> call(List<Urn> tracks) {
-            return playbackInitiator.playTracks(tracks, 0, new PlaySessionSource(screenProvider.getLastScreenTag()));
+            final String screen = screenProvider.getLastScreenTag();
+            return playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screen));
         }
     };
 
@@ -70,7 +71,6 @@ public class PlayQueueHelper {
             final List<Urn> trackUrns = playlist.getTracksUrn();
             playQueueManager.insertNext(trackUrns);
         }
-
     }
 
 }

@@ -113,6 +113,12 @@ public class PlaySessionSource implements Parcelable {
         return playSessionSource;
     }
 
+    public static PlaySessionSource forPlayNext(String screen) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.discoverySource = DiscoverySource.PLAY_NEXT;
+        return playSessionSource;
+    }
+
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         exploreVersion = in.readString();

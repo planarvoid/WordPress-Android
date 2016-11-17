@@ -59,6 +59,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_PLAY_QUEUE_TRACK_REMOVE = "play_queue_track_remove";
     public static final String KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO = "play_queue_track_remove_undo";
     public static final String KIND_PLAY_QUEUE_REPEAT = "play_queue_repeat";
+    public static final String KIND_PLAY_NEXT = "play_next";
 
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
@@ -283,6 +284,13 @@ public final class UIEvent extends TrackingEvent {
     public static UIEvent fromPlayQueueRepeat(Screen screen, PlayQueueManager.RepeatMode repeatMode) {
         return new UIEvent(KIND_PLAY_QUEUE_REPEAT).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get())
                                                   .put(KEY_PLAY_QUEUE_REPEAT_MODE, repeatMode.get());
+    }
+
+    public static UIEvent fromPlayNext(Urn urn, String lastScreen, EventContextMetadata eventContextMetadata) {
+        return new UIEvent(KIND_PLAY_NEXT)
+                .putEventContextMetadata(eventContextMetadata)
+                .put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, urn.toString())
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, lastScreen);
     }
 
     private static String getNotNullOriginScreen(@Nullable TrackSourceInfo trackSourceInfo) {

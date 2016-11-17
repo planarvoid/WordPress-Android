@@ -137,6 +137,9 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     public void handlePlayNext() {
         playQueueHelper.playNext(playlistUrn);
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayNext(playlistUrn,
+                                                                   screenProvider.getLastScreenTag(),
+                                                                   getEventContextMetadata()));
     }
 
     private static FragmentManager toFragmentManager(Context context) {

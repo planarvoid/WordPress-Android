@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
@@ -259,13 +260,17 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void playNext(Urn trackUrn) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
+        final String lastScreen = screenProvider.getLastScreenTag();
+
         if (playQueueManager.isQueueEmpty()) {
+            final PlaySessionSource playSessionSource = PlaySessionSource.forPlayNext(lastScreen);
             playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
                              .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         } else {
             playQueueManager.insertNext(trackUrn);
         }
+
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayNext(trackUrn, lastScreen, eventContextMetadata));
     }
 
     private void handleShare(Context context) {

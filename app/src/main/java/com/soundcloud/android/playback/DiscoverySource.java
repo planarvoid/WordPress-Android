@@ -10,6 +10,7 @@ public enum DiscoverySource {
     STATIONS_SUGGESTIONS("stations:suggestions"),
     HISTORY("history"),
     RECENTLY_PLAYED("recently_played"),
+    PLAY_NEXT("play_next"),
     RECOMMENDATIONS("personal-recommended");
 
     private String value;

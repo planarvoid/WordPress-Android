@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.FOLLOW_ADD;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.PLAY_NEXT;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Matchers.eq;
@@ -1680,6 +1681,29 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .clickName("track_in_play_queue::remove_undo")
                                                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+    }
+
+    @Test
+    public void createsPlayNextJson() throws Exception {
+        final Urn urn = Urn.forTrack(123L);
+        final Integer position = 0;
+        final Module module = Module.create(Module.STREAM, position);
+        final EventContextMetadata eventContextMetadata =
+                EventContextMetadata.builder()
+                                    .contextScreen("screen")
+                                    .pageName(PAGE_NAME)
+                                    .module(module)
+                                    .build();
+
+        UIEvent event = UIEvent.fromPlayNext(urn, PAGE_NAME, eventContextMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName(PLAY_NEXT)
+                                               .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                                               .clickObject(urn.toString())
+                                               .pageName(PAGE_NAME));
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
