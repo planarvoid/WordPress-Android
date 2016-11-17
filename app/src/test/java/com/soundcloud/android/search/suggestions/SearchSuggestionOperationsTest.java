@@ -175,7 +175,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
                                                                                       Maps.<String, Link>newHashMap(),
                                                                                       QUERY_URN);
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
-                .withQueryParam("q", SEARCH_QUERY)
+                .withQueryParam("query", SEARCH_QUERY)
                 .withQueryParam("limit", String.valueOf(MAX_RESULTS_NUMBER));
 
         when(apiClientRx.mappedResponse(argThat(requestMatcher), Matchers.<TypeToken<ModelCollection<Autocompletion>>>any()))

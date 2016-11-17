@@ -1,5 +1,6 @@
 package com.soundcloud.android.search.suggestions;
 
+import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Iterables.transform;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
@@ -42,7 +43,7 @@ class SearchSuggestionOperations {
                     for (ApiSearchSuggestion input : apiSearchSuggestions.getCollection()) {
                         if (input.getTrack().isPresent()) {
                             result.add(SuggestionItem.forTrack(input.toPropertySet(), input.getQuery()));
-                        } else if (input.getUser().isPresent()){
+                        } else if (input.getUser().isPresent()) {
                             result.add(SuggestionItem.forUser(input.toPropertySet(), input.getQuery()));
                         }
                     }
@@ -79,10 +80,7 @@ class SearchSuggestionOperations {
     private final Func2<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>> ACCUMULATE_RESULTS = new Func2<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>>() {
         @Override
         public List<SuggestionItem> call(List<SuggestionItem> first, List<SuggestionItem> second) {
-            final List<SuggestionItem> result = new ArrayList<>(first.size() + second.size());
-            result.addAll(first);
-            result.addAll(second);
-            return result;
+            return newArrayList(concat(first, second));
         }
     };
 
@@ -100,10 +98,9 @@ class SearchSuggestionOperations {
     }
 
     Observable<List<SuggestionItem>> suggestionsFor(String query) {
-        return localSuggestions(query)
-                .concatWith(remoteSuggestions(query))
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                .scan(ACCUMULATE_RESULTS);
+        return Observable.concatEager(localSuggestions(query), remoteSuggestions(query))
+                         .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                         .scan(ACCUMULATE_RESULTS);
     }
 
     private Observable<List<SuggestionItem>> localSuggestions(String query) {
@@ -172,28 +169,26 @@ class SearchSuggestionOperations {
     private Observable<List<SuggestionItem>> getAutocompletions(String query) {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
-                          .addQueryParam("q", query)
+                          .addQueryParam("query", query)
                           .addQueryParam("limit", MAX_SUGGESTIONS_NUMBER)
                           .forPrivateApi()
                           .build();
 
         return apiClientRx.mappedResponse(request, autocompletionTypeToken)
-                          .map(new Func1<ModelCollection<Autocompletion>, List<SuggestionItem>>() {
-                              @Override
-                              public List<SuggestionItem> call(ModelCollection<Autocompletion> autocompletions) {
-                                  return newArrayList(transform(autocompletions.getCollection(),
-                                                                autocompletionToSuggestionItem(autocompletions.getQueryUrn())));
-                              }
-                          })
-                          .doOnError(new Action1<Throwable>() {
-                              @Override
-                              public void call(Throwable throwable) {
-                                  throwable.printStackTrace();
-                              }
-                          })
+                          .map(collectionToSuggestionItem())
                           .onErrorResumeNext(Observable.<List<SuggestionItem>>empty())
                           .filter(RxUtils.IS_NOT_EMPTY_LIST)
                           .subscribeOn(scheduler);
+    }
+
+    private Func1<ModelCollection<Autocompletion>, List<SuggestionItem>> collectionToSuggestionItem() {
+        return new Func1<ModelCollection<Autocompletion>, List<SuggestionItem>>() {
+            @Override
+            public List<SuggestionItem> call(ModelCollection<Autocompletion> autocompletions) {
+                return newArrayList(transform(autocompletions.getCollection(),
+                                              autocompletionToSuggestionItem(autocompletions.getQueryUrn())));
+            }
+        };
     }
 
     private static Function<? super Autocompletion, SuggestionItem> autocompletionToSuggestionItem(final Optional<Urn> queryUrn) {
