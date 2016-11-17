@@ -30,7 +30,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 101;
+    public static final int DATABASE_VERSION = 102;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -338,6 +338,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 101:
                             success = upgradeTo101(db, oldVersion);
+                            break;
+                        case 102:
+                            success = upgradeTo102(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1299,6 +1302,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 101);
+        }
+        return false;
+    }
+
+    /**
+     * Fix migration of RecommendedPlaylistBucket Table
+     */
+    private boolean upgradeTo102(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable(Tables.RecommendedPlaylistBucket.TABLE.name(), db);
+            db.execSQL(Tables.RecommendedPlaylistBucket.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 102);
         }
         return false;
     }
