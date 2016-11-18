@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
@@ -11,7 +12,6 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
@@ -21,11 +21,6 @@ import android.util.Log;
 import java.io.IOException;
 
 public class GooglePlusSignInTask extends LoginTask {
-    //Workaround since this key does not exist anymore in Google Service 9.8.0
-    //We should get rid of this when when kill sign in legacy code
-    @VisibleForTesting
-    static final String KEY_REQUEST_VISIBLE_ACTIVITIES = "request_visible_actions";
-
     private static final String ADD_ACTIVITY = "http://schemas.google.com/AddActivity";
     private static final String CREATE_ACTIVITY = "http://schemas.google.com/CreateActivity";
     private static final String LISTEN_ACTIVITY = "http://schemas.google.com/ListenActivity";
@@ -50,7 +45,7 @@ public class GooglePlusSignInTask extends LoginTask {
         this.accountName = accountName;
         this.scope = scope;
         extras = new Bundle();
-        extras.putString(KEY_REQUEST_VISIBLE_ACTIVITIES, TextUtils.join(" ", REQUEST_ACTIVITIES));
+        extras.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES, TextUtils.join(" ", REQUEST_ACTIVITIES));
     }
 
     @Override
