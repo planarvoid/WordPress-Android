@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -46,6 +47,7 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -178,14 +180,44 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     private void assertSwipeEvent(UIEvent uiEvent) {
-        UIEvent event = uiEvent;
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForSkip");
+        when(dataBuilderv1.buildForUIEvent(uiEvent)).thenReturn("ForSkip");
 
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+        eventLoggerAnalyticsProvider.handleTrackingEvent(uiEvent);
 
         verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForSkip");
+    }
+
+    @Test
+    public void shouldTrackInteractionEventWhenIsInteractionEvent() {
+        when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(true);
+
+        final UIEvent event = UIEvent.fromSystemSkip();
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        when(dataBuilderv1.isInteractionEvent(event)).thenReturn(true);
+        when(dataBuilderv1.buildForInteractionEvent(event)).thenReturn("holistic tracking");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
+        final TrackingRecord record = captor.getAllValues().get(1);
+        assertThat(record.getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(record.getData()).isEqualTo("holistic tracking");
+    }
+
+    @Test
+    public void shouldNotTrackInteractionEvent() {
+        when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(true);
+        final UIEvent event = UIEvent.fromSystemSkip();
+
+        when(dataBuilderv1.isInteractionEvent(event)).thenReturn(false);
+        when(dataBuilderv1.buildForInteractionEvent(event)).thenReturn("holistic tracking");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(any(TrackingRecord.class));
     }
 
     @Test

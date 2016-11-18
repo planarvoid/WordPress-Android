@@ -382,6 +382,21 @@ class EventLoggerV1JsonDataBuilder {
         }
     }
 
+    boolean isInteractionEvent(UIEvent event) {
+        switch (event.getKind()) {
+            case UIEvent.KIND_SHARE:
+            case UIEvent.KIND_REPOST:
+            case UIEvent.KIND_UNREPOST:
+            case UIEvent.KIND_LIKE:
+            case UIEvent.KIND_UNLIKE:
+            case UIEvent.KIND_FOLLOW:
+            case UIEvent.KIND_UNFOLLOW:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     String buildForInteractionEvent(UIEvent event) {
         switch (event.getKind()) {
             case UIEvent.KIND_SHARE:

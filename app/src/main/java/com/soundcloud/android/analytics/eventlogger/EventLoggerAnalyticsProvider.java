@@ -153,20 +153,13 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SHARE:
             case UIEvent.KIND_FOLLOW:
             case UIEvent.KIND_UNFOLLOW:
-            case UIEvent.KIND_SWIPE_SKIP:
-            case UIEvent.KIND_SYSTEM_SKIP:
-            case UIEvent.KIND_BUTTON_SKIP:
             case UIEvent.KIND_PLAYER_OPEN:
             case UIEvent.KIND_PLAYER_CLOSE:
             case UIEvent.KIND_PLAY_QUEUE_OPEN:
             case UIEvent.KIND_PLAY_QUEUE_CLOSE:
-                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
-
-                if (featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)) {
-                    trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForInteractionEvent(event));
-                }
-
-                break;
+            case UIEvent.KIND_SWIPE_SKIP:
+            case UIEvent.KIND_SYSTEM_SKIP:
+            case UIEvent.KIND_BUTTON_SKIP:
             case UIEvent.KIND_NAVIGATION:
             case UIEvent.KIND_SHUFFLE:
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
@@ -184,6 +177,10 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             default:
                 // no-op, ignoring certain types
                 break;
+        }
+
+        if (featureFlags.isEnabled(Flag.HOLISTIC_TRACKING) && dataBuilderV1.get().isInteractionEvent(event)) {
+            trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForInteractionEvent(event));
         }
     }
 
