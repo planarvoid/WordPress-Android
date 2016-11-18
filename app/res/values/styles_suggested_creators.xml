@@ -26,6 +26,7 @@
     <style name="SuggestedCreators.Card">
         <item name="android:clipChildren">false</item>
         <item name="android:clipToPadding">true</item>
+        <item name="cardPreventCornerOverlap">false</item>
         <item name="cardCornerRadius">2dp</item>
         <item name="cardElevation">0dp</item>
     </style>
