@@ -8,7 +8,8 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
+import com.soundcloud.android.screens.elements.StreamCardElement;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
@@ -25,32 +26,34 @@ public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testClickingToggleRepostPlaylistFromOverflowMenu() {
-        PlaylistItemOverflowMenu playlistItemOverflowMenu =
-                streamScreen.clickFirstPlaylistOverflowButton();
-
-        boolean reposted = playlistItemOverflowMenu.isReposted();
-        playlistItemOverflowMenu.toggleRepost();
-
-        assertThat(streamScreen, is(visible()));
-
-        final String repostToastMessage = getRepostToastMessage(reposted);
-        assertTrue("Did not observe a toast with a message: " + repostToastMessage,
-                   waiter.expectToastWithText(toastObserver, repostToastMessage));
+    public void testLikeAndRepostPlaylist() {
+        StreamCardElement card = streamScreen.scrollToFirstPlaylistTrackCard();
+        assertToggleLike(card);
+        assertToggleRepost(card);
     }
 
-    public void testClickingToggleLikePlaylistFromOverflowMenu() {
-        PlaylistItemOverflowMenu playlistItemOverflowMenu =
-                streamScreen.clickFirstPlaylistOverflowButton();
-
-        boolean liked = playlistItemOverflowMenu.isLiked();
-        playlistItemOverflowMenu.toggleLike();
+    private void assertToggleLike(StreamCardElement card) {
+        TrackItemMenuElement overflow = card.clickOverflowButton();
+        boolean liked = overflow.isLiked();
+        overflow.toggleLike();
 
         assertThat(streamScreen, is(visible()));
 
         final String likeToastMessage = getLikeToastMessage(liked);
         assertTrue("Did not observe a toast with a message: " + likeToastMessage,
                    waiter.expectToastWithText(toastObserver, likeToastMessage));
+    }
+
+    private void assertToggleRepost(StreamCardElement card) {
+        TrackItemMenuElement overflow = card.clickOverflowButton();
+        boolean reposted = overflow.isReposted();
+        overflow.toggleRepost();
+
+        assertThat(streamScreen, is(visible()));
+
+        final String repostToastMessage = getRepostToastMessage(reposted);
+        assertTrue("Did not observe a toast with a message: " + repostToastMessage,
+                   waiter.expectToastWithText(toastObserver, repostToastMessage));
     }
 
     @Override

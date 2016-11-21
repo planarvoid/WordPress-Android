@@ -32,9 +32,6 @@ public class EmptyStreamTest extends ActivityTest<MainActivity> {
     public void testShowsEmptyStreamScreen() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         assertTrue(streamScreen.emptyView().isVisible());
-    }
-
-    public void testClickOnPeopleToFollowOpensSearch() {
         assertThat(streamScreen.clickOnFindPeopleToFollow(), is(visible()));
     }
 }

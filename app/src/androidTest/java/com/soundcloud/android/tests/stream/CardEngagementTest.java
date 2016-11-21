@@ -37,10 +37,42 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
         streamUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testClickingToggleRepostFromCard() {
+    public void testStreamItemActions() {
         startEventTracking();
 
+        // Scroll to item
         StreamCardElement track = streamScreen.scrollToFirstNotPromotedTrackCard();
+
+        assertLikeTrack(track);
+        assertRepostTrack(track);
+        assertClickOnAvatarAndGoBack(track);
+        assertClickOnNameAndGoBack(track);
+        assertAddToPlaylist(track);
+
+        // TODO: 02/11/16 verify tracking
+    }
+
+    private void assertAddToPlaylist(StreamCardElement track) {
+        final AddToPlaylistScreen addToPlaylistScreen = track.clickOverflowButton()
+                .clickAddToPlaylist();
+
+        assertThat(addToPlaylistScreen, is(visible()));
+    }
+
+    private void assertClickOnNameAndGoBack(StreamCardElement track) {
+        ProfileScreen profileScreen = track.clickArtistName();
+        assertThat(profileScreen, is(visible()));
+        profileScreen.goBack();
+    }
+
+    private void assertClickOnAvatarAndGoBack(StreamCardElement track) {
+        ProfileScreen profileScreen = track.clickUserAvatar();
+        assertThat(profileScreen, is(visible()));
+        profileScreen.goBack();
+    }
+
+    private void assertRepostTrack(StreamCardElement track) {
+        startEventTracking();
         boolean reposted = track.isReposted();
 
         track.toggleRepost();
@@ -58,14 +90,11 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
         // toggle from overflow
         TrackItemMenuElement menuElement = track.clickOverflowButton();
         menuElement.toggleRepost();
-
         finishEventTracking(REPOST_ENGAGEMENTS_FROM_STREAM);
     }
 
-    public void testClickingToggleLikeFromCard() {
+    private void assertLikeTrack(StreamCardElement track) {
         startEventTracking();
-
-        StreamCardElement track = streamScreen.scrollToFirstNotPromotedTrackCard();
         boolean liked = track.isLiked();
 
         track.clickOverflowButton().toggleLike();
@@ -81,28 +110,7 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
 
         track.toggleLike();
         assertThat(track.isLiked(), is(liked));
-
         finishEventTracking(LIKE_ENGAGEMENTS_FROM_STREAM);
-    }
-
-    public void testClickingUserAvatarGoesToUserProfile() {
-        ProfileScreen profileScreen = streamScreen.scrollToFirstNotPromotedTrackCard().clickUserAvatar();
-
-        assertThat(profileScreen, is(visible()));
-    }
-
-    public void testClickingArtistNameGoToArtistProfile() {
-        ProfileScreen profileScreen = streamScreen.scrollToFirstNotPromotedTrackCard().clickArtistName();
-
-        assertThat(profileScreen, is(visible()));
-    }
-
-    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
-        final AddToPlaylistScreen addToPlaylistScreen = streamScreen
-                .clickFirstTrackCardOverflowButton()
-                .clickAddToPlaylist();
-
-        assertThat(addToPlaylistScreen, is(visible()));
     }
 
     private String getRepostToastMessage(boolean reposted) {

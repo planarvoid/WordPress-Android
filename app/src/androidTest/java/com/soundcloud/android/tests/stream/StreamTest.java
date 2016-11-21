@@ -39,18 +39,10 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testStreamContainsItems() {
-        assertThat(streamScreen.getItemCount(), is(greaterThan(0)));
-    }
-
     public void testStreamLoadsNextPage() {
         int itemsBeforePaging = streamScreen.getItemCount();
         streamScreen.scrollToBottomOfPage();
         assertThat(streamScreen.getItemCount(), is(greaterThan(itemsBeforePaging)));
-    }
-
-    public void testStreamHasRepostedItems() {
-        assertThat(new StreamScreen(solo).clickFirstRepostedTrack(), is(expanded()));
     }
 
     public void testPlayAndPauseTrackFromStream() {
@@ -59,6 +51,7 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
         final VisualPlayerElement playerElement =
                 streamScreen.clickFirstRepostedTrack();
 
+        assertThat(playerElement, is(expanded()));
         assertThat(playerElement, Is.is(visible()));
         assertThat(playerElement, Is.is(playing()));
 
@@ -66,7 +59,27 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
 
         assertThat(playerElement, Is.is(not(playing())));
 
-        finishEventTracking(TEST_SCENARIO_STREAM);
+        // Like
+        ViewElement likeButton = playerElement.likeButton();
+        likeButton.click();
+        likeButton.click();
+
+        finishEventTracking(LIKE_TRACK_PLAYING_FROM_STREAM);
+
+        playerElement.pressBackToCollapse();
+
+        startEventTracking();
+
+        final VisualPlayerElement playerElement2 =
+                streamScreen.clickFirstRepostedTrack();
+
+        // Repost
+        playerElement2.clickMenu().toggleRepost();
+        // fake wait, so that the snackbar with reposted message disappears
+        playerElement2.playForFiveSeconds();
+        playerElement2.clickMenu().toggleRepost();
+
+        finishEventTracking(REPOST_TRACK_PLAYING_FROM_STREAM);
     }
 
     public void testPlayAndPausePlaylistTrackFromStream() {
@@ -83,39 +96,5 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
         assertThat(playerElement, Is.is(not(playing())));
 
         finishEventTracking(TEST_SCENARIO_STREAM_PLAYLIST);
-    }
-
-    public void testLikePlayingTrackFromStream() {
-        startEventTracking();
-
-        VisualPlayerElement visualPlayerElement = streamScreen.scrollToFirstNotPromotedTrackCard().clickToPlay();
-        assertTrue(visualPlayerElement.isExpandedPlayerPlaying());
-
-        ViewElement likeButton = visualPlayerElement.likeButton();
-        // toggle
-        likeButton.click();
-
-        // and untoggle
-        likeButton.click();
-
-        finishEventTracking(LIKE_TRACK_PLAYING_FROM_STREAM);
-    }
-
-    public void testRepostPlayingTrackFromStream() {
-        startEventTracking();
-
-        VisualPlayerElement visualPlayerElement = streamScreen.scrollToFirstRepostedTrack().clickToPlay();
-        assertTrue(visualPlayerElement.isExpandedPlayerPlaying());
-
-        // toggle
-        visualPlayerElement.clickMenu().toggleRepost();
-
-        // fake wait, so that the snackbar with reposted message disappears
-        visualPlayerElement.playForFiveSeconds();
-
-        // and untoggle
-        visualPlayerElement.clickMenu().toggleRepost();
-
-        finishEventTracking(REPOST_TRACK_PLAYING_FROM_STREAM);
     }
 }
