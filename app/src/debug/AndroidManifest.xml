@@ -34,7 +34,7 @@
             android:exported="false" />
 
         <!-- FirebaseInstanceIdService performs security checks at runtime, no need for explicit permissions despite exported="true" -->
-        <service
+        <service tools:ignore="ExportedService"
             android:name="com.google.firebase.iid.FirebaseInstanceIdService"
             android:exported="true" >
             <intent-filter android:priority="-500" tools:node="remove">
