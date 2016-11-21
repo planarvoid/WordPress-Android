@@ -161,6 +161,22 @@ public class UpgradeFunnelEventTest {
     }
 
     @Test
+    public void createsEventForPlaylistOverflowImpression() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forPlaylistOverflowImpression(PLAYLIST_URN);
+
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_PLAYLIST_OVERFLOW);
+    }
+
+    @Test
+    public void createsEventForPlaylistOverflowClick() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forPlaylistOverflowClick(PLAYLIST_URN);
+
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_PLAYLIST_OVERFLOW);
+    }
+
+    @Test
     public void createsEventForStreamUpsellImpression() {
         UpgradeFunnelEvent event = UpgradeFunnelEvent.forStreamImpression();
 

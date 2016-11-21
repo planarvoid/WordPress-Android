@@ -329,6 +329,15 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldOpenUpgradeScreenWhenClickingOnOverflowUpsell() {
+        setPlaylistInfo();
+
+        presenter.onOverflowUpsell(getContext());
+
+        verify(navigator).openUpgrade(getContext());
+    }
+
+    @Test
     public void shouldUpdateOfflineAvailabilityOnMarkedForOfflineChange() {
         setPlaylistInfo();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);

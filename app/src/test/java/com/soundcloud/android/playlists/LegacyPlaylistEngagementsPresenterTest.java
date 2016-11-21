@@ -280,6 +280,15 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldOpenUpgradeScreenWhenClickingOnOverflowUpsell() {
+        presenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+
+        presenter.onOverflowUpsell(fragmentRule.getActivity());
+
+        verify(navigator).openUpgrade(fragmentRule.getActivity());
+    }
+
+    @Test
     public void shouldBeAbleToUnsubscribeThenResubscribeToChangeEvents() {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
 

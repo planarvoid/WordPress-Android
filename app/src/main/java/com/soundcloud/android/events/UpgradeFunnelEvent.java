@@ -21,6 +21,7 @@ public final class UpgradeFunnelEvent extends TrackingEvent {
     public static final String ID_SEARCH_RESULTS_GO = "search_go";
     public static final String ID_PLAYLIST_ITEM = "playlist_item";
     public static final String ID_PLAYLIST_PAGE = "playlist_page";
+    public static final String ID_PLAYLIST_OVERFLOW = "playlist_overflow";
     public static final String ID_STREAM = "stream";
     public static final String ID_PLAYLIST_TRACKS = "playlist_tracks";
     public static final String ID_UPGRADE_BUTTON = "upgrade_button";
@@ -130,6 +131,18 @@ public final class UpgradeFunnelEvent extends TrackingEvent {
 
     public static UpgradeFunnelEvent forPlaylistPageClick(Urn playlistUrn) {
         return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_PAGE)
+                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get())
+                .put(KEY_PAGE_URN, playlistUrn.toString());
+    }
+
+    public static UpgradeFunnelEvent forPlaylistOverflowImpression(Urn playlistUrn) {
+        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYLIST_OVERFLOW)
+                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get())
+                .put(KEY_PAGE_URN, playlistUrn.toString());
+    }
+
+    public static UpgradeFunnelEvent forPlaylistOverflowClick(Urn playlistUrn) {
+        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_OVERFLOW)
                 .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get())
                 .put(KEY_PAGE_URN, playlistUrn.toString());
     }

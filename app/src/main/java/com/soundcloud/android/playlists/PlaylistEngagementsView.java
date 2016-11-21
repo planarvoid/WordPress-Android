@@ -120,6 +120,9 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     @OnClick(R.id.playlist_details_overflow_button)
     void onOverflowButtonClicked() {
         menu.show();
+        if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
+            listener.onOverflowUpsellImpression();
+        }
     }
 
     public void onDestroyView() {
@@ -266,7 +269,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
                 getListener().onEditPlaylist();
                 return true;
             case R.id.upsell_offline_content:
-                getListener().onUpsell(context);
+                getListener().onOverflowUpsell(context);
                 return true;
             case R.id.make_offline_available:
                 getListener().onMakeOfflineAvailable(true);
@@ -329,6 +332,10 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
 
         void onUpsell(Context context);
+
+        void onOverflowUpsell(Context context);
+
+        void onOverflowUpsellImpression();
 
         void onPlayShuffled();
 

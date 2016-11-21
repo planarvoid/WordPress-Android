@@ -297,6 +297,18 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     }
 
     @Override
+    public void onOverflowUpsell(Context context) {
+        navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING,
+                UpgradeFunnelEvent.forPlaylistOverflowClick(playlistHeaderItem.getUrn()));
+    }
+
+    @Override
+    public void onOverflowUpsellImpression() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(playlistHeaderItem.getUrn()));
+    }
+
+    @Override
     public void onPlayShuffled() {
         if (playlistHeaderItem != null) {
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistHeaderItem.getUrn());

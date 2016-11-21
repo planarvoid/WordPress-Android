@@ -161,7 +161,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         playlistEngagementsView.onDestroyView();
     }
 
-    public void setPlaylistPresenter(PlaylistPresenter playlistPresenter) {
+    void setPlaylistPresenter(PlaylistPresenter playlistPresenter) {
         this.playlistPresenter = playlistPresenter;
     }
 
@@ -334,6 +334,17 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onUpsell(Context context) {
         navigator.openUpgrade(context);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(headerItem.getUrn()));
+    }
+
+    @Override
+    public void onOverflowUpsell(Context context) {
+        navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(headerItem.getUrn()));
+    }
+
+    @Override
+    public void onOverflowUpsellImpression() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(headerItem.getUrn()));
     }
 
     @Override

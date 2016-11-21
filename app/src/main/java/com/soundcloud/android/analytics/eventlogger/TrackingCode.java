@@ -15,6 +15,7 @@ class TrackingCode {
     private static final int UPSELL_SEARCH_RESULTS = 1025;
     private static final int UPSELL_SEARCH_PREMIUM_RESULTS = 1026;
     private static final int UPSELL_PLAYLIST_TRACKS = 1042;
+    private static final int UPSELL_PLAYLIST_OVERFLOW = 1048;
     private static final int UPGRADE_BUTTON = 3002;
     private static final int RESUBSCRIBE_BUTTON = 4002;
     private static final int UPGRADE_PROMO = 4007;
@@ -49,6 +50,8 @@ class TrackingCode {
                 return toUrn(RESUBSCRIBE_BUTTON);
             case UpgradeFunnelEvent.ID_UPGRADE_PROMO:
                 return toUrn(UPGRADE_PROMO);
+            case UpgradeFunnelEvent.ID_PLAYLIST_OVERFLOW:
+                return toUrn(UPSELL_PLAYLIST_OVERFLOW);
             default:
                 throw new IllegalArgumentException("Tracking event not recognised: " + eventId);
         }
