@@ -12,7 +12,7 @@ import android.support.annotation.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 
-class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> {
+class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> implements AdsCollection {
 
     public ApiAdsForTrack(@JsonProperty("collection") List<ApiAdWrapper> collection,
                           @JsonProperty("_links") Map<String, Link> links,
@@ -52,11 +52,12 @@ class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> {
         return Optional.absent();
     }
 
+    @Override
     public AdsReceived toAdsReceived() {
         final Optional<ApiAudioAd> audioAd = audioAd();
         final Optional<ApiVideoAd> videoAd = videoAd();
         final Optional<ApiInterstitial> interstitial = interstitialAd();
-        return new AdsReceived(
+        return AdsReceived.forPlayerAd(
                 videoAd.isPresent() ? videoAd.get().getAdUrn() : Urn.NOT_SET,
                 audioAd.isPresent() ? audioAd.get().getUrn() : Urn.NOT_SET,
                 interstitial.isPresent() ? interstitial.get().urn : Urn.NOT_SET

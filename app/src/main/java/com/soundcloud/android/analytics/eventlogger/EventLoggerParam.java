@@ -34,6 +34,7 @@ class EventLoggerParam {
 
     // monetization params
     static final String AD_URN = "ad_urn";
+    static final String AD_DELIVERED = "ad_delivered";
     static final String EXTERNAL_MEDIA = "external_media";
     static final String MONETIZATION_TYPE = "monetization_type";
     static final String MONETIZED_OBJECT = "monetized_object";

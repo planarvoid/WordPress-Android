@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdsController.AdRequestData;
+import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
@@ -134,8 +134,8 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         verify(adsOperations).ads(requestDataCaptor.capture(), anyBoolean(), anyBoolean());
         final AdRequestData requestData = requestDataCaptor.getValue();
-        assertThat(requestData.monetizableTrackUrn).isEqualTo(nextTrackUrn);
-        assertThat(requestData.kruxSegments).isEqualTo(Optional.of("123,321"));
+        assertThat(requestData.getMonetizableTrackUrn()).isEqualTo(Optional.of(nextTrackUrn));
+        assertThat(requestData.getKruxSegments()).isEqualTo(Optional.of("123,321"));
     }
 
     @Test
@@ -779,7 +779,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         @Override
         public boolean matches(Object argument) {
             return argument instanceof AdRequestData
-                    && ((AdRequestData) argument).monetizableTrackUrn.equals(trackUrn);
+                    && ((AdRequestData) argument).getMonetizableTrackUrn().equals(Optional.of(trackUrn));
         }
     }
 }

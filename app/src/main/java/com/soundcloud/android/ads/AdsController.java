@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
+import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
@@ -41,7 +42,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
@@ -89,7 +89,7 @@ public class AdsController {
             new Func2<PropertySet, Optional<String>, AdRequestData>() {
                 @Override
                 public AdRequestData call(PropertySet track, Optional<String> kruxSegments) {
-                    return new AdRequestData(track.get(TrackProperty.URN), kruxSegments);
+                    return AdRequestData.forPlayerAd(track.get(TrackProperty.URN), kruxSegments);
                 }
             };
 
@@ -122,7 +122,7 @@ public class AdsController {
     private final Func1<AdRequestData, Observable<ApiAdsForTrack>> fetchAds = new Func1<AdRequestData, Observable<ApiAdsForTrack>>() {
         @Override
         public Observable<ApiAdsForTrack> call(AdRequestData adRequestData) {
-            adRequestIds.put(adRequestData.monetizableTrackUrn, adRequestData.requestId);
+            adRequestIds.put(adRequestData.getMonetizableTrackUrn().get(), adRequestData.getRequestId());
             return adsOperations.ads(adRequestData, isPlayerVisible, isForeground);
         }
     };
@@ -235,7 +235,10 @@ public class AdsController {
             final Optional<AdData> nextTrackAdData = adsOperations.getNextTrackAdData();
             final Urn selectedAdUrn = nextTrackAdData.isPresent() ? nextTrackAdData.get().getAdUrn() : Urn.NOT_SET;
             eventBus.publish(EventQueue.TRACKING,
-                             AdDeliveryEvent.adDelivered(monetizableUrn, selectedAdUrn, adRequestIds.get(monetizableUrn), isPlayerVisible, isForeground)
+                             AdDeliveryEvent.adDelivered(Optional.of(monetizableUrn),
+                                                         selectedAdUrn,
+                                                         adRequestIds.get(monetizableUrn),
+                                                         isPlayerVisible, isForeground)
             );
         }
     }
@@ -413,19 +416,6 @@ public class AdsController {
 
         public boolean hasExpired() {
             return System.currentTimeMillis() - createdAtMillis > fetchOperationStaleTime;
-        }
-    }
-
-    protected static class AdRequestData {
-        final String requestId;
-        final Urn monetizableTrackUrn;
-        final Optional<String> kruxSegments;
-
-        AdRequestData(Urn monetizableTrackUrn,
-                      Optional<String> kruxSegments) {
-            this.requestId = UUID.randomUUID().toString();
-            this.monetizableTrackUrn = monetizableTrackUrn;
-            this.kruxSegments = kruxSegments;
         }
     }
 }

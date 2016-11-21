@@ -4,8 +4,8 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.ads.AdsController.AdRequestData;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -37,6 +37,7 @@ import javax.inject.Named;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class AdsOperations {
 
@@ -76,40 +77,45 @@ public class AdsOperations {
     }
 
     public Observable<ApiAdsForTrack> ads(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
-        final Urn sourceUrn = requestData.monetizableTrackUrn;
+        final Urn sourceUrn = requestData.getMonetizableTrackUrn().get();
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
-
-        final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi()
-                .addQueryParam(AdConstants.CORRELATOR_PARAM, requestData.requestId);
-
-        if (requestData.kruxSegments.isPresent()) {
-            request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, requestData.kruxSegments.get());
-        }
-
-        return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
+        return apiClientRx.mappedResponse(buildApiRequest(endpoint, requestData), ApiAdsForTrack.class)
                           .subscribeOn(scheduler)
                           .doOnError(onRequestFailure(requestData, endpoint, playerVisible, inForeground))
                           .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
     }
 
-    public Observable<List<AppInstallAd>> inlaysAds() {
+    public Observable<List<AppInstallAd>> inlaysAds(AdRequestData requestData) {
         if (featureFlags.isEnabled(Flag.APP_INSTALLS)) {
-            final ApiRequest.Builder request = ApiRequest.get(ApiEndpoints.INLAY_ADS.path()).forPrivateApi();
-            return apiClientRx.mappedResponse(request.build(), ApiAdsForStream.class)
+            final String endpoint = ApiEndpoints.INLAY_ADS.path();
+            final ApiRequest request = buildApiRequest(endpoint, requestData);
+            return apiClientRx.mappedResponse(request, ApiAdsForStream.class)
                               .subscribeOn(scheduler)
+                              .doOnError(onRequestFailure(requestData, endpoint, false, true))
+                              .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
                               .map(GET_APP_INSTALLS);
         }
         return Observable.just(Collections.<AppInstallAd>emptyList());
     }
 
-    private Action1<? super ApiAdsForTrack> onRequestSuccess(final AdRequestData requestData, final String endpoint,
-                                                             final boolean playerVisible, final boolean inForeground) {
-        return new Action1<ApiAdsForTrack>() {
-            @Override
-            public void call(ApiAdsForTrack apiAds) {
-                Log.i(ADS_TAG, "Retrieved ads for " + requestData.monetizableTrackUrn + ": " + apiAds.contentString());
-                logRequestSuccess(apiAds, requestData, endpoint, playerVisible, inForeground);
+    private ApiRequest buildApiRequest(String endpoint, AdRequestData requestData) {
+        final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi()
+                .addQueryParam(AdConstants.CORRELATOR_PARAM, requestData.getRequestId());
 
+        if (requestData.getKruxSegments().isPresent()) {
+            request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, requestData.getKruxSegments().get());
+        }
+
+        return request.build();
+    }
+
+    private Action1<AdsCollection> onRequestSuccess(final AdRequestData requestData, final String endpoint,
+                                                    final boolean playerVisible, final boolean inForeground) {
+        return new Action1<AdsCollection>() {
+            @Override
+            public void call(AdsCollection apiAds) {
+                Log.i(ADS_TAG, "Retrieved ads via " + endpoint + ": " + apiAds.contentString());
+                logRequestSuccess(apiAds, requestData, endpoint, playerVisible, inForeground);
             }
         };
     }
@@ -119,13 +125,13 @@ public class AdsOperations {
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                Log.i(ADS_TAG, "Failed to retrieve ads for " + requestData.monetizableTrackUrn, throwable);
+                Log.i(ADS_TAG, "Failed to retrieve ads via " + endpoint, throwable);
                 if (throwable instanceof ApiRequestException && ((ApiRequestException) throwable).reason() == NOT_FOUND) {
                     final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
                     logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
                 } else {
-                    eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestFailure(requestData.requestId,
-                                                                                          requestData.monetizableTrackUrn,
+                    eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestFailure(requestData.getRequestId(),
+                                                                                          requestData.getMonetizableTrackUrn(),
                                                                                           endpoint,
                                                                                           playerVisible,
                                                                                           inForeground));
@@ -134,10 +140,10 @@ public class AdsOperations {
         };
     }
 
-    private void logRequestSuccess(final ApiAdsForTrack apiAds, final AdRequestData requestData,
+    private void logRequestSuccess(final AdsCollection apiAds, final AdRequestData requestData,
                                    final String endpoint, final boolean playerVisible, final boolean inForeground) {
-        eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestSuccess(requestData.requestId,
-                                                                              requestData.monetizableTrackUrn,
+        eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestSuccess(requestData.getRequestId(),
+                                                                              requestData.getMonetizableTrackUrn(),
                                                                               endpoint,
                                                                               apiAds.toAdsReceived(),
                                                                               playerVisible,
@@ -253,4 +259,25 @@ public class AdsOperations {
         return playQueueManager.getNextPlayQueueItem().getAdData();
     }
 
+    @AutoValue
+    public static abstract class AdRequestData {
+
+        private static AdRequestData create(Optional<Urn> monetizableTrackUrn, Optional<String> kruxSegments)  {
+            return new AutoValue_AdsOperations_AdRequestData(UUID.randomUUID().toString(), monetizableTrackUrn, kruxSegments);
+        }
+
+        static AdRequestData forPlayerAd(Urn monetizableTrackUrn, Optional<String> kruxSegments) {
+            return create(Optional.of(monetizableTrackUrn), kruxSegments);
+        }
+
+        static AdRequestData forStreamAds(Optional<String> kruxSegments) {
+            return create(Optional.<Urn>absent(), kruxSegments);
+        }
+
+        public abstract String getRequestId();
+
+        public abstract Optional<Urn> getMonetizableTrackUrn();
+
+        public abstract Optional<String> getKruxSegments();
+    }
 }

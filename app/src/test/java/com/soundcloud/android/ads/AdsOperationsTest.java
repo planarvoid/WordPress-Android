@@ -12,11 +12,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ads.AdsController.AdRequestData;
+import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -29,7 +31,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -56,8 +59,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private KruxSegmentProvider kruxSegmentProvider;
     @Mock private ApiClientRx apiClientRx;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
+
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
@@ -99,7 +103,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        final AdRequestData requestData = new AdRequestData(TRACK_URN, Optional.of("123,321"));
+        final AdRequestData requestData = AdRequestData.forPlayerAd(TRACK_URN, Optional.of("123,321"));
         adsOperations.ads(requestData, true, true).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
@@ -113,11 +117,43 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        final AdRequestData requestData = new AdRequestData(TRACK_URN, Optional.<String>absent());
+        final AdRequestData requestData = AdRequestData.forPlayerAd(TRACK_URN, Optional.<String>absent());
         adsOperations.ads(requestData, true, true).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForTrack.class));
+
+        assertThat(captor.getValue().getQueryParameters().keySet()).doesNotContain("krux_segments");
+    }
+
+    @Test
+    public void kruxSegmentsAddedToStreamAdsRequestEndpoint() {
+        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(true);
+        when(apiClientRx
+                .mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
+                .thenReturn(Observable.just(fullAdsForStream));
+
+        final AdRequestData requestData = AdRequestData.forStreamAds(Optional.of("123,321"));
+        adsOperations.inlaysAds(requestData).subscribe();
+
+        ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForStream.class));
+
+        assertThat(captor.getValue().getQueryParameters().get("krux_segments")).contains("123,321");
+    }
+
+    @Test
+    public void kruxSegmentsNotAddedToStreamAdsRequestEndpointIfNoneExist() {
+        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(true);
+        when(apiClientRx
+                .mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
+                .thenReturn(Observable.just(fullAdsForStream));
+
+        final AdRequestData requestData = AdRequestData.forStreamAds(Optional.<String>absent());
+        adsOperations.inlaysAds(requestData).subscribe();
+
+        ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForStream.class));
 
         assertThat(captor.getValue().getQueryParameters().keySet()).doesNotContain("krux_segments");
     }
@@ -128,7 +164,20 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
                 .thenReturn(Observable.just(fullAdsForStream));
 
-        assertThat(adsOperations.inlaysAds().toBlocking().first()).isEqualTo(fullAdsForStream.getAppInstalls());
+        final AdRequestData requestData = AdRequestData.forStreamAds(Optional.<String>absent());
+        assertThat(adsOperations.inlaysAds(requestData).toBlocking().first()).isEqualTo(fullAdsForStream.getAppInstalls());
+    }
+
+    @Test
+    public void inlayAdsEmitsAdRequestEventOnSuccessfulResponse() {
+        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(true);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
+                .thenReturn(Observable.just(fullAdsForStream));
+
+        final AdRequestData requestData = AdRequestData.forStreamAds(Optional.<String>absent());
+        adsOperations.inlaysAds(requestData).subscribe();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdRequestEvent.AD_REQUEST_SUCCESS_KIND);
     }
 
     @Test
@@ -137,7 +186,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
                 .thenReturn(Observable.just(fullAdsForStream));
 
-        assertThat(adsOperations.inlaysAds().toBlocking().first()).isEmpty();
+        final AdRequestData requestData = AdRequestData.forStreamAds(Optional.<String>absent());
+        assertThat(adsOperations.inlaysAds(requestData).toBlocking().first()).isEmpty();
     }
 
     @Test
@@ -146,7 +196,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        final AdRequestData requestData = new AdRequestData(TRACK_URN, Optional.<String>absent());
+        final AdRequestData requestData = AdRequestData.forPlayerAd(TRACK_URN, Optional.<String>absent());
         assertThat(adsOperations.ads(requestData, true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 

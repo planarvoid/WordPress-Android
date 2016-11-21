@@ -55,6 +55,8 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -569,7 +571,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAdDeliveryEvents() {
-        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123),
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Optional.of(Urn.forTrack(123)),
                                                             Urn.forAd("dfp", "321"),
                                                             "abc-def-ghi",
                                                             false,
@@ -585,9 +587,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAdRequestEvents() {
-        AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
+        AdsReceived adsReceived = AdsReceived.forPlayerAd(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
         AdRequestEvent event = AdRequestEvent.adRequestSuccess("abc-def-ghi",
-                                                               Urn.forTrack(123),
+                                                               Optional.of(Urn.forTrack(123)),
                                                                "endpoint",
                                                                adsReceived,
                                                                false,

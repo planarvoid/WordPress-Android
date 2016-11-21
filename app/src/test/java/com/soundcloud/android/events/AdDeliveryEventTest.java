@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ public class AdDeliveryEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventForAdDelivery() {
-        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN,
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Optional.of(TRACK_URN),
                                                             VIDEO_AD_URN,
                                                             "uuid",
                                                             false,

@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ADS_RECEIVED;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_DELIVERED;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_ENDPOINT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_SUCCESS;
@@ -123,6 +124,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData adUrn(String adUrn) {
         addToPayload(AD_URN, adUrn);
+        return this;
+    }
+
+    public EventLoggerEventData adDelivered(String adUrn) {
+        addToPayload(AD_DELIVERED, adUrn);
         return this;
     }
 

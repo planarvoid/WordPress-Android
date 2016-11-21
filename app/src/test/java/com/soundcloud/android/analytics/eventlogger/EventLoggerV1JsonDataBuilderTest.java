@@ -838,7 +838,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonFromAdDeliveryEvent() throws ApiMapperException {
-        final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN,
+        final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Optional.of(TRACK_URN),
                                                                   AD_URN,
                                                                   "abc-def-ghi",
                                                                   false,
@@ -848,7 +848,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
                                                .clientEventId(event.getId())
-                                               .adUrn(AD_URN.toString())
+                                               .adDelivered(AD_URN.toString())
                                                .monetizedObject(TRACK_URN.toString())
                                                .inForeground(true)
                                                .playerVisible(false)
@@ -857,9 +857,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonFromAdRequestSuccessEvent() throws ApiMapperException {
-        final AdsReceived adsReceived = new AdsReceived(AD_URN, Urn.NOT_SET, Urn.NOT_SET);
+        final AdsReceived adsReceived = AdsReceived.forPlayerAd(AD_URN, Urn.NOT_SET, Urn.NOT_SET);
         final AdRequestEvent event = AdRequestEvent.adRequestSuccess("abc-def-ghi",
-                                                                     TRACK_URN,
+                                                                     Optional.of(TRACK_URN),
                                                                      "endpoint",
                                                                      adsReceived,
                                                                      true,
@@ -882,7 +882,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromAdRequestFailureEvent() throws ApiMapperException {
         final AdRequestEvent event = AdRequestEvent.adRequestFailure("abc-def-ghi",
-                                                                     TRACK_URN,
+                                                                     Optional.of(TRACK_URN),
                                                                      "endpoint",
                                                                      true,
                                                                      false);

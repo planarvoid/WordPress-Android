@@ -127,7 +127,7 @@ class EventLoggerV1JsonDataBuilder {
                                  .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                                  .playerVisible(event.playerVisible)
                                  .inForeground(event.inForeground)
-                                 .adUrn(event.adUrn.toString()));
+                                 .adDelivered(event.adUrn.toString()));
     }
 
     String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
