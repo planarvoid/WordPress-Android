@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.matcher.element.IsVisible;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -34,6 +35,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
     }
 
+    @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
         final ViewElement offlineToggle = mainNavHelper.goToTrackLikes()
                                                        .offlineToggle();
@@ -41,6 +43,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         assertThat(offlineToggle, is(not(visible())));
     }
 
+    @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
                                                      .clickPlaylistsPreview()
@@ -50,6 +53,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         assertThat(offlineItem, is(not(visible())));
     }
 
+    @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
                                                      .clickPlaylistsPreview()
