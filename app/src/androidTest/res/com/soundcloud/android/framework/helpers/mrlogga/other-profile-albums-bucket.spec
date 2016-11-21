@@ -11,4 +11,4 @@ expected_events:
     app_version: '[0-9]+'
     connection_type: wifi
   version: '1'
-whitelisted_events: all
+whitelisted_events: pageview
