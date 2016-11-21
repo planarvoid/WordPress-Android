@@ -1,5 +1,8 @@
 package com.soundcloud.android.profile;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
@@ -37,8 +40,13 @@ public class ProfileActivity extends PlayerActivity {
 
     @Override
     protected void setActivityContentView() {
-        baseLayoutHelper.createActionBarLayout(this, featureFlags.isEnabled(Flag.PROFILE_BANNER) ?
-                                                     R.layout.profile : R.layout.profile_no_banner);
+        baseLayoutHelper.createActionBarLayout(this, canShowProfileBanner()
+                                                     ? R.layout.profile
+                                                     : R.layout.profile_no_banner);
+    }
+
+    private boolean canShowProfileBanner() {
+        return SDK_INT >= JELLY_BEAN_MR2 && featureFlags.isEnabled(Flag.PROFILE_BANNER);
     }
 
     static Urn getUserUrnFromIntent(Intent intent) {

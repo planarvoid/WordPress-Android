@@ -1,5 +1,7 @@
 package com.soundcloud.android.profile;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWERS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWINGS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_INFO;
@@ -27,7 +29,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -85,7 +86,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
 
-        if (activity.findViewById(R.id.profile_banner) != null && Build.VERSION.SDK_INT >= 16) {
+        if (activity.findViewById(R.id.profile_banner) != null && SDK_INT >= JELLY_BEAN_MR2) {
             activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                                                                      | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
