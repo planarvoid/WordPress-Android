@@ -692,9 +692,13 @@
   <string name="conversion_page_title">S\'abonner</string>
   <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mois</string>
+  <string name="conversion_price_promo">%1$s pour %2$s</string>
+  <string name="conversion_headline">Écoutez hors connexion et sans publicité</string>
+  <string name="conversion_plus">Plus :</string>
+  <string name="conversion_feature_1">Accédez à plus de 135 millions de titres : le catalogue de streaming audio et musical le plus vaste au monde.</string>
+  <string name="conversion_feature_2">Plus d\'aperçu : écoutez l\'intégralité des titres SoundCloud Go à tout moment</string>
   <string name="conversion_buy_loading">Chargement…</string>
-  <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Essai gratuit pendant %d jours
-</string>
+  <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Démarrez votre essai gratuit de %d jours</string>
   <string name="conversion_buy_no_trial">Abonnez-vous maintenant</string>
   <string name="conversion_buy_promo">Bénéficiez de cette offre à durée limitée</string>
   <string name="conversion_more_plans">Afficher davantage d\'abonnements</string>
@@ -705,8 +709,8 @@
   <string name="conversion_restrictions">Des restrictions s\'appliquent</string>
   <string name="conversion_restrictions_promo">Des restrictions s\'appliquent, %s après</string>
   <string name="conversion_restrictions_dialog_title">Des restrictions s\'appliquent</string>
-  <string name="conversion_restrictions_message_trial">Offre limitée à une version d\'essai de %1$d jours par utilisateur. Après les %2$d premiers jours, l\'utilisateur sera débité mensuellement sauf en cas d\'annulation antérieure. La version d\'essai peut être annulée à tout moment pendant les %3$d premiers jours. \n\nLes résidents du Québec au Canada ne sont pas éligibles aux versions d\'essai en raison de restrictions locales.</string>
-  <string name="conversion_restrictions_message_no_trial">Vous avez déjà utilisé votre version d\'essai gratuite ou êtes un résident du Québec et n\'êtes donc pas éligible à la version d\'essai en raison de restrictions locales.n\nEn achetant SoundCloud Go, vous serez débité tous les mois du montant normal en cours sauf en cas d\'annulation avant la prochaine date de renouvellement.</string>
+  <string name="conversion_restrictions_message_trial">Offre limitée à une version d\'essai de %1$d jours par utilisateur. Après les %2$d premiers jours, l\'abonnement est renouvelé automatiquement sauf en cas d\'annulation avant la fin de l\'essai de %3$d jours. L\'abonnement peut être annulé à tout moment sur soundcloud.com. \n\nLes résidents du Québec au Canada ne sont pas éligibles aux versions d\'essai en raison de restrictions locales.</string>
+  <string name="conversion_restrictions_message_no_trial">Vous avez déjà utilisé votre période d\'essai gratuit ou vous habitez au Québec et n\'êtes pas éligible à une période d\'essai en raison de restrictions locales. \n\nEn optant pour SoundCloud Go, vous serez facturé du montant normal mensuel (taxes de vente locales applicables comprises) à moins d\'avoir résilié votre abonnement avant votre prochaine date de renouvellement.</string>
   <string name="conversion_restrictions_message_promo">L\'offre est uniquement disponible pour les utilisateurs qui n\'ont pas bénéficié de la version d\'essai. Les %1$s premiers jours d\'abonnement pour un total de %2$s. Si l\'utilisateur n\'annule pas son abonnement avant la fin de ces %1$s jours, l\'abonnement sera renouvelé automatiquement tous les mois pour un montant de %3$s/mois jusqu\'à annulation de la part de l\'utilisateur.\n\nL\'absence de publicités consiste à supprimer les expériences auditives et visuelles entre les titres.</string>
   <string name="ads_why_ads_upsell_dialog_message">À chaque fois que vous voyez ou entendez une publicité, les artistes touchent des revenus. Les publicités nous permettent ainsi de conserver la gratuité de  SoundCloud pour nos auditeurs.\n\nVous souhaitez vous débarrasser des publicités ? Passez à un abonnement sans publicités et continuez à soutenir vos artistes préférés avec SoundCloud Go.</string>
   <!--__PAYMENTS-->
@@ -876,6 +880,10 @@
   <string name="concurrent_streaming_stopped">Mis en pause car vous avez commencé la lecture sur un autre appareil</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Non disponible dans\nvotre pays</string>
+  <string name="playback_upsell_1">Plus d\'aperçu et des titres complets</string>
+  <string name="playback_upsell_2">Obtenez l\'intégralité des titres, hors connexion et sans publicité</string>
+  <string name="playback_upsell_button">Abonnez-vous maintenant</string>
+  <string name="playback_upsell_button_trial">Abonnez-vous maintenant</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">%1$d résultat SoundCloud Go trouvé</item>
