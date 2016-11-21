@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<merge xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
 
     <ImageView style="@style/GoOffboarding.Background"
         android:src="@drawable/go_onboarding_1" />
@@ -59,4 +61,4 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="20dp" />
     </RelativeLayout>
-</merge>
+</RelativeLayout>
