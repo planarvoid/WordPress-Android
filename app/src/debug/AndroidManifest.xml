@@ -1,4 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.soundcloud.android">
     <uses-permission android:name="com.android.vending.BILLING" />
+    <application tools:ignore="AllowBackup">
+
+        <!--Disable Firebase in our debug builds-->
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+
+        <service
+            android:name=".gcm.GcmInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter tools:node="remove">
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.soundcloud.android.debug" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Internal (not exported) receiver used by the app to start its own exported services without risk of being spoofed.-->
+        <receiver tools:node="remove"
+            android:name="com.google.firebase.iid.FirebaseInstanceIdInternalReceiver"
+            android:exported="false" />
+
+        <!-- FirebaseInstanceIdService performs security checks at runtime, no need for explicit permissions despite exported="true" -->
+        <service
+            android:name="com.google.firebase.iid.FirebaseInstanceIdService"
+            android:exported="true" >
+            <intent-filter android:priority="-500" tools:node="remove">
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+    </application>
 </manifest>
