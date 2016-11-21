@@ -608,8 +608,7 @@
   <string name="collections_remove_filters">Quitar filtros</string>
   <string name="collections_loading_error">Hubo un problema al cargar tu colección.\nInténtalo de nuevo más tarde.</string>
   <string name="collections_options_toggle_offline">Sin conexión</string>
-  <string name="collections_with_stations_onboarding_title">Tus Me gusta, tus listas, tus álbumes y tus emisoras.\nTodo en el mismo lugar.</string>
-  <string name="collections_without_stations_onboarding_title">Tus me gusta. Tus listas.\nTodo en el mismo lugar.</string>
+  <string name="collections_onboarding_title">Tus Me gusta, tus listas, tus álbumes y tus emisoras.\nTodo en el mismo lugar.</string>
   <string name="collections_onboarding_description">Bienvenido a tu nueva colección, un solo destino para tus pistas.</string>
   <string name="collections_play_history_header">Historial de reproducciones</string>
   <string name="collections_play_history_clear_action">Borrar historial de reproducciones</string>

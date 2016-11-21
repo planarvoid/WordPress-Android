@@ -656,8 +656,7 @@
     <string name="collections_remove_filters">Clear filters</string>
     <string name="collections_loading_error">There was a problem loading your collection.\nTry again later</string>
     <string name="collections_options_toggle_offline">Offline</string>
-    <string name="collections_with_stations_onboarding_title">Your likes, playlists, albums and stations.\nAll in one place.</string>
-    <string name="collections_without_stations_onboarding_title">Your likes. Your playlists.\nAll in one place.</string>
+    <string name="collections_onboarding_title">Your likes, playlists, albums and stations.\nAll in one place.</string>
     <string name="collections_onboarding_description">Welcome to your new collection, a single destination for your sounds.</string>
     <string name="collections_play_history_header">Listening history</string>
     <string name="collections_play_history_clear_action">Clear listening history</string>
@@ -677,6 +676,9 @@
     <string name="collections_recently_played_playlist">playlist</string>
     <string name="collections_recently_played_album">album</string>
     <string name="collections_recently_played_profile">profile</string>
+    <string name="collections_upsell_title">Save your collection offline</string>
+    <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums, offline and ad-free.</string>
+    <string name="collections_upsell_button">Learn more</string>
 
     <string name="collections_recently_played_clear_action">Clear recently played</string>
     <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>

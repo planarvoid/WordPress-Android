@@ -14,27 +14,27 @@ import javax.inject.Inject;
 public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder> {
 
     private final OnboardingItemCellRenderer onboardingItemCellRenderer;
+    private final UpsellItemCellRenderer upsellItemCellRenderer;
     private final PlayHistoryBucketRenderer playHistoryBucketRenderer;
     private final RecentlyPlayedBucketRenderer recentlyPlayedBuckerRenderer;
 
     @Inject
-    public CollectionAdapter(OnboardingItemCellRenderer onboardingItemCellRenderer,
-                             CollectionPreviewRenderer collectionPreviewRenderer,
-                             RecentlyPlayedBucketRenderer recentlyPlayedBucketRenderer,
-                             PlayHistoryBucketRenderer playHistoryBucketRenderer) {
+    CollectionAdapter(OnboardingItemCellRenderer onboardingItemCellRenderer,
+                      UpsellItemCellRenderer upsellItemCellRenderer,
+                      CollectionPreviewRenderer collectionPreviewRenderer,
+                      RecentlyPlayedBucketRenderer recentlyPlayedBucketRenderer,
+                      PlayHistoryBucketRenderer playHistoryBucketRenderer) {
         super(
                 new CellRendererBinding<>(CollectionItem.TYPE_ONBOARDING, onboardingItemCellRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_UPSELL, upsellItemCellRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PREVIEW, collectionPreviewRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_BUCKET, recentlyPlayedBucketRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_BUCKET, playHistoryBucketRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
+        this.upsellItemCellRenderer = upsellItemCellRenderer;
         this.playHistoryBucketRenderer = playHistoryBucketRenderer;
         this.recentlyPlayedBuckerRenderer = recentlyPlayedBucketRenderer;
 
-    }
-
-    void setOnboardingListener(OnboardingItemCellRenderer.Listener listener) {
-        onboardingItemCellRenderer.setListener(listener);
     }
 
     @Override
@@ -49,6 +49,14 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
 
     void setTrackClickListener(TrackItemRenderer.Listener listener) {
         playHistoryBucketRenderer.setTrackClickListener(listener);
+    }
+
+    void setOnboardingListener(OnboardingItemCellRenderer.Listener listener) {
+        onboardingItemCellRenderer.setListener(listener);
+    }
+
+    void setUpsellListener(UpsellItemCellRenderer.Listener listener) {
+        upsellItemCellRenderer.setListener(listener);
     }
 
     RecentlyPlayedBucketRenderer getRecentlyPlayedBucketRenderer() {

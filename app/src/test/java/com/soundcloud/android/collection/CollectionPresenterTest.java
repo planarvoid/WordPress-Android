@@ -9,12 +9,17 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.playlists.PlaylistOptionsPresenter;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
+import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -82,6 +87,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private PlayHistoryOperations playHistoryOperations;
+    @Mock private FeatureOperations featureOperations;
+    @Mock private Navigator navigator;
 
     private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private TestEventBus eventBus = new TestEventBus();
@@ -98,7 +105,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             resources(),
                                             eventBus,
                                             expandPlayerSubscriberProvider,
-                                            playHistoryOperations);
+                                            playHistoryOperations,
+                                            featureOperations,
+                                            navigator);
     }
 
     @Test
@@ -182,18 +191,21 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSetTrackClickListeners() {
+    public void shouldSetListeners() {
         verify(adapter).setTrackClickListener(presenter);
+        verify(adapter).setOnboardingListener(presenter);
+        verify(adapter).setUpsellListener(presenter);
     }
 
     @Test
     public void shouldAddOnboardingWhenEnabled() {
         when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(true);
+        when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
 
         presenter.onCreate(fragment, null);
 
         assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
-                OnboardingCollectionItem.create(),
+                CollectionItem.OnboardingCollectionItem.create(),
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
                         MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems(), MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
@@ -215,4 +227,73 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         verify(adapter).removeItem(1);
     }
 
+    @Test
+    public void shouldAddUpsellWhenEnabledAndOnboardingDisabled() {
+        when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
+        when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(true);
+
+        presenter.onCreate(fragment, null);
+
+        assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
+                CollectionItem.UpsellCollectionItem.create(),
+                PreviewCollectionItem.forLikesPlaylistsAndStations(
+                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems(), MY_COLLECTION.getStations()),
+                RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
+                PlayHistoryBucketItem.create(PLAY_HISTORY)
+        );
+    }
+
+    @Test
+    public void shouldNotAddUpsellWhenUpgradeIsUnavailable() {
+        when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
+        when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
+
+        presenter.onCreate(fragment, null);
+
+        assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
+                PreviewCollectionItem.forLikesPlaylistsAndStations(
+                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems(), MY_COLLECTION.getStations()),
+                RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
+                PlayHistoryBucketItem.create(PLAY_HISTORY)
+        );
+    }
+
+    @Test
+    public void shouldEmitImpressionEventWhenUpsellAdded() {
+        when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
+        when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(true);
+
+        presenter.onCreate(fragment, null);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_COLLECTION);
+    }
+
+    @Test
+    public void shouldDisableUpsellWhenClosed() {
+        presenter.onUpsellClose(0);
+
+        verify(collectionOptionsStorage).disableUpsell();
+    }
+
+    @Test
+    public void shouldRemoveUpsellWhenClosed() {
+        presenter.onUpsellClose(1);
+
+        verify(adapter).removeItem(1);
+    }
+
+    @Test
+    public void shouldNavigateToConversionPageOnUpsellClick() {
+        presenter.onUpsell(context());
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_COLLECTION);
+        verify(navigator).openUpgrade(context());
+    }
 }

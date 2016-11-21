@@ -601,8 +601,7 @@
   <string name="collections_remove_filters">Filters wissen</string>
   <string name="collections_loading_error">Er is een probleem opgetreden bij het laden van je collectie.\nProbeer het later nog eens.</string>
   <string name="collections_options_toggle_offline">Offline</string>
-  <string name="collections_with_stations_onboarding_title">Jouw likes, playlists, albums en zenders.\nAllemaal op één locatie.</string>
-  <string name="collections_without_stations_onboarding_title">Jouw likes. Jouw playlists.\nAllemaal op één locatie.</string>
+  <string name="collections_onboarding_title">Jouw likes, playlists, albums en zenders.\nAllemaal op één locatie.</string>
   <string name="collections_onboarding_description">Welkom bij je nieuwe collectie, de bestemming voor al je tracks.</string>
   <string name="collections_play_history_header">Luistergeschiedenis</string>
   <string name="collections_play_history_clear_action">Luistergeschiedenis wissen</string>

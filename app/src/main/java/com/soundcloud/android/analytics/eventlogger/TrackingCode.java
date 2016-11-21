@@ -11,6 +11,7 @@ class TrackingCode {
     private static final int UPSELL_PLAYLIST_ITEM = 1011;
     private static final int UPSELL_PLAYLIST_PAGE = 1012;
     private static final int UPSELL_STREAM = 1027;
+    private static final int UPSELL_COLLECTION = 1052;
     private static final int UPSELL_PLAYER = 1017;
     private static final int UPSELL_SEARCH_RESULTS = 1025;
     private static final int UPSELL_SEARCH_PREMIUM_RESULTS = 1026;
@@ -42,6 +43,8 @@ class TrackingCode {
                 return toUrn(UPSELL_PLAYLIST_PAGE);
             case UpgradeFunnelEvent.ID_STREAM:
                 return toUrn(UPSELL_STREAM);
+            case UpgradeFunnelEvent.ID_COLLECTION:
+                return toUrn(UPSELL_COLLECTION);
             case UpgradeFunnelEvent.ID_PLAYLIST_TRACKS:
                 return toUrn(UPSELL_PLAYLIST_TRACKS);
             case UpgradeFunnelEvent.ID_UPGRADE_BUTTON:

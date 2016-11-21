@@ -1,11 +1,16 @@
 package com.soundcloud.android.collection;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.collection.CollectionItem.OnboardingCollectionItem;
+import com.soundcloud.android.collection.CollectionItem.UpsellCollectionItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -25,6 +30,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -40,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class CollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem>
-        implements TrackItemRenderer.Listener, OnboardingItemCellRenderer.Listener {
+        implements TrackItemRenderer.Listener, OnboardingItemCellRenderer.Listener, UpsellItemCellRenderer.Listener {
 
     private static final int FIXED_ITEMS = 5;
 
@@ -66,6 +72,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                     List<CollectionItem> collectionItems = buildCollectionItems(myCollection);
                     if (collectionOptionsStorage.isOnboardingEnabled()) {
                         return collectionWithOnboarding(collectionItems);
+                    } else if (featureOperations.upsellOfflineContent() && collectionOptionsStorage.isUpsellEnabled()) {
+                        return collectionWithUpsell(collectionItems);
                     } else {
                         return collectionItems;
                     }
@@ -77,6 +85,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final CollectionAdapter adapter;
     private final Resources resources;
     private final CollectionOptionsStorage collectionOptionsStorage;
+    private final FeatureOperations featureOperations;
+    private final Navigator navigator;
     private final CollectionOperations collectionOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
@@ -92,7 +102,9 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         Resources resources,
                         EventBus eventBus,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                        PlayHistoryOperations playHistoryOperations) {
+                        PlayHistoryOperations playHistoryOperations,
+                        FeatureOperations featureOperations,
+                        Navigator navigator) {
         super(swipeRefreshAttacher);
         this.collectionOperations = collectionOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -102,9 +114,12 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         this.adapter = adapter;
         this.resources = resources;
         this.collectionOptionsStorage = collectionOptionsStorage;
+        this.featureOperations = featureOperations;
+        this.navigator = navigator;
 
         adapter.setTrackClickListener(this);
         adapter.setOnboardingListener(this);
+        adapter.setUpsellListener(this);
     }
 
     @Override
@@ -162,6 +177,18 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     public void onCollectionsOnboardingItemClosed(int position) {
         collectionOptionsStorage.disableOnboarding();
         removeItem(position);
+    }
+
+    @Override
+    public void onUpsellClose(int position) {
+        collectionOptionsStorage.disableUpsell();
+        removeItem(position);
+    }
+
+    @Override
+    public void onUpsell(Context context) {
+        navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forCollectionClick());
     }
 
     @Override
@@ -239,10 +266,19 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     }
 
     private List<CollectionItem> collectionWithOnboarding(List<CollectionItem> collectionItems) {
-        List<CollectionItem> collectionItemsWithOnboarding = new ArrayList<>(collectionItems.size() + 1);
-        collectionItemsWithOnboarding.add(OnboardingCollectionItem.create());
-        collectionItemsWithOnboarding.addAll(collectionItems);
-        return collectionItemsWithOnboarding;
+        return prependItemToCollection(OnboardingCollectionItem.create(), collectionItems);
+    }
+
+    private List<CollectionItem> collectionWithUpsell(List<CollectionItem> collectionItems) {
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forCollectionImpression());
+        return prependItemToCollection(UpsellCollectionItem.create(), collectionItems);
+    }
+
+    private List<CollectionItem> prependItemToCollection(CollectionItem item, List<CollectionItem> collectionItems) {
+        List<CollectionItem> collection = new ArrayList<>(collectionItems.size() + 1);
+        collection.add(item);
+        collection.addAll(collectionItems);
+        return collection;
     }
 
     private List<CollectionItem> buildCollectionItems(MyCollection myCollection) {

@@ -601,8 +601,7 @@
   <string name="collections_remove_filters">Cancella i filtri</string>
   <string name="collections_loading_error">Si è verificato un problema nel caricamento della libreria.\nRiprovare in seguito</string>
   <string name="collections_options_toggle_offline">Offline</string>
-  <string name="collections_with_stations_onboarding_title">Preferiti, playlist, album e stazioni.\nTutto in un unico posto.</string>
-  <string name="collections_without_stations_onboarding_title">I tuoi preferiti. Le tue playlist.\nIn un unico posto.</string>
+  <string name="collections_onboarding_title">Preferiti, playlist, album e stazioni.\nTutto in un unico posto.</string>
   <string name="collections_onboarding_description">Benvenuto nella nuova libreria, un\'unica destinazione per le tue tracce.</string>
   <string name="collections_play_history_header">Cronologia ascolti</string>
   <string name="collections_play_history_clear_action">Cancella la cronologia ascolti</string>

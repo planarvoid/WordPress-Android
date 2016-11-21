@@ -11,6 +11,7 @@ import javax.inject.Named;
 
 public class CollectionOptionsStorage {
     private static final String ONBOARDING_DISABLED = "ONBOARDING_DISABLED";
+    private static final String UPSELL_DISABLED = "UPSELL_DISABLED";
 
     @VisibleForTesting
     static final String KEY_SHOW_LIKES = "showLikes";
@@ -27,6 +28,14 @@ public class CollectionOptionsStorage {
 
     public void clear() {
         preferences.edit().clear().apply();
+    }
+
+    boolean isUpsellEnabled() {
+        return !preferences.getBoolean(UPSELL_DISABLED, false);
+    }
+
+    public void disableUpsell() {
+        preferences.edit().putBoolean(UPSELL_DISABLED, true).apply();
     }
 
     boolean isOnboardingEnabled() {

@@ -610,8 +610,7 @@ vão aparecer aqui.</string>
   <string name="collections_remove_filters">Limpar filtros</string>
   <string name="collections_loading_error">Houve um problema ao carregar sua coleção.\nTente novamente mais tarde</string>
   <string name="collections_options_toggle_offline">Off-line</string>
-  <string name="collections_with_stations_onboarding_title">Suas curtidas, playlists, álbuns e estações.\nTudo em um único lugar.</string>
-  <string name="collections_without_stations_onboarding_title">Suas curtidas. Suas playlists.\nTudo em um único lugar.</string>
+  <string name="collections_onboarding_title">Suas curtidas, playlists, álbuns e estações.\nTudo em um único lugar.</string>
   <string name="collections_onboarding_description">Bem-vindo à sua nova coleção, um destino único para seus sons.</string>
   <string name="collections_play_history_header">Histórico de escuta</string>
   <string name="collections_play_history_clear_action">Limpar histórico de músicas ouvidas</string>

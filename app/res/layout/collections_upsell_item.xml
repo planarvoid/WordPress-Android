@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/page_background"
+        android:paddingBottom="12dp"
+        tools:ignore="UselessParent">
+
+        <ImageButton
+            android:id="@+id/close_button"
+            style="@style/ListItemNotificationCloseButton"
+            android:layout_alignParentRight="true" />
+
+        <ImageView
+            android:id="@+id/upsell_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:src="@drawable/offline_download"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/OnboardingListItemNotification.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/upsell_image"
+            android:layout_centerHorizontal="true"
+            android:text="@string/collections_upsell_title" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/description"
+            style="@style/OnboardingListItemNotification.Description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:layout_below="@id/title"
+            android:layout_centerHorizontal="true"
+            android:text="@string/collections_upsell_body" />
+
+        <com.soundcloud.android.view.CustomFontButton
+            android:id="@+id/upsell_button"
+            style="@style/OnboardingListItemButton"
+            android:layout_below="@id/description"
+            android:layout_centerHorizontal="true"
+            android:text="@string/collections_upsell_button" />
+
+    </RelativeLayout>
+
+</FrameLayout>

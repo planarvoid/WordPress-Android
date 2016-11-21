@@ -613,8 +613,7 @@
   <string name="collections_remove_filters">Supprimer les filtres</string>
   <string name="collections_loading_error">Un problème est survenu lors du chargement de votre collection.\nRéessayez ultérieurement</string>
   <string name="collections_options_toggle_offline">Hors connexion</string>
-  <string name="collections_with_stations_onboarding_title">Vos favoris. Vos playlists. Vos albums et stations.\nLe tout au même endroit.</string>
-  <string name="collections_without_stations_onboarding_title">Vos favoris. Vos playlists\nLe tout au même endroit.</string>
+  <string name="collections_onboarding_title">Vos favoris. Vos playlists. Vos albums et stations.\nLe tout au même endroit.</string>
   <string name="collections_onboarding_description">Bienvenue dans votre nouvelle collection, une destination unique pour tous vos titres.</string>
   <string name="collections_play_history_header">Historique d\'écoute</string>
   <string name="collections_play_history_clear_action">Effacer l\'historique d\'écoutes</string>

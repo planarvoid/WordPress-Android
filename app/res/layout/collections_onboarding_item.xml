@@ -13,7 +13,7 @@
             style="@style/OnboardingListItemNotification.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/collections_without_stations_onboarding_title" />
+            android:text="@string/collections_onboarding_title" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/description"
@@ -28,7 +28,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ok_got_it" />
-
     </LinearLayout>
 
 </LinearLayout>

@@ -610,8 +610,7 @@
   <string name="collections_remove_filters">Clear filters</string>
   <string name="collections_loading_error">There was a problem loading your collection.\nTry again later</string>
   <string name="collections_options_toggle_offline">Offline</string>
-  <string name="collections_with_stations_onboarding_title">Your likes, playlists, albums and stations.\nAll in one place.</string>
-  <string name="collections_without_stations_onboarding_title">Your likes. Your playlists.\nAll in one place.</string>
+  <string name="collections_onboarding_title">Your likes, playlists, albums and stations.\nAll in one place.</string>
   <string name="collections_onboarding_description">Welcome to your new collection, a single destination for your sounds.</string>
   <string name="collections_play_history_header">Listening history</string>
   <string name="collections_play_history_clear_action">Clear listening history</string>
