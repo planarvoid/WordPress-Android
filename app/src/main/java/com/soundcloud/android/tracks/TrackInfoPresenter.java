@@ -39,7 +39,7 @@ public class TrackInfoPresenter {
     }
 
     public void bind(View view, final PropertySet propertySet, CommentClickListener commentClickListener) {
-        setTextAndShow(view, R.id.title, propertySet.get(PlayableProperty.TITLE));
+        setTextAndShow(view, R.id.track_info_title, propertySet.get(PlayableProperty.TITLE));
         setTextAndShow(view, R.id.creator, propertySet.get(PlayableProperty.CREATOR_NAME));
 
         showView(view, R.id.description_holder);

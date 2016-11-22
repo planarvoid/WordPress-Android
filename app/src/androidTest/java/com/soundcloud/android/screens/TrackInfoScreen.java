@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -21,19 +22,19 @@ public class TrackInfoScreen extends Screen {
     }
 
     public String getTitle() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.title))).getText();
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.track_info_title))).getText();
     }
 
     public ViewElement getNoDescription() {
-        return testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.no_description));
+        return testDriver.findOnScreenElement(With.id(R.id.no_description));
     }
 
     public ViewElement getDescription() {
-        return testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.description));
+        return testDriver.findOnScreenElement(With.id(R.id.description));
     }
 
     public TrackCommentsScreen clickComments() {
-        testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.comments)).click();
+        testDriver.findOnScreenElement(With.id(R.id.comments)).click();
         return new TrackCommentsScreen(testDriver);
     }
 

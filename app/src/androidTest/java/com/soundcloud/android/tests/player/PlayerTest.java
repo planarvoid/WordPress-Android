@@ -177,7 +177,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .clickInfo()
                 .clickComments();
 
-        assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
+        assertThat(originalTitle, is(equalTo(trackCommentsScreen.getTitle())));
 
         int initialCommentsCount = trackCommentsScreen.getCommentsCount();
         trackCommentsScreen.scrollToBottomOfComments();

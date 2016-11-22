@@ -34,7 +34,7 @@
                 style="@style/TrackInfo.Text.Main.Creator" />
 
             <com.soundcloud.android.view.CustomFontTextView
-                android:id="@id/title"
+                android:id="@+id/track_info_title"
                 style="@style/TrackInfo.Text.Main.Title" />
 
             <com.soundcloud.android.view.CustomFontTextView

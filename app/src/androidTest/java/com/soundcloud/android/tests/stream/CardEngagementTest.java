@@ -48,8 +48,6 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
         assertClickOnAvatarAndGoBack(track);
         assertClickOnNameAndGoBack(track);
         assertAddToPlaylist(track);
-
-        // TODO: 02/11/16 verify tracking
     }
 
     private void assertAddToPlaylist(StreamCardElement track) {
