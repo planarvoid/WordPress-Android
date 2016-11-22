@@ -677,7 +677,7 @@
     <string name="collections_recently_played_album">album</string>
     <string name="collections_recently_played_profile">profile</string>
     <string name="collections_upsell_title">Get SoundCloud Go</string>
-    <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad-free</string>
+    <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
 
     <string name="collections_recently_played_clear_action">Clear recently played</string>
     <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
@@ -747,7 +747,7 @@
     <string name="conversion_title">SoundCloud Go</string>
     <string name="conversion_price">%s / month</string>
     <string name="conversion_price_promo">%1$s for %2$s</string>
-    <string name="conversion_headline">Listen offline and ad-free</string>
+    <string name="conversion_headline">Listen offline and ad‑free</string>
     <string name="conversion_plus">Plus:</string>
     <string name="conversion_feature_1">Get 135+ million tracks - The world’s largest music and audio streaming catalog</string>
     <string name="conversion_feature_2">No more previews - All of every SoundCloud Go track, every time</string>
@@ -765,8 +765,8 @@
     <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
     <string name="conversion_restrictions_message_trial">Offer limited to one %1$d day trial per user. After the first %2$d days, subscription renews automatically unless cancelled before the end of the %3$d day trial. Subscription may be cancelled at any time on soundcloud.com. All prices include applicable local sales taxes.\n\nResidents of Quebec, Canada are not eligible for trials due to local restrictions.</string>
     <string name="conversion_restrictions_message_no_trial">You have already used your free trial or are a resident of Quebec and are not eligible for a trial due to local restrictions.\n\nBy purchasing SoundCloud Go, you will be charged the current regular price per month (including applicable local sales taxes) unless cancelled before your next renewal date.</string>
-    <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd-free is defined by the removal of interruptive audio and visual experiences.</string>
-    <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad-free and continue to support your favorite artists with SoundCloud Go.</string>
+    <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
+    <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favorite artists with SoundCloud Go.</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>
@@ -814,7 +814,7 @@
 
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
-    <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalog and ad-free offline listening.</string>
+    <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalog and ad‑free offline listening.</string>
     <string name="go_onboarding_title_2">Play full tracks</string>
     <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud\u00A0Go.</string>
     <string name="go_onboarding_title_3">Listen offline</string>
@@ -835,7 +835,7 @@
     <!-- __GO OFFBOARDING -->
     <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
     <!-- Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving." -->
-    <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad-free, offline access to an expanded catalog, don’t worry. You can come back anytime.</string>
+    <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad‑free, offline access to an expanded catalog, don’t worry. You can come back anytime.</string>
     <string name="go_offboarding_primary_button_text">Resubscribe</string>
     <string name="go_offboarding_secondary_button_text">Continue</string>
 
@@ -935,10 +935,10 @@
     <string name="set_type_compilation_label_for_text">compilation</string>
 
     <!-- __UPSELL -->
-    <string name="upsell_remove_ads">Go ad-free</string>
+    <string name="upsell_remove_ads">Go ad‑free</string>
     <string name="upsell_upgrade_button">Get SoundCloud Go</string>
     <string name="upsell_stream_upgrade_title">Unlock previews with SoundCloud Go</string>
-    <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalog, with ad-free and offline listening.</string>
+    <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalog, with ad‑free and offline listening.</string>
     <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go</string>
     <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
     <string name="upsell_track_preview">Preview</string>
