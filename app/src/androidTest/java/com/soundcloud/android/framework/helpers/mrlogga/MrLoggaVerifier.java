@@ -7,6 +7,8 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.framework.Waiter;
 
+import android.util.Log;
+
 import java.io.IOException;
 
 public class MrLoggaVerifier {
@@ -47,6 +49,7 @@ public class MrLoggaVerifier {
         isLogSessionActive = startLoggingResponse.success;
         assertTrue("Failed to start MrLoggaLogga logging\n" + startLoggingResponse.responseBody,
                    startLoggingResponse.success);
+        Log.i("MrLoggaVerifier", "Started logging events");
     }
 
     private void stopLoggingTrackingEvents() {
@@ -54,6 +57,7 @@ public class MrLoggaVerifier {
         isLogSessionActive = !stopLoggingSession.success;
         assertTrue("Failed to finish MrLoggaLogga logging\n" + stopLoggingSession.responseBody,
                    stopLoggingSession.success);
+        Log.i("MrLoggaVerifier", "Finished logging events");
     }
 
     private void assertScenarioImmediately(String scenarioId) {
