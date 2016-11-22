@@ -72,6 +72,7 @@ android {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
     }
 
     debug {
