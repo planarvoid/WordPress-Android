@@ -91,18 +91,21 @@ android {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
 
     preRelease {
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
   }
 }
