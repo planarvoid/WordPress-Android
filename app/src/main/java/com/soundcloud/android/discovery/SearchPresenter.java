@@ -146,7 +146,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                                                                                       suggestionItem.query());
 
         clickListenerFactory.create(Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
-                            .onItemClick(Collections.singletonList(suggestionItem), context, 0);
+                            .onItemClick(Collections.singletonList(suggestionItem), window.getContext(), 0);
     }
 
     private void setupTransitionAnimation(Window window) {
