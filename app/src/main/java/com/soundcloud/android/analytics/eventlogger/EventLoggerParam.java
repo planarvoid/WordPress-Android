@@ -85,6 +85,7 @@ class EventLoggerParam {
     static final String PAGEVIEW_ID = "pageview_id";
     static final String ACTION_NAVIGATION = "item_navigation";
     static final String ATTRIBUTING_ACTIVITY = "attributing_activity";
+    static final String ACTIVITY_TYPE = "activity_type";
     static final String LINK_TYPE = "link_type";
     static final String ITEM = "item";
     static final String RESOURCE = "resource";
