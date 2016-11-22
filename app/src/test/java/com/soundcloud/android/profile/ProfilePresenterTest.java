@@ -8,13 +8,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.EnterScreenDispatcher;
@@ -71,7 +71,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private TrackingStateProvider trackingStateProvider;
     @Mock private EventTracker eventTracker;
     @Mock private ScreenStateProvider screenStateProvider;
-    @Mock private ActivityReferringEventProvider referringEventProvider;
+    @Mock private Optional<ReferringEvent> referringEvent;
     @Mock private EnterScreenDispatcher enterScreenDispatcher;
     @Mock private ScreenProvider screenProvider;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
@@ -96,6 +96,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(activity.findViewById(R.id.pager)).thenReturn(viewPager);
         when(activity.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(activity.findViewById(R.id.profile_header)).thenReturn(headerView);
+        when(activity.getReferringEvent()).thenReturn(referringEvent);
         when(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width)).thenReturn(DIVIDER_WIDTH);
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
@@ -105,7 +106,6 @@ public class ProfilePresenterTest extends AndroidUnitTest {
                                                 eventBus,
                                                 accountOperations,
                                                 eventTracker,
-                                                referringEventProvider,
                                                 enterScreenDispatcher
         );
     }

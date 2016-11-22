@@ -1,31 +1,36 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.analytics.ReferringEventProvider;
+import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycles;
 
+import android.content.Intent;
+import android.os.Bundle;
+
 import javax.inject.Inject;
 
-public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity> implements EnterScreenDispatcher.Listener {
-    @LightCycle final ForegroundController foregroundController;
-    @LightCycle final ActivityReferringEventProvider referringEventProvider;
+public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity>
+        implements EnterScreenDispatcher.Listener {
+    private static final String EXTRA_HAS_TRACKED = "hasTrackedForeground";
+
     @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
     private final EventTracker eventTracker;
+    final ReferringEventProvider referringEventProvider;
 
     @Inject
-    public ScreenTracker(ForegroundController foregroundController,
-                         ActivityReferringEventProvider referringEventProvider,
+    public ScreenTracker(ReferringEventProvider referringEventProvider,
                          EnterScreenDispatcher enterScreenDispatcher,
                          EventTracker eventTracker) {
-        this.foregroundController = foregroundController;
         this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.eventTracker = eventTracker;
 
-        this.enterScreenDispatcher.setListener(this);
+        enterScreenDispatcher.setListener(this);
         LightCycles.bind(this);
     }
 
@@ -34,6 +39,36 @@ public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity> im
         final Screen screen = activity.getScreen();
         if (screen != Screen.UNKNOWN) {
             eventTracker.trackScreen(ScreenEvent.create(screen), referringEventProvider.getReferringEvent());
+        }
+    }
+
+    @Override
+    public void onCreate(RootActivity activity, Bundle bundle) {
+        trackForegroundEvent(activity.getIntent());
+        referringEventProvider.setupReferringEvent();
+    }
+
+    @Override
+    public void onNewIntent(RootActivity activity, Intent intent) {
+        trackForegroundEvent(intent);
+    }
+
+    @Override
+    public void onRestoreInstanceState(RootActivity activity, Bundle bundle) {
+        referringEventProvider.restoreReferringEvent(bundle);
+    }
+
+    @Override
+    public void onSaveInstanceState(RootActivity activity, Bundle bundle) {
+        referringEventProvider.saveReferringEvent(bundle);
+    }
+
+    private void trackForegroundEvent(Intent intent) {
+        if (!intent.getBooleanExtra(EXTRA_HAS_TRACKED,
+                                    false) && Referrer.hasReferrer(intent) && Screen.hasScreen(intent)) {
+            eventTracker.trackForegroundEvent(ForegroundEvent.open(Screen.fromIntent(intent),
+                                                                   Referrer.fromIntent(intent)));
+            intent.putExtra(EXTRA_HAS_TRACKED, true);
         }
     }
 }
