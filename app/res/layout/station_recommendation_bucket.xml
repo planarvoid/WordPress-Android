@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <com.soundcloud.android.view.CustomFontTextView
-        style="@style/Recommendation.StationsBucketTitle"
+        style="@style/Carousel.StationsBucketTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

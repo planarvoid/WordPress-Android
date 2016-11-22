@@ -82,19 +82,19 @@
         <item name="android:paddingTop">8dp</item>
     </style>
 
-    <style name="Recommendation.StationsBucketTitle">
+    <style name="Carousel.StationsBucketTitle">
         <item name="android:singleLine">true</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/discovery_tags_title</item>
     </style>
 
-    <style name="Recommendation.StationsTitle">
+    <style name="Carousel.StationsTitle">
         <item name="android:singleLine">true</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/discovery_tags_title</item>
     </style>
 
-    <style name="Recommendation.StationsType">
+    <style name="Carousel.StationsType">
         <item name="android:singleLine">true</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/recommendation_reason_text</item>

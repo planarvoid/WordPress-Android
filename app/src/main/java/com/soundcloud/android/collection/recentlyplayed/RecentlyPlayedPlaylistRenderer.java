@@ -64,7 +64,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     public View createItemView(ViewGroup parent) {
         int layout = fixedWidth
                      ? R.layout.collection_recently_played_playlist_item_fixed_width
-                     : R.layout.collection_recently_played_playlist_item;
+                     : R.layout.collection_recently_played_playlist_item_variable_width;
 
         return LayoutInflater.from(parent.getContext())
                              .inflate(layout, parent, false);

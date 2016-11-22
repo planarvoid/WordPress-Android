@@ -60,7 +60,7 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
     public View createItemView(ViewGroup parent) {
         int layout = fixedWidth
                      ? R.layout.collection_recently_played_profile_item_fixed_width
-                     : R.layout.collection_recently_played_profile_item;
+                     : R.layout.collection_recently_played_profile_item_variable_width;
 
         return LayoutInflater.from(parent.getContext())
                              .inflate(layout, parent, false);

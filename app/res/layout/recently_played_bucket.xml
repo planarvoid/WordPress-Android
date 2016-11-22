@@ -20,6 +20,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recently_played_carousel"
         style="@style/Collections.BucketCarousel"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

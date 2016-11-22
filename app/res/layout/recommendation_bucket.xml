@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/Recommendation.RecommendationBucket"
+<LinearLayout style="@style/Carousel.Bucket"
     android:id="@+id/track_recommendations_bucket"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,7 +12,7 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/recommendations_header"
-        style="@style/Recommendation.DiscoverNewTracks"
+        style="@style/Carousel.DiscoverNewTracks"
         android:layout_width="match_parent"
         android:layout_height="@dimen/recommendations_cell_text_recommended_height"
         android:gravity="center_vertical"
@@ -27,7 +27,7 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/reason"
-        style="@style/Recommendation.ReasonText"
+        style="@style/Carousel.ReasonText"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:gravity="center_vertical"

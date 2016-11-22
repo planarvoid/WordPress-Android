@@ -85,36 +85,36 @@
         <item name="android:textColor">@color/ak_sc_orange</item>
     </style>
 
-    <!-- Recommendations feature -->
-    <style name="Recommendation" parent="TextAppearance.SoundCloudLightFont" />
+    <!-- Carousel feature -->
+    <style name="Carousel" parent="TextAppearance.SoundCloudLightFont" />
 
-    <style name="Recommendation.RecommendationBucket">
+    <style name="Carousel.Bucket">
         <item name="android:background">@color/white</item>
     </style>
 
-    <style name="Recommendation.ReasonText">
+    <style name="Carousel.ReasonText">
         <item name="android:singleLine">true</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
-    <style name="Recommendation.DiscoverNewTracks">
+    <style name="Carousel.DiscoverNewTracks">
         <item name="android:singleLine">true</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/recommended_for_you_text</item>
     </style>
 
-    <style name="Recommendation.RecommendationItem">
+    <style name="Carousel.RecommendationItem">
         <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginRight">@dimen/recommendation_item_right_margin</item>
     </style>
 
-    <style name="Recommendation.RecommendationArtwork">
+    <style name="Carousel.Artwork">
         <item name="android:scaleType">centerCrop</item>
     </style>
 
-    <style name="Recommendation.RecommendationTitle">
+    <style name="Carousel.ItemTitle">
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">26dp</item>
         <item name="android:layout_marginBottom">4dp</item>
@@ -125,7 +125,7 @@
         <item name="android:textColor">@color/recommendation_card_track_title</item>
     </style>
 
-    <style name="Recommendation.RecommendationArtist">
+    <style name="Carousel.ItemArtist">
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">26dp</item>
         <item name="android:paddingTop">4dp</item>
@@ -137,7 +137,7 @@
         <item name="android:textColor">@color/recommendation_card_artist_name</item>
     </style>
 
-    <style name="Recommendation.RecommendationNowPlaying">
+    <style name="Carousel.ItemNowPlaying">
         <item name="android:layout_marginRight">26dp</item>
         <item name="android:textSize">12sp</item>
         <item name="android:maxLines">1</item>
@@ -146,11 +146,11 @@
         <item name="android:textColor">@color/ak_sc_orange</item>
     </style>
 
-    <style name="Recommendation.OverflowButton">
+    <style name="Carousel.OverflowButton">
         <item name="android:background">@drawable/btn_list_overflow</item>
     </style>
 
-    <style name="Recommendation.RecommendationsFooterItem">
+    <style name="Carousel.FooterItem">
         <item name="android:paddingTop">32dp</item>
         <item name="android:paddingBottom">48dp</item>
         <item name="android:paddingLeft">36dp</item>
@@ -169,7 +169,7 @@
         <item name="android:background">@color/white</item>
     </style>
 
-    <style name="Module.Header" parent="Recommendation.DiscoverNewTracks">
+    <style name="Module.Header" parent="Carousel.DiscoverNewTracks">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/recommendations_cell_text_recommended_height</item>
         <item name="android:gravity">center_vertical</item>

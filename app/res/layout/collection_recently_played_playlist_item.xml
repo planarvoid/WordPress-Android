@@ -19,6 +19,7 @@
             android:id="@+id/artwork"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             app:foregroundDrawable="@drawable/artwork_border"
             app:square="true" />
 
@@ -43,7 +44,7 @@
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
-            style="@style/Collections.ItemTitle"
+            style="@style/Carousel.ItemTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/artwork"
@@ -51,7 +52,7 @@
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/recently_played_type"
-            style="@style/Collections.Creator"
+            style="@style/Carousel.ItemArtist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
