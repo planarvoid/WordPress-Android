@@ -144,11 +144,9 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testPlayAndPauseFromTracksList() {
+        profileScreen.scrollToViewAllTracks();
         startEventTracking();
-
-        final VisualPlayerElement playerElement = profileScreen
-                .scrollToAndClickViewAllTracks()
-                .clickFirstTrack();
+        final VisualPlayerElement playerElement = profileScreen.goToAllTracks().clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 

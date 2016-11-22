@@ -331,8 +331,14 @@ public class ProfileScreen extends Screen {
         return new PlaylistDetailsScreen(testDriver);
     }
 
-    public UserTracksScreen scrollToAndClickViewAllTracks() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_tracks))).click();
+    public ProfileScreen scrollToViewAllTracks() {
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_tracks)));
+
+        return this;
+    }
+
+    public UserTracksScreen goToAllTracks() {
+        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_tracks))).click();
 
         return new UserTracksScreen(testDriver);
     }
