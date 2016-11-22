@@ -33,9 +33,6 @@ public class RecommendedStationsTest extends TrackingActivityTest<MainActivity> 
         final StationHomeScreen stationHome = stationsBucketElement.getFirstStation()
                                                                    .open();
 
-        assertThat(stationHome.isVisible(), is(true));
-        assertThat(stationHome.stationTitle(), is(equalTo(title)));
-
         final VisualPlayerElement playerElement = stationHome.clickPlay()
                                                              .waitForExpandedPlayerToStartPlaying()
                                                              .clickArtwork();

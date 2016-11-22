@@ -1,24 +1,34 @@
 package com.soundcloud.android.tests.playlist;
 
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
+import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
+import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.hamcrest.Matchers;
+
+import android.content.Context;
 
 public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     private String playlist;
+    private Context context;
+    private final OfflineContentHelper offlineContentHelper;
 
     public PlaylistItemsTest() {
         super(MainActivity.class);
+        offlineContentHelper = new OfflineContentHelper();
     }
 
     @Override
@@ -28,6 +38,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void setUp() throws Exception {
+        context = getInstrumentation().getTargetContext();
         super.setUp();
         playlist = String.valueOf(System.currentTimeMillis());
     }
@@ -48,6 +59,8 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     }
 
     public void testAddTrackToPlaylistFromPlayer() {
+        enableOfflineContent(context);
+
         final TrackLikesScreen trackLikesScreen = mainNavHelper
                 .goToCollections()
                 .clickLikedTracksPreview();
@@ -56,17 +69,28 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
         final String trackAddedTitle = trackLikesScreen.getTrackTitle(0);
 
-        trackLikesScreen.clickTrack(0)
-                        .clickMenu()
-                        .clickAddToPlaylist()
-                        .clickCreateNewPlaylist()
-                        .enterTitle(playlist)
-                        .clickDoneAndReturnToPlayer()
-                        .pressBackToCollapse();
+        CreatePlaylistScreen createPlaylistScreen = trackLikesScreen.clickTrack(0)
+                                                                    .clickMenu()
+                                                                    .clickAddToPlaylist()
+                                                                    .clickCreateNewPlaylist();
+
+        assertThat(createPlaylistScreen, Matchers.is(visible()));
+        assertThat(createPlaylistScreen.offlineCheck().isOnScreen(), Matchers.is(true));
+
+        createPlaylistScreen.enterTitle(playlist)
+                            .clickDoneAndReturnToPlayer()
+                            .pressBackToCollapse();
 
         trackLikesScreen.goBack();
 
         assertPlaylistContainsTrack(trackAddedTitle);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        ConfigurationHelper.disableOfflineContent(context);
+        offlineContentHelper.clearOfflineContent(context);
     }
 
     private void assertPlaylistContainsTrack(String trackTitle) {

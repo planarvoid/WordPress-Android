@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
@@ -29,17 +30,20 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 
-    public void testUserCanNavigateToSubscribePageFromPlayer() {
+    public void testUserCanNavigateToSubscribePageFromUpsell() {
+        final StreamScreen streamScreen = mainNavHelper.goToStream();
+
         VisualPlayerElement player = mainNavHelper
                 .goToStream()
                 .scrollToFirstSnippedTrack()
-                .clickToPlay();
+                .clickToPlay()
+                .clickArtwork();
 
-        assertThat(player.clickUpgrade(), is(visible()));
-    }
+        final UpgradeScreen upgradeScreen = player.clickUpgrade();
+        assertThat(upgradeScreen, is(visible()));
 
-    public void testUserCanNavigateToSubscribePageFromUpsell() {
-        final StreamScreen streamScreen = mainNavHelper.goToStream();
+        upgradeScreen.clickClose();
+        player.pressBackToCollapse();
 
         startEventTracking();
 

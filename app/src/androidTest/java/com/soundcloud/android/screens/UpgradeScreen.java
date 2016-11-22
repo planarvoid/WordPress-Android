@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.payments.ConversionActivity;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class UpgradeScreen extends Screen {
 
@@ -41,8 +42,17 @@ public class UpgradeScreen extends Screen {
         return this;
     }
 
+    public VisualPlayerElement clickClose() {
+        closeButton().click();
+        return new VisualPlayerElement(testDriver);
+    }
+
     public ViewElement upgradeButton() {
         return testDriver.findOnScreenElement(With.id(R.id.conversion_buy));
+    }
+
+    private ViewElement closeButton() {
+        return testDriver.findOnScreenElement(With.id(R.id.conversion_close));
     }
 
 }

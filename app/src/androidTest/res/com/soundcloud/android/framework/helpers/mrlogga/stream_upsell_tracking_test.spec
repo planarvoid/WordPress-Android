@@ -4,19 +4,6 @@ whitelisted_events:
 - impression
 expected_events:
 - !ruby/object:MrLoggerLogger::Event
-  name: impression
-  params:
-    impression_name: consumer_sub_ad
-    anonymous_id: (\w|-)+
-    impression_object: soundcloud:tcode:1027
-    ts: '[0-9]+'
-    client_id: '3152'
-    user: soundcloud:users:[0-9]+
-    app_version: '[0-9]+'
-    connection_type: wifi
-    page_name: stream:main
-  version: '0'
-- !ruby/object:MrLoggerLogger::Event
   name: click
   params:
     anonymous_id: (\w|-)+
@@ -30,17 +17,6 @@ expected_events:
     app_version: '[0-9]+'
     connection_type: wifi
   version: '0'
-- !ruby/object:MrLoggerLogger::Event
-  name: pageview
-  params:
-    anonymous_id: (\w|-)+
-    ts: '[0-9]+'
-    client_id: '3152'
-    page_name: upgrade
-    user: soundcloud:users:[0-9]+
-    app_version: '[0-9]+'
-    connection_type: wifi
-  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: impression
   params:
