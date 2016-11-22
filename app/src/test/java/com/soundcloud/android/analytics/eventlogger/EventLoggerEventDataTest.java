@@ -91,10 +91,10 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     public void addsAttributingActivityToPayload() {
         EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
 
-        data.attributingActivity("type", "resource");
+        data.attributingActivity("some_activity_type", "resource");
 
         Map<String, String> expected = Maps.newHashMap();
-        expected.put(EventLoggerParam.TYPE, "type");
+        expected.put(EventLoggerParam.ACTIVITY_TYPE, "some_activity_type");
         expected.put(EventLoggerParam.RESOURCE, "resource");
         assertThat(data.payload.get(EventLoggerParam.ATTRIBUTING_ACTIVITY)).isEqualTo(expected);
     }

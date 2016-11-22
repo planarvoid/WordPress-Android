@@ -246,7 +246,7 @@ class EventLoggerEventData {
     public EventLoggerEventData attributingActivity(String attributingActivityType, String attributingActivityResource) {
         final HashMap<String, String> attributingActivity = new HashMap<>();
 
-        attributingActivity.put(EventLoggerParam.TYPE, attributingActivityType);
+        attributingActivity.put(EventLoggerParam.ACTIVITY_TYPE, attributingActivityType);
         attributingActivity.put(RESOURCE, attributingActivityResource);
 
         addToPayload(ATTRIBUTING_ACTIVITY, attributingActivity);
