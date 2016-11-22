@@ -50,7 +50,7 @@
             style="@style/OnboardingListItemButton"
             android:layout_below="@id/description"
             android:layout_centerHorizontal="true"
-            android:text="@string/collections_upsell_button" />
+            android:text="@string/upsell_upgrade_button" />
 
     </RelativeLayout>
 

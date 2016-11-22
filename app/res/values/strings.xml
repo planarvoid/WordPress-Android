@@ -676,9 +676,8 @@
     <string name="collections_recently_played_playlist">playlist</string>
     <string name="collections_recently_played_album">album</string>
     <string name="collections_recently_played_profile">profile</string>
-    <string name="collections_upsell_title">Save your collection offline</string>
-    <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums, offline and ad-free.</string>
-    <string name="collections_upsell_button">Learn more</string>
+    <string name="collections_upsell_title">Get SoundCloud Go</string>
+    <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad-free</string>
 
     <string name="collections_recently_played_clear_action">Clear recently played</string>
     <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
@@ -960,7 +959,7 @@
     <string name="playback_upsell_1">No more previews, just full tracks</string>
     <string name="playback_upsell_2">Get full tracks, offline &amp; ad free</string>
     <string name="playback_upsell_button">Get SoundCloud Go</string>
-    <string name="playback_upsell_button_trial">Get SoundCloud Go</string>
+    <string name="playback_upsell_button_trial">Try SoundCloud Go</string>
 
     <!-- __SEARCH -->
     <plurals name="search_premium_content_results_count">
