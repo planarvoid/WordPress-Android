@@ -68,6 +68,7 @@
         <item name="tabPaddingStart">@dimen/fixed_tab_padding</item>
         <item name="tabPaddingEnd">@dimen/fixed_tab_padding</item>
         <item name="tabMode">fixed</item>
+        <item name="android:elevation">@dimen/toolbar_elevation</item>
         <item name="tabGravity">fill</item>
         <item name="tabMaxWidth">0dp</item>
     </style>
