@@ -103,6 +103,7 @@ public enum DeepLink {
         String host = uri.getHost();
 
         switch (host) {
+            case "":
             case "home":
                 return HOME;
             case "stream":
@@ -112,6 +113,11 @@ public enum DeepLink {
             case "discover":
             case "suggestedtracks_all":
                 return TRACK_RECOMMENDATIONS;
+            case "suggested_tracks":
+                if ("/all".equals(uri.getPath())) {
+                    return TRACK_RECOMMENDATIONS;
+                }
+                return ENTITY;
             case "discovery":
                 return DISCOVERY;
             case "search":
@@ -129,9 +135,20 @@ public enum DeepLink {
                 return RECORD;
             case "soundcloudgo":
             case "go":
+            case "ht_modal":
                 return SOUNDCLOUD_GO_UPSELL;
             case "buysoundcloudgo":
+            case "buy_ht":
                 return SOUNDCLOUD_GO_BUY;
+            case "settings":
+                switch (uri.getPath()) {
+                    case "/offline_listening":
+                        return OFFLINE_SETTINGS;
+                    case "/notification_preferences":
+                        return NOTIFICATION_PREFERENCES;
+                    default:
+                        return ENTITY;
+                }
             case "settings_offlinelistening":
                 return OFFLINE_SETTINGS;
             case "notification_preferences":
@@ -144,10 +161,13 @@ public enum DeepLink {
                 return USER_ENTITY;
             case "playlists":
                 return PLAYLIST_ENTITY;
+            case "share_app":
+                return SHARE_APP;
             case "share":
                 if ("/app".equals(uri.getPath())) {
                     return SHARE_APP;
                 }
+                return ENTITY;
             case "open-notification-settings":
                 return SYSTEM_SETTINGS;
             default:
@@ -174,6 +194,7 @@ public enum DeepLink {
                 return RECORD;
             case "/discover":
             case "/suggestedtracks_all":
+            case "/suggested_tracks/all":
                 return TRACK_RECOMMENDATIONS;
             case "/charts":
                 return CHARTS;
@@ -187,13 +208,19 @@ public enum DeepLink {
             case "/tracks/search":
             case "/people/search":
                 return SEARCH;
+            case "/ht_modal":
             case "/soundcloudgo":
             case "/go":
                 return SOUNDCLOUD_GO_UPSELL;
+            case "/buy_ht":
+                return SOUNDCLOUD_GO_BUY;
             case "/notification_preferences":
+            case "/settings/notification_preferences":
                 return NOTIFICATION_PREFERENCES;
             case "/settings_offlinelistening":
+            case "/settings/offline_listening":
                 return OFFLINE_SETTINGS;
+            case "/share_app":
             case "/share/app":
                 return SHARE_APP;
             case "/open-notification-settings":
