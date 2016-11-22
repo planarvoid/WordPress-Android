@@ -109,7 +109,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
-        verify(clickListener).onItemClick(listItems, fragmentRule.getView(), 0);
+        verify(clickListener).onItemClick(listItems, fragmentRule.getActivity(), 0);
     }
 
     @Test
@@ -192,7 +192,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 1);
 
-        verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getView()), eq(1));
+        verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getActivity()), eq(1));
 
         final List<ListItem> playQueue = listArgumentCaptor.getValue();
         assertThat(playQueue.get(0).getUrn()).isEqualTo(SearchPremiumItem.PREMIUM_URN);
@@ -213,7 +213,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onBuildBinding(new Bundle());
         presenter.onPremiumItemClicked(fragmentRule.getView(), premiumItems);
 
-        verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getView()), eq(0));
+        verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getActivity()), eq(0));
 
         final List<ListItem> playQueue = listArgumentCaptor.getValue();
         assertThat(playQueue.get(0).getUrn()).isEqualTo(PREMIUM_TRACK_URN_ONE);

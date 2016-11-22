@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +41,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     @Mock private SearchSuggestionOperations operations;
     @Mock private SuggestionListener suggestionListener;
     @Mock private List<SuggestionItem> suggestionItems;
+    @Mock private View view;
 
     @Rule public FragmentRule fragmentRule = new FragmentRule(R.layout.recyclerview_with_emptyview);
 
@@ -49,6 +51,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     public void setUp() {
         presenter = new SearchSuggestionsPresenter(swipeRefreshAttacher, adapter, operations);
         when(operations.suggestionsFor(anyString())).thenReturn(Observable.just(suggestionItems));
+
         presenter.setSuggestionListener(suggestionListener);
     }
 
@@ -64,28 +67,33 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersTrackClickEventOnTrackItemClicked() {
-        final Urn trackUrn = Urn.forTrack(123);
-        final SuggestionItem suggestionItem = mock(SuggestionItem.class);
-        when(suggestionItem.kind()).thenReturn(SuggestionItem.Kind.TrackItem);
-        when(suggestionItem.getUrn()).thenReturn(trackUrn);
+        final SuggestionItem suggestionItem = SuggestionItem.forTrack(PropertySet.create().put(SearchSuggestionProperty.URN, Urn.forTrack(123)), SEARCH_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
-        presenter.onItemClicked(mock(View.class), CLICK_POSITION);
+        presenter.onItemClicked(view, CLICK_POSITION);
 
-        verify(suggestionListener).onTrackClicked(trackUrn);
+        verify(suggestionListener).onSuggestionClicked(suggestionItem);
     }
 
     @Test
     public void triggersUserClickEventOnUserItemClicked() {
-        final Urn trackUrn = Urn.forUser(123);
-        final SuggestionItem suggestionItem = mock(SuggestionItem.class);
-        when(suggestionItem.kind()).thenReturn(SuggestionItem.Kind.UserItem);
-        when(suggestionItem.getUrn()).thenReturn(trackUrn);
+        final SuggestionItem suggestionItem = SuggestionItem.forUser(PropertySet.create().put(SearchSuggestionProperty.URN, Urn.forUser(456)), SEARCH_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
-        presenter.onItemClicked(mock(View.class), CLICK_POSITION);
+        presenter.onItemClicked(view, CLICK_POSITION);
 
-        verify(suggestionListener).onUserClicked(trackUrn);
+        verify(suggestionListener).onSuggestionClicked(suggestionItem);
+    }
+
+
+    @Test
+    public void triggersPlaylistClickEventOnUserItemClicked() {
+        final SuggestionItem suggestionItem = SuggestionItem.forPlaylist(PropertySet.create().put(SearchSuggestionProperty.URN, Urn.forPlaylist(789)), SEARCH_QUERY);
+        when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
+
+        presenter.onItemClicked(view, CLICK_POSITION);
+
+        verify(suggestionListener).onSuggestionClicked(suggestionItem);
     }
 
     @Test
@@ -94,7 +102,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
         presenter.onDestroy(fragmentRule.getFragment());
-        presenter.onItemClicked(mock(View.class), CLICK_POSITION);
+        presenter.onItemClicked(view, CLICK_POSITION);
 
         verify(suggestionListener, never()).onSearchClicked(anyString());
     }

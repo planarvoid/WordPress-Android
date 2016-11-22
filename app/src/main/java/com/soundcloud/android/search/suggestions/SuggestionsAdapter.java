@@ -14,14 +14,18 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerVie
     final static int TYPE_SEARCH = ViewTypes.DEFAULT_VIEW_TYPE;
     final static int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     final static int TYPE_USER = ViewTypes.DEFAULT_VIEW_TYPE + 2;
+    final static int TYPE_PLAYLIST = ViewTypes.DEFAULT_VIEW_TYPE + 3;
 
     @Inject
     SuggestionsAdapter(SearchSuggestionItemRenderer searchItemRenderer,
                        TrackSuggestionItemRenderer trackItemRenderer,
-                       UserSuggestionItemRenderer userItemRenderer) {
+                       UserSuggestionItemRenderer userItemRenderer,
+                       PlaylistSuggestionItemRenderer playlistItemRenderer) {
         super(new CellRendererBinding<>(TYPE_SEARCH, searchItemRenderer),
               new CellRendererBinding<>(TYPE_TRACK, trackItemRenderer),
-              new CellRendererBinding<>(TYPE_USER, userItemRenderer));
+              new CellRendererBinding<>(TYPE_USER, userItemRenderer),
+              new CellRendererBinding<>(TYPE_PLAYLIST, playlistItemRenderer)
+        );
     }
 
     @Override
@@ -38,6 +42,8 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerVie
                 return TYPE_TRACK;
             case UserItem:
                 return TYPE_USER;
+            case PlaylistItem:
+                return TYPE_PLAYLIST;
             default:
                 throw new IllegalArgumentException("Unhandled suggestion item kind " + getItem(position).kind());
         }

@@ -17,6 +17,7 @@ public class SuggestionsAdapterTest extends AndroidUnitTest {
     @Mock private SearchSuggestionItemRenderer searchSuggestionItemRenderer;
     @Mock private TrackSuggestionItemRenderer trackSuggestionItemRenderer;
     @Mock private UserSuggestionItemRenderer userSuggestionItemRenderer;
+    @Mock private PlaylistSuggestionItemRenderer playlistSuggestionItemRenderer;
 
     private SuggestionsAdapter adapter;
 
@@ -24,7 +25,8 @@ public class SuggestionsAdapterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         adapter = new SuggestionsAdapter(searchSuggestionItemRenderer,
                                          trackSuggestionItemRenderer,
-                                         userSuggestionItemRenderer);
+                                         userSuggestionItemRenderer,
+                                         playlistSuggestionItemRenderer);
     }
 
     @Test
@@ -32,12 +34,14 @@ public class SuggestionsAdapterTest extends AndroidUnitTest {
         SuggestionItem searchItem = SuggestionItem.forSearch(SEARCH_QUERY);
         SuggestionItem trackItem = SuggestionItem.forTrack(PropertySet.create(), SEARCH_QUERY);
         SuggestionItem userItem = SuggestionItem.forUser(PropertySet.create(), SEARCH_QUERY);
+        SuggestionItem playlistItem = SuggestionItem.forPlaylist(PropertySet.create(), SEARCH_QUERY);
 
-        adapter.onNext(Arrays.asList(searchItem, trackItem, userItem));
+        adapter.onNext(Arrays.asList(searchItem, trackItem, userItem, playlistItem));
 
         assertThat(adapter.getBasicItemViewType(0)).isEqualTo(SuggestionsAdapter.TYPE_SEARCH);
         assertThat(adapter.getBasicItemViewType(1)).isEqualTo(SuggestionsAdapter.TYPE_TRACK);
         assertThat(adapter.getBasicItemViewType(2)).isEqualTo(SuggestionsAdapter.TYPE_USER);
+        assertThat(adapter.getBasicItemViewType(3)).isEqualTo(SuggestionsAdapter.TYPE_PLAYLIST);
     }
 
 }

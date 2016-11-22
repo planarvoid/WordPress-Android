@@ -97,7 +97,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                 Observable.just(
                         playbackResult));
 
-        listener.onItemClick(items, view, 3);
+        listener.onItemClick(items, view.getContext(), 3);
 
         verify(expandPlayerSubscriber).onNext(playbackResult);
         verify(expandPlayerSubscriber).onCompleted();
@@ -138,7 +138,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                 ModelFixtures.create(UserItem.class)
         );
 
-        listener.onItemClick(items, view, 2);
+        listener.onItemClick(items, view.getContext(), 2);
 
         verify(navigator).openPlaylist(eq(context),
                                        eq(playlistItem.getUrn()),
@@ -175,7 +175,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                 ModelFixtures.create(TrackItem.class)
         );
 
-        listener.onItemClick(items, view, 2);
+        listener.onItemClick(items, view.getContext(), 2);
 
         verify(navigator).legacyOpenProfile(context,
                                             userItem.getUrn(),

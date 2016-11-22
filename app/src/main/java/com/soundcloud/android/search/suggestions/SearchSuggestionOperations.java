@@ -135,6 +135,8 @@ class SearchSuggestionOperations {
                         result.add(SuggestionItem.forTrack(propertySet, searchQuery));
                     } else if (urn.isUser()) {
                         result.add(SuggestionItem.forUser(propertySet, searchQuery));
+                    } else if (urn.isPlaylist()) {
+                        result.add(SuggestionItem.forPlaylist(propertySet, searchQuery));
                     }
                 }
                 return result;

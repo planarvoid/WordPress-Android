@@ -191,7 +191,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn, searchQuery);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(),
-                                    searchQuerySourceInfo).onItemClick(playQueue, view, position);
+                                    searchQuerySourceInfo).onItemClick(playQueue, view.getContext(), position);
     }
 
     @Override
@@ -202,7 +202,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo)
                             .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList),
-                                         view,
+                                         view.getContext(),
                                          PREMIUM_ITEMS_POSITION);
     }
 

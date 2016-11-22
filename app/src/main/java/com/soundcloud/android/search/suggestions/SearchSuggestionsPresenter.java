@@ -1,6 +1,5 @@
 package com.soundcloud.android.search.suggestions;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -27,9 +26,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
 
         void onSearchClicked(String searchQuery);
 
-        void onTrackClicked(Urn trackUrn);
-
-        void onUserClicked(Urn userUrn);
+        void onSuggestionClicked(SuggestionItem item);
     }
 
     private final SuggestionsAdapter adapter;
@@ -104,14 +101,9 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
                 case SearchItem:
                     suggestionListener.onSearchClicked(item.query());
                     break;
-                case TrackItem:
-                    suggestionListener.onTrackClicked(item.getUrn());
-                    break;
-                case UserItem:
-                    suggestionListener.onUserClicked(item.getUrn());
-                    break;
                 default:
-                    throw new IllegalArgumentException("Unhandled clicked item kind " + item.kind());
+                    suggestionListener.onSuggestionClicked(item);
+                    break;
             }
         }
     }

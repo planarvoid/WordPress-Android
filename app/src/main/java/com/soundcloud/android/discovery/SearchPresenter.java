@@ -1,18 +1,19 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
+import com.soundcloud.android.search.suggestions.SearchSuggestionItem;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
+import com.soundcloud.android.search.suggestions.SuggestionItem;
 import com.soundcloud.android.utils.KeyboardHelper;
 import com.soundcloud.android.utils.TransitionUtils;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -47,7 +48,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
+import java.util.Collections;
 
 class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         implements SearchIntentResolver.DeepLinkListener {
@@ -70,27 +71,24 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final PlaybackInitiator playbackInitiator;
-    private final Navigator navigator;
+    private final Context context;
+    private final MixedItemClickListener.Factory clickListenerFactory;
 
     @Inject
-    SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
+    SearchPresenter(Context context,
+                    SearchIntentResolverFactory intentResolverFactory,
                     SearchTracker tracker,
                     Resources resources,
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper,
-                    Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                    PlaybackInitiator playbackInitiator,
-                    Navigator navigator) {
-        this.navigator = navigator;
+                    MixedItemClickListener.Factory clickListenerFactory) {
+        this.context = context;
+        this.clickListenerFactory = clickListenerFactory;
         this.intentResolver = intentResolverFactory.create(this);
         this.tracker = tracker;
         this.resources = resources;
         this.eventBus = eventBus;
         this.keyboardHelper = keyboardHelper;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
-        this.playbackInitiator = playbackInitiator;
     }
 
     @Override
@@ -141,15 +139,14 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         showResultsFor(searchQuery);
     }
 
-    void playTrack(Urn trackUrn) {
+    void performSuggestionAction(SuggestionItem item) {
         deactivateSearchView();
-        playbackInitiator.startPlaybackWithRecommendations(trackUrn, Screen.SEARCH_SUGGESTIONS, null)
-                         .subscribe(expandPlayerSubscriberProvider.get());
-    }
+        final SearchSuggestionItem suggestionItem = (SearchSuggestionItem) item;
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.NOT_SET,
+                                                                                      suggestionItem.query());
 
-    void showUserProfile(Urn userUrn) {
-        deactivateSearchView();
-        navigator.legacyOpenProfile(window.getContext(), userUrn, Screen.SEARCH_SUGGESTIONS, null);
+        clickListenerFactory.create(Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
+                            .onItemClick(Collections.singletonList(suggestionItem), context, 0);
     }
 
     private void setupTransitionAnimation(Window window) {

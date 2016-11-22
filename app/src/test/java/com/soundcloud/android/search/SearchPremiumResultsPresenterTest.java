@@ -99,7 +99,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
-        verify(clickListener).onItemClick(listItems, fragmentRule.getView(), 0);
+        verify(clickListener).onItemClick(listItems, fragmentRule.getActivity(), 0);
     }
 
     @Test

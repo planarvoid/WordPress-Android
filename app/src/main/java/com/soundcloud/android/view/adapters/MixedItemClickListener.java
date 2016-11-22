@@ -23,6 +23,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 
+import android.content.Context;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -59,7 +60,7 @@ public class MixedItemClickListener {
                     .playTracks(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view, clickedItem, Optional.<Module>absent());
+            handleNonTrackItemClick(view.getContext(), clickedItem, Optional.<Module>absent());
         }
     }
 
@@ -109,36 +110,36 @@ public class MixedItemClickListener {
                     .playPosts(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view, clickedItem, module);
+            handleNonTrackItemClick(view.getContext(), clickedItem, module);
         }
     }
 
-    public void onItemClick(List<? extends ListItem> playables, View view, int position) {
+    public void onItemClick(List<? extends ListItem> playables, Context context, int position) {
         ListItem playable = playables.get(position);
         if (playable.getUrn().isTrack()) {
             handleTrackClick(playables, position);
         } else {
-            handleNonTrackItemClick(view, playable, Optional.<Module>absent());
+            handleNonTrackItemClick(context, playable, Optional.<Module>absent());
         }
     }
 
-    private void handleNonTrackItemClick(View view, ListItem item, Optional<Module> module) {
+    private void handleNonTrackItemClick(Context context, ListItem item, Optional<Module> module) {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
-            navigator.openPlaylist(view.getContext(),
+            navigator.openPlaylist(context,
                                    entityUrn,
                                    screen,
                                    searchQuerySourceInfo,
                                    promotedPlaylistInfo(item),
                                    UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)));
         } else if (entityUrn.isPlaylist()) {
-            navigator.legacyOpenPlaylist(view.getContext(),
+            navigator.legacyOpenPlaylist(context,
                                          entityUrn,
                                          screen,
                                          searchQuerySourceInfo,
                                          promotedPlaylistInfo(item));
         } else if (entityUrn.isUser()) {
-            navigator.legacyOpenProfile(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
+            navigator.legacyOpenProfile(context, entityUrn, screen, searchQuerySourceInfo);
         } else {
             throw new IllegalArgumentException("Unrecognized urn [" + entityUrn + "] in " + this.getClass()
                                                                             .getSimpleName() + ": " + entityUrn);

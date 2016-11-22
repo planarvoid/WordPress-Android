@@ -4,14 +4,14 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 
-abstract class SuggestionItem {
+public abstract class SuggestionItem {
 
     enum Kind {
-        SearchItem, TrackItem, UserItem, AutocompletionItem
+        SearchItem, TrackItem, UserItem, PlaylistItem, AutocompletionItem
     }
 
     abstract Kind kind();
-    abstract String query();
+    public abstract String query();
 
     Urn getUrn() {
         return Urn.NOT_SET;
@@ -27,6 +27,10 @@ abstract class SuggestionItem {
 
     static SuggestionItem forTrack(PropertySet source, String query) {
         return new AutoValue_SearchSuggestionItem(Kind.TrackItem, query, source);
+    }
+
+    static SuggestionItem forPlaylist(PropertySet source, String query) {
+        return new AutoValue_SearchSuggestionItem(Kind.PlaylistItem, query, source);
     }
 
     static SuggestionItem forAutocompletion(Autocompletion autocompletion, String queryUrn) {
