@@ -60,6 +60,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO = "play_queue_track_remove_undo";
     public static final String KIND_PLAY_QUEUE_REPEAT = "play_queue_repeat";
     public static final String KIND_PLAY_NEXT = "play_next";
+    public static final String KIND_RECOMMENDED_PLAYLISTS = "playlist_discovery";
 
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
@@ -291,6 +292,14 @@ public final class UIEvent extends TrackingEvent {
                 .putEventContextMetadata(eventContextMetadata)
                 .put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, urn.toString())
                 .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, lastScreen);
+    }
+
+    public static UIEvent fromRecommendedPlaylists(@NonNull Urn itemUrn,
+                                                   @NonNull EventContextMetadata contextMetadata) {
+
+        return  new UIEvent(KIND_RECOMMENDED_PLAYLISTS)
+                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, itemUrn.toString())
+                .putEventContextMetadata(contextMetadata);
     }
 
     private static String getNotNullOriginScreen(@Nullable TrackSourceInfo trackSourceInfo) {

@@ -7,6 +7,7 @@ public class PlayableTrackingKeys {
     public static final String KEY_CLICK_THROUGH_URL = "click_through";
     public static final String KEY_CLICK_THOUGH_KIND = "click_through_kind";
     public static final String KEY_ORIGIN_SCREEN = "origin_screen";
+    public static final String KEY_SOURCE = "source";
     public static final String KEY_AD_TRACK_URN = "ad_track_urn";
     public static final String KEY_CLICK_OBJECT_URN = "click_object_urn";
     public static final String KEY_CLICK_TARGET_URN = "click_target_urn";

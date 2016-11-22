@@ -367,6 +367,8 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildRepeatClickEvent(event));
             case UIEvent.KIND_PLAY_NEXT:
                 return transform(buildEngagementEvent(PLAY_NEXT, event));
+            case UIEvent.KIND_RECOMMENDED_PLAYLISTS:
+                return transform(buildItemNavigationClickEvent(event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -491,6 +493,27 @@ class EventLoggerV1JsonDataBuilder {
                 .clickSource(event.get(CollectionEvent.KEY_SOURCE))
                 .pageName(event.get(CollectionEvent.KEY_PAGE_NAME))
                 .clickObject(event.get(CollectionEvent.KEY_OBJECT));
+    }
+
+    private EventLoggerEventData buildItemNavigationClickEvent(UIEvent event) {
+        final EventLoggerEventData eventData = buildClickEvent(CollectionEvent.CLICK_NAME_ITEM_NAVIGATION,
+                                                               event);
+
+        final String clickSource = event.getClickSource();
+        eventData.source(clickSource);
+        eventData.clickSource(clickSource);
+        final Optional<Urn> queryUrn = event.getQueryUrn();
+        final Optional<Integer> queryPosition = event.getQueryPosition();
+
+        if (queryUrn.isPresent() && !queryUrn.get().equals(Urn.NOT_SET)) {
+            eventData.queryUrn(queryUrn.get().toString());
+        }
+
+        if (queryPosition.isPresent()) {
+            eventData.queryPosition(queryPosition.get());
+        }
+
+        return eventData;
     }
 
     private EventLoggerEventData buildClickEvent(String clickName, UIEvent event) {

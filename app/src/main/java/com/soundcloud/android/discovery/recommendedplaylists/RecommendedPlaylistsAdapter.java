@@ -6,6 +6,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -15,6 +16,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +37,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
     private final QueryPositionProvider queryPositionProvider;
     private final Navigator navigator;
     private final ScreenProvider screenProvider;
+    private final EventBus eventBus;
 
     private Optional<String> key = Optional.absent();
     private Optional<Urn> queryUrn = Optional.absent();
@@ -42,11 +45,13 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
     RecommendedPlaylistsAdapter(QueryPositionProvider queryPositionProvider,
                                 @Provided RecommendedPlaylistItemRenderer renderer,
                                 @Provided Navigator navigator,
-                                @Provided ScreenProvider screenProvider) {
+                                @Provided ScreenProvider screenProvider,
+                                @Provided EventBus eventBus) {
         super(renderer);
         this.queryPositionProvider = queryPositionProvider;
         this.navigator = navigator;
         this.screenProvider = screenProvider;
+        this.eventBus = eventBus;
         renderer.setPlaylistListener(this);
     }
 
@@ -89,6 +94,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
                                                                                   queryPosition,
                                                                                   this.queryUrn);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromRecommendedPlaylists(playlistUrn, eventContextMetadata));
         navigator.openPlaylist(context, playlistUrn, screen, event);
     }
 
@@ -101,8 +107,8 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
         if (queryUrn.isPresent() && queryPosition.isPresent()) {
             sourceInfo.setQuerySourceInfo(QuerySourceInfo.create(queryPosition.get(),
                                                                  queryUrn.get()));
-            sourceInfo.setSource(PLAYLIST_DISCOVERY_SOURCE, Strings.EMPTY);
         }
+        sourceInfo.setSource(PLAYLIST_DISCOVERY_SOURCE, Strings.EMPTY);
         builder.trackSourceInfo(sourceInfo);
         builder.module(module);
         return builder.build();

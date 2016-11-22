@@ -1706,6 +1706,30 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName(PAGE_NAME));
     }
 
+    @Test
+    public void createsRecommendedPlaylistJson() throws Exception {
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo(PAGE_NAME, false);
+
+        sourceInfo.setQuerySourceInfo(QuerySourceInfo.create(QUERY_POSITION, QUERY_URN));
+        sourceInfo.setSource(SOURCE, Strings.EMPTY);
+        final EventContextMetadata.Builder contextMetadata = EventContextMetadata.builder().trackSourceInfo(sourceInfo);
+        contextMetadata.pageName(PAGE_NAME);
+        final Urn clickedPlaylist = Urn.forPlaylist(123L);
+        UIEvent event = UIEvent.fromRecommendedPlaylists(clickedPlaylist, contextMetadata.build());
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        final EventLoggerEventData eventData = getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("item_navigation")
+                .pageName(PAGE_NAME)
+                .clickObject(clickedPlaylist.toString())
+                .source(SOURCE)
+                .clickSource(SOURCE)
+                .queryUrn(QUERY_URN.toString())
+                .queryPosition(QUERY_POSITION);
+        verify(jsonTransformer).toJson(eventData);
+    }
+
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
         verify(jsonTransformer).toJson(getEngagementEventData(engagementName, timestamp)
         );

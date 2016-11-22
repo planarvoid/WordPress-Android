@@ -172,6 +172,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO:
             case UIEvent.KIND_PLAY_QUEUE_REPEAT:
             case UIEvent.KIND_PLAY_NEXT:
+            case UIEvent.KIND_RECOMMENDED_PLAYLISTS:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:
