@@ -78,9 +78,11 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         final ToggleButton toggleButton = (ToggleButton) view.findViewById(R.id.toggle_btn_follow);
         toggleButton.setOnCheckedChangeListener(null);
         toggleButton.setChecked(suggestedCreatorItem.following);
+        toggleButton.setEnabled(true);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                toggleButton.setEnabled(false);
                 suggestedCreatorItem.following = isChecked;
                 suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
                                            .subscribe(new DefaultSubscriber<Void>());
