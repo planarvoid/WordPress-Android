@@ -9,6 +9,10 @@ public final class TestConsts {
     }
 
 
+    public static final Uri TRACK_WITH_DESCRIPTION = Uri.parse("soundcloud://sounds:205133517");
+    public static final Uri TRACK_WITH_NO_DESCRIPTION = Uri.parse("soundcloud://sounds:205133365");
+    public static final Uri TRACK_LOTS_OF_COMMENTS = Uri.parse("soundcloud://sounds:203864219");
+    public static final Uri TRACK_BLOCKED_COMMENTS = Uri.parse("soundcloud://sounds:234960314");
     public static final Uri CHE_FLUTE_TRACK_PERMALINK = Uri.parse(
             "http://soundcloud.com/steveangello/steve-angello-che-flute");
     public static final Uri CHE_FLUTE_M_URI = Uri.parse("http://m.soundcloud.com/steveangello/steve-angello-che-flute");
