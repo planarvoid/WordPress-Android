@@ -146,19 +146,22 @@ public class MyProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testOpenPlaylistFromMyPlaylistsList() {
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToAndClickViewAllPlaylists()
+        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToViewAllPlaylists()
+                                                                         .goToAllPlaylists()
                                                                          .clickFirstPlaylist();
         assertThat(playlistDetailsScreen, isScreenVisible());
     }
 
     public void testPlayAndPauseFromMyRepostsList() {
-        final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllReposts()
+        final VisualPlayerElement playerElement = profileScreen.scrollToViewAllReposts()
+                                                               .goToAllReposts()
                                                                .clickFirstTrack();
         assertPlayAndPause(playerElement);
     }
 
     public void testPlayAndPauseFromMyLikesList() {
-        final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllLikes()
+        final VisualPlayerElement playerElement = profileScreen.scrollToViewAllLikes()
+                                                               .goToAllLikes()
                                                                .clickFirstTrack();
         assertPlayAndPause(playerElement);
     }
