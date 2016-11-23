@@ -514,6 +514,15 @@ public class VisualPlayerElement extends Element {
         }
     }
 
+    public PlayQueueElement pressPlayQueueButton() {
+        playQueueButton().click();
+        return new PlayQueueElement(testDriver);
+    }
+
+    private ViewElement playQueueButton() {
+        return testDriver.findOnScreenElement(With.id(R.id.play_queue_button));
+    }
+
     private class TrackChangedCondition implements Condition {
 
         private final String original;
