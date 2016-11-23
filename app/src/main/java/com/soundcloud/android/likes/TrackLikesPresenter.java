@@ -3,7 +3,10 @@ package com.soundcloud.android.likes;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
+import static com.soundcloud.java.collections.Iterables.getLast;
 
+import com.google.auto.value.AutoValue;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -21,7 +24,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
-import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
@@ -30,6 +32,7 @@ import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -48,12 +51,14 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, TrackLikesItem> {
+class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.TrackLikesPage, TrackLikesItem> {
+
+    private static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private static final int EXTRA_LIST_ITEMS = 1;
-    @LightCycle final CollapsingScrollHelper scrollHelper;
     @LightCycle final TrackLikesHeaderPresenter headerPresenter;
 
+    private final DataSource dataSource;
     private final TrackLikeOperations likeOperations;
     private final PlaybackInitiator playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
@@ -66,11 +71,15 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
     private Subscription collectionSubscription = RxUtils.invalidSubscription();
     private Subscription entityStateChangedSubscription = RxUtils.invalidSubscription();
 
-    private static final Func1<List<PropertySet>, ? extends Iterable<TrackLikesItem>> TO_TRACK_LIKES_ITEM = new Func1<List<PropertySet>, Iterable<TrackLikesItem>>() {
+    private static final Func1<TrackLikesPage, ? extends Iterable<TrackLikesItem>> TO_TRACK_LIKES_ITEM = new Func1<TrackLikesPage, Iterable<TrackLikesItem>>() {
         @Override
-        public Iterable<TrackLikesItem> call(List<PropertySet> propertySets) {
-            List<TrackLikesItem> trackLikesItems = new ArrayList<>(propertySets.size() + EXTRA_LIST_ITEMS);
-            for (PropertySet propertySet : propertySets) {
+        public Iterable<TrackLikesItem> call(TrackLikesPage page) {
+            List<TrackLikesItem> trackLikesItems = new ArrayList<>(page.getTrackLikes().size() + EXTRA_LIST_ITEMS);
+            if (page.hasHeader() && !page.getTrackLikes().isEmpty()) {
+                trackLikesItems.add(new TrackLikesHeaderItem());
+            }
+
+            for (PropertySet propertySet : page.getTrackLikes()) {
                 trackLikesItems.add(new TrackLikesTrackItem(TrackItem.from(propertySet)));
             }
             return trackLikesItems;
@@ -87,20 +96,19 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
     TrackLikesPresenter(TrackLikeOperations likeOperations,
                         PlaybackInitiator playbackInitiator,
                         OfflineContentOperations offlineContentOperations,
-                        TrackLikesAdapter adapter,
+                        TrackLikesAdapterFactory adapterFactory,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
-                        SwipeRefreshAttacher swipeRefreshAttacher,
-                        CollapsingScrollHelper scrollHelper) {
+                        SwipeRefreshAttacher swipeRefreshAttacher, DataSource dataSource) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackInitiator;
         this.offlineContentOperations = offlineContentOperations;
-        this.adapter = adapter;
+        this.dataSource = dataSource;
+        this.adapter = adapterFactory.create(headerPresenter);
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
-        this.scrollHelper = scrollHelper;
     }
 
     @Override
@@ -110,24 +118,23 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
     }
 
     @Override
-    protected CollectionBinding<List<PropertySet>, TrackLikesItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(likeOperations.likedTracks(), TO_TRACK_LIKES_ITEM)
+    protected CollectionBinding<TrackLikesPage, TrackLikesItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(dataSource.initialTrackLikes(), TO_TRACK_LIKES_ITEM)
                                 .withAdapter(adapter)
-                                .withPager(likeOperations.pagingFunction())
+                                .withPager(dataSource.pagingFunction())
                                 .build();
     }
 
     @Override
-    protected CollectionBinding<List<PropertySet>, TrackLikesItem> onRefreshBinding() {
-        return CollectionBinding.from(
-                likeOperations.updatedLikedTracks(), TO_TRACK_LIKES_ITEM)
+    protected CollectionBinding<TrackLikesPage, TrackLikesItem> onRefreshBinding() {
+        return CollectionBinding.from(dataSource.updatedTrackLikes(), TO_TRACK_LIKES_ITEM)
                                 .withAdapter(adapter)
-                                .withPager(likeOperations.pagingFunction())
+                                .withPager(dataSource.pagingFunction())
                                 .build();
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<List<PropertySet>, TrackLikesItem> collectionBinding,
+    protected void onSubscribeBinding(CollectionBinding<TrackLikesPage, TrackLikesItem> collectionBinding,
                                       CompositeSubscription viewLifeCycle) {
         Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
                                                                    .first()
@@ -217,6 +224,64 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
         @Override
         public void onNext(List<Urn> allLikedTracks) {
             headerPresenter.updateTrackCount(allLikedTracks.size());
+        }
+    }
+
+    @AutoValue
+    static abstract class TrackLikesPage {
+
+        static TrackLikesPage withHeader(List<PropertySet> trackLikes){
+            return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
+        }
+
+        static TrackLikesPage withoutHeader(List<PropertySet> trackLikes){
+            return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
+        }
+
+        abstract List<PropertySet> getTrackLikes();
+        abstract boolean hasHeader();
+    }
+
+    static class DataSource {
+
+        private final TrackLikeOperations trackLikeOperations;
+
+        @Inject
+        DataSource(TrackLikeOperations trackLikeOperations) {
+            this.trackLikeOperations = trackLikeOperations;
+        }
+
+        Observable<TrackLikesPage> initialTrackLikes(){
+            return wrapLikedTracks(trackLikeOperations.likedTracks(), true);
+        }
+
+        Observable<TrackLikesPage> updatedTrackLikes() {
+            return wrapLikedTracks(trackLikeOperations.updatedLikedTracks(), true);
+        }
+
+
+        Pager.PagingFunction<TrackLikesPage> pagingFunction() {
+            return new Pager.PagingFunction<TrackLikesPage>() {
+                @Override
+                public Observable<TrackLikesPage> call(TrackLikesPage result) {
+                    if (result.getTrackLikes().size() < PAGE_SIZE) {
+                        return Pager.finish();
+                    } else {
+                        final long oldestLike = getLast(result.getTrackLikes()).get(LikeProperty.CREATED_AT).getTime();
+                        return wrapLikedTracks(trackLikeOperations.likedTracks(oldestLike), false);
+                    }
+                }
+            };
+        }
+
+        private Observable<TrackLikesPage> wrapLikedTracks(Observable<List<PropertySet>> listObservable,
+                                                           final boolean hasHeader) {
+            return listObservable.map(new Func1<List<PropertySet>, TrackLikesPage>() {
+                @Override
+                public TrackLikesPage call(List<PropertySet> propertySets) {
+                    return hasHeader ? TrackLikesPage.withHeader(propertySets) : TrackLikesPage.withoutHeader(propertySets);
+                }
+            });
         }
     }
 

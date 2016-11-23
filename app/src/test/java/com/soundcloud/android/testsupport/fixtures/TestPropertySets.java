@@ -124,6 +124,10 @@ public abstract class TestPropertySets {
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {
+        return expectedLikedTrackForLikesScreenWithDate(new Date());
+    }
+
+    public static PropertySet expectedLikedTrackForLikesScreenWithDate(Date value) {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.TITLE.bind("squirlex galore"),
@@ -132,7 +136,7 @@ public abstract class TestPropertySets {
                 TrackProperty.FULL_DURATION.bind(20000L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
-                LikeProperty.CREATED_AT.bind(new Date()),
+                LikeProperty.CREATED_AT.bind(value),
                 TrackProperty.IS_PRIVATE.bind(false));
     }
 

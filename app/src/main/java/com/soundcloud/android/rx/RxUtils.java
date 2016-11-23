@@ -71,6 +71,13 @@ public final class RxUtils {
         }
     };
 
+    public static final Func1<Object, Boolean> IS_NOT_NULL = new Func1<Object, Boolean>() {
+        @Override
+        public Boolean call(Object obj) {
+            return obj != null;
+        }
+    };
+
     public static final Func1<List, Integer> TO_SIZE = new Func1<List, Integer>() {
         public Integer call(List list) {
             return list.size();

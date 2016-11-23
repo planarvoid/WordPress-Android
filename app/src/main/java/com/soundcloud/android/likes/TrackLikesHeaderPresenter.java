@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventContextMetadata.builder;
+import static com.soundcloud.android.rx.RxUtils.IS_NOT_NULL;
 import static com.soundcloud.android.rx.RxUtils.IS_PRESENT;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static rx.Observable.combineLatest;
@@ -8,6 +9,7 @@ import static rx.Observable.combineLatest;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -24,6 +26,7 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
@@ -40,13 +43,24 @@ import rx.subjects.BehaviorSubject;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
 public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment>
-        implements TrackLikesHeaderView.Listener {
+        implements TrackLikesHeaderView.Listener, CellRenderer<TrackLikesItem> {
+
+    private static final Func1<Optional<WeakReference<View>>, View> EXTRACT_VIEW = new Func1<Optional<WeakReference<View>>, View>() {
+        @Override
+        public View call(Optional<WeakReference<View>> weakReferenceOptional) {
+            return weakReferenceOptional.get().get();
+        }
+    };
 
     private final TrackLikesHeaderViewFactory headerViewFactory;
     private final OfflineStateOperations offlineStateOperations;
@@ -59,6 +73,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
     private final OfflineContentOperations offlineContentOperations;
     private final Provider<UpdateHeaderViewSubscriber> subscriberProvider;
+
 
     private final Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate> toHeaderViewUpdate =
             new Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate>() {
@@ -76,6 +91,14 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                 }
             };
 
+    private Func1<View, TrackLikesHeaderView> toTrackLikesHeaderView = new Func1<View, TrackLikesHeaderView>() {
+        @Override
+        public TrackLikesHeaderView call(View view) {
+            return headerViewFactory.create(view, TrackLikesHeaderPresenter.this);
+        }
+
+    };
+
     private Fragment fragment;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
@@ -87,7 +110,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     };
 
     private final BehaviorSubject<Integer> trackCountSubject;
-    private final BehaviorSubject<Optional<View>> viewSubject;
+    private final BehaviorSubject<Optional<WeakReference<View>>> viewSubject;
     private Subscription subscription;
 
     @Inject
@@ -116,7 +139,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.subscriberProvider = subscriberProvider;
 
         trackCountSubject = BehaviorSubject.create(Consts.NOT_SET);
-        viewSubject = BehaviorSubject.create(Optional.<View>absent());
+        viewSubject = BehaviorSubject.create(Optional.<WeakReference<View>>absent());
     }
 
     @Override
@@ -124,7 +147,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         super.onCreate(fragment, bundle);
 
         subscription = combineLatest(trackCountSubject,
-                                     headerViewObservable(headerViewFactory),
+                                     headerViewObservable(),
                                      getOfflineStateObservable(),
                                      getOfflineLikesEnabledObservable(),
                                      toHeaderViewUpdate).subscribe(subscriberProvider.get());
@@ -140,13 +163,21 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         this.fragment = fragment;
-        viewSubject.onNext(Optional.of(view));
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        viewSubject.onNext(Optional.<View>absent());
         this.fragment = null;
+    }
+
+    @Override
+    public View createItemView(ViewGroup parent) {
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.track_likes_header, parent, false);
+    }
+
+    @Override
+    public void bindItemView(int position, View itemView, List<TrackLikesItem> items) {
+        viewSubject.onNext(Optional.of(new WeakReference<>(itemView)));
     }
 
     void updateTrackCount(int trackCount) {
@@ -208,13 +239,11 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     @NonNull
-    private Observable<TrackLikesHeaderView> headerViewObservable(final TrackLikesHeaderViewFactory headerViewFactory) {
-        return viewSubject.filter(IS_PRESENT).map(new Func1<Optional<View>, TrackLikesHeaderView>() {
-            @Override
-            public TrackLikesHeaderView call(Optional<View> viewOptional) {
-                return headerViewFactory.create(viewOptional.get(), TrackLikesHeaderPresenter.this);
-            }
-        });
+    private Observable<TrackLikesHeaderView> headerViewObservable() {
+        return viewSubject.filter(IS_PRESENT)
+                          .map(EXTRACT_VIEW)
+                          .filter(IS_NOT_NULL)
+                          .map(toTrackLikesHeaderView);
     }
 
 

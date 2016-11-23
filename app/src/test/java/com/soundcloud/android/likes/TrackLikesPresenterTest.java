@@ -3,6 +3,7 @@ package com.soundcloud.android.likes;
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -14,6 +15,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.likes.TrackLikesPresenter.DataSource;
+import com.soundcloud.android.likes.TrackLikesPresenter.TrackLikesPage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -28,6 +31,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -44,23 +48,26 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class TrackLikesPresenterTest extends AndroidUnitTest {
 
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.track_likes_fragment);
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
     private TrackLikesPresenter presenter;
 
+    @Mock private DataSource dataSource;
     @Mock private TrackLikeOperations likeOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private TrackLikesAdapterFactory adapterFactory;
     @Mock private TrackLikesAdapter adapter;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private CollapsingScrollHelper collapsingScrollHelper;
 
-    private final PublishSubject<List<PropertySet>> likedTracksObservable = PublishSubject.create();
+    private final PublishSubject<TrackLikesPage> likedTracksObservable = PublishSubject.create();
     private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1),
                                                                                        Urn.forTrack(2)));
     private TestSubscriber testSubscriber = new TestSubscriber();
@@ -69,16 +76,17 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
+        when(adapterFactory.create(headerPresenter)).thenReturn(adapter);
         presenter = new TrackLikesPresenter(likeOperations,
                                             playbackInitiator,
                                             offlineContentOperations,
-                                            adapter,
+                                            adapterFactory,
                                             headerPresenter,
                                             expandPlayerSubscriberProvider,
                                             eventBus,
                                             swipeRefreshAttacher,
-                                            collapsingScrollHelper);
-        when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
+                                            dataSource);
+        when(dataSource.initialTrackLikes()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
@@ -190,8 +198,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        likedTracksObservable.onNext(Collections.<PropertySet>emptyList());
-        likedTracksObservable.onNext(Collections.<PropertySet>emptyList());
+        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<PropertySet>emptyList()));
+        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<PropertySet>emptyList()));
 
         verify(headerPresenter).updateTrackCount(likedTrackUrns.size());
     }
@@ -209,4 +217,47 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         return playbackResult;
     }
 
+    @Test
+    public void dataSourceInitialTrackLikesReturnsLikedTracksWithHeader() {
+        final List<PropertySet> tracks = Arrays.asList(TestPropertySets.fromApiTrack());
+        when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
+
+        dataSource = new DataSource(likeOperations);
+        dataSource.initialTrackLikes().subscribe(testSubscriber);
+
+        testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
+    }
+
+    @Test
+    public void dataSourceUpdatedTrackLikesReturnsLikedTracksWithHeader() {
+        final List<PropertySet> tracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(likeOperations.updatedLikedTracks()).thenReturn(Observable.just(tracks));
+
+        new DataSource(likeOperations).updatedTrackLikes().subscribe(testSubscriber);
+
+        testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
+    }
+
+    @Test
+    public void dataSourcePagerReturnsLikedTracksWithHeader() {
+        final Date oldestDate = new Date(1);
+        final PropertySet likedTrack1 = TestPropertySets.expectedLikedTrackForLikesScreenWithDate(oldestDate);
+        final PropertySet likedTrack2 = TestPropertySets.expectedLikedTrackForLikesScreenWithDate(new Date(2));
+        final List<PropertySet> tracks = Arrays.asList(likedTrack1, likedTrack2);
+        when(likeOperations.likedTracks(oldestDate.getTime())).thenReturn(Observable.just(tracks));
+
+        new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(tracks));
+
+        testSubscriber.assertReceivedOnNext(Arrays.asList());
+    }
+
+    @Test
+    public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
+        final List<PropertySet> tracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
+
+        final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
+
+        assertThat(listPager.call(TrackLikesPage.withHeader(tracks))).isSameAs(Pager.<List<PropertySet>>finish());
+    }
 }

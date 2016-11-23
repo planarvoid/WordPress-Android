@@ -20,8 +20,6 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.rx.Pager;
-import com.soundcloud.rx.Pager.PagingFunction;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +32,6 @@ import rx.Scheduler;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,22 +80,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotSyncTrackLikesIfSecondPageIsEmpty() throws Exception {
-        final List<PropertySet> firstPage = createPageOfTrackLikes(PAGE_SIZE);
-        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(firstPage));
-        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, getListItemTime(firstPage))).thenReturn(Observable.just(
-                Collections.<PropertySet>emptyList()));
-
-        final PublishSubject<Void> syncObservable = PublishSubject.create();
-        when(syncInitiatorBridge.syncTrackLikes()).thenReturn(syncObservable);
-
-        final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
-        listPager.call(Collections.<PropertySet>emptyList()).subscribe(observer);
-
-        assertThat(syncObservable.hasObservers()).isFalse();
-    }
-
-    @Test
     public void likedTracksReturnsLikedTracksFromStorage() {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
@@ -142,17 +123,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         operations.likedTracks().subscribe(observer);
 
         verify(syncInitiator, never()).batchSyncTracks(any(ArrayList.class));
-    }
-
-    @Test
-    public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
-        List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
-        when(syncInitiatorBridge.syncTrackLikes()).thenReturn(Observable.<Void>empty());
-
-        final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
-
-        assertThat(listPager.call(likedTracks)).isSameAs(Pager.<List<PropertySet>>finish());
     }
 
     @Test
@@ -204,17 +174,5 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(unlikedTrackUrn, false, 5));
 
         assertThat(observer.getOnNextEvents()).containsExactly(unlikedTrackUrn);
-    }
-
-    private List<PropertySet> createPageOfTrackLikes(int size) {
-        List<PropertySet> page = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            page.add(TestPropertySets.expectedLikedTrackForLikesScreen());
-        }
-        return page;
-    }
-
-    private long getListItemTime(List<PropertySet> firstPage) {
-        return firstPage.get(firstPage.size() - 1).get(LikeProperty.CREATED_AT).getTime();
     }
 }

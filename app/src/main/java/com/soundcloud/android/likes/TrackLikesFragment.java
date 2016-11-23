@@ -26,7 +26,7 @@ public class TrackLikesFragment extends LightCycleSupportFragment<TrackLikesFrag
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.track_likes_fragment, container, false);
+        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
-import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
@@ -13,7 +12,6 @@ import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -94,16 +92,12 @@ public class TrackLikeOperations {
     }
 
     Observable<List<PropertySet>> likedTracks() {
-        return likedTracks(INITIAL_TIMESTAMP);
-    }
-
-    private Observable<List<PropertySet>> likedTracks(long beforeTime) {
-        return loadLikedTracksInternal(beforeTime)
+        return likedTracks(INITIAL_TIMESTAMP)
                 .filter(RxUtils.IS_NOT_EMPTY_LIST)
                 .switchIfEmpty(updatedLikedTracks());
     }
 
-    private Observable<List<PropertySet>> loadLikedTracksInternal(long beforeTime) {
+    Observable<List<PropertySet>> likedTracks(long beforeTime) {
         return likedTrackStorage.loadTrackLikes(PAGE_SIZE, beforeTime)
                                 .doOnNext(requestTracksSyncAction)
                                 .subscribeOn(scheduler);
@@ -115,19 +109,6 @@ public class TrackLikeOperations {
                 .observeOn(scheduler)
                 .flatMap(loadInitialLikedTracks)
                 .subscribeOn(scheduler);
-    }
-
-    Pager.PagingFunction<List<PropertySet>> pagingFunction() {
-        return new Pager.PagingFunction<List<PropertySet>>() {
-            @Override
-            public Observable<List<PropertySet>> call(List<PropertySet> result) {
-                if (result.size() < PAGE_SIZE) {
-                    return Pager.finish();
-                } else {
-                    return loadLikedTracksInternal(getLast(result).get(LikeProperty.CREATED_AT).getTime());
-                }
-            }
-        };
     }
 
     public Observable<List<Urn>> likedTrackUrns() {
