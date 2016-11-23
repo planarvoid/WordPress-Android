@@ -1,5 +1,7 @@
 package com.soundcloud.android.main;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -9,7 +11,6 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.CustomFontTabLayout;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
@@ -21,11 +22,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
@@ -42,9 +44,12 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private RootActivity activity;
     private MainPagerAdapter pagerAdapter;
-    private ViewPager pager;
-    private TabLayout tabBar;
 
+    @Bind(R.id.pager) ViewPager pager;
+    @Bind(R.id.tab_layout) TabLayout tabBar;
+    @Bind(R.id.toolbar_id) Toolbar toolBar;
+    @Bind(R.id.appbar) AppBarLayout appBarLayout;
+    @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
@@ -76,10 +81,12 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     @Override
     public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
-
         this.activity = activity;
-        pagerAdapter = pagerAdapterFactory.create(activity.getSupportFragmentManager());
+        pagerAdapter = pagerAdapterFactory.create(activity);
+
+        ButterKnife.bind(this, activity);
         setupViews(activity);
+
         if (bundle == null) {
             setTabFromIntent(activity.getIntent());
         }
@@ -91,6 +98,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         super.onResume(activity);
 
         pager.addOnPageChangeListener(enterScreenDispatcher);
+        toolBar.setTitle(pagerAdapter.getPageTitle(pager.getCurrentItem()));
     }
 
     @Override
@@ -116,7 +124,21 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     @Override
     public void onEnterScreen(RootActivity activity) {
+        toolBar.setTitle(pagerAdapter.getPageTitle(pager.getCurrentItem()));
         eventTracker.trackScreen(ScreenEvent.create(getScreen()), activity.getReferringEvent());
+    }
+
+    void hideToolbar() {
+        if (collapsingToolbarLayout != null) {
+            collapsingToolbarLayout.setVisibility(View.GONE);
+        }
+    }
+
+    void showToolbar() {
+        if (collapsingToolbarLayout != null && appBarLayout != null) {
+            appBarLayout.setExpanded(true);
+            collapsingToolbarLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     private void startDevelopmentMenuStream() {
@@ -174,10 +196,11 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     }
 
     private void setupViews(RootActivity activity) {
-        pager = (ViewPager) activity.findViewById(R.id.pager);
         pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
         pager.setPageMarginDrawable(R.color.page_background);
-        tabBar = createTabs();
+
+        activity.setSupportActionBar(toolBar);
+
         bindPagerToTabs();
     }
 
@@ -186,24 +209,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         tabBar.setOnTabSelectedListener(tabSelectedListener(pager, pagerAdapter));
         pager.addOnPageChangeListener(pageChangeListenerFor(tabBar));
         setTabIcons(pagerAdapter, tabBar, pager.getCurrentItem());
-    }
-
-    @NonNull
-    private TabLayout createTabs() {
-        TabLayout tabBar = new CustomFontTabLayout(activity);
-        tabBar.setTabGravity(TabLayout.GRAVITY_FILL);
-        tabBar.setTabMode(TabLayout.MODE_FIXED);
-        tabBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        addToToolbar(tabBar);
-        return tabBar;
-    }
-
-    private void addToToolbar(TabLayout tabBar) {
-        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
-        toolbar.setContentInsetsAbsolute(0, 0);
-        toolbar.setPadding(0, 0, 0, 0);
-        toolbar.addView(tabBar);
     }
 
     private void setTabIcons(MainPagerAdapter pagerAdapter, TabLayout tabBar, int currentItem) {

@@ -3,11 +3,13 @@ package com.soundcloud.android.main;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,13 +26,15 @@ public class MainPagerAdapter extends PagerAdapter {
     private static final String FRAGMENT_NAME = "soundcloud:main:";
 
     private final NavigationModel navigationModel;
+    private final Context context;
     private final FragmentManager fragmentManager;
     private FragmentTransaction currentTransaction;
     private Fragment currentPrimaryItem;
 
-    public MainPagerAdapter(FragmentManager fragmentManager, NavigationModel navigationModel) {
+    MainPagerAdapter(Context context, FragmentManager fragmentManager, NavigationModel navigationModel) {
         this.fragmentManager = checkNotNull(fragmentManager);
         this.navigationModel = checkNotNull(navigationModel);
+        this.context = context;
         this.currentTransaction = null;
         this.currentPrimaryItem = null;
     }
@@ -42,7 +46,7 @@ public class MainPagerAdapter extends PagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return String.valueOf(position);
+        return context.getString(navigationModel.getItem(position).getName());
     }
 
     @Override
@@ -150,8 +154,8 @@ public class MainPagerAdapter extends PagerAdapter {
             this.navigationModel = navigationModel;
         }
 
-        public MainPagerAdapter create(FragmentManager fm) {
-            return new MainPagerAdapter(fm, navigationModel);
+        public MainPagerAdapter create(AppCompatActivity activity) {
+            return new MainPagerAdapter(activity, activity.getSupportFragmentManager(), navigationModel);
         }
 
     }

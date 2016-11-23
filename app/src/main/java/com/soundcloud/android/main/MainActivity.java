@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -11,19 +12,19 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.lightcycle.LightCycle;
+import dagger.Lazy;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
-public class MainActivity extends PlayerActivity {
+public class MainActivity extends PlayerActivity implements CastConnectionHelper.OnConnectionChangeListener {
 
     @Inject PlaySessionController playSessionController;
-    @Inject Provider<DefaultCastSessionController> castSessionController;
-    @Inject Provider<LegacyCastSessionController> legacyCastSessionController;
+    @Inject Lazy<DefaultCastSessionController> castSessionController;
+    @Inject Lazy<LegacyCastSessionController> legacyCastSessionController;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
 
@@ -100,6 +101,7 @@ public class MainActivity extends PlayerActivity {
     protected void onResume() {
         super.onResume();
         setupUpgradeUpsell();
+        castConnectionHelper.addOnConnectionChangeListener(this);
     }
 
     @Override
@@ -113,6 +115,7 @@ public class MainActivity extends PlayerActivity {
     protected void onPause() {
         super.onPause();
         castSessionController.get().onPause(this);
+        castConnectionHelper.removeOnConnectionChangeListener(this);
     }
 
     @Override
@@ -120,4 +123,13 @@ public class MainActivity extends PlayerActivity {
         return Screen.UNKNOWN;
     }
 
+    @Override
+    public void onCastUnavailable() {
+        mainPresenter.hideToolbar();
+    }
+
+    @Override
+    public void onCastAvailable() {
+        mainPresenter.showToolbar();
+    }
 }

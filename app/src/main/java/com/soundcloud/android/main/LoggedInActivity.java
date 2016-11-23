@@ -45,8 +45,8 @@ public abstract class LoggedInActivity extends RootActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // This is a workaround. For some devices the back/up button does not work if we don't inflate "some" menu
-        getMenuInflater().inflate(R.menu.empty, menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item);
         return true;
     }
 

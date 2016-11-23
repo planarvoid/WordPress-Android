@@ -12,7 +12,8 @@ import android.view.Menu;
 public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivity> {
 
     interface OnConnectionChangeListener {
-        void onCastConnectionChange();
+        void onCastUnavailable();
+        void onCastAvailable();
     }
 
     void notifyConnectionChange(boolean castAvailable, Optional<String> deviceName);
@@ -21,7 +22,6 @@ public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivi
 
     void removeOnConnectionChangeListener(OnConnectionChangeListener listener);
 
-    @SuppressWarnings("unused")
     void addMediaRouterButton(Context context, Menu menu, int itemId);
 
     void addMediaRouterButton(MediaRouteButton mediaRouteButton);

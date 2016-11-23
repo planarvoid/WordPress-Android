@@ -9,9 +9,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.main.ScrollContent;
 
 import android.content.res.Resources;
+import android.support.v4.widget.NestedScrollView;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
@@ -26,7 +26,7 @@ public class MoreView implements ScrollContent {
     @Bind(R.id.more_offline_sync_settings_link) View offlineSettingsView;
     @Bind(R.id.more_explore_link) View exploreView;
     @Bind(R.id.more_report_bug) View reportBug;
-    @Bind(R.id.scroll_view) ScrollView scrollView;
+    @Bind(R.id.scroll_view) NestedScrollView scrollView;
     @Bind(R.id.more_go_indicator) View goIndicator;
 
     MoreView(View view, final Listener listener) {

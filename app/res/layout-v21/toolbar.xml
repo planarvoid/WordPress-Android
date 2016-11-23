@@ -4,6 +4,5 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     android:background="?attr/colorPrimary"
-    android:elevation="@dimen/toolbar_elevation"
     android:theme="@style/Theme.SoundCloud.Toolbar"
     android:transitionName="@string/search_text_holder_transition_name"/>

@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 
-public class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
+class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
         implements CastConnectionHelper {
 
     @Override

@@ -31,7 +31,6 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
 
     private boolean isCastableDeviceAvailable;
 
-
     @Inject
     public LegacyCastConnectionHelper(VideoCastManager videoCastManager) {
         this.videoCastManager = videoCastManager;
@@ -65,7 +64,11 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
 
     private void notifyConnectionChange() {
         for (CastConnectionHelper.OnConnectionChangeListener listener : connectionChangeListeners) {
-            listener.onCastConnectionChange();
+            if (isCastableDeviceAvailable) {
+                listener.onCastAvailable();
+            } else {
+                listener.onCastUnavailable();
+            }
         }
     }
 

@@ -370,7 +370,16 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     }
 
     @Override
-    public void onCastConnectionChange() {
+    public void onCastUnavailable() {
+        updateCastButton();
+    }
+
+    @Override
+    public void onCastAvailable() {
+        updateCastButton();
+    }
+
+    private void updateCastButton() {
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
             pagePresenter(entry.getValue()).setCastDeviceName(entry.getKey(), castConnectionHelper.getDeviceName());
         }

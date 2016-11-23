@@ -23,7 +23,7 @@ public class MainPagerAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new MainPagerAdapter(fragmentManager, buildTestNavigationModel());
+        adapter = new MainPagerAdapter(context(), fragmentManager, buildTestNavigationModel());
     }
 
     @Test

@@ -624,6 +624,7 @@
 
     <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
+    <string name="media_route_menu_title">Cast</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted">Promoted</string>
