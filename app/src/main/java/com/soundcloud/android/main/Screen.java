@@ -30,6 +30,7 @@ public enum Screen {
     OFFLINE_OFFBOARDING("collection:offline_offboarding"),
     PLAY_HISTORY("collection:history"),
     RECENTLY_PLAYED("collection:recently_played"),
+    LIKED_STATIONS("collection:stations"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
@@ -130,7 +131,6 @@ public enum Screen {
 
     // Stations
     STATIONS_SHOW_ALL("stations:show_all"),
-    STATIONS_LIKED("stations:liked_stations"),
     STATIONS_INFO("stations:main"),
 
     // PAYMENT

@@ -33,7 +33,7 @@ public class LikedStationsActivity extends PlayerActivity {
 
     @Override
     public Screen getScreen() {
-        return Screen.STATIONS_LIKED;
+        return Screen.LIKED_STATIONS;
     }
 
     private void attachFragment() {
