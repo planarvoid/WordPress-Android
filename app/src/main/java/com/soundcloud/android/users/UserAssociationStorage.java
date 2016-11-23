@@ -87,8 +87,8 @@ public class UserAssociationStorage {
         return propeller.bulkInsert(UserAssociations, contentValuesList);
     }
 
-    public void insertFollowedUserIds(List<Long> userIds, int startPosition) {
-        int positionOffset = startPosition;
+    public void insertFollowedUserIds(List<Long> userIds) {
+        int positionOffset = 0;
         List<List<Long>> batches = Lists.partition(userIds, BATCH_SIZE);
         for (List<Long> idBatch : batches) {
             List<ContentValues> contentValuesList = new ArrayList<>(idBatch.size());

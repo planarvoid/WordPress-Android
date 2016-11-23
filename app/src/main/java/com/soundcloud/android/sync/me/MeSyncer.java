@@ -7,22 +7,15 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.LegacySyncResult;
-import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import android.net.Uri;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
 
-public class MeSyncer implements SyncStrategy, Callable<Boolean> {
+public class MeSyncer implements Callable<Boolean> {
 
     private final EventBus eventBus;
     private final ApiClient apiClient;
@@ -35,13 +28,6 @@ public class MeSyncer implements SyncStrategy, Callable<Boolean> {
         this.apiClient = apiClient;
         this.eventBus = eventBus;
         this.storeUsersCommand = storeUsersCommand;
-    }
-
-    @NotNull
-    @Override
-    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        call();
-        return LegacySyncResult.fromSuccessfulChange(Content.ME.uri);
     }
 
     @Override

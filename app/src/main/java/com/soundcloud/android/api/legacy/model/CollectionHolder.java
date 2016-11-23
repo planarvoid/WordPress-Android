@@ -3,19 +3,11 @@ package com.soundcloud.android.api.legacy.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.json.Views;
-import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.functions.Predicate;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.jetbrains.annotations.Nullable;
 
 import android.text.TextUtils;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,12 +20,6 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionHolder<T> implements Iterable<T> {
-    private static final Predicate UNKNOWN_RESOURCE_PREDICATE = new Predicate() {
-        @Override
-        public boolean apply(@Nullable Object resource) {
-            return resource instanceof UnknownResource;
-        }
-    };
 
     @JsonProperty
     @JsonView(Views.Mini.class)
@@ -75,37 +61,8 @@ public class CollectionHolder<T> implements Iterable<T> {
         return Collections.unmodifiableList(collection);
     }
 
-    public boolean moreResourcesExist() {
-        return !TextUtils.isEmpty(next_href);
-    }
-
-    public Request getNextRequest() {
-        if (!moreResourcesExist()) {
-            throw new IllegalStateException("next_href is null");
-        } else {
-            return new Request(URI.create(next_href));
-        }
-    }
-
     public boolean isEmpty() {
         return collection.isEmpty();
-    }
-
-    public String getCursor() {
-        if (next_href != null) {
-            List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
-            for (NameValuePair param : params) {
-                if (param.getName().equalsIgnoreCase("cursor")) {
-                    return param.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
-    public void removeUnknownResources() {
-        Collection<T> unknownResources = MoreCollections.filter(collection, UNKNOWN_RESOURCE_PREDICATE);
-        collection.removeAll(unknownResources);
     }
 
     public String getNextHref() {

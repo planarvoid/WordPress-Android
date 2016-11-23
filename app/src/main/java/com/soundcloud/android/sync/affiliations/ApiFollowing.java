@@ -4,11 +4,21 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.functions.Function;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
 @AutoValue
 public abstract class ApiFollowing {
+
+    static final Function<ApiFollowing, Long> TO_USER_IDS = new Function<ApiFollowing, Long>() {
+        @Nullable
+        @Override
+        public Long apply(ApiFollowing input) {
+            return input.getTargetUrn().getNumericId();
+        }
+    };
 
     @JsonCreator
     public static ApiFollowing create(@JsonProperty("user") Urn userUrn,

@@ -3,7 +3,6 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -135,7 +134,7 @@ public class ProfileApiPublic implements ProfileApi {
     private Observable<ModelCollection<ApiUser>> getUsers(String path) {
         final ApiRequest request = ApiRequest.get(path)
                                              .forPublicApi()
-                                             .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
+                                             .addQueryParam("linked_partitioning", "1")
                                              .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                                              .build();
 

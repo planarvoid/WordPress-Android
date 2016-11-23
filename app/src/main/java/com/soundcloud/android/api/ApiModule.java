@@ -5,7 +5,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -60,11 +59,6 @@ public class ApiModule {
     @Singleton
     public UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry(Context context) {
         return UnauthorisedRequestRegistry.getInstance(context);
-    }
-
-    @Provides
-    public PublicApi providePublicCloudApi(Context context) {
-        return PublicApi.getInstance(context);
     }
 
     @Provides

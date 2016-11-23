@@ -5,7 +5,6 @@ import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
-import rx.functions.Func1;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -35,22 +34,13 @@ public class SyncInitiator {
     public static final String ACTION_APPEND = ApiSyncService.ACTION_APPEND;
     public static final String ACTION_HARD_REFRESH = ApiSyncService.ACTION_HARD_REFRESH;
 
-    private static final Func1<Boolean, SyncJobResult> LEGACY_PLAYLIST_RESULT_TO_SYNC_RESULT = new Func1<Boolean, SyncJobResult>() {
-        @Override
-        public SyncJobResult call(Boolean resultedInChange) {
-            return SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, resultedInChange);
-        }
-    };
-
     private final Context context;
     private final AccountOperations accountOperations;
-    private final LegacySyncInitiator legacySyncInitiator;
 
     @Inject
-    SyncInitiator(Context context, AccountOperations accountOperations, LegacySyncInitiator legacySyncInitiator) {
+    SyncInitiator(Context context, AccountOperations accountOperations) {
         this.context = context;
         this.accountOperations = accountOperations;
-        this.legacySyncInitiator = legacySyncInitiator;
     }
 
     public Action0 requestSystemSyncAction() {
@@ -87,7 +77,7 @@ public class SyncInitiator {
 
     public Observable<SyncJobResult> syncPlaylist(Urn playlistUrn) {
         if (playlistUrn.getNumericId() < 0) {
-            return legacySyncInitiator.refreshMyPlaylists().map(LEGACY_PLAYLIST_RESULT_TO_SYNC_RESULT);
+            return sync(Syncable.MY_PLAYLISTS);
         } else {
             final Intent intent = createIntent(Syncable.PLAYLIST);
             SyncIntentHelper.putSyncEntities(intent, Arrays.asList(playlistUrn));
@@ -114,7 +104,7 @@ public class SyncInitiator {
         }
 
         if (syncMyPlaylists) {
-            syncObservables.add(legacySyncInitiator.refreshMyPlaylists().map(LEGACY_PLAYLIST_RESULT_TO_SYNC_RESULT));
+            syncObservables.add(sync(Syncable.MY_PLAYLISTS));
         }
         return Observable.merge(syncObservables);
     }

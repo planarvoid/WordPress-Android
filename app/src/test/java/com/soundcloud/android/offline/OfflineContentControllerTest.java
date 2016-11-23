@@ -16,7 +16,6 @@ import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
-import com.soundcloud.android.sync.LegacySyncActions;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -93,7 +92,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_TRACK_LIKES, true));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.TRACK_LIKES.name(), true));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -122,7 +121,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void doesNotStartOfflineSyncWhenLikeSyncingDidNotUpdateTheLiked() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_TRACK_LIKES, false));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.TRACK_LIKES.name(), false));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -216,7 +215,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, false, PLAYLIST));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), false, PLAYLIST));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -226,7 +225,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
 
         controller.subscribe();
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, true, PLAYLIST));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), true, PLAYLIST));
 
         startServiceSubscriber.assertNoValues();
     }

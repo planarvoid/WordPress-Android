@@ -19,7 +19,6 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
@@ -42,7 +41,6 @@ public class UploaderTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StorePostsCommand storePostsCommand;
-    @Mock private SyncStateManager syncStateManager;
 
     @Before
     public void before() throws Exception {
@@ -51,7 +49,7 @@ public class UploaderTest extends AndroidUnitTest {
 
     private Uploader uploader(Recording recording) {
         return new Uploader(context(), apiClient, recording, storeTracksCommand, storePostsCommand,
-                            eventBus, syncStateManager);
+                            eventBus);
     }
 
     @Test

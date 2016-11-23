@@ -15,7 +15,6 @@ enum Feature {
   DISCOVERY_CHARTS,
   EDIT_PLAYLIST,
   PLAY_QUEUE,
-  NEW_SYNC_ADAPTER,
   HOLISTIC_TRACKING,
   EXPLORE,
   SUGGESTED_CREATORS,
@@ -33,7 +32,6 @@ android {
   defaultConfig {
     buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FILTER_COLLECTIONS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ARCHER_PUSH.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MID_TIER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), UNDER_DEVELOPMENT
@@ -59,7 +57,6 @@ android {
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
@@ -70,7 +67,6 @@ android {
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
     }
@@ -81,7 +77,6 @@ android {
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
@@ -90,21 +85,18 @@ android {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
 
     preRelease {
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
     }
   }

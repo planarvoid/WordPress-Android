@@ -87,6 +87,7 @@
     <string name="authentication_login_progress_message">Signing you in</string>
     <string name="authentication_recover_password_failure">We can’t recover your password right now. Try again soon.</string>
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
+    <string name="authentication_recover_password_unknown_email_address">Unknown Email Address</string>
     <string name="authentication_recover_password_success">Check your email for instructions about how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Create an account</string>

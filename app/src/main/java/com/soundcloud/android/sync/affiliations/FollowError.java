@@ -2,31 +2,31 @@ package com.soundcloud.android.sync.affiliations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class FollowError {
+class FollowError {
 
-    private static final String AGE_RESTRICTED = "DENY_AGE_RESTRICTED";
-    private static final String AGE_UNKNOWN = "DENY_AGE_UNKNOWN";
+    private static final String AGE_RESTRICTED = "age_restricted";
+    private static final String AGE_UNKNOWN = "age_unknown";
 
-    public final String errorMessage;
+    public final String error;
     public final Integer age;
 
-    public FollowError(@JsonProperty("error_message") String errorMessage, @JsonProperty("age") Integer age) {
-        this.errorMessage = errorMessage;
+    public FollowError(@JsonProperty("error_key") String error, @JsonProperty("age") Integer age) {
+        this.error = error;
         this.age = age;
     }
 
-    public boolean isAgeRestricted() {
-        return AGE_RESTRICTED.equals(errorMessage);
+    boolean isAgeRestricted() {
+        return AGE_RESTRICTED.equals(error);
     }
 
-    public boolean isAgeUnknown() {
-        return AGE_UNKNOWN.equals(errorMessage);
+    boolean isAgeUnknown() {
+        return AGE_UNKNOWN.equals(error);
     }
 
     @Override
     public String toString() {
         return "ApiError{" +
-                "errorMessage='" + errorMessage + '\'' +
+                "error='" + error + '\'' +
                 ", age=" + age +
                 '}';
     }

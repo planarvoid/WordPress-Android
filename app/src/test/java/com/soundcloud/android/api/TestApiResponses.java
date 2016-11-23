@@ -13,6 +13,9 @@ public class TestApiResponses {
     public static ApiResponse status(int statusCode) {
         return new ApiResponse(null, statusCode, null);
     }
+    public static ApiResponse status(int statusCode, String body) {
+        return new ApiResponse(null, statusCode, body);
+    }
 
     public static ApiResponse networkError() {
         return new ApiResponse(ApiRequestException.networkError(null, new IOException()));

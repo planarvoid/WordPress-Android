@@ -16,7 +16,6 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.me.MeSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -48,19 +47,17 @@ public class MeSyncerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsSuccessfulResult() throws Exception {
+    public void returnsTrueOnSuccess() throws Exception {
         setupSuccessfulFetch();
 
-        final LegacySyncResult actual = meSyncer.syncContent(null, null);
-        assertThat(actual.success).isEqualTo(true);
-        assertThat(actual.change).isEqualTo(LegacySyncResult.CHANGED);
+        assertThat(meSyncer.call()).isTrue();
     }
 
     @Test
     public void storesMeUserInStorage() throws Exception {
         setupSuccessfulFetch();
 
-        meSyncer.syncContent(null, null);
+        meSyncer.call();
 
         verify(storeUsersCommand).call(Collections.singleton(me.getUser()));
     }
@@ -69,7 +66,7 @@ public class MeSyncerTest extends AndroidUnitTest {
     public void sendsMeUserEntityStateChangeEvent() throws Exception {
         setupSuccessfulFetch();
 
-        meSyncer.syncContent(null, null);
+        meSyncer.call();
 
         assertThat(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED)).isEqualTo(EntityStateChangedEvent.forUpdate(me.getUser()
                                                                                                                         .toPropertySet()));

@@ -18,8 +18,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -51,7 +49,6 @@ public class Uploader implements Runnable {
 
     private final StoreTracksCommand storeTracksCommand;
     private final StorePostsCommand storePostsCommand;
-    private final SyncStateManager syncStateManager;
 
     private final ApiClient apiClient;
     private final Recording recording;
@@ -62,13 +59,12 @@ public class Uploader implements Runnable {
     private final EventBus eventBus;
 
     public Uploader(Context context, ApiClient apiClient, Recording recording, StoreTracksCommand storeTracksCommand,
-                    StorePostsCommand storePostsCommand, EventBus eventBus, SyncStateManager syncStateManager) {
+                    StorePostsCommand storePostsCommand, EventBus eventBus) {
         this.apiClient = apiClient;
         this.recording = recording;
         this.storeTracksCommand = storeTracksCommand;
         this.storePostsCommand = storePostsCommand;
         this.context = context;
-        this.syncStateManager = syncStateManager;
         this.subscription = eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
         this.eventBus = eventBus;
     }
@@ -192,9 +188,6 @@ public class Uploader implements Runnable {
 
         storeTracksCommand.call(singletonList(track));
         createNewTrackPost(track);
-
-        //request to update my collection
-        syncStateManager.forceToStale(Content.ME_SOUNDS);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Upload successful : " + track);

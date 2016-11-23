@@ -3,7 +3,6 @@ package com.soundcloud.android.sync.commands;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.BulkFetchCommand;
@@ -33,7 +32,7 @@ public class FetchUsersCommand extends BulkFetchCommand<PublicApiUser> {
         return ApiRequest.get(ApiEndpoints.LEGACY_USERS.path())
                          .forPublicApi()
                          .addQueryParam("ids", Urns.toJoinedIds(urns, ","))
-                         .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
+                         .addQueryParam("linked_partitioning", "1")
                          .build();
     }
 

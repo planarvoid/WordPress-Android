@@ -58,7 +58,7 @@ public class TokenInformationGenerator {
         return token;
     }
 
-    private Token requestToken(Map<String, String> params) throws ApiRequestException {
+    public Token requestToken(Map<String, String> params) throws ApiRequestException {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.OAUTH2_TOKEN.path())
                                              .forPublicApi()
                                              .withFormMap(params)

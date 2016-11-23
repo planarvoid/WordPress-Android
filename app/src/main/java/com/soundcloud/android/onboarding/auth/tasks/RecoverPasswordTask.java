@@ -1,40 +1,62 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import com.soundcloud.android.api.legacy.AsyncApiTask;
-import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.Request;
+import static com.soundcloud.android.api.ApiRequestException.Reason.*;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 
-import java.io.IOException;
+import android.content.res.Resources;
+import android.os.AsyncTask;
 
-public class RecoverPasswordTask extends AsyncApiTask<String, Void, Boolean> {
-    public RecoverPasswordTask(PublicApi api) {
-        super(api);
+public class RecoverPasswordTask extends AsyncTask<String, Void, Boolean> {
+    private final TokenInformationGenerator tokenInformationGenerator;
+    private final OAuth oAuth;
+    private final ApiClient apiClient;
+    private final Resources resources;
+    protected String reason;
+
+    protected RecoverPasswordTask(TokenInformationGenerator tokenInformationGenerator,
+                                  OAuth oAuth,
+                                  ApiClient apiClient,
+                                  Resources resources) {
+        this.tokenInformationGenerator = tokenInformationGenerator;
+        this.oAuth = oAuth;
+        this.apiClient = apiClient;
+        this.resources = resources;
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
         final String email = params[0];
-        try {
-            final Token signup = api.clientCredentials();
-            HttpResponse resp = api.post(
-                    Request.to(SEND_PASSWORD).with("email", email).usingToken(signup));
-            final int code = resp.getStatusLine().getStatusCode();
 
-            switch (code) {
-                case HttpStatus.SC_ACCEPTED:
-                    return true;
-                case HttpStatus.SC_NOT_FOUND:
-                    extractErrors(resp);
-                default:
-                    warn("unexpected status code " + code + " received");
-                    return false;
+        ApiRequestException failure;
+        try {
+            Token signup = tokenInformationGenerator.requestToken(oAuth.getTokenRequestParamsFromClientCredentials());
+            ApiResponse apiResponse = apiClient.fetchResponse(ApiRequest.post(ApiEndpoints.RESET_PASSWORD.path())
+                                                                        .forPublicApi()
+                                                                        .addQueryParam("email", email)
+                                                                        .withToken(signup)
+                                                                        .build());
+            failure = apiResponse.getFailure();
+        } catch (ApiRequestException e) {
+            e.printStackTrace();
+            failure = e;
+        }
+
+        if (failure != null) {
+            if (NOT_FOUND.equals(failure.reason())) {
+                reason = resources.getString(R.string.authentication_recover_password_unknown_email_address);
             }
-        } catch (IOException e) {
-            warn("error requesting password reset", e);
             return false;
+        } else {
+            return true;
         }
     }
 }

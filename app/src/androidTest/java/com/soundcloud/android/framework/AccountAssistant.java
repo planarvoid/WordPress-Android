@@ -1,13 +1,12 @@
 package com.soundcloud.android.framework;
 
 import static java.lang.String.format;
-import static java.util.Locale.getDefault;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.Endpoints;
-import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.Request;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
@@ -15,7 +14,9 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import org.apache.http.HttpResponse;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import rx.Subscription;
 
 import android.accounts.Account;
@@ -26,7 +27,6 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -152,18 +152,19 @@ public final class AccountAssistant {
         return AccountManager.get(context).getAccountsByType(context.getString(R.string.account_type));
     }
 
-    static PublicApiUser getLoggedInUser(PublicApi apiWrapper) throws IOException {
-        HttpResponse response = apiWrapper.get(Request.to(Endpoints.MY_DETAILS));
-        int status = response.getStatusLine().getStatusCode();
-        if (status != 200) {
-            throw new IOException(format(getDefault(), "%s response status was: %d", Endpoints.MY_DETAILS, status));
-        }
-        final InputStream content = response.getEntity().getContent();
-        return PublicApi.buildObjectMapper().readValue(content, PublicApiUser.class);
-    }
+    static PublicApiUser getLoggedInUser(String accessToken) throws IOException {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("http://api.soundcloud.com/me?"+ ApiRequest.Param.OAUTH_TOKEN + "=" + accessToken)
+                .build();
 
-    static PublicApi createApiWrapper(Context context) {
-        waitForAccountOperationsToBeInjected(context);
-        return new PublicApi(context);
+        Response response = okHttpClient.newCall(request).execute();
+
+        if (!response.isSuccessful()) {
+            throw new IOException("Unexpected code " + response);
+        }
+
+        ObjectMapper objectMapper = JacksonJsonTransformer.buildObjectMapper();
+        return objectMapper.readValue(response.body().byteStream(), PublicApiUser.class);
     }
 }

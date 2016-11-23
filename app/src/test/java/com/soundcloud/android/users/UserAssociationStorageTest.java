@@ -301,17 +301,17 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         final ApiUser user1 = ModelFixtures.create(ApiUser.class);
         final ApiUser user2 = ModelFixtures.create(ApiUser.class);
 
-        storage.insertFollowedUserIds(asList(user1.getId(), user2.getId()), 2);
+        storage.insertFollowedUserIds(asList(user1.getId(), user2.getId()));
 
         assertThat(select(Query.from(UserAssociations)
                                .whereEq(TARGET_ID, user1.getUrn().getNumericId())
                                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                               .whereEq(POSITION, 2)))
+                               .whereEq(POSITION, 0)))
                 .counts(1);
         assertThat(select(Query.from(UserAssociations)
                                .whereEq(TARGET_ID, user2.getUrn().getNumericId())
                                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                               .whereEq(POSITION, 3)))
+                               .whereEq(POSITION, 1)))
                 .counts(1);
     }
 

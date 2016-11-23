@@ -2,7 +2,7 @@ package com.soundcloud.android.ads;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ public class DisplayPropertiesTest extends AndroidUnitTest {
 
     @Test
     public void deserializeDisplayProperties() throws IOException {
-        ApiDisplayProperties properties = PublicApi.buildObjectMapper().readValue(
+        ApiDisplayProperties properties = JacksonJsonTransformer.buildObjectMapper().readValue(
                 getClass().getResourceAsStream("display_properties.json"), ApiDisplayProperties.class);
 
         assertThat(properties.defaultBackgroundColor).isEqualTo("#000000");

@@ -2,11 +2,12 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.RootActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.onboarding.auth.tasks.RecoverPasswordTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -14,6 +15,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -28,7 +30,10 @@ import javax.inject.Inject;
 public class RecoverActivity extends RootActivity {
 
     @Inject EventBus eventBus;
-    @Inject PublicApi publicApi;
+    @Inject Resources resources;
+    @Inject TokenInformationGenerator tokenInformationGenerator;
+    @Inject OAuth oAuth;
+    @Inject ApiClient apiClient;
 
     public RecoverActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -98,7 +103,7 @@ public class RecoverActivity extends RootActivity {
     }
 
     private void recoverPassword(final String email) {
-        new RecoverPasswordTask(publicApi) {
+        new RecoverPasswordTask(tokenInformationGenerator, oAuth, apiClient, resources) {
             private ProgressDialog progressDialog;
 
             @Override
@@ -119,7 +124,7 @@ public class RecoverActivity extends RootActivity {
                 }
                 setResult(RESULT_OK, new Intent()
                         .putExtra("success", success)
-                        .putExtra("error", getFirstError()));
+                        .putExtra("error", reason));
 
                 finish();
             }

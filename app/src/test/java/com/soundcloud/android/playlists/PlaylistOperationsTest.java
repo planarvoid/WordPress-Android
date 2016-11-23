@@ -20,10 +20,10 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
-import com.soundcloud.android.sync.LegacySyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -124,7 +124,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void updatedPlaylistSyncsThenLoadsFromStorage() {
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(just(SyncJobResult.success(
-                LegacySyncActions.SYNC_PLAYLIST,
+                Syncable.PLAYLIST.name(),
                 true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
                 track1,
@@ -142,7 +142,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(just(SyncJobResult.success(
-                LegacySyncActions.SYNC_PLAYLIST,
+                Syncable.PLAYLIST.name(),
                 true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
                 track1,
@@ -161,7 +161,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingAPlaylistMissingExceptionIfPlaylistMetaDataStillMissing() {
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(just(SyncJobResult.success(
-                LegacySyncActions.SYNC_PLAYLIST,
+                Syncable.PLAYLIST.name(),
                 true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
                 track1,
@@ -181,7 +181,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         final List<PropertySet> emptyTrackList = Collections.emptyList();
         final List<PropertySet> trackList = Arrays.asList(track1, track2);
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(just(SyncJobResult.success(
-                LegacySyncActions.SYNC_PLAYLIST,
+                Syncable.PLAYLIST.name(),
                 true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(just(emptyTrackList),
                                                                          just(trackList));

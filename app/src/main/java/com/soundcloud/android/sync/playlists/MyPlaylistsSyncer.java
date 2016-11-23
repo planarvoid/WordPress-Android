@@ -19,10 +19,8 @@ import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
-import com.soundcloud.android.sync.LegacySyncActions;
-import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.SyncStrategy;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.Log;
@@ -30,10 +28,7 @@ import com.soundcloud.android.utils.Urns;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import android.net.Uri;
 import android.support.v4.util.ArrayMap;
 import android.util.Pair;
 
@@ -44,7 +39,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 @AutoFactory(allowSubclasses = true)
-public class MyPlaylistsSyncer implements Callable<Boolean>, SyncStrategy {
+public class MyPlaylistsSyncer implements Callable<Boolean> {
 
     private static final String TAG = "MyPlaylistsSyncer";
 
@@ -93,12 +88,6 @@ public class MyPlaylistsSyncer implements Callable<Boolean>, SyncStrategy {
         return postedPlaylistsChanged || offlinePlaylistsChanged;
     }
 
-    @NotNull
-    @Override
-    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        return call() ? LegacySyncResult.fromSuccessfulChange(uri) : LegacySyncResult.fromSuccessWithoutChange(uri);
-    }
-
     private boolean syncOfflinePlaylists() {
         final List<Urn> offlinePlaylists = loadOfflinePlaylistsCommand.call(null);
         final List<Urn> updatedOfflinePlaylists = new ArrayList<>();
@@ -115,7 +104,7 @@ public class MyPlaylistsSyncer implements Callable<Boolean>, SyncStrategy {
         final boolean hasUpdatedPlaylists = !updatedOfflinePlaylists.isEmpty();
         if (hasUpdatedPlaylists) {
             eventBus.publish(EventQueue.SYNC_RESULT,
-                             SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
+                             SyncJobResult.success(Syncable.PLAYLIST.name(), true, updatedOfflinePlaylists));
         }
         return hasUpdatedPlaylists;
     }

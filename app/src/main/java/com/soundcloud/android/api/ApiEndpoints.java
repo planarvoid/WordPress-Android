@@ -152,7 +152,10 @@ public enum ApiEndpoints {
     LEGACY_USER_FOLLOWERS("/users/%s/followers"),
     LEGACY_USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
-    OAUTH2_TOKEN("/oauth2/token");
+    USER_FOLLOWS("/follows/users/%s"),
+
+    OAUTH2_TOKEN("/oauth2/token"),
+    RESET_PASSWORD("/passwords/reset-instructions");
 
     private final String path;
 

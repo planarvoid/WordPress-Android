@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -9,8 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
-import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
-import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestSyncer;
@@ -33,9 +30,6 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     @Mock private SyncerRegistry syncerRegistry;
     @Mock private SingleJobRequestFactory singleJobRequestFactory;
     @Mock private MultiJobRequestFactory multiJobRequestFactory;
-    @Mock private LegacySyncRequest.Factory syncIntentFactory;
-    @Mock private SyncTrackLikesJob syncTrackLikesJob;
-    @Mock private SyncPlaylistLikesJob syncPlaylistLikesJob;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private ResultReceiverAdapter resultReceiverAdapter;
@@ -46,29 +40,10 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
                 syncerRegistry,
                 singleJobRequestFactory,
                 multiJobRequestFactory,
-                syncIntentFactory,
-                lazyOf(syncTrackLikesJob),
-                lazyOf(syncPlaylistLikesJob),
                 entitySyncRequestFactory,
                 singlePlaylistSyncerFactory,
                 new TestEventBus()
         );
-    }
-
-    @Test
-    public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
-        SyncRequest syncRequest = syncRequestFactory.create(new Intent(LegacySyncActions.SYNC_TRACK_LIKES)
-                                                                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                                                              resultReceiverAdapter));
-        assertThat(syncRequest.getPendingJobs()).hasSize(1);
-        assertThat(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).isTrue();
-    }
-
-    @Test
-    public void returnsSingleRequestJobWithPlaylistLikesJob() throws Exception {
-        SyncRequest syncRequest = syncRequestFactory.create(new Intent(LegacySyncActions.SYNC_PLAYLIST_LIKES));
-        assertThat(syncRequest.getPendingJobs()).hasSize(1);
-        assertThat(syncRequest.getPendingJobs().contains(syncPlaylistLikesJob)).isTrue();
     }
 
     @Test

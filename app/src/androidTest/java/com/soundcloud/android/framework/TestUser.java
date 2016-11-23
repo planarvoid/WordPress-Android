@@ -1,6 +1,5 @@
 package com.soundcloud.android.framework;
 
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
 
@@ -24,10 +23,7 @@ Also be sure to set the subgenieExempt field to the appropriate value if the use
 public class TestUser {
     private final String permalink, email, password;
     private final boolean subgenieExempt;
-
     private Token token;
-    private PublicApiUser user;
-
     public static String generateEmail() {
         return "someemail-" + System.currentTimeMillis() + "@tests.soundcloud";
     }
@@ -42,7 +38,6 @@ public class TestUser {
         this.email = email;
         this.password = password;
         this.token = new Token(accessToken, null, Token.SCOPE_NON_EXPIRING);
-        this.user = new PublicApiUser(id, permalink);
         this.subgenieExempt = subgenieExempt;
     }
 
@@ -59,7 +54,6 @@ public class TestUser {
     }
 
     public boolean logIn(Context context) {
-        PublicApi apiWrapper = AccountAssistant.createApiWrapper(context);
         int maxRetries = 3;
         int tryCount = 0;
         boolean result = false;
@@ -67,10 +61,9 @@ public class TestUser {
         while (shouldRetry) {
             try {
                 tryCount++;
-                result = AccountAssistant.addAccountAndEnableSync(context, getToken(context, apiWrapper),
-                                                                  getUser(apiWrapper).toApiMobileUser());
+                PublicApiUser loggedInUser = AccountAssistant.getLoggedInUser(token.getAccessToken());
+                result = AccountAssistant.addAccountAndEnableSync(context, token, loggedInUser.toApiMobileUser());
             } catch (IOException e) {
-
                 if (tryCount > maxRetries) {
                     throw new AssertionError("error logging in: " + e.getMessage());
                 }
@@ -85,21 +78,6 @@ public class TestUser {
             }
         }
         return result;
-    }
-
-    protected PublicApiUser getUser(PublicApi apiWrapper) throws IOException {
-        if (user == null) {
-            user = AccountAssistant.getLoggedInUser(apiWrapper);
-        }
-        return user;
-    }
-
-    protected Token getToken(Context context, PublicApi apiWrapper) throws IOException {
-        if (token == null) {
-            token = apiWrapper.login(email, password);
-        }
-        AccountAssistant.setToken(context, token);
-        return token;
     }
 
     public static final TestUser defaultUser = new TestUser(

@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
@@ -11,7 +10,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowApplication;
 import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,13 +24,11 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     private TestSubscriber<SyncJobResult> syncSubscriber = new TestSubscriber<>();
 
     @Mock private AccountOperations accountOperations;
-    @Mock private LegacySyncInitiator legacySyncInitiator;
 
     @Before
     public void setUp() throws Exception {
         syncInitiator = new SyncInitiator(context(),
-                                          accountOperations,
-                                          legacySyncInitiator);
+                                          accountOperations);
     }
 
     @Test
@@ -127,8 +123,6 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void syncPlaylistsSyncsLocalAndRemotePlaylist() {
-        final PublishSubject<Boolean> refreshPlaylistsSubject = PublishSubject.create();
-        when(legacySyncInitiator.refreshMyPlaylists()).thenReturn(refreshPlaylistsSubject);
         syncInitiator.syncPlaylists(Arrays.asList(Urn.forPlaylist(123), Urn.forPlaylist(-123))).subscribe(syncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
@@ -139,10 +133,12 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
         syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
 
-        refreshPlaylistsSubject.onNext(true);
-        refreshPlaylistsSubject.onCompleted();
+        Intent syncMyPlaylists = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(SyncIntentHelper.getSyncable(syncMyPlaylists)).isEqualTo(Syncable.MY_PLAYLISTS);
+        final SyncJobResult result2 = sendSyncChangedToReceiver(syncMyPlaylists);
 
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result, SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, true)));
+        syncSubscriber.assertReceivedOnNext(
+                Arrays.asList(result, result2));
         syncSubscriber.assertCompleted();
     }
 

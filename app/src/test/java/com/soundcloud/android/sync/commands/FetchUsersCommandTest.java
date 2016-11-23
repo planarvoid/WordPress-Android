@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
@@ -87,7 +86,7 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(
                 isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_USERS.path())
                         .withQueryParam("ids", joinedIds)
-                        .withQueryParam(PublicApi.LINKED_PARTITIONING, "1")), isA(TypeToken.class)))
+                        .withQueryParam("linked_partitioning", "1")), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(users));
     }
 }

@@ -27,8 +27,8 @@ import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
-import com.soundcloud.android.sync.LegacySyncActions;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -228,7 +228,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
         verify(eventBus).publish(eq(EventQueue.SYNC_RESULT), captor.capture());
         SyncJobResult event = captor.getValue();
-        assertThat(event.getAction()).isEqualTo(LegacySyncActions.SYNC_PLAYLIST);
+        assertThat(event.getAction()).isEqualTo(Syncable.PLAYLIST.name());
         assertThat(event.getUrns()).containsExactly(offlinePlaylist);
     }
 
