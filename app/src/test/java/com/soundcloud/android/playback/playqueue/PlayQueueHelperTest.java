@@ -69,7 +69,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
         verify(playlistOperations, times(1)).trackUrnsForPlayback(playlistUrn);
         verify(playbackInitiator, times(1)).playTracks(trackList, 0, playSessionSource);
         PlayerUICommand playerUICommand = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        assertThat(playerUICommand).isEqualTo(PlayerUICommand.showPlayer());
+        assertThat(playerUICommand).isEqualTo(PlayerUICommand.expandPlayer());
     }
 
     @Test

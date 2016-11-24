@@ -1,16 +1,15 @@
 package com.soundcloud.android.playback;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 public class ShowPlayerSubscriberTest extends AndroidUnitTest {
 
@@ -29,7 +28,7 @@ public class ShowPlayerSubscriberTest extends AndroidUnitTest {
     public void showsPlayerOnSuccessfulPlaybackResult() {
         subscriber.onNext(PlaybackResult.success());
 
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
     }
 
     @Test

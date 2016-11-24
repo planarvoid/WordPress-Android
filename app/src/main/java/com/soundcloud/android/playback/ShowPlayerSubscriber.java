@@ -21,7 +21,7 @@ public class ShowPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     @Override
     public void onNext(PlaybackResult result) {
         if (result.isSuccess()) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
         } else {
             playbackToastHelper.showToastOnPlaybackError(result.getErrorReason());
         }
