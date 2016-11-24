@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,6 +17,7 @@ public class ForceUpdateDialog extends DialogFragment {
 
     private static final String DIALOG_TAG = "force_update_dlg";
     private static final String PLAY_STORE_URL = "market://details?id=com.soundcloud.android";
+    private static final String PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id=com.soundcloud.android";
 
     public static void show(FragmentManager fragmentManager) {
         if (fragmentManager.findFragmentByTag(DIALOG_TAG) == null) {
@@ -39,8 +41,14 @@ public class ForceUpdateDialog extends DialogFragment {
     }
 
     private void closeActivityAndLaunchPlayStore() {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URL));
-        getActivity().startActivity(intent);
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URL));
+            getActivity().startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_WEB_URL));
+            getActivity().startActivity(intent);
+        }
+
         getActivity().finish();
     }
 }
