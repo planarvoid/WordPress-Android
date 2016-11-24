@@ -1,16 +1,9 @@
 package com.soundcloud.android.utils.images;
 
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.dialog.CustomFontViewBuilder;
-import com.soundcloud.android.image.ImageListener;
-import com.soundcloud.android.image.OneShotTransitionDrawable;
-import com.soundcloud.android.utils.AndroidUtils;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -26,14 +19,26 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.crop.Crop;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.image.OneShotTransitionDrawable;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -266,9 +271,10 @@ public final class ImageUtils {
         return (resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
-    public static File createTempAvatarFile() {
+    public static File createTempAvatarFile(Context context) {
         try {
-            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp");
+            final File dir = IOUtils.getExternalStorageDir(context, Environment.DIRECTORY_PICTURES);
+            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", dir);
         } catch (IOException e) {
             Log.w(TAG, "error creating avatar temp file", e);
             return null;
@@ -297,12 +303,22 @@ public final class ImageUtils {
     private static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {
         if (destinationFile != null) {
             Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destinationFile));
+                    .putExtra(MediaStore.EXTRA_OUTPUT, getFileUri(activity, destinationFile));
             try {
                 activity.startActivityForResult(i, requestCode);
             } catch (ActivityNotFoundException e) {
                 AndroidUtils.showToast(activity, R.string.take_new_picture_error);
             }
+        }
+    }
+
+    private static Uri getFileUri(Activity activity, File destinationFile) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            return Uri.fromFile(destinationFile);
+        } else {
+            return FileProvider.getUriForFile(activity,
+                    "com.soundcloud.android",
+                    destinationFile);
         }
     }
 
