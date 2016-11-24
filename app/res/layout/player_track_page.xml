@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -80,32 +81,25 @@
 
     <LinearLayout
         android:id="@id/player_bottom_close"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/player_engagement"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:gravity="right|center_vertical"
         android:paddingLeft="8dp">
 
-        <android.support.v7.app.MediaRouteButton
-            android:id="@+id/media_route_button"
-            style="@style/PlayerMediaRouteButton" />
-
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/cast_device_name"
-            style="@style/PlayerCastDeviceName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="-5dp"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1" />
+        <com.soundcloud.android.view.CustomFontToggleButton
+            android:id="@+id/track_page_like"
+            style="@style/PlayerLikeBase.PlayerLike" />
 
         <ImageButton
             android:id="@+id/track_page_share"
             style="@style/PlayerShare" />
 
-        <com.soundcloud.android.view.CustomFontToggleButton
-            android:id="@+id/track_page_like"
-            style="@style/PlayerLikeBase.PlayerLike" />
+        <ImageView
+            android:id="@+id/play_queue_button"
+            style="@style/PlayerQueue"
+            tools:visibility="visible"/>
 
         <com.soundcloud.android.view.OverflowAnchorImageView
             android:id="@+id/track_page_more"
@@ -127,15 +121,18 @@
             android:id="@+id/profile_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="112dp"
             android:orientation="vertical">
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@+id/track_page_user"
+                tools:text="Loozer records"
                 style="@style/PlayerUser" />
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@+id/track_page_title"
                 style="@style/PlayerTitle"
+                tools:text="This is not lemonade, this is strawberry juice (Killswitch X Reed Remix)"
                 android:layout_below="@id/track_page_user"
                 android:layout_marginTop="3dp"
                 android:layout_marginRight="14dp" />
@@ -144,7 +141,8 @@
         <com.soundcloud.android.view.JaggedTextView
             android:drawableLeft="@drawable/ic_stations_player_context"
             android:id="@+id/track_page_context"
-            style="@style/PlayerContext" />
+            style="@style/PlayerContext"
+            tools:text="Placeholder station name"/>
     </LinearLayout>
 
     <include layout="@layout/player_footer_controls"

@@ -65,15 +65,6 @@
         <item name="android:paddingLeft">6dp</item>
     </style>
 
-    <style name="PlayerCastDeviceName" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:textColor">@color/player_cast_device_name</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:gravity">center_vertical|left</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
     <style name="PlayerLikeBase" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
@@ -88,26 +79,33 @@
     <style name="PlayerLikeBase.PlayerLike">
         <item name="android:background">@drawable/btn_player_like</item>
         <item name="android:paddingLeft">36dp</item>
-        <item name="android:paddingRight">8dp</item>
+
         <item name="android:layout_marginLeft">12dp</item>
     </style>
 
     <style name="PlayerMediaRouteButton" parent="Widget.MediaRouter.MediaRouteButton">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">67dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingLeft">26dp</item>
+        <item name="android:layout_marginRight">-12dp</item>
         <item name="android:visibility">gone</item>
     </style>
 
     <style name="PlayerMore">
-        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_width">60dp</item>
+        <item name="android:paddingRight">12dp</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
-        <item name="android:background">@drawable/btn_player_more</item>
+        <item name="android:src">@drawable/btn_player_more</item>
         <item name="android:scaleType">center</item>
     </style>
 
     <style name="PlayerCloseBase">
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">67dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingBottom">3dp</item>
         <item name="android:src">@drawable/btn_player_close</item>
         <item name="android:scaleType">centerInside</item>
         <item name="android:clickable">true</item>
@@ -117,29 +115,17 @@
     <style name="PlayerCloseBase.PlayerClose" />
 
     <style name="PlayerShare">
-        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_width">@dimen/player_share_width</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:src">@drawable/btn_player_share</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="PlayerShareTextBase" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">@dimen/player_engagement</item>
-        <item name="android:textAppearance">@null</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:paddingLeft">20dp</item>
-        <item name="android:paddingRight">20dp</item>
-    </style>
-
     <style name="PlayerQueue">
-        <item name="android:src">@drawable/ic_queue</item>
+        <item name="android:src">@drawable/btn_player_play_queue</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:layout_height">44dp</item>
-        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_width">@dimen/player_play_queue_height</item>
+        <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:scaleType">center</item>
         <item name="android:visibility">gone</item>
         <item name="android:padding">18dp</item>

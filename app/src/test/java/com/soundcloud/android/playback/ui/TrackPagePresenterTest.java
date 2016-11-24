@@ -140,7 +140,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
         assertThat(getHolder(trackView).likeToggle).isChecked();
         verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1,
-                                                 R.drawable.player_like_active, R.drawable.player_like);
+                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like);
     }
 
     @Test
@@ -361,7 +361,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
         verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999,
-                                                 R.drawable.player_like_active, R.drawable.player_like);
+                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like);
     }
 
     @Test

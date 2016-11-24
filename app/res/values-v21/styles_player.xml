@@ -12,28 +12,29 @@
     </style>
 
     <style name="PlayerMore" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_width">60dp</item>
+        <item name="android:paddingRight">12dp</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
-        <item name="android:src">@drawable/player_overflow</item>
+        <item name="android:src">@drawable/btn_player_more</item>
         <item name="android:background">@drawable/btn_player_engagement_ripple</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:scaleType">center</item>
     </style>
 
     <style name="PlayerShare" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_width">@dimen/player_share_width</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
-        <item name="android:src">@drawable/ic_share_white_24dp</item>
+        <item name="android:src">@drawable/btn_player_share</item>
         <item name="android:background">@drawable/btn_player_engagement_ripple</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
     <style name="PlayerQueue" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:src">@drawable/ic_queue</item>
+        <item name="android:src">@drawable/btn_player_play_queue</item>
         <item name="android:background">@drawable/circular_ripple</item>
         <item name="android:stateListAnimator">@null</item>
-        <item name="android:layout_height">44dp</item>
-        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_width">@dimen/player_play_queue_height</item>
+        <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:scaleType">center</item>
         <item name="android:visibility">gone</item>

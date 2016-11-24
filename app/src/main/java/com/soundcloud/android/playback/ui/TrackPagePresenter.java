@@ -83,20 +83,20 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     @Inject
     TrackPagePresenter(WaveformOperations waveformOperations,
-                              FeatureOperations featureOperations,
-                              TrackPageListener listener,
-                              LikeButtonPresenter likeButtonPresenter,
-                              WaveformViewController.Factory waveformControllerFactory,
-                              PlayerArtworkController.Factory artworkControllerFactory,
-                              PlayerOverlayController.Factory playerOverlayControllerFactory,
-                              TrackPageMenuController.Factory trackMenuControllerFactory,
-                              AdOverlayControllerFactory adOverlayControllerFactory,
-                              ErrorViewControllerFactory errorControllerFactory,
-                              CastConnectionHelper castConnectionHelper,
-                              Resources resources,
-                              PlayerUpsellImpressionController upsellImpressionController,
-                              PlayerUpsellCopyExperiment upsellCopyExperiment,
-                              FeatureFlags featureFlags) {
+                       FeatureOperations featureOperations,
+                       TrackPageListener listener,
+                       LikeButtonPresenter likeButtonPresenter,
+                       WaveformViewController.Factory waveformControllerFactory,
+                       PlayerArtworkController.Factory artworkControllerFactory,
+                       PlayerOverlayController.Factory playerOverlayControllerFactory,
+                       TrackPageMenuController.Factory trackMenuControllerFactory,
+                       AdOverlayControllerFactory adOverlayControllerFactory,
+                       ErrorViewControllerFactory errorControllerFactory,
+                       CastConnectionHelper castConnectionHelper,
+                       Resources resources,
+                       PlayerUpsellImpressionController upsellImpressionController,
+                       PlayerUpsellCopyExperiment upsellCopyExperiment,
+                       FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -177,13 +177,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.menuController.setTrack(trackState);
         holder.waveformController.setWaveform(waveformOperations.waveformDataFor(trackState.getUrn(),
                                                                                  trackState.getWaveformUrl()),
-                                                                                 trackState.isForeground());
+                                              trackState.isForeground());
 
         holder.artworkController.setFullDuration(trackState.getFullDuration());
         holder.waveformController.setDurations(trackState.getPlayableDuration(), trackState.getFullDuration());
 
         likeButtonPresenter.setLikeCount(holder.likeToggle, trackState.getLikeCount(),
-                                         R.drawable.player_like_active, R.drawable.player_like);
+                                         R.drawable.ic_player_liked, R.drawable.ic_player_like);
 
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(trackState.getUrn());
@@ -219,8 +219,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private void configureUpsell(TrackPageHolder holder, FeatureOperations featureOperations) {
         if (featureOperations.upsellHighTier()) {
             holder.upsellButton.setText(featureOperations.isHighTierTrialEligible()
-                    ? R.string.playback_upsell_button_trial
-                    : R.string.playback_upsell_button);
+                                        ? R.string.playback_upsell_button_trial
+                                        : R.string.playback_upsell_button);
             holder.upsellText.setText(upsellCopyExperiment.getUpsellCtaId());
             holder.upsellContainer.setVisibility(View.VISIBLE);
             holder.timestamp.setPreview(true);
@@ -271,7 +271,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void setCastDeviceName(View view, String deviceName) {
         TrackPageHolder viewHolder = getViewHolder(view);
-        viewHolder.castDeviceName.setText(deviceName);
         setupShareButton(viewHolder);
     }
 
@@ -394,7 +393,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
             likeButtonPresenter.setLikeCount(holder.likeToggle, changeSet.get(PlayableProperty.LIKES_COUNT),
-                                             R.drawable.player_like_active, R.drawable.player_like);
+                                             R.drawable.ic_player_liked, R.drawable.ic_player_like);
         }
         if (changeSet.contains(PlayableProperty.IS_USER_REPOST)) {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_USER_REPOST);
@@ -543,7 +542,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         TrackPageHolder holder = getViewHolder(trackView);
 
         final Iterable<View> fullScreenViews = getFullScreenViews(holder);
-        slideHelper.configureViewsFromSlide(slideOffset, holder.footer, fullScreenViews, holder.playerOverlayControllers);
+        slideHelper.configureViewsFromSlide(slideOffset,
+                                            holder.footer,
+                                            fullScreenViews,
+                                            holder.playerOverlayControllers);
         holder.waveformController.onPlayerSlide(slideOffset);
 
         getViewHolder(trackView).closeIndicator.setVisibility(slideOffset > 0 ? View.VISIBLE : View.GONE);
@@ -636,7 +638,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
         holder.trackContext = (JaggedTextView) trackView.findViewById(R.id.track_page_context);
 
-        holder.castDeviceName = (TextView) trackView.findViewById(R.id.cast_device_name);
         holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
         holder.artworkOverlayDark = trackView.findViewById(R.id.artwork_overlay_dark);
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
@@ -770,7 +771,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         JaggedTextView title;
         JaggedTextView user;
         JaggedTextView trackContext;
-        TextView castDeviceName;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
         View artworkOverlayDark;
@@ -830,6 +830,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                    user,
                                                    trackContext,
                                                    closeIndicator,
+                                                   mediaRouteButton,
                                                    nextButton,
                                                    previousButton,
                                                    playButton,
@@ -853,10 +854,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   title,
                                                   user,
                                                   timestamp,
-                                                  castDeviceName,
                                                   getPlayQueueButtonOrNull(featureFlags));
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder,
-                    upsellContainer, topGradient);
+                                            upsellContainer, topGradient);
             fullScreenAdViews = singletonList(interstitialHolder);
             fullScreenErrorViews = Arrays.asList(title, user, trackContext, close, interstitialHolder);
 

@@ -5,14 +5,17 @@
     <dimen name="player_footer">68dp</dimen>
     <dimen name="player_strip">4dp</dimen>
     <dimen name="player_footer_control">64dp</dimen>
-    <dimen name="player_engagement">64dp</dimen>
-    <dimen name="player_title_top">64dp</dimen>
+    <dimen name="player_ad_engagement">64dp</dimen>
+    <dimen name="player_engagement">88dp</dimen>
+    <dimen name="player_title_top">20dp</dimen>
     <dimen name="player_skip">52dp</dimen>
     <dimen name="player_gradient_height">180dp</dimen>
     <dimen name="player_footer_margin">10dp</dimen>
     <dimen name="player_pager_spacing">2dp</dimen>
     <dimen name="player_waveform_height">108dp</dimen>
     <dimen name="player_skip_margin">24dp</dimen>
+    <dimen name="player_share_width">64dp</dimen>
+    <dimen name="player_play_queue_height">72dp</dimen>
 
     <!-- waveform -->
     <dimen name="waveform_bar_width">2dp</dimen>

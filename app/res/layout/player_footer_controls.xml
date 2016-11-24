@@ -3,6 +3,8 @@
 <RelativeLayout android:id="@+id/footer_controls"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/player_track_page"
     android:layout_height="@dimen/player_footer_control">
 
     <com.soundcloud.android.view.CustomFontToggleButton
