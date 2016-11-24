@@ -18,7 +18,6 @@ import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.profile.UserAlbumsScreen;
 import com.soundcloud.android.screens.profile.UserLikesScreen;
 import com.soundcloud.android.screens.profile.UserPlaylistsScreen;
 import com.soundcloud.android.screens.profile.UserRepostsScreen;
@@ -343,27 +342,39 @@ public class ProfileScreen extends Screen {
         return new UserTracksScreen(testDriver);
     }
 
-    public UserPlaylistsScreen scrollToAndClickViewAllPlaylists() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists)))
+    public ProfileScreen scrollToViewAllPlaylists() {
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists)));
+
+        return this;
+    }
+
+    public UserPlaylistsScreen goToAllPlaylists() {
+        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists)))
                   .click();
 
         return new UserPlaylistsScreen(testDriver);
     }
 
-    public UserAlbumsScreen scrollToAndClickViewAllAlbums() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_albums))).click();
+    public ProfileScreen scrollToViewAllReposts() {
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_reposts)));
 
-        return new UserAlbumsScreen(testDriver);
+        return this;
     }
 
-    public UserRepostsScreen scrollToAndClickViewAllReposts() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_reposts))).click();
+    public UserRepostsScreen goToAllReposts() {
+        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_reposts))).click();
 
         return new UserRepostsScreen(testDriver);
     }
 
-    public UserLikesScreen scrollToAndClickViewAllLikes() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_likes))).click();
+    public ProfileScreen scrollToViewAllLikes() {
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_likes)));
+
+        return this;
+    }
+
+    public UserLikesScreen goToAllLikes() {
+        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_likes))).click();
 
         return new UserLikesScreen(testDriver);
     }

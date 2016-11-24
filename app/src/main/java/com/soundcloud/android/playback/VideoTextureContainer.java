@@ -8,6 +8,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
 
@@ -15,18 +16,23 @@ import javax.inject.Inject;
 public class VideoTextureContainer implements TextureView.SurfaceTextureListener {
 
     final private Urn urn;
-    final private VideoSurfaceProvider.Listener listener;
 
     @Nullable private Surface surface;
     @Nullable private SurfaceTexture surfaceTexture;
     @Nullable private TextureView currentTextureView;
 
+    private Optional<VideoSurfaceProvider.Listener> listener = Optional.absent();
+
     public VideoTextureContainer(Urn videoUrn,
                                  TextureView textureView,
-                                 VideoSurfaceProvider.Listener listener) {
+                                 Optional<VideoSurfaceProvider.Listener> listener) {
         this.urn = videoUrn;
         this.listener = listener;
         setTextureView(textureView);
+    }
+
+    void setListener(VideoSurfaceProvider.Listener listener) {
+        this.listener = Optional.of(listener);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -83,8 +89,8 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
         if (surfaceTexture == null) {
             surfaceTexture = surface;
             this.surface = new Surface(surface);
-            if (listener != null) {
-                listener.attemptToSetSurface(urn);
+            if (listener.isPresent()) {
+                listener.get().attemptToSetSurface(urn);
             }
         }
     }
@@ -109,7 +115,7 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
         @Inject
         Factory() {}
 
-        VideoTextureContainer build(Urn urn, TextureView textureView, VideoSurfaceProvider.Listener listener) {
+        VideoTextureContainer build(Urn urn, TextureView textureView, Optional<VideoSurfaceProvider.Listener> listener) {
             return new VideoTextureContainer(urn, textureView, listener);
         }
     }

@@ -154,10 +154,11 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testOpenPlaylistFromPlaylistsList() {
+        profileScreen.scrollToViewAllPlaylists();
         startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
-                .scrollToAndClickViewAllPlaylists()
+                .goToAllPlaylists()
                 .clickFirstPlaylist();
 
         assertThat(playlistDetailsScreen, isScreenVisible());
@@ -166,10 +167,11 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testPlayAndPauseFromRepostsList() {
+        profileScreen.scrollToViewAllReposts();
         startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
-                .scrollToAndClickViewAllReposts()
+                .goToAllReposts()
                 .clickFirstTrack();
 
         assertPlayAndPause(playerElement);
@@ -178,10 +180,11 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testPlayAndPauseFromLikesList() {
+        profileScreen.scrollToViewAllLikes();
         startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
-                .scrollToAndClickViewAllLikes()
+                .goToAllLikes()
                 .clickFirstTrack();
 
         assertPlayAndPause(playerElement);

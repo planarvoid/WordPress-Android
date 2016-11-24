@@ -6,6 +6,7 @@ import android.view.TextureView;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 public class VideoTextureContainerTest extends AndroidUnitTest {
 
-    @Mock VideoSurfaceProvider.Listener listener;
+    @Mock VideoSurfaceProvider.Listener surfaceProviderListener;
     @Mock TextureView textureView;
     @Mock TextureView textureView2;
     @Mock SurfaceTexture surfaceTexture;
@@ -29,7 +30,7 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        textureContainer = new VideoTextureContainer(URN, textureView, listener);
+        textureContainer = new VideoTextureContainer(URN, textureView, Optional.of(surfaceProviderListener));
     }
 
     @Test
@@ -75,7 +76,14 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
     public void onSurfaceTextureAvailableAttemptsToSetSurfaceOnListener() {
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        verify(listener).attemptToSetSurface(URN);
+        verify(surfaceProviderListener).attemptToSetSurface(URN);
+    }
+
+    @Test
+    public void onSurfaceTextureAvailableIsAbleToSetSurfaceWithoutListener() {
+        textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
+
+        assertThat(textureContainer.getSurface()).isNotNull();
     }
 
     @Test
