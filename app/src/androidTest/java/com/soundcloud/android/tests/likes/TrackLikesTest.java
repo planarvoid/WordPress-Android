@@ -26,20 +26,22 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        likesScreen = mainNavHelper.goToTrackLikes();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-    }
-
-    @Override
     protected void logInHelper() {
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testPlayAndPauseTrackFromLikes() {
-        final VisualPlayerElement playerElement = likesScreen.clickTrack(0);
+    public void testLikesScreen() throws Exception {
+        likesScreen = mainNavHelper.goToTrackLikes();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        assertShuffleStartsPlaying();
+        assertPlaysAndPausesTrack();
+        assertLikeChangeUpdatesLikesScreen();
+        assertLoadsNextPageOfLikes();
+    }
+
+    private void assertPlaysAndPausesTrack() {
+        final VisualPlayerElement playerElement = likesScreen.clickFirstLongTrack();
 
         assertThat(playerElement, Is.is(visible()));
         assertThat(playerElement, Is.is(playing()));
@@ -51,9 +53,10 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(playerElement, Is.is(not(playing())));
 
         finishEventTracking(TEST_SCENARIO_LIKES);
+        playerElement.pressBackToCollapse();
     }
 
-    public void testLoadsNextPage() {
+    private void assertLoadsNextPageOfLikes() {
         int numberOfTracks = likesScreen.getLoadedTrackCount();
         assertThat(numberOfTracks, is(greaterThan(0)));
 
@@ -62,10 +65,9 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(likesScreen.getLoadedTrackCount(), is(greaterThan(numberOfTracks)));
     }
 
-    public void testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
+    private void assertLikeChangeUpdatesLikesScreen() {
         final int initialLikedTracksCount = likesScreen.getTotalLikesCount();
-
-        final VisualPlayerElement player = likesScreen.clickTrack(0);
+        final VisualPlayerElement player = likesScreen.clickFirstLongTrack();
 
         player.tapToggleLikeButton();
         player.pressCloseButton();
@@ -79,12 +81,14 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount));
     }
 
-    public void testSongIsPlayedWhenShuffleEnabled() {
+    private void assertShuffleStartsPlaying() {
         startEventTracking();
 
         VisualPlayerElement playerElement = likesScreen.clickShuffleButton();
         assertThat(playerElement, is(playing()));
 
         finishEventTracking(TEST_LIKES_SHUFFLE);
+        playerElement.clickArtwork();
+        playerElement.pressBackToCollapse();
     }
 }

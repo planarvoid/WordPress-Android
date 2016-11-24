@@ -35,6 +35,11 @@ public class TrackItemElement {
         return wrapped.findElement(With.id(R.id.reposter)).hasVisibility();
     }
 
+    public boolean isLongerThanOneMinute() {
+        String durationText = new TextElement(wrapped.findElement(With.id(R.id.list_item_right_info))).getText();
+        return durationText.length() >= 4;
+    }
+
     public VisualPlayerElement click() {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         wrapped.click();
@@ -91,6 +96,24 @@ public class TrackItemElement {
             @Override
             public String getSelector() {
                 return "Not Promoted Track";
+            }
+        };
+    }
+
+    public static With LongTrack(final Han testDriver) {
+        return new With() {
+            @Override
+            public String getSelector() {
+                return "Track with duration >1min";
+            }
+
+            @Override
+            public boolean apply(ViewElement input) {
+                if (input.getId() != R.id.track_list_item) {
+                    return false;
+                }
+
+                return new TrackItemElement(testDriver, input).isLongerThanOneMinute();
             }
         };
     }

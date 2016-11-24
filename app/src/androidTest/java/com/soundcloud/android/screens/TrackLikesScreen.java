@@ -38,6 +38,16 @@ public class TrackLikesScreen extends Screen {
         return visualPlayerElement;
     }
 
+    public VisualPlayerElement clickFirstLongTrack() {
+        VisualPlayerElement visualPlayerElement = getFirstLongTrack().click();
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
+    }
+
+    private TrackItemElement getFirstLongTrack() {
+        return new TrackItemElement(testDriver, scrollToItem(TrackItemElement.LongTrack(testDriver)));
+    }
+
     public String getTrackTitle(int index) {
         return tracks().get(index).getTitle();
     }
