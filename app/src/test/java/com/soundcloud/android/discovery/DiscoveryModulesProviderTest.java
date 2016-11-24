@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
+import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
 import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.discovery.charts.ChartBucket;
@@ -34,7 +35,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DiscoveryPresenterDataSourceTest {
+public class DiscoveryModulesProviderTest {
 
     private static final Function<DiscoveryItem, DiscoveryItem.Kind> TO_KIND = new Function<DiscoveryItem, DiscoveryItem.Kind>() {
         @Nullable
@@ -45,10 +46,11 @@ public class DiscoveryPresenterDataSourceTest {
     };
     private final TestSubscriber<List<DiscoveryItem>> subscriber = new TestSubscriber<>();
 
-    private DiscoveryPresenter.DataSource dataSource;
+    private DiscoveryModulesProvider discoveryModulesProvider;
 
     @Mock private RecommendedTracksOperations recommendedTracksOperations;
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
+    @Mock private PlaylistDiscoveryConfig playlistDiscoveryConfig;
     @Mock private RecommendedStationsOperations recommendedStationsOperations;
     @Mock private ChartsOperations chartsOperations;
     @Mock private FeatureFlags featureFlags;
@@ -58,20 +60,20 @@ public class DiscoveryPresenterDataSourceTest {
 
     @Before
     public void setUp() throws Exception {
-        dataSource = new DiscoveryPresenter.DataSource(recommendedTracksOperations,
-                                                       playlistDiscoveryOperations,
-                                                       recommendedStationsOperations,
-                                                       recommendedPlaylistsOperations,
-                                                       chartsOperations,
-                                                       featureFlags,
-                                                       chartsExperiment,
-                                                       discoveryModulesPositionExperiment);
+        discoveryModulesProvider = new DiscoveryModulesProvider(discoveryModulesPositionExperiment,
+                                                                chartsExperiment,
+                                                                playlistDiscoveryConfig,
+                                                                featureFlags,
+                                                                recommendedTracksOperations,
+                                                                recommendedStationsOperations,
+                                                                recommendedPlaylistsOperations,
+                                                                chartsOperations,
+                                                                playlistDiscoveryOperations);
 
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.NEW_HOME)).thenReturn(false);
-        when(featureFlags.isDisabled(Flag.NEW_HOME)).thenReturn(true);
-        when(chartsExperiment.isEnabled()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
+        when(chartsExperiment.isEnabled()).thenReturn(false);
         when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(false);
+        when(playlistDiscoveryConfig.isEnabled()).thenReturn(false);
 
         final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.<Chart>emptyList(),
                                                                                      Collections.<Chart>emptyList()));
@@ -89,8 +91,25 @@ public class DiscoveryPresenterDataSourceTest {
     }
 
     @Test
-    public void loadsAllItemsInOrderSearchStationsTracksChartsTags() {
-        dataSource.discoveryItems().subscribe(subscriber);
+    public void loadsAllItemsInOrderSearchStationsTracksTags() {
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
+
+    @Test
+    public void loadsAllItemsIncludingChartsWhenExperimentAndFlagIsEnabled() {
+        when(chartsExperiment.isEnabled()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
         final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
@@ -100,23 +119,6 @@ public class DiscoveryPresenterDataSourceTest {
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
-        );
-    }
-
-    @Test
-    public void loadsAllItemsExceptChartsWhenExperimentAndFlagAreDisabled() {
-        when(chartsExperiment.isEnabled()).thenReturn(false);
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
-        dataSource.discoveryItems().subscribe(subscriber);
-        subscriber.assertValueCount(1);
-
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
-
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
@@ -125,7 +127,7 @@ public class DiscoveryPresenterDataSourceTest {
     public void loadsItemsInCorrectOrderForDiscoveryModulesPositionExperiment() {
         when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(true);
 
-        dataSource.discoveryItems().subscribe(subscriber);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
         final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
@@ -134,25 +136,41 @@ public class DiscoveryPresenterDataSourceTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
     @Test
     public void loadsAllItemsExceptPlaylistDiscoveryWhenNewHomeIsEnabled() {
-        when(featureFlags.isEnabled(Flag.NEW_HOME)).thenReturn(true);
-        when(featureFlags.isDisabled(Flag.NEW_HOME)).thenReturn(false);
-        dataSource.discoveryItems().subscribe(subscriber);
+        when(playlistDiscoveryConfig.isEnabled()).thenReturn(true);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
         final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
 
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.RecommendedPlaylistsItem,
+                DiscoveryItem.Kind.ChartItem
+        );
+    }
+
+    @Test
+    public void loadsAllItemsExceptPlaylistDiscoveryWhenPlaylistDiscoverySwitchIsEnabled() {
+        when(playlistDiscoveryConfig.isEnabled()).thenReturn(true);
+        when(playlistDiscoveryConfig.isPlaylistDiscoveryFirst()).thenReturn(true);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.RecommendedPlaylistsItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem
         );
     }
@@ -165,7 +183,7 @@ public class DiscoveryPresenterDataSourceTest {
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
 
-        dataSource.discoveryItems().subscribe(subscriber);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
         final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);

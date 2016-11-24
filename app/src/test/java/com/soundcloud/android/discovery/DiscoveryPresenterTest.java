@@ -49,7 +49,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private Bundle bundle;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private DiscoveryPresenter.DataSource dataSource;
+    @Mock private DiscoveryModulesProvider discoveryModulesProvider;
     @Mock private DiscoveryAdapterFactory adapterFactory;
     @Mock private DiscoveryAdapter adapter;
     @Mock private RecommendationBucketRendererFactory recommendationBucketRendererFactory;
@@ -70,14 +70,14 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void setUp() {
         when(adapterFactory.create(recommendationBucketRenderer)).thenReturn(adapter);
         when(adapter.getItems()).thenReturn(discoveryItems);
-        when(dataSource.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
+        when(discoveryModulesProvider.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
         when(recommendationBucketRendererFactory
                      .create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
         updatePlayableAdapterSubscriber = spy(new UpdatePlayableAdapterSubscriber(adapter));
         when(updatePlayableAdapterSubscriberFactory.create(adapter)).thenReturn(updatePlayableAdapterSubscriber);
 
         this.presenter = new DiscoveryPresenter(
-                dataSource,
+                discoveryModulesProvider,
                 swipeRefreshAttacher,
                 adapterFactory,
                 recommendationBucketRendererFactory,

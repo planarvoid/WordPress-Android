@@ -13,10 +13,10 @@ public class ActiveExperiments {
                                                                                          OpusExperiment.CONFIGURATION,
                                                                                          ChartsExperiment.CONFIGURATION,
                                                                                          SuggestedCreatorsExperiment.CONFIGURATION,
-                                                                                         SwitchHomeExperiment.CONFIGURATION,
                                                                                          DiscoveryModulesPositionExperiment.CONFIGURATION,
                                                                                          PlayerSwipeToSkipExperiment.CONFIGURATION,
                                                                                          PlayerUpsellCopyExperiment.CONFIGURATION,
+                                                                                         PlaylistDiscoveryConfig.CONFIGURATION,
                                                                                          DiscoveryModulesPositionExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};

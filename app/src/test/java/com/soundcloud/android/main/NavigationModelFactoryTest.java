@@ -3,9 +3,7 @@ package com.soundcloud.android.main;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.configuration.experiments.SwitchHomeExperiment;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,31 +13,24 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class NavigationModelFactoryTest {
 
-    @Mock FeatureFlags featureFlags;
-    @Mock SwitchHomeExperiment switchHomeExperiment;
+    @Mock PlaylistDiscoveryConfig playlistDiscoveryConfig;
 
     private NavigationModelFactory factory;
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.NEW_HOME)).thenReturn(false);
-        when(switchHomeExperiment.isEnabled()).thenReturn(false);
+        when(playlistDiscoveryConfig.isEnabled()).thenReturn(false);
 
-        factory = new NavigationModelFactory(featureFlags, switchHomeExperiment);
+        factory = new NavigationModelFactory(playlistDiscoveryConfig);
     }
 
     @Test
-    public void enabledByFeatureFlag() throws Exception {
-        when(featureFlags.isEnabled(Flag.NEW_HOME)).thenReturn(true);
+    public void enabledByConfig() throws Exception {
+        when(playlistDiscoveryConfig.isEnabled()).thenReturn(true);
 
-        verifyDiscoveryFirst();
-    }
-
-    @Test
-    public void enabledByExperiment() throws Exception {
-        when(switchHomeExperiment.isEnabled()).thenReturn(true);
-
-        verifyDiscoveryFirst();
+        NavigationModel navigationModel = factory.build();
+        assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.SEARCH_MAIN);
+        assertThat(navigationModel.getItem(1).getScreen()).isEqualTo(Screen.STREAM);
     }
 
     @Test
@@ -47,11 +38,5 @@ public class NavigationModelFactoryTest {
         NavigationModel navigationModel = factory.build();
         assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.STREAM);
         assertThat(navigationModel.getItem(1).getScreen()).isEqualTo(Screen.SEARCH_MAIN);
-    }
-
-    private void verifyDiscoveryFirst() {
-        NavigationModel navigationModel = factory.build();
-        assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.SEARCH_MAIN);
-        assertThat(navigationModel.getItem(1).getScreen()).isEqualTo(Screen.STREAM);
     }
 }

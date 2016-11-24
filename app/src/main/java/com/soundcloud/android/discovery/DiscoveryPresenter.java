@@ -1,14 +1,9 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.configuration.experiments.ChartsExperiment;
-import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
-import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
-import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
-import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
@@ -17,15 +12,9 @@ import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.search.PlaylistDiscoveryOperations;
-import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
-import com.soundcloud.android.utils.EmptyThrowable;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
@@ -33,7 +22,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.functions.Action0;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
@@ -43,13 +31,12 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
         implements DiscoveryAdapter.DiscoveryItemListenerBucket, TrackRecommendationListener {
 
-    private final DataSource dataSource;
+    private final DiscoveryModulesProvider discoveryModulesProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private final DiscoveryAdapter adapter;
@@ -68,7 +55,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     };
 
     @Inject
-    DiscoveryPresenter(DataSource dataSource,
+    DiscoveryPresenter(DiscoveryModulesProvider discoveryModulesProvider,
                        SwipeRefreshAttacher swipeRefreshAttacher,
                        DiscoveryAdapterFactory adapterFactory,
                        RecommendationBucketRendererFactory recommendationBucketRendererFactory,
@@ -79,7 +66,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
                        UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
         super(swipeRefreshAttacher, Options.defaults());
-        this.dataSource = dataSource;
+        this.discoveryModulesProvider = discoveryModulesProvider;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
@@ -141,7 +128,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setDiscoveryListener(this);
-        final Observable<List<DiscoveryItem>> source = dataSource
+        final Observable<List<DiscoveryItem>> source = discoveryModulesProvider
                 .discoveryItems()
                 .doOnCompleted(subscribeToUpdates);
 
@@ -154,7 +141,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onRefreshBinding() {
         adapter.setDiscoveryListener(this);
-        final Observable<List<DiscoveryItem>> source = dataSource
+        final Observable<List<DiscoveryItem>> source = discoveryModulesProvider
                 .refreshItems()
                 .doOnCompleted(subscribeToUpdates);
 
@@ -176,108 +163,5 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     public void onRecommendedStationClicked(Context context, StationRecord station) {
         startStationPresenter.startStation(context, station.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
-    }
-
-    static class DataSource {
-        private static final DiscoveryItem EMPTY_ITEM = EmptyViewItem.fromThrowable(new EmptyThrowable());
-        private static final DiscoveryItem SEARCH_ITEM = DiscoveryItem.forSearchItem();
-
-        private static final Func1<Throwable, DiscoveryItem> ERROR_ITEM = new Func1<Throwable, DiscoveryItem>() {
-            @Override
-            public DiscoveryItem call(Throwable throwable) {
-                return EmptyViewItem.fromThrowable(throwable);
-            }
-        };
-
-        private final RecommendedTracksOperations recommendedTracksOperations;
-        private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
-        private final RecommendedStationsOperations recommendedStationsOperations;
-        private final RecommendedPlaylistsOperations recommendedPlaylistsOperations;
-        private final ChartsOperations chartsOperations;
-        private final FeatureFlags featureFlags;
-        private final ChartsExperiment chartsExperiment;
-        private final DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
-
-        @Inject
-        public DataSource(RecommendedTracksOperations recommendedTracksOperations,
-                          PlaylistDiscoveryOperations playlistDiscoveryOperations,
-                          RecommendedStationsOperations recommendedStationsOperations,
-                          RecommendedPlaylistsOperations recommendedPlaylistsOperations,
-                          ChartsOperations chartsOperations,
-                          FeatureFlags featureFlags,
-                          ChartsExperiment chartsExperiment,
-                          DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment) {
-            this.recommendedTracksOperations = recommendedTracksOperations;
-            this.playlistDiscoveryOperations = playlistDiscoveryOperations;
-            this.recommendedStationsOperations = recommendedStationsOperations;
-            this.recommendedPlaylistsOperations = recommendedPlaylistsOperations;
-            this.chartsOperations = chartsOperations;
-            this.featureFlags = featureFlags;
-            this.chartsExperiment = chartsExperiment;
-            this.discoveryModulesPositionExperiment = discoveryModulesPositionExperiment;
-        }
-
-        Observable<List<DiscoveryItem>> discoveryItems() {
-            List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
-
-            if (discoveryModulesPositionExperiment.isEnabled()) {
-                discoveryItems.add(recommendedTracksOperations.recommendedTracks());
-                discoveryItems.add(recommendedStationsOperations.recommendedStations());
-            } else {
-                discoveryItems.add(recommendedStationsOperations.recommendedStations());
-                discoveryItems.add(recommendedTracksOperations.recommendedTracks());
-            }
-
-            if (featureFlags.isEnabled(Flag.NEW_HOME)) {
-                discoveryItems.add(recommendedPlaylistsOperations.recommendedPlaylists());
-            }
-
-            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
-                discoveryItems.add(chartsOperations.featuredCharts());
-            }
-
-            if (featureFlags.isDisabled(Flag.NEW_HOME)) {
-                discoveryItems.add(playlistDiscoveryOperations.playlistTags());
-            }
-
-            return items(discoveryItems);
-        }
-
-        Observable<List<DiscoveryItem>> refreshItems() {
-            List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
-
-            if (discoveryModulesPositionExperiment.isEnabled()) {
-                discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
-                discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
-            } else {
-                discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
-                discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
-            }
-
-            if (featureFlags.isEnabled(Flag.NEW_HOME)) {
-                discoveryItems.add(recommendedPlaylistsOperations.refreshRecommendedPlaylists());
-            }
-
-            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled()) {
-                discoveryItems.add(chartsOperations.refreshFeaturedCharts());
-            }
-
-            if (featureFlags.isDisabled(Flag.NEW_HOME)) {
-                discoveryItems.add(playlistDiscoveryOperations.playlistTags());
-            }
-
-            return items(discoveryItems);
-        }
-
-        private Observable<List<DiscoveryItem>> items(List<Observable<DiscoveryItem>> discoveryItems) {
-            return Observable
-                    .just(discoveryItems)
-                    .compose(RxUtils.<DiscoveryItem>concatEagerIgnorePartialErrors())
-                    .defaultIfEmpty(EMPTY_ITEM)
-                    .onErrorReturn(ERROR_ITEM)
-                    .startWith(SEARCH_ITEM)
-                    .toList();
-        }
-
     }
 }
