@@ -57,7 +57,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersSearchEventOnSearchItemClicked() {
-        final SuggestionItem suggestionItem = SuggestionItem.forSearch(SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(mock(View.class), CLICK_POSITION);
@@ -98,7 +98,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribeSuggestionListenerWhenViewDestroyed() {
-        when(adapter.getItem(anyInt())).thenReturn(SuggestionItem.forSearch(SEARCH_QUERY));
+        when(adapter.getItem(anyInt())).thenReturn(SuggestionItem.forLegacySearch(SEARCH_QUERY));
 
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
         presenter.onDestroy(fragmentRule.getFragment());

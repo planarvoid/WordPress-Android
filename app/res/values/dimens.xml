@@ -153,7 +153,8 @@
     <dimen name="search_link_height">48dp</dimen>
     <dimen name="search_link_padding_horizontal">16dp</dimen>
     <dimen name="search_link_padding_vertical">12dp</dimen>
-    <dimen name="search_suggestion_item_height">56dp</dimen>
+    <dimen name="search_suggestion_item_height">48dp</dimen>
+    <dimen name="search_suggestion_left_margin">56dp</dimen>
     <dimen name="search_suggestion_icon_dimension">33dp</dimen>
     <dimen name="search_suggestion_type_dimension">25dp</dimen>
     <dimen name="search_ptr_layout_end_position">130dp</dimen>

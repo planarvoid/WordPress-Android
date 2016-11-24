@@ -79,7 +79,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
-        final SuggestionItem suggestionItem = SuggestionItem.forSearch(SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
         final List<SuggestionItem> searchQueryItem = newArrayList(suggestionItem);
         final List<SuggestionItem> localSuggestionItems = newArrayList(suggestionItem,
                                                                        SuggestionItem.forTrack(localSuggestions.get(0),
@@ -103,7 +103,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
-        final SuggestionItem suggestionItem = SuggestionItem.forSearch(SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
         final List<SuggestionItem> searchQueryItem = newArrayList(suggestionItem);
         final List<SuggestionItem> remoteSuggestionItems = newArrayList(suggestionItem,
                                                                         SuggestionItem.forTrack(
@@ -131,7 +131,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final SuggestionItem suggestionItem = SuggestionItem.forSearch(SEARCH_QUERY);
         final SuggestionItem localItem = SuggestionItem.forTrack(localSuggestions.get(0),
                                                                  SEARCH_QUERY);
-        final SuggestionItem autocompletionItem = SuggestionItem.forAutocompletion(autocompletion, QUERY_URN);
+        final SuggestionItem autocompletionItem = SuggestionItem.forAutocompletion(autocompletion, SEARCH_QUERY, QUERY_URN);
 
         final List<SuggestionItem> firstItem = newArrayList(localItem);
         final List<SuggestionItem> secondItem = newArrayList(localItem, suggestionItem);

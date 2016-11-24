@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.java.optional.Optional;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -22,15 +23,19 @@ public class TabbedSearchFragment extends Fragment {
     public static final String TAG = "tabbed_search";
 
     private static final String KEY_QUERY = "query";
+    private static final String KEY_QUERY_URN = "queryUrn";
 
     @Inject Resources resources;
     @Inject SearchTracker searchTracker;
 
     private ViewPager pager;
 
-    public static TabbedSearchFragment newInstance(String query) {
+    public static TabbedSearchFragment newInstance(String query, Optional<String> queryUrn) {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_QUERY, query);
+        if (queryUrn.isPresent()) {
+            bundle.putString(KEY_QUERY_URN, queryUrn.get());
+        }
 
         TabbedSearchFragment fragment = new TabbedSearchFragment();
         fragment.setArguments(bundle);

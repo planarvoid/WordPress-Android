@@ -3,6 +3,7 @@ package com.soundcloud.android.search.suggestions;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 
 public abstract class SuggestionItem {
 
@@ -11,13 +12,22 @@ public abstract class SuggestionItem {
     }
 
     abstract Kind kind();
-    public abstract String query();
+
+    public abstract String userQuery();
 
     Urn getUrn() {
         return Urn.NOT_SET;
     }
 
     static SuggestionItem forSearch(String query) {
+        return new AutoValue_SuggestionItem_AutocompletionItem(Kind.AutocompletionItem,
+                                                               query,
+                                                               query,
+                                                               query,
+                                                               Strings.EMPTY);
+    }
+
+    static SuggestionItem forLegacySearch(String query) {
         return new AutoValue_SuggestionItem_Default(Kind.SearchItem, query);
     }
 
@@ -33,9 +43,10 @@ public abstract class SuggestionItem {
         return new AutoValue_SearchSuggestionItem(Kind.PlaylistItem, query, source);
     }
 
-    static SuggestionItem forAutocompletion(Autocompletion autocompletion, String queryUrn) {
+    static SuggestionItem forAutocompletion(Autocompletion autocompletion, String userQuery, String queryUrn) {
         return new AutoValue_SuggestionItem_AutocompletionItem(Kind.AutocompletionItem,
-                                                               autocompletion.query(),
+                                                               userQuery,
+                                                               autocompletion.apiQuery(),
                                                                autocompletion.output(),
                                                                queryUrn);
     }
@@ -47,7 +58,10 @@ public abstract class SuggestionItem {
 
     @AutoValue
     abstract static class AutocompletionItem extends SuggestionItem {
+        abstract String apiQuery();
+
         abstract String output();
+
         abstract String queryUrn();
     }
 }

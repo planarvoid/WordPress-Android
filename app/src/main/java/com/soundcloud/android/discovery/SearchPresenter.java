@@ -13,6 +13,7 @@ import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import com.soundcloud.android.search.suggestions.SuggestionItem;
 import com.soundcloud.android.utils.KeyboardHelper;
 import com.soundcloud.android.utils.TransitionUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -71,18 +72,15 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
-    private final Context context;
     private final MixedItemClickListener.Factory clickListenerFactory;
 
     @Inject
-    SearchPresenter(Context context,
-                    SearchIntentResolverFactory intentResolverFactory,
+    SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
                     SearchTracker tracker,
                     Resources resources,
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper,
                     MixedItemClickListener.Factory clickListenerFactory) {
-        this.context = context;
         this.clickListenerFactory = clickListenerFactory;
         this.intentResolver = intentResolverFactory.create(this);
         this.tracker = tracker;
@@ -114,8 +112,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     @Override
     public void onDeepLinkExecuted(String searchQuery) {
         searchTextView.setText(searchQuery);
-        deactivateSearchView();
-        showResultsFor(searchQuery);
+        performSearch(searchQuery);
     }
 
     @Override
@@ -135,15 +132,19 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     void performSearch(String searchQuery) {
+        performSearch(searchQuery, Optional.<String>absent(), Optional.<String>absent());
+    }
+
+    void performSearch(String searchQuery, Optional<String> outputString, Optional<String> queryUrn) {
         deactivateSearchView();
-        showResultsFor(searchQuery);
+        showResultsFor(searchQuery, outputString, queryUrn);
     }
 
     void performSuggestionAction(SuggestionItem item) {
         deactivateSearchView();
         final SearchSuggestionItem suggestionItem = (SearchSuggestionItem) item;
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.NOT_SET,
-                                                                                      suggestionItem.query());
+                                                                                      suggestionItem.userQuery());
 
         clickListenerFactory.create(Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
                             .onItemClick(Collections.singletonList(suggestionItem), window.getContext(), 0);
@@ -252,13 +253,20 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
-    private void showResultsFor(String query) {
-        final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(query);
+    private void showResultsFor(String query, Optional<String> outputText, Optional<String> queryUrn) {
+        final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(query, queryUrn);
         fragmentManager
                 .beginTransaction()
                 .replace(R.id.search_results_container, searchResults, TabbedSearchFragment.TAG)
                 .commit();
+        showOutputText(outputText);
         displaySearchView(RESULTS_VIEW_INDEX);
+    }
+
+    private void showOutputText(Optional<String> outputText) {
+        if (outputText.isPresent()) {
+            searchTextView.setText(outputText.get());
+        }
     }
 
     private void showSuggestionsFor(String query) {

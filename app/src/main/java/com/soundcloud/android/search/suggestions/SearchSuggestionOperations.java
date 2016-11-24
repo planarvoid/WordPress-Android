@@ -113,7 +113,11 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> defaultSearchItem(String query) {
-        return Observable.just(Collections.singletonList(SuggestionItem.forSearch(query)));
+        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
+            return Observable.just(Collections.singletonList(SuggestionItem.forSearch(query)));
+        } else {
+            return Observable.just(Collections.singletonList(SuggestionItem.forLegacySearch(query)));
+        }
     }
 
     private Observable<List<SuggestionItem>> localCollectionSuggestions(String query) {
@@ -168,7 +172,7 @@ class SearchSuggestionOperations {
                           .subscribeOn(scheduler);
     }
 
-    private Observable<List<SuggestionItem>> getAutocompletions(String query) {
+    private Observable<List<SuggestionItem>> getAutocompletions(final String query) {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
                           .addQueryParam("query", query)
@@ -177,26 +181,26 @@ class SearchSuggestionOperations {
                           .build();
 
         return apiClientRx.mappedResponse(request, autocompletionTypeToken)
-                          .map(collectionToSuggestionItem())
+                          .map(collectionToSuggestionItem(query))
                           .onErrorResumeNext(Observable.<List<SuggestionItem>>empty())
                           .filter(RxUtils.IS_NOT_EMPTY_LIST)
                           .subscribeOn(scheduler);
     }
 
-    private Func1<ModelCollection<Autocompletion>, List<SuggestionItem>> collectionToSuggestionItem() {
+    private Func1<ModelCollection<Autocompletion>, List<SuggestionItem>> collectionToSuggestionItem(final String query) {
         return new Func1<ModelCollection<Autocompletion>, List<SuggestionItem>>() {
             @Override
             public List<SuggestionItem> call(ModelCollection<Autocompletion> autocompletions) {
                 return newArrayList(transform(autocompletions.getCollection(),
-                                              autocompletionToSuggestionItem(autocompletions.getQueryUrn())));
+                                              autocompletionToSuggestionItem(query, autocompletions.getQueryUrn())));
             }
         };
     }
 
-    private static Function<? super Autocompletion, SuggestionItem> autocompletionToSuggestionItem(final Optional<Urn> queryUrn) {
+    private static Function<? super Autocompletion, SuggestionItem> autocompletionToSuggestionItem(final String query, final Optional<Urn> queryUrn) {
         return new Function<Autocompletion, SuggestionItem>() {
             public SuggestionItem apply(Autocompletion input) {
-                return SuggestionItem.forAutocompletion(input, queryUrn.get().toString());
+                return SuggestionItem.forAutocompletion(input, query, queryUrn.get().toString());
             }
         };
     }

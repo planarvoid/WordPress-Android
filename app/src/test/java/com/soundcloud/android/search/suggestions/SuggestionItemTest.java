@@ -15,7 +15,7 @@ public class SuggestionItemTest {
 
     @Test
     public void shouldBuildCorrectSuggestionItemKind() {
-        final SuggestionItem searchItem = forSearch(SEARCH_QUERY);
+        final SuggestionItem searchItem = forLegacySearch(SEARCH_QUERY);
         final SuggestionItem trackItem = forTrack(PropertySet.create(), SEARCH_QUERY);
         final SuggestionItem userItem = forUser(PropertySet.create(), SEARCH_QUERY);
 

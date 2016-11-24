@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/Search.Suggestion.Container"
+<FrameLayout style="@style/Search.Suggestion.Container"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageView
@@ -7,14 +7,21 @@
         style="@style/Search.Suggestion.Icon"
         android:src="@drawable/cloud_no_logo_sm" />
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/title"
-        style="@style/Search.Suggestion.Text"
-        android:layout_width="0dp"
-        android:layout_weight="1" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/search_suggestion_left_margin"
+        android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/iv_search_type"
-        style="@style/Search.Suggestion.Icon.Type" />
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/Search.Suggestion.Text"
+            android:layout_width="0dp"
+            android:layout_weight="1" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/iv_search_type"
+            style="@style/Search.Suggestion.Icon.Type" />
+    </LinearLayout>
+
+</FrameLayout>
