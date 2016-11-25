@@ -2,7 +2,6 @@ package com.soundcloud.android.tests.stations;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -77,39 +76,4 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
 
         assertThat(player.getTrackPageContext(), containsString(originalTitle));
     }
-
-    public void testOpenStationShouldResume() {
-        final VisualPlayerElement player = playlistDetailsScreen
-                .findAndClickFirstTrackOverflowButton()
-                .clickStation()
-                .clickPlay()
-                .waitForExpandedPlayerToStartPlaying();
-
-        // We swipe next twice in order to ensure the database is correctly
-        // persisting the last played track position
-        player.swipeNext();
-        player.swipeNext();
-
-        final String expectedTitle = player.getTrackTitle();
-        player.swipePrevious();
-        assertThat(waiter.waitForPlaybackToBePlaying(), is(true));
-        player.pressBackToCollapse();
-        solo.goBack();
-
-        // Start a new play queue
-        playlistDetailsScreen.clickFirstTrack();
-        assertThat(waiter.waitForPlaybackToBePlaying(), is(true));
-        player.pressBackToCollapse();
-
-        final StationHomeScreen stationHomeScreen = playlistDetailsScreen.findAndClickFirstTrackOverflowButton()
-                                                                         .clickStation();
-        final String resumedTrackTitle = stationHomeScreen.clickPlay().getTrackTitle();
-        assertThat(expectedTitle, is(equalTo(resumedTrackTitle)));
-
-        // If you play the same station, it should simply expand the player without changing tracks
-        player.pressBackToCollapse();
-        final String resumeCurrentlyPlayingStationTitle = stationHomeScreen.clickPlay().getTrackTitle();
-        assertThat(resumedTrackTitle, is(equalTo(resumeCurrentlyPlayingStationTitle)));
-    }
-
 }
