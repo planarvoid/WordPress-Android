@@ -7,6 +7,7 @@ import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.go.GoOffboardingScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -43,7 +44,7 @@ public class GoOffboardingNoNetworkTest extends ActivityTest<GoOffboardingActivi
         networkManagerClient.switchWifiOn();
 
         // retry button should turn back into continue button
-        StreamScreen streamScreen = screen.clickRetry();
+        StreamScreen streamScreen = screen.clickContinueRetry();
         assertTrue(streamScreen.isVisible());
     }
 
@@ -55,7 +56,7 @@ public class GoOffboardingNoNetworkTest extends ActivityTest<GoOffboardingActivi
         networkManagerClient.switchWifiOn();
 
         // retry button should turn back into resubscribe button
-        StreamScreen streamScreen = screen.clickRetry();
-        assertTrue(streamScreen.isVisible());
+        final UpgradeScreen upgradeScreen = screen.clickResubscribeRetry();
+        assertTrue(upgradeScreen.upgradeButton().hasVisibility());
     }
 }

@@ -29,9 +29,14 @@ public class GoOffboardingScreen extends Screen {
         return new StreamScreen(testDriver);
     }
 
-    public StreamScreen clickRetry() {
+    public StreamScreen clickContinueRetry() {
         retryButton().click();
         return new StreamScreen(testDriver);
+    }
+
+    public UpgradeScreen clickResubscribeRetry() {
+        retryButton().click();
+        return new UpgradeScreen(testDriver);
     }
 
     private ViewElement resubscribeButton() {
