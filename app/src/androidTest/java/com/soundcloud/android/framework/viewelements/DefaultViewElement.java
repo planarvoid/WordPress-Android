@@ -10,6 +10,7 @@ import com.soundcloud.android.screens.elements.Tabs;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
 import android.view.Display;
@@ -163,26 +164,26 @@ public class DefaultViewElement extends ViewElement {
             return true;
         }
 
+        final int middleOfScreen = getScreenHeight()/2;
+
         // top is cut off
         if (viewRect.top < visibleRect.top) {
             log("Top is cut off: " + viewRect.top + "<" + visibleRect.top);
-            int viewBottom = visibleRect.bottom - 1; // account for zero-index
             int heightOfNonVisibleSection = visibleRect.top - viewRect.top;
 
-            final int toY = viewBottom + heightOfNonVisibleSection;
-            log("Top is cut off: " + viewBottom + "->" + toY);
-            testDriver.scrollVertical(viewBottom, toY);
+            final int toY = middleOfScreen + heightOfNonVisibleSection;
+            log("Top is cut off; scrolling from: " + middleOfScreen + " to " + toY);
+            testDriver.scrollVertical(middleOfScreen, toY);
         }
 
         // bottom is cut off
         if (visibleRect.bottom < viewRect.bottom) {
             log("Bottom is cut off: " + visibleRect.bottom + "<" + viewRect.bottom);
-            int viewBottom = visibleRect.bottom - 1; // account for zero-index
             int heightOfNonVisibleSection = viewRect.bottom - visibleRect.bottom;
 
-            final int toY = viewBottom - heightOfNonVisibleSection;
-            log("Bottom is cut off: " + viewBottom + "->" + toY);
-            testDriver.scrollVertical(viewBottom, toY);
+            final int toY = middleOfScreen - heightOfNonVisibleSection;
+            log("Bottom is cut off; scrolling from: " + middleOfScreen + " to " + toY);
+            testDriver.scrollVertical(middleOfScreen, toY);
         }
 
         log("<-dragFullyOnScreenVertical TRUE");
@@ -381,7 +382,9 @@ public class DefaultViewElement extends ViewElement {
     }
 
     private int getScreenHeight() {
-        return getDisplay().getHeight();
+        Point deviceSize = new Point();
+        testDriver.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+        return deviceSize.y;
     }
 
     private Display getDisplay() {
