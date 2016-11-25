@@ -49,12 +49,16 @@ public class FeatureFlagsHelper {
         return featureFlags.isDisabled(flag);
     }
 
+    public void setFlag(Flag flag, boolean enabled) {
+        featureFlags.setRuntimeFeatureFlagValue(flag, enabled);
+    }
+
     public void enable(Flag flag) {
-        featureFlags.setRuntimeFeatureFlagValue(flag, true);
+        setFlag(flag, true);
     }
 
     public void disable(Flag flag) {
-        featureFlags.setRuntimeFeatureFlagValue(flag, false);
+        setFlag(flag, false);
     }
 
     @NonNull
