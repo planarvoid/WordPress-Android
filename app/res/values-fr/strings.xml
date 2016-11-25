@@ -597,8 +597,8 @@
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists et albums</string>
   <plurals name="collections_playlists_header_plural">
-    <item quantity="one">Playlists &amp; Albums</item>
-    <item quantity="other">%d playlists &amp; Albums</item>
+    <item quantity="one">Playlists et albums</item>
+    <item quantity="other">%d playlists et albums</item>
   </plurals>
   <string name="collections_your_liked_tracks">Favoris</string>
   <string name="track_likes_title">Favoris</string>
@@ -633,6 +633,8 @@
   <string name="collections_recently_played_playlist">une playlist</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profil</string>
+  <string name="collections_upsell_title">Abonnez-vous maintenant</string>
+  <string name="collections_upsell_body">Écoutez vos favoris, vos playlists et vos albums hors connexion et sans publicité</string>
   <string name="collections_recently_played_clear_action">Effacer les écoutes récentes</string>
   <string name="collections_recently_played_clear_dialog_title">Effacer les écoutes récentes ?</string>
   <string name="collections_recently_played_clear_dialog_message">Êtes vous certain de vouloir effacer votre liste d\'écoutes récentes ? Cette opération est irréversible.</string>
@@ -882,7 +884,7 @@
   <string name="playback_upsell_1">Plus d\'aperçu et des titres complets</string>
   <string name="playback_upsell_2">Obtenez l\'intégralité des titres, hors connexion et sans publicité</string>
   <string name="playback_upsell_button">Abonnez-vous maintenant</string>
-  <string name="playback_upsell_button_trial">Abonnez-vous maintenant</string>
+  <string name="playback_upsell_button_trial">Essayez SoundCloud Go</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">%1$d résultat SoundCloud Go trouvé</item>
@@ -900,8 +902,8 @@
   <string name="push_notifications_comment">Commentaire sur votre post</string>
   <string name="push_notifications_product_updates">Nouvelles fonctionnalités</string>
   <string name="push_notifications_survey">Enquêtes et commentaires</string>
-  <string name="push_notifications_tips">Astuces SoundCloud</string>
-  <string name="push_notifications_recommendations">Nouveautés</string>
+  <string name="push_notifications_tips">Offres et astuces SoundCloud</string>
+  <string name="push_notifications_recommendations">Contenu recommandé</string>
   <string name="email_notifications_all_title">Notifications par e-mail</string>
   <string name="email_notifications_all_summary">Activez toutes les notifications par e-mail\nou sélectionnez celles que vous souhaitez recevoir.</string>
   <string name="email_notifications_follower">Nouvel abonné</string>
@@ -913,8 +915,8 @@
   <string name="email_notifications_group">Nouveau post de groupe</string>
   <string name="email_notifications_product_updates">Nouvelles fonctionnalités</string>
   <string name="email_notifications_survey">Enquêtes et commentaires</string>
-  <string name="email_notifications_tips">Astuces SoundCloud</string>
-  <string name="email_notifications_recommendations">Nouveautés</string>
+  <string name="email_notifications_tips">Offres et astuces SoundCloud</string>
+  <string name="email_notifications_recommendations">Contenu recommandé</string>
   <string name="email_notifications_newsletter">Newsletter SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">

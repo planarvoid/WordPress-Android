@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="url_site">https://soundcloud.com?locale=fr</string>
   <string name="url_support">http://help.soundcloud.com?locale=fr</string>
   <string name="url_contact_support">http://help.soundcloud.com/customer/portal/emails/new?locale=fr</string>
