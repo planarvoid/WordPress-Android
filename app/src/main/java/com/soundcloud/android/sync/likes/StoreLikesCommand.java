@@ -3,18 +3,15 @@ package com.soundcloud.android.sync.likes;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
-
-import android.content.ContentValues;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySet>, TxnResult> {
@@ -26,26 +23,29 @@ class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySe
 
     @Override
     protected TxnResult write(PropellerDatabase propeller, Collection<PropertySet> input) {
-        List<ContentValues> values = new ArrayList<>(input.size());
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
+                Arrays.asList(
+                        Tables.Likes._ID,
+                        Tables.Likes._TYPE,
+                        Tables.Likes.CREATED_AT
+                )
+        );
         for (PropertySet like : input) {
-            values.add(buildContentValuesForLike(like));
+            builder.addRow(buildContentValuesForLike(like));
         }
-        final HashMap<String, Class> columns = new HashMap<>();
-        columns.put(TableColumns.Likes._ID, Long.class);
-        columns.put(TableColumns.Likes._TYPE, Integer.class);
-        columns.put(TableColumns.Likes.CREATED_AT, Long.class);
-        return propeller.bulkInsert_experimental(Table.Likes, columns, values);
+        return propeller.bulkInsert(Tables.Likes.TABLE, builder.build());
     }
 
-    private ContentValues buildContentValuesForLike(PropertySet like) {
-        final ContentValues cv = new ContentValues();
+    private List<Object> buildContentValuesForLike(PropertySet like) {
         final Urn targetUrn = like.get(LikeProperty.TARGET_URN);
-        cv.put(TableColumns.Likes._ID, targetUrn.getNumericId());
-        cv.put(TableColumns.Likes._TYPE, targetUrn.isTrack()
-                                         ? TableColumns.Sounds.TYPE_TRACK
-                                         : TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Likes.CREATED_AT, like.get(LikeProperty.CREATED_AT).getTime());
-        return cv;
+        return Arrays.<Object>asList(
+                targetUrn.getNumericId(),
+                targetUrn.isTrack()
+                ? Tables.Sounds.TYPE_TRACK
+                : Tables.Sounds.TYPE_PLAYLIST,
+                like.get(LikeProperty.CREATED_AT).getTime()
+        );
+
     }
 
 }

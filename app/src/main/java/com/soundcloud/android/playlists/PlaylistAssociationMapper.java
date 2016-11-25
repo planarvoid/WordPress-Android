@@ -4,6 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.schema.Column;
 
 import javax.inject.Inject;
 
@@ -11,10 +12,10 @@ import javax.inject.Inject;
 public class PlaylistAssociationMapper extends RxResultMapper<PlaylistAssociation> {
 
     private final NewPlaylistMapper newPlaylistMapper;
-    private String createdAtField;
+    private Column createdAtField;
 
     @Inject
-    public PlaylistAssociationMapper(@Provided NewPlaylistMapper newPlaylistMapper, String createdAt) {
+    public PlaylistAssociationMapper(@Provided NewPlaylistMapper newPlaylistMapper, Column createdAt) {
         this.newPlaylistMapper = newPlaylistMapper;
         createdAtField = createdAt;
     }

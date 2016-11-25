@@ -1,11 +1,10 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.storage.TableColumns.Sounds;
-
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -28,7 +27,7 @@ public class PostsSyncModule {
     @Provides
     @Named(LOAD_PLAYLIST_POSTS)
     LoadLocalPostsCommand provideLoadLocalPlaylistPostsCommand(PropellerDatabase database) {
-        return new LoadLocalPostsCommand(database, Sounds.TYPE_PLAYLIST);
+        return new LoadLocalPostsCommand(database, Tables.Sounds.TYPE_PLAYLIST);
     }
 
     @Provides
@@ -53,7 +52,7 @@ public class PostsSyncModule {
     @Provides
     @Named(LOAD_TRACK_POSTS)
     LoadLocalPostsCommand provideLoadLocalTrackPostsCommand(PropellerDatabase database) {
-        return new LoadLocalPostsCommand(database, Sounds.TYPE_TRACK);
+        return new LoadLocalPostsCommand(database, Tables.Sounds.TYPE_TRACK);
     }
 
     @Provides

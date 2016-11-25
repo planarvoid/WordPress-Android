@@ -45,13 +45,13 @@ class LoadPlaylistTracksWithChangesCommand
             final PropertySet playlistTrack = PropertySet.from(
                     PlaylistTrackProperty.TRACK_URN.bind(urn)
             );
-            if (cursorReader.isNotNull(TableColumns.Likes.ADDED_AT)) {
+            if (cursorReader.isNotNull(TableColumns.PlaylistTracks.ADDED_AT)) {
                 playlistTrack.put(PlaylistTrackProperty.ADDED_AT,
-                                  cursorReader.getDateFromTimestamp(TableColumns.Likes.ADDED_AT));
+                                  cursorReader.getDateFromTimestamp(TableColumns.PlaylistTracks.ADDED_AT));
             }
-            if (cursorReader.isNotNull(TableColumns.Likes.REMOVED_AT)) {
+            if (cursorReader.isNotNull(TableColumns.PlaylistTracks.REMOVED_AT)) {
                 playlistTrack.put(PlaylistTrackProperty.REMOVED_AT,
-                                  cursorReader.getDateFromTimestamp(TableColumns.Likes.REMOVED_AT));
+                                  cursorReader.getDateFromTimestamp(TableColumns.PlaylistTracks.REMOVED_AT));
             }
             return playlistTrack;
         }

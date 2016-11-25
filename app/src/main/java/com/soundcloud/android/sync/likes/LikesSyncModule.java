@@ -1,7 +1,5 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.storage.TableColumns.Sounds;
-
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -9,6 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.java.reflect.TypeToken;
@@ -56,7 +55,7 @@ public class LikesSyncModule {
                                  storeLikes,
                                  removeLikes,
                                  eventBus,
-                                 Sounds.TYPE_TRACK);
+                                 Tables.Sounds.TYPE_TRACK);
     }
 
     @Provides
@@ -84,7 +83,7 @@ public class LikesSyncModule {
                                  storeLikes,
                                  removeLikes,
                                  eventBus,
-                                 Sounds.TYPE_PLAYLIST);
+                                 Tables.Sounds.TYPE_PLAYLIST);
     }
 
     @Provides
@@ -126,12 +125,12 @@ public class LikesSyncModule {
     @Provides
     @Named(REMOVE_TRACK_LIKES)
     RemoveLikesCommand provideRemoveTrackLikesCommand(PropellerDatabase database) {
-        return new RemoveLikesCommand(database, Sounds.TYPE_TRACK);
+        return new RemoveLikesCommand(database, Tables.Sounds.TYPE_TRACK);
     }
 
     @Provides
     @Named(REMOVE_PLAYLIST_LIKES)
     RemoveLikesCommand provideRemovePlaylistLikesCommand(PropellerDatabase database) {
-        return new RemoveLikesCommand(database, Sounds.TYPE_PLAYLIST);
+        return new RemoveLikesCommand(database, Tables.Sounds.TYPE_PLAYLIST);
     }
 }

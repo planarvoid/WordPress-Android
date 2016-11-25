@@ -1,9 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
-import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
@@ -14,7 +12,8 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Urns;
@@ -92,9 +91,9 @@ class TrackDownloadsStorage {
     Observable<List<Urn>> likesUrns() {
         final Query query = Query.from(TrackDownloads.TABLE)
                                  .select(TrackDownloads._ID.qualifiedName())
-                                 .innerJoin(Likes.name(), TrackDownloads._ID.qualifiedName(), Likes.field(_ID))
+                                 .innerJoin(Likes.TABLE, TrackDownloads._ID, Likes._ID)
                                  .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
-                                 .order(Likes.field(CREATED_AT), DESC);
+                                 .order(Likes.CREATED_AT, DESC);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
@@ -125,7 +124,7 @@ class TrackDownloadsStorage {
         return propellerRx
                 .query(Query
                                .from(TrackDownloads.TABLE)
-                               .innerJoin(Likes.name(), likedTrackFilter()))
+                               .innerJoin(Likes.TABLE, likedTrackFilter()))
                 .map(CURSOR_TO_OFFLINE_STATE)
                 .toList()
                 .map(TO_COLLECTION_STATE);
@@ -133,8 +132,8 @@ class TrackDownloadsStorage {
 
     private Where likedTrackFilter() {
         return filter()
-                .whereEq(TrackDownloads._ID.qualifiedName(), Likes.field(_ID))
-                .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                .whereEq(TrackDownloads._ID.qualifiedName(), Tables.Likes._ID)
+                .whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_TRACK);
     }
 
     Observable<List<Urn>> getTracksToRemove() {

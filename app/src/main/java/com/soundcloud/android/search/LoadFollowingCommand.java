@@ -1,12 +1,15 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.POSITION;
+import static com.soundcloud.android.storage.Tables.UserAssociations.ASSOCIATION_TYPE;
+import static com.soundcloud.android.storage.Tables.UserAssociations.POSITION;
+import static com.soundcloud.android.storage.Tables.UserAssociations.REMOVED_AT;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TABLE;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TARGET_ID;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_FOLLOWING;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
@@ -35,11 +38,11 @@ class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, Prope
     }
 
     private Query forFollowings(Iterable<PropertySet> input) {
-        return Query.from(Table.UserAssociations.name())
-                    .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE,
-                             TableColumns.UserAssociations.TYPE_FOLLOWING)
-                    .whereIn(TableColumns.UserAssociations.TARGET_ID, getUserIds(input))
-                    .whereNull(TableColumns.UserAssociations.REMOVED_AT)
+        return Query.from(TABLE)
+                    .whereEq(ASSOCIATION_TYPE,
+                             TYPE_FOLLOWING)
+                    .whereIn(TARGET_ID, getUserIds(input))
+                    .whereNull(REMOVED_AT)
                     .order(POSITION, ASC);
     }
 
@@ -57,7 +60,7 @@ class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, Prope
     private Map<Urn, PropertySet> toFollowingSet(QueryResult result) {
         Map<Urn, PropertySet> followingsMap = new HashMap<>();
         for (CursorReader reader : result) {
-            final Urn userUrn = Urn.forUser(reader.getLong(TableColumns.UserAssociations.TARGET_ID));
+            final Urn userUrn = Urn.forUser(reader.getLong(TARGET_ID));
             followingsMap.put(userUrn, PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
         }
         return followingsMap;

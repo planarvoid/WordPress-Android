@@ -1,9 +1,9 @@
 package com.soundcloud.android.users;
 
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.ADDED_AT;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.ASSOCIATION_TYPE;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.POSITION;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.REMOVED_AT;
+import static com.soundcloud.android.storage.Tables.UserAssociations.ADDED_AT;
+import static com.soundcloud.android.storage.Tables.UserAssociations.ASSOCIATION_TYPE;
+import static com.soundcloud.android.storage.Tables.UserAssociations.POSITION;
+import static com.soundcloud.android.storage.Tables.UserAssociations.REMOVED_AT;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;

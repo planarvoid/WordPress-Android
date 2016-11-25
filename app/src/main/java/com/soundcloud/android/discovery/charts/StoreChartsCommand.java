@@ -9,18 +9,17 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.charts.ApiChartBucket;
 import com.soundcloud.android.sync.charts.ApiImageResource;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.schema.BulkInsertValues;
+import com.soundcloud.propeller.schema.Column;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>, WriteResult> {
 
@@ -42,43 +41,45 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>
                 }
             }
 
-            private void storeChartBucket(PropellerDatabase propeller, List<ApiChart<ApiImageResource>> bucket, int bucketType) {
+            private void storeChartBucket(PropellerDatabase propeller,
+                                          List<ApiChart<ApiImageResource>> bucket,
+                                          int bucketType) {
                 clearBucket(bucketType);
 
-                final ArrayList<ContentValues> chartTracks = new ArrayList<>();
+                final BulkInsertValues.Builder chartTracks = new BulkInsertValues.Builder(getChartTrackColumns());
 
                 for (final ApiChart<ApiImageResource> apiChart : bucket) {
                     //Store the chart
-                    final InsertResult chartInsert = propeller.insert(Charts.TABLE, buildChartContentValues(apiChart, bucketType));
+                    final InsertResult chartInsert = propeller.insert(Charts.TABLE,
+                                                                      buildChartContentValues(apiChart, bucketType));
                     step(chartInsert);
 
                     //Store chart tracks
                     for (ImageResource track : apiChart.tracks()) {
-                        chartTracks.add(buildChartTrackContentValues(track, chartInsert.getRowId(), bucketType));
+                        chartTracks.addRow(buildChartTrackContentValues(track, chartInsert.getRowId(), bucketType));
                     }
                 }
-                step(propeller.bulkInsert_experimental(ChartTracks.TABLE,getChartTrackColumns(), chartTracks));
+                step(propeller.bulkInsert(ChartTracks.TABLE, chartTracks.build()));
             }
         });
     }
 
-    private Map<String, Class> getChartTrackColumns() {
-        final HashMap<String, Class> columns = new HashMap<>(4);
-        columns.put(ChartTracks.CHART_ID.name(), Long.class);
-        columns.put(ChartTracks.TRACK_ID.name(), Long.class);
-        columns.put(ChartTracks.TRACK_ARTWORK.name(), String.class);
-        columns.put(ChartTracks.BUCKET_TYPE.name(), Long.class);
-        return columns;
+    private List<Column> getChartTrackColumns() {
+        return Arrays.asList(
+                ChartTracks.CHART_ID,
+                ChartTracks.TRACK_ID,
+                ChartTracks.TRACK_ARTWORK,
+                ChartTracks.BUCKET_TYPE
+        );
     }
 
-    private ContentValues buildChartTrackContentValues(ImageResource chartTrack, long chartId, int bucketType) {
-        final ContentValues contentValues = new ContentValues();
-        contentValues.put(ChartTracks.CHART_ID.name(), chartId);
-        contentValues.put(ChartTracks.TRACK_ID.name(), chartTrack.getUrn().getNumericId());
-        final Optional<String> imageUrlTemplate = chartTrack.getImageUrlTemplate();
-        contentValues.put(ChartTracks.TRACK_ARTWORK.name(), imageUrlTemplate.orNull());
-        contentValues.put(ChartTracks.BUCKET_TYPE.name(), bucketType);
-        return contentValues;
+    private List<Object> buildChartTrackContentValues(ImageResource chartTrack, long chartId, int bucketType) {
+        return Arrays.<Object>asList(
+                chartId,
+                chartTrack.getUrn().getNumericId(),
+                chartTrack.getImageUrlTemplate().orNull(),
+                bucketType
+        );
     }
 
     private ContentValues buildChartContentValues(ApiChart apiChart, int bucketType) {

@@ -17,8 +17,8 @@ import static com.soundcloud.propeller.query.Query.apply;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.TableColumns.SoundView;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
@@ -38,6 +38,7 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 import com.soundcloud.propeller.schema.Column;
 import rx.Observable;
 import rx.functions.Func1;
@@ -47,11 +48,9 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -104,9 +103,8 @@ class StationsStorage {
                                                                    StationsCollectionsTypes.LIKED);
                 step(storeStationsMetadata(newStationsMetaData));
                 step(propellerDatabase.delete(StationsCollections.TABLE, filterLikedStations));
-                step(propellerDatabase.bulkInsert_experimental(StationsCollections.TABLE,
-                                                               columnTypes(),
-                                                               toContentValues(remoteLikedStations)));
+                step(propellerDatabase.bulkInsert(StationsCollections.TABLE,
+                                                  toBulkValues(remoteLikedStations)));
             }
         });
     }
@@ -260,7 +258,7 @@ class StationsStorage {
                             SoundView.USER_ID,
                             SoundView.PLAYBACK_COUNT,
                             SoundView.ARTWORK_URL)
-                    .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                    .whereEq(SoundView._TYPE, Tables.Sounds.TYPE_TRACK)
                     .whereEq(StationsPlayQueues.STATION_URN, station.toString())
                     .order(StationsPlayQueues.POSITION, Query.Order.ASC);
     }
@@ -338,27 +336,24 @@ class StationsStorage {
                                 .toList(STATIONS_COLLECTIONS_TO_URN);
     }
 
-    private Map<String, Class> columnTypes() {
-        final HashMap<String, Class> columns = new HashMap<>();
-        columns.put(StationsCollections.STATION_URN.name(), String.class);
-        columns.put(StationsCollections.COLLECTION_TYPE.name(), Integer.class);
-        columns.put(StationsCollections.POSITION.name(), Integer.class);
-        return columns;
-    }
+    private BulkInsertValues toBulkValues(List<Urn> likedStations) {
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
+                Arrays.asList(
+                        StationsCollections.STATION_URN,
+                        StationsCollections.COLLECTION_TYPE,
+                        StationsCollections.POSITION
+                )
+        );
 
-    private List<ContentValues> toContentValues(List<Urn> likedStations) {
-        final List<ContentValues> contentValuesList = new ArrayList<>(likedStations.size());
         for (int i = 0; i < likedStations.size(); i++) {
             final Urn station = likedStations.get(i);
-
-            final ContentValues contentValues = values()
-                    .put(StationsCollections.STATION_URN, station.toString())
-                    .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)
-                    .put(StationsCollections.POSITION, i)
-                    .get();
-            contentValuesList.add(contentValues);
+            builder.addRow(Arrays.asList(
+                    station.toString(),
+                    StationsCollectionsTypes.LIKED,
+                    i
+            ));
         }
-        return contentValuesList;
+        return builder.build();
     }
 
     boolean isOnboardingStreamItemDisabled() {

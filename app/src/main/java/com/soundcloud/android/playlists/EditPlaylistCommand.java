@@ -6,6 +6,7 @@ import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.propeller.ChangeResult;
@@ -37,12 +38,12 @@ class EditPlaylistCommand
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                final ChangeResult step = step(propeller.update(Table.Sounds, getContentValuesForPlaylistsTable(input),
+                final ChangeResult step = step(propeller.update(Tables.Sounds.TABLE, getContentValuesForPlaylistsTable(input),
                                                                 Filter.filter()
-                                                                      .whereEq(Table.Sounds.id,
+                                                                      .whereEq(Tables.Sounds._ID,
                                                                                input.playlistUrn.getNumericId())
-                                                                      .whereEq(Table.Sounds.type,
-                                                                               TableColumns.Sounds.TYPE_PLAYLIST)));
+                                                                      .whereEq(Tables.Sounds._TYPE,
+                                                                               Tables.Sounds.TYPE_PLAYLIST)));
 
                 if (step.getNumRowsAffected() > 0) {
                     setMissingTracksAsRemoved(propeller);
@@ -89,10 +90,10 @@ class EditPlaylistCommand
 
     private ContentValues getContentValuesForPlaylistsTable(EditPlaylistCommandParams input) {
         return ContentValuesBuilder.values()
-                                   .put(TableColumns.Sounds.TITLE, input.playlistTitle)
-                                   .put(TableColumns.Sounds.SHARING,
+                                   .put(Tables.Sounds.TITLE, input.playlistTitle)
+                                   .put(Tables.Sounds.SHARING,
                                         input.isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
-                                   .put(TableColumns.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
+                                   .put(Tables.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
                                    .get();
     }
 

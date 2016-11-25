@@ -4,8 +4,7 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -27,15 +26,15 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PropertySet>,
 
     @Override
     public List<PropertySet> call() throws Exception {
-        final QueryResult queryResult = database.query(Query.from(Table.Sounds.name())
+        final QueryResult queryResult = database.query(Query.from(Tables.Sounds.TABLE)
                                                             .select(
-                                                                    TableColumns.SoundView._ID,
-                                                                    TableColumns.SoundView.TITLE,
-                                                                    TableColumns.SoundView.SHARING
+                                                                    Tables.Sounds._ID,
+                                                                    Tables.Sounds.TITLE,
+                                                                    Tables.Sounds.SHARING
                                                             )
-                                                            .whereEq(TableColumns.SoundView._TYPE,
-                                                                     TableColumns.Sounds.TYPE_PLAYLIST)
-                                                            .whereLt(TableColumns.Sounds._ID, 0));
+                                                            .whereEq(Tables.Sounds._TYPE,
+                                                                     Tables.Sounds.TYPE_PLAYLIST)
+                                                            .whereLt(Tables.Sounds._ID, 0));
         return queryResult.toList(new LocalPlaylistsMapper());
     }
 
@@ -43,10 +42,10 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PropertySet>,
         @Override
         public PropertySet map(CursorReader reader) {
             return PropertySet.from(
-                    PlaylistProperty.URN.bind(Urn.forPlaylist(reader.getLong(TableColumns.Sounds._ID))),
-                    PlaylistProperty.TITLE.bind(reader.getString(TableColumns.Sounds.TITLE)),
+                    PlaylistProperty.URN.bind(Urn.forPlaylist(reader.getLong(Tables.Sounds._ID))),
+                    PlaylistProperty.TITLE.bind(reader.getString(Tables.Sounds.TITLE)),
                     PlaylistProperty.IS_PRIVATE.bind(Sharing.PRIVATE.value().equals(
-                            reader.getString(TableColumns.SoundView.SHARING)))
+                            reader.getString(Tables.Sounds.SHARING)))
             );
         }
     }

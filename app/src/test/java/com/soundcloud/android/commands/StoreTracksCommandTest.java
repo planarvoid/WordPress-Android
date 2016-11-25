@@ -1,14 +1,14 @@
 package com.soundcloud.android.commands;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Table.Sounds;
-import static com.soundcloud.android.storage.TableColumns.Sounds.DESCRIPTION;
+import static com.soundcloud.android.storage.Tables.Sounds.DESCRIPTION;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.storage.Tables.Sounds;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
         command.call(singletonList(track));
 
-        assertThat(select(from(Sounds.name()))).counts(1);
+        assertThat(select(from(Sounds.TABLE))).counts(1);
         databaseAssertions().assertTrackInserted(track);
     }
 
@@ -51,7 +51,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
         command.call(singletonList(track));
 
-        assertThat(select(from(Sounds.name()))).counts(1);
+        assertThat(select(from(Sounds.TABLE))).counts(1);
         databaseAssertions().assertTrackInserted(track);
     }
 
@@ -62,7 +62,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
         command.call(singletonList(track));
 
-        assertThat(select(from(Sounds.name()))).counts(1);
+        assertThat(select(from(Sounds.TABLE))).counts(1);
         databaseAssertions().assertTrackInserted(track);
     }
 
@@ -73,7 +73,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
         command.call(singletonList(track));
 
-        assertThat(select(from(Sounds.name())
+        assertThat(select(from(Sounds.TABLE)
                                   .whereEq(_ID, track.getId())
                                   .whereEq(DESCRIPTION, "description"))).counts(1);
 

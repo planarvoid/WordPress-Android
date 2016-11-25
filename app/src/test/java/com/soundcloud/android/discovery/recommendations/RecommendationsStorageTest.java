@@ -7,7 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -113,7 +113,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
 
         ContentValues cv = new ContentValues();
         cv.put(RecommendationSeeds.SEED_SOUND_ID.name(), seedTrack.getUrn().getNumericId());
-        cv.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
+        cv.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
         cv.put(RecommendationSeeds.RECOMMENDATION_REASON.name(), getDbReason(reason));
         cv.put(RecommendationSeeds.QUERY_POSITION.name(), QUERY_POSITION);
         cv.put(RecommendationSeeds.QUERY_URN.name(), QUERY_URN.toString());
@@ -145,7 +145,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
 
         ContentValues cv = new ContentValues();
         cv.put(Recommendations.RECOMMENDED_SOUND_ID.name(), apiTrack.getUrn().getNumericId());
-        cv.put(Recommendations.RECOMMENDED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
+        cv.put(Recommendations.RECOMMENDED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
         cv.put(Recommendations.SEED_ID.name(), seedId);
         return testFixtures().insertInto(Recommendations.TABLE, cv);
     }

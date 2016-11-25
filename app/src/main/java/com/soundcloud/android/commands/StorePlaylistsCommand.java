@@ -1,22 +1,20 @@
 package com.soundcloud.android.commands;
 
 import com.soundcloud.android.playlists.PlaylistRecord;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.schema.BulkInsertValues;
+import com.soundcloud.propeller.schema.Column;
 
 import android.content.ContentValues;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class StorePlaylistsCommand extends DefaultWriteStorageCommand<Iterable<? extends PlaylistRecord>, WriteResult> {
 
@@ -34,63 +32,85 @@ public class StorePlaylistsCommand extends DefaultWriteStorageCommand<Iterable<?
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(storeUsersCommand.write(propeller, Iterables.transform(input, PlaylistRecord.TO_USER_RECORD)));
-                step(propeller.bulkInsert_experimental(Table.Sounds, getPlaylistColumnTypes(), getPlaylistContentValues(input)));
+                step(propeller.bulkInsert(Tables.Sounds.TABLE, getPlaylistBulkValues(input)));
             }
         });
     }
 
-    @NonNull
-    private List<ContentValues> getPlaylistContentValues(Iterable<? extends PlaylistRecord> input) {
-        final List<ContentValues> playlistValues = new ArrayList<>(Iterables.size(input));
+    private static BulkInsertValues getPlaylistBulkValues(Iterable<? extends PlaylistRecord> input) {
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(getPlaylistColumns());
         for (PlaylistRecord playlist : input) {
-            playlistValues.add(buildPlaylistContentValues(playlist));
+            builder.addRow(buildPlaylistRow(playlist));
         }
-        return playlistValues;
+        return builder.build();
+    }
+
+    public static List<Object> buildPlaylistRow(PlaylistRecord playlist) {
+        return Arrays.<Object>asList(
+                playlist.getUrn().getNumericId(),
+                Tables.Sounds.TYPE_PLAYLIST,
+                playlist.getTitle(),
+                playlist.getDuration(),
+                playlist.getCreatedAt().getTime(),
+                playlist.getSharing().value(),
+                playlist.getLikesCount(),
+                playlist.getRepostsCount(),
+                playlist.getTrackCount(),
+                playlist.getUser().getUrn().getNumericId(),
+                playlist.getGenre(),
+                TextUtils.join(" ", playlist.getTags()),
+                playlist.getPermalinkUrl(),
+                playlist.getImageUrlTemplate().orNull(),
+                playlist.isAlbum(),
+                playlist.getSetType(),
+                playlist.getReleaseDate()
+        );
+    }
+
+
+    private static List<Column> getPlaylistColumns() {
+        return Arrays.asList(
+                Tables.Sounds._ID,
+                Tables.Sounds._TYPE,
+                Tables.Sounds.TITLE,
+                Tables.Sounds.DURATION,
+                Tables.Sounds.CREATED_AT,
+                Tables.Sounds.SHARING,
+                Tables.Sounds.LIKES_COUNT,
+                Tables.Sounds.REPOSTS_COUNT,
+                Tables.Sounds.TRACK_COUNT,
+                Tables.Sounds.USER_ID,
+                Tables.Sounds.GENRE,
+                Tables.Sounds.TAG_LIST,
+                Tables.Sounds.PERMALINK_URL,
+                Tables.Sounds.ARTWORK_URL,
+                Tables.Sounds.IS_ALBUM,
+                Tables.Sounds.SET_TYPE,
+                Tables.Sounds.RELEASE_DATE
+        );
+
     }
 
     public static ContentValues buildPlaylistContentValues(PlaylistRecord playlist) {
         return ContentValuesBuilder.values()
-                                   .put(TableColumns.Sounds._ID, playlist.getUrn().getNumericId())
-                                   .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                                   .put(TableColumns.Sounds.TITLE, playlist.getTitle())
-                                   .put(TableColumns.Sounds.DURATION, playlist.getDuration())
-                                   .put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime())
-                                   .put(TableColumns.Sounds.SHARING, playlist.getSharing().value())
-                                   .put(TableColumns.Sounds.LIKES_COUNT, playlist.getLikesCount())
-                                   .put(TableColumns.Sounds.REPOSTS_COUNT, playlist.getRepostsCount())
-                                   .put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount())
-                                   .put(TableColumns.Sounds.USER_ID, playlist.getUser().getUrn().getNumericId())
-                                   .put(TableColumns.Sounds.GENRE, playlist.getGenre())
-                                   .put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))
-                                   .put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl())
-                                   .put(TableColumns.Sounds.ARTWORK_URL, playlist.getImageUrlTemplate().orNull())
-                                   .put(TableColumns.Sounds.IS_ALBUM, playlist.isAlbum())
-                                   .put(TableColumns.Sounds.SET_TYPE, playlist.getSetType())
-                                   .put(TableColumns.Sounds.RELEASE_DATE, playlist.getReleaseDate())
+                                   .put(Tables.Sounds._ID, playlist.getUrn().getNumericId())
+                                   .put(Tables.Sounds._TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                                   .put(Tables.Sounds.TITLE, playlist.getTitle())
+                                   .put(Tables.Sounds.DURATION, playlist.getDuration())
+                                   .put(Tables.Sounds.CREATED_AT, playlist.getCreatedAt().getTime())
+                                   .put(Tables.Sounds.SHARING, playlist.getSharing().value())
+                                   .put(Tables.Sounds.LIKES_COUNT, playlist.getLikesCount())
+                                   .put(Tables.Sounds.REPOSTS_COUNT, playlist.getRepostsCount())
+                                   .put(Tables.Sounds.TRACK_COUNT, playlist.getTrackCount())
+                                   .put(Tables.Sounds.USER_ID, playlist.getUser().getUrn().getNumericId())
+                                   .put(Tables.Sounds.GENRE, playlist.getGenre())
+                                   .put(Tables.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))
+                                   .put(Tables.Sounds.PERMALINK_URL, playlist.getPermalinkUrl())
+                                   .put(Tables.Sounds.ARTWORK_URL, playlist.getImageUrlTemplate().orNull())
+                                   .put(Tables.Sounds.IS_ALBUM, playlist.isAlbum())
+                                   .put(Tables.Sounds.SET_TYPE, playlist.getSetType())
+                                   .put(Tables.Sounds.RELEASE_DATE, playlist.getReleaseDate())
                                    .get();
-    }
-
-
-    private Map<String, Class> getPlaylistColumnTypes() {
-        final HashMap<String, Class> columns = new HashMap<>();
-        columns.put(TableColumns.Sounds._ID, Long.class);
-        columns.put(TableColumns.Sounds._TYPE, Integer.class);
-        columns.put(TableColumns.Sounds.TITLE, String.class);
-        columns.put(TableColumns.Sounds.DURATION, Long.class);
-        columns.put(TableColumns.Sounds.CREATED_AT, Long.class);
-        columns.put(TableColumns.Sounds.SHARING, String.class);
-        columns.put(TableColumns.Sounds.LIKES_COUNT, Integer.class);
-        columns.put(TableColumns.Sounds.REPOSTS_COUNT, Integer.class);
-        columns.put(TableColumns.Sounds.TRACK_COUNT, Integer.class);
-        columns.put(TableColumns.Sounds.USER_ID, Long.class);
-        columns.put(TableColumns.Sounds.GENRE, String.class);
-        columns.put(TableColumns.Sounds.TAG_LIST, String.class);
-        columns.put(TableColumns.Sounds.PERMALINK_URL, String.class);
-        columns.put(TableColumns.Sounds.ARTWORK_URL, String.class);
-        columns.put(TableColumns.Sounds.IS_ALBUM, Boolean.class);
-        columns.put(TableColumns.Sounds.SET_TYPE, String.class);
-        columns.put(TableColumns.Sounds.RELEASE_DATE, String.class);
-        return columns;
 
     }
 }

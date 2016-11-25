@@ -2,8 +2,7 @@ package com.soundcloud.android.policies;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 
@@ -20,9 +19,9 @@ class LoadPolicyUpdateTimeCommand extends Command<Void, Long> {
 
     @Override
     public Long call(Void input) {
-        final Query query = Query.from(Table.TrackPolicies.name())
-                                 .select(TableColumns.TrackPolicies.LAST_UPDATED)
-                                 .order(TableColumns.TrackPolicies.LAST_UPDATED, Query.Order.DESC)
+        final Query query = Query.from(Tables.TrackPolicies.TABLE)
+                                 .select(Tables.TrackPolicies.LAST_UPDATED)
+                                 .order(Tables.TrackPolicies.LAST_UPDATED, Query.Order.DESC)
                                  .limit(1);
 
         return propeller.query(query).firstOrDefault(Long.class, (long) Consts.NOT_SET);

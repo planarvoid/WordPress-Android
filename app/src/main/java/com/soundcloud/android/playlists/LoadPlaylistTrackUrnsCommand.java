@@ -9,6 +9,7 @@ import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -29,11 +30,11 @@ public class LoadPlaylistTrackUrnsCommand extends LegacyCommand<Urn, List<Urn>, 
     public List<Urn> call() throws Exception {
         final Where whereTrackDataExists = filter()
                 .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID),
-                         Table.Sounds.field(TableColumns.Sounds._ID))
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK);
+                         Tables.Sounds._ID)
+                .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_TRACK);
 
         Query query = Query.from(Table.PlaylistTracks.name())
-                           .innerJoin(Table.Sounds.name(), whereTrackDataExists)
+                           .innerJoin(Tables.Sounds.TABLE, whereTrackDataExists)
                            .select(field(TableColumns.PlaylistTracks.TRACK_ID).as(_ID))
                            .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.getNumericId())
                            .order(TableColumns.PlaylistTracks.POSITION, Query.Order.ASC);

@@ -1,11 +1,11 @@
 package com.soundcloud.android.commands;
 
-import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.util.Arrays.asList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class StorePlaylistsCommandTest extends StorageIntegrationTest {
 
         command.call(asList(playlist));
 
-        assertThat(select(from(Sounds.name()))).counts(1);
+        assertThat(select(from(Tables.Sounds.TABLE))).counts(1);
         databaseAssertions().assertPlaylistInserted(playlist);
     }
 }

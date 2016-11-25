@@ -1,15 +1,15 @@
 package com.soundcloud.android.commands;
 
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.schema.Table;
 
 import javax.inject.Inject;
 
-public class ClearTableCommand extends DefaultWriteStorageCommand<Table, ChangeResult> {
+public class ClearLegacyTableCommand extends DefaultWriteStorageCommand<Table, ChangeResult> {
 
     @Inject
-    protected ClearTableCommand(PropellerDatabase propeller) {
+    protected ClearLegacyTableCommand(PropellerDatabase propeller) {
         super(propeller);
     }
 

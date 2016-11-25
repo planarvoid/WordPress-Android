@@ -7,8 +7,9 @@ import static com.soundcloud.android.storage.TableColumns.SoundStream.PROMOTED_I
 import static com.soundcloud.android.storage.TableColumns.SoundStream.REPOSTER_ID;
 import static com.soundcloud.android.storage.TableColumns.SoundStream.SOUND_ID;
 import static com.soundcloud.android.storage.TableColumns.SoundStream.SOUND_TYPE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.lang.Long.MAX_VALUE;
@@ -17,6 +18,9 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -25,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import javax.inject.Provider;
 import java.util.Arrays;
 
 public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
@@ -35,7 +40,20 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        command = new StoreSoundStreamCommand(propeller());
+        Provider<StoreUsersCommand> storeUsersCommandProvider = providerOf(new StoreUsersCommand(
+                propeller()));
+        Provider<StoreTracksCommand> storeTracksCommandProvider = providerOf(new StoreTracksCommand(
+                propeller(),
+                new StoreUsersCommand(propeller())));
+        Provider<StorePlaylistsCommand> storePlaylistsCommandProvider = providerOf(new StorePlaylistsCommand(
+                propeller(),
+                new StoreUsersCommand(propeller())));
+
+        command = new StoreSoundStreamCommand(propeller(), new SoundStreamInsertTransactionFactory(
+                storeUsersCommandProvider,
+                storeTracksCommandProvider,
+                storePlaylistsCommandProvider
+        ));
     }
 
     @Test

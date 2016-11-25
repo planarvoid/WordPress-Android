@@ -3,27 +3,27 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_TRACK;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.schema.BulkInsertValues;
+import com.soundcloud.propeller.schema.Column;
 import com.soundcloud.propeller.schema.Table;
 import rx.Observable;
 import rx.functions.Func1;
 
-import android.content.ContentValues;
-
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,11 +51,11 @@ public class PlayQueueStorage {
     }
 
     Observable<TxnResult> storeAsync(final PlayQueue playQueue) {
-        final List<ContentValues> newItems = new ArrayList<>(playQueue.size());
+        final BulkInsertValues.Builder bulkValues = new BulkInsertValues.Builder(getColumns());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
                 if (item.isTrack() || item.isPlaylist()) {
-                    newItems.add(entityItemContentValues((PlayableQueueItem) item));
+                    bulkValues.addRow(entityItemContentValues((PlayableQueueItem) item));
                 } else {
                     ErrorUtils.handleSilentException(new IllegalStateException(
                             "Tried to persist an unsupported play queue item"));
@@ -66,25 +66,44 @@ public class PlayQueueStorage {
         return clearAsync().flatMap(new Func1<ChangeResult, Observable<TxnResult>>() {
             @Override
             public Observable<TxnResult> call(ChangeResult changeResult) {
-                return propellerRx.bulkInsertExperimental(TABLE, getColumnTypes(), newItems);
+                return propellerRx.bulkInsert(TABLE.name(), bulkValues.build());
             }
         });
     }
 
-    private Map<String, Class> getColumnTypes() {
-        final HashMap<String, Class> columns = new HashMap<>();
-        columns.put(Tables.PlayQueue.ENTITY_ID.name(), Long.class);
-        columns.put(Tables.PlayQueue.ENTITY_TYPE.name(), Integer.class);
-        columns.put(Tables.PlayQueue.REPOSTER_ID.name(), Long.class);
-        columns.put(Tables.PlayQueue.RELATED_ENTITY.name(), String.class);
-        columns.put(Tables.PlayQueue.SOURCE.name(), String.class);
-        columns.put(Tables.PlayQueue.SOURCE_VERSION.name(), String.class);
-        columns.put(Tables.PlayQueue.SOURCE_URN.name(), String.class);
-        columns.put(Tables.PlayQueue.QUERY_URN.name(), String.class);
-        columns.put(Tables.PlayQueue.CONTEXT_TYPE.name(), String.class);
-        columns.put(Tables.PlayQueue.CONTEXT_URN.name(), String.class);
-        columns.put(Tables.PlayQueue.CONTEXT_QUERY.name(), String.class);
-        return columns;
+
+    private List<Object> entityItemContentValues(PlayableQueueItem playableQueueItem) {
+        final PlaybackContext playbackContext = playableQueueItem.getPlaybackContext();
+        return Arrays.<Object>asList(
+                playableQueueItem.getUrn().getNumericId(),
+                playableQueueItem.getUrn().isTrack() ? ENTITY_TYPE_TRACK : ENTITY_TYPE_PLAYLIST,
+                playableQueueItem.getReposter().isUser() ? playableQueueItem.getReposter().getNumericId() :
+                Consts.NOT_SET,
+                playableQueueItem.getRelatedEntity().equals(Urn.NOT_SET) ? null : playableQueueItem.getRelatedEntity().toString(),
+                playableQueueItem.getSource(),
+                playableQueueItem.getSourceVersion(),
+                playableQueueItem.getSourceUrn().equals(Urn.NOT_SET) ? null : playableQueueItem.getSourceUrn().toString(),
+                playableQueueItem.getQueryUrn().equals(Urn.NOT_SET) ? null : playableQueueItem.getQueryUrn().toString(),
+                playbackContext.bucket().toString(),
+                playbackContext.urn().isPresent() ? playbackContext.urn().get().toString() : null,
+                playbackContext.query().isPresent() ? playbackContext.query().get() : null
+        );
+    }
+
+    private List<Column> getColumns() {
+        return Arrays.asList(
+        Tables.PlayQueue.ENTITY_ID,
+        Tables.PlayQueue.ENTITY_TYPE,
+        Tables.PlayQueue.REPOSTER_ID,
+        Tables.PlayQueue.RELATED_ENTITY,
+        Tables.PlayQueue.SOURCE,
+        Tables.PlayQueue.SOURCE_VERSION,
+        Tables.PlayQueue.SOURCE_URN,
+        Tables.PlayQueue.QUERY_URN,
+        Tables.PlayQueue.CONTEXT_TYPE,
+        Tables.PlayQueue.CONTEXT_URN,
+        Tables.PlayQueue.CONTEXT_QUERY
+        );
     }
 
     public Observable<PlayQueueItem> loadAsync() {
@@ -149,49 +168,6 @@ public class PlayQueueStorage {
     public Observable<Map<Urn, String>> contextTitles() {
         return propellerRx.queryResult(loadContextsQuery())
                           .map(toMapOfUrnAndTitles);
-    }
-
-    private ContentValues entityItemContentValues(PlayableQueueItem playableQueueItem) {
-        final PlaybackContext playbackContext = playableQueueItem.getPlaybackContext();
-        final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
-                                                                       .put(Tables.PlayQueue.ENTITY_ID,
-                                                                            playableQueueItem.getUrn().getNumericId())
-                                                                       .put(Tables.PlayQueue.ENTITY_TYPE.name(),
-                                                                            playableQueueItem.getUrn().isTrack() ?
-                                                                            ENTITY_TYPE_TRACK :
-                                                                            ENTITY_TYPE_PLAYLIST)
-                                                                       .put(Tables.PlayQueue.SOURCE,
-                                                                            playableQueueItem.getSource())
-                                                                       .put(Tables.PlayQueue.SOURCE_VERSION,
-                                                                            playableQueueItem.getSourceVersion())
-                                                                       .put(Tables.PlayQueue.CONTEXT_TYPE,
-                                                                            playbackContext.bucket().toString());
-
-        if (!playableQueueItem.getRelatedEntity().equals(Urn.NOT_SET)) {
-            valuesBuilder.put(Tables.PlayQueue.RELATED_ENTITY, playableQueueItem.getRelatedEntity().toString());
-        }
-
-        if (playableQueueItem.getReposter().isUser()) {
-            valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, playableQueueItem.getReposter().getNumericId());
-        }
-
-        if (!playableQueueItem.getSourceUrn().equals(Urn.NOT_SET)) {
-            valuesBuilder.put(Tables.PlayQueue.SOURCE_URN, playableQueueItem.getSourceUrn().toString());
-        }
-
-        if (!playableQueueItem.getQueryUrn().equals(Urn.NOT_SET)) {
-            valuesBuilder.put(Tables.PlayQueue.QUERY_URN, playableQueueItem.getQueryUrn().toString());
-        }
-
-        if (playbackContext.urn().isPresent()) {
-            valuesBuilder.put(Tables.PlayQueue.CONTEXT_URN, playbackContext.urn().get().toString());
-        }
-
-        if (playbackContext.query().isPresent()) {
-            valuesBuilder.put(Tables.PlayQueue.CONTEXT_QUERY, playbackContext.query().get());
-        }
-
-        return valuesBuilder.get();
     }
 
     private boolean hasRelatedEntity(CursorReader reader) {

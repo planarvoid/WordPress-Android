@@ -11,15 +11,9 @@ import static com.soundcloud.android.activities.ActivityKind.USER_FOLLOW;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static com.soundcloud.android.storage.Table.Activities;
-import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
-import static com.soundcloud.android.storage.Table.Posts;
 import static com.soundcloud.android.storage.Table.PromotedTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
-import static com.soundcloud.android.storage.Table.Sounds;
-import static com.soundcloud.android.storage.Table.TrackPolicies;
-import static com.soundcloud.android.storage.Table.UserAssociations;
-import static com.soundcloud.android.storage.Table.Users;
 import static com.soundcloud.android.storage.Table.Waveforms;
 import static com.soundcloud.android.storage.TableColumns.Activities.COMMENT_ID;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_ID;
@@ -27,59 +21,11 @@ import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_TYPE;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
-import static com.soundcloud.android.storage.TableColumns.Posts.TARGET_TYPE;
-import static com.soundcloud.android.storage.TableColumns.Posts.TYPE_REPOST;
 import static com.soundcloud.android.storage.TableColumns.PromotedTracks.AD_URN;
 import static com.soundcloud.android.storage.TableColumns.PromotedTracks.PROMOTER_ID;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.storage.TableColumns.SoundView.USERNAME;
-import static com.soundcloud.android.storage.TableColumns.Sounds.ARTWORK_URL;
-import static com.soundcloud.android.storage.TableColumns.Sounds.COMMENTABLE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.COMMENT_COUNT;
-import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
-import static com.soundcloud.android.storage.TableColumns.Sounds.FULL_DURATION;
-import static com.soundcloud.android.storage.TableColumns.Sounds.GENRE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.LIKES_COUNT;
-import static com.soundcloud.android.storage.TableColumns.Sounds.PERMALINK_URL;
-import static com.soundcloud.android.storage.TableColumns.Sounds.PLAYBACK_COUNT;
-import static com.soundcloud.android.storage.TableColumns.Sounds.RELEASE_DATE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.REPOSTS_COUNT;
-import static com.soundcloud.android.storage.TableColumns.Sounds.SET_TYPE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.SHARING;
-import static com.soundcloud.android.storage.TableColumns.Sounds.SNIPPET_DURATION;
-import static com.soundcloud.android.storage.TableColumns.Sounds.STREAM_URL;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TAG_LIST;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TITLE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TRACK_COUNT;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
-import static com.soundcloud.android.storage.TableColumns.Sounds.USER_ID;
-import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.BLOCKED;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZABLE;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZATION_MODEL;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.POLICY;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SNIPPED;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SUB_HIGH_TIER;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SUB_MID_TIER;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SYNCABLE;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.ADDED_AT;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.ASSOCIATION_TYPE;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.RESOURCE_TYPE;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.TARGET_ID;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_FOLLOWING;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_RESOURCE_USER;
-import static com.soundcloud.android.storage.TableColumns.Users.ARTIST_STATION;
-import static com.soundcloud.android.storage.TableColumns.Users.AVATAR_URL;
-import static com.soundcloud.android.storage.TableColumns.Users.COUNTRY;
-import static com.soundcloud.android.storage.TableColumns.Users.DESCRIPTION;
-import static com.soundcloud.android.storage.TableColumns.Users.DISCOGS_NAME;
-import static com.soundcloud.android.storage.TableColumns.Users.FOLLOWERS_COUNT;
-import static com.soundcloud.android.storage.TableColumns.Users.MYSPACE_NAME;
-import static com.soundcloud.android.storage.TableColumns.Users.VISUAL_URL;
-import static com.soundcloud.android.storage.TableColumns.Users.WEBSITE_NAME;
-import static com.soundcloud.android.storage.TableColumns.Users.WEBSITE_URL;
 import static com.soundcloud.android.storage.TableColumns.Waveforms.MAX_AMPLITUDE;
 import static com.soundcloud.android.storage.TableColumns.Waveforms.SAMPLES;
 import static com.soundcloud.android.storage.Tables.Comments.BODY;
@@ -87,6 +33,30 @@ import static com.soundcloud.android.storage.Tables.Comments.TIMESTAMP;
 import static com.soundcloud.android.storage.Tables.Comments.URN;
 import static com.soundcloud.android.storage.Tables.OfflineContent.ID_OFFLINE_LIKES;
 import static com.soundcloud.android.storage.Tables.OfflineContent.TYPE_COLLECTION;
+import static com.soundcloud.android.storage.Tables.Posts.TARGET_TYPE;
+import static com.soundcloud.android.storage.Tables.Posts.TYPE_REPOST;
+import static com.soundcloud.android.storage.Tables.Sounds.ARTWORK_URL;
+import static com.soundcloud.android.storage.Tables.Sounds.COMMENTABLE;
+import static com.soundcloud.android.storage.Tables.Sounds.COMMENT_COUNT;
+import static com.soundcloud.android.storage.Tables.Sounds.DURATION;
+import static com.soundcloud.android.storage.Tables.Sounds.FULL_DURATION;
+import static com.soundcloud.android.storage.Tables.Sounds.GENRE;
+import static com.soundcloud.android.storage.Tables.Sounds.LIKES_COUNT;
+import static com.soundcloud.android.storage.Tables.Sounds.PERMALINK_URL;
+import static com.soundcloud.android.storage.Tables.Sounds.PLAYBACK_COUNT;
+import static com.soundcloud.android.storage.Tables.Sounds.RELEASE_DATE;
+import static com.soundcloud.android.storage.Tables.Sounds.REPOSTS_COUNT;
+import static com.soundcloud.android.storage.Tables.Sounds.SET_TYPE;
+import static com.soundcloud.android.storage.Tables.Sounds.SHARING;
+import static com.soundcloud.android.storage.Tables.Sounds.SNIPPET_DURATION;
+import static com.soundcloud.android.storage.Tables.Sounds.STREAM_URL;
+import static com.soundcloud.android.storage.Tables.Sounds.TAG_LIST;
+import static com.soundcloud.android.storage.Tables.Sounds.TITLE;
+import static com.soundcloud.android.storage.Tables.Sounds.TRACK_COUNT;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Sounds.USER_ID;
+import static com.soundcloud.android.storage.Tables.Sounds.WAVEFORM_URL;
 import static com.soundcloud.android.storage.Tables.Stations.ARTWORK_URL_TEMPLATE;
 import static com.soundcloud.android.storage.Tables.Stations.LAST_PLAYED_TRACK_POSITION;
 import static com.soundcloud.android.storage.Tables.Stations.PERMALINK;
@@ -96,7 +66,30 @@ import static com.soundcloud.android.storage.Tables.StationsCollections.COLLECTI
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.TABLE;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
-import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.BLOCKED;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.MONETIZABLE;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.MONETIZATION_MODEL;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.POLICY;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.SNIPPED;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.SUB_HIGH_TIER;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.SUB_MID_TIER;
+import static com.soundcloud.android.storage.Tables.TrackPolicies.SYNCABLE;
+import static com.soundcloud.android.storage.Tables.UserAssociations.ADDED_AT;
+import static com.soundcloud.android.storage.Tables.UserAssociations.ASSOCIATION_TYPE;
+import static com.soundcloud.android.storage.Tables.UserAssociations.RESOURCE_TYPE;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TARGET_ID;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_FOLLOWING;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_RESOURCE_USER;
+import static com.soundcloud.android.storage.Tables.Users.ARTIST_STATION;
+import static com.soundcloud.android.storage.Tables.Users.AVATAR_URL;
+import static com.soundcloud.android.storage.Tables.Users.COUNTRY;
+import static com.soundcloud.android.storage.Tables.Users.DESCRIPTION;
+import static com.soundcloud.android.storage.Tables.Users.DISCOGS_NAME;
+import static com.soundcloud.android.storage.Tables.Users.FOLLOWERS_COUNT;
+import static com.soundcloud.android.storage.Tables.Users.MYSPACE_NAME;
+import static com.soundcloud.android.storage.Tables.Users.VISUAL_URL;
+import static com.soundcloud.android.storage.Tables.Users.WEBSITE_NAME;
+import static com.soundcloud.android.storage.Tables.Users.WEBSITE_URL;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 
@@ -107,7 +100,6 @@ import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.CommentRecord;
-import com.soundcloud.android.discovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
@@ -122,14 +114,20 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.ChartTracks;
 import com.soundcloud.android.storage.Tables.Charts;
 import com.soundcloud.android.storage.Tables.Comments;
+import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.PlayHistory;
+import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.storage.Tables.RecentlyPlayed;
+import com.soundcloud.android.storage.Tables.Sounds;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.SuggestedCreators;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
+import com.soundcloud.android.storage.Tables.TrackPolicies;
+import com.soundcloud.android.storage.Tables.UserAssociations;
+import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.charts.ApiChartBucket;
 import com.soundcloud.android.sync.charts.ApiImageResource;
@@ -144,7 +142,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.schema.Column;
 import com.soundcloud.propeller.test.assertions.QueryBinding;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -172,7 +170,7 @@ public class DatabaseAssertions {
     }
 
     public void assertTrackInserted(TrackRecord track) {
-        final Query query = from(Sounds.name())
+        final Query query = from(Sounds.TABLE)
                 .whereEq(_ID, track.getUrn().getNumericId())
                 .whereEq(_TYPE, TYPE_TRACK)
                 .whereEq(TITLE, track.getTitle())
@@ -214,43 +212,43 @@ public class DatabaseAssertions {
         assertThat(select(from(PlaylistTracks.name())
                                   .whereEq(PLAYLIST_ID, playlist.getNumericId())
                                   .whereEq(TRACK_ID, track.getNumericId())
-                                  .whereNotNull(ADDED_AT))).counts(1);
+                                  .whereNotNull(TableColumns.PlaylistTracks.ADDED_AT))).counts(1);
     }
 
     public void assertNoPlaylistTrackForAddition(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
                                   .whereEq(PLAYLIST_ID, playlist.getNumericId())
                                   .whereEq(TRACK_ID, track.getNumericId())
-                                  .whereNull(ADDED_AT))).counts(1);
+                                  .whereNull(TableColumns.PlaylistTracks.ADDED_AT))).counts(1);
     }
 
     public void assertPlaylistTrackForRemoval(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
                                   .whereEq(PLAYLIST_ID, playlist.getNumericId())
                                   .whereEq(TRACK_ID, track.getNumericId())
-                                  .whereNotNull(REMOVED_AT))).counts(1);
+                                  .whereNotNull(TableColumns.PlaylistTracks.REMOVED_AT))).counts(1);
     }
 
     public void assertUserFollowingsPending(Urn targetUrn, boolean following) {
-        Query query = from(UserAssociations.name())
+        Query query = from(UserAssociations.TABLE)
                 .whereEq(TARGET_ID, targetUrn.getNumericId())
                 .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
                 .whereEq(RESOURCE_TYPE, TYPE_RESOURCE_USER)
-                .whereNotNull(TableColumns.UserAssociations.CREATED_AT);
+                .whereNotNull(Tables.UserAssociations.CREATED_AT);
 
         if (following) {
             query.whereNotNull(ADDED_AT)
-                 .whereNull(TableColumns.UserAssociations.REMOVED_AT);
+                 .whereNull(Tables.UserAssociations.REMOVED_AT);
         } else {
             query.whereNull(ADDED_AT)
-                 .whereNotNull(TableColumns.UserAssociations.REMOVED_AT);
+                 .whereNotNull(Tables.UserAssociations.REMOVED_AT);
         }
 
         assertThat(select(query)).counts(1);
     }
 
     public void assertUserFollowersCount(Urn targetUrn, int numberOfFollowers) {
-        assertThat(select(from(Users.name())
+        assertThat(select(from(Users.TABLE)
                                   .whereEq(_ID, targetUrn.getNumericId())
                                   .whereEq(FOLLOWERS_COUNT, numberOfFollowers))).counts(1);
     }
@@ -433,8 +431,8 @@ public class DatabaseAssertions {
     }
 
     private void assertTrackPolicyInserted(TrackRecord track) {
-        final Query query = from(TrackPolicies.name())
-                .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getUrn().getNumericId())
+        final Query query = from(TrackPolicies.TABLE)
+                .whereEq(Tables.TrackPolicies.TRACK_ID, track.getUrn().getNumericId())
                 .whereEq(MONETIZABLE, track.isMonetizable())
                 .whereEq(BLOCKED, track.isBlocked())
                 .whereEq(SNIPPED, track.isSnipped())
@@ -454,8 +452,8 @@ public class DatabaseAssertions {
     }
 
     public void assertPolicyInserted(ApiPolicyInfo apiPolicyInfo) {
-        final Query query = from(TrackPolicies.name())
-                .whereEq(TableColumns.TrackPolicies.TRACK_ID, apiPolicyInfo.getUrn().getNumericId())
+        final Query query = from(TrackPolicies.TABLE)
+                .whereEq(Tables.TrackPolicies.TRACK_ID, apiPolicyInfo.getUrn().getNumericId())
                 .whereEq(MONETIZABLE, apiPolicyInfo.isMonetizable())
                 .whereEq(SYNCABLE, apiPolicyInfo.isSyncable())
                 .whereEq(POLICY, apiPolicyInfo.getPolicy())
@@ -477,11 +475,11 @@ public class DatabaseAssertions {
     }
 
     public void assertLikeInserted(Urn targetUrn, Date createdAt) {
-        assertThat(select(from(Likes.name())
+        assertThat(select(from(Likes.TABLE)
                                   .whereEq(_ID, targetUrn.getNumericId())
-                                  .whereEq(TableColumns.Likes._TYPE, targetUrn.isTrack()
+                                  .whereEq(Tables.Likes._TYPE, targetUrn.isTrack()
                                                                      ? TYPE_TRACK : TYPE_PLAYLIST)
-                                  .whereEq(TableColumns.Likes.CREATED_AT, createdAt.getTime()))).counts(1);
+                                  .whereEq(Tables.Likes.CREATED_AT, createdAt.getTime()))).counts(1);
     }
 
     public void assertLikeActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
@@ -497,11 +495,11 @@ public class DatabaseAssertions {
     }
 
     public void assertLikedTrackPendingAddition(Urn targetUrn) {
-        assertLikedPendingAddition(targetUrn, TableColumns.Sounds.TYPE_TRACK);
+        assertLikedPendingAddition(targetUrn, Sounds.TYPE_TRACK);
     }
 
     public void assertLikedPlaylistPendingAddition(Urn targetUrn) {
-        assertLikedPendingAddition(targetUrn, TableColumns.Sounds.TYPE_PLAYLIST);
+        assertLikedPendingAddition(targetUrn, Sounds.TYPE_PLAYLIST);
     }
 
     public void assertLikesCount(Urn urn, int newLikesCount) {
@@ -521,27 +519,27 @@ public class DatabaseAssertions {
     }
 
     private void assertLikedPendingAddition(Urn targetUrn, int type) {
-        assertThat(select(from(Likes.name())
+        assertThat(select(from(Likes.TABLE)
                                   .whereEq(_ID, targetUrn.getNumericId())
-                                  .whereEq(TableColumns.Likes._TYPE, type)
-                                  .whereNotNull(TableColumns.Likes.ADDED_AT)
-                                  .whereNull(TableColumns.Likes.REMOVED_AT))).counts(1);
+                                  .whereEq(Tables.Likes._TYPE, type)
+                                  .whereNotNull(Tables.Likes.ADDED_AT)
+                                  .whereNull(Tables.Likes.REMOVED_AT))).counts(1);
     }
 
     public void assertLikedTrackPendingRemoval(Urn targetUrn) {
-        assertLikedPendingRemoval(targetUrn, TableColumns.Sounds.TYPE_TRACK);
+        assertLikedPendingRemoval(targetUrn, Sounds.TYPE_TRACK);
     }
 
     public void assertLikedPlaylistPendingRemoval(Urn targetUrn) {
-        assertLikedPendingRemoval(targetUrn, TableColumns.Sounds.TYPE_PLAYLIST);
+        assertLikedPendingRemoval(targetUrn, Sounds.TYPE_PLAYLIST);
     }
 
     private void assertLikedPendingRemoval(Urn targetUrn, int type) {
-        assertThat(select(from(Likes.name())
+        assertThat(select(from(Likes.TABLE)
                                   .whereEq(_ID, targetUrn.getNumericId())
-                                  .whereEq(TableColumns.Likes._TYPE, type)
-                                  .whereNull(TableColumns.Likes.ADDED_AT)
-                                  .whereNotNull(TableColumns.Likes.REMOVED_AT))).counts(1);
+                                  .whereEq(Tables.Likes._TYPE, type)
+                                  .whereNull(Tables.Likes.ADDED_AT)
+                                  .whereNotNull(Tables.Likes.REMOVED_AT))).counts(1);
     }
 
     public void assertPlayableUserInserted(UserRecord user) {
@@ -556,7 +554,7 @@ public class DatabaseAssertions {
     }
 
     public void assertPlaylistNotStored(long playlistId) {
-        assertThat(select(from(Sounds.name())
+        assertThat(select(from(Sounds.TABLE)
                                   .whereEq(_ID, playlistId)
                                   .whereEq(_TYPE, TYPE_PLAYLIST))).counts(0);
     }
@@ -572,13 +570,13 @@ public class DatabaseAssertions {
     }
 
     public void assertPlaylistInserted(long playlistId) {
-        assertThat(select(from(Sounds.name())
+        assertThat(select(from(Sounds.TABLE)
                                   .whereEq(_ID, playlistId)
                                   .whereEq(_TYPE, TYPE_PLAYLIST))).counts(1);
     }
 
     public void assertPlaylistInserted(ApiPlaylist playlist) {
-        assertThat(select(from(Sounds.name())
+        assertThat(select(from(Sounds.TABLE)
                                   .whereEq(_ID, playlist.getId())
                                   .whereEq(_TYPE, TYPE_PLAYLIST)
                                   .whereEq(TITLE, playlist.getTitle())
@@ -596,7 +594,7 @@ public class DatabaseAssertions {
     }
 
     public void assertPlaylistInserted(long playlistId, String title, boolean isPrivate) {
-        assertThat(select(from(Sounds.name())
+        assertThat(select(from(Sounds.TABLE)
                                   .whereEq(_ID, playlistId)
                                   .whereEq(_TYPE, TYPE_PLAYLIST)
                                   .whereEq(USER_ID, 321L)
@@ -608,13 +606,13 @@ public class DatabaseAssertions {
     }
 
     public void assertModifiedPlaylistInserted(Urn playlistUrn, String title, boolean isPrivate) {
-        assertThat(select(from(Sounds.name())
+        assertThat(select(from(Sounds.TABLE)
                                   .whereEq(_ID, playlistUrn.getNumericId())
                                   .whereEq(_TYPE, TYPE_PLAYLIST)
                                   .whereNotNull(CREATED_AT)
                                   .whereEq(SHARING, Sharing.from(!isPrivate).value())
                                   .whereEq(TITLE, title)
-                                  .whereNotNull(TableColumns.Sounds.MODIFIED_AT))).counts(1);
+                                  .whereNotNull(Tables.Sounds.MODIFIED_AT))).counts(1);
     }
 
     public void assertPlaylistTracklist(long playlistId, List<Urn> tracklist) {
@@ -637,8 +635,8 @@ public class DatabaseAssertions {
     }
 
     public void assertPlaylistPostInsertedFor(Urn playlistUrn) {
-        assertThat(select(from(Posts.name())
-                                  .whereEq(TableColumns.Posts.TARGET_ID, playlistUrn.getNumericId())
+        assertThat(select(from(Posts.TABLE)
+                                  .whereEq(Tables.Posts.TARGET_ID, playlistUrn.getNumericId())
                                   .whereEq(TARGET_TYPE, TYPE_PLAYLIST))).counts(1);
     }
 
@@ -647,39 +645,39 @@ public class DatabaseAssertions {
     }
 
     private void assertPlaylistLikeInsertedFor(Urn playlistUrn) {
-        assertThat(select(from(Likes.name())
-                                  .whereEq(TableColumns.Likes._ID, playlistUrn.getNumericId())
-                                  .whereEq(TableColumns.Likes._TYPE, TYPE_PLAYLIST))).counts(1);
+        assertThat(select(from(Likes.TABLE)
+                                  .whereEq(Tables.Likes._ID, playlistUrn.getNumericId())
+                                  .whereEq(Tables.Likes._TYPE, TYPE_PLAYLIST))).counts(1);
     }
 
     public void assertTrackRepostInserted(Urn urn, Date createdAt) {
-        assertThat(select(from(Posts.name())
-                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+        assertThat(select(from(Posts.TABLE)
+                                  .whereEq(Tables.Posts.TARGET_ID, urn.getNumericId())
                                   .whereEq(TARGET_TYPE, TYPE_TRACK)
-                                  .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
-                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(1);
+                                  .whereEq(Tables.Posts.CREATED_AT, createdAt.getTime())
+                                  .whereEq(Tables.Posts.TYPE, TYPE_REPOST))).counts(1);
     }
 
     public void assertTrackRepostNotExistent(Urn urn) {
-        assertThat(select(from(Posts.name())
-                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+        assertThat(select(from(Posts.TABLE)
+                                  .whereEq(Tables.Posts.TARGET_ID, urn.getNumericId())
                                   .whereEq(TARGET_TYPE, TYPE_TRACK)
-                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(0);
+                                  .whereEq(Tables.Posts.TYPE, TYPE_REPOST))).counts(0);
     }
 
     public void assertPlaylistRepostInserted(Urn urn, Date createdAt) {
-        assertThat(select(from(Posts.name())
-                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+        assertThat(select(from(Posts.TABLE)
+                                  .whereEq(Tables.Posts.TARGET_ID, urn.getNumericId())
                                   .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
-                                  .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
-                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(1);
+                                  .whereEq(Tables.Posts.CREATED_AT, createdAt.getTime())
+                                  .whereEq(Tables.Posts.TYPE, TYPE_REPOST))).counts(1);
     }
 
     public void assertPlaylistRepostNotExistent(Urn urn) {
-        assertThat(select(from(Posts.name())
-                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+        assertThat(select(from(Posts.TABLE)
+                                  .whereEq(Tables.Posts.TARGET_ID, urn.getNumericId())
                                   .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
-                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(0);
+                                  .whereEq(Tables.Posts.TYPE, TYPE_REPOST))).counts(0);
     }
 
     public void assertRepostActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
@@ -778,10 +776,10 @@ public class DatabaseAssertions {
     }
 
     public void assertUserInserted(UserRecord user) {
-        final Query query = from(Users.name())
+        final Query query = from(Users.TABLE)
                 .whereEq(_ID, user.getUrn().getNumericId())
-                .whereEq(TableColumns.Users.USERNAME, user.getUsername())
-                .whereEq(TableColumns.Users.PERMALINK, user.getPermalink())
+                .whereEq(Tables.Users.USERNAME, user.getUsername())
+                .whereEq(Tables.Users.PERMALINK, user.getPermalink())
                 .whereEq(COUNTRY, user.getCountry())
                 .whereEq(FOLLOWERS_COUNT, user.getFollowersCount());
 
@@ -796,7 +794,7 @@ public class DatabaseAssertions {
         assertThat(select(query)).counts(1);
     }
 
-    private <T> void assertOptionalColumn(Query query, String column, Optional<T> optional) {
+    private <T> void assertOptionalColumn(Query query, Column column, Optional<T> optional) {
         if (optional.isPresent()) {
             query.whereEq(column, String.valueOf(optional.get()));
         } else {

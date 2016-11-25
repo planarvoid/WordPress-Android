@@ -9,12 +9,13 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.schema.BulkInsertValues;
+import com.soundcloud.propeller.schema.Column;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
 class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, WriteResult> {
@@ -34,9 +35,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
             public void steps(PropellerDatabase propeller) {
                 step(propeller.insert(Stations.TABLE, buildStationContentValues(station)));
                 final Integer playQueueSize = queryPlayQueueSize(propeller);
-                step(propeller.bulkInsert_experimental(StationsPlayQueues.TABLE,
-                                                       columnTypes(),
-                                                       contentValues(playQueueSize)));
+                step(propeller.bulkInsert(StationsPlayQueues.TABLE, playQueueBulkValues(playQueueSize)));
             }
 
             private Integer queryPlayQueueSize(PropellerDatabase propeller) {
@@ -45,38 +44,36 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 return propeller.query(query).first(Integer.class);
             }
 
-            private HashMap<String, Class> columnTypes() {
-                final HashMap<String, Class> columns = new HashMap<>();
-                columns.put(StationsPlayQueues.STATION_URN.name(), String.class);
-                columns.put(StationsPlayQueues.TRACK_ID.name(), Long.class);
-                columns.put(StationsPlayQueues.QUERY_URN.name(), String.class);
-                columns.put(StationsPlayQueues.POSITION.name(), Long.class);
-                return columns;
+            private BulkInsertValues playQueueBulkValues(Integer playQueueSize) {
+                BulkInsertValues.Builder builder = new BulkInsertValues.Builder(columns());
+                final List<StationTrack> tracks = station.getTracks();
+                for (int position = 0; position < tracks.size(); position++) {
+                    builder.addRow(buildRow(station,
+                                            tracks.get(position),
+                                            playQueueSize + position));
+                }
+                return builder.build();
             }
 
-            private List<ContentValues> contentValues(Integer playQueueSize) {
-                final List<StationTrack> tracks = station.getTracks();
-
-                final List<ContentValues> contentValues = new ArrayList<>(tracks.size());
-                for (int position = 0; position < tracks.size(); position++) {
-                    contentValues.add(buildContentValues(station,
-                                                         tracks.get(position),
-                                                         playQueueSize + position));
-                }
-                return contentValues;
+            private List<Column> columns() {
+                return Arrays.asList(
+                        StationsPlayQueues.STATION_URN,
+                        StationsPlayQueues.TRACK_ID,
+                        StationsPlayQueues.QUERY_URN,
+                        StationsPlayQueues.POSITION
+                );
             }
 
         });
     }
 
-    private ContentValues buildContentValues(StationRecord station, StationTrack stationTrack, int trackPosition) {
-        return ContentValuesBuilder
-                .values()
-                .put(StationsPlayQueues.STATION_URN, station.getUrn().toString())
-                .put(StationsPlayQueues.TRACK_ID, stationTrack.getTrackUrn().getNumericId())
-                .put(StationsPlayQueues.QUERY_URN, stationTrack.getQueryUrn().toString())
-                .put(StationsPlayQueues.POSITION, trackPosition)
-                .get();
+    private List<Object> buildRow(StationRecord station, StationTrack stationTrack, int trackPosition) {
+        return Arrays.<Object>asList(
+                station.getUrn().toString(),
+                stationTrack.getTrackUrn().getNumericId(),
+                stationTrack.getQueryUrn().toString(),
+                trackPosition
+        );
     }
 
     private ContentValues buildStationContentValues(StationRecord station) {

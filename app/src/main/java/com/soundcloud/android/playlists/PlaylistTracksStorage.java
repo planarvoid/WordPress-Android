@@ -3,9 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.playlists.OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE;
 import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
-import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
@@ -17,6 +15,8 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
@@ -69,25 +69,25 @@ class PlaylistTracksStorage {
                     .leftJoin(Table.PlaylistTracks.name(),
                               Table.SoundView.field(SoundView._ID),
                               PlaylistTracks.PLAYLIST_ID)
-                    .innerJoin(Table.Posts.name(),
-                               on(Table.Posts.field(Posts.TARGET_ID),
+                    .innerJoin(Posts.TABLE.name(),
+                               on(Posts.TARGET_ID.qualifiedName(),
                                   Table.SoundView.field(SoundView._ID))
-                                       .whereEq(Table.Posts.field(Posts.TARGET_TYPE),
+                                       .whereEq(Posts.TARGET_TYPE,
                                                 Table.SoundView.field(SoundView._TYPE)))
 
-                    .whereEq(Table.Posts.field(Posts.TYPE), Posts.TYPE_POST)
-                    .whereEq(Table.SoundView.field(Sounds._TYPE), Sounds.TYPE_PLAYLIST)
+                    .whereEq(Posts.TYPE.qualifiedName(), Posts.TYPE_POST)
+                    .whereEq(Table.SoundView.field(Tables.Sounds._TYPE.name()), Tables.Sounds.TYPE_PLAYLIST)
                     .groupBy(Table.SoundView.field(SoundView._ID))
                     .order(Table.SoundView.field(SoundView.CREATED_AT), Query.Order.DESC);
     }
 
     private Query isTrackInPlaylist(Urn trackUrn) {
         return Query.from(Table.PlaylistTracks.name())
-                    .innerJoin(Table.Sounds.name(), filter()
+                    .innerJoin(Tables.Sounds.TABLE, filter()
                             .whereEq(PlaylistTracks.PLAYLIST_ID,
                                      Table.SoundView.field(SoundView._ID))
                             .whereEq(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
-                            .whereEq(SoundView._TYPE, Sounds.TYPE_PLAYLIST))
+                            .whereEq(SoundView._TYPE, Tables.Sounds.TYPE_PLAYLIST))
                     .whereNull(Table.PlaylistTracks.field(PlaylistTracks.REMOVED_AT));
     }
 
@@ -112,25 +112,25 @@ class PlaylistTracksStorage {
                                                             String title,
                                                             boolean isPrivate) {
         return ContentValuesBuilder.values()
-                                   .put(Sounds._ID, playlist.getNumericId())
-                                   .put(Sounds._TYPE, Sounds.TYPE_PLAYLIST)
-                                   .put(Sounds.TITLE, title)
-                                   .put(Sounds.SHARING,
+                                   .put(Tables.Sounds._ID, playlist.getNumericId())
+                                   .put(Tables.Sounds._TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                                   .put(Tables.Sounds.TITLE, title)
+                                   .put(Tables.Sounds.SHARING,
                                         isPrivate ?
                                         Sharing.PRIVATE.value() :
                                         Sharing.PUBLIC.value())
-                                   .put(Sounds.CREATED_AT, createdAt)
-                                   .put(Sounds.USER_ID,
+                                   .put(Tables.Sounds.CREATED_AT, createdAt)
+                                   .put(Tables.Sounds.USER_ID,
                                         accountOperations.getLoggedInUserUrn().getNumericId())
-                                   .put(Sounds.SET_TYPE, Strings.EMPTY)
-                                   .put(Sounds.RELEASE_DATE, Strings.EMPTY)
+                                   .put(Tables.Sounds.SET_TYPE, Strings.EMPTY)
+                                   .put(Tables.Sounds.RELEASE_DATE, Strings.EMPTY)
                                    .get();
     }
 
     private ContentValues getContentValuesForPostsTable(Urn playlist, long createdAt) {
         return ContentValuesBuilder.values()
                                    .put(Posts.TARGET_ID, playlist.getNumericId())
-                                   .put(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)
+                                   .put(Posts.TARGET_TYPE, Tables.Sounds.TYPE_PLAYLIST)
                                    .put(Posts.CREATED_AT, createdAt)
                                    .put(Posts.TYPE, Posts.TYPE_POST)
                                    .get();
@@ -145,12 +145,12 @@ class PlaylistTracksStorage {
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.insert(Table.Sounds,
+                step(propeller.insert(Tables.Sounds.TABLE,
                                       getContentValuesForPlaylistsTable(playlist,
                                                                         createdAt,
                                                                         title,
                                                                         isPrivate)));
-                step(propeller.insert(Table.Posts,
+                step(propeller.insert(Posts.TABLE,
                                       getContentValuesForPostsTable(playlist, createdAt)));
                 step(propeller.insert(Table.PlaylistTracks,
                                       getContentValuesForPlaylistTrack(playlist, firstTrackUrn)));

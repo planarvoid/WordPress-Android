@@ -1,8 +1,6 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 
@@ -10,6 +8,8 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ChangeResult;
@@ -45,7 +45,7 @@ class RepostStorage {
                     @Override
                     public void steps(PropellerDatabase propeller) {
                         step(updateRepostCount(propeller, urn, updatedRepostCount));
-                        step(propeller.insert(Table.Posts, buildContentValuesForRepost(urn)));
+                        step(propeller.insert(Posts.TABLE, buildContentValuesForRepost(urn)));
                     }
                 });
             }
@@ -67,14 +67,14 @@ class RepostStorage {
 
                 final Where whereClause = filter()
                         .whereEq(Posts.TARGET_ID, urn.getNumericId())
-                        .whereEq(Posts.TARGET_TYPE, urn.isTrack() ? Sounds.TYPE_TRACK : Sounds.TYPE_PLAYLIST)
+                        .whereEq(Posts.TARGET_TYPE, urn.isTrack() ? Tables.Sounds.TYPE_TRACK : Tables.Sounds.TYPE_PLAYLIST)
                         .whereEq(Posts.TYPE, Posts.TYPE_REPOST);
 
                 return propeller.runTransaction(new PropellerDatabase.Transaction() {
                     @Override
                     public void steps(PropellerDatabase propeller) {
                         step(updateRepostCount(propeller, urn, updatedRepostCount));
-                        step(propeller.delete(Table.Posts, whereClause));
+                        step(propeller.delete(Posts.TABLE, whereClause));
                     }
                 });
             }
@@ -87,19 +87,19 @@ class RepostStorage {
     }
 
     private ChangeResult updateRepostCount(PropellerDatabase propeller, Urn urn, int repostCount) {
-        return propeller.update(Table.Sounds, ContentValuesBuilder.values()
-                                                                  .put(Sounds.REPOSTS_COUNT, repostCount).get(),
-                                filter().whereEq(Sounds._ID, urn.getNumericId())
-                                        .whereEq(Sounds._TYPE, getSoundType(urn)));
+        return propeller.update(Tables.Sounds.TABLE, ContentValuesBuilder.values()
+                                                                  .put(Tables.Sounds.REPOSTS_COUNT, repostCount).get(),
+                                filter().whereEq(Tables.Sounds._ID, urn.getNumericId())
+                                        .whereEq(Tables.Sounds._TYPE, getSoundType(urn)));
     }
 
     private ContentValues buildContentValuesForRepost(Urn urn) {
-        final ContentValues values = new ContentValues();
+        final ContentValuesBuilder values = ContentValuesBuilder.values(4);
         values.put(Posts.TYPE, Posts.TYPE_REPOST);
-        values.put(Posts.TARGET_TYPE, urn.isTrack() ? Sounds.TYPE_TRACK : Sounds.TYPE_PLAYLIST);
+        values.put(Posts.TARGET_TYPE, urn.isTrack() ? Tables.Sounds.TYPE_TRACK : Tables.Sounds.TYPE_PLAYLIST);
         values.put(Posts.TARGET_ID, urn.getNumericId());
         values.put(Posts.CREATED_AT, dateProvider.getCurrentDate().getTime());
-        return values;
+        return values.get();
     }
 
     private int obtainNewRepostCount(PropellerDatabase propeller, Urn targetUrn, boolean addRepost) {
@@ -112,6 +112,6 @@ class RepostStorage {
     }
 
     private int getSoundType(Urn targetUrn) {
-        return targetUrn.isTrack() ? Sounds.TYPE_TRACK : Sounds.TYPE_PLAYLIST;
+        return targetUrn.isTrack() ? Tables.Sounds.TYPE_TRACK : Tables.Sounds.TYPE_PLAYLIST;
     }
 }

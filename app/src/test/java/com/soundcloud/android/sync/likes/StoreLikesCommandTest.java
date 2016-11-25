@@ -1,13 +1,12 @@
 package com.soundcloud.android.sync.likes;
 
-import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.likes.LikeProperty.TARGET_URN;
-import static com.soundcloud.android.storage.Table.Likes;
-import static com.soundcloud.android.storage.TableColumns.Likes.ADDED_AT;
-import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
-import static com.soundcloud.android.storage.TableColumns.Likes.REMOVED_AT;
-import static com.soundcloud.android.storage.TableColumns.Likes._TYPE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Likes.ADDED_AT;
+import static com.soundcloud.android.storage.Tables.Likes.CREATED_AT;
+import static com.soundcloud.android.storage.Tables.Likes.REMOVED_AT;
+import static com.soundcloud.android.storage.Tables.Likes._ID;
+import static com.soundcloud.android.storage.Tables.Likes._TYPE;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiPlaylistLike;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackLike;
 import static com.soundcloud.android.utils.PropertySets.toPropertySets;
@@ -18,6 +17,7 @@ import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertTha
 import static java.util.Arrays.asList;
 
 import com.soundcloud.android.likes.LikeProperty;
+import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -40,7 +40,7 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
 
         command.call(toPropertySets(trackLike, playlistLike));
 
-        assertThat(select(from(Likes.name()))).counts(2);
+        assertThat(select(from(Likes.TABLE))).counts(2);
         databaseAssertions().assertLikeInserted(trackLike);
         databaseAssertions().assertLikeInserted(playlistLike);
     }
@@ -52,7 +52,7 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
         final PropertySet trackLike = apiTrackLike().toPropertySet();
         command.call(asList(trackLike));
         // set the removal date
-        propeller().update(Likes, values()
+        propeller().update(Likes.TABLE, values()
                                    .put(REMOVED_AT, 123L)
                                    .put(ADDED_AT, 123L)
                                    .get(),
@@ -61,8 +61,8 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
         // replace the like, removal date should disappear
         command.call(asList(trackLike));
 
-        assertThat(select(from(Likes.name()))).counts(1);
-        assertThat(select(from(Likes.name())
+        assertThat(select(from(Likes.TABLE))).counts(1);
+        assertThat(select(from(Likes.TABLE)
                                   .whereEq(_ID, trackLike.get(TARGET_URN).getNumericId())
                                   .whereEq(_TYPE, TYPE_TRACK)
                                   .whereEq(CREATED_AT, trackLike.get(LikeProperty.CREATED_AT).getTime())

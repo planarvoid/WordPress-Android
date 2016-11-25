@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.storage.Table.Posts;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
@@ -10,6 +9,8 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
@@ -36,21 +37,21 @@ public class PostsStorage {
     }
 
     private Query buildQueryForLastPublicPostedTrack() {
-        return Query.from(Posts.name())
+        return Query.from(Posts.TABLE)
                     .select(
                             field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
-                            field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT),
+                            Posts.CREATED_AT,
                             field(SoundView.field(TableColumns.SoundView.PERMALINK_URL)).as(TableColumns.SoundView.PERMALINK_URL))
                     .innerJoin(SoundView.name(),
                                on(SoundView.field(TableColumns.SoundView._ID),
-                                  Posts.field(TableColumns.Posts.TARGET_ID))
+                                  Posts.TARGET_ID.qualifiedName())
                                        .whereEq(SoundView.field(TableColumns.SoundView._TYPE),
-                                                Posts.field(TableColumns.Posts.TARGET_TYPE)))
-                    .whereEq(SoundView.field(TableColumns.SoundView._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                    .whereEq(Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
+                                                Posts.TARGET_TYPE.qualifiedName()))
+                    .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Tables.Sounds.TYPE_TRACK)
+                    .whereEq(Posts.TYPE, Tables.Posts.TYPE_POST)
                     .whereNotEq(SoundView.field(TableColumns.SoundView.SHARING), Sharing.PRIVATE.value())
                     .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
-                    .order(Posts.field(TableColumns.Posts.CREATED_AT), DESC)
+                    .order(Posts.CREATED_AT.qualifiedName(), DESC)
                     .limit(1);
     }
 
@@ -59,7 +60,7 @@ public class PostsStorage {
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
             propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getLong(BaseColumns._ID)));
-            propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
+            propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(Tables.Posts.CREATED_AT));
             propertySet.put(TrackProperty.PERMALINK_URL, cursorReader.getString(TableColumns.SoundView.PERMALINK_URL));
             return propertySet;
         }

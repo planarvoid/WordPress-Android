@@ -1,11 +1,10 @@
 package com.soundcloud.android.policies;
 
-import static com.soundcloud.android.storage.Table.Sounds;
-
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.CursorReader;
@@ -23,9 +22,9 @@ import java.util.Map;
 public class PolicyStorage {
 
     private static final int DEFAULT_BATCH_SIZE = 500; // default SQL var limit is 999. Being safe
-    private static final Query TRACKS_FOR_POLICY_UPDATE_QUERY = Query.from(Sounds)
-                                                                     .whereEq(TableColumns.Sounds._TYPE,
-                                                                              TableColumns.Sounds.TYPE_TRACK);
+    private static final Query TRACKS_FOR_POLICY_UPDATE_QUERY = Query.from(Tables.Sounds.TABLE)
+                                                                     .whereEq(Tables.Sounds._TYPE,
+                                                                              Tables.Sounds.TYPE_TRACK);
 
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
@@ -71,7 +70,7 @@ public class PolicyStorage {
                             TableColumns.SoundView.POLICIES_BLOCKED
                     )
                     .whereIn(TableColumns.SoundView._ID, Urns.toIds(urns))
-                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .whereEq(TableColumns.SoundView._TYPE, Tables.Sounds.TYPE_TRACK);
     }
 
     List<Urn> loadTracksForPolicyUpdate() {

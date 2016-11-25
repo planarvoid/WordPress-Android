@@ -1,11 +1,10 @@
 package com.soundcloud.android.playlists;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_ID;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_TYPE;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 
@@ -36,7 +35,7 @@ public class RemovePlaylistCommandTest extends StorageIntegrationTest {
 
         command.call(playlist.getUrn());
 
-        final Query query = from(Sounds.name())
+        final Query query = from(Tables.Sounds.TABLE)
                 .whereEq(_ID, playlist.getId())
                 .whereEq(_TYPE, TYPE_PLAYLIST);
 

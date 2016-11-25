@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.model.Urn.forPlaylist;
-import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiPlaylistLike;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackLike;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
@@ -12,7 +11,8 @@ import static java.util.Arrays.asList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        command = new RemoveLikesCommand(propeller(), TableColumns.Sounds.TYPE_TRACK);
+        command = new RemoveLikesCommand(propeller(), Tables.Sounds.TYPE_TRACK);
     }
 
     @Test
@@ -34,7 +34,7 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
 
         command.call(toPropertySets(asList(trackLike, trackLike2)));
 
-        assertThat(select(from(Likes.name()))).isEmpty();
+        assertThat(select(from(Likes.TABLE))).isEmpty();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
 
         command.call(toPropertySets(asList(trackLike)));
 
-        assertThat(select(from(Likes.name()))).counts(1);
+        assertThat(select(from(Likes.TABLE))).counts(1);
     }
 
 }

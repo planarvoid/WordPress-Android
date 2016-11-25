@@ -4,7 +4,7 @@ import static com.soundcloud.propeller.query.Query.from;
 
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.SearchSuggestions;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -51,7 +51,7 @@ class SearchSuggestionStorage {
         final long id = reader.getLong(SearchSuggestions._ID);
         if (SearchSuggestions.KIND_FOLLOWING.equals(reader.getString(SearchSuggestions.KIND))) {
             return Urn.forUser(id);
-        } else if (reader.getInt(SearchSuggestions._TYPE) == TableColumns.Sounds.TYPE_TRACK) {
+        } else if (reader.getInt(SearchSuggestions._TYPE) == Tables.Sounds.TYPE_TRACK) {
             return Urn.forTrack(id);
         } else {
             return Urn.forPlaylist(id);

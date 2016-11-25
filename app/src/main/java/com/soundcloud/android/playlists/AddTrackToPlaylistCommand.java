@@ -51,7 +51,7 @@ class AddTrackToPlaylistCommand
                                             field(SoundView.TRACK_COUNT).as(Tables.PlaylistView.TRACK_COUNT.name()),
                                             count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(Tables.PlaylistView.LOCAL_TRACK_COUNT.name()))
                                     .whereEq(SoundView._ID, playlistUrn.getNumericId())
-                                    .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                                    .whereEq(SoundView._TYPE, Tables.Sounds.TYPE_PLAYLIST)
                                     .leftJoin(Table.PlaylistTracks.name(),
                                               SoundView._ID,
                                               TableColumns.PlaylistTracks.PLAYLIST_ID))

@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
-import static com.soundcloud.java.collections.MoreCollections.transform;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
@@ -8,10 +7,9 @@ import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.RecentlyPlayed;
-import com.soundcloud.java.functions.Function;
+import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -22,13 +20,13 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
-import android.content.ContentValues;
-
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -64,12 +62,11 @@ public class RecentlyPlayedStorage {
     }
 
     WriteResult setSynced(List<PlayHistoryRecord> playHistoryRecords) {
-        Collection<ContentValues> contentValues = buildSyncedContentValuesForContext(playHistoryRecords);
-        return database.bulkInsert_experimental(RecentlyPlayed.TABLE, getColumns(), contentValues);
+        return database.bulkInsert(RecentlyPlayed.TABLE, buildBulkValues(playHistoryRecords));
     }
 
     TxnResult insertRecentlyPlayed(List<PlayHistoryRecord> addRecords) {
-        return database.bulkInsert_experimental(RecentlyPlayed.TABLE, getColumns(), buildSyncedContentValuesForContext(addRecords));
+        return database.bulkInsert(RecentlyPlayed.TABLE, buildBulkValues(addRecords));
     }
 
     private Map<String, Class> getColumns() {
@@ -178,7 +175,7 @@ public class RecentlyPlayedStorage {
                 "    0 as " + RecentlyPlayedItemMapper.COLUMN_HAS_UNAVAILABLE_TRACKS + "," +
                 "    max(" + RecentlyPlayed.TIMESTAMP.name() + ") as " + RecentlyPlayedItemMapper.COLUMN_MAX_TIMESTAMP +
                 "  FROM " + RecentlyPlayed.TABLE.name() + " as rp" +
-                "  INNER JOIN " + Table.Users.name() + " as us ON _id = rp.context_id" +
+                "  INNER JOIN " + Users.TABLE.name() + " as us ON _id = rp.context_id" +
                 "  WHERE rp.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST +
                 "  GROUP BY rp.context_type, rp.context_id";
     }
@@ -205,16 +202,21 @@ public class RecentlyPlayedStorage {
                     .whereEq(RecentlyPlayed.SYNCED, synced);
     }
 
-    private Collection<ContentValues> buildSyncedContentValuesForContext(Collection<PlayHistoryRecord> records) {
-        return transform(records, new Function<PlayHistoryRecord, ContentValues>() {
-            public ContentValues apply(PlayHistoryRecord input) {
-                ContentValues contentValues = buildSyncedContentValues();
-                contentValues.put(RecentlyPlayed.TIMESTAMP.name(), input.timestamp());
-                contentValues.put(RecentlyPlayed.CONTEXT_TYPE.name(), input.getContextType());
-                contentValues.put(RecentlyPlayed.CONTEXT_ID.name(), input.contextUrn().getNumericId());
-                return contentValues;
-            }
-        });
+    private BulkInsertValues buildBulkValues(Collection<PlayHistoryRecord> records) {
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
+                Arrays.asList(
+                        RecentlyPlayed.TIMESTAMP,
+                        RecentlyPlayed.CONTEXT_ID,
+                        RecentlyPlayed.CONTEXT_TYPE,
+                        RecentlyPlayed.SYNCED
+                )
+        );
+
+        for (PlayHistoryRecord record : records) {
+            builder.addRow(Arrays.asList(
+                    record.timestamp(), record.contextUrn().getNumericId(), record.getContextType(), true));
+        }
+        return builder.build();
     }
 
     private Where buildMatchFilter(PlayHistoryRecord record) {
@@ -222,12 +224,6 @@ public class RecentlyPlayedStorage {
                 .whereEq(RecentlyPlayed.TIMESTAMP, record.timestamp())
                 .whereEq(RecentlyPlayed.CONTEXT_TYPE, record.getContextType())
                 .whereEq(RecentlyPlayed.CONTEXT_ID, record.contextUrn().getNumericId());
-    }
-
-    private ContentValues buildSyncedContentValues() {
-        ContentValues asSynced = new ContentValues();
-        asSynced.put(RecentlyPlayed.SYNCED.name(), true);
-        return asSynced;
     }
 
     private static class RecentlyPlayedItemMapper extends RxResultMapper<RecentlyPlayedPlayableItem> {

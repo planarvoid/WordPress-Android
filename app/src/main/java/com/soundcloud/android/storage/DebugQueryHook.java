@@ -8,6 +8,7 @@ import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 import com.soundcloud.propeller.schema.Table;
 
 import android.content.ContentValues;
@@ -62,17 +63,16 @@ class DebugQueryHook implements DatabaseHook {
     }
 
     @Override
-    public void onBulkInsertStarted(String table, Iterable<ContentValues> iterable, int i) {
-        started(format(BULK_INSERT, table, iterable));
+    public void onBulkInsertStarted(String table, BulkInsertValues bulkInsertValues) {
+        started(format(BULK_INSERT, table, bulkInsertValues));
     }
 
     @Override
     public void onBulkInsertFinished(String table,
-                                     Iterable<ContentValues> iterable,
-                                     int i,
+                                     BulkInsertValues bulkInsertValues,
                                      TxnResult txnResult,
                                      long duration) {
-        finished(format(BULK_INSERT, table, iterable), duration);
+        finished(format(BULK_INSERT, table, bulkInsertValues), duration);
     }
 
 
@@ -158,6 +158,10 @@ class DebugQueryHook implements DatabaseHook {
 
     private static String format(String operationName, String table, ContentValues contentValues) {
         return operationName + " " + table + " " + contentValues;
+    }
+
+    private static String format(String operationName, String table, BulkInsertValues bulkInsertValues) {
+        return operationName + " " + table + " " + bulkInsertValues;
     }
 
     private static void started(String message) {

@@ -9,14 +9,17 @@ import javax.inject.Inject;
 
 class StoreSoundStreamCommand extends DefaultWriteStorageCommand<Iterable<ApiStreamItem>, TxnResult> {
 
+    private final SoundStreamInsertTransactionFactory transactionFactory;
+
     @Inject
-    StoreSoundStreamCommand(PropellerDatabase propeller) {
+    StoreSoundStreamCommand(PropellerDatabase propeller, SoundStreamInsertTransactionFactory transactionFactory) {
         super(propeller);
+        this.transactionFactory = transactionFactory;
     }
 
     @Override
     protected TxnResult write(PropellerDatabase propeller, Iterable<ApiStreamItem> input) {
-        return propeller.runTransaction(new SoundStreamInsertTransaction(input));
+        return propeller.runTransaction(transactionFactory.create(input));
     }
 
 }

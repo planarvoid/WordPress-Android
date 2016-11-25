@@ -5,8 +5,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,10 +70,10 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
 
     private void updateLikesCount() {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Sounds.LIKES_COUNT, 1);
-        assertThat(propeller().update(Table.Sounds, cv, filter()
-                .whereEq(TableColumns.Sounds._ID, targetUrn.getNumericId())
-                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)).success()).isTrue();
+        cv.put(Tables.Sounds.LIKES_COUNT.name(), 1);
+        assertThat(propeller().update(Tables.Sounds.TABLE, cv, filter()
+                .whereEq(Tables.Sounds._ID, targetUrn.getNumericId())
+                .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_PLAYLIST)).success()).isTrue();
         databaseAssertions().assertLikesCount(targetUrn, 1);
     }
 

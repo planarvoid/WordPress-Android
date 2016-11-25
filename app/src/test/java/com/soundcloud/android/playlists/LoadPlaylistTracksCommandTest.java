@@ -7,7 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -61,7 +61,7 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
     public void doesNotIncludeTracksWithoutPolicies() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         testFixtures().insertPlaylistTrack(apiPlaylist, 0);
-        propeller().delete(Table.TrackPolicies);
+        propeller().delete(Tables.TrackPolicies.TABLE);
 
         final List<PropertySet> tracks = command.call(apiPlaylist.getUrn());
 

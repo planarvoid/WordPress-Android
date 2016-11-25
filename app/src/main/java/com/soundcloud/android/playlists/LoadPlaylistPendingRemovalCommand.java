@@ -3,8 +3,8 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 
@@ -22,9 +22,9 @@ public class LoadPlaylistPendingRemovalCommand extends Command<Void, List<Urn>> 
 
     @Override
     public List<Urn> call(Void input) {
-        return database.query(Query.from(Table.Sounds.name())
+        return database.query(Query.from(Tables.Sounds.TABLE)
                                    .select(TableColumns.SoundView._ID)
-                                   .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                                   .whereNotNull(TableColumns.Sounds.REMOVED_AT)).toList(new PlaylistUrnMapper());
+                                   .whereEq(TableColumns.SoundView._TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                                   .whereNotNull(Tables.Sounds.REMOVED_AT)).toList(new PlaylistUrnMapper());
     }
 }

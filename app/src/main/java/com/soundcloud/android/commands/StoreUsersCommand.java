@@ -1,24 +1,23 @@
 package com.soundcloud.android.commands;
 
-import static com.soundcloud.android.storage.TableColumns.Users;
 import static com.soundcloud.java.collections.Iterables.addAll;
 
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.android.users.UserRecord;
-import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.schema.BulkInsertValues;
+import com.soundcloud.propeller.schema.Column;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? extends UserRecord>, WriteResult> {
 
@@ -29,34 +28,50 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
 
     @Override
     protected WriteResult write(PropellerDatabase propeller, Iterable<? extends UserRecord> input) {
+        return propeller.bulkInsert(Users.TABLE, getBulkInsertValues(input));
+    }
+
+    @NonNull
+    private static BulkInsertValues getBulkInsertValues(Iterable<? extends UserRecord> input) {
         final HashSet<UserRecord> deduped = new HashSet<>();
         addAll(deduped, input);
 
-        final List<ContentValues> newItems = new ArrayList<>(Iterables.size(deduped));
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(Arrays.asList(
+                Users._ID,
+                Users.PERMALINK,
+                Users.USERNAME,
+                Users.COUNTRY,
+                Users.CITY,
+                Users.FOLLOWERS_COUNT,
+                Users.DESCRIPTION,
+                Users.AVATAR_URL,
+                Users.VISUAL_URL,
+                Users.WEBSITE_URL,
+                Users.WEBSITE_NAME,
+                Users.DISCOGS_NAME,
+                Users.MYSPACE_NAME,
+                Users.ARTIST_STATION
+        ));
+
         for (UserRecord user : deduped) {
-            newItems.add(buildUserContentValues(user));
+            builder.addRow(Arrays.asList(
+                    user.getUrn().getNumericId(),
+                    user.getPermalink(),
+                    user.getUsername(),
+                    user.getCountry(),
+                    user.getCity(),
+                    user.getFollowersCount(),
+                    user.getDescription().orNull(),
+                    user.getImageUrlTemplate().orNull(),
+                    user.getVisualUrlTemplate().orNull(),
+                    user.getWebsiteUrl().orNull(),
+                    user.getWebsiteName().orNull(),
+                    user.getDiscogsName().orNull(),
+                    user.getMyspaceName().orNull(),
+                    user.getArtistStationUrn().transform(Urns.TO_STRING).orNull()
+            ));
         }
-        return propeller.bulkInsert_experimental(Table.Users, getColumnTypes(),newItems);
-    }
-
-    private Map<String, Class> getColumnTypes() {
-        final HashMap<String, Class> columns = new HashMap<>();
-        columns.put(Users._ID, Long.class);
-        columns.put(Users.PERMALINK, String.class);
-        columns.put(Users.USERNAME, String.class);
-        columns.put(Users.COUNTRY, String.class);
-        columns.put(Users.CITY, String.class);
-        columns.put(Users.FOLLOWERS_COUNT, Integer.class);
-        columns.put(Users.DESCRIPTION, String.class);
-        columns.put(Users.AVATAR_URL, String.class);
-        columns.put(Users.VISUAL_URL, String.class);
-        columns.put(Users.WEBSITE_URL, String.class);
-        columns.put(Users.WEBSITE_NAME, String.class);
-        columns.put(Users.DISCOGS_NAME, String.class);
-        columns.put(Users.MYSPACE_NAME, String.class);
-        columns.put(Users.ARTIST_STATION, String.class);
-        return columns;
-
+        return builder.build();
     }
 
     public static ContentValues buildUserContentValues(UserRecord user) {
@@ -84,7 +99,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                                    .put(Users.FOLLOWERS_COUNT, user.getFollowersCount());
     }
 
-    private static <T> void putOptionalValue(ContentValuesBuilder baseBuilder, Optional<T> value, String column) {
-        baseBuilder.put(column, value.isPresent() ? value.get().toString() : null);
+    private static <T> void putOptionalValue(ContentValuesBuilder baseBuilder, Optional<T> value, Column column) {
+        baseBuilder.put(column.name(), value.isPresent() ? value.get().toString() : null);
     }
 }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 
 import com.soundcloud.android.utils.ErrorUtils;
 

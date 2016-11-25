@@ -6,8 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,7 +70,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
         testFixtures().insertLikesMarkedForOfflineSync();
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         // insert a track like with the same ID as the playlist to test that we are joining on tracks only
-        testFixtures().insertLike(apiPlaylist.getId(), TableColumns.Sounds.TYPE_TRACK, new Date(100));
+        testFixtures().insertLike(apiPlaylist.getId(), Tables.Sounds.TYPE_TRACK, new Date(100));
 
         Collection<Urn> trackLikes = command.call(null);
 
@@ -122,8 +121,8 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     private void clearTrackPolicy(ApiTrack apiTrack) {
-        propeller().delete(Table.TrackPolicies, filter()
-                .whereEq(TableColumns.TrackPolicies.TRACK_ID, apiTrack.getId()));
+        propeller().delete(Tables.TrackPolicies.TABLE, filter()
+                .whereEq(Tables.TrackPolicies.TRACK_ID, apiTrack.getId()));
     }
 
     private ApiTrack insertTrackAndUpdatePolicies() {

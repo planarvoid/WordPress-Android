@@ -1,16 +1,22 @@
 package com.soundcloud.android.sync.stream;
 
-import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylistContentValues;
-import static com.soundcloud.android.commands.StoreTracksCommand.buildPolicyContentValues;
-import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;
-import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
 import static com.soundcloud.propeller.query.Filter.filter;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Joiner;
 import com.soundcloud.java.strings.Strings;
@@ -22,39 +28,34 @@ import com.soundcloud.propeller.query.Query;
 
 import android.content.ContentValues;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@AutoFactory(allowSubclasses = true)
 class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
     private final Iterable<ApiStreamItem> streamItems;
+    private final StorePlaylistsCommand storePlaylistsCommand;
+    private final StoreUsersCommand storeUsersCommand;
+    private final StoreTracksCommand storeTracksCommand;
 
-    SoundStreamInsertTransaction(Iterable<ApiStreamItem> streamItems) {
+    SoundStreamInsertTransaction(Iterable<ApiStreamItem> streamItems,
+                                 @Provided StoreUsersCommand storeUsersCommand,
+                                 @Provided StoreTracksCommand storeTracksCommand,
+                                 @Provided StorePlaylistsCommand storePlaylistsCommand) {
         this.streamItems = streamItems;
+        this.storeUsersCommand = storeUsersCommand;
+        this.storeTracksCommand = storeTracksCommand;
+        this.storePlaylistsCommand = storePlaylistsCommand;
     }
 
     @Override
     public void steps(PropellerDatabase propeller) {
         beforeInserts(propeller);
+        bulkInsertDependencies();
 
         for (ApiStreamItem streamItem : streamItems) {
-            step(propeller.upsert(Table.Users, getContentValuesForSoundOwner(streamItem)));
-            step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
-
-            if (isTrack(streamItem)) {
-                step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(streamItem.getTrack().get())));
-            }
-
-            final Optional<ApiUser> reposter = streamItem.getReposter();
-            if (reposter.isPresent()) {
-                step(propeller.upsert(Table.Users, buildUserContentValues(reposter.get())));
-            }
-
             if (streamItem.isPromotedStreamItem()) {
-                final Optional<ApiUser> promoter = streamItem.getPromoter();
-                if (promoter.isPresent()) {
-                    step(propeller.upsert(Table.Users, buildUserContentValues(promoter.get())));
-                }
-
                 InsertResult insertResult = step(propeller.insert(Table.PromotedTracks,
                                                                   buildPromotedContentValues(streamItem)));
                 step(propeller.insert(Table.SoundStream,
@@ -65,6 +66,41 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
         }
     }
 
+    private void bulkInsertDependencies() {
+        ArrayList<UserRecord> users = new ArrayList<>();
+        ArrayList<TrackRecord> tracks = new ArrayList<>();
+        ArrayList<PlaylistRecord> playlists = new ArrayList<>();
+
+        for (ApiStreamItem streamItem : streamItems) {
+
+            final Optional<ApiTrack> trackOptional = streamItem.getTrack();
+            if (trackOptional.isPresent()) {
+                ApiTrack track = trackOptional.get();
+                tracks.add(track);
+                users.add(track.getUser());
+            } else {
+                ApiPlaylist playlist = streamItem.getPlaylist().get();
+                playlists.add(playlist);
+                users.add(playlist.getUser());
+            }
+
+            final Optional<ApiUser> reposter = streamItem.getReposter();
+            if (reposter.isPresent()) {
+                users.add(reposter.get());
+            }
+
+            if (streamItem.isPromotedStreamItem()) {
+                final Optional<ApiUser> promoter = streamItem.getPromoter();
+                if (promoter.isPresent()) {
+                    users.add(promoter.get());
+                }
+            }
+        }
+        step(storeUsersCommand.call(users));
+        step(storeTracksCommand.call(tracks));
+        step(storePlaylistsCommand.call(playlists));
+    }
+
     protected void beforeInserts(PropellerDatabase propeller) {
         List<Long> promotedStreamIds = propeller.query(Query.from(Table.SoundStream.name())
                                                             .select(TableColumns.SoundStream.PROMOTED_ID)
@@ -73,29 +109,6 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
         step(propeller.delete(Table.SoundStream, filter().whereNotNull(TableColumns.SoundStream.PROMOTED_ID)));
         step(propeller.delete(Table.PromotedTracks,
                               filter().whereIn(TableColumns.PromotedTracks._ID, promotedStreamIds)));
-    }
-
-    private boolean isTrack(ApiStreamItem streamItem) {
-        return streamItem.getTrack().isPresent();
-    }
-
-    private ContentValues getContentValuesForSoundOwner(ApiStreamItem streamItem) {
-        final Optional<ApiTrack> track = streamItem.getTrack();
-        if (track.isPresent()) {
-            return buildUserContentValues(track.get().getUser());
-        } else {
-            return buildUserContentValues(streamItem.getPlaylist().get().getUser());
-        }
-
-    }
-
-    private ContentValues getContentValuesForSoundTable(ApiStreamItem streamItem) {
-        final Optional<ApiTrack> track = streamItem.getTrack();
-        if (track.isPresent()) {
-            return buildTrackContentValues(track.get());
-        } else {
-            return buildPlaylistContentValues(streamItem.getPlaylist().get());
-        }
     }
 
     private ContentValuesBuilder buildSoundStreamContentValues(ApiStreamItem streamItem) {
@@ -148,7 +161,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
     }
 
     private int getSoundType(ApiStreamItem streamItem) {
-        return streamItem.getTrack().isPresent() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST;
+        return streamItem.getTrack().isPresent() ? Tables.Sounds.TYPE_TRACK : Tables.Sounds.TYPE_PLAYLIST;
     }
 
     private long getSoundId(ApiStreamItem streamItem) {

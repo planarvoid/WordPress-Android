@@ -1,12 +1,12 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.storage.Table.Posts;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackPost;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.util.Collections.singleton;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
@@ -30,7 +30,7 @@ public class RemovePostsCommandTest extends StorageIntegrationTest {
 
         command.call(singleton(apiTrackPost.toPropertySet()));
 
-        assertThat(select(from(Posts.name()))).counts(1);
+        assertThat(select(from(Tables.Posts.TABLE))).counts(1);
     }
 
 }

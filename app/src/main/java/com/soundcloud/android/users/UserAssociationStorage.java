@@ -1,34 +1,29 @@
 package com.soundcloud.android.users;
 
-import static com.soundcloud.android.storage.Table.UserAssociations;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.ADDED_AT;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.ASSOCIATION_TYPE;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.POSITION;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.REMOVED_AT;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.TARGET_ID;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_FOLLOWER;
-import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_FOLLOWING;
-import static com.soundcloud.propeller.query.Field.field;
+import static com.soundcloud.android.storage.Tables.UserAssociations.ADDED_AT;
+import static com.soundcloud.android.storage.Tables.UserAssociations.ASSOCIATION_TYPE;
+import static com.soundcloud.android.storage.Tables.UserAssociations.POSITION;
+import static com.soundcloud.android.storage.Tables.UserAssociations.REMOVED_AT;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TARGET_ID;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_FOLLOWER;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_FOLLOWING;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 
-import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.TableColumns.Users;
-import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.storage.Tables.UserAssociations;
+import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ScalarMapper;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 import rx.Observable;
 
 import android.content.ContentValues;
@@ -36,7 +31,7 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,65 +43,43 @@ public class UserAssociationStorage {
 
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
-    private final StoreUsersCommand storeUsersCommand;
 
     @Inject
-    public UserAssociationStorage(PropellerDatabase propeller, StoreUsersCommand storeUsersCommand) {
+    public UserAssociationStorage(PropellerDatabase propeller) {
         this.propeller = propeller;
-        this.storeUsersCommand = storeUsersCommand;
         this.propellerRx = new PropellerRx(propeller);
     }
 
     public void clear() {
-        propeller.delete(UserAssociations);
+        propeller.delete(UserAssociations.TABLE);
     }
 
     public void deleteFollowingsById(List<Long> itemDeletions) {
         if (!itemDeletions.isEmpty()) {
             final List<List<Long>> batches = Lists.partition(itemDeletions, BATCH_SIZE);
             for (List<Long> idBatch : batches) {
-                propeller.delete(UserAssociations, filter()
+                propeller.delete(UserAssociations.TABLE, filter()
                         .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
                         .whereIn(TARGET_ID, idBatch));
             }
         }
     }
 
-    public TxnResult insertFollowedUsers(List<? extends UserRecord> followedUsers) {
-        storeUsersCommand.call(followedUsers);
-        final List<ContentValues> contentValuesList = new ArrayList<>(followedUsers.size());
-        for (int position = 0; position < followedUsers.size(); position++) {
-            final UserRecord user = followedUsers.get(position);
-            if (user == null) {
-                ErrorUtils.handleSilentException(new IllegalStateException("Null user in followings"));
-                continue;
-            }
-
-            contentValuesList.add(followedUserContentValues(user.getUrn().getNumericId(), position));
-        }
-        return propeller.bulkInsert(UserAssociations, contentValuesList);
-    }
-
     public void insertFollowedUserIds(List<Long> userIds) {
         int positionOffset = 0;
         List<List<Long>> batches = Lists.partition(userIds, BATCH_SIZE);
         for (List<Long> idBatch : batches) {
-            List<ContentValues> contentValuesList = new ArrayList<>(idBatch.size());
+            BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
+                    Arrays.asList(POSITION, TARGET_ID, ASSOCIATION_TYPE)
+            );
+
             for (int i = 0; i < idBatch.size(); i++) {
                 long userId = idBatch.get(i);
-                contentValuesList.add(followedUserContentValues(userId, positionOffset + i));
+                builder.addRow(Arrays.asList(positionOffset + i, userId, TYPE_FOLLOWING));
             }
+            propeller.bulkInsert(UserAssociations.TABLE, builder.build());
             positionOffset += idBatch.size();
-            propeller.bulkInsert(UserAssociations, contentValuesList);
         }
-    }
-
-    private static ContentValues followedUserContentValues(long userId, int position) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(POSITION, position);
-        contentValues.put(TARGET_ID, userId);
-        contentValues.put(ASSOCIATION_TYPE, TYPE_FOLLOWING);
-        return contentValues;
     }
 
     //TODO: this is business logic and belongs in the syncer. Let's move this once we migrate
@@ -119,16 +92,16 @@ public class UserAssociationStorage {
         if (following.contains(UserAssociationProperty.ADDED_AT)) {
             // following is pending addition; clear the timestamp
             final ContentValues contentValues = new ContentValues(1);
-            contentValues.putNull(ADDED_AT);
-            propeller.update(UserAssociations, contentValues, filter);
+            contentValues.putNull(ADDED_AT.name());
+            propeller.update(UserAssociations.TABLE, contentValues, filter);
         } else if (following.contains(UserAssociationProperty.REMOVED_AT)) {
             // following is pending removal; delete it
-            propeller.delete(UserAssociations, filter);
+            propeller.delete(UserAssociations.TABLE, filter);
         }
     }
 
     public Set<Long> loadFollowedUserIds() {
-        Query followingIds = Query.from(UserAssociations)
+        Query followingIds = Query.from(UserAssociations.TABLE)
                                   .select(TARGET_ID)
                                   .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
                                   .whereNull(ADDED_AT)
@@ -157,32 +130,31 @@ public class UserAssociationStorage {
     }
 
     public Observable<List<Urn>> followedUserUrns(int limit, long fromPosition) {
-        Query query = Query.from(UserAssociations)
-                           .select(field(TARGET_ID).as(BaseColumns._ID))
-                           .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING)
-                           .whereGt(UserAssociations.field(POSITION), fromPosition)
-                           .order(UserAssociations.field(POSITION), ASC)
+        Query query = Query.from(UserAssociations.TABLE)
+                           .select(TARGET_ID.as(BaseColumns._ID))
+                           .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                           .whereGt(POSITION, fromPosition)
+                           .order(POSITION, ASC)
                            .limit(limit);
 
         return propellerRx.query(query).map(new UserUrnMapper()).toList();
     }
 
     public Observable<List<UserAssociation>> followedUserAssociations() {
-        Query query = Query.from(UserAssociations)
-                           .select(field(TARGET_ID).as(BaseColumns._ID),
-                                   UserAssociations.field(ASSOCIATION_TYPE),
-                                   UserAssociations.field(POSITION),
-                                   UserAssociations.field(ADDED_AT),
-                                   UserAssociations.field(REMOVED_AT)
+        Query query = Query.from(UserAssociations.TABLE)
+                           .select(TARGET_ID.as(BaseColumns._ID),
+                                   ASSOCIATION_TYPE,
+                                   POSITION,
+                                   ADDED_AT,
+                                   REMOVED_AT
                            )
-                           .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING)
-                           .whereNull(UserAssociations.field(REMOVED_AT));
-
+                           .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                           .whereNull(REMOVED_AT);
         return propellerRx.query(query).map(new UserAssociationEntityMapper()).toList();
     }
 
     public boolean hasStaleFollowings() {
-        return propeller.query(Query.count(UserAssociations)
+        return propeller.query(Query.count(UserAssociations.TABLE)
                                     .where(staleFollowingsFilter()))
                         .firstOrDefault(Integer.class, 0) > 0;
     }
@@ -201,55 +173,53 @@ public class UserAssociationStorage {
     }
 
     protected Query buildFollowersQuery(int limit, long fromPosition) {
-        return Query.from(Table.Users)
+        return Query.from(Users.TABLE)
                     .select(
-                            field(Users._ID),
-                            field(Users.USERNAME),
-                            field(Users.COUNTRY),
-                            field(Users.FOLLOWERS_COUNT),
-                            field(Users.AVATAR_URL),
-                            UserAssociations.field(POSITION),
-                            UserAssociations.field(ADDED_AT),
-                            UserAssociations.field(REMOVED_AT),
-                            FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE)
-                    .innerJoin(UserAssociations.name(),
+                            Users._ID,
+                            Users.USERNAME,
+                            Users.COUNTRY,
+                            Users.FOLLOWERS_COUNT,
+                            Users.AVATAR_URL,
+                            POSITION,
+                            ADDED_AT,
+                            REMOVED_AT,
+                            FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE.name())
+                    .innerJoin(UserAssociations.TABLE,
                                filter()
-                                       .whereEq(UserAssociations.field(TARGET_ID),
-                                                Table.Users.field(TableColumns.Users._ID))
-                                       .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWER))
-                    .leftJoin(UserAssociations.name() + " as " + FOLLOWINGS_ALIAS,
+                                       .whereEq(TARGET_ID, Users._ID)
+                                       .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWER))
+                    .leftJoin(UserAssociations.TABLE.name() + " as " + FOLLOWINGS_ALIAS,
                               filter()
-                                      .whereEq(FOLLOWINGS_ALIAS + "." + TARGET_ID,
-                                               Table.Users.field(TableColumns.Users._ID))
-                                      .whereEq(FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE, TYPE_FOLLOWING))
-                    .whereGt(UserAssociations.field(POSITION), fromPosition)
-                    .order(UserAssociations.field(POSITION), ASC)
+                                      .whereEq(FOLLOWINGS_ALIAS + "." + TARGET_ID.name(), Users._ID)
+                                      .whereEq(FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE.name(), TYPE_FOLLOWING))
+                    .whereGt(POSITION, fromPosition)
+                    .order(POSITION, ASC)
                     .limit(limit);
     }
 
     protected Query buildFollowingsQuery(int limit, long fromPosition) {
         return buildFollowingsBaseQuery()
-                .whereGt(UserAssociations.field(POSITION), fromPosition)
-                .order(UserAssociations.field(POSITION), ASC)
+                .whereGt(POSITION, fromPosition)
+                .order(POSITION, ASC)
                 .limit(limit);
     }
 
     @NonNull
     private Query buildFollowingsBaseQuery() {
-        return Query.from(Table.Users)
+        return Query.from(Users.TABLE)
                     .select(
-                            field(Users._ID),
-                            field(Users.USERNAME),
-                            field(Users.COUNTRY),
-                            field(Users.FOLLOWERS_COUNT),
-                            field(Users.AVATAR_URL),
-                            field(POSITION),
-                            field(ADDED_AT),
-                            field(REMOVED_AT))
-                    .innerJoin(UserAssociations.name(),
+                            Users._ID,
+                            Users.USERNAME,
+                            Users.COUNTRY,
+                            Users.FOLLOWERS_COUNT,
+                            Users.AVATAR_URL,
+                            POSITION,
+                            ADDED_AT,
+                            REMOVED_AT)
+                    .innerJoin(UserAssociations.TABLE,
                                filter()
-                                       .whereEq(UserAssociations.field(TARGET_ID), Table.Users.field(Users._ID))
-                                       .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING));
+                                       .whereEq(TARGET_ID, Users._ID)
+                                       .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING));
     }
 
     private class UserUrnMapper extends RxResultMapper<Urn> {
@@ -282,7 +252,7 @@ public class UserAssociationStorage {
         @Override
         public PropertySet map(CursorReader reader) {
             final PropertySet propertySet = PropertySet.create(reader.getColumnCount() + 1);
-            propertySet.put(UserProperty.URN, Urn.forUser(reader.getLong(BaseColumns._ID)));
+            propertySet.put(UserProperty.URN, Urn.forUser(reader.getLong(Users._ID)));
             propertySet.put(UserProperty.USERNAME, reader.getString(Users.USERNAME));
             propertySet.put(UserProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(reader.getString(Users.AVATAR_URL)));
             if (reader.isNotNull(Users.COUNTRY)) {

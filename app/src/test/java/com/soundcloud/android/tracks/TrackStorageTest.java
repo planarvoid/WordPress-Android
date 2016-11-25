@@ -1,6 +1,6 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,23 +10,21 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
-import android.content.ContentValues;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -218,37 +216,36 @@ public class TrackStorageTest extends StorageIntegrationTest {
     // TODO: move to DatabaseFixtures?
     private List<Urn> insertBulkTracks(int count) {
         List<Urn> trackUrns = new ArrayList<>(count);
-        List<ContentValues> trackContentValues = new ArrayList<>(count);
-        List<ContentValues> trackPoliciesContentValues = new ArrayList<>(count);
 
-        HashMap<String, Class> trackColumns = new HashMap<>();
-        trackColumns.put(TableColumns.Sounds._ID, Long.class);
-        trackColumns.put(TableColumns.Sounds._TYPE, Integer.class);
-        trackColumns.put(TableColumns.Sounds.TITLE, String.class);
-        trackColumns.put(TableColumns.Sounds.PERMALINK_URL, String.class);
+        BulkInsertValues.Builder trackBuilder = new BulkInsertValues.Builder(Arrays.asList(
+                Tables.Sounds._ID,
+                Tables.Sounds._TYPE,
+                Tables.Sounds.TITLE,
+                Tables.Sounds.PERMALINK_URL
+        ));
 
-        HashMap<String, Class> policyColumns = new HashMap<>();
-        policyColumns.put(TableColumns.TrackPolicies.TRACK_ID, Long.class);
-        policyColumns.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, String.class);
+        BulkInsertValues.Builder policyBuilder = new BulkInsertValues.Builder(Arrays.asList(
+                Tables.TrackPolicies.TRACK_ID,
+                Tables.TrackPolicies.MONETIZATION_MODEL
+        ));
 
         for (int i = 1; i <= BATCH_TRACKS_COUNT; i++) {
-            ContentValues track = new ContentValues();
-            track.put(TableColumns.Sounds._ID, i);
-            track.put(TableColumns.Sounds._TYPE, TYPE_TRACK);
-            track.put(TableColumns.Sounds.TITLE, "Track #" + i);
-            track.put(TableColumns.Sounds.PERMALINK_URL, "track-" + i);
+            trackBuilder.addRow(Arrays.asList(
+               i,
+               TYPE_TRACK,
+               "Track #" + i,
+               "track-" + i
+            ));
 
-            ContentValues policy = new ContentValues();
-            policy.put(TableColumns.TrackPolicies.TRACK_ID, i);
-            policy.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, Strings.EMPTY);
-
-            trackContentValues.add(track);
-            trackPoliciesContentValues.add(policy);
+            policyBuilder.addRow(Arrays.asList(
+                    i,
+                    Strings.EMPTY
+            ));
             trackUrns.add(Urn.forTrack(i));
         }
 
-        propeller().bulkInsert_experimental(Table.Sounds, trackColumns, trackContentValues);
-        propeller().bulkInsert_experimental(Table.TrackPolicies, policyColumns, trackPoliciesContentValues);
+        propeller().bulkInsert(Tables.Sounds.TABLE, trackBuilder.build());
+        propeller().bulkInsert(Tables.TrackPolicies.TABLE, policyBuilder.build());
 
         return trackUrns;
     }

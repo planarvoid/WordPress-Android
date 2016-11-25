@@ -51,7 +51,7 @@ public final class PlaylistQueries {
                                                                            .where(OfflineFilters.UNAVAILABLE_OFFLINE_TRACK_FILTER);
 
     public static final Query IS_MARKED_FOR_OFFLINE_QUERY = Query
-            .from(OfflineContent.TABLE.name(), Table.Sounds.name())
+            .from(OfflineContent.TABLE.name(), Tables.Sounds.TABLE.name())
             .joinOn(SoundView.field(_ID), OfflineContent._ID.qualifiedName())
             .whereEq(OfflineContent._TYPE.qualifiedName(), OfflineContent.TYPE_PLAYLIST);
 

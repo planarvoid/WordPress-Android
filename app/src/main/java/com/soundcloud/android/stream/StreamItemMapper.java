@@ -3,7 +3,6 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.storage.TableColumns.PromotedTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.api.model.Sharing;
@@ -13,6 +12,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -84,7 +84,7 @@ public class StreamItemMapper {
 
     private static Urn readSoundUrn(CursorReader cursorReader) {
         final int soundId = cursorReader.getInt(SoundStreamView.SOUND_ID);
-        return getSoundType(cursorReader) == Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
+        return getSoundType(cursorReader) == Tables.Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
     }
 
     private static int getSoundType(CursorReader cursorReader) {
@@ -134,13 +134,13 @@ public class StreamItemMapper {
     }
 
     private static void addOptionalPlayCount(CursorReader cursorReader, PropertySet propertySet) {
-        if (getSoundType(cursorReader) == Sounds.TYPE_TRACK) {
+        if (getSoundType(cursorReader) == Tables.Sounds.TYPE_TRACK) {
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
         }
     }
 
     private static void addOptionalTrackCount(CursorReader cursorReader, PropertySet propertySet) {
-        if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
+        if (getSoundType(cursorReader) == Tables.Sounds.TYPE_PLAYLIST) {
             propertySet.put(PlaylistProperty.TRACK_COUNT, cursorReader.getInt(SoundView.TRACK_COUNT));
         }
     }

@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
@@ -38,17 +39,17 @@ public class LoadPlaylistLikedStatuses extends Command<Iterable<PropertySet>, Ma
     }
 
     private Query forLikes(Iterable<PropertySet> input) {
-        final Query isLiked = Query.from(Table.Likes.name())
-                                   .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID,
-                                           Table.Likes.name() + "." + TableColumns.Likes._ID)
-                                   .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE,
-                                            TableColumns.Sounds.TYPE_PLAYLIST)
-                                   .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+        final Query isLiked = Query.from(Tables.Likes.TABLE)
+                                   .joinOn(Table.SoundView.field(TableColumns.SoundView._ID),
+                                           Tables.Likes._ID.qualifiedName())
+                                   .whereEq(Tables.Likes._TYPE.qualifiedName(),
+                                            Tables.Sounds.TYPE_PLAYLIST)
+                                   .whereNull(Tables.Likes.REMOVED_AT.qualifiedName());
 
         return Query.from(Table.SoundView.name())
                     .select(TableColumns.SoundView._ID, exists(isLiked).as(COLUMN_IS_LIKED))
                     .whereIn(TableColumns.SoundView._ID, extractIds(input, Optional.of(playlistPredicate())))
-                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+                    .whereEq(TableColumns.SoundView._TYPE, Tables.Sounds.TYPE_PLAYLIST);
     }
 
     private Map<Urn, PropertySet> toLikedSet(QueryResult result) {

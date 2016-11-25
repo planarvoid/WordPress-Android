@@ -9,6 +9,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
@@ -37,15 +38,15 @@ public class LoadTrackRepostStatuses extends Command<Iterable<PropertySet>, Map<
 
     private Query forReposts(Iterable<PropertySet> input) {
         return Query.from(Table.SoundView.name())
-                    .select(TableColumns.SoundView._ID, TableColumns.Posts.TYPE)
-                    .leftJoin(Table.Posts.name(), joinCondition())
+                    .select(TableColumns.SoundView._ID,Tables.Posts.TYPE)
+                    .leftJoin(Tables.Posts.TABLE, joinCondition())
                     .whereIn(TableColumns.SoundView._ID, extractIds(input, Optional.of(trackPredicate())));
     }
 
     private static Where joinCondition() {
-        return filter().whereEq(TableColumns.SoundView._ID, TableColumns.Posts.TARGET_ID)
-                       .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_TRACK)
-                       .whereNull(Table.Posts.field(TableColumns.Likes.REMOVED_AT));
+        return filter().whereEq(TableColumns.SoundView._ID,Tables.Posts.TARGET_ID)
+                       .whereEq(Tables.Posts.TARGET_TYPE, Tables.Sounds.TYPE_TRACK)
+                       .whereNull(Tables.Posts.REMOVED_AT);
     }
 
     private Map<Urn, PropertySet> toRepostedSet(QueryResult queryResult) {
@@ -58,7 +59,7 @@ public class LoadTrackRepostStatuses extends Command<Iterable<PropertySet>, Map<
     }
 
     private boolean isReposted(CursorReader reader) {
-        return reader.isNotNull(TableColumns.Posts.TYPE) &&
-                reader.getString(TableColumns.Posts.TYPE).equals(TableColumns.Posts.TYPE_REPOST);
+        return reader.isNotNull(Tables.Posts.TYPE) &&
+                reader.getString(Tables.Posts.TYPE).equals(Tables.Posts.TYPE_REPOST);
     }
 }

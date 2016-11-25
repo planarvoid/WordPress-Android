@@ -4,8 +4,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -31,8 +30,8 @@ class RemoveLikesCommand extends DefaultWriteStorageCommand<Collection<PropertyS
         for (PropertySet like : input) {
             ids.add(like.get(LikeProperty.TARGET_URN).getNumericId());
         }
-        return propeller.delete(Table.Likes, filter()
-                .whereIn(TableColumns.Likes._ID, ids)
-                .whereEq(TableColumns.Likes._TYPE, type));
+        return propeller.delete(Tables.Likes.TABLE, filter()
+                .whereIn(Tables.Likes._ID, ids)
+                .whereEq(Tables.Likes._TYPE, type));
     }
 }

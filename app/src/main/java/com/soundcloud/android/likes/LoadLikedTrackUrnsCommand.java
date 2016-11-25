@@ -1,6 +1,5 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
@@ -8,8 +7,7 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -31,15 +29,15 @@ public class LoadLikedTrackUrnsCommand extends Command<Void, List<Urn>> {
     @Override
     public List<Urn> call(Void input) {
         final Where whereTrackDataExists = filter()
-                .whereEq(Table.Likes.field(TableColumns.Likes._ID), Table.Sounds.field(TableColumns.Sounds._ID))
-                .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), Table.Sounds.field(TableColumns.Sounds._TYPE));
+                .whereEq(Tables.Likes._ID, Tables.Sounds._ID)
+                .whereEq(Tables.Likes._TYPE, Tables.Sounds._TYPE);
 
-        return database.query(Query.from(Table.Likes.name())
+        return database.query(Query.from(Tables.Likes.TABLE)
                                    .select(field("Likes._id").as(BaseColumns._ID))
-                                   .innerJoin(Table.Sounds.name(), whereTrackDataExists)
-                                   .whereEq("Likes." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                                   .order("Likes." + CREATED_AT, DESC)
-                                   .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
+                                   .innerJoin(Tables.Sounds.TABLE, whereTrackDataExists)
+                                   .whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_TRACK)
+                                   .order(Tables.Likes.CREATED_AT, DESC)
+                                   .whereNull(Tables.Likes.REMOVED_AT))
                        .toList(new TrackUrnMapper());
     }
 }

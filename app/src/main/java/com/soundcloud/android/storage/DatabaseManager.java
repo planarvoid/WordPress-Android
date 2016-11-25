@@ -30,7 +30,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 102;
+    public static final int DATABASE_VERSION = 103;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -342,6 +342,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 102:
                             success = upgradeTo102(db, oldVersion);
                             break;
+                        case 103:
+                            success = upgradeTo103(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -418,7 +421,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo38(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.create(Table.Posts, db);
+            db.execSQL(Tables.Posts.TABLE.getCreateSQL());
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 38);
@@ -431,11 +434,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo39(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL(Tables.OfflineContent.SQL);
-            SchemaMigrationHelper.create(Table.TrackPolicies, db);
+            db.execSQL(Tables.OfflineContent.TABLE.getCreateSQL());
+            db.execSQL(Tables.TrackPolicies.TABLE.getCreateSQL());
             migratePolicies(db);
 
-            alterColumns(Table.Sounds, db);
+            alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
             recreateSoundDependentViews(db);
 
             return true;
@@ -450,7 +453,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo40(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.recreate(Table.Posts, db);
+            SchemaMigrationHelper.recreateTable(Tables.Posts.TABLE, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 40);
@@ -503,7 +506,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo44(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.TrackPolicies, db);
+            alterColumns(Tables.TrackPolicies.TABLE.name(), Tables.TrackPolicies.SQL, db);
             SchemaMigrationHelper.recreate(Table.SoundView, db);
             SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
             return true;
@@ -560,8 +563,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo48(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.PlayQueue.TABLE.name(), db);
-            db.execSQL(Tables.PlayQueue.SQL);
+            SchemaMigrationHelper.recreateTable(Tables.PlayQueue.TABLE, db);
             return true;
 
         } catch (SQLException exception) {
@@ -589,10 +591,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo50(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.Stations.TABLE.name(), db);
-            dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
-            db.execSQL(Tables.Stations.SQL);
-            db.execSQL(Tables.StationsPlayQueues.SQL);
+            SchemaMigrationHelper.recreateTable(Tables.Stations.TABLE, db);
+            SchemaMigrationHelper.recreateTable(Tables.StationsPlayQueues.TABLE, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 50);
@@ -605,8 +605,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo51(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.PlayQueue.TABLE.name(), db);
-            db.execSQL(Tables.PlayQueue.SQL);
+            SchemaMigrationHelper.recreateTable(Tables.PlayQueue.TABLE, db);
             return true;
 
         } catch (SQLException exception) {
@@ -620,8 +619,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo52(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
-            db.execSQL(Tables.StationsPlayQueues.SQL);
+            SchemaMigrationHelper.recreateTable(Tables.StationsPlayQueues.TABLE, db);
             return true;
 
         } catch (SQLException exception) {
@@ -635,8 +633,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo53(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.Stations.TABLE.name(), db);
-            db.execSQL(Tables.Stations.SQL);
+            SchemaMigrationHelper.recreateTable(Tables.Stations.TABLE, db);
             return true;
 
         } catch (SQLException exception) {
@@ -678,8 +675,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo56(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
-            db.execSQL(Tables.StationsPlayQueues.SQL);
+            SchemaMigrationHelper.recreateTable(Tables.StationsPlayQueues.TABLE, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 56);
@@ -692,8 +688,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo57(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.Stations.TABLE.name(), db);
-            db.execSQL(Tables.Stations.SQL);
+            SchemaMigrationHelper.recreateTable(Tables.Stations.TABLE, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 57);
@@ -719,7 +714,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo60(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.Sounds, db);
+            alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
@@ -750,7 +745,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo62(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.TrackPolicies, db);
+            alterColumns(Tables.TrackPolicies.TABLE.name(), Tables.TrackPolicies.SQL, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 62);
@@ -763,7 +758,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo63(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.Sounds, db);
+            alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
@@ -778,7 +773,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo64(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.TrackPolicies, db);
+            alterColumns(Tables.TrackPolicies.TABLE.name(), Tables.TrackPolicies.SQL, db);
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
@@ -850,8 +845,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo69(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.UserAssociations, db);
-            SchemaMigrationHelper.recreate(Table.UserAssociationView, db);
+            SchemaMigrationHelper.recreateTable(Tables.UserAssociations.TABLE, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 69);
@@ -864,7 +858,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo70(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.Sounds, db);
+            alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
@@ -891,7 +885,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo72(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.Sounds, db);
+            alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
@@ -975,7 +969,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo78(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.Sounds, db);
+            alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
@@ -1007,7 +1001,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo81(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.Users, db);
+            alterColumns(Tables.Users.TABLE.name(), Tables.Users.SQL, db);
             dropTable(Tables.RecommendationSeeds.TABLE.name(), db);
             db.execSQL(Tables.RecommendationSeeds.SQL);
             return true;
@@ -1182,7 +1176,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo93(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Table.Users, db);
+            alterColumns(Tables.Users.TABLE.name(), Tables.Users.SQL, db);
             dropView(Tables.UsersView.TABLE.name(), db);
             db.execSQL(Tables.UsersView.SQL);
             return true;
@@ -1320,6 +1314,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Drop no longer used UserAssociationView
+     */
+    private boolean upgradeTo103(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropView("UserAssociationView", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 103);
+        }
+        return false;
+    }
+
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
             db.execSQL(Tables.RecentlyPlayed.MIGRATE_SQL);
@@ -1332,13 +1339,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
         final List<String> oldSoundColumns = asList(
                 "_id", "monetizable", "policy");
         final List<String> newPoliciesColumns = asList(
-                TableColumns.TrackPolicies.TRACK_ID,
-                TableColumns.TrackPolicies.MONETIZABLE,
-                TableColumns.TrackPolicies.POLICY
+                Tables.TrackPolicies.TRACK_ID.name(),
+                Tables.TrackPolicies.MONETIZABLE.name(),
+                Tables.TrackPolicies.POLICY.name()
         );
 
-        SchemaMigrationHelper.migrate(db, Table.TrackPolicies.name(),
-                                      newPoliciesColumns, Table.Sounds.name(), oldSoundColumns);
+        SchemaMigrationHelper.migrate(db, Tables.TrackPolicies.TABLE.name(),
+                                      newPoliciesColumns, Tables.Sounds.TABLE.name(), oldSoundColumns);
     }
 
     private void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
@@ -1388,6 +1395,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private List<SCBaseTable> allTables() {
         return asList(
+                Tables.Users.TABLE,
+                Tables.Sounds.TABLE,
+                Tables.TrackPolicies.TABLE,
+                Tables.Likes.TABLE,
+                Tables.Posts.TABLE,
+                Tables.UserAssociations.TABLE,
                 Tables.Recommendations.TABLE,
                 Tables.RecommendationSeeds.TABLE,
                 Tables.PlayQueue.TABLE,

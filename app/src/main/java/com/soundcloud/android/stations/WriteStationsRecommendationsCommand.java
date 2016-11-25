@@ -10,12 +10,12 @@ import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class WriteStationsRecommendationsCommand
@@ -62,27 +62,28 @@ class WriteStationsRecommendationsCommand
                                               List<ApiStationMetadata> stations) {
         return propeller.bulkInsert(
                 Tables.StationsCollections.TABLE,
-                toStationsCollectionsContentValues(stations, type),
-                SQLiteDatabase.CONFLICT_IGNORE);
+                toStationsCollectionsBulkValues(stations, type));
     }
 
-    private List<ContentValues> toStationsCollectionsContentValues(List<ApiStationMetadata> stations, int type) {
-        List<ContentValues> stationsToSave = new ArrayList<>();
+    private BulkInsertValues toStationsCollectionsBulkValues(List<ApiStationMetadata> stations, int type) {
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
+                Arrays.asList(
+                        Tables.StationsCollections.STATION_URN,
+                        Tables.StationsCollections.COLLECTION_TYPE,
+                        Tables.StationsCollections.POSITION
+                )
+        );
+
         for (int i = 0; i < stations.size(); i++) {
-            stationsToSave.add(buildStationsCollectionsItemContentValues(stations.get(i), type, i));
+            builder.addRow(
+                    Arrays.asList(
+                            stations.get(i).getUrn().toString(),
+                            type,
+                            i
+                    )
+            );
         }
-        return stationsToSave;
-    }
-
-    private ContentValues buildStationsCollectionsItemContentValues(ApiStationMetadata station,
-                                                                    int type,
-                                                                    int position) {
-        return ContentValuesBuilder
-                .values()
-                .put(Tables.StationsCollections.STATION_URN, station.getUrn().toString())
-                .put(Tables.StationsCollections.COLLECTION_TYPE, type)
-                .put(Tables.StationsCollections.POSITION, position)
-                .get();
+        return builder.build();
     }
 
     private static ContentValues buildStationContentValues(ApiStationMetadata station) {

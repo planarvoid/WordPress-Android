@@ -32,71 +32,11 @@ final class DatabaseSchema {
             "tracking_track_impression_urls TEXT" +
             ");";
 
-    static final String DATABASE_CREATE_SOUNDS = "(" +
-            "_id INTEGER," +
-            "_type INTEGER," +
-            "last_updated INTEGER," +
-            "permalink VARCHAR(255)," +
-            "original_content_size INTEGER," +
-            "duration INTEGER," +
-            "snippet_duration INTEGER," +
-            "full_duration INTEGER," +
-            "state VARCHAR(50)," +
-            "created_at INTEGER," +
-            "genre VARCHAR(100)," +
-            "tag_list VARCHAR(500)," +
-            "track_type VARCHAR(255)," +
-            "title VARCHAR(255)," +
-            "permalink_url VARCHAR(255)," +
-            "artwork_url VARCHAR(255), " +
-            "waveform_url VARCHAR(255), " +
-            "downloadable BOOLEAN, " +
-            "commentable BOOLEAN, " +
-            "download_url VARCHAR(255), " +
-            "stream_url VARCHAR(255)," +
-            "streamable BOOLEAN DEFAULT 0, " +
-            "sharing VARCHAR(255)," +
-            "license VARCHAR(100)," +
-            "purchase_url VARCHAR(255)," +
-            "playback_count INTEGER DEFAULT -1," +
-            "download_count INTEGER DEFAULT -1," +
-            "comment_count INTEGER DEFAULT -1," +
-            "favoritings_count INTEGER DEFAULT -1," +
-            "reposts_count INTEGER DEFAULT -1," +
-            "shared_to_count INTEGER DEFAULT -1," +
-            "sharing_note_text VARCHAR(255)," +
-            "tracks_uri VARCHAR(255)," +
-            "track_count INTEGER DEFAULT -1," +
-            "playlist_type VARCHAR(255)," +
-            "user_id INTEGER," +
-            "removed_at INTEGER DEFAULT NULL," +
-            "modified_at INTEGER DEFAULT NULL," +
-            "DESCRIPTION TEXT," +
-            "is_album BOOLEAN DEFAULT 0," +
-            "set_type VARCHAR(255)," +
-            "release_date VARCHAR(255)," +
-            "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
-            ");";
-
     static final String DATABASE_CREATE_WAVEFORMS = "(" +
             "track_id INTEGER, " +
             "max_amplitude INTEGER, " +
             "samples TEXT, " +
             "created_at INTEGER," +
-            "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
-            ");";
-
-    static final String DATABASE_CREATE_TRACK_POLICIES = "(" +
-            "track_id INTEGER, " +
-            "monetizable BOOLEAN DEFAULT 0," +
-            "blocked BOOLEAN DEFAULT 0," +
-            "snipped BOOLEAN DEFAULT 0," +
-            "syncable BOOLEAN DEFAULT 1," +
-            "sub_mid_tier BOOLEAN DEFAULT 0," +
-            "sub_high_tier BOOLEAN DEFAULT 0," +
-            "policy TEXT," +
-            "monetization_model TEXT," +
-            "last_updated INTEGER, " +
             "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
             ");";
 
@@ -107,44 +47,6 @@ final class DatabaseSchema {
             "added_at INTEGER," +
             "removed_at INTEGER," +
             "PRIMARY KEY (track_id, position, playlist_id) ON CONFLICT IGNORE" +
-            ");";
-
-    static final String DATABASE_CREATE_USERS = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "_type INTEGER DEFAULT 0," +
-
-            // mini representation
-            "username VARCHAR(255)," +
-            "avatar_url VARCHAR(255)," +
-            "permalink VARCHAR(255)," +
-            "permalink_url VARCHAR(255)," +
-
-            "full_name VARCHAR(255)," +
-            "description text," +
-            "city VARCHAR(255)," +
-            "country VARCHAR(255)," +
-
-            "artist_station TEXT," +
-            "plan VARCHAR(16)," +
-            "primary_email_confirmed INTEGER," +
-
-            "website VARCHAR(255)," +
-            "website_title VARCHAR(255), " +
-
-            "discogs_name VARCHAR(255)," +
-            "myspace_name VARCHAR(255)," +
-
-            "visual_url VARCHAR(255)," +
-
-            // counts
-            "track_count INTEGER DEFAULT -1," +
-            "followers_count INTEGER DEFAULT -1," +
-            "followings_count INTEGER DEFAULT -1," +
-            "public_favorites_count INTEGER DEFAULT -1," +
-            "private_tracks_count INTEGER DEFAULT -1," +
-
-            // internal
-            "last_updated INTEGER" +
             ");";
 
     static final String DATABASE_CREATE_ACTIVITIES = "(" +
@@ -173,120 +75,68 @@ final class DatabaseSchema {
             "extra TEXT" +
             ");";
 
-    static final String DATABASE_CREATE_LIKES = "(" +
-            "_id INTEGER NOT NULL," +
-            "_type INTEGER NOT NULL," +
-            "created_at INTEGER NOT NULL," +
-            "added_at INTEGER DEFAULT NULL," +
-            "removed_at INTEGER DEFAULT NULL," +
-            "PRIMARY KEY (_id, _type)," +
-            "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
-            ");";
-
-    static final String DATABASE_CREATE_POSTS = "(" +
-            "type STRING NOT NULL," +
-            "target_id INTEGER NOT NULL," +
-            "target_type INTEGER NOT NULL," +
-            "created_at INTEGER NOT NULL," +
-            "added_at INTEGER DEFAULT NULL," +
-            "removed_at INTEGER DEFAULT NULL," +
-            "PRIMARY KEY (type, target_id, target_type)," +
-            "FOREIGN KEY(target_id, target_type) REFERENCES Sounds(_id, _type)" +
-            ");";
-
-    /**
-     * {@link com.soundcloud.android.storage.TableColumns.UserAssociations}
-     */
-    static final String DATABASE_CREATE_USER_ASSOCIATIONS = "(" +
-            "target_id INTEGER," +                  // the target user of the association
-            "association_type INTEGER, " +          // the type of association (e.g. Following, Follower)
-            "resource_type INTEGER DEFAULT 0, " +   // currently unused, but if we add groups...
-            "position INTEGER, " +                  // as returned from the api
-            "created_at INTEGER, " +                // indicates when this was created on the api
-            "added_at INTEGER, " +                  // when was this added locally (pre-api sync)
-            "removed_at INTEGER, " +                // when was this removed locally (pre-api sync)
-            "token VARCHAR(150), " +                // whitelist token to avoid spam flagging. comes from API
-            "PRIMARY KEY(target_id, association_type, resource_type) ON CONFLICT REPLACE" +
-            ");";
-
     static final String DATABASE_CREATE_SOUND_VIEW = "AS SELECT " +
-            "Sounds." + TableColumns.Sounds._ID + " as " + TableColumns.SoundView._ID +
-            ",Sounds." + TableColumns.Sounds._TYPE + " as " + TableColumns.SoundView._TYPE +
-            ",Sounds." + TableColumns.Sounds.LAST_UPDATED + " as " + TableColumns.SoundView.LAST_UPDATED +
-            ",Sounds." + TableColumns.Sounds.PERMALINK + " as " + TableColumns.SoundView.PERMALINK +
-            ",Sounds." + TableColumns.Sounds.CREATED_AT + " as " + TableColumns.SoundView.CREATED_AT +
-            ",Sounds." + TableColumns.Sounds.DURATION + " as " + TableColumns.SoundView.DURATION +
-            ",Sounds." + TableColumns.Sounds.SNIPPET_DURATION + " as " + TableColumns.SoundView.SNIPPET_DURATION +
-            ",Sounds." + TableColumns.Sounds.FULL_DURATION + " as " + TableColumns.SoundView.FULL_DURATION +
-            ",Sounds." + TableColumns.Sounds.ORIGINAL_CONTENT_SIZE + " as " + TableColumns.SoundView.ORIGINAL_CONTENT_SIZE +
-            ",Sounds." + TableColumns.Sounds.STATE + " as " + TableColumns.SoundView.STATE +
-            ",Sounds." + TableColumns.Sounds.GENRE + " as " + TableColumns.SoundView.GENRE +
-            ",Sounds." + TableColumns.Sounds.TAG_LIST + " as " + TableColumns.SoundView.TAG_LIST +
-            ",Sounds." + TableColumns.Sounds.TRACK_TYPE + " as " + TableColumns.SoundView.TRACK_TYPE +
-            ",Sounds." + TableColumns.Sounds.TITLE + " as " + TableColumns.SoundView.TITLE +
-            ",Sounds." + TableColumns.Sounds.PERMALINK_URL + " as " + TableColumns.SoundView.PERMALINK_URL +
-            ",Sounds." + TableColumns.Sounds.ARTWORK_URL + " as " + TableColumns.SoundView.ARTWORK_URL +
-            ",Sounds." + TableColumns.Sounds.WAVEFORM_URL + " as " + TableColumns.SoundView.WAVEFORM_URL +
-            ",Sounds." + TableColumns.Sounds.DOWNLOADABLE + " as " + TableColumns.SoundView.DOWNLOADABLE +
-            ",Sounds." + TableColumns.Sounds.DOWNLOAD_URL + " as " + TableColumns.SoundView.DOWNLOAD_URL +
-            ",Sounds." + TableColumns.Sounds.STREAM_URL + " as " + TableColumns.SoundView.STREAM_URL +
-            ",Sounds." + TableColumns.Sounds.STREAMABLE + " as " + TableColumns.SoundView.STREAMABLE +
-            ",Sounds." + TableColumns.Sounds.COMMENTABLE + " as " + TableColumns.SoundView.COMMENTABLE +
-            ",Sounds." + TableColumns.Sounds.SHARING + " as " + TableColumns.SoundView.SHARING +
-            ",Sounds." + TableColumns.Sounds.LICENSE + " as " + TableColumns.SoundView.LICENSE +
-            ",Sounds." + TableColumns.Sounds.PURCHASE_URL + " as " + TableColumns.SoundView.PURCHASE_URL +
-            ",Sounds." + TableColumns.Sounds.PLAYBACK_COUNT + " as " + TableColumns.SoundView.PLAYBACK_COUNT +
-            ",Sounds." + TableColumns.Sounds.DOWNLOAD_COUNT + " as " + TableColumns.SoundView.DOWNLOAD_COUNT +
-            ",Sounds." + TableColumns.Sounds.COMMENT_COUNT + " as " + TableColumns.SoundView.COMMENT_COUNT +
-            ",Sounds." + TableColumns.Sounds.LIKES_COUNT + " as " + TableColumns.SoundView.LIKES_COUNT +
-            ",Sounds." + TableColumns.Sounds.REPOSTS_COUNT + " as " + TableColumns.SoundView.REPOSTS_COUNT +
-            ",Sounds." + TableColumns.Sounds.SHARED_TO_COUNT + " as " + TableColumns.SoundView.SHARED_TO_COUNT +
-            ",Sounds." + TableColumns.Sounds.TRACKS_URI + " as " + TableColumns.SoundView.TRACKS_URI +
-            ",Sounds." + TableColumns.Sounds.TRACK_COUNT + " as " + TableColumns.SoundView.TRACK_COUNT +
-            ",Sounds." + TableColumns.Sounds.DESCRIPTION + " as " + TableColumns.SoundView.DESCRIPTION +
-            ",Sounds." + TableColumns.Sounds.IS_ALBUM + " as " + TableColumns.SoundView.IS_ALBUM +
-            ",Sounds." + TableColumns.Sounds.SET_TYPE + " as " + TableColumns.SoundView.SET_TYPE +
-            ",Sounds." + TableColumns.Sounds.RELEASE_DATE + " as " + TableColumns.SoundView.RELEASE_DATE +
-            ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZABLE + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
-            ",TrackPolicies." + TableColumns.TrackPolicies.BLOCKED + " as " + TableColumns.SoundView.POLICIES_BLOCKED +
-            ",TrackPolicies." + TableColumns.TrackPolicies.SNIPPED + " as " + TableColumns.SoundView.POLICIES_SNIPPED +
-            ",TrackPolicies." + TableColumns.TrackPolicies.POLICY + " as " + TableColumns.SoundView.POLICIES_POLICY +
-            ",TrackPolicies." + TableColumns.TrackPolicies.SYNCABLE + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
-            ",TrackPolicies." + TableColumns.TrackPolicies.SUB_MID_TIER + " as " + TableColumns.SoundView.POLICIES_SUB_MID_TIER +
-            ",TrackPolicies." + TableColumns.TrackPolicies.SUB_HIGH_TIER+ " as " + TableColumns.SoundView.POLICIES_SUB_HIGH_TIER +
-            ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZATION_MODEL + " as " + TableColumns.SoundView.POLICIES_MONETIZATION_MODEL +
-            ",Users." + TableColumns.Users._ID + " as " + TableColumns.SoundView.USER_ID +
-            ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
-            ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +
-            ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundView.USER_AVATAR_URL +
+            Tables.Sounds._ID.qualifiedName() + " as " + TableColumns.SoundView._ID +
+            "," + Tables.Sounds._TYPE.qualifiedName() + " as " + TableColumns.SoundView._TYPE +
+            "," + Tables.Sounds.LAST_UPDATED.qualifiedName() + " as " + TableColumns.SoundView.LAST_UPDATED +
+            "," + Tables.Sounds.PERMALINK.qualifiedName() + " as " + TableColumns.SoundView.PERMALINK +
+            "," + Tables.Sounds.CREATED_AT.qualifiedName() + " as " + TableColumns.SoundView.CREATED_AT +
+            "," + Tables.Sounds.DURATION.qualifiedName() + " as " + TableColumns.SoundView.DURATION +
+            "," + Tables.Sounds.SNIPPET_DURATION.qualifiedName() + " as " + TableColumns.SoundView.SNIPPET_DURATION +
+            "," + Tables.Sounds.FULL_DURATION.qualifiedName() + " as " + TableColumns.SoundView.FULL_DURATION +
+            "," + Tables.Sounds.ORIGINAL_CONTENT_SIZE.qualifiedName() + " as " + TableColumns.SoundView.ORIGINAL_CONTENT_SIZE +
+            "," + Tables.Sounds.STATE.qualifiedName() + " as " + TableColumns.SoundView.STATE +
+            "," + Tables.Sounds.GENRE.qualifiedName() + " as " + TableColumns.SoundView.GENRE +
+            "," + Tables.Sounds.TAG_LIST.qualifiedName() + " as " + TableColumns.SoundView.TAG_LIST +
+            "," + Tables.Sounds.TRACK_TYPE.qualifiedName() + " as " + TableColumns.SoundView.TRACK_TYPE +
+            "," + Tables.Sounds.TITLE.qualifiedName() + " as " + TableColumns.SoundView.TITLE +
+            "," + Tables.Sounds.PERMALINK_URL.qualifiedName() + " as " + TableColumns.SoundView.PERMALINK_URL +
+            "," + Tables.Sounds.ARTWORK_URL.qualifiedName() + " as " + TableColumns.SoundView.ARTWORK_URL +
+            "," + Tables.Sounds.WAVEFORM_URL.qualifiedName() + " as " + TableColumns.SoundView.WAVEFORM_URL +
+            "," + Tables.Sounds.DOWNLOADABLE.qualifiedName() + " as " + TableColumns.SoundView.DOWNLOADABLE +
+            "," + Tables.Sounds.DOWNLOAD_URL.qualifiedName() + " as " + TableColumns.SoundView.DOWNLOAD_URL +
+            "," + Tables.Sounds.STREAM_URL.qualifiedName() + " as " + TableColumns.SoundView.STREAM_URL +
+            "," + Tables.Sounds.STREAMABLE.qualifiedName() + " as " + TableColumns.SoundView.STREAMABLE +
+            "," + Tables.Sounds.COMMENTABLE.qualifiedName() + " as " + TableColumns.SoundView.COMMENTABLE +
+            "," + Tables.Sounds.SHARING.qualifiedName() + " as " + TableColumns.SoundView.SHARING +
+            "," + Tables.Sounds.LICENSE.qualifiedName() + " as " + TableColumns.SoundView.LICENSE +
+            "," + Tables.Sounds.PURCHASE_URL.qualifiedName() + " as " + TableColumns.SoundView.PURCHASE_URL +
+            "," + Tables.Sounds.PLAYBACK_COUNT.qualifiedName() + " as " + TableColumns.SoundView.PLAYBACK_COUNT +
+            "," + Tables.Sounds.DOWNLOAD_COUNT.qualifiedName() + " as " + TableColumns.SoundView.DOWNLOAD_COUNT +
+            "," + Tables.Sounds.COMMENT_COUNT.qualifiedName() + " as " + TableColumns.SoundView.COMMENT_COUNT +
+            "," + Tables.Sounds.LIKES_COUNT.qualifiedName() + " as " + TableColumns.SoundView.LIKES_COUNT +
+            "," + Tables.Sounds.REPOSTS_COUNT.qualifiedName() + " as " + TableColumns.SoundView.REPOSTS_COUNT +
+            "," + Tables.Sounds.SHARED_TO_COUNT.qualifiedName() + " as " + TableColumns.SoundView.SHARED_TO_COUNT +
+            "," + Tables.Sounds.TRACKS_URI.qualifiedName() + " as " + TableColumns.SoundView.TRACKS_URI +
+            "," + Tables.Sounds.TRACK_COUNT.qualifiedName() + " as " + TableColumns.SoundView.TRACK_COUNT +
+            "," + Tables.Sounds.DESCRIPTION.qualifiedName() + " as " + TableColumns.SoundView.DESCRIPTION +
+            "," + Tables.Sounds.IS_ALBUM.qualifiedName() + " as " + TableColumns.SoundView.IS_ALBUM +
+            "," + Tables.Sounds.SET_TYPE.qualifiedName() + " as " + TableColumns.SoundView.SET_TYPE +
+            "," + Tables.Sounds.RELEASE_DATE.qualifiedName() + " as " + TableColumns.SoundView.RELEASE_DATE +
+            "," + Tables.TrackPolicies.MONETIZABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
+            "," + Tables.TrackPolicies.BLOCKED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_BLOCKED +
+            "," + Tables.TrackPolicies.SNIPPED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SNIPPED +
+            "," + Tables.TrackPolicies.POLICY.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_POLICY +
+            "," + Tables.TrackPolicies.SYNCABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
+            "," + Tables.TrackPolicies.SUB_MID_TIER.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SUB_MID_TIER +
+            "," + Tables.TrackPolicies.SUB_HIGH_TIER.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SUB_HIGH_TIER +
+            "," + Tables.TrackPolicies.MONETIZATION_MODEL.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_MONETIZATION_MODEL +
+            "," + Tables.Users._ID + " as " + TableColumns.SoundView.USER_ID +
+            "," + Tables.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
+            "," + Tables.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +
+            "," + Tables.Users.AVATAR_URL + " as " + TableColumns.SoundView.USER_AVATAR_URL +
             "," + Tables.TrackDownloads.DOWNLOADED_AT + " as " + TableColumns.SoundView.OFFLINE_DOWNLOADED_AT +
             "," + Tables.TrackDownloads.REMOVED_AT + " as " + TableColumns.SoundView.OFFLINE_REMOVED_AT +
             " FROM Sounds" +
-            " LEFT JOIN Users ON(" +
-            "   Sounds." + TableColumns.Sounds.USER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
+            " LEFT JOIN Users ON( " + Tables.Sounds.USER_ID.qualifiedName() + " = " + Tables.Users._ID + ")" +
             " LEFT OUTER JOIN TrackDownloads " +
-            "   ON (Sounds." + TableColumns.Sounds._ID + " = " + Tables.TrackDownloads._ID + " AND " +
-            "   Sounds." + TableColumns.Sounds._TYPE + " = " + TableColumns.Sounds.TYPE_TRACK + ")" +
+            "   ON (" + Tables.Sounds._ID.qualifiedName() + " = " + Tables.TrackDownloads._ID + " AND " +
+            "   " + Tables.Sounds._TYPE.qualifiedName() + " = " + Tables.Sounds.TYPE_TRACK + ")" +
             " LEFT OUTER JOIN TrackPolicies ON(" +
-            "   Sounds." + TableColumns.Sounds._ID + " = " + "TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + ")" +
-            " WHERE " + "Sounds." + TableColumns.Sounds.REMOVED_AT + " IS NULL" +
-            " AND (Sounds." + TableColumns.Sounds._TYPE + " != " + TableColumns.Sounds.TYPE_TRACK +
-            " OR TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + " IS NOT NULL)";
-
-    static final String DATABASE_CREATE_USER_ASSOCIATION_VIEW = " AS SELECT " +
-            "UserAssociations." + TableColumns.UserAssociations.CREATED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_TIMESTAMP +
-            ", UserAssociations." + TableColumns.UserAssociations.ASSOCIATION_TYPE + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE +
-            ", UserAssociations." + TableColumns.UserAssociations.ADDED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT +
-            ", UserAssociations." + TableColumns.UserAssociations.REMOVED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT +
-            ", UserAssociations." + TableColumns.UserAssociations.TOKEN + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN +
-
-            // user data
-            ", Users.*" +
-            " FROM " + Table.UserAssociations.name() + " " +
-            " LEFT JOIN Users ON(" +
-            "   " + Table.UserAssociations.name() + "." + TableColumns.UserAssociations.TARGET_ID + " = " + Table.Users.name() + "." + TableColumns.Users._ID + ")" +
-            // this is the default position as returned by the server, which is ordered by last active users (subject to change)
-            " ORDER BY " + TableColumns.UserAssociations.POSITION + " ASC";
+            "   " + Tables.Sounds._ID.qualifiedName() + " = " + Tables.TrackPolicies.TRACK_ID.qualifiedName() + ")" +
+            " WHERE " + Tables.Sounds.REMOVED_AT.qualifiedName() + " IS NULL" +
+            " AND (" + Tables.Sounds._TYPE.qualifiedName() + " != " + Tables.Sounds.TYPE_TRACK +
+            " OR " + Tables.TrackPolicies.TRACK_ID.qualifiedName() + " IS NOT NULL)";
 
     /**
      * A view which aggregates playlist members from the sounds and playlist_tracks table
@@ -316,9 +166,9 @@ final class DatabaseSchema {
             ",SoundStream." + TableColumns.SoundStream.PROMOTED_ID + " as " + TableColumns.SoundStreamView.PROMOTED_ID +
 
             // activity user (who commented, favorited etc. on contained following)
-            ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundStreamView.REPOSTER_USERNAME +
-            ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundStreamView.REPOSTER_PERMALINK +
-            ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundStreamView.REPOSTER_AVATAR_URL +
+            "," + Tables.Users.USERNAME + " as " + TableColumns.SoundStreamView.REPOSTER_USERNAME +
+            "," + Tables.Users.PERMALINK + " as " + TableColumns.SoundStreamView.REPOSTER_PERMALINK +
+            "," + Tables.Users.AVATAR_URL + " as " + TableColumns.SoundStreamView.REPOSTER_AVATAR_URL +
 
             // track+user data
             ",SoundView.*" +
@@ -332,7 +182,7 @@ final class DatabaseSchema {
 
 
             " LEFT JOIN Users ON(" +
-            "   SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
+            "   SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " = " + Tables.Users._ID + ")" +
             " INNER JOIN SoundView ON(" +
             "   SoundStream." + TableColumns.SoundStream.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
             "   SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
@@ -357,9 +207,9 @@ final class DatabaseSchema {
             ",Activities." + TableColumns.Activities.SHARING_NOTE_CREATED_AT + " as " + TableColumns.ActivityView.SHARING_NOTE_CREATED_AT +
 
             // activity user (who commented, favorited etc. on contained following)
-            ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.ActivityView.USER_USERNAME +
-            ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.ActivityView.USER_PERMALINK +
-            ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.ActivityView.USER_AVATAR_URL +
+            "," + Tables.Users.USERNAME + " as " + TableColumns.ActivityView.USER_USERNAME +
+            "," + Tables.Users.PERMALINK + " as " + TableColumns.ActivityView.USER_PERMALINK +
+            "," + Tables.Users.AVATAR_URL + " as " + TableColumns.ActivityView.USER_AVATAR_URL +
 
             // track+user data
             ",SoundView.*" +
@@ -370,7 +220,7 @@ final class DatabaseSchema {
             ",Comments." + TableColumns.Comments.TIMESTAMP + " as " + TableColumns.ActivityView.COMMENT_TIMESTAMP +
             " FROM Activities" +
             " LEFT JOIN Users ON(" +
-            "   Activities." + TableColumns.Activities.USER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
+            "   Activities." + TableColumns.Activities.USER_ID + " = " + Tables.Users._ID + ")" +
             " LEFT JOIN SoundView ON(" +
             "   Activities." + TableColumns.Activities.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
             "   Activities." + TableColumns.Activities.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +

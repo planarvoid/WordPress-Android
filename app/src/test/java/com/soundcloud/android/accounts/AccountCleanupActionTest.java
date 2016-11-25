@@ -29,6 +29,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
@@ -195,13 +196,13 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldClearLikes() throws PropellerWriteException {
         action.call();
-        verify(clearTableCommand).call(Table.Likes);
+        verify(clearTableCommand).call(Tables.Likes.TABLE);
     }
 
     @Test
     public void shouldClearPosts() throws PropellerWriteException {
         action.call();
-        verify(clearTableCommand).call(Table.Posts);
+        verify(clearTableCommand).call(Tables.Posts.TABLE);
     }
 
     @Test
@@ -213,7 +214,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldClearPolicies() {
         action.call();
-        verify(clearTableCommand).call(Table.TrackPolicies);
+        verify(clearTableCommand).call(Tables.TrackPolicies.TABLE);
     }
 
     @Test

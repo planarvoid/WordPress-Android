@@ -1,8 +1,6 @@
 package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
-import static com.soundcloud.android.storage.TableColumns.Posts;
-import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -11,9 +9,11 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns.Likes;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 
@@ -65,30 +65,30 @@ class ReplacePlaylistPostCommand
             }
 
             private void insertNewPlaylistAndUser(PropellerDatabase propeller) {
-                step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(newPlaylist.getUser())));
-                step(propeller.insert(Table.Sounds, StorePlaylistsCommand.buildPlaylistContentValues(newPlaylist)));
+                step(propeller.upsert(Tables.Users.TABLE, StoreUsersCommand.buildUserContentValues(newPlaylist.getUser())));
+                step(propeller.insert(Tables.Sounds.TABLE, StorePlaylistsCommand.buildPlaylistContentValues(newPlaylist)));
             }
 
             private void updateLikesTable(PropellerDatabase propeller) {
                 final ContentValues playlistLikesValues = new ContentValues();
-                playlistLikesValues.put(Likes._ID, newPlaylist.getId());
-                step(propeller.update(Table.Likes, playlistLikesValues, filter()
-                        .whereEq(Likes._ID, localPlaylistUrn.getNumericId())
-                        .whereEq(Likes._TYPE, Sounds.TYPE_PLAYLIST)));
+                playlistLikesValues.put(Tables.Likes._ID.name(), newPlaylist.getId());
+                step(propeller.update(Tables.Likes.TABLE, playlistLikesValues, filter()
+                        .whereEq(Tables.Likes._ID, localPlaylistUrn.getNumericId())
+                        .whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_PLAYLIST)));
             }
 
             private void updatePostsTable(PropellerDatabase propeller) {
-                final ContentValues playlistPostValues = new ContentValues();
+                final ContentValuesBuilder playlistPostValues = ContentValuesBuilder.values(1);
                 playlistPostValues.put(Posts.TARGET_ID, newPlaylist.getId());
-                step(propeller.update(Table.Posts, playlistPostValues, filter()
+                step(propeller.update(Posts.TABLE, playlistPostValues.get(), filter()
                         .whereEq(Posts.TARGET_ID, localPlaylistUrn.getNumericId())
-                        .whereEq(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)));
+                        .whereEq(Posts.TARGET_TYPE, Tables.Sounds.TYPE_PLAYLIST)));
             }
 
             private void removePlaylist(PropellerDatabase propeller) {
-                step(propeller.delete(Table.Sounds, filter()
-                        .whereEq(Sounds._ID, localPlaylistUrn.getNumericId())
-                        .whereEq(Sounds._TYPE, Sounds.TYPE_PLAYLIST)));
+                step(propeller.delete(Tables.Sounds.TABLE, filter()
+                        .whereEq(Tables.Sounds._ID, localPlaylistUrn.getNumericId())
+                        .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_PLAYLIST)));
             }
 
             private void updatePlaylistTrackEntries(PropellerDatabase propeller) {

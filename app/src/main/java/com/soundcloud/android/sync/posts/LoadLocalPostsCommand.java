@@ -1,13 +1,12 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -31,11 +30,11 @@ public class LoadLocalPostsCommand extends LegacyCommand<Object, List<PropertySe
 
     @Override
     public List<PropertySet> call() throws Exception {
-        return database.query(Query.from(Table.Posts.name())
+        return database.query(Query.from(Posts.TABLE)
                                    .select(Posts.TARGET_ID, Posts.CREATED_AT, Posts.TYPE)
                                    .whereEq(Posts.TARGET_TYPE, resourceType)
                                    .order(Posts.CREATED_AT, DESC))
-                       .toList(new PlaylistMapper(resourceType == TableColumns.Sounds.TYPE_PLAYLIST));
+                       .toList(new PlaylistMapper(resourceType == Tables.Sounds.TYPE_PLAYLIST));
     }
 
     private static class PlaylistMapper extends RxResultMapper<PropertySet> {

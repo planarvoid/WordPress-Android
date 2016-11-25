@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ChartCategory;
@@ -105,7 +106,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE)
                                                   .whereEq(ENTITY_ID, 123L)
                                                   .whereEq(ENTITY_TYPE, ENTITY_TYPE_TRACK)
-                                                  .whereNull(REPOSTER_ID)
+                                                  .whereEq(REPOSTER_ID, Consts.NOT_SET)
                                                   .whereEq(Tables.PlayQueue.RELATED_ENTITY, RELATED_ENTITY.toString())
                                                   .whereEq(SOURCE, "source1")
                                                   .whereEq(SOURCE_VERSION, "version1")

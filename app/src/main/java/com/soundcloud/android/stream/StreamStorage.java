@@ -3,7 +3,6 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.storage.TableColumns.PromotedTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
@@ -13,6 +12,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.timeline.TimelineStorage;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
@@ -57,7 +57,7 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
 
     private static final Object[] PROMOTED_EXTRAS = new Object[]{
             field(Table.PromotedTracks.field(PromotedTracks.AD_URN)).as(PromotedTracks.AD_URN),
-            field(TableColumns.Users.AVATAR_URL).as(SoundStreamView.PROMOTER_AVATAR_URL),
+            Tables.Users.AVATAR_URL.as(SoundStreamView.PROMOTER_AVATAR_URL),
             PromotedTracks.PROMOTER_ID,
             PromotedTracks.PROMOTER_NAME,
             PromotedTracks.TRACKING_TRACK_CLICKED_URLS,
@@ -98,7 +98,7 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
                                  .leftJoin(Table.PromotedTracks.name(),
                                            Table.PromotedTracks.field(PromotedTracks._ID),
                                            TableColumns.SoundStream.PROMOTED_ID)
-                                 .leftJoin(Table.Users.name(), Table.Users.field(TableColumns.Users._ID), Table.PromotedTracks.field(PromotedTracks.PROMOTER_ID))
+                                 .leftJoin(Tables.Users.TABLE.name(), Tables.Users._ID.qualifiedName(), Table.PromotedTracks.field(PromotedTracks.PROMOTER_ID))
                                  .whereLe(Table.SoundStreamView.field(SoundStreamView.CREATED_AT), Long.MAX_VALUE)
                                  .whereNotNull(SoundView.TITLE)
                                  .limit(limit);
@@ -161,7 +161,7 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
 
     private static Urn readSoundUrn(CursorReader cursorReader) {
         final int soundId = cursorReader.getInt(SoundStreamView.SOUND_ID);
-        return getSoundType(cursorReader) == Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
+        return getSoundType(cursorReader) == Tables.Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
     }
 
     private static int getSoundType(CursorReader cursorReader) {
@@ -169,17 +169,17 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
     }
 
     private static Query likeQuery() {
-        return Query.from(Table.Likes.name(), Table.Sounds.name())
-                    .joinOn(SoundStreamView.SOUND_ID, Table.Likes.field(TableColumns.Likes._ID))
-                    .joinOn(SoundStreamView.SOUND_TYPE, Table.Likes.field(TableColumns.Likes._TYPE))
-                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+        return Query.from(Tables.Likes.TABLE, Tables.Sounds.TABLE)
+                    .joinOn(SoundStreamView.SOUND_ID, Tables.Likes._ID.qualifiedName())
+                    .joinOn(SoundStreamView.SOUND_TYPE, Tables.Likes._TYPE.qualifiedName())
+                    .whereNull(Tables.Likes.REMOVED_AT);
     }
 
     private static Query repostQuery() {
-        return Query.from(Table.Posts.name(), Table.Sounds.name())
-                    .joinOn(SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
-                    .joinOn(SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
-                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
+        return Query.from(Tables.Posts.TABLE, Tables.Sounds.TABLE)
+                    .joinOn(SoundStreamView.SOUND_ID, Tables.Posts.TARGET_ID.qualifiedName())
+                    .joinOn(SoundStreamView.SOUND_TYPE, Tables.Posts.TARGET_TYPE.qualifiedName())
+                    .whereEq(Tables.Posts.TYPE, Tables.Posts.TYPE_REPOST);
     }
 
 }

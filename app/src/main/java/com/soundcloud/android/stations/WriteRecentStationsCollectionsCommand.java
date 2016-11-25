@@ -13,12 +13,13 @@ import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class WriteRecentStationsCollectionsCommand
@@ -71,7 +72,6 @@ class WriteRecentStationsCollectionsCommand
         });
     }
 
-
     private TxnResult saveStations(PropellerDatabase propeller, List<ApiStationMetadata> stations) {
         return propeller.bulkUpsert(Tables.Stations.TABLE, Lists.transform(stations, TO_CONTENT_VALUES));
     }
@@ -81,27 +81,24 @@ class WriteRecentStationsCollectionsCommand
                                               List<ApiStationMetadata> stations) {
         return propeller.bulkInsert(
                 Tables.StationsCollections.TABLE,
-                toStationsCollectionsContentValues(stations, type),
+                toStationsCollectionBulkValues(stations, type),
                 SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-    private List<ContentValues> toStationsCollectionsContentValues(List<ApiStationMetadata> stations, int type) {
-        List<ContentValues> stationsToSave = new ArrayList<>();
+    private BulkInsertValues toStationsCollectionBulkValues(List<ApiStationMetadata> stations, int type) {
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(Arrays.asList(
+                Tables.StationsCollections.STATION_URN,
+                Tables.StationsCollections.COLLECTION_TYPE,
+                Tables.StationsCollections.POSITION
+        ));
         for (int i = 0; i < stations.size(); i++) {
-            stationsToSave.add(buildStationsCollectionsItemContentValues(stations.get(i), type, i));
+            builder.addRow(Arrays.asList(
+                    stations.get(i).getUrn().toString(),
+                    type,
+                    i
+            ));
         }
-        return stationsToSave;
-    }
-
-    private ContentValues buildStationsCollectionsItemContentValues(ApiStationMetadata station,
-                                                                    int type,
-                                                                    int position) {
-        return ContentValuesBuilder
-                .values()
-                .put(Tables.StationsCollections.STATION_URN, station.getUrn().toString())
-                .put(Tables.StationsCollections.COLLECTION_TYPE, type)
-                .put(Tables.StationsCollections.POSITION, position)
-                .get();
+        return builder.build();
     }
 
     @Override

@@ -29,8 +29,6 @@ import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 import rx.functions.Func1;
 
-import android.provider.BaseColumns;
-
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,11 +52,11 @@ public class PlaylistStorage {
 
     public boolean hasLocalChanges() {
         final QueryResult queryResult =
-                propeller.query(apply(exists(from(Table.Sounds.name())
-                        .select(TableColumns.SoundView._ID, TableColumns.Sounds.REMOVED_AT)
-                        .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                        .whereLt(TableColumns.Sounds._ID, 0)).as("has_local_playlists")
-                        .orWhereNotNull(TableColumns.Sounds.REMOVED_AT)));
+                propeller.query(apply(exists(from(Tables.Sounds.TABLE)
+                        .select(TableColumns.SoundView._ID, Tables.Sounds.REMOVED_AT)
+                        .whereEq(TableColumns.SoundView._TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                        .whereLt(Tables.Sounds._ID, 0)).as("has_local_playlists")
+                        .orWhereNotNull(Tables.Sounds.REMOVED_AT)));
         return queryResult.first(Boolean.class);
     }
 
@@ -110,15 +108,15 @@ public class PlaylistStorage {
     }
 
     private Query buildPlaylistModificationQuery(Urn playlistUrn) {
-        return Query.from(Table.Sounds.name())
+        return Query.from(Tables.Sounds.TABLE)
                     .select(
-                            TableColumns.Sounds._ID,
-                            TableColumns.Sounds.TITLE,
-                            TableColumns.Sounds.SHARING
+                            Tables.Sounds._ID,
+                            Tables.Sounds.TITLE,
+                            Tables.Sounds.SHARING
                     )
-                    .whereEq(TableColumns.Sounds._ID, playlistUrn.getNumericId())
-                    .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                    .whereNotNull(TableColumns.Sounds.MODIFIED_AT);
+                    .whereEq(Tables.Sounds._ID, playlistUrn.getNumericId())
+                    .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                    .whereNotNull(Tables.Sounds.MODIFIED_AT);
     }
 
     private Query buildPlaylistQuery(Set<Urn> urns) {
@@ -166,51 +164,27 @@ public class PlaylistStorage {
 
     private Query getQuery(List<Long> playlistIds, Where offlineFilter) {
         final Where joinConditions = filter()
-                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID),
+                .whereEq(Table.SoundView.field(TableColumns.SoundView._ID),
                          Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
-                .whereEq(Table.SoundView.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST);
+                .whereEq(Table.SoundView.field(TableColumns.SoundView._TYPE), Tables.Sounds.TYPE_PLAYLIST);
         return Query
                 .from(TrackDownloads.TABLE)
                 .select(TrackDownloads._ID.qualifiedName())
                 .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
                 .innerJoin(SoundView.name(), joinConditions)
-                .whereIn(SoundView.field(TableColumns.Sounds._ID), playlistIds)
+                .whereIn(SoundView.field(TableColumns.SoundView._ID), playlistIds)
                 .where(offlineFilter);
-    }
-
-    private Query likeQuery(List<Long> playlistIds) {
-        final Where joinConditions = filter()
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
-
-        return Query.from(Table.Likes.name())
-                    .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereIn(Table.Sounds.field(TableColumns.Sounds._ID), playlistIds)
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
-    }
-
-    private Query repostQuery(List<Long> playlistIds) {
-        final Where joinConditions = filter()
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Posts.field(TableColumns.Posts.TARGET_ID))
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Posts.field(TableColumns.Posts.TARGET_TYPE));
-
-        return Query.from(Table.Posts.name())
-                    .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereIn(TableColumns.Sounds._ID, playlistIds)
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
     }
 
     private static class PlaylistModificationMapper implements ResultMapper<PropertySet> {
         @Override
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-            propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID)));
-            propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
+            propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(Tables.Sounds._ID)));
+            propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(Tables.Sounds.TITLE));
             propertySet.put(PlaylistProperty.IS_PRIVATE,
                             Sharing.PRIVATE.name()
-                                           .equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+                                           .equalsIgnoreCase(cursorReader.getString(Tables.Sounds.SHARING)));
             return propertySet;
         }
     }

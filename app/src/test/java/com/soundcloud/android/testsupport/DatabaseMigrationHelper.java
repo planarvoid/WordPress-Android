@@ -67,6 +67,7 @@ public class DatabaseMigrationHelper {
             Set<String> upgradedSchema = extractSchema(upgradedFile.getAbsolutePath());
             assertThat(upgradedSchema).isEqualTo(newSchema);
         } catch (Exception e) {
+            e.printStackTrace();
             fail("should not throw exceptions while extracting schemas");
         }
     }

@@ -21,14 +21,14 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
     @Test
     public void shouldGetColumnNames() throws Exception {
         SQLiteDatabase db = databaseManager.getWritableDatabase();
-        List<String> columns = SchemaMigrationHelper.getColumnNames(Table.Sounds, db);
+        List<String> columns = SchemaMigrationHelper.getColumnNames(Table.Waveforms, db);
         assertThat(columns.isEmpty()).isFalse();
     }
 
     @Test
     public void shouldDropAndCreateTable() throws Exception {
         SQLiteDatabase db = databaseManager.getWritableDatabase();
-        Table table = Table.Sounds;
+        Table table = Table.Waveforms;
 
         assertThat(exists(table, db)).isTrue();
         SchemaMigrationHelper.drop(table, db);
@@ -40,22 +40,22 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldAddColumnToTracks() throws Exception {
+    public void shouldAddColumnToWaveforms() throws Exception {
         SQLiteDatabase db = databaseManager.getWritableDatabase();
 
-        String oldSchema = Table.Sounds.createString;
+        String oldSchema = Table.Waveforms.createString;
         db.execSQL(oldSchema);
 
-        final int insertIndex = Table.Sounds.createString.lastIndexOf("PRIMARY");
-        String newSchema = Table.Sounds.createString.substring(0, insertIndex) +
-                " new_column INTEGER," + Table.Sounds.createString.substring(insertIndex);
+        final int insertIndex = Table.Waveforms.createString.lastIndexOf("PRIMARY");
+        String newSchema = Table.Waveforms.createString.substring(0, insertIndex) +
+                " new_column INTEGER," + Table.Waveforms.createString.substring(insertIndex);
 
         final int colCount = SchemaMigrationHelper.alterColumns(db,
-                                                                Table.Sounds.name(),
+                                                                Table.Waveforms.name(),
                                                                 newSchema,
                                                                 new String[0],
                                                                 new String[0]).size();
-        final List<String> columnNames = SchemaMigrationHelper.getColumnNames(db, Table.Sounds.name());
+        final List<String> columnNames = SchemaMigrationHelper.getColumnNames(db, Table.Waveforms.name());
         assertThat(columnNames).contains("new_column");
         assertThat(columnNames.size()).isEqualTo(colCount + 1);
     }

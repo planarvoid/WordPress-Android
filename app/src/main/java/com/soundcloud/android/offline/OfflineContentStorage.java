@@ -17,6 +17,7 @@ import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 import rx.Observable;
 
 import android.content.ContentValues;
@@ -24,6 +25,7 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.List;
 
 class OfflineContentStorage {
@@ -81,7 +83,7 @@ class OfflineContentStorage {
             public void steps(PropellerDatabase propeller) {
                 step(propeller.delete(OfflineContent.TABLE, offlinePlaylistsFilter()));
                 step(propeller.bulkInsert(OfflineContent.TABLE,
-                                          buildContentValuesForPlaylist(expectedOfflinePlaylists)));
+                                          buildBulkValuesForPlaylists(expectedOfflinePlaylists)));
             }
         });
     }
@@ -106,6 +108,22 @@ class OfflineContentStorage {
         return Query.apply(exists(Query.from(OfflineContent.TABLE)
                                        .where(playlistFilter(playlistUrn)))
                                    .as(IS_OFFLINE_PLAYLIST));
+    }
+
+    private BulkInsertValues buildBulkValuesForPlaylists(List<Urn> expectedOfflinePlaylists) {
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
+                Arrays.asList(
+                        OfflineContent._ID,
+                        OfflineContent._TYPE
+                )
+        );
+        for (Urn playlist : expectedOfflinePlaylists) {
+            builder.addRow(Arrays.asList(
+                    playlist.getNumericId(),
+                    OfflineContent.TYPE_PLAYLIST
+            ));
+        }
+        return builder.build();
     }
 
     private ContentValues buildContentValuesForPlaylist(Urn playlist) {

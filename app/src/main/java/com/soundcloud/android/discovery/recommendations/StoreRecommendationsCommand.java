@@ -4,12 +4,11 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import com.soundcloud.android.storage.Tables.Recommendations;
+import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -17,16 +16,20 @@ import com.soundcloud.propeller.WriteResult;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StoreRecommendationsCommand
         extends DefaultWriteStorageCommand<ModelCollection<ApiRecommendation>, WriteResult> {
 
     private final PropellerDatabase propeller;
+    private final StoreTracksCommand storeTracksCommand;
 
     @Inject
-    public StoreRecommendationsCommand(PropellerDatabase database) {
+    public StoreRecommendationsCommand(PropellerDatabase database, StoreTracksCommand storeTracksCommand) {
         super(database);
         this.propeller = database;
+        this.storeTracksCommand = storeTracksCommand;
     }
 
     @Override
@@ -35,16 +38,16 @@ public class StoreRecommendationsCommand
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
+
+                // add track dependencies
+                step(storeTracksCommand.call(extractTrackRecords(recommendations)));
+
                 //For tracking we need to keep both query_urn and query_position.
                 //https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/personalized-recommender-tracking.md
                 long queryPosition = 0;
                 final Urn queryUrn = recommendations.getQueryUrn().or(Urn.NOT_SET);
-
                 for (ApiRecommendation apiRecommendation : recommendations) {
                     if (isReasonValid(apiRecommendation)) {
-                        //Store seed track
-                        writeTrack(propeller, apiRecommendation.getSeedTrack());
-
                         //Store seed track in recommendations
                         final InsertResult seedInsert = propeller.insert(RecommendationSeeds.TABLE,
                                                                          buildSeedContentValues(apiRecommendation,
@@ -54,7 +57,6 @@ public class StoreRecommendationsCommand
 
                         //Store recommended tracks
                         for (ApiTrack trackRecommendation : apiRecommendation.getRecommendations()) {
-                            writeTrack(propeller, trackRecommendation);
                             step(propeller.upsert(Recommendations.TABLE,
                                                   buildRecommendationContentValues(trackRecommendation,
                                                                                    seedInsert.getRowId())));
@@ -63,14 +65,20 @@ public class StoreRecommendationsCommand
                     }
                 }
             }
-
-            //TODO: Create a way of sharing the track writing logic, with a base class (e.g. WriteTrackTransaction)
-            private void writeTrack(PropellerDatabase propeller, ApiTrack seedTrack) {
-                step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(seedTrack.getUser())));
-                step(propeller.upsert(Table.Sounds, StoreTracksCommand.buildTrackContentValues(seedTrack)));
-                step(propeller.upsert(Table.TrackPolicies, StoreTracksCommand.buildPolicyContentValues(seedTrack)));
-            }
         });
+    }
+
+    private List<TrackRecord> extractTrackRecords(ModelCollection<ApiRecommendation> recommendations) {
+        List<TrackRecord> trackRecords = new ArrayList<>();
+        for (ApiRecommendation apiRecommendation : recommendations) {
+            if (isReasonValid(apiRecommendation)) {
+                trackRecords.add(apiRecommendation.getSeedTrack());
+                for (ApiTrack trackRecommendation : apiRecommendation.getRecommendations()) {
+                    trackRecords.add(trackRecommendation);
+                }
+            }
+        }
+        return trackRecords;
     }
 
     private boolean isReasonValid(ApiRecommendation apiRecommendation) {
@@ -81,7 +89,7 @@ public class StoreRecommendationsCommand
         final ContentValues contentValues = new ContentValues();
         contentValues.put(Recommendations.SEED_ID.name(), seedId);
         contentValues.put(Recommendations.RECOMMENDED_SOUND_ID.name(), trackRecommendation.getUrn().getNumericId());
-        contentValues.put(Recommendations.RECOMMENDED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
+        contentValues.put(Recommendations.RECOMMENDED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
         return contentValues;
     }
 
@@ -91,7 +99,7 @@ public class StoreRecommendationsCommand
         final ContentValues contentValues = new ContentValues();
         contentValues.put(RecommendationSeeds.SEED_SOUND_ID.name(),
                           apiRecommendation.getSeedTrack().getUrn().getNumericId());
-        contentValues.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
+        contentValues.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
         contentValues.put(RecommendationSeeds.RECOMMENDATION_REASON.name(), getReason(apiRecommendation));
         contentValues.put(RecommendationSeeds.QUERY_URN.name(), queryUrn.toString());
         contentValues.put(RecommendationSeeds.QUERY_POSITION.name(), queryPosition);

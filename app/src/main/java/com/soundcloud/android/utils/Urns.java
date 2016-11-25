@@ -21,6 +21,13 @@ public final class Urns {
         }
     };
 
+    public static final Function<Urn, String> TO_STRING = new Function<Urn, String>() {
+        @Override
+        public String apply(Urn urn) {
+            return urn.toString();
+        }
+    };
+
     public static final Predicate<Urn> IS_NOT_TRACK = new Predicate<Urn>() {
         @Override
         public boolean apply(Urn input) {

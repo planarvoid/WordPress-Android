@@ -2,7 +2,7 @@ package com.soundcloud.android.tracks;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.java.collections.Lists.partition;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
@@ -19,6 +19,8 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 import rx.functions.Func1;
+
+import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -125,10 +127,10 @@ class TrackStorage {
     }
 
     private Query buildAvailableTracksQuery(List<Urn> trackUrns) {
-        return Query.from(Table.Sounds.name())
-                    .select(TableColumns.Sounds._ID)
-                    .whereEq(TableColumns.Sounds._TYPE, TYPE_TRACK)
-                    .whereIn(TableColumns.Sounds._ID, transform(trackUrns, Urns.TO_ID));
+        return Query.from(Tables.Sounds.TABLE)
+                    .select(Tables.Sounds._ID.as(BaseColumns._ID))
+                    .whereEq(Tables.Sounds._TYPE, TYPE_TRACK)
+                    .whereIn(Tables.Sounds._ID, transform(trackUrns, Urns.TO_ID));
     }
 
 }

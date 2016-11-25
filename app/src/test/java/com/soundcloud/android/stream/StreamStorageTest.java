@@ -15,8 +15,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -292,7 +291,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         final ApiTrack deletedTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(deletedTrack.getId(), TIMESTAMP);
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
-        propeller().delete(Table.Sounds, filter().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
+        propeller().delete(Tables.Sounds.TABLE, filter().whereEq(Tables.Sounds._ID, deletedTrack.getId()));
 
         TestObserver<StreamPlayable> observer = new TestObserver<>();
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);

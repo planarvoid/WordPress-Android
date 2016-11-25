@@ -6,7 +6,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -39,7 +39,7 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldFilterTracksWithoutPolicies() {
         testFixtures().insertLikedTrack(new Date());
-        propeller().delete(Table.TrackPolicies);
+        propeller().delete(Tables.TrackPolicies.TABLE);
 
         final Collection<PropertySet> likedTracks = command.call(null);
 

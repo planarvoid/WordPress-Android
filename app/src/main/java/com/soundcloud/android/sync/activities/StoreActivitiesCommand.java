@@ -10,8 +10,8 @@ import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.TableColumns.Activities;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
@@ -150,8 +150,8 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             return valuesFor(activity, activityKind)
                     .put(Activities.SOUND_ID, playableUrn.getNumericId())
                     .put(Activities.SOUND_TYPE, playableUrn.isTrack()
-                                                ? TableColumns.Sounds.TYPE_TRACK
-                                                : TableColumns.Sounds.TYPE_PLAYLIST);
+                                                ? Tables.Sounds.TYPE_TRACK
+                                                : Tables.Sounds.TYPE_PLAYLIST);
         }
 
         private void insert(PropellerDatabase propeller, ContentValuesBuilder builder) {

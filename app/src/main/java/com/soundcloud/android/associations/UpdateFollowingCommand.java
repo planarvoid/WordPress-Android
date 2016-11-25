@@ -1,17 +1,16 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.propeller.query.Filter.filter;
-import static com.soundcloud.propeller.query.Query.from;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 
 import android.content.ContentValues;
@@ -36,10 +35,10 @@ class UpdateFollowingCommand
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.update(Table.Users,
+                step(propeller.update(Tables.Users.TABLE,
                                       buildContentValuesForFollowersCount(),
                                       buildWhereClauseForFollowersCount(params)));
-                step(propeller.upsert(Table.UserAssociations, buildContentValuesForFollowing(params)));
+                step(propeller.upsert(Tables.UserAssociations.TABLE, buildContentValuesForFollowing(params)));
             }
         });
     }
@@ -50,9 +49,9 @@ class UpdateFollowingCommand
     }
 
     private int obtainNewFollowersCount(PropellerDatabase propeller, UpdateFollowingParams params) {
-        int count = propeller.query(from(Table.Users.name())
-                                            .select(TableColumns.Users.FOLLOWERS_COUNT)
-                                            .whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId()))
+        int count = propeller.query(Query.from(Tables.Users.TABLE)
+                                         .select(Tables.Users.FOLLOWERS_COUNT)
+                                         .whereEq(Tables.Users._ID, params.targetUrn.getNumericId()))
                              .first(Integer.class);
 
         if (isFollowing(propeller, params.targetUrn) == params.following || count == Consts.NOT_SET) {
@@ -63,15 +62,15 @@ class UpdateFollowingCommand
     }
 
     private boolean isFollowing(PropellerDatabase propeller, Urn targetUrn) {
-        final QueryResult queryResult = propeller.query(from(Table.UserAssociations.name())
-                                                                .select(TableColumns.UserAssociations.TARGET_ID)
-                                                                .whereEq(TableColumns.UserAssociations.TARGET_ID,
+        final QueryResult queryResult = propeller.query(Query.from(Tables.UserAssociations.TABLE)
+                                                                .select(Tables.UserAssociations.TARGET_ID)
+                                                                .whereEq(Tables.UserAssociations.TARGET_ID,
                                                                          targetUrn.getNumericId())
-                                                                .whereEq(TableColumns.UserAssociations.RESOURCE_TYPE,
-                                                                         TableColumns.UserAssociations.TYPE_RESOURCE_USER)
-                                                                .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE,
-                                                                         TableColumns.UserAssociations.TYPE_FOLLOWING)
-                                                                .whereNull(TableColumns.UserAssociations.REMOVED_AT));
+                                                                .whereEq(Tables.UserAssociations.RESOURCE_TYPE,
+                                                                         Tables.UserAssociations.TYPE_RESOURCE_USER)
+                                                                .whereEq(Tables.UserAssociations.ASSOCIATION_TYPE,
+                                                                         Tables.UserAssociations.TYPE_FOLLOWING)
+                                                                .whereNull(Tables.UserAssociations.REMOVED_AT));
 
         final int followingCount = queryResult.getResultCount();
         queryResult.release();
@@ -82,29 +81,29 @@ class UpdateFollowingCommand
     private ContentValues buildContentValuesForFollowersCount() {
         return ContentValuesBuilder
                 .values()
-                .put(TableColumns.Users.FOLLOWERS_COUNT, updatedFollowersCount)
+                .put(Tables.Users.FOLLOWERS_COUNT, updatedFollowersCount)
                 .get();
     }
 
     private Where buildWhereClauseForFollowersCount(UpdateFollowingParams params) {
-        return filter().whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId());
+        return filter().whereEq(Tables.Users._ID, params.targetUrn.getNumericId());
     }
 
     private ContentValues buildContentValuesForFollowing(UpdateFollowingParams params) {
         final long now = new Date().getTime();
         final ContentValues cv = new ContentValues();
 
-        cv.put(TableColumns.UserAssociations.TARGET_ID, params.targetUrn.getNumericId());
-        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
-        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
-        cv.put(TableColumns.UserAssociations.CREATED_AT, now);
+        cv.put(Tables.UserAssociations.TARGET_ID.name(), params.targetUrn.getNumericId());
+        cv.put(Tables.UserAssociations.ASSOCIATION_TYPE.name(), Tables.UserAssociations.TYPE_FOLLOWING);
+        cv.put(Tables.UserAssociations.RESOURCE_TYPE.name(), Tables.UserAssociations.TYPE_RESOURCE_USER);
+        cv.put(Tables.UserAssociations.CREATED_AT.name(), now);
 
         if (params.following) {
-            cv.put(TableColumns.UserAssociations.ADDED_AT, now);
-            cv.putNull(TableColumns.UserAssociations.REMOVED_AT);
+            cv.put(Tables.UserAssociations.ADDED_AT.name(), now);
+            cv.putNull(Tables.UserAssociations.REMOVED_AT.name());
         } else {
-            cv.put(TableColumns.UserAssociations.REMOVED_AT, now);
-            cv.putNull(TableColumns.UserAssociations.ADDED_AT);
+            cv.put(Tables.UserAssociations.REMOVED_AT.name(), now);
+            cv.putNull(Tables.UserAssociations.ADDED_AT.name());
         }
 
         return cv;

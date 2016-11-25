@@ -3,7 +3,7 @@ package com.soundcloud.android.discovery.recommendations;
 import static com.soundcloud.android.discovery.recommendations.RecommendationsFixtures.createApiRecommendationsWithLikedReason;
 import static com.soundcloud.android.discovery.recommendations.RecommendationsFixtures.createApiRecommendationsWithListenedToReason;
 import static com.soundcloud.android.discovery.recommendations.RecommendationsFixtures.createApiRecommendationsWithUnknownReason;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds.RECOMMENDATION_REASON;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds.SEED_SOUND_ID;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds.SEED_SOUND_TYPE;
@@ -14,6 +14,8 @@ import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertTha
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import com.soundcloud.android.storage.Tables.Recommendations;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -30,7 +32,9 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new StoreRecommendationsCommand(propeller());
+        StoreUsersCommand storeUsersCommand = new StoreUsersCommand(propeller());
+        StoreTracksCommand storeTracksCommand = new StoreTracksCommand(propeller(), storeUsersCommand);
+        command = new StoreRecommendationsCommand(propeller(), storeTracksCommand);
     }
 
     @Test

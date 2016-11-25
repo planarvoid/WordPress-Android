@@ -12,7 +12,7 @@ import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateFailureEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -106,7 +106,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         operations.updateTrackPolicies();
 
-        verify(clearTableCommand, never()).call(Table.TrackPolicies);
+        verify(clearTableCommand, never()).call(Tables.TrackPolicies.TABLE);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
         operations.refreshedTrackPolicies().subscribe(observer);
 
         observer.assertValue(tracks);
-        verify(clearTableCommand).call(Table.TrackPolicies);
+        verify(clearTableCommand).call(Tables.TrackPolicies.TABLE);
     }
 
     @Test

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class LoadLocalPostsCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadRepostedPlaylist() throws Exception {
-        command = new LoadLocalPostsCommand(propeller(), TableColumns.Sounds.TYPE_PLAYLIST);
+        command = new LoadLocalPostsCommand(propeller(), Tables.Sounds.TYPE_PLAYLIST);
         ApiPlaylist playlist = testFixtures().insertPlaylist();
         testFixtures().insertPlaylistPost(playlist.getId(), 100L, true);
 
@@ -34,7 +34,7 @@ public class LoadLocalPostsCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadRepostedTrack() throws Exception {
-        command = new LoadLocalPostsCommand(propeller(), TableColumns.Sounds.TYPE_TRACK);
+        command = new LoadLocalPostsCommand(propeller(), Tables.Sounds.TYPE_TRACK);
         ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertTrackPost(track.getId(), 100L, true);
 

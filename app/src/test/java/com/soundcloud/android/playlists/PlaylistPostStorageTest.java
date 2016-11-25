@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_ID;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_TYPE;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.propeller.query.Query.from;
 import static org.assertj.core.api.Assertions.assertThat;

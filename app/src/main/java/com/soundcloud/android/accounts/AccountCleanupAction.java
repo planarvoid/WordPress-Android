@@ -24,6 +24,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.PersistentStorage;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
@@ -153,14 +154,14 @@ class AccountCleanupAction implements Action0 {
 
     private void clearCollections() {
         try {
-            clearTableCommand.call(Table.Likes);
-            clearTableCommand.call(Table.Posts);
+            clearTableCommand.call(Tables.Likes.TABLE);
+            clearTableCommand.call(Tables.Posts.TABLE);
             clearTableCommand.call(Table.SoundStream);
             clearTableCommand.call(Table.Activities);
             commentsStorage.clear();
             clearTableCommand.call(Table.PromotedTracks);
             clearTableCommand.call(Table.Waveforms);
-            clearTableCommand.call(Table.TrackPolicies);
+            clearTableCommand.call(Tables.TrackPolicies.TABLE);
             removeLocalPlaylistsCommand.call(null);
         } catch (PropellerWriteException e) {
             Log.e(TAG, "Could not clear collections ", e);

@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static com.soundcloud.java.collections.MoreCollections.transform;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
@@ -11,7 +10,6 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.PlayHistory;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMapper;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
@@ -19,16 +17,14 @@ import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 import rx.Observable;
 import rx.functions.Func1;
 
-import android.content.ContentValues;
-
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PlayHistoryStorage {
 
@@ -56,8 +52,7 @@ public class PlayHistoryStorage {
     }
 
     void setSynced(List<PlayHistoryRecord> playHistoryRecords) {
-        Collection<ContentValues> contentValues = buildSyncedContentValuesForTrack(playHistoryRecords);
-        database.bulkInsert_experimental(PlayHistory.TABLE, getColumnTypes(), contentValues);
+        database.bulkInsert(PlayHistory.TABLE, buildBulkValues(playHistoryRecords));
     }
 
     TxnResult removePlayHistory(final List<PlayHistoryRecord> removeRecords) {
@@ -75,15 +70,7 @@ public class PlayHistoryStorage {
     }
 
     TxnResult insertPlayHistory(List<PlayHistoryRecord> addRecords) {
-        return database.bulkInsert_experimental(PlayHistory.TABLE, getColumnTypes(), buildSyncedContentValuesForTrack(addRecords));
-    }
-
-    private Map<String, Class> getColumnTypes() {
-        final HashMap<String, Class> columns = new HashMap<>();
-        columns.put(PlayHistory.TRACK_ID.name(), Long.class);
-        columns.put(PlayHistory.TIMESTAMP.name(), Long.class);
-        columns.put(PlayHistory.SYNCED.name(), Boolean.class);
-        return columns;
+        return database.bulkInsert(PlayHistory.TABLE, buildBulkValues(addRecords));
     }
 
     Observable<Urn> loadPlayHistoryForPlayback() {
@@ -143,26 +130,20 @@ public class PlayHistoryStorage {
                     .whereEq(PlayHistory.SYNCED, synced);
     }
 
-    private Collection<ContentValues> buildSyncedContentValuesForTrack(Collection<PlayHistoryRecord> records) {
-        return transform(records, new Function<PlayHistoryRecord, ContentValues>() {
-            public ContentValues apply(PlayHistoryRecord input) {
-                ContentValues contentValues = buildSyncedContentValues();
-                contentValues.put(PlayHistory.TIMESTAMP.name(), input.timestamp());
-                contentValues.put(PlayHistory.TRACK_ID.name(), input.trackUrn().getNumericId());
-                return contentValues;
-            }
-        });
+    private BulkInsertValues buildBulkValues(Collection<PlayHistoryRecord> records) {
+        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(Arrays.asList(
+                PlayHistory.SYNCED, PlayHistory.TIMESTAMP, PlayHistory.TRACK_ID
+        ));
+
+        for (PlayHistoryRecord record : records) {
+            builder.addRow(Arrays.asList(true, record.timestamp(), record.trackUrn().getNumericId()));
+        }
+        return builder.build();
     }
 
     private Where buildMatchFilter(PlayHistoryRecord record) {
         return filter()
                 .whereEq(PlayHistory.TIMESTAMP, record.timestamp())
                 .whereEq(PlayHistory.TRACK_ID, record.trackUrn().getNumericId());
-    }
-
-    private ContentValues buildSyncedContentValues() {
-        ContentValues asSynced = new ContentValues();
-        asSynced.put(PlayHistory.SYNCED.name(), true);
-        return asSynced;
     }
 }

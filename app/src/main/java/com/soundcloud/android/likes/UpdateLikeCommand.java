@@ -8,7 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -34,13 +34,13 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.update(Table.Sounds,
+                step(propeller.update(Tables.Sounds.TABLE,
                                       ContentValuesBuilder.values()
-                                                          .put(TableColumns.Sounds.LIKES_COUNT, updatedLikesCount)
+                                                          .put(Tables.Sounds.LIKES_COUNT, updatedLikesCount)
                                                           .get(),
-                                      filter().whereEq(TableColumns.Sounds._ID, params.targetUrn.getNumericId())
-                                              .whereEq(TableColumns.Sounds._TYPE, getSoundType(params.targetUrn))));
-                step(propeller.upsert(Table.Likes, buildContentValuesForLike(params)));
+                                      filter().whereEq(Tables.Sounds._ID, params.targetUrn.getNumericId())
+                                              .whereEq(Tables.Sounds._TYPE, getSoundType(params.targetUrn))));
+                step(propeller.upsert(Tables.Likes.TABLE, buildContentValuesForLike(params)));
             }
         });
     }
@@ -69,21 +69,21 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
         final Date now = new Date();
         final ContentValues cv = new ContentValues();
         final Urn targetUrn = params.targetUrn;
-        cv.put(TableColumns.Likes._ID, targetUrn.getNumericId());
-        cv.put(TableColumns.Likes._TYPE, getSoundType(targetUrn));
-        cv.put(TableColumns.Likes.CREATED_AT, now.getTime());
+        cv.put(Tables.Likes._ID.name(), targetUrn.getNumericId());
+        cv.put(Tables.Likes._TYPE.name(), getSoundType(targetUrn));
+        cv.put(Tables.Likes.CREATED_AT.name(), now.getTime());
         if (params.addLike) {
-            cv.put(TableColumns.Likes.ADDED_AT, now.getTime());
-            cv.putNull(TableColumns.Likes.REMOVED_AT);
+            cv.put(Tables.Likes.ADDED_AT.name(), now.getTime());
+            cv.putNull(Tables.Likes.REMOVED_AT.name());
         } else {
-            cv.put(TableColumns.Likes.REMOVED_AT, now.getTime());
-            cv.putNull(TableColumns.Likes.ADDED_AT);
+            cv.put(Tables.Likes.REMOVED_AT.name(), now.getTime());
+            cv.putNull(Tables.Likes.ADDED_AT.name());
         }
         return cv;
     }
 
     private int getSoundType(Urn targetUrn) {
-        return targetUrn.isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST;
+        return targetUrn.isTrack() ? Tables.Sounds.TYPE_TRACK : Tables.Sounds.TYPE_PLAYLIST;
     }
 
     static final class UpdateLikeParams {

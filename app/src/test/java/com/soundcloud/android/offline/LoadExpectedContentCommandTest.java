@@ -9,7 +9,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     @Test
     public void doesNotReturnTracksWithoutPolicies() {
         testFixtures().insertLikedTrack(new Date(10));
-        propeller().delete(Table.TrackPolicies);
+        propeller().delete(Tables.TrackPolicies.TABLE);
 
         ExpectedOfflineContent toBeOffline = command.call(null);
 

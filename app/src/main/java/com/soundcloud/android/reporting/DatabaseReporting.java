@@ -4,8 +4,7 @@ import static com.soundcloud.propeller.query.Query.count;
 
 import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.storage.DatabaseManager;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns.Sounds;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.PropellerDatabase;
 
@@ -23,8 +22,8 @@ public class DatabaseReporting {
     }
 
     public int countTracks() {
-        return propeller.query(count(Table.Sounds)
-                                       .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
+        return propeller.query(count(Tables.Sounds.TABLE)
+                                       .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_TRACK))
                         .firstOrDefault(Integer.class, 0);
     }
 

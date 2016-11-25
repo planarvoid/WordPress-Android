@@ -6,7 +6,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateFailureEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -49,7 +49,7 @@ public class PolicyOperations {
     private final Action1<List<Urn>> clearTrackPolicies = new Action1<List<Urn>>() {
         @Override
         public void call(List<Urn> urns) {
-            clearTableCommand.call(Table.TrackPolicies);
+            clearTableCommand.call(Tables.TrackPolicies.TABLE);
         }
     };
     private final Action1<Throwable> handleErrorAction = new Action1<Throwable>() {

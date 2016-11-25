@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
-import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 
@@ -34,44 +33,43 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<PropertySet>> {
     }
 
     private Query getPlaylistTracksQuery(Urn playlistUrn) {
-        final String fullSoundIdColumn = Table.Sounds.field(TableColumns.Sounds._ID);
         return Query.from(Table.PlaylistTracks.name())
                     .select(
-                            field(fullSoundIdColumn).as(BaseColumns._ID),
-                            TableColumns.Sounds.TITLE,
-                            TableColumns.Sounds.ARTWORK_URL,
-                            TableColumns.Sounds.USER_ID,
-                            TableColumns.Users.USERNAME,
-                            TableColumns.Sounds.SNIPPET_DURATION,
-                            TableColumns.Sounds.FULL_DURATION,
-                            TableColumns.Sounds.PLAYBACK_COUNT,
-                            TableColumns.Sounds.LIKES_COUNT,
-                            TableColumns.Sounds.SHARING,
+                            Tables.Sounds._ID.as(BaseColumns._ID),
+                            Tables.Sounds.TITLE,
+                            Tables.Sounds.ARTWORK_URL,
+                            Tables.Sounds.USER_ID,
+                            Tables.Users.USERNAME,
+                            Tables.Sounds.SNIPPET_DURATION,
+                            Tables.Sounds.FULL_DURATION,
+                            Tables.Sounds.PLAYBACK_COUNT,
+                            Tables.Sounds.LIKES_COUNT,
+                            Tables.Sounds.SHARING,
                             Tables.TrackDownloads.REQUESTED_AT,
                             Tables.TrackDownloads.DOWNLOADED_AT,
                             Tables.TrackDownloads.UNAVAILABLE_AT,
-                            TableColumns.TrackPolicies.BLOCKED,
-                            TableColumns.TrackPolicies.SNIPPED,
-                            TableColumns.TrackPolicies.SUB_MID_TIER,
-                            TableColumns.TrackPolicies.SUB_HIGH_TIER,
+                            Tables.TrackPolicies.BLOCKED,
+                            Tables.TrackPolicies.SNIPPED,
+                            Tables.TrackPolicies.SUB_MID_TIER,
+                            Tables.TrackPolicies.SUB_HIGH_TIER,
                             Tables.TrackDownloads.REMOVED_AT,
                             Tables.OfflineContent._ID)
 
-                    .innerJoin(Table.Sounds.name(),
+                    .innerJoin(Tables.Sounds.TABLE.name(),
                                Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID),
-                               fullSoundIdColumn)
-                    .innerJoin(Table.Users.name(),
-                               Table.Sounds.field(TableColumns.Sounds.USER_ID),
-                               Table.Users.field(TableColumns.Users._ID))
+                               Tables.Sounds._ID.qualifiedName())
+                    .innerJoin(Tables.Users.TABLE,
+                               Tables.Sounds.USER_ID,
+                               Tables.Users._ID)
                     .leftJoin(Tables.TrackDownloads.TABLE.name(),
-                              fullSoundIdColumn,
+                              Tables.Sounds._ID.qualifiedName(),
                               Tables.TrackDownloads._ID.qualifiedName())
-                    .innerJoin(Table.TrackPolicies.name(),
-                               fullSoundIdColumn,
-                               Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
+                    .innerJoin(Tables.TrackPolicies.TABLE.name(),
+                               Tables.Sounds._ID.qualifiedName(),
+                               Tables.TrackPolicies.TRACK_ID.qualifiedName())
                     .leftJoin(Tables.OfflineContent.TABLE, offlinePlaylistFilter())
 
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                    .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_TRACK)
                     .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID),
                              playlistUrn.getNumericId())
                     .order(Table.PlaylistTracks.field(POSITION), ASC)

@@ -10,14 +10,13 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.schema.BulkInsertValues;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
 
 class StoreRecommendedPlaylistsCommand
         extends DefaultWriteStorageCommand<ModelCollection<ApiRecommendedPlaylistBucket>, WriteResult> {
@@ -53,16 +52,26 @@ class StoreRecommendedPlaylistsCommand
                 final long bucketId = chartInsert.getRowId();
                 storePlaylistsCommand.call(playlistBucket.playlists());
 
-                final List<ContentValues> playlists = new ArrayList<>(playlistBucket.playlists().size());
-                for (ApiPlaylist apiPlaylist : playlistBucket.playlists()) {
-                    playlists.add(buildRecommendedPlaylistContentValues(bucketId, apiPlaylist.getId()));
-                }
-                step(propeller.bulkInsert_experimental(Tables.RecommendedPlaylist.TABLE,
-                                                       getRecommendedPlaylistColumns(),
-                                                       playlists));
+                BulkInsertValues bucketValues = getPlaylistBucketValues(playlistBucket, bucketId).build();
+                step(propeller.bulkInsert(Tables.RecommendedPlaylist.TABLE, bucketValues));
             }
 
         });
+    }
+
+    @NonNull
+    private BulkInsertValues.Builder getPlaylistBucketValues(ApiRecommendedPlaylistBucket playlistBucket,
+                                                             long bucketId) {
+        final BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
+                Arrays.asList(
+                        Tables.RecommendedPlaylist.BUCKET_ID,
+                        Tables.RecommendedPlaylist.PLAYLIST_ID
+                )
+        );
+        for (ApiPlaylist playlist : playlistBucket.playlists()) {
+            builder.addRow(Arrays.asList(bucketId, playlist.getId()));
+        }
+        return builder;
     }
 
     private WriteResult clearRecommendedPlaylistTables(PropellerDatabase propeller) {
@@ -73,26 +82,13 @@ class StoreRecommendedPlaylistsCommand
         return propeller.delete(Tables.RecommendedPlaylistBucket.TABLE);
     }
 
-    private Map<String, Class> getRecommendedPlaylistColumns() {
-        final HashMap<String, Class> columns = new HashMap<>(2);
-        columns.put(Tables.RecommendedPlaylist.BUCKET_ID.name(), Long.class);
-        columns.put(Tables.RecommendedPlaylist.PLAYLIST_ID.name(), Long.class);
-        return columns;
-    }
-
-    private ContentValues buildRecommendedPlaylistBucketContentValues(ApiRecommendedPlaylistBucket playlistBucket, Optional<Urn> queryUrn) {
+    private ContentValues buildRecommendedPlaylistBucketContentValues(ApiRecommendedPlaylistBucket playlistBucket,
+                                                                      Optional<Urn> queryUrn) {
         final ContentValues contentValues = new ContentValues();
         contentValues.put(Tables.RecommendedPlaylistBucket.KEY.name(), playlistBucket.key());
         contentValues.put(Tables.RecommendedPlaylistBucket.DISPLAY_NAME.name(), playlistBucket.displayName());
         contentValues.put(Tables.RecommendedPlaylistBucket.ARTWORK_URL.name(), playlistBucket.artworkUrl().orNull());
         contentValues.put(Tables.RecommendedPlaylistBucket.QUERY_URN.name(), queryUrn.isPresent() ? queryUrn.get().toString() : null);
-        return contentValues;
-}
-
-    private ContentValues buildRecommendedPlaylistContentValues(long bucketId, long playlistId) {
-        final ContentValues contentValues = new ContentValues();
-        contentValues.put(Tables.RecommendedPlaylist.BUCKET_ID.name(), bucketId);
-        contentValues.put(Tables.RecommendedPlaylist.PLAYLIST_ID.name(), playlistId);
         return contentValues;
     }
 }

@@ -8,10 +8,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SchemaMigrationHelper;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
+import com.soundcloud.android.storage.Tables.TrackPolicies;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
@@ -22,12 +23,12 @@ public class IntegrationTestsFixtures {
 
     public void insertOfflineTrack(Context context, Urn track) {
         insert(context, TrackDownloads.TABLE.name(), buildTrackDownloadValues(track, System.currentTimeMillis()));
-        insert(context, Table.TrackPolicies.name(), buildTrackPoliciesValues(track, System.currentTimeMillis()));
+        insert(context, TrackPolicies.TABLE.name(), buildTrackPoliciesValues(track, System.currentTimeMillis()));
     }
 
     public void clearLikes(Context context) {
         final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
-        SchemaMigrationHelper.recreate(Table.Likes, db);
+        SchemaMigrationHelper.recreateTable(Tables.Likes.TABLE, db);
     }
 
     private DatabaseManager databaseManager(Context context) {
@@ -42,11 +43,11 @@ public class IntegrationTestsFixtures {
 
     private ContentValues buildTrackPoliciesValues(Urn track, long date) {
         return ContentValuesBuilder.values()
-                                   .put(TableColumns.TrackPolicies.TRACK_ID, track.getNumericId())
-                                   .put(TableColumns.TrackPolicies.POLICY, "POLICY TEST")
-                                   .put(TableColumns.TrackPolicies.MONETIZABLE, true)
-                                   .put(TableColumns.TrackPolicies.SYNCABLE, true)
-                                   .put(TableColumns.TrackPolicies.LAST_UPDATED, date)
+                                   .put(Tables.TrackPolicies.TRACK_ID, track.getNumericId())
+                                   .put(Tables.TrackPolicies.POLICY, "POLICY TEST")
+                                   .put(Tables.TrackPolicies.MONETIZABLE, true)
+                                   .put(Tables.TrackPolicies.SYNCABLE, true)
+                                   .put(Tables.TrackPolicies.LAST_UPDATED, date)
                                    .get();
     }
 
@@ -61,7 +62,7 @@ public class IntegrationTestsFixtures {
 
     private void update(Context context, ContentValues contentValues) {
         final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
-        db.update(Table.TrackPolicies.name(), contentValues, filter().build(), null);
+        db.update(TrackPolicies.TABLE.name(), contentValues, filter().build(), null);
     }
 
     private static ContentValues buildOfflineContentValues(Urn urn) {
@@ -90,7 +91,7 @@ public class IntegrationTestsFixtures {
 
     private static ContentValues buildTrackPoliciesValues(long date) {
         return ContentValuesBuilder.values()
-                                   .put(TableColumns.TrackPolicies.LAST_UPDATED, date)
+                                   .put(Tables.TrackPolicies.LAST_UPDATED, date)
                                    .get();
     }
 }

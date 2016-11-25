@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromLike;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.java.collections.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
