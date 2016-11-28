@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:scaleType="center"
-        android:src="@drawable/ic_reorder_grey_500_24dp" />
+        android:src="@drawable/ic_drag_handle_medium_dark_gray_24dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
