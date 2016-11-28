@@ -4,7 +4,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.java.strings.Strings;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -50,7 +52,7 @@ class MrLoggaLoggaClient {
     }
 
     MrLoggaResponse startLogging() {
-        return sendPostLoggingRequest(ACTION_START_LOGGING);
+        return sendPostLoggingRequest(ACTION_START_LOGGING, Optional.of(System.currentTimeMillis()));
     }
 
     boolean isScenarioComplete(String scenarioId) {
@@ -62,7 +64,7 @@ class MrLoggaLoggaClient {
     }
 
     MrLoggaResponse stopLogging() {
-        return sendPostLoggingRequest(ACTION_FINISH_LOGGING);
+        return sendPostLoggingRequest(ACTION_FINISH_LOGGING, Optional.<Long>absent());
     }
 
     ValidationResponse validate(String scenarioId) throws ApiMapperException, IOException {
@@ -105,9 +107,10 @@ class MrLoggaLoggaClient {
                   .build().toString();
     }
 
-    private MrLoggaResponse sendPostLoggingRequest(String action) {
+    private MrLoggaResponse sendPostLoggingRequest(String action, Optional<Long> timestamp) {
+        final String timestampParam = timestamp.isPresent() ? "?timestamp=" + timestamp.get() : Strings.EMPTY;
         final Request request = new Request.Builder()
-                .url(loggingEndpoint + action)
+                .url(loggingEndpoint + action + timestampParam)
                 .post(RequestBody.create(MEDIA_TYPE_PLAIN_TEXT, deviceUDID))
                 .build();
         return executeRequest(request);
