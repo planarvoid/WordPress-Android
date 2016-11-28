@@ -18,7 +18,8 @@ public class TrackQueueItem extends PlayableQueueItem {
                           Urn sourceUrn,
                           Urn queryUrn,
                           boolean blocked,
-                          PlaybackContext playbackContext) {
+                          PlaybackContext playbackContext,
+                          boolean played) {
         super(trackUrn,
               reposter,
               source,
@@ -29,7 +30,8 @@ public class TrackQueueItem extends PlayableQueueItem {
               shouldPersist,
               sourceUrn,
               adData,
-              playbackContext);
+              playbackContext,
+              played);
     }
 
     @Override
@@ -84,7 +86,7 @@ public class TrackQueueItem extends PlayableQueueItem {
 
         public TrackQueueItem build() {
             return new TrackQueueItem(playable, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist,
-                                      sourceUrn, queryUrn, blocked, playbackContext);
+                                      sourceUrn, queryUrn, blocked, playbackContext, played);
         }
     }
 }

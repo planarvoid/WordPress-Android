@@ -16,8 +16,9 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
 
     private PlayQueueAdapter adapter;
 
-    @Mock private TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
-    @Mock private HeaderPlayQueueItemRenderer headerPlayQueueItemRenderer;
+    @Mock private TrackPlayQueueItemRenderer trackRenderer;
+    @Mock private HeaderPlayQueueItemRenderer headerRenderer;
+    @Mock private MagicBoxPlayQueueItemRenderer magicBoxRenderer;
     @Mock private PlayQueueAdapter.NowPlayingListener nowPlayingListener;
 
     private final HeaderPlayQueueUIItem headerPlayQueueItem1 = getHeaderPlayQueueUiItem();
@@ -28,7 +29,7 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new PlayQueueAdapter(trackPlayQueueItemRenderer, headerPlayQueueItemRenderer);
+        adapter = new PlayQueueAdapter(trackRenderer, headerRenderer, magicBoxRenderer);
 
         playQueueItem2.setPlayState(PlayState.PLAYING);
 

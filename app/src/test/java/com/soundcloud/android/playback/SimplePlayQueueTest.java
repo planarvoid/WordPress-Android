@@ -21,9 +21,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SimplePlayQueueTest extends AndroidUnitTest {
 
@@ -285,8 +283,10 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
                                                   Urn.forTrack(2),
                                                   Urn.forTrack(3),
                                                   Urn.forTrack(4));
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
+        final PlayQueue playQueue = buildPlayQueue(allTracks);
+
         playQueue.moveItem(0, 1);
+
         assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(2),
                                                                          Urn.forTrack(1),
                                                                          Urn.forTrack(3),
@@ -295,12 +295,13 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void shouldSwitchItemsWhichAreNotNextToEachOther() {
-        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(1),
-                                                  Urn.forTrack(2),
-                                                  Urn.forTrack(3),
-                                                  Urn.forTrack(4));
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
+        final PlayQueue playQueue = buildPlayQueue(Arrays.asList(Urn.forTrack(1),
+                                                                 Urn.forTrack(2),
+                                                                 Urn.forTrack(3),
+                                                                 Urn.forTrack(4)));
+
         playQueue.moveItem(0, 2);
+
         assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(2),
                                                                          Urn.forTrack(3),
                                                                          Urn.forTrack(1),
@@ -311,17 +312,18 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
     @Test(expected = IndexOutOfBoundsException.class)
     public void shouldThrowIndexOutOfBoundException() {
         final List<Urn> allTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3), Urn.forTrack(4));
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
+        final PlayQueue playQueue = buildPlayQueue(allTracks);
+
         playQueue.moveItem(0, 5);
     }
 
     @Test
     public void shouldAddAllItemsAtPosition() {
-        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
+        final PlayQueue playQueue = buildPlayQueue(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3)));
         final PlayQueueItem firstPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(5));
         final PlayQueueItem secondPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(6));
         final List<PlayQueueItem> addedTracks = Arrays.asList(firstPlayQueueItem, secondPlayQueueItem);
+
         playQueue.insertAllItems(1, addedTracks);
 
         assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(1),
@@ -333,10 +335,11 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddItemsToEmptyList() {
-        PlayQueue playQueue = PlayQueue.empty();
+        final PlayQueue playQueue = PlayQueue.empty();
         final PlayQueueItem firstPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(1));
         final PlayQueueItem secondPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(2));
         final List<PlayQueueItem> addedTracks = Arrays.asList(firstPlayQueueItem, secondPlayQueueItem);
+
         playQueue.insertAllItems(0, addedTracks);
 
         assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2)));
@@ -344,11 +347,11 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void shouldThrowIndexOutOfBoundExceptionOnInsertAll() {
-        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(allTracks, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
+        final PlayQueue playQueue = buildPlayQueue(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3)));
         final PlayQueueItem firstPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(5));
         final PlayQueueItem secondPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(6));
         final List<PlayQueueItem> addedTracks = Arrays.asList(firstPlayQueueItem, secondPlayQueueItem);
+
         playQueue.insertAllItems(4, addedTracks);
 
         assertThat(playQueue.getTrackItemUrns()).isEqualTo(Arrays.asList(Urn.forTrack(1),
@@ -358,6 +361,18 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
                                                                          Urn.forTrack(3)));
     }
 
+    @Test
+    public void shouldShuffleUntilLastNonPlayedAndAutoPlayItem() {
+        final List<Urn> urns = Arrays.asList(Urn.forTrack(10), Urn.forTrack(11), Urn.forTrack(12));
+        final PlayQueue playQueue = buildPlayQueue(urns);
+        final PlayQueueItem item3 = buildPlayQueueItem(Urn.forTrack(13), PlaybackContext.Bucket.AUTO_PLAY, true);
+        final PlayQueueItem item4 = buildPlayQueueItem(Urn.forTrack(14), PlaybackContext.Bucket.AUTO_PLAY, false);
+        playQueue.insertAllItems(playQueue.size(), Arrays.asList(item3, item4));
+
+        ShuffledPlayQueue shuffledPlayQueue = playQueue.shuffle(0);
+
+        assertThat(shuffledPlayQueue.getPlayQueueItem(4)).isEqualTo(item4);
+    }
 
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn) {
         assertThat(playQueueItem.isTrack()).isTrue();
@@ -377,11 +392,14 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         assertThat(playQueueItem.getAdData()).isEqualTo(adData);
     }
 
-    private Map<Urn, Boolean> blockTracksMap(List<Urn> tracks) {
-        Map<Urn, Boolean> map = new HashMap<>(tracks.size());
-        for (Urn urn : tracks) {
-            map.put(urn, true);
-        }
-        return map;
+    private PlayQueue buildPlayQueue(List<Urn> list) {
+        return PlayQueue.fromTrackUrnList(list, PlaySessionSource.EMPTY, Collections.EMPTY_MAP);
     }
+
+    private PlayQueueItem buildPlayQueueItem(Urn urn, PlaybackContext.Bucket bucket, boolean played) {
+        return new TrackQueueItem.Builder(urn).withPlaybackContext(PlaybackContext.create(bucket))
+                                              .played(played)
+                                              .build();
+    }
+
 }

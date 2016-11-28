@@ -945,7 +945,6 @@
   <string name="play_queue_header_charts_top">À partir de %1$s dans le top 50</string>
   <string name="play_queue_header_charts_trending">À partir de %1$s nouveaux titres tendances</string>
   <string name="play_queue_header_explicit">Ajouté par vous</string>
-  <string name="play_queue_header_auto_play">Lecture automatique</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistes suggérés</string>
   <string name="suggested_creators_blurb">Suivez vos artistes préférés pour ne plus manquer aucun titre</string>

@@ -7,21 +7,24 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.playback.ShuffledPlayQueue.ShuffledList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShuffledListTest {
 
     private ArrayList<String> originalArrayList = newArrayList("original 0", "original 1", "original 2");
-    private ShuffledPlayQueue.ShuffledList<String> shuffledArrayList = new ShuffledPlayQueue.ShuffledList<>(originalArrayList, newArrayList(1, 0, 2));
+    private ShuffledList<String> shuffledArrayList = new ShuffledList<>(originalArrayList, newArrayList(1, 0, 2));
 
     private LinkedList<String> originalLinkedList = newLinkedList(asList("original 0", "original 1", "original 2"));
-    private ShuffledPlayQueue.ShuffledList<String> shuffledLinkedList = new ShuffledPlayQueue.ShuffledList<>(originalLinkedList, newArrayList(1, 0, 2));
+    private ShuffledList<String> shuffledLinkedList = new ShuffledList<>(originalLinkedList, newArrayList(1, 0, 2));
+
 
     @Test
     public void iterators() {
@@ -40,6 +43,19 @@ public class ShuffledListTest {
         assertThat(shuffledLinkedList.get(0)).isEqualTo("original 1");
         assertThat(shuffledLinkedList.get(1)).isEqualTo("original 0");
         assertThat(shuffledLinkedList.get(2)).isEqualTo("original 2");
+    }
+
+    @Test
+    public void initWithSubsetIndicesKeepsOrderBeforeStartAndAfterEnd() {
+        final List<String> originalSubsetList = newArrayList("0", "1", "2", "3", "4", "5", "6");
+        final List<String> middleShuffled = newArrayList("2", "3", "4");
+        final ShuffledList<String> shuffledSubsetList = new ShuffledList<>(originalSubsetList, 2, 5);
+
+        assertThat(shuffledSubsetList.get(0)).isEqualTo("0");
+        assertThat(shuffledSubsetList.get(1)).isEqualTo("1");
+        assertThat(shuffledSubsetList.subList(2, 5)).containsAll(middleShuffled);
+        assertThat(shuffledSubsetList.get(5)).isEqualTo("5");
+        assertThat(shuffledSubsetList.get(6)).isEqualTo("6");
     }
 
     @Test
@@ -162,7 +178,7 @@ public class ShuffledListTest {
 
     @Test
     public void isEmpty() {
-        assertThat(new ShuffledPlayQueue.ShuffledList<>(emptyList(), 0)).isEmpty();
+        assertThat(new ShuffledList<>(emptyList(), 0, 0)).isEmpty();
     }
 
     @Test

@@ -4,7 +4,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 
 abstract class PlayQueueUIItem {
 
-    enum Kind {TRACK, HEADER}
+    enum Kind {TRACK, HEADER, MAGIC_BOX}
 
     private PlayState playState;
     private PlayQueueManager.RepeatMode repeatMode;

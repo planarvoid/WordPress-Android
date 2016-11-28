@@ -71,7 +71,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<TxnResult>empty());
+        when(playQueueStorage.store(any(PlayQueue.class))).thenReturn(Observable.<TxnResult>empty());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn(
                 "origin:page");
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN),
@@ -100,7 +100,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                 .build();
 
         Observable<PlayQueueItem> itemObservable = Observable.just(playQueueItem);
-        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
+        when(playQueueStorage.load()).thenReturn(itemObservable);
 
         ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
         playQueueOperations.getLastStoredPlayQueue().subscribe(observer);
@@ -112,7 +112,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void shouldReturnEmptyObservableIfStoredPlayQueueIsEmpty() throws Exception {
         final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
 
-        when(playQueueStorage.loadAsync()).thenReturn(Observable.<PlayQueueItem>empty());
+        when(playQueueStorage.load()).thenReturn(Observable.<PlayQueueItem>empty());
         playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).isEmpty();
@@ -132,7 +132,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                 .build();
         Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
 
-        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
+        when(playQueueStorage.load()).thenReturn(itemObservable);
 
         PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlocking().lastOrDefault(null);
         assertThat(playQueue).containsExactly(playQueueItem1, playQueueItem2);
@@ -146,7 +146,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                 .build();
         Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1));
 
-        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
+        when(playQueueStorage.load()).thenReturn(itemObservable);
 
         assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Observable.empty());
     }
@@ -167,20 +167,21 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
         final PublishSubject<TxnResult> subject = PublishSubject.create();
-        when(playQueueStorage.storeAsync(playQueue)).thenReturn(subject);
+        when(playQueueStorage.store(playQueue)).thenReturn(subject);
 
         playQueueOperations.saveQueue(playQueue);
-        assertThat(subject.hasObservers()).isTrue();
+
+        verify(playQueueStorage).store(playQueue);
     }
 
     @Test
     public void clearShouldRemovePreferencesAndDeleteFromDatabase() throws Exception {
-        when(playQueueStorage.clearAsync()).thenReturn(Observable.<ChangeResult>empty());
+        when(playQueueStorage.clear()).thenReturn(Observable.<ChangeResult>empty());
         playQueueOperations.clear();
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_COLLECTION_URN);
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG);
-        verify(playQueueStorage).clearAsync();
+        verify(playQueueStorage).clear();
     }
 
     @Test

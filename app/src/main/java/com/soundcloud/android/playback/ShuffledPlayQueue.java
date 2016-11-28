@@ -19,8 +19,8 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
 
     abstract PlayQueue unshuffle();
 
-    static ShuffledPlayQueue from(final PlayQueue playQueue, int start) {
-        return new ShuffledPlayQueue(new ShuffledPlayQueue.ShuffledList<>(playQueue.items(), start)) {
+    static ShuffledPlayQueue from(final PlayQueue playQueue, int start, int end) {
+        return new ShuffledPlayQueue(new ShuffledPlayQueue.ShuffledList<>(playQueue.items(), start, end)) {
             @Override
             PlayQueue unshuffle() {
                 return playQueue;
@@ -39,8 +39,8 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
         private final List<T> actualList;
         private final List<Integer> shuffled2Actual;
 
-        ShuffledList(List<T> actualList, int start) {
-            this(actualList, createIndicesMapping(start, actualList.size()));
+        ShuffledList(List<T> actualList, int start, int end) {
+            this(actualList, createIndicesMapping(start, actualList.size(), end));
         }
 
         ShuffledList(List<T> actualList, List<Integer> shuffledIndices) {
@@ -48,14 +48,14 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
             this.shuffled2Actual = shuffledIndices;
         }
 
-        private static List<Integer> createIndicesMapping(int start, int end) {
+        private static List<Integer> createIndicesMapping(int start, int size, int end) {
             final List<Integer> indices = new ArrayList<>(end);
 
-            for (int i = 0; i < end; i++) {
+            for (int i = 0; i < size; i++) {
                 indices.add(i, i);
             }
 
-            if (start != end) {
+            if (start < end) {
                 // do not shuffle when the pivot is at the end.
                 Collections.shuffle(indices.subList(start, end));
             }

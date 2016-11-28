@@ -2,7 +2,9 @@ package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromNewQueue;
 import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromPositionChanged;
+import static com.soundcloud.android.playback.playqueue.PlayQueueUIItem.Kind.MAGIC_BOX;
 import static com.soundcloud.android.playback.playqueue.PlayState.COMING_UP;
+import static com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem.createTrackWithContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -23,7 +25,9 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -47,6 +51,7 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,6 +90,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 feedbackController,
                 playQueueUIItemMapper);
         when(adapter.getItem(anyInt())).thenReturn(item);
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(item.isTrack()).thenReturn(true);
     }
 
@@ -126,6 +132,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSubscribeToCurrentPlayQueueItem() {
+        setCachedObservables();
+
+        presenter.setCachedObservables();
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
         final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
         final CurrentPlayQueueItemEvent event = fromNewQueue(queueItem, Urn.NOT_SET, 0);
@@ -139,6 +148,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSubscribeToCurrentPlayQueueItemForPositionChanged() {
+        setCachedObservables();
+
+        presenter.setCachedObservables();
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
         final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
         final CurrentPlayQueueItemEvent event = fromPositionChanged(queueItem, Urn.NOT_SET, 0);
@@ -296,13 +308,16 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         observer.assertValueCount(1);
 
         final List<PlayQueueUIItem> receivedItems = observer.getOnNextEvents().get(0);
-        assertThat(receivedItems).hasSize(2);
+        assertThat(receivedItems).hasSize(3);
 
         final HeaderPlayQueueUIItem receivedHeader = (HeaderPlayQueueUIItem) receivedItems.get(0);
         assertThat(receivedHeader.getContentTitle()).isEqualTo(contextTitle);
 
         final TrackPlayQueueUIItem receivedTrack = (TrackPlayQueueUIItem) receivedItems.get(1);
         assertThat(receivedTrack.getContextTitle()).isEqualTo(contextTitle);
+
+        final MagicBoxPlayQueueUIItem receivedMagicBox = (MagicBoxPlayQueueUIItem) receivedItems.get(2);
+        assertThat(receivedMagicBox.getKind()).isEqualTo(MAGIC_BOX);
     }
 
     @Test
@@ -403,6 +418,26 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         playQueueUIItem.setPlayState(playState);
 
         return playQueueUIItem;
+    }
+
+    private static TrackAndPlayQueueItem trackAndPlayQueueItem(Urn track, PlaybackContext playbackContext) {
+        return new TrackAndPlayQueueItem(trackItem(track), createTrackWithContext(track, playbackContext));
+    }
+
+    private static TrackItem trackItem(Urn track) {
+        return new TrackItem(TestPropertySets.expectedTrackForListItem(track));
+    }
+
+    private void setCachedObservables() {
+        TrackAndPlayQueueItem trackAndPlayQueueItem1 = trackAndPlayQueueItem(Urn.forTrack(1L), PlaybackContext.create(
+                PlaySessionSource.EMPTY));
+        TrackAndPlayQueueItem trackAndPlayQueueItem2 = trackAndPlayQueueItem(Urn.forTrack(2L), PlaybackContext.create(
+                PlaySessionSource.EMPTY));
+        List<TrackAndPlayQueueItem> trackAndPlayQueueItems = Arrays.asList(trackAndPlayQueueItem1, trackAndPlayQueueItem2);
+
+
+        when(playQueueOperations.getTracks()).thenReturn(Observable.just(trackAndPlayQueueItems));
+        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
     }
 
 }

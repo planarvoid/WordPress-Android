@@ -115,7 +115,7 @@ public class PlaybackInitiator {
             @Override
             public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
                 PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedTracksMap);
-                PlayQueue shuffledPlayQueue = ShuffledPlayQueue.from(playQueue, 0);
+                PlayQueue shuffledPlayQueue = ShuffledPlayQueue.from(playQueue, 0, playQueue.size());
                 return Observable.just(shuffledPlayQueue);
             }
         };

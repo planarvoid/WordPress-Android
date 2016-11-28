@@ -8,6 +8,7 @@ import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_ID;
 import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE;
 import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_TRACK;
+import static com.soundcloud.android.storage.Tables.PlayQueue.PLAYED;
 import static com.soundcloud.android.storage.Tables.PlayQueue.QUERY_URN;
 import static com.soundcloud.android.storage.Tables.PlayQueue.REPOSTER_ID;
 import static com.soundcloud.android.storage.Tables.PlayQueue.SOURCE;
@@ -85,17 +86,19 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                 .fromSource("source1", "version1", new Urn("sourceUrn1"), new Urn("queryUrn1"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
                 .relatedEntity(RELATED_ENTITY)
+                .played(true)
                 .build();
 
         PlayableQueueItem playableQueueItem2 = new Builder(forPlaylist(456L), forUser(456L))
                 .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
+                .played(false)
                 .build();
 
         PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1,
                                                                                         playableQueueItem2));
 
-        storage.storeAsync(playQueue).subscribe(observer);
+        storage.store(playQueue).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
 
@@ -111,7 +114,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                                                   .whereEq(SOURCE, "source1")
                                                   .whereEq(SOURCE_VERSION, "version1")
                                                   .whereEq(SOURCE_URN, "sourceUrn1")
-                                                  .whereEq(QUERY_URN, "queryUrn1"))).counts(1);
+                                                  .whereEq(QUERY_URN, "queryUrn1")
+                                                  .whereEq(PLAYED, true))).counts(1);
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE)
                                                   .whereEq(ENTITY_ID, 456L)
@@ -120,7 +124,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                                                   .whereEq(SOURCE, "source2")
                                                   .whereEq(SOURCE_VERSION, "version2")
                                                   .whereEq(SOURCE_URN, "sourceUrn2")
-                                                  .whereEq(QUERY_URN, "queryUrn2"))).counts(1);
+                                                  .whereEq(QUERY_URN, "queryUrn2")
+                                                  .whereEq(PLAYED, false))).counts(1);
     }
 
     @Test
@@ -138,7 +143,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1,
                                                                                         playableQueueItem2));
 
-        storage.storeAsync(playQueue).subscribe(new TestObserver<TxnResult>());
+        storage.store(playQueue).subscribe(new TestObserver<TxnResult>());
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
     }
@@ -155,7 +160,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                                         .build());
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.clearAsync().subscribe(subscriber);
+        storage.clear().subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0).getNumRowsAffected()).isEqualTo(1);
@@ -181,7 +186,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem2);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(2);
 
-        storage.loadAsync().subscribe(subscriber);
+        storage.load().subscribe(subscriber);
 
         assertPlayQueueItemsEqual(Arrays.asList(expectedItem1, expectedItem2), subscriber.getOnNextEvents());
     }
@@ -197,7 +202,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.loadAsync().subscribe(subscriber);
+        storage.load().subscribe(subscriber);
 
         assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
     }
@@ -212,7 +217,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.loadAsync().subscribe(subscriber);
+        storage.load().subscribe(subscriber);
 
         assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
     }
@@ -228,7 +233,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.loadAsync().subscribe(subscriber);
+        storage.load().subscribe(subscriber);
 
         assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
     }
@@ -244,7 +249,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.loadAsync().subscribe(subscriber);
+        storage.load().subscribe(subscriber);
 
         assertPlayQueueItemsEqual(Collections.singletonList(expectedItem), subscriber.getOnNextEvents());
     }
@@ -300,7 +305,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void contextTitlesReturnsStationTitle() throws Exception {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final ApiStation station = testFixtures().insertStation();
-        final TrackQueueItem trackQueueItem = createTrackQueueItem(station.getUrn(), PlaybackContext.Bucket.TRACK_STATION);
+        final TrackQueueItem trackQueueItem = createTrackQueueItem(station.getUrn(),
+                                                                   PlaybackContext.Bucket.TRACK_STATION);
 
         insertPlayableQueueItem(trackQueueItem);
 
@@ -313,7 +319,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void contextTitlesReturnsChartTopMusicTitle() throws Exception {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TOP, ChartCategory.MUSIC);
-        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(), PlaybackContext.Bucket.CHARTS_TOP);
+        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
+                                                                   PlaybackContext.Bucket.CHARTS_TOP);
 
         insertPlayableQueueItem(trackQueueItem);
 
@@ -326,7 +333,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void contextTitlesReturnsChartTrendingMusicTitle() throws Exception {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TRENDING, ChartCategory.MUSIC);
-        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(), PlaybackContext.Bucket.CHARTS_TRENDING);
+        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
+                                                                   PlaybackContext.Bucket.CHARTS_TRENDING);
 
         insertPlayableQueueItem(trackQueueItem);
 
@@ -339,7 +347,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void contextTitlesReturnsChartTopAudioTitle() throws Exception {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TOP, ChartCategory.AUDIO);
-        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(), PlaybackContext.Bucket.CHARTS_TOP);
+        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
+                                                                   PlaybackContext.Bucket.CHARTS_TOP);
 
         insertPlayableQueueItem(trackQueueItem);
 
@@ -352,7 +361,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void contextTitlesReturnsChartTrendingAudioTitle() throws Exception {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TRENDING, ChartCategory.AUDIO);
-        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(), PlaybackContext.Bucket.CHARTS_TRENDING);
+        final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
+                                                                   PlaybackContext.Bucket.CHARTS_TRENDING);
 
         insertPlayableQueueItem(trackQueueItem);
 
@@ -387,6 +397,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         cv.put(Tables.PlayQueue.SOURCE_URN.name(), playableQueueItem.getSourceUrn().toString());
         cv.put(Tables.PlayQueue.QUERY_URN.name(), playableQueueItem.getQueryUrn().toString());
         cv.put(Tables.PlayQueue.CONTEXT_TYPE.name(), playbackContext.bucket().toString());
+        cv.put(Tables.PlayQueue.PLAYED.name(), playableQueueItem.isPlayed());
 
         if (!Urn.NOT_SET.equals(playableQueueItem.getRelatedEntity())) {
             cv.put(Tables.PlayQueue.RELATED_ENTITY.name(), playableQueueItem.getRelatedEntity().toString());

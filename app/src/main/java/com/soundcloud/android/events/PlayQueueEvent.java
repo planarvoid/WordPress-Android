@@ -9,6 +9,7 @@ public abstract class PlayQueueEvent {
     private static final int NEW_QUEUE = 0;
     private static final int QUEUE_UPDATE = 1;
     private static final int ADS_REMOVED = 2;
+    private static final int AUTO_PLAY_ENABLED = 3;
 
     public abstract boolean itemMoved();
 
@@ -44,6 +45,10 @@ public abstract class PlayQueueEvent {
         return new AutoValue_PlayQueueEvent(false, false, true, QUEUE_UPDATE, collectionUrn);
     }
 
+    public static PlayQueueEvent fromAutoPlayEnabled(Urn collectionUrn) {
+        return new AutoValue_PlayQueueEvent(false, false, true, AUTO_PLAY_ENABLED, collectionUrn);
+    }
+
     public boolean isQueueUpdate() {
         return getKind() == QUEUE_UPDATE;
     }
@@ -58,5 +63,9 @@ public abstract class PlayQueueEvent {
 
     public boolean itemChanged() {
         return itemRemoved() || itemMoved();
+    }
+
+    public boolean isAutoPlayEnabled() {
+        return getKind() == AUTO_PLAY_ENABLED;
     }
 }

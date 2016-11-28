@@ -931,7 +931,6 @@
   <string name="play_queue_header_charts_top">De nuestros Top 50 de %1$s</string>
   <string name="play_queue_header_charts_trending">De nuestras listas de novedades de %1$s</string>
   <string name="play_queue_header_explicit">Añadido por ti</string>
-  <string name="play_queue_header_auto_play">Reproducción automática</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistas sugeridos</string>
   <string name="suggested_creators_blurb">Sigue a tus artistas favoritos para no perderte sus pistas más recientes</string>
