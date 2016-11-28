@@ -76,7 +76,6 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
                                                          popupMenuWrapperFactory,
                                                          stationHandler,
                                                          eventBus,
-                                                         featureFlags,
                                                          shareOperations).create(textView);
         controller.setTrack(track);
     }

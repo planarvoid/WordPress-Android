@@ -18,7 +18,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -232,7 +231,6 @@ public class TrackPageMenuController
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
         private final StartStationHandler startStationHandler;
-        private final FeatureFlags featureFlags;
         private final ShareOperations shareOperations;
 
         @Inject
@@ -240,14 +238,13 @@ public class TrackPageMenuController
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 StartStationHandler startStationHandler,
-                EventBus eventBus, FeatureFlags featureFlags,
+                EventBus eventBus,
                 ShareOperations shareOperations) {
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.startStationHandler = startStationHandler;
             this.eventBus = eventBus;
-            this.featureFlags = featureFlags;
             this.shareOperations = shareOperations;
         }
 

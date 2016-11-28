@@ -1,7 +1,6 @@
 package com.soundcloud.android.framework;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Tables.OfflineContent._TYPE;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
@@ -63,22 +62,6 @@ public class IntegrationTestsFixtures {
     private void update(Context context, ContentValues contentValues) {
         final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
         db.update(TrackPolicies.TABLE.name(), contentValues, filter().build(), null);
-    }
-
-    private static ContentValues buildOfflineContentValues(Urn urn) {
-        return ContentValuesBuilder.values(2)
-                                   .put(_ID, urn.getNumericId())
-                                   .put(_TYPE, OfflineContent.TYPE_PLAYLIST)
-                                   .get();
-    }
-
-    private static ContentValues buildPlaylistTrackValues(Urn playlist, Urn trackUrn, long date) {
-        return ContentValuesBuilder.values()
-                                   .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getNumericId())
-                                   .put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
-                                   .put(TableColumns.PlaylistTracks.POSITION, 0)
-                                   .put(TableColumns.PlaylistTracks.ADDED_AT, date)
-                                   .get();
     }
 
     private static ContentValues buildTrackDownloadValues(Urn track, long date) {
