@@ -12,8 +12,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.robolectric.shadows.RoboLayoutInflater;
 
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.TextView;
@@ -39,7 +39,7 @@ public class ErrorViewControllerTest extends AndroidUnitTest {
         hideOnError = new View(context());
         holder.hideOnErrorViews = Collections.singletonList(hideOnError);
 
-        errorLayout = LayoutInflater.from(context()).inflate(R.layout.track_page_error, null);
+        errorLayout = RoboLayoutInflater.from(activity()).inflate(R.layout.track_page_error, null);
         when(errorStub.inflate()).thenReturn(errorLayout);
 
         when(trackPage.findViewById(R.id.track_page_error_stub)).thenReturn(errorStub);

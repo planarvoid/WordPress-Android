@@ -5,15 +5,18 @@
     android:layout_height="match_parent"
     tools:showIn="@layout/default_recyclerview_with_refresh">
 
+    <!-- Blocking descendants because of https://code.google.com/p/android/issues/detail?id=222911-->
     <android.support.v7.widget.RecyclerView
         android:id="@id/ak_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
+        android:descendantFocusability="blocksDescendants"
         android:headerDividersEnabled="false" />
 
     <com.soundcloud.android.view.EmptyView
         android:id="@android:id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 </RelativeLayout>

@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport;
 
-import static com.soundcloud.android.testsupport.AndroidUnitTest.context;
+import static com.soundcloud.android.testsupport.AndroidUnitTest.activity;
 import static com.soundcloud.android.testsupport.AndroidUnitTest.resources;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -34,7 +34,7 @@ public class DatabaseMigrationHelper {
     private int currentVersion;
 
     public DatabaseMigrationHelper() throws IOException {
-        File baseDir = context().getExternalFilesDir("migration-test");
+        File baseDir = activity().getExternalFilesDir("migration-test");
         newFile = new File(baseDir, "new.db");
         upgradedFile = new File(baseDir, "upgraded.db");
         currentVersion = ORIGIN_VERSION;

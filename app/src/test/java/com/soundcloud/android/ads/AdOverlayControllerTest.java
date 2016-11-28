@@ -29,14 +29,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.shadows.RoboLayoutInflater;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.view.LayoutInflater;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 public class AdOverlayControllerTest extends AndroidUnitTest {
@@ -71,12 +71,14 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        trackView = LayoutInflater.from(context())
-                                  .inflate(R.layout.player_track_page, new FrameLayout(context()), false);
+        FragmentActivity context = activity();
+        trackView = RoboLayoutInflater.from(context).inflate(
+                R.layout.player_track_page,
+                null);
 
         controller = new AdOverlayController(trackView,
                                              listener,
-                                             context,
+                                             this.context,
                                              deviceHelper,
                                              eventBus,
                                              playQueueManager,
@@ -88,7 +90,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackQueueItem);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
-        when(context.getResources()).thenReturn(resources);
+        when(this.context.getResources()).thenReturn(resources);
 
         interstitialData = AdFixtures.getInterstitialAd(Urn.forTrack(123L));
         leaveBehindData = AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L));

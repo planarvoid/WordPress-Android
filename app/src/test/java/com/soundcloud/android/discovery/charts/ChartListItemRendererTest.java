@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -28,11 +29,13 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     private View itemView;
     private ChartListItemRenderer renderer;
+    private Activity activity;
 
     @Before
     public void setUp() throws Exception {
-        itemView = LayoutInflater.from(context()).inflate(
-                R.layout.chart_list_item, new FrameLayout(context()), false);
+        activity = activity();
+        itemView = LayoutInflater.from(activity).inflate(
+                R.layout.chart_list_item, new FrameLayout(activity), false);
         renderer = new ChartListItemRenderer(resources(), navigator, imageOperations);
     }
 
@@ -67,7 +70,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).openChart(context(), genre, ChartType.TOP, ChartCategory.MUSIC, "Rock charts");
+        verify(navigator).openChart(activity, genre, ChartType.TOP, ChartCategory.MUSIC, "Rock charts");
     }
 
     @Test
@@ -77,7 +80,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).openChart(context(), genre, ChartType.TOP, ChartCategory.MUSIC, "SoundCloud charts");
+        verify(navigator).openChart(activity, genre, ChartType.TOP, ChartCategory.MUSIC, "SoundCloud charts");
     }
 
     private ChartListItem createChartListItem(ChartBucketType chartBucketType, Urn genre) {

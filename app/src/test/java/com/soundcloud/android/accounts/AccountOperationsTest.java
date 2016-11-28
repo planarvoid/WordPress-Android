@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.robolectric.Shadows;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
@@ -370,7 +369,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     public void shouldBroadcastResetAllIntentIfAccountRemovalSucceeds() {
         accountOperations.purgeUserData().subscribe(observer);
 
-        Intent nextService = Shadows.shadowOf(context()).getShadowApplication().getNextStartedService();
+        Intent nextService = getNextStartedService();
 
         Assertions.assertThat(nextService).containsAction(PlaybackService.Action.RESET_ALL);
     }

@@ -46,7 +46,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        activityContext = new Activity();
+        activityContext = activity();
         operations = new ShareOperations(tracker);
     }
 
@@ -61,7 +61,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
                   .containsAction(Intent.ACTION_SEND)
                   .containsExtra(Intent.EXTRA_SUBJECT, "squirlex galore - SoundCloud")
                   .containsExtra(Intent.EXTRA_TEXT,
-                                 "Listen to squirlex galore by avieciie #np on #SoundCloud\\nhttp://permalink.url");
+                                 "Listen to squirlex galore by avieciie #np on #SoundCloud\nhttp://permalink.url");
     }
 
     @Test

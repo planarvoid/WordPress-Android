@@ -21,6 +21,9 @@
 
         <item name="android:windowContentTransitions">true</item>
         <item name="actionModeStyle">@style/Theme.SoundCloud.ActionMode</item>
+
+        <!-- warning, this needs to exist for robolectric, as an attribute, or all hell breaks loose. Remove at your own risk -->
+        <item name="mediaRouteButtonStyle">@style/Theme.MediaRouter.LightControlPanel</item>
     </style>
 
     <style name="Theme.SoundCloud" parent="BaseTheme">

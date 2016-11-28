@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui.view;
 
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
@@ -13,12 +12,8 @@ import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.res.Attribute;
-import org.robolectric.shadows.RoboAttributeSet;
 
 import android.widget.TextView;
-
-import java.util.Collections;
 
 public class TimestampViewTest extends AndroidUnitTest {
 
@@ -35,10 +30,7 @@ public class TimestampViewTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        timestampView = new TimestampView(context(),
-                                          new RoboAttributeSet(Collections.<Attribute>emptyList(),
-                                                               shadowOf(resources()).getResourceLoader()),
-                                          springSystem);
+        timestampView = new TimestampView(context(), attributeSet(), springSystem);
         progressView = (TextView) timestampView.findViewById(R.id.timestamp_progress);
         durationView = (TextView) timestampView.findViewById(R.id.timestamp_duration);
 

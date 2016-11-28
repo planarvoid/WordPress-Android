@@ -115,6 +115,9 @@
         <ignore path="res/layout/base_with_drawer.xml" />
         <ignore path="res/layout/base_with_drawer_legacy.xml" />
         <ignore path="res/layout-sw600dp-land/playlist_fragment.xml" />
+
+        <!-- https://code.google.com/p/android/issues/detail?id=227098 -->
+        <ignore path="build/intermediates/exploded-aar/com.android.support/**/*" />
     </issue>
 
     <!-- Icon problems -->

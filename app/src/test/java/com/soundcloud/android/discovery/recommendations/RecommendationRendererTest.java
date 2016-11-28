@@ -48,7 +48,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        final LayoutInflater layoutInflater = LayoutInflater.from(fragmentActivity());
+        final LayoutInflater layoutInflater = LayoutInflater.from(activity());
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
         renderer = new RecommendationRenderer(listener, imageOperations, trackItemMenuPresenter, navigator);
         final Recommendation recommendation = RecommendationsFixtures.createNonHighTierRecommendation(SEED_TRACK.getUrn());

@@ -8,15 +8,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.fakes.RoboSharedPreferences;
+import org.robolectric.shadows.ShadowApplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,11 +33,12 @@ import java.util.Map;
  * For anything else, use an ordinary JUnit test with the {@link org.mockito.runners.MockitoJUnitRunner}
  * and mock out collaborators that come from the framework.
  */
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(packageName = "com.soundcloud.android",
         constants = BuildConfig.class,
         application = ApplicationStub.class,
-        sdk = 21)
+        shadows={ShadowSupportMediaRouter.class},
+        sdk = 22)
 public abstract class AndroidUnitTest {
 
     @Rule public TestRule injectMocksRule = new TestRule() {
@@ -45,12 +49,20 @@ public abstract class AndroidUnitTest {
         }
     };
 
-    protected static Context context() {
-        return RuntimeEnvironment.application;
+    protected static Intent getNextStartedService() {
+        return ShadowApplication.getInstance().getNextStartedService();
     }
 
-    protected static FragmentActivity fragmentActivity() {
-        return Robolectric.buildActivity(FragmentActivity.class)
+    protected static AttributeSet attributeSet() {
+        return Robolectric.buildAttributeSet().build();
+    }
+
+    protected static Context context() {
+        return RuntimeEnvironment.application.getBaseContext();
+    }
+
+    protected static AppCompatActivity activity() {
+        return Robolectric.buildActivity(AppCompatActivity.class)
                           .create()
                           .start()
                           .resume()

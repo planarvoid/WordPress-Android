@@ -10,7 +10,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.Robolectric;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -71,7 +70,7 @@ public class AllGenresPresenterTest extends AndroidUnitTest {
 
     @NonNull
     private AppCompatActivity createActivity() {
-        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
+        AppCompatActivity activity = activity();
         final LayoutInflater layoutInflater = LayoutInflater.from(activity);
         View inflated = layoutInflater.inflate(R.layout.tabbed_activity_content, new FrameLayout(context()), false);
         activity.setContentView(inflated);

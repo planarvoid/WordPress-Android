@@ -6,10 +6,11 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.robolectric.RuntimeEnvironment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +18,7 @@ import android.content.SharedPreferences;
 
 public class UnauthorisedRequestRegistryTest extends AndroidUnitTest {
 
-    @Mock private Context context = RuntimeEnvironment.application;
+    @Mock private Context context;
     private SharedPreferences preferences = sharedPreferences();
     private UnauthorisedRequestRegistry registry;
 
@@ -80,7 +81,10 @@ public class UnauthorisedRequestRegistryTest extends AndroidUnitTest {
     public void shouldSendIntentAfterUpdatingObservedTimestamp() {
         registry.updateObservedUnauthorisedRequestTimestamp();
 
-        verify(context).sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+
+        verify(context).sendBroadcast(intentCaptor.capture());
+        Assertions.assertThat(intentCaptor.getValue()).containsAction(Consts.GeneralIntents.UNAUTHORIZED);
     }
 
     private boolean putLastObservedAuthErrorTime(long time) {

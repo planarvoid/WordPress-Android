@@ -105,7 +105,7 @@ public class PlaybackService extends Service
         playbackFilter.addAction(Action.STOP);
         playbackFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         playbackFilter.addAction(Action.FADE_AND_PAUSE);
-        registerReceiver(playbackReceiver, playbackFilter);
+        registerPlaybackReceiver(playbackFilter);
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
@@ -113,6 +113,11 @@ public class PlaybackService extends Service
         instance = this;
 
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
+    }
+
+    @VisibleForTesting
+    void registerPlaybackReceiver(IntentFilter playbackFilter) {
+        registerReceiver(playbackReceiver, playbackFilter);
     }
 
     @Override
@@ -124,11 +129,16 @@ public class PlaybackService extends Service
 
         // make sure there aren't any other messages coming
         delayedStopHandler.removeCallbacksAndMessages(null);
-        unregisterReceiver(playbackReceiver);
+        unregisterPlaybackReceiver();
 
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         instance = null;
         super.onDestroy();
+    }
+
+    @VisibleForTesting
+    void unregisterPlaybackReceiver() {
+        unregisterReceiver(playbackReceiver);
     }
 
     @Override

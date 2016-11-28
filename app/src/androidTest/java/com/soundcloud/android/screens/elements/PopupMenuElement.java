@@ -12,9 +12,11 @@ import java.util.List;
 
 public class PopupMenuElement extends Element {
 
+    private static final String DROP_DOWN_CLS_NAME = "android.support.v7.widget.MenuPopupWindow$MenuDropDownListView";
+
     public PopupMenuElement(Han testDriver) {
-        super(testDriver, With.className("android.support.v7.widget.ListPopupWindow$DropDownListView"));
-        waiter.waitForElement(With.className("android.support.v7.widget.ListPopupWindow$DropDownListView"));
+        super(testDriver, With.className(DROP_DOWN_CLS_NAME));
+        waiter.waitForElement(With.className(DROP_DOWN_CLS_NAME));
     }
     protected List<ViewElement> getRootMenuElements() {
         waiter.waitForElement(TextView.class);

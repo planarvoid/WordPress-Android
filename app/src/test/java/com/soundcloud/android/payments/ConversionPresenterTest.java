@@ -36,7 +36,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Mock private ConversionView view;
     @Mock private FeatureFlags featureFlags;
 
-    private AppCompatActivity activity = new AppCompatActivity();
+    private AppCompatActivity activity = activity();
     private ConversionPresenter presenter;
 
     @Before

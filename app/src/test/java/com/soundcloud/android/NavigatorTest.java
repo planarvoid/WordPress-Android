@@ -90,7 +90,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         navigator = new Navigator(eventTracker, featureFlags);
         appContext = context();
-        activityContext = new Activity();
+        activityContext = activity();
     }
 
     @Test

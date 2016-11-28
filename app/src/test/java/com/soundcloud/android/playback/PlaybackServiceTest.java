@@ -35,6 +35,7 @@ import org.mockito.Mockito;
 import org.robolectric.shadows.ShadowLooper;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 
 public class PlaybackServiceTest extends AndroidUnitTest {
@@ -50,6 +51,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     private Urn track = playbackItem.getUrn();
     private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider = new TestDateProvider();
+
+    private IntentFilter playbackFilter;
 
     @Mock private ApplicationProperties applicationProperties;
     @Mock private PlayQueueManager playQueueManager;
@@ -80,7 +83,22 @@ public class PlaybackServiceTest extends AndroidUnitTest {
                                               volumeControllerFactory,
                                               mediaSessionControllerFactory,
                                               playSessionStateProvider,
-                                              playStatePublisher);
+                                              playStatePublisher){
+            /**
+             * This is a huge hack to not crash the unit tests, as we are not using RL properly, because of the
+             * way we do constructor injection of mocks. Hopefully, this does not live too long :-/
+             */
+
+            @Override
+            void registerPlaybackReceiver(IntentFilter playbackFilter) {
+                PlaybackServiceTest.this.playbackFilter = playbackFilter;
+            }
+
+            @Override
+            void unregisterPlaybackReceiver() {
+                PlaybackServiceTest.this.playbackFilter = new IntentFilter();
+            }
+        };
 
         when(playbackReceiverFactory.create(playbackService, accountOperations)).thenReturn(playbackReceiver);
         when(volumeControllerFactory.create(streamPlayer, playbackService)).thenReturn(volumeController);
@@ -96,46 +114,44 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForToggleplaybackAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver,
-                                                                    PlaybackService.Action.TOGGLE_PLAYBACK);
+        assertThat(playbackFilter.hasAction(PlaybackService.Action.TOGGLE_PLAYBACK)).isTrue();
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForPauseAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.PAUSE);
+        assertThat(playbackFilter.hasAction(PlaybackService.Action.PAUSE)).isTrue();
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForSeek() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.SEEK);
+
+        assertThat(playbackFilter.hasAction(PlaybackService.Action.SEEK)).isTrue();
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForResetAllAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.RESET_ALL);
+        assertThat(playbackFilter.hasAction(PlaybackService.Action.RESET_ALL)).isTrue();
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForStopAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.STOP);
+        assertThat(playbackFilter.hasAction(PlaybackService.Action.STOP)).isTrue();
     }
 
     @Test
     public void onCreateRegistersNoisyListenerToListenForAudioBecomingNoisyBroadcast() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver,
-                                                                    AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        assertThat(playbackFilter.hasAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)).isTrue();
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForFadeAndPause() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver,
-                                                                    PlaybackService.Action.FADE_AND_PAUSE);
+        assertThat(playbackFilter.hasAction(PlaybackService.Action.FADE_AND_PAUSE)).isTrue();
     }
 
     @Test

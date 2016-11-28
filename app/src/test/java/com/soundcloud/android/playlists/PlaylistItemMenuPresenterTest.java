@@ -48,7 +48,6 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -58,7 +57,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     public static final String SCREEN = "some tag";
     @Mock private Context context;
-    @Mock private FragmentActivity activity;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private LikeOperations likeOperations;
     @Mock private RepostOperations repostOperations;
@@ -114,7 +112,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   eventTracker,
                                                   playlistMenuRenderFactory);
 
-        button = new View(new FragmentActivity());
+        button = new View(activity());
 
         when(playlistMenuRenderFactory.create(presenter, button, menuOptions)).thenReturn(playlistMenuRenderer);
     }

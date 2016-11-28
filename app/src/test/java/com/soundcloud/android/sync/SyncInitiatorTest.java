@@ -8,7 +8,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.shadows.ShadowApplication;
 import rx.observers.TestSubscriber;
 
 import android.content.Intent;
@@ -35,7 +34,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     public void syncCreatesObservableForSyncable() {
         syncInitiator.sync(Syncable.CHARTS).subscribe(syncSubscriber);
 
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
@@ -50,7 +49,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     public void syncCreatesObservableForSyncableWithAction() {
         syncInitiator.sync(Syncable.CHARTS, "action").subscribe(syncSubscriber);
 
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo("action");
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
@@ -67,7 +66,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         final List<Urn> entities = Arrays.asList(Urn.forTrack(123));
         syncInitiator.batchSyncTracks(entities).subscribe(syncSubscriber);
 
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.TRACKS);
         assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(entities);
 
@@ -82,7 +81,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         final List<Urn> entities = Arrays.asList(Urn.forUser(123));
         syncInitiator.batchSyncUsers(entities).subscribe(syncSubscriber);
 
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.USERS);
         assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(entities);
 
@@ -97,7 +96,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         final List<Urn> entities = Arrays.asList(Urn.forPlaylist(123));
         syncInitiator.batchSyncPlaylists(entities).subscribe(syncSubscriber);
 
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLISTS);
         assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(entities);
 
@@ -111,7 +110,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     public void syncPlaylistCreatesObservableForPlaylistSync() {
         syncInitiator.syncPlaylist(Urn.forPlaylist(123)).subscribe(syncSubscriber);
 
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLIST);
         assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(Arrays.asList(Urn.forPlaylist(123)));
 
@@ -125,7 +124,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     public void syncPlaylistsSyncsLocalAndRemotePlaylist() {
         syncInitiator.syncPlaylists(Arrays.asList(Urn.forPlaylist(123), Urn.forPlaylist(-123))).subscribe(syncSubscriber);
 
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLIST);
         assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(Arrays.asList(Urn.forPlaylist(123)));
 
@@ -133,7 +132,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
         syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
 
-        Intent syncMyPlaylists = ShadowApplication.getInstance().getNextStartedService();
+        Intent syncMyPlaylists = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(syncMyPlaylists)).isEqualTo(Syncable.MY_PLAYLISTS);
         final SyncJobResult result2 = sendSyncChangedToReceiver(syncMyPlaylists);
 

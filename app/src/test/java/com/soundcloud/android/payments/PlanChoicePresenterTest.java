@@ -19,7 +19,7 @@ public class PlanChoicePresenterTest extends AndroidUnitTest {
 
     @Mock PlanChoiceView view;
 
-    private AppCompatActivity activity = new AppCompatActivity();
+    private AppCompatActivity activity = activity();
     private PlanChoicePresenter presenter;
 
     @Before

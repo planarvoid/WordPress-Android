@@ -50,6 +50,7 @@ import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowToast;
 
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -92,10 +93,12 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private TrackPagePresenter presenter;
     private View trackView;
     private TestDateProvider dateProvider;
+    private FragmentActivity activity;
 
     @Before
     public void setUp() throws Exception {
-        ViewGroup container = new FrameLayout(context());
+        activity = activity();
+        ViewGroup container = new FrameLayout(activity);
         presenter = new TrackPagePresenter(waveformOperations,
                                            featureOperations,
                                            listener,
@@ -415,7 +418,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         getHolder(trackView).shareButton.performClick();
 
-        verify(trackPageMenuController).handleShare(context());
+        verify(trackPageMenuController).handleShare(activity);
     }
 
     @Test

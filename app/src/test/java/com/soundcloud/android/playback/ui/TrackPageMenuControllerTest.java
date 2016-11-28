@@ -34,7 +34,6 @@ import rx.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -61,13 +60,13 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        activityContext = new Activity();
+        activityContext = activity();
         sourceTrack = TestPropertySets.expectedTrackForPlayer();
         track = new PlayerTrackState(sourceTrack, false, false, null);
         privateTrack = new PlayerTrackState(TestPropertySets.expectedPrivateTrackForPlayer(), false, false, null);
 
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
-        when(textView.getContext()).thenReturn(new FragmentActivity());
+        when(textView.getContext()).thenReturn(activityContext);
         when(repostOperations.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostSubject);
         when(playQueueManager.getScreenTag()).thenReturn("screen");
 
