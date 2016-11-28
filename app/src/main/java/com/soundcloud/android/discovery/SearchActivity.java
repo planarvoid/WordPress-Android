@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.suggestions.SuggestionItem;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
@@ -61,7 +62,7 @@ public class SearchActivity extends PlayerActivity implements SuggestionListener
     }
 
     @Override
-    public void onAutocompleteClicked(String query, String output, String queryUrn) {
-        presenter.performSearch(query, Optional.of(output), Optional.of(queryUrn));
+    public void onAutocompleteClicked(String query, String output, Optional<Urn> queryUrn, int position) {
+        presenter.performSearch(query, Optional.of(output), queryUrn, Optional.of(position));
     }
 }

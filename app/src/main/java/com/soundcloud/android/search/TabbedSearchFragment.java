@@ -2,11 +2,13 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -24,17 +26,24 @@ public class TabbedSearchFragment extends Fragment {
 
     private static final String KEY_QUERY = "query";
     private static final String KEY_QUERY_URN = "queryUrn";
+    private static final String KEY_QUERY_POSITION = "queryPosition";
 
     @Inject Resources resources;
     @Inject SearchTracker searchTracker;
 
     private ViewPager pager;
 
-    public static TabbedSearchFragment newInstance(String query, Optional<String> queryUrn) {
+    public static TabbedSearchFragment newInstance(String query,
+                                                   Optional<Urn> queryUrn,
+                                                   Optional<Integer> queryPosition) {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_QUERY, query);
         if (queryUrn.isPresent()) {
-            bundle.putString(KEY_QUERY_URN, queryUrn.get());
+            bundle.putParcelable(KEY_QUERY_URN, queryUrn.get());
+        }
+
+        if (queryPosition.isPresent()) {
+            bundle.putInt(KEY_QUERY_POSITION, queryPosition.get());
         }
 
         TabbedSearchFragment fragment = new TabbedSearchFragment();
@@ -77,6 +86,8 @@ public class TabbedSearchFragment extends Fragment {
                 new SearchPagerAdapter(resources,
                                        this.getChildFragmentManager(),
                                        getSearchQuery(),
+                                       getSearchQueryUrn(),
+                                       getSearchQueryPosition(),
                                        firstTime);
 
         pager = (ViewPager) view.findViewById(R.id.pager);
@@ -91,6 +102,14 @@ public class TabbedSearchFragment extends Fragment {
 
     private String getSearchQuery() {
         return getArguments().getString(KEY_QUERY);
+    }
+
+    private Optional<Urn> getSearchQueryUrn() {
+        return Optional.fromNullable(getArguments().<Urn>getParcelable(KEY_QUERY_URN));
+    }
+
+    private Optional<Integer> getSearchQueryPosition() {
+        return Optional.fromNullable(getArguments().getInt(KEY_QUERY_POSITION));
     }
 
     @Override

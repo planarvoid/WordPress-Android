@@ -1,9 +1,10 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 public final class SearchEvent extends TrackingEvent {
 
@@ -13,6 +14,8 @@ public final class SearchEvent extends TrackingEvent {
     public static final String KEY_CLICK_OBJECT = "click_object";
     public static final String KEY_CONTEXT = "context";
     public static final String KEY_QUERY_URN = "query_urn";
+    public static final String KEY_QUERY_POSITION = "query_position";
+    public static final String KEY_QUERY = "search_query";
     public static final String KEY_CONTENT = "content";
 
     private static final String KEY_LOCATION = "location";
@@ -41,11 +44,14 @@ public final class SearchEvent extends TrackingEvent {
     private static final String LOCATION_FIELD = "search_field";
 
     public static final String KIND_SUGGESTION = "suggestion";
+    public static final String KIND_LOCAL_SUGGESTION = "local_suggestion";
     public static final String KIND_SUBMIT = "submit";
+    public static final String KIND_FORMULATION_INIT = "search_formulation_init";
+    public static final String KIND_FORMULATION_END = "search_formulation_end";
     public static final String KIND_RESULTS = "results";
     public static final String CLICK_NAME_SEARCH = "search";
-
-    private int clickPosition = Consts.NOT_SET;
+    public static final String CLICK_FORMULATION_INIT = "search_formulation_init";
+    public static final String CLICK_FORMULATION_END = "search_formulation_end";
 
     public static SearchEvent searchSuggestion(Urn urn,
                                                boolean localResult,
@@ -111,6 +117,17 @@ public final class SearchEvent extends TrackingEvent {
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
+    public static SearchEvent tapLocalSuggestionOnScreen(Screen screen, Urn itemUrn, String query, int clickPosition) {
+        return new SearchEvent(KIND_LOCAL_SUGGESTION)
+                .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
+                .<SearchEvent>put(KEY_TYPE, TYPE_USER)
+                .<SearchEvent>put(KEY_CONTEXT, eventAttributeFromScreen(screen))
+                .addQuery(query)
+                .addClickObject(itemUrn)
+                .addClickPosition(clickPosition);
+    }
+
     public static SearchEvent searchStart(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUBMIT)
                 .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
@@ -118,23 +135,62 @@ public final class SearchEvent extends TrackingEvent {
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
-    public int getClickPosition() {
-        return clickPosition;
+    public static SearchEvent searchFormulationEnd(Screen screen,
+                                                   String query,
+                                                   Optional<Urn> queryUrn,
+                                                   Optional<Integer> queryPosition) {
+
+        return new SearchEvent(KIND_FORMULATION_END)
+                .addQuery(query)
+                .put(KEY_PAGE_NAME, screen.get())
+                .put(KEY_CLICK_NAME, CLICK_FORMULATION_END)
+                .put(KEY_QUERY_URN, queryUrn)
+                .put(KEY_QUERY_POSITION, queryPosition);
+    }
+
+    public Optional<Integer> queryPosition() {
+        final String queryPosition = get(KEY_QUERY_POSITION);
+        return queryPosition != null ? Optional.of(Integer.valueOf(queryPosition)) : Optional.<Integer>absent();
+    }
+
+    public static SearchEvent searchFormulationInit(Screen screen, String query) {
+        return new SearchEvent(KIND_FORMULATION_INIT)
+                .addQuery(query)
+                .put(KEY_PAGE_NAME, screen.get())
+                .put(KEY_CLICK_NAME, CLICK_FORMULATION_INIT);
+    }
+
+    public Optional<String> queryUrn() {
+        return Optional.fromNullable(get(KEY_QUERY_URN));
     }
 
     private SearchEvent addSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
         if (searchQuerySourceInfo != null) {
             put(KEY_QUERY_URN, searchQuerySourceInfo.getQueryUrn().toString());
 
-            final int currentPosition = searchQuerySourceInfo.getClickPosition();
-            if (currentPosition >= 0) {
-                clickPosition = currentPosition;
-            }
+            addClickPosition(searchQuerySourceInfo.getClickPosition());
 
-            if (searchQuerySourceInfo.getClickUrn() != null) {
-                put(KEY_CLICK_OBJECT, searchQuerySourceInfo.getClickUrn().toString());
-            }
+            addClickObject(searchQuerySourceInfo.getClickUrn());
         }
+        return this;
+    }
+
+    private SearchEvent addClickObject(Urn itemUrn) {
+        if (itemUrn != null) {
+            put(KEY_CLICK_OBJECT, itemUrn.toString());
+        }
+        return this;
+    }
+
+    private SearchEvent addClickPosition(Integer currentPosition) {
+        if (currentPosition >= 0) {
+            put(KEY_QUERY_POSITION, currentPosition.toString());
+        }
+        return this;
+    }
+
+    private SearchEvent addQuery(String query) {
+        put(KEY_QUERY, Strings.isNullOrEmpty(query) ? Optional.<String>absent() : Optional.of(query));
         return this;
     }
 

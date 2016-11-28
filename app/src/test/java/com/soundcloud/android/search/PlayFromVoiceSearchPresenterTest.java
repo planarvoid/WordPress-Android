@@ -77,7 +77,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Test
     public void trackSearchErrorFallsBackToSearchActivity() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
-        when(searchOperations.searchResult(QUERY, SearchType.TRACKS)).thenReturn(searchObservable);
+        when(searchOperations.searchResult(QUERY,
+                                           Optional.<Urn>absent(),
+                                           SearchType.TRACKS)).thenReturn(searchObservable);
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
         presenter.onCreate(activity, null);
@@ -91,7 +93,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         searchResult = SearchResult.fromPropertySetSource(new ArrayList(),
                                                           Optional.<Link>absent(),
                                                           Optional.<Urn>absent());
-        when(searchOperations.searchResult(QUERY, SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
+        when(searchOperations.searchResult(QUERY,
+                                           Optional.<Urn>absent(),
+                                           SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
         presenter.onCreate(activity, null);
@@ -105,7 +109,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         searchResult = SearchResult.fromPropertySetSource(Collections.singletonList(apiTrack), Optional.<Link>absent(),
                                                           Optional.<Urn>absent());
-        when(searchOperations.searchResult(QUERY, SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
+        when(searchOperations.searchResult(QUERY,
+                                           Optional.<Urn>absent(),
+                                           SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
         presenter.onCreate(activity, null);
@@ -118,7 +124,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Test
     public void genreSearchErrorFallsBackToSearchActivity() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
-        when(searchOperations.searchResult(GENRE, SearchType.PLAYLISTS)).thenReturn(searchObservable);
+        when(searchOperations.searchResult(GENRE,
+                                           Optional.<Urn>absent(),
+                                           SearchType.PLAYLISTS)).thenReturn(searchObservable);
         when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 
         presenter.onCreate(activity, null);
@@ -130,7 +138,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Test
     public void genreSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
-        when(searchOperations.searchResult(GENRE, SearchType.PLAYLISTS)).thenReturn(searchObservable);
+        when(searchOperations.searchResult(GENRE,
+                                           Optional.<Urn>absent(),
+                                           SearchType.PLAYLISTS)).thenReturn(searchObservable);
         when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 
         presenter.onCreate(activity, null);
@@ -149,7 +159,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
                 Optional.<Link>absent(),
                 Optional.<Urn>absent()));
 
-        when(searchOperations.searchResult(GENRE, SearchType.PLAYLISTS)).thenReturn(searchResultObservable);
+        when(searchOperations.searchResult(GENRE,
+                                           Optional.<Urn>absent(),
+                                           SearchType.PLAYLISTS)).thenReturn(searchResultObservable);
         when(random.nextInt(2)).thenReturn(1);
         when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 

@@ -188,17 +188,20 @@ class SearchStrategyFactory {
         private final ApiEndpoints endpoint;
         private final ApiEndpoints premiumEndpoint;
 
-        protected SearchStrategy(ApiEndpoints endpoint, ApiEndpoints premiumEndpoint) {
+        SearchStrategy(ApiEndpoints endpoint, ApiEndpoints premiumEndpoint) {
             this.endpoint = endpoint;
             this.premiumEndpoint = premiumEndpoint;
         }
 
-        Observable<SearchResult> searchResult(String query, ContentType contentType) {
-            return getSearchResultObservable(ApiRequest.get(getEndpoint(contentType))
-                                                       .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE,
-                                                                              String.valueOf(Consts.LIST_PAGE_SIZE))
-                                                       .addQueryParam("q", query)
-                                                       .forPrivateApi());
+        Observable<SearchResult> searchResult(String query, Optional<Urn> queryUrn, ContentType contentType) {
+            final ApiRequest.Builder requestBuilder = ApiRequest.get(getEndpoint(contentType))
+                                                   .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE,
+                                                                          String.valueOf(Consts.LIST_PAGE_SIZE))
+                                                   .addQueryParam("q", query);
+            if (queryUrn.isPresent()) {
+                requestBuilder.addQueryParam("query_urn", queryUrn.get().toString());
+            }
+            return getSearchResultObservable(requestBuilder.forPrivateApi());
         }
 
         Observable<SearchResult> nextResultPage(Link nextPageLink) {

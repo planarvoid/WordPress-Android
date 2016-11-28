@@ -1,5 +1,6 @@
 package com.soundcloud.android.search.suggestions;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -7,6 +8,7 @@ import com.soundcloud.android.search.suggestions.SuggestionItem.AutocompletionIt
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 
@@ -29,7 +31,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
 
         void onSuggestionClicked(SuggestionItem item);
 
-        void onAutocompleteClicked(String query, String output, String queryUrn);
+        void onAutocompleteClicked(String query, String output, Optional<Urn> queryUrn, int position);
     }
 
     private final SuggestionsAdapter adapter;
@@ -106,7 +108,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
                     break;
                 case AutocompletionItem:
                     final AutocompletionItem autocompletionItem = (AutocompletionItem) item;
-                    suggestionListener.onAutocompleteClicked(autocompletionItem.apiQuery(), autocompletionItem.output(), autocompletionItem.queryUrn());
+                    suggestionListener.onAutocompleteClicked(autocompletionItem.apiQuery(), autocompletionItem.output(), autocompletionItem.queryUrn(), position);
                     break;
                 default:
                     suggestionListener.onSuggestionClicked(item);

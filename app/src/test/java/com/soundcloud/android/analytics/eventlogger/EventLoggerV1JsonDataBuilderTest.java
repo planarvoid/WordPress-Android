@@ -45,6 +45,7 @@ import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
@@ -99,6 +100,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String PAGE_NAME = "page_name";
     private static final String SOURCE = "stations";
     private static final int QUERY_POSITION = 0;
+    public static final String SEARCH_QUERY = "searchQuery";
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -1728,6 +1730,36 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .queryUrn(QUERY_URN.toString())
                 .queryPosition(QUERY_POSITION);
         verify(jsonTransformer).toJson(eventData);
+    }
+
+    @Test
+    public void createsSearchInitJson() throws Exception {
+        SearchEvent event = SearchEvent.searchFormulationInit(Screen.SEARCH_MAIN,
+                                                             SEARCH_QUERY);
+
+        jsonDataBuilder.buildForSearchEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName(SearchEvent.CLICK_FORMULATION_INIT)
+                                               .searchQuery(SEARCH_QUERY)
+                                               .pageName(Screen.SEARCH_MAIN.get()));
+    }
+
+    @Test
+    public void createsSearchEndJson() throws Exception {
+        SearchEvent event = SearchEvent.searchFormulationEnd(Screen.SEARCH_MAIN,
+                                                             SEARCH_QUERY,
+                                                             Optional.of(QUERY_URN),
+                                                             Optional.of(QUERY_POSITION));
+
+        jsonDataBuilder.buildForSearchEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName(SearchEvent.CLICK_FORMULATION_END)
+                                               .searchQuery(SEARCH_QUERY)
+                                               .pageName(Screen.SEARCH_MAIN.get())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION));
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {

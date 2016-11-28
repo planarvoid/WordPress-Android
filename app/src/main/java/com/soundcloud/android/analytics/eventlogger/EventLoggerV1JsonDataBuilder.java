@@ -8,6 +8,9 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDI
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
+import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
+import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
+import static com.soundcloud.android.events.SearchEvent.KEY_QUERY;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
@@ -34,6 +37,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -372,6 +376,31 @@ class EventLoggerV1JsonDataBuilder {
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
+    }
+
+    String buildForSearchEvent(SearchEvent event) {
+        switch (event.getKind()) {
+            case SearchEvent.KIND_FORMULATION_INIT:
+            case SearchEvent.KIND_FORMULATION_END:
+            case SearchEvent.KIND_LOCAL_SUGGESTION:
+                return transform(buildSearchClickEvent(event));
+            default:
+                throw new IllegalStateException("Unexpected SearchEvent type: " + event);
+        }
+    }
+
+    private EventLoggerEventData buildSearchClickEvent(SearchEvent event) {
+        final EventLoggerEventData eventLoggerEventData = buildBaseEvent(CLICK_EVENT, event)
+                .clickName(event.get(KEY_CLICK_NAME))
+                .pageName(event.get(KEY_PAGE_NAME))
+                .searchQuery(event.get(KEY_QUERY));
+        if (event.queryUrn().isPresent()) {
+            eventLoggerEventData.queryUrn(event.queryUrn().get());
+        }
+        if (event.queryPosition().isPresent()) {
+            eventLoggerEventData.queryPosition(event.queryPosition().get());
+        }
+        return eventLoggerEventData;
     }
 
     private EventLoggerEventData buildRepeatClickEvent(UIEvent event) {

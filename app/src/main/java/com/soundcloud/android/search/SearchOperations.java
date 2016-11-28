@@ -33,8 +33,8 @@ class SearchOperations {
         this.searchStrategyFactory = searchStrategyFactory;
     }
 
-    Observable<SearchResult> searchResult(String query, SearchType searchType) {
-        return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query, ContentType.NORMAL);
+    Observable<SearchResult> searchResult(String query, Optional<Urn> queryUrn, SearchType searchType) {
+        return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query, queryUrn, ContentType.NORMAL);
     }
 
     Observable<SearchResult> searchPremiumResultFrom(List<PropertySet> propertySets,
@@ -45,7 +45,9 @@ class SearchOperations {
     }
 
     Observable<SearchResult> searchPremiumResult(String query, SearchType searchType) {
-        return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query, ContentType.PREMIUM);
+        return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query,
+                                                                                Optional.<Urn>absent(),
+                                                                                ContentType.PREMIUM);
     }
 
     SearchPagingFunction pagingFunction(final SearchType searchType) {

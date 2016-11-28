@@ -2,6 +2,8 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY_POSITION;
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY_URN;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 
 import com.soundcloud.android.Navigator;
@@ -13,6 +15,8 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -69,6 +73,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final EventBus eventBus;
     private final Navigator navigator;
     private final SearchTracker searchTracker;
+    private final FeatureFlags featureFlags;
 
     private final Action1<SearchResult> trackSearch =
             new Action1<SearchResult>() {
@@ -77,30 +82,41 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                     queryUrn = searchResult.queryUrn.isPresent() ? searchResult.queryUrn.get() : Urn.NOT_SET;
                     boolean shouldSendTrackingState = searchTracker.shouldSendResultsScreenEvent(searchType);
                     searchTracker.setTrackingData(searchType, queryUrn, searchResult.getPremiumContent().isPresent());
+
+                    if (publishSearchSubmissionEvent) {
+                        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
+                            searchTracker.trackSearchFormulationEnd(searchQuery, autocompleteUrn(), autocompletePosition());
+                        } else {
+                            searchTracker.trackSearchSubmission(searchType, queryUrn, searchQuery);
+                        }
+                    }
+
                     if (publishSearchSubmissionEvent || shouldSendTrackingState) {
+                        publishSearchSubmissionEvent = false;
+
                         //We need to send the event as soon as the fragment is loaded
                         searchTracker.trackResultsScreenEvent(searchType, searchQuery);
-                    }
-                    if (publishSearchSubmissionEvent) {
-                        publishSearchSubmissionEvent = false;
-                        searchTracker.trackSearchSubmission(searchType, queryUrn, searchQuery);
                     }
                 }
             };
 
     private SearchType searchType;
     private String searchQuery;
+    private Optional<Urn> autocompleteUrn = Optional.absent();
+    private Optional<Integer> autocompletePosition = Optional.absent();
     private Urn queryUrn = Urn.NOT_SET;
     private Boolean publishSearchSubmissionEvent;
     private SearchOperations.SearchPagingFunction pagingFunction;
     private Optional<List<ListItem>> premiumItems = Optional.absent();
     private CompositeSubscription fragmentLifeCycle;
+    private Object queryPosition;
 
     @Inject
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
                            EventBus eventBus, Navigator navigator,
-                           SearchTracker searchTracker) {
+                           SearchTracker searchTracker,
+                           FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -108,6 +124,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.eventBus = eventBus;
         this.navigator = navigator;
         this.searchTracker = searchTracker;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -136,6 +153,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_TYPE)).or(SearchType.ALL);
         searchQuery = bundle.getString(EXTRA_QUERY);
+        autocompleteUrn = Optional.fromNullable(bundle.<Urn>getParcelable(EXTRA_QUERY_URN));
+        autocompletePosition = Optional.fromNullable(bundle.getInt(EXTRA_QUERY_POSITION));
         publishSearchSubmissionEvent = bundle.getBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT);
         return createCollectionBinding();
     }
@@ -150,11 +169,19 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
                 .from(searchOperations
-                              .searchResult(searchQuery, searchType)
+                              .searchResult(searchQuery, autocompleteUrn(), searchType)
                               .doOnNext(trackSearch), toPresentationModels)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
                 .build();
+    }
+
+    private Optional<Urn> autocompleteUrn() {
+        return searchType == SearchType.ALL ? autocompleteUrn : Optional.<Urn>absent();
+    }
+
+    private Optional<Integer> autocompletePosition() {
+        return searchType == SearchType.ALL ? autocompletePosition : Optional.<Integer>absent();
     }
 
     private List<ListItem> buildPlaylistWithPremiumContent(List<ListItem> premiumItems) {
@@ -188,7 +215,9 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         final List<ListItem> playQueue = premiumItems.isPresent() ?
                                          buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems();
         final Urn urn = adapter.getItem(position).getUrn();
-        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn, searchQuery);
+        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position,
+                                                                                                    urn,
+                                                                                                    searchQuery);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(),
                                     searchQuerySourceInfo).onItemClick(playQueue, view.getContext(), position);

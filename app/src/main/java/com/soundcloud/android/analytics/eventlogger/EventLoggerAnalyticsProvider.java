@@ -192,6 +192,10 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case SearchEvent.KIND_SUGGESTION:
                 trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
                 break;
+            case SearchEvent.KIND_FORMULATION_INIT:
+            case SearchEvent.KIND_FORMULATION_END:
+            case SearchEvent.KIND_LOCAL_SUGGESTION:
+                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForSearchEvent(event));
             default:
                 // no-op, ignoring certain types
                 break;

@@ -200,7 +200,7 @@ class SearchSuggestionOperations {
     private static Function<? super Autocompletion, SuggestionItem> autocompletionToSuggestionItem(final String query, final Optional<Urn> queryUrn) {
         return new Function<Autocompletion, SuggestionItem>() {
             public SuggestionItem apply(Autocompletion input) {
-                return SuggestionItem.forAutocompletion(input, query, queryUrn.get().toString());
+                return SuggestionItem.forAutocompletion(input, query, queryUrn);
             }
         };
     }

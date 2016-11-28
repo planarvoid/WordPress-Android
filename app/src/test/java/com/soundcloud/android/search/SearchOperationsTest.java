@@ -96,7 +96,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakeGETRequestToSearchAllEndpoint() {
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALL.path())
                                                            .withQueryParam("limit", "30")
@@ -105,7 +105,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakeGETRequestToSearchTracksEndpoint() {
-        operations.searchResult("query", SearchType.TRACKS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.TRACKS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_TRACKS.path())
                                                            .withQueryParam("limit", "30")
@@ -114,7 +114,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakeGETRequestToSearchPlaylistsWithoutAlbumsEndpointWhenAlbumsFeatureFlagEnabled() {
-        operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET",
                                                                   ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS.path())
@@ -124,7 +124,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakeGETRequestToSearchAlbumsEndpoint() {
-        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALBUMS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALBUMS.path())
                                                            .withQueryParam("limit", "30")
@@ -178,7 +178,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakeGETRequestToSearchUserEndpoint() {
-        operations.searchResult("query", SearchType.USERS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.USERS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_USERS.path())
                                                            .withQueryParam("limit", "30")
@@ -192,7 +192,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(users));
 
-        operations.searchResult("query", SearchType.USERS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.USERS).subscribe(subscriber);
 
         verify(storeUsersCommand).call(users);
     }
@@ -212,7 +212,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(users));
 
-        operations.searchResult("query", SearchType.USERS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.USERS).subscribe(subscriber);
 
         verify(storeUsersCommand).call(users);
         verify(storeUsersCommand).call(premiumUsers);
@@ -226,7 +226,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(
                 playlists));
 
-        operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(storePlaylistsCommand).call(playlists);
     }
@@ -238,7 +238,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(albums));
 
-        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALBUMS).subscribe(subscriber);
 
         verify(storePlaylistsCommand).call(albums);
     }
@@ -258,7 +258,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(
                 playlists));
 
-        operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(storePlaylistsCommand).call(playlists);
         verify(storePlaylistsCommand).call(premiumPlaylists);
@@ -279,7 +279,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(albums));
 
-        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALBUMS).subscribe(subscriber);
 
         verify(storePlaylistsCommand).call(albums);
         verify(storePlaylistsCommand).call(premiumAlbums);
@@ -292,7 +292,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(tracks));
 
-        operations.searchResult("query", SearchType.TRACKS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.TRACKS).subscribe(subscriber);
 
         verify(storeTracksCommand).call(tracks);
     }
@@ -312,7 +312,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(tracks));
 
-        operations.searchResult("query", SearchType.TRACKS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.TRACKS).subscribe(subscriber);
 
         verify(storeTracksCommand).call(tracks);
         verify(storeTracksCommand).call(premiumTracks);
@@ -326,7 +326,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forPlaylist(playlist))));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         verify(cacheUniversalSearchCommand).call();
     }
@@ -353,7 +353,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         verify(cacheUniversalSearchCommand, times(2)).call();
     }
@@ -380,7 +380,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                                                        .bind(true)));
         when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -408,7 +408,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
         when(loadFollowingCommand.call(expectedSearchResult)).thenReturn(userFollowings);
 
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -438,7 +438,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(loadPlaylistLikedStatuses.call(PropertySets.toPropertySets(apiUniversalSearchItems))).thenReturn(
                 likedPlaylists);
 
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -464,7 +464,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                                      Optional.<Urn>absent());
         when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
-        operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.PLAYLISTS).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -485,7 +485,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                                      Optional.<Urn>absent());
         when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
-        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALBUMS).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -510,7 +510,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.PLAYLISTS);
         final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
-        searchResultPager.page(operations.searchResult("q", SearchType.PLAYLISTS)).subscribe(subscriber);
+        searchResultPager.page(operations.searchResult("q", Optional.<Urn>absent(), SearchType.PLAYLISTS)).subscribe(subscriber);
         searchResultPager.next();
 
         subscriber.assertValueCount(2);
@@ -533,7 +533,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.ALBUMS);
         final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
-        searchResultPager.page(operations.searchResult("q", SearchType.ALBUMS)).subscribe(subscriber);
+        searchResultPager.page(operations.searchResult("q", Optional.<Urn>absent(), SearchType.ALBUMS)).subscribe(subscriber);
         searchResultPager.next();
 
         subscriber.assertValueCount(2);
@@ -609,7 +609,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.PLAYLISTS);
         final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
-        searchResultPager.page(operations.searchResult("q", SearchType.PLAYLISTS)).subscribe(subscriber);
+        searchResultPager.page(operations.searchResult("q", Optional.<Urn>absent(), SearchType.PLAYLISTS)).subscribe(subscriber);
         searchResultPager.next();
 
         subscriber.assertValueCount(1);
@@ -635,7 +635,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                                      Optional.of(premiumSearchResult),
                                                                                      SEARCH_RESULTS_COUNT);
 
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -652,7 +652,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final SearchModelCollection<ApiTrack> apiPremiumTracks = new SearchModelCollection<>(searchTrackItems);
         mockPremiumSearchApiResponse(searchTrackItems, apiPremiumTracks);
 
-        operations.searchResult("query", SearchType.TRACKS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.TRACKS).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -665,7 +665,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final SearchModelCollection<ApiPlaylist> apiPremiumPlaylists = new SearchModelCollection<>(searchPlaylistItems);
         mockPremiumSearchApiResponse(searchPlaylistItems, apiPremiumPlaylists);
 
-        operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.PLAYLISTS).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -678,7 +678,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final SearchModelCollection<ApiPlaylist> apiPremiumPlaylists = new SearchModelCollection<>(searchPlaylistItems);
         mockPremiumSearchApiResponse(searchPlaylistItems, apiPremiumPlaylists);
 
-        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALBUMS).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -691,7 +691,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final SearchModelCollection<ApiUser> apiPremiumUsers = new SearchModelCollection<>(searchUserItems);
         mockPremiumSearchApiResponse(searchUserItems, apiPremiumUsers);
 
-        operations.searchResult("query", SearchType.USERS).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.USERS).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
@@ -706,7 +706,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forPlaylist(playlist));
         mockPremiumSearchApiResponse(apiUniversalSearchItems, null);
 
-        operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
+        operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);

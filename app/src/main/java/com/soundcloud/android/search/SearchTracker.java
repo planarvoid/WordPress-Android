@@ -10,6 +10,7 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,6 +45,11 @@ public class SearchTracker {
     public void init() {
         this.screenDataMap = new EnumMap<>(SearchType.class);
         initializeScreenQueryUrnMap();
+    }
+
+    public void trackSearchFormulationEnd(String query, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
+        eventTracker.trackSearch(SearchEvent.searchFormulationEnd(Screen.SEARCH_MAIN, query, queryUrn, queryPosition));
+
     }
 
     private void initializeScreenQueryUrnMap() {

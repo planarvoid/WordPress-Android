@@ -4,6 +4,8 @@ import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresent
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -63,9 +65,9 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
     }
 
     @Override
-    public void onAutocompleteClicked(String query, String output, String queryUrn) {
+    public void onAutocompleteClicked(String query, String output, Optional<Urn> queryUrn, int position) {
         if (getActivity() instanceof SuggestionListener) {
-            ((SuggestionListener) getActivity()).onAutocompleteClicked(query, output, queryUrn);
+            ((SuggestionListener) getActivity()).onAutocompleteClicked(query, output, queryUrn, position);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.search.suggestions;
 
+import static com.soundcloud.android.search.suggestions.SuggestionItem.forAutocompletion;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
@@ -22,6 +23,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.assertj.core.util.Lists;
 import org.assertj.core.util.Maps;
@@ -45,7 +47,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
     private static final String SEARCH_QUERY = "query";
     private static final int MAX_RESULTS_NUMBER = 5;
-    private static final String QUERY_URN = "urn";
+    private static final Urn QUERY_URN = new Urn("soundcloud:autocomplete:123");
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
@@ -131,7 +133,9 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final SuggestionItem suggestionItem = SuggestionItem.forSearch(SEARCH_QUERY);
         final SuggestionItem localItem = SuggestionItem.forTrack(localSuggestions.get(0),
                                                                  SEARCH_QUERY);
-        final SuggestionItem autocompletionItem = SuggestionItem.forAutocompletion(autocompletion, SEARCH_QUERY, QUERY_URN);
+        final SuggestionItem autocompletionItem = forAutocompletion(autocompletion,
+                                                                    SEARCH_QUERY,
+                                                                    Optional.of(QUERY_URN));
 
         final List<SuggestionItem> firstItem = newArrayList(localItem);
         final List<SuggestionItem> secondItem = newArrayList(localItem, suggestionItem);
@@ -173,7 +177,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final Autocompletion autocompletion = Autocompletion.create("query", "output");
         final ModelCollection<Autocompletion> autocompletions = new ModelCollection<>(Lists.newArrayList(autocompletion),
                                                                                       Maps.<String, Link>newHashMap(),
-                                                                                      QUERY_URN);
+                                                                                      QUERY_URN.toString());
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
                 .withQueryParam("query", SEARCH_QUERY)
                 .withQueryParam("limit", String.valueOf(MAX_RESULTS_NUMBER));

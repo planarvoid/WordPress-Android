@@ -4,24 +4,24 @@ whitelisted_events:
 - click
 expected_events:
 - !ruby/object:MrLoggerLogger::Event
-  name: pageview
+  name: click
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-    client_id: '3152'
-    page_name: search:main
-    user: soundcloud:users:18173653
     app_version: '[0-9]+'
+    client_id: '3152'
+    user: soundcloud:users:18173653
     connection_type: wifi
+    click_name: search_formulation_init
+    page_name: search:main
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-    query_urn: soundcloud:search:(\w|-)+
     client_id: '3152'
-    page_name: search:everything
+    page_name: search:main
     user: soundcloud:users:18173653
     app_version: '[0-9]+'
     connection_type: wifi
@@ -36,6 +36,18 @@ expected_events:
     user: soundcloud:users:18173653
     click_name: search
   version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: pageview
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    query_urn: soundcloud:search:(\w|-)+
+    client_id: '3152'
+    page_name: search:everything
+    user: soundcloud:users:18173653
+    app_version: '[0-9]+'
+    connection_type: wifi
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:

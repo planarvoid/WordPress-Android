@@ -3,7 +3,7 @@ package com.soundcloud.android.search.suggestions;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.strings.Strings;
+import com.soundcloud.java.optional.Optional;
 
 public abstract class SuggestionItem {
 
@@ -24,7 +24,7 @@ public abstract class SuggestionItem {
                                                                query,
                                                                query,
                                                                query,
-                                                               Strings.EMPTY);
+                                                               Optional.<Urn>absent());
     }
 
     static SuggestionItem forLegacySearch(String query) {
@@ -43,7 +43,7 @@ public abstract class SuggestionItem {
         return new AutoValue_SearchSuggestionItem(Kind.PlaylistItem, query, source);
     }
 
-    static SuggestionItem forAutocompletion(Autocompletion autocompletion, String userQuery, String queryUrn) {
+    static SuggestionItem forAutocompletion(Autocompletion autocompletion, String userQuery, Optional<Urn> queryUrn) {
         return new AutoValue_SuggestionItem_AutocompletionItem(Kind.AutocompletionItem,
                                                                userQuery,
                                                                autocompletion.apiQuery(),
@@ -62,6 +62,6 @@ public abstract class SuggestionItem {
 
         abstract String output();
 
-        abstract String queryUrn();
+        abstract Optional<Urn> queryUrn();
     }
 }

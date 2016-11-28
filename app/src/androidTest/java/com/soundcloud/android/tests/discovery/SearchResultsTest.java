@@ -13,13 +13,14 @@ import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     private static final String ALBUMS_IN_SEARCH = "albums_in_search";
-    private SearchScreen searchScreen;
+    private DiscoveryScreen discoveryScreen;
 
     public SearchResultsTest() {
         super(MainActivity.class);
@@ -33,18 +34,18 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        searchScreen = mainNavHelper.goToDiscovery().clickSearch();
+        discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
     public void testSubmittingSearchQueryOpensSearchResults() {
-        SearchResultsScreen resultsScreen = searchScreen.doSearch("clownstep");
+        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("clownstep");
 
         assertThat("Search results screen should be visible", resultsScreen, is(visible()));
         assertThat("Search results should be populated", resultsScreen.getResultItemCount(), is(greaterThan(0)));
     }
 
     public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() {
-        SearchResultsScreen resultsScreen = searchScreen.doSearch("track");
+        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("track");
         VisualPlayerElement playerElement = resultsScreen.findAndClickFirstTrackItem().pressBackToCollapse();
 
         assertThat("Player is collapsed", playerElement.isCollapsed());
@@ -52,39 +53,46 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testTappingTrackOnAllTabOpensPlayer() {
-        VisualPlayerElement playerScreen = searchScreen.doSearch("track").findAndClickFirstTrackItem();
+        VisualPlayerElement playerScreen = discoveryScreen.clickSearch().doSearch("track").findAndClickFirstTrackItem();
 
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
     public void testTappingPlaylistOnAllTabOpensPlaylistDetails() {
-        PlaylistDetailsScreen playlistScreen = searchScreen.doSearch("track playlist").findAndClickFirstPlaylistItem();
+        PlaylistDetailsScreen playlistScreen = discoveryScreen.clickSearch()
+                                                              .doSearch("track playlist")
+                                                              .findAndClickFirstPlaylistItem();
 
         assertThat("Playlist screen should be visible", playlistScreen, is(visible()));
     }
 
     public void testTappingUserOnAllTabOpensProfile() {
-        ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").findAndClickFirstUserItem();
+        ProfileScreen profileScreen = discoveryScreen.clickSearch().doSearch("emptyuser").findAndClickFirstUserItem();
 
         assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
 
     public void testTappingUserOnPeopleTabOpensProfile() {
-        ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").goToPeopleTab().findAndClickFirstUserItem();
+        ProfileScreen profileScreen = discoveryScreen.clickSearch()
+                                                     .doSearch("emptyuser")
+                                                     .goToPeopleTab()
+                                                     .findAndClickFirstUserItem();
 
         assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
 
     public void testTappingTrackOnTracksTabOpensPlayer() {
-        VisualPlayerElement playerScreen = searchScreen.doSearch("clownstep")
-                                                       .goToTracksTab()
-                                                       .findAndClickFirstTrackItem();
+        VisualPlayerElement playerScreen = discoveryScreen.clickSearch()
+                                                          .doSearch("clownstep")
+                                                          .goToTracksTab()
+                                                          .findAndClickFirstTrackItem();
 
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
     public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
-        PlaylistDetailsScreen playlistDetailsScreen = searchScreen
+        PlaylistDetailsScreen playlistDetailsScreen = discoveryScreen
+                .clickSearch()
                 .doSearch("clownstep")
                 .goToPlaylistsTab()
                 .findAndClickFirstPlaylistItem();
@@ -98,7 +106,8 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     public void testTappingAlbumOnAlbumsTabOpensAlbumDetails() {
         startEventTracking();
 
-        PlaylistDetailsScreen playlistDetailsScreen = searchScreen
+        PlaylistDetailsScreen playlistDetailsScreen = discoveryScreen
+                .clickSearch()
                 .doSearch("clownstep")
                 .goToAlbumsTab()
                 .findAndClickFirstAlbumItem();
@@ -109,7 +118,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testOrderOfDisplayedTabsWithAlbums() {
-        SearchResultsScreen resultsScreen = searchScreen.doSearch("clownstep");
+        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("clownstep");
         assertThat("Current tab should be ALL", resultsScreen.currentTabTitle(), is("ALL"));
 
         resultsScreen.swipeLeft();
@@ -126,7 +135,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testAllResultsLoadsNextPage() {
-        SearchResultsScreen resultsScreen = searchScreen.doSearch("clownstep");
+        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("clownstep");
         int initialItemCount = resultsScreen.getResultItemCount();
         resultsScreen.scrollToBottomOfTracksListAndLoadMoreItems();
 
@@ -134,10 +143,12 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testShowSearchSuggestions() {
-        assertThat("Should has suggestions", searchScreen.setSearchQuery("hello").hasSearchResults(), is(true));
+        final boolean hasSearchResults = discoveryScreen.clickSearch().setSearchQuery("hello").hasSearchResults();
+        assertThat("Should has suggestions", hasSearchResults, is(true));
     }
 
     public void testDismissingSearchClearsUpSearchResults() {
+        SearchScreen searchScreen = discoveryScreen.clickSearch();
         searchScreen.setSearchQuery("clownstep").dismissSearch();
 
         assertThat("Search query should be empty", searchScreen.getSearchQuery(), isEmptyString());

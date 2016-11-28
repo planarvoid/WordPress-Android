@@ -2,8 +2,10 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -18,15 +20,28 @@ public class SearchResultsFragment extends LightCycleSupportFragment<SearchResul
         implements RefreshableScreen {
 
     static final String EXTRA_QUERY = "query";
+    static final String EXTRA_QUERY_URN = "queryUrn";
+    static final String EXTRA_QUERY_POSITION = "queryPosition";
     static final String EXTRA_TYPE = "type";
     static final String EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT = "publishSearchSubmissionEvent";
 
     @Inject @LightCycle SearchResultsPresenter presenter;
 
-    public static SearchResultsFragment create(SearchType type, String query, boolean publishSearchSubmissionEvent) {
+    public static SearchResultsFragment create(SearchType type,
+                                               String query,
+                                               Optional<Urn> queryUrn,
+                                               Optional<Integer> queryPosition, boolean publishSearchSubmissionEvent) {
         final Bundle bundle = new Bundle();
         bundle.putSerializable(EXTRA_TYPE, type);
         bundle.putString(EXTRA_QUERY, query);
+        if (queryUrn.isPresent()) {
+            bundle.putParcelable(EXTRA_QUERY_URN, queryUrn.get());
+        }
+
+        if (queryPosition.isPresent()) {
+            bundle.putInt(EXTRA_QUERY_POSITION, queryPosition.get());
+        }
+
         bundle.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
 
         final SearchResultsFragment fragment = new SearchResultsFragment();

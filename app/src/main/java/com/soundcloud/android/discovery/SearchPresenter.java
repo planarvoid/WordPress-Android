@@ -1,9 +1,11 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchTracker;
@@ -68,7 +70,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private FragmentTransaction fragmentTransaction;
 
     private final SearchIntentResolver intentResolver;
-    private final SearchTracker tracker;
+    private final SearchTracker searchTracker;
+    private final EventTracker eventTracker;
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
@@ -76,17 +79,19 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Inject
     SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
-                    SearchTracker tracker,
+                    SearchTracker searchTracker,
                     Resources resources,
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper,
-                    MixedItemClickListener.Factory clickListenerFactory) {
+                    MixedItemClickListener.Factory clickListenerFactory,
+                    EventTracker eventTracker) {
         this.clickListenerFactory = clickListenerFactory;
         this.intentResolver = intentResolverFactory.create(this);
-        this.tracker = tracker;
+        this.searchTracker = searchTracker;
         this.resources = resources;
         this.eventBus = eventBus;
         this.keyboardHelper = keyboardHelper;
+        this.eventTracker = eventTracker;
     }
 
     @Override
@@ -132,12 +137,15 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     void performSearch(String searchQuery) {
-        performSearch(searchQuery, Optional.<String>absent(), Optional.<String>absent());
+        performSearch(searchQuery, Optional.<String>absent(), Optional.<Urn>absent(), Optional.<Integer>absent());
     }
 
-    void performSearch(String searchQuery, Optional<String> outputString, Optional<String> queryUrn) {
+    void performSearch(String searchQuery,
+                       Optional<String> outputString,
+                       Optional<Urn> queryUrn,
+                       Optional<Integer> position) {
         deactivateSearchView();
-        showResultsFor(searchQuery, outputString, queryUrn);
+        showResultsFor(searchQuery, outputString, queryUrn, position);
     }
 
     void performSuggestionAction(SuggestionItem item) {
@@ -217,6 +225,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         searchTextView.setOnClickListener(new SearchViewClickListener());
         searchTextView.setOnEditorActionListener(new SearchActionListener());
         searchCloseView.setOnClickListener(new SearchCloseClickListener());
+        searchTextView.setOnFocusChangeListener(new SearchFocusListener());
     }
 
     private void activateSearchView() {
@@ -253,8 +262,11 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
-    private void showResultsFor(String query, Optional<String> outputText, Optional<String> queryUrn) {
-        final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(query, queryUrn);
+    private void showResultsFor(String query,
+                                Optional<String> outputText,
+                                Optional<Urn> queryUrn,
+                                Optional<Integer> queryPosition) {
+        final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(query, queryUrn, queryPosition);
         fragmentManager
                 .beginTransaction()
                 .replace(R.id.search_results_container, searchResults, TabbedSearchFragment.TAG)
@@ -386,7 +398,17 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             hideCloseButton();
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
-            tracker.trackMainScreenEvent();
+            searchTracker.trackMainScreenEvent();
+        }
+    }
+
+    private class SearchFocusListener implements View.OnFocusChangeListener {
+        @Override
+        public void onFocusChange(View view, boolean hasFocus) {
+            if (hasFocus) {
+                eventTracker.trackSearch(SearchEvent.searchFormulationInit(Screen.SEARCH_MAIN,
+                                                                           searchTextView.getText().toString()));
+            }
         }
     }
 }
