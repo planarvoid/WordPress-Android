@@ -228,17 +228,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     ShuffledPlayQueue shuffle(int start) {
-        return ShuffledPlayQueue.from(this, start, lastShuffleableTrack());
-    }
-
-    private int lastShuffleableTrack() {
-        for (int i = 0; i < playQueueItems.size(); i++) {
-            PlayQueueItem item = playQueueItems.get(i);
-            if (item.isTrack() && !((PlayableQueueItem) item).isVisible()) {
-                return i;
-            }
-        }
-        return playQueueItems.size();
+        return ShuffledPlayQueue.from(this, start);
     }
 
     @Override
@@ -269,11 +259,5 @@ class SimplePlayQueue extends PlayQueue {
         return playQueueItems.hashCode();
     }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                          .add("trackItemUrns", getTrackItemUrns())
-                          .add("shuffled", isShuffled()).toString();
-    }
 
 }

@@ -119,13 +119,4 @@
         <item name="android:dividerHeight">4dp</item>
     </style>
 
-    <style name="Theme.PlayQueueSwitch" parent="Theme.AppCompat.Light">
-        <item name="colorPrimaryDark">@color/gray_text</item>
-        <item name="colorPrimary">@color/gray_text</item>
-        <item name="colorAccent">@color/ak_sc_orange</item>
-        <item name="colorControlActivated">@color/ak_sc_orange</item>
-        <item name="colorSwitchThumbNormal">@color/ak_light_gray</item>
-        <item name="android:colorForeground">@color/white</item>
-    </style>
-
 </resources>

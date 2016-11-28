@@ -2,8 +2,6 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_TRACK;
-import static com.soundcloud.android.storage.Tables.Sounds.TYPE_PLAYLIST;
-import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
@@ -13,7 +11,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
@@ -49,11 +46,11 @@ public class PlayQueueStorage {
         this.propellerRx = propellerRx;
     }
 
-    Observable<ChangeResult> clear() {
+    public Observable<ChangeResult> clearAsync() {
         return propellerRx.truncate(TABLE);
     }
 
-    Observable<TxnResult> store(final PlayQueue playQueue) {
+    Observable<TxnResult> storeAsync(final PlayQueue playQueue) {
         final BulkInsertValues.Builder bulkValues = new BulkInsertValues.Builder(getColumns());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
@@ -66,11 +63,10 @@ public class PlayQueueStorage {
             }
         }
 
-        return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
+        return clearAsync().flatMap(new Func1<ChangeResult, Observable<TxnResult>>() {
             @Override
-            public void steps(PropellerDatabase propeller) {
-                step(propeller.truncate(TABLE));
-                step(propeller.bulkInsert(TABLE.name(), bulkValues.build()));
+            public Observable<TxnResult> call(ChangeResult changeResult) {
+                return propellerRx.bulkInsert(TABLE.name(), bulkValues.build());
             }
         });
     }
@@ -90,8 +86,7 @@ public class PlayQueueStorage {
                 playableQueueItem.getQueryUrn().equals(Urn.NOT_SET) ? null : playableQueueItem.getQueryUrn().toString(),
                 playbackContext.bucket().toString(),
                 playbackContext.urn().isPresent() ? playbackContext.urn().get().toString() : null,
-                playbackContext.query().isPresent() ? playbackContext.query().get() : null,
-                playableQueueItem.isPlayed()
+                playbackContext.query().isPresent() ? playbackContext.query().get() : null
         );
     }
 
@@ -107,12 +102,11 @@ public class PlayQueueStorage {
         Tables.PlayQueue.QUERY_URN,
         Tables.PlayQueue.CONTEXT_TYPE,
         Tables.PlayQueue.CONTEXT_URN,
-        Tables.PlayQueue.CONTEXT_QUERY,
-        Tables.PlayQueue.PLAYED
+        Tables.PlayQueue.CONTEXT_QUERY
         );
     }
 
-    Observable<PlayQueueItem> load() {
+    public Observable<PlayQueueItem> loadAsync() {
         return propellerRx.query(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
             @Override
             public PlayQueueItem map(CursorReader reader) {
@@ -131,12 +125,24 @@ public class PlayQueueStorage {
                                      new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) :
                                      Urn.NOT_SET;
 
-                final boolean played = reader.getBoolean(Tables.PlayQueue.PLAYED);
+                // When the storage didn't have a playback context (i.e. database migrated),
+                // we fallback to EXPLICIT context
+                final Bucket playbackContextBucket = hasPlaybackContextType(reader) ?
+                                                     Bucket.valueOf(reader.getString(Tables.PlayQueue.CONTEXT_TYPE)) :
+                                                     Bucket.EXPLICIT;
+
+                final Optional<Urn> playbackContextUrn = hasPlaybackContextUrn(reader) ?
+                                                         Optional.of(new Urn(reader.getString(Tables.PlayQueue.CONTEXT_URN))) :
+                                                         Optional.<Urn>absent();
+
+                final Optional<String> playbackContextQuery = hasPlaybackContextQuery(reader) ?
+                                                              Optional.of(reader.getString(Tables.PlayQueue.CONTEXT_QUERY)) :
+                                                              Optional.<String>absent();
 
                 final PlaybackContext playbackContext = PlaybackContext.builder()
-                                                                       .bucket(getPlaybackContextBucket(reader))
-                                                                       .urn(getPlaybackContextUrn(reader))
-                                                                       .query(getPlaybackContextQuery(reader))
+                                                                       .bucket(playbackContextBucket)
+                                                                       .urn(playbackContextUrn)
+                                                                       .query(playbackContextQuery)
                                                                        .build();
 
                 if (reader.getInt(Tables.PlayQueue.ENTITY_TYPE.name()) == ENTITY_TYPE_PLAYLIST) {
@@ -145,37 +151,18 @@ public class PlayQueueStorage {
                             .relatedEntity(relatedEntity)
                             .fromSource(source, sourceVersion, sourceUrn, queryUrn)
                             .withPlaybackContext(playbackContext)
-                            .played(played)
                             .build();
                 } else {
                     final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
                     return new TrackQueueItem.Builder(track, reposter)
                             .relatedEntity(relatedEntity)
+                            // TODO: Context will come from storage in an upcoming PR
                             .withPlaybackContext(playbackContext)
                             .fromSource(source, sourceVersion, sourceUrn, queryUrn)
-                            .played(played)
                             .build();
                 }
             }
         });
-    }
-
-    private Bucket getPlaybackContextBucket(CursorReader reader) {
-        return reader.isNotNull(Tables.PlayQueue.CONTEXT_TYPE) ?
-               Bucket.valueOf(reader.getString(Tables.PlayQueue.CONTEXT_TYPE)) :
-               Bucket.EXPLICIT;
-    }
-
-    private Optional<String> getPlaybackContextQuery(CursorReader reader) {
-        return reader.isNotNull(Tables.PlayQueue.CONTEXT_QUERY) ?
-               Optional.of(reader.getString(Tables.PlayQueue.CONTEXT_QUERY)) :
-               Optional.<String>absent();
-    }
-
-    private Optional<Urn> getPlaybackContextUrn(CursorReader reader) {
-        return reader.isNotNull(Tables.PlayQueue.CONTEXT_URN) ?
-               Optional.of(new Urn(reader.getString(Tables.PlayQueue.CONTEXT_URN))) :
-               Optional.<Urn>absent();
     }
 
     public Observable<Map<Urn, String>> contextTitles() {
@@ -199,16 +186,27 @@ public class PlayQueueStorage {
         return reader.isNotNull(Tables.PlayQueue.QUERY_URN);
     }
 
+    private boolean hasPlaybackContextType(CursorReader reader) {
+        return reader.isNotNull(Tables.PlayQueue.CONTEXT_TYPE);
+    }
+
+    private boolean hasPlaybackContextUrn(CursorReader reader) {
+        return reader.isNotNull(Tables.PlayQueue.CONTEXT_URN);
+    }
+
+    private boolean hasPlaybackContextQuery(CursorReader reader) {
+        return reader.isNotNull(Tables.PlayQueue.CONTEXT_QUERY);
+    }
+
     private String loadContextsQuery() {
         return "SELECT " +
                 "    pq.context_urn as " + Tables.PlayQueue.CONTEXT_URN.name() + "," +
-                "    coalesce(stations.title, playlists.title, users.username, charts.display_name, tracks.title) as title" +
+                "    coalesce(stations.title, playlistView.pv_title, users.username, charts.display_name) as title" +
                 "  FROM " + Tables.PlayQueue.TABLE.name() + " as pq" +
                 "  left join stations on stations.station_urn = pq.context_urn " +
+                "  left join playlistView on 'soundcloud:playlists:' || playlistView.pv_id = pq.context_urn" +
                 "  left join users on 'soundcloud:users:' || users._id = pq.context_urn" +
                 "  left join charts on charts.genre = pq.context_urn" +
-                "  left join sounds as playlists on 'soundcloud:playlists:' || playlists._id = pq.context_urn AND playlists._type = " + TYPE_PLAYLIST +
-                "  left join sounds as tracks on 'soundcloud:tracks:' || tracks._id = pq.context_urn AND tracks._type= " + TYPE_TRACK +
                 "  WHERE pq.context_urn IS NOT NULL" +
                 "  GROUP BY pq.context_urn";
     }
@@ -222,5 +220,6 @@ public class PlayQueueStorage {
         }
         return titles;
     }
+
 
 }

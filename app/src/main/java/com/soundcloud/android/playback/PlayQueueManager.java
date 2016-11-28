@@ -15,8 +15,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
-import com.soundcloud.android.playback.PlaybackContext.Bucket;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -24,7 +22,6 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -66,19 +63,9 @@ public class PlayQueueManager implements OriginProvider {
     private final NetworkConnectionHelper networkConnectionHelper;
     private final TrackOfflineStateProvider offlineStateProvider;
 
-    private Action1<PlayQueue> onPlayQueueLoaded = new Action1<PlayQueue>() {
-        @Override
-        public void call(PlayQueue savedQueue) {
-            currentPosition = playQueueOperations.getLastStoredPlayPosition();
-            setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCollectionUrn()));
-        }
-    };
-
     private int currentPosition;
     private boolean currentItemIsUserTriggered;
     private RepeatMode repeatMode = RepeatMode.REPEAT_NONE;
-    private boolean autoPlay = true;
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
@@ -114,9 +101,7 @@ public class PlayQueueManager implements OriginProvider {
 
         checkState(startPosition != -1, "The current play queue item must be present in the new play queue.");
 
-        setNewPlayQueueInternal(newPlayQueue, playSessionSource);
-        currentPosition = startPosition;
-        saveQueueForUpdate();
+        setNewPlayQueue(newPlayQueue, playSessionSource, startPosition);
     }
 
     void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -126,14 +111,15 @@ public class PlayQueueManager implements OriginProvider {
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource, int startPosition) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         logEmptyPlayQueues(playQueue, playSessionSource);
-        currentPosition = startPosition;
 
         if (isSamePlayQueue(playQueue, playSessionSource) && isSamePlayQueueType(playQueue)) {
+            this.currentPosition = startPosition;
             publishCurrentQueueItemChanged();
         } else {
+            currentPosition = startPosition;
             setNewPlayQueueInternal(playQueue, playSessionSource);
-            saveQueue(PlayQueueEvent.fromNewQueue(getCollectionUrn()));
         }
+        saveQueue();
         saveCurrentPosition();
     }
 
@@ -228,12 +214,12 @@ public class PlayQueueManager implements OriginProvider {
             }
             playQueue.replaceItem(index, items);
         }
-        saveQueueForUpdate();
+        publishQueueUpdate();
     }
 
     public void replace(PlayQueueItem oldItem, List<PlayQueueItem> newItems) {
         playQueue.replaceItem(playQueue.indexOfPlayQueueItem(oldItem), newItems);
-        saveQueueForUpdate();
+        publishQueueUpdate();
     }
 
     public void insertNext(List<Urn> trackUrns) {
@@ -242,11 +228,12 @@ public class PlayQueueManager implements OriginProvider {
             for (int i = 0; i < trackUrns.size(); i++) {
                 TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i))
                         .fromSource(DiscoverySource.PLAY_NEXT.value(), Strings.EMPTY)
-                        .withPlaybackContext(PlaybackContext.create(Bucket.EXPLICIT))
+                        .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                         .build();
                 playQueue.insertPlayQueueItem(nextExplicitPosition + i, queueItem);
             }
-            saveQueue(PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
+            publishQueueInsertEvent();
+            saveQueue();
         } else {
             throw new IllegalStateException("It is not possible to insert when the play queue is empty");
         }
@@ -257,10 +244,11 @@ public class PlayQueueManager implements OriginProvider {
             int nextExplicitPosition = nextExplicitPositionFromCurrent();
             TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn)
                     .fromSource(DiscoverySource.PLAY_NEXT.value(), Strings.EMPTY)
-                    .withPlaybackContext(PlaybackContext.create(Bucket.EXPLICIT))
+                    .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
                     .build();
             playQueue.insertPlayQueueItem(nextExplicitPosition, queueItem);
-            saveQueue(PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
+            publishQueueInsertEvent();
+            saveQueue();
         } else {
             throw new IllegalStateException("It is not possible to insert when the play queue is empty");
         }
@@ -270,8 +258,9 @@ public class PlayQueueManager implements OriginProvider {
         @Override
         public boolean apply(PlayQueueItem item) {
             if (item.isTrack()) {
-                final PlayableQueueItem queueItem = (PlayableQueueItem) item;
-                return !queueItem.isBucket(Bucket.EXPLICIT);
+                final PlayableQueueItem trackItem = (PlayableQueueItem) item;
+                final PlaybackContext.Bucket itemBucket = trackItem.getPlaybackContext().bucket();
+                return !itemBucket.equals(PlaybackContext.Bucket.EXPLICIT);
             } else {
                 return true;
             }
@@ -298,7 +287,9 @@ public class PlayQueueManager implements OriginProvider {
 
     void appendPlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
         this.playQueue.addAllPlayQueueItems(playQueueItems);
-        saveQueueForUpdate();
+
+        publishQueueUpdate();
+        saveQueue();
     }
 
     public PlayQueueItem getCurrentPlayQueueItem() {
@@ -313,7 +304,7 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    PlayQueueItem getLastPlayQueueItem() {
+    public PlayQueueItem getLastPlayQueueItem() {
         return getPlayQueueItemAtPosition(getQueueSize() - 1);
     }
 
@@ -346,11 +337,11 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.isEmpty();
     }
 
-    int getQueueSize() {
+    public int getQueueSize() {
         return playQueue.size();
     }
 
-    int getPlayableQueueItemsRemaining() {
+    public int getPlayableQueueItemsRemaining() {
         int playableCount = 0;
         for (int i = currentPosition + 1, size = getQueueSize(); i < size; i++) {
             if (isPlayableAtPosition(i)) {
@@ -369,11 +360,6 @@ public class PlayQueueManager implements OriginProvider {
     private void setPositionInternal(int position, boolean isUserTriggered) {
         if (position != currentPosition && position < playQueue.size()) {
             this.currentPosition = position;
-            PlayQueueItem playQueueItem = getCurrentPlayQueueItem();
-            if (playQueueItem.isPlayable()) {
-                PlayableQueueItem playableQueueItem = (PlayableQueueItem) playQueueItem;
-                playableQueueItem.setPlayed();
-            }
             currentItemIsUserTriggered = isUserTriggered;
             publishPositionUpdate();
         }
@@ -387,7 +373,7 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.hasTrackAsNextItem(currentPosition);
     }
 
-    boolean hasPreviousItem() {
+    public boolean hasPreviousItem() {
         return playQueue.hasPreviousItem(currentPosition);
     }
 
@@ -397,18 +383,6 @@ public class PlayQueueManager implements OriginProvider {
 
     public boolean moveToNextPlayableItem() {
         return moveToNextPlayableItemInternal(true);
-    }
-
-    public void moveToNextRecommendationItem() {
-        for (PlayQueueItem playQueueItem : playQueue.items()) {
-            if (playQueueItem.isTrack()) {
-                PlayableQueueItem playableQueueItem = (PlayableQueueItem) playQueueItem;
-                if (!playableQueueItem.isPlayed() && playableQueueItem.isBucket(Bucket.AUTO_PLAY)) {
-                    setPositionInternal(playQueue.indexOfPlayQueueItem(playQueueItem), true);
-                    return;
-                }
-            }
-        }
     }
 
     public boolean autoMoveToNextPlayableItem() {
@@ -426,7 +400,7 @@ public class PlayQueueManager implements OriginProvider {
     private boolean moveToNextOrFirstPlayableItemInternal(boolean userTriggered) {
         if (isQueueEmpty()) {
             return false;
-        } else if (getNextPlayableItem() != Consts.NOT_SET && canRepeatNext()) {
+        } else if (getNextPlayableItem() != Consts.NOT_SET) {
             return moveToNextPlayableItemInternal(userTriggered);
         } else if (currentPosition == 0) {
             return repeatCurrentPlayableItemInternal();
@@ -447,46 +421,17 @@ public class PlayQueueManager implements OriginProvider {
         this.repeatMode = repeatMode;
     }
 
-    public boolean isAutoPlay() {
-        return autoPlay;
-    }
-
-    public void setAutoPlay(boolean isAutoPlay) {
-        this.autoPlay = isAutoPlay;
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAutoPlayEnabled(getCollectionUrn()));
-    }
-
     private boolean moveToNextPlayableItemInternal(boolean userTriggered) {
         if (hasNextItem()) {
             final int nextPlayableItem = getNextPlayableItem();
             final int newPosition = nextPlayableItem == Consts.NOT_SET
                                     ? currentPosition + 1 // next track
                                     : nextPlayableItem; // next playable track
-            if (canAutoPlayNext()) {
-                setPositionInternal(newPosition, userTriggered);
-                return true;
-            } else {
-                return false;
-            }
+            setPositionInternal(newPosition, userTriggered);
+            return true;
         } else {
             return false;
         }
-    }
-
-    private boolean canRepeatNext() {
-        if (getNextPlayQueueItem().isTrack()) {
-            PlayableQueueItem playableQueueItem = (PlayableQueueItem) getNextPlayQueueItem();
-            return !playableQueueItem.isBucket(Bucket.AUTO_PLAY) || playableQueueItem.isPlayed();
-        }
-        return true;
-    }
-
-    private boolean canAutoPlayNext() {
-        if (getNextPlayQueueItem().isTrack()) {
-            PlayableQueueItem playableQueueItem = (PlayableQueueItem) getNextPlayQueueItem();
-            return !playableQueueItem.isBucket(Bucket.AUTO_PLAY) || autoPlay || playableQueueItem.isPlayed();
-        }
-        return true;
     }
 
     private boolean repeatCurrentPlayableItemInternal() {
@@ -552,11 +497,12 @@ public class PlayQueueManager implements OriginProvider {
 
         if (!playSessionSource.equals(this.playSessionSource)) {
             this.repeatMode = RepeatMode.REPEAT_NONE;
-            this.autoPlay = true;
         }
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentItemIsUserTriggered = true;
         this.playSessionSource = playSessionSource;
+
+        broadcastNewPlayQueue();
     }
 
     private int getPositionToBeSaved() {
@@ -574,7 +520,14 @@ public class PlayQueueManager implements OriginProvider {
 
         return playQueueOperations.getLastStoredPlayQueue()
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .doOnNext(onPlayQueueLoaded);
+                                  .doOnNext(new Action1<PlayQueue>() {
+                                      @Override
+                                      public void call(PlayQueue savedQueue) {
+                                          currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                                          setNewPlayQueueInternal(savedQueue,
+                                                                  playQueueOperations.getLastStoredPlaySessionSource());
+                                      }
+                                  });
     }
 
     private void publishPositionUpdate() {
@@ -666,7 +619,7 @@ public class PlayQueueManager implements OriginProvider {
         return getCollectionUrn().equals(collection);
     }
 
-    boolean isCurrentCollectionOrRecommendation(Urn collection) {
+    public boolean isCurrentCollectionOrRecommendation(Urn collection) {
         return getCollectionUrn().equals(collection);
     }
 
@@ -681,9 +634,7 @@ public class PlayQueueManager implements OriginProvider {
         playQueueOperations.clear();
         playQueue = PlayQueue.empty();
         playSessionSource = PlaySessionSource.EMPTY;
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
-        publishCurrentQueueItemChanged();
-
+        broadcastNewPlayQueue();
     }
 
     @VisibleForTesting
@@ -734,10 +685,20 @@ public class PlayQueueManager implements OriginProvider {
         return null;
     }
 
-    private void saveQueue(PlayQueueEvent event) {
+    private void saveQueue() {
         if (playQueue.hasItems()) {
-            saveQueueAndPublishEvent(event);
+            playQueueOperations.saveQueue(playQueue.copy());
         }
+    }
+
+    private void publishQueueUpdate() {
+        eventBus.publish(EventQueue.PLAY_QUEUE,
+                         PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
+    }
+
+    private void broadcastNewPlayQueue() {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCollectionUrn()));
+        publishCurrentQueueItemChanged();
     }
 
     private void publishCurrentQueueItemChanged() {
@@ -747,12 +708,16 @@ public class PlayQueueManager implements OriginProvider {
                                                                 getCurrentPosition()));
     }
 
+    private void publishQueueInsertEvent() {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
+    }
+
     public void removeUpcomingItem(PlayQueueItem item, boolean shouldPublishQueueChange) {
         final int indexToRemove = playQueue.indexOfPlayQueueItem(item);
         if (indexToRemove > currentPosition) {
             playQueue.removeItemAtPosition(indexToRemove);
             if (shouldPublishQueueChange) {
-                saveQueueForUpdate();
+                publishQueueUpdate();
             }
         }
     }
@@ -764,47 +729,25 @@ public class PlayQueueManager implements OriginProvider {
 
     public void removeItem(PlayQueueItem item) {
         playQueue.removeItem(item);
-        saveQueue(PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
+        saveQueue();
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
     }
 
     public void moveItem(int fromPosition, int toPosition) {
         playQueue.moveItem(fromPosition, toPosition);
-        saveQueue(PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
     }
 
-    List<PlayQueueItem> getExplicitQueueItems() {
+    public List<PlayQueueItem> getExplicitQueueItems() {
         List<PlayQueueItem> explicitPlayQueueItems = new ArrayList<>();
         for (PlayQueueItem playQueueItem : playQueue) {
             if (playQueueItem.isPlayable()) {
                 PlayableQueueItem playableQueueItem = (PlayableQueueItem) playQueueItem;
-                if (playableQueueItem.isBucket(Bucket.EXPLICIT)) {
+                if (playableQueueItem.playbackContext.bucket() == PlaybackContext.Bucket.EXPLICIT) {
                     explicitPlayQueueItems.add(playQueueItem);
                 }
             }
         }
         return explicitPlayQueueItems;
-    }
-
-    private void saveQueueForUpdate() {
-        saveQueue(PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
-    }
-
-    private void saveQueueAndPublishEvent(PlayQueueEvent event) {
-        playQueueOperations.saveQueue(playQueue.copy())
-                           .observeOn(AndroidSchedulers.mainThread())
-                           .subscribe(new SaveQueueSubscriber(event));
-    }
-
-    private class SaveQueueSubscriber extends DefaultSubscriber<TxnResult> {
-        private final PlayQueueEvent event;
-
-        SaveQueueSubscriber(PlayQueueEvent event) {
-            this.event = event;
-        }
-
-        @Override
-        public void onNext(TxnResult ignored) {
-            eventBus.publish(EventQueue.PLAY_QUEUE, event);
-        }
     }
 }

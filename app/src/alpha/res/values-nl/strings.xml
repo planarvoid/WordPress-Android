@@ -923,6 +923,7 @@
   <string name="play_queue_header_charts_top">Vanuit %1$s top 50-hitlijst</string>
   <string name="play_queue_header_charts_trending">Vanuit %1$s hitlijst Nieuw &amp; populair</string>
   <string name="play_queue_header_explicit">Toegevoegd door jou</string>
+  <string name="play_queue_header_auto_play">Automatisch afspelen</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Voorgestelde artiesten</string>
   <string name="suggested_creators_blurb">Volg je favoriete artiesten zodat je hun laatste tracks nooit meer misloopt</string>

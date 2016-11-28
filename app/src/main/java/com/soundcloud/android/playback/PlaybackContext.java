@@ -57,13 +57,9 @@ public abstract class PlaybackContext {
     }
 
     public static PlaybackContext create(Bucket bucket) {
-        return create(bucket, Optional.<Urn>absent());
-    }
-
-    public static PlaybackContext create(Bucket bucket, Optional<Urn> urn) {
         return builder()
                 .bucket(bucket)
-                .urn(urn)
+                .urn(Optional.<Urn>absent())
                 .query(Optional.<String>absent())
                 .build();
     }

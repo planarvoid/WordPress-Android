@@ -1,14 +1,12 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ALL;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.SettingKey;
@@ -36,23 +34,20 @@ public class PlayQueueExtender {
     private final StationsOperations stationsOperations;
     private final SharedPreferences sharedPreferences;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
 
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
 
     @Inject
-    PlayQueueExtender(PlayQueueManager playQueueManager,
-                      PlayQueueOperations playQueueOperations,
-                      StationsOperations stationsOperations,
-                      SharedPreferences sharedPreferences,
-                      EventBus eventBus,
-                      FeatureFlags featureFlags) {
+    public PlayQueueExtender(PlayQueueManager playQueueManager,
+                             PlayQueueOperations playQueueOperations,
+                             StationsOperations stationsOperations,
+                             SharedPreferences sharedPreferences,
+                             EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.stationsOperations = stationsOperations;
         this.sharedPreferences = sharedPreferences;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
     }
 
     public void subscribe() {
@@ -65,9 +60,6 @@ public class PlayQueueExtender {
         public void onNext(PlayQueueEvent event) {
             if (event.isNewQueue()) {
                 loadRecommendedSubscription.unsubscribe();
-                extendPlayQueue(event.getCollectionUrn());
-            } else if (event.isAutoPlayEnabled()) {
-                loadRecommendations(event.getCollectionUrn());
             }
         }
     }
@@ -75,49 +67,32 @@ public class PlayQueueExtender {
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            loadRecommendations(event.getCollectionUrn());
-        }
-    }
-
-    private void loadRecommendations(Urn collectionUrn) {
-        if (withinRecommendedFetchTolerance() && isNotAlreadyLoadingRecommendations()) {
-            extendPlayQueue(collectionUrn);
-        }
-    }
-
-    private void extendPlayQueue(Urn collectionUrn) {
-        final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
-
-        if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
-            loadRecommendedSubscription = playQueueOperations
-                    .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(),
-                                            fromContinuousPlay(),
-                                            playQueueManager.getCurrentPlaySessionSource())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new UpcomingTracksSubscriber());
-        } else if (collectionUrn.isStation()) {
-            loadRecommendedSubscription = stationsOperations
-                    .fetchUpcomingTracks(collectionUrn,
-                                         playQueueManager.getQueueSize(),
-                                         playQueueManager.getCurrentPlaySessionSource())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new UpcomingTracksSubscriber());
+            if (withinRecommendedFetchTolerance() && isNotAlreadyLoadingRecommendations()) {
+                final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
+                if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
+                    loadRecommendedSubscription = playQueueOperations
+                            .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(), fromContinuousPlay(), playQueueManager.getCurrentPlaySessionSource())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new UpcomingTracksSubscriber());
+                } else if (event.getCollectionUrn().isStation()) {
+                    loadRecommendedSubscription = stationsOperations
+                            .fetchUpcomingTracks(event.getCollectionUrn(), playQueueManager.getQueueSize(), playQueueManager.getCurrentPlaySessionSource())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new UpcomingTracksSubscriber());
+                }
+            }
         }
     }
 
     private boolean currentQueueAllowsRecommendations() {
+        final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
         final boolean isStation = playQueueManager.getCollectionUrn().isStation();
+        final boolean isRepeatAll = REPEAT_ALL.equals(playQueueManager.getRepeatMode());
+        final boolean isAutoplay = sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true);
+        final boolean isFromExplore = currentPlaySessionSource.originatedInExplore();
+        final boolean isDeeplink = Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen());
 
-        if (featureFlags.isEnabled(Flag.PLAY_QUEUE)) {
-            return !isStation;
-        } else {
-            final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
-            final boolean isAutoplay = sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true);
-            final boolean isFromExplore = currentPlaySessionSource.originatedInExplore();
-            final boolean isDeeplink = Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen());
-
-            return !isStation && (isAutoplay || isFromExplore || isDeeplink);
-        }
+        return !isStation && !isRepeatAll && (isAutoplay || isFromExplore || isDeeplink);
     }
 
     private boolean withinRecommendedFetchTolerance() {

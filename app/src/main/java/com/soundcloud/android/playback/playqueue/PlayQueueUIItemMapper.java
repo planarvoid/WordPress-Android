@@ -38,8 +38,6 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
         private final PlayQueueItem currentPlayQueueItem;
         private final Map<Urn, String> urnStringMap;
         private final boolean isShuffled;
-        private final boolean isAutoPlay;
-        private final boolean isStation;
 
         boolean pastCurrent = false;
         Optional<PlaybackContext> lastContext = Optional.absent();
@@ -48,31 +46,17 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
             this.urnStringMap = urnStringMap;
             this.repeatMode = playQueueManager.getRepeatMode();
             this.isShuffled = playQueueManager.isShuffled();
-            this.isAutoPlay = playQueueManager.isAutoPlay();
-            this.isStation = playQueueManager.getCollectionUrn().isStation();
             this.currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         }
 
         public List<PlayQueueUIItem> map(List<TrackAndPlayQueueItem> items) {
             for (TrackAndPlayQueueItem item : items) {
                 final TrackQueueItem playQueueItem = item.playQueueItem;
-
-                if (isVisible(playQueueItem)) {
-                    addHeaderIfNecessary(playQueueItem);
-                    addTrack(item);
-                }
+                addHeaderIfNecessary(playQueueItem);
+                addTrack(item);
                 setPastCurrent(playQueueItem);
             }
-
-            addMagicBox();
-
             return uiItems;
-        }
-
-        private void addMagicBox() {
-            if (!isStation && !uiItems.isEmpty()) {
-                uiItems.add(new MagicBoxPlayQueueUIItem(PlayState.COMING_UP, repeatMode, isAutoPlay));
-            }
         }
 
         private void addHeaderIfNecessary(PlayableQueueItem playQueueItem) {
@@ -86,9 +70,9 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
             }
         }
 
-        private void addTrack(TrackAndPlayQueueItem item) {
-            uiItems.add(TrackPlayQueueUIItem.from(item.playQueueItem, item.trackItem, context,
-                                                  getTitle(item.playQueueItem), repeatMode));
+        private boolean addTrack(TrackAndPlayQueueItem item) {
+            return uiItems.add(TrackPlayQueueUIItem.from(item.playQueueItem, item.trackItem, context,
+                                                         getTitle(item.playQueueItem), repeatMode));
         }
 
         private void setPastCurrent(PlayQueueItem playQueueItem) {
@@ -105,10 +89,5 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
             final Optional<Urn> urn = item.getPlaybackContext().urn();
             return urn.isPresent() ? Optional.fromNullable(urnStringMap.get(urn.get())) : Optional.<String>absent();
         }
-
-        private boolean isVisible(PlayableQueueItem item) {
-            return item.equals(currentPlayQueueItem) || item.isVisible();
-        }
     }
-
 }

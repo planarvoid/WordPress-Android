@@ -28,11 +28,11 @@ class HeaderPlayQueueUIItem extends PlayQueueUIItem {
         return System.identityHashCode(playbackContext);
     }
 
-    PlaybackContext getPlaybackContext() {
+    public PlaybackContext getPlaybackContext() {
         return playbackContext;
     }
 
-    Optional<String> getContentTitle() {
+    public Optional<String> getContentTitle() {
         return contentTitle;
     }
 

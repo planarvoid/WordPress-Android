@@ -18,7 +18,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -59,11 +58,9 @@ public class PlayQueueTest extends AndroidUnitTest {
         final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
         final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(singletonList(recommendedTrack),
                                                                                           "0");
-        final Urn seedTrack = Urn.forTrack(1L);
-        final PlayQueue playQueue = fromRecommendations(seedTrack, true, relatedTracks, playSessionSource);
+        final PlayQueue playQueue = fromRecommendations(Urn.forTrack(1L), true, relatedTracks, playSessionSource);
 
-        assertThat(playbackContext(playQueue)).isEqualTo(create(PlaybackContext.Bucket.AUTO_PLAY,
-                                                                Optional.of(seedTrack)));
+        assertThat(playbackContext(playQueue)).isEqualTo(create(PlaybackContext.Bucket.AUTO_PLAY));
     }
 
     @Test

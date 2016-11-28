@@ -916,6 +916,7 @@
   <string name="play_queue_header_charts_top">Aus den Top 50 der %1$s-Charts</string>
   <string name="play_queue_header_charts_trending">Aus der Kategorie „Neu und angesagt“ der %1$s-Charts</string>
   <string name="play_queue_header_explicit">Von dir hinzugefügt</string>
+  <string name="play_queue_header_auto_play">Automatische Wiedergabe</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators_relation_followed"></string>
   <string name="suggested_creators_relation_uploaded"></string>

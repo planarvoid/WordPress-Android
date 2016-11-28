@@ -432,7 +432,6 @@ public interface Tables {
         public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type", String.class);
         public static final Column CONTEXT_URN = Column.create(TABLE, "context_urn", String.class);
         public static final Column CONTEXT_QUERY = Column.create(TABLE, "context_query", String.class);
-        public static final Column PLAYED = Column.create(TABLE, "played", Boolean.class);
 
         public static final int ENTITY_TYPE_TRACK = 0;
         public static final int ENTITY_TYPE_PLAYLIST = 1;
@@ -449,8 +448,7 @@ public interface Tables {
                 "query_urn TEXT," +
                 "context_type TEXT," +
                 "context_urn TEXT," +
-                "context_query TEXT," +
-                "played BOOLEAN default 1" +
+                "context_query TEXT" +
                 ");";
 
         PlayQueue() {

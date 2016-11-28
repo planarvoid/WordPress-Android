@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackContext;
-import com.soundcloud.android.playback.playqueue.PlayQueueUIItem.Kind;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
@@ -45,13 +44,6 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
                                                                           .query(Optional.<String>absent())
                                                                           .build();
 
-    private static final Urn STATION_URN = Urn.forTrackStation(123L);
-    private static final PlaybackContext STATION_CONTEXT = PlaybackContext.builder()
-                                                                           .bucket(PlaybackContext.Bucket.TRACK_STATION)
-                                                                           .urn(Optional.of(STATION_URN))
-                                                                           .query(Optional.<String>absent())
-                                                                           .build();
-
     @Mock PlayQueueManager playQueueManager;
 
     private PlayQueueUIItemMapper mapper;
@@ -59,7 +51,6 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(playQueueManager.isShuffled()).thenReturn(false);
-        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         mapper = new PlayQueueUIItemMapper(context(), playQueueManager);
     }
 
@@ -78,11 +69,10 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         final Map<Urn, String> noUrnTitles = Collections.emptyMap();
 
         final List<PlayQueueUIItem> uiItems = mapper.call(aTrack, noUrnTitles);
-        assertThat(uiItems).hasSize(3);
+        assertThat(uiItems).hasSize(2);
 
         assertThat(uiItems.get(0).isHeader()).isTrue();
         assertThat(uiItems.get(1).isTrack()).isTrue();
-        assertThat(uiItems.get(2).getKind()).isEqualTo(Kind.MAGIC_BOX);
     }
 
     @Test
@@ -92,7 +82,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         final Map<Urn, String> urnTitle = singletonMap(PLAYLIST_URN, "some title");
 
         final List<PlayQueueUIItem> uiItems = mapper.call(aTrack, urnTitle);
-        assertThat(uiItems).hasSize(3);
+        assertThat(uiItems).hasSize(2);
 
         final HeaderPlayQueueUIItem header = header(uiItems, 0);
         assertThat(header.getContentTitle()).isEqualTo(Optional.of("some title"));
@@ -108,11 +98,10 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
 
         final List<PlayQueueUIItem> uiItems = mapper.call(tracks, urnTitle);
 
-        assertThat(uiItems).hasSize(4);
+        assertThat(uiItems).hasSize(3);
         assertThat(uiItems.get(0).isHeader()).isTrue();
         assertThat((track(uiItems, 1)).getTrackItem().getUrn()).isEqualTo(Urn.forTrack(123L));
         assertThat((track(uiItems, 2)).getTrackItem().getUrn()).isEqualTo(Urn.forTrack(789L));
-        assertThat(uiItems.get(3).getKind()).isEqualTo(Kind.MAGIC_BOX);
     }
 
     @Test
@@ -127,12 +116,11 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
 
         final List<PlayQueueUIItem> uiItems = mapper.call(tracks, urnTitle);
 
-        assertThat(uiItems).hasSize(5);
+        assertThat(uiItems).hasSize(4);
         assertThat(header(uiItems, 0).getContentTitle()).isEqualTo(Optional.of("some playlist"));
         assertThat(track(uiItems, 1).getTrackItem().getUrn()).isEqualTo(Urn.forTrack(123L));
         assertThat((header(uiItems, 2)).getContentTitle()).isEqualTo(Optional.of("some profile"));
         assertThat((track(uiItems, 3)).getTrackItem().getUrn()).isEqualTo(Urn.forTrack(789L));
-        assertThat(uiItems.get(4).getKind()).isEqualTo(Kind.MAGIC_BOX);
     }
 
     @Test
@@ -148,30 +136,13 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(tracks.get(1).playQueueItem);
         final List<PlayQueueUIItem> uiItems = mapper.call(tracks, noUrnTitles);
 
-        assertThat(uiItems).hasSize(7);
+        assertThat(uiItems).hasSize(6);
         assertThat(uiItems.get(0).isHeader()).isTrue();
         assertThat(uiItems.get(1).isTrack()).isTrue();
         assertThat(uiItems.get(2).isHeader()).isTrue();
         assertThat(uiItems.get(3).isTrack()).isTrue();
         assertThat(uiItems.get(4).isTrack()).isTrue();
         assertThat(uiItems.get(5).isTrack()).isTrue();
-        assertThat(uiItems.get(6).getKind()).isEqualTo(Kind.MAGIC_BOX);
-    }
-
-    @Test
-    public void doesNotAddMagicBoxWhenPlayingAStation() {
-        final List<TrackAndPlayQueueItem> tracks = Arrays.asList(
-                trackAndPlayQueueItem(Urn.forTrack(123L), STATION_CONTEXT),
-                trackAndPlayQueueItem(Urn.forTrack(234L), STATION_CONTEXT));
-        final Map<Urn, String> noUrnTitles = Collections.emptyMap();
-        when(playQueueManager.getCollectionUrn()).thenReturn(STATION_URN);
-
-        final List<PlayQueueUIItem> uiItems = mapper.call(tracks, noUrnTitles);
-
-        assertThat(uiItems.size()).isEqualTo(3);
-        assertThat(uiItems.get(0).isHeader()).isTrue();
-        assertThat(uiItems.get(1).isTrack()).isTrue();
-        assertThat(uiItems.get(2).getKind()).isNotEqualTo(Kind.MAGIC_BOX);
     }
 
     private static TrackPlayQueueUIItem track(List<PlayQueueUIItem> uiItems, int index) {
