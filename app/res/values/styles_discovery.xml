@@ -131,7 +131,6 @@
     <style name="Carousel.ItemArtist">
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">26dp</item>
-        <item name="android:paddingTop">4dp</item>
         <item name="android:paddingBottom">4dp</item>
         <item name="android:gravity">bottom</item>
         <item name="android:textSize">12sp</item>

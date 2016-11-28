@@ -21,7 +21,8 @@
         android:paddingRight="@dimen/discovery_cell_text_padding"
         android:paddingTop="@dimen/recommendations_cell_text_recommended_padding_top"
         android:text="@string/recommendation_seeds_header"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <View style="@style/Divider.Item" android:id="@+id/recommendations_header_divider" />
 
@@ -37,20 +38,22 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recommendations_carousel"
-        android:paddingLeft="16dp"
-        android:layout_marginBottom="24dp"
-        android:clipChildren="false"
-        android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:overScrollMode="never" />
+        android:layout_marginBottom="20dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingLeft="16dp"
+        tools:listItem="@layout/recommendation_item" />
 
     <View style="@style/Divider.Item" android:id="@+id/recommendations_view_all_divider" />
 
     <FrameLayout
         android:id="@+id/recommendations_view_all"
         style="@style/ViewAllContainer"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/recommendations_view_all_text"

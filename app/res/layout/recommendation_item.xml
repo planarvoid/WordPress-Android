@@ -11,7 +11,6 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="4dp"
         android:clipToPadding="false">
 
         <com.soundcloud.android.view.ForegroundImageView
@@ -21,7 +20,8 @@
             ForegroundImageView:square="true"
             android:layout_width="@dimen/recommendation_item_size"
             android:layout_height="@dimen/recommendation_item_size"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            tools:src="@drawable/actionbar_bg" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/recommendation_title"
@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/recommendation_artwork"
-            tools:text="Track name"/>
+            tools:text="Track name" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/recommendation_artist"
@@ -38,7 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/recommendation_title"
             android:visibility="gone"
-            tools:text="Artist name"/>
+            tools:text="Artist name"
+            tools:visibility="visible" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/recommendation_now_playing"
@@ -47,16 +48,16 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/recommendation_title"
             android:drawableLeft="@drawable/ic_now_playing"
-            android:visibility="gone"
-            android:text="@string/title_now_playing" />
+            android:text="@string/title_now_playing"
+            android:visibility="gone" />
 
         <View
             android:id="@+id/go_indicator"
             style="@style/GoIndicator"
-            android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="@dimen/go_indicator_offset"
-            android:layout_marginRight="@dimen/go_indicator_offset" />
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="@dimen/go_indicator_offset"
+            android:layout_marginTop="@dimen/go_indicator_offset" />
     </RelativeLayout>
 
     <com.soundcloud.android.view.OverflowAnchorImageView
