@@ -55,6 +55,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private SearchSuggestionStorage suggestionStorage;
     @Mock private AutocompleteConfig autocompleteConfig;
+    @Mock private AutocompleteFiltering autocompleteFiltering;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
     @Captor private ArgumentCaptor<List<SuggestionItem>> suggestionItemsCaptor;
 
@@ -66,7 +67,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         when(autocompleteConfig.isEnabled()).thenReturn(false);
-        when(autocompleteConfig.filter(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
+        when(autocompleteFiltering.filter(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
             @Override
             public List<SuggestionItem> answer(InvocationOnMock invocation) throws Throwable {
                 return (List<SuggestionItem>) invocation.getArguments()[0];
@@ -74,7 +75,9 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         });
 
         operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
-                                                    Schedulers.immediate(), suggestionStorage, autocompleteConfig);
+                                                    Schedulers.immediate(), suggestionStorage,
+                                                    autocompleteConfig,
+                                                    autocompleteFiltering);
         suggestionsResultSubscriber = new TestSubscriber<>();
 
         track = ModelFixtures.create(ApiTrack.class);

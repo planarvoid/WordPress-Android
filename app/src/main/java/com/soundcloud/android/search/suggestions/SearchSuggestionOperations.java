@@ -57,6 +57,7 @@ class SearchSuggestionOperations {
 
     private final SearchSuggestionStorage suggestionStorage;
     private final AutocompleteConfig autocompleteConfig;
+    private final AutocompleteFiltering autocompleteFiltering;
 
     private final Action1<ApiSearchSuggestions> writeDependencies = new Action1<ApiSearchSuggestions>() {
         @Override
@@ -88,12 +89,14 @@ class SearchSuggestionOperations {
                                WriteMixedRecordsCommand writeMixedRecordsCommand,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                SearchSuggestionStorage suggestionStorage,
-                               AutocompleteConfig autocompleteConfig) {
+                               AutocompleteConfig autocompleteConfig,
+                               AutocompleteFiltering autocompleteFiltering) {
         this.apiClientRx = apiClientRx;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.scheduler = scheduler;
         this.suggestionStorage = suggestionStorage;
         this.autocompleteConfig = autocompleteConfig;
+        this.autocompleteFiltering = autocompleteFiltering;
     }
 
     Observable<List<SuggestionItem>> suggestionsFor(String query) {
@@ -136,7 +139,7 @@ class SearchSuggestionOperations {
     private Func1<List<SuggestionItem>, List<SuggestionItem>> filterForExperiments() {
         return new Func1<List<SuggestionItem>, List<SuggestionItem>>() {
             public List<SuggestionItem> call(List<SuggestionItem> suggestionItems) {
-                return autocompleteConfig.filter(suggestionItems);
+                return autocompleteFiltering.filter(suggestionItems);
             }
         };
     }

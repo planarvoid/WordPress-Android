@@ -1,19 +1,12 @@
 package com.soundcloud.android.configuration.experiments;
 
 import static com.soundcloud.android.configuration.experiments.ActiveExperiments.LISTENING_LAYER;
-import static com.soundcloud.android.search.suggestions.SuggestionItem.Kind.PlaylistItem;
-import static com.soundcloud.android.search.suggestions.SuggestionItem.Kind.TrackItem;
-import static com.soundcloud.android.search.suggestions.SuggestionItem.Kind.UserItem;
-import static java.util.Collections.emptyList;
 
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.search.suggestions.SuggestionItem;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class AutocompleteConfig {
     private static final String NAME = "search_query_autocomplete_android";
@@ -43,39 +36,11 @@ public class AutocompleteConfig {
         return isFeatureFlagEnabled() || isShortcutsAndQueriesVariant() || isQueriesOnlyVariant();
     }
 
-    public List<SuggestionItem> filter(List<SuggestionItem> suggestionItems) {
-        if (isQueriesOnlyVariant()) {
-            return emptyList();
-        } else if (isShortcutsAndQueriesVariant()) {
-            return maxTwoFollowsAndTwoLikes(suggestionItems);
-        }
-        return suggestionItems;
-    }
-
-    private List<SuggestionItem> maxTwoFollowsAndTwoLikes(List<SuggestionItem> suggestionItems) {
-        int followCount = 0;
-        int likeCount = 0;
-        final ArrayList<SuggestionItem> result = new ArrayList<>(4);
-
-        for (int i = 0; i < suggestionItems.size() && ((followCount < 2) || (likeCount < 2)); i++) {
-            final SuggestionItem suggestionItem = suggestionItems.get(i);
-            if (suggestionItem.kind().equals(UserItem) && followCount < 2) {
-                followCount++;
-                result.add(suggestionItem);
-            } else if ((suggestionItem.kind().equals(TrackItem) || suggestionItem.kind()
-                                                                                 .equals(PlaylistItem)) && likeCount < 2) {
-                likeCount++;
-                result.add(suggestionItem);
-            }
-        }
-        return result;
-    }
-
-    private boolean isShortcutsAndQueriesVariant() {
+    public boolean isShortcutsAndQueriesVariant() {
         return VARIANT_SHORTCUTS_AND_QUERIES.equals(getVariant());
     }
 
-    private boolean isQueriesOnlyVariant() {
+    public boolean isQueriesOnlyVariant() {
         return VARIANT_QUERIES_ONLY.equals(getVariant());
     }
 
