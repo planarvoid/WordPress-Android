@@ -30,7 +30,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 103;
+    public static final int DATABASE_VERSION = 104;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -344,6 +344,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 103:
                             success = upgradeTo103(db, oldVersion);
+                            break;
+                        case 104:
+                            success = upgradeTo104(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1326,6 +1329,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    /**
+     * Add played column to PlayQueue table
+     */
+    private boolean upgradeTo104(SQLiteDatabase db, int oldVersion) {
+        try {
+            alterColumns(Tables.PlayQueue.TABLE.name(), Tables.PlayQueue.SQL, db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 104);
+        }
+        return false;
+    }
+
 
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {

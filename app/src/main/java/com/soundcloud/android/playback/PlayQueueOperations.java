@@ -8,9 +8,9 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.propeller.TxnResult;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.functions.Func1;
 
 import android.content.Context;
@@ -55,7 +55,7 @@ public class PlayQueueOperations {
             return Observable.empty();
         }
 
-        return playQueueStorage.loadAsync()
+        return playQueueStorage.load()
                                .toList()
                                .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                                    @Override
@@ -66,10 +66,8 @@ public class PlayQueueOperations {
                                .subscribeOn(scheduler);
     }
 
-    Subscription saveQueue(PlayQueue playQueue) {
-        return fireAndForget(
-                playQueueStorage.storeAsync(playQueue).subscribeOn(scheduler)
-        );
+    Observable<TxnResult> saveQueue(PlayQueue playQueue) {
+        return playQueueStorage.store(playQueue).subscribeOn(scheduler);
     }
 
     void savePlayInfo(int position, PlaySessionSource playSessionSource) {
@@ -85,7 +83,7 @@ public class PlayQueueOperations {
         PlaySessionSource.clearPreferenceKeys(editor);
         editor.apply();
         fireAndForget(
-                playQueueStorage.clearAsync().subscribeOn(scheduler)
+                playQueueStorage.clear().subscribeOn(scheduler)
         );
     }
 

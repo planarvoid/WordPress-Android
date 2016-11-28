@@ -604,7 +604,7 @@
   <string name="collections_options_toggle_likes">Curtiu</string>
   <string name="collections_options_dialog_sort_by_creation">Notícias recentes</string>
   <string name="collections_options_dialog_sort_by_title">Título</string>
-  <string name="collections_empty_playlists">As playlists e álbuns que você curtiu ou criou 
+  <string name="collections_empty_playlists">As playlists e álbuns que você curtiu ou criou
 vão aparecer aqui.</string>
   <string name="collections_filters_active_message">Nem todas as suas playlists e álbuns estão sendo exibidas. Limpe os filtros para ver todos.</string>
   <string name="collections_remove_filters">Limpar filtros</string>
@@ -933,7 +933,6 @@ vão aparecer aqui.</string>
   <string name="play_queue_header_charts_top">Dos 50 gráficos principais %1$s</string>
   <string name="play_queue_header_charts_trending">De gráficos novos e irados %1$s</string>
   <string name="play_queue_header_explicit">Adicionado por você</string>
-  <string name="play_queue_header_auto_play">Reprodução automática</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistas sugeridos</string>
   <string name="suggested_creators_blurb">Siga seus artistas favoritos, assim você nunca perde as faixas mais recentes</string>

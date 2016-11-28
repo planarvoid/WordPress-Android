@@ -71,8 +71,8 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
     private void setGoIndicator(View indicator, TrackPlayQueueUIItem item) {
         indicator.setVisibility(item.isGoTrack()
-                ? View.VISIBLE
-                : View.GONE);
+                                ? View.VISIBLE
+                                : View.GONE);
     }
 
     private void setTitleColor(TrackPlayQueueUIItem item, TextView titleTextView) {

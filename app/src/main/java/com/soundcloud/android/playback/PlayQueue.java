@@ -1,11 +1,13 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.optional.Optional.fromNullable;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackContext.Bucket;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.Lists;
@@ -139,7 +141,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         for (ApiTrack relatedTrack : relatedTracks) {
             final PlaybackContext playbackContext = continuousPlay ?
-                                                    PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY) :
+                                                    PlaybackContext.create(Bucket.AUTO_PLAY, fromNullable(seedTrack)) :
                                                     PlaybackContext.create(playSessionSource);
             final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(relatedTrack.getUrn())
                     .relatedEntity(seedTrack)

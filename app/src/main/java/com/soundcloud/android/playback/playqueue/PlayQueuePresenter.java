@@ -86,6 +86,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
     @Bind(R.id.recycler_view) RecyclerView recyclerView;
+    private Observable<List<TrackAndPlayQueueItem>> cachedTracks = Observable.empty();
+    private Observable<Map<Urn, String>> cachedTitles = Observable.empty();
 
     @Inject
     PlayQueuePresenter(PlayQueueAdapter adapter,
@@ -141,8 +143,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @VisibleForTesting
     void subscribeToEvents() {
         eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                       .observeOn(AndroidSchedulers.mainThread())
                                        .subscribe(new UpdateCurrentTrackSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
+                                       .observeOn(AndroidSchedulers.mainThread())
                                        .filter(isNotItemChangedEvent)
                                        .subscribe(new ChangePlayQueueSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
@@ -174,10 +178,20 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private void loadPlayQueueUIItems() {
-        updateSubscription = playQueueOperations.getTracks()
-                                                .zipWith(playQueueOperations.getContextTitles(), playQueueUIItemMapper)
-                                                .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(new PlayQueueSubscriber());
+        setCachedObservables();
+        updateSubscription = fetchPlayQueueUIItems().subscribe(new PlayQueueSubscriber());
+    }
+
+    @VisibleForTesting
+    void setCachedObservables() {
+        cachedTracks = playQueueOperations.getTracks().cache();
+        cachedTitles = playQueueOperations.getContextTitles().cache();
+    }
+
+    private Observable<List<PlayQueueUIItem>> fetchPlayQueueUIItems() {
+        return cachedTracks
+                .zipWith(cachedTitles, playQueueUIItemMapper)
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     private int getScrollPosition() {
@@ -247,19 +261,20 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @OnClick(R.id.shuffle_button)
     void shuffleClicked(ToggleButton toggle) {
         final boolean isShuffled = toggle.isChecked();
+
         if (isShuffled) {
             playQueueManager.shuffle();
         } else {
             playQueueManager.unshuffle();
         }
+
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueShuffle(isShuffled));
     }
 
     private RepeatMode getNextRepeatMode() {
         final RepeatMode[] repeatModes = RepeatMode.values();
         final int currentOrdinal = playQueueManager.getRepeatMode().ordinal();
-        final int nextOrdinal = (currentOrdinal + 1) % repeatModes.length;
-        return repeatModes[nextOrdinal];
+        return repeatModes[(currentOrdinal + 1) % repeatModes.length];
     }
 
     boolean isRemovable(int adapterPosition) {
@@ -351,6 +366,16 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         adapter.notifyDataSetChanged();
     }
 
+    private boolean isPlayingCurrent() {
+        final int adapterPosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
+
+        if (adapterPosition < adapter.getItems().size() && adapterPosition >= 0) {
+            return adapter.getItem(adapterPosition).getPlayState().equals(PlayState.PLAYING);
+        }
+
+        return false;
+    }
+
     private class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
 
         @Override
@@ -371,20 +396,36 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            adapter.updateNowPlaying(adapter.getAdapterPosition(event.getCurrentPlayQueueItem()), true);
+            if (!isPlayingCurrent()) {
+                fetchPlayQueueUIItems().subscribe(new UpdateNowPlayingSubscriber());
+            }
+        }
+    }
+
+    private class UpdateNowPlayingSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
+
+        @Override
+        public void onNext(List<PlayQueueUIItem> items) {
+            if (items.size() != adapter.getItemCount()) {
+                rebuildAdapter(items);
+            }
+            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), true);
         }
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
+
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
             rebuildAdapter(items);
             recyclerView.scrollToPosition(getScrollPosition());
             adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), true);
         }
+
     }
 
     private class RebuildSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
+
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
             rebuildAdapter(items);
@@ -393,6 +434,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private class ChangePlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+
         @Override
         public void onNext(PlayQueueEvent playQueueEvent) {
             updateSubscription.unsubscribe();
@@ -410,7 +452,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void trackClicked(final int listPosition) {
-
             if (adapter.getItem(listPosition).isTrack()) {
                 adapter.updateNowPlaying(listPosition, true);
                 playQueueManager.setCurrentPlayQueueItem(((TrackPlayQueueUIItem) adapter.getItem(listPosition)).getPlayQueueItem());
@@ -419,9 +460,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                     playSessionController.play();
                 }
             }
-
         }
-
     }
 
     private static class TopPaddingDecorator extends RecyclerView.ItemDecoration {

@@ -17,7 +17,7 @@ class PlayQueueFixtures {
         final PlaybackContext playbackContext = PlaybackContext.create(PlaySessionSource.EMPTY);
         final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version",
                                                                  Optional.<AdData>absent(), false, Urn.NOT_SET,
-                                                                 Urn.NOT_SET, false, playbackContext);
+                                                                 Urn.NOT_SET, false, playbackContext, true);
         final TrackItem trackItem = new TrackItem(TestPropertySets.expectedTrackForListItem(track));
         final int someResourceId = 123;
         final int color = 321;

@@ -55,6 +55,7 @@ class HeaderPlayQueueItemRenderer implements CellRenderer<HeaderPlayQueueUIItem>
             case PLAYLIST:
                 return resources.getString(R.string.play_queue_header_playlist, contentTitle);
             case TRACK_STATION:
+            case AUTO_PLAY:
                 return resources.getString(R.string.play_queue_header_track_station, contentTitle);
             case ARTIST_STATION:
                 return resources.getString(R.string.play_queue_header_artist_station, contentTitle);
@@ -70,8 +71,6 @@ class HeaderPlayQueueItemRenderer implements CellRenderer<HeaderPlayQueueUIItem>
                 return resources.getString(R.string.play_queue_header_charts_trending, contentTitle);
             case EXPLICIT:
                 return resources.getString(R.string.play_queue_header_explicit);
-            case AUTO_PLAY:
-                return resources.getString(R.string.play_queue_header_auto_play);
             default:
                 throw new IllegalArgumentException("can't render header of type: " + bucket.name());
         }

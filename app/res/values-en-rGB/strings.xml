@@ -933,7 +933,6 @@
   <string name="play_queue_header_charts_top">From %1$s top 50 charts</string>
   <string name="play_queue_header_charts_trending">From %1$s New &amp; Hot charts </string>
   <string name="play_queue_header_explicit">Added by you</string>
-  <string name="play_queue_header_auto_play">Auto play</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Suggested artists</string>
   <string name="suggested_creators_blurb">Follow your favourite artists so you never miss any of their latest tracks</string>

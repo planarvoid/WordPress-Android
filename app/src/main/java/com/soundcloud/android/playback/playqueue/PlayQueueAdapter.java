@@ -24,17 +24,19 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
         void onNowPlayingChanged(TrackPlayQueueUIItem trackItem);
     }
 
-    private final TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
+    private final TrackPlayQueueItemRenderer trackRenderer;
     private PlayQueuePresenter.DragListener dragListener;
     private NowPlayingListener nowPlayingListener;
 
     @Inject
-    PlayQueueAdapter(TrackPlayQueueItemRenderer trackPlayQueueItemRenderer,
-                     HeaderPlayQueueItemRenderer headerPlayQueueItemRenderer) {
-        super(new CellRendererBinding<>(PlayQueueUIItem.Kind.TRACK.ordinal(), trackPlayQueueItemRenderer),
-              new CellRendererBinding<>(PlayQueueUIItem.Kind.HEADER.ordinal(), headerPlayQueueItemRenderer)
+    PlayQueueAdapter(TrackPlayQueueItemRenderer trackRenderer,
+                     HeaderPlayQueueItemRenderer headerRenderer,
+                     MagicBoxPlayQueueItemRenderer magicBoxRenderer) {
+        super(new CellRendererBinding<>(PlayQueueUIItem.Kind.TRACK.ordinal(), trackRenderer),
+              new CellRendererBinding<>(PlayQueueUIItem.Kind.HEADER.ordinal(), headerRenderer),
+              new CellRendererBinding<>(PlayQueueUIItem.Kind.MAGIC_BOX.ordinal(), magicBoxRenderer)
         );
-        this.trackPlayQueueItemRenderer = trackPlayQueueItemRenderer;
+        this.trackRenderer = trackRenderer;
         setHasStableIds(true);
     }
 
@@ -74,18 +76,14 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
 
     private boolean setRepeatMode(PlayQueueManager.RepeatMode newRepeatMode) {
         boolean itemsChangedAndShouldRerender = false;
+
         for (PlayQueueUIItem item : items) {
-            if (item.isTrack()) {
-                TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
-                final PlayQueueManager.RepeatMode currentRepeatMode = trackItem.getRepeatMode();
-                final PlayState trackPlayState = trackItem.getPlayState();
-                final boolean shouldRerenderItem = shouldRerender(currentRepeatMode, newRepeatMode, trackPlayState);
-                trackItem.setRepeatMode(newRepeatMode);
-                itemsChangedAndShouldRerender = itemsChangedAndShouldRerender || shouldRerenderItem;
-            } else if (item.isHeader()) {
-                HeaderPlayQueueUIItem headItem = (HeaderPlayQueueUIItem) item;
-                headItem.setRepeatMode(newRepeatMode);
-            }
+            final PlayQueueManager.RepeatMode currentRepeatMode = item.getRepeatMode();
+            final PlayState trackPlayState = item.getPlayState();
+            final boolean shouldRerenderItem = shouldRerender(currentRepeatMode, newRepeatMode, trackPlayState);
+
+            item.setRepeatMode(newRepeatMode);
+            itemsChangedAndShouldRerender = itemsChangedAndShouldRerender || shouldRerenderItem;
         }
         return itemsChangedAndShouldRerender;
     }
@@ -193,7 +191,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     }
 
     void setTrackClickListener(TrackPlayQueueItemRenderer.TrackClickListener trackClickListener) {
-        trackPlayQueueItemRenderer.setTrackClickListener(trackClickListener);
+        trackRenderer.setTrackClickListener(trackClickListener);
     }
 
 }

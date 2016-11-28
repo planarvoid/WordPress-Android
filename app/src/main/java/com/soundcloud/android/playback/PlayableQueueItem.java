@@ -6,6 +6,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackContext.Bucket;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -22,6 +23,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
     protected final boolean shouldPersist;
     protected final boolean blocked;
     protected final PlaybackContext playbackContext;
+    protected boolean played;
 
     public PlayableQueueItem(Urn urn,
                              Urn reposter,
@@ -33,7 +35,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
                              boolean shouldPersist,
                              Urn sourceUrn,
                              Optional<AdData> adData,
-                             PlaybackContext playbackContext) {
+                             PlaybackContext playbackContext, boolean played) {
         this.sourceVersion = sourceVersion;
         this.source = source;
         this.queryUrn = queryUrn;
@@ -44,6 +46,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         this.relatedEntity = relatedEntity;
         this.urn = urn;
         this.playbackContext = checkNotNull(playbackContext, "PlaybackContext can not be null");
+        this.played = played;
         this.adData = adData;
     }
 
@@ -83,8 +86,24 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         return blocked;
     }
 
+    public boolean isPlayed() {
+        return played;
+    }
+
+    public void setPlayed() {
+        this.played = true;
+    }
+
     public PlaybackContext getPlaybackContext() {
         return playbackContext;
+    }
+
+    public boolean isBucket(Bucket bucket) {
+        return playbackContext.bucket().equals(bucket);
+    }
+
+    public boolean isVisible() {
+        return played || !isBucket(Bucket.AUTO_PLAY);
     }
 
     @Override
@@ -102,6 +121,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         protected Urn queryUrn = Urn.NOT_SET;
         protected boolean shouldPersist = true;
         protected PlaybackContext playbackContext;
+        protected boolean played;
 
         public Builder(Urn entityUrn) {
             this(entityUrn, Urn.NOT_SET);
@@ -152,6 +172,11 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
 
         public T blocked(boolean blocked) {
             this.blocked = blocked;
+            return getThis();
+        }
+
+        public T played(boolean played) {
+            this.played = played;
             return getThis();
         }
 
