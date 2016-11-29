@@ -128,13 +128,17 @@ public class PlayQueueManager implements OriginProvider {
         logEmptyPlayQueues(playQueue, playSessionSource);
         currentPosition = startPosition;
 
-        if (isSamePlayQueue(playQueue, playSessionSource) && isSamePlayQueueType(playQueue)) {
-            publishCurrentQueueItemChanged();
-        } else {
+        if (!isSamePlayQueueAndType(playQueue, playSessionSource)) {
             setNewPlayQueueInternal(playQueue, playSessionSource);
             saveQueue(PlayQueueEvent.fromNewQueue(getCollectionUrn()));
         }
+
+        publishCurrentQueueItemChanged();
         saveCurrentPosition();
+    }
+
+    private boolean isSamePlayQueueAndType(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        return isSamePlayQueue(playQueue, playSessionSource) && isSamePlayQueueType(playQueue);
     }
 
     private boolean isSamePlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
