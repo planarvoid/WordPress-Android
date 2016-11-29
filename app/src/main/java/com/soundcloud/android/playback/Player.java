@@ -27,6 +27,8 @@ public interface Player {
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     boolean isSeekable();
 
+    void preload(PreloadItem preloadItem);
+
     interface PlayerListener {
 
         void onPlaystateChanged(PlaybackStateTransition stateTransition);

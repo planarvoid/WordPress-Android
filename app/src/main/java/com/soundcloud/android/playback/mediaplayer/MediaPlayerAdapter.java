@@ -23,6 +23,7 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
@@ -625,6 +626,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     @Override
     public boolean isSeekable() {
         return mediaPlayer != null && internalState.isSeekable();
+    }
+
+    @Override
+    public void preload(PreloadItem preloadItem) {
+        // media player does not preload
     }
 
     @Override
