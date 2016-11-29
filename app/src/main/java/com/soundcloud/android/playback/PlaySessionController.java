@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
 
 import com.soundcloud.android.PlaybackServiceController;
@@ -196,7 +197,9 @@ public class PlaySessionController {
 
     public Observable<PlaybackResult> playNewQueue(PlayQueue playQueue, Urn initialTrack, int startPosition,
                                                    PlaySessionSource playSessionSource) {
-        if (shouldDisableSkipping()) {
+        if (playQueue.isEmpty()) {
+            return Observable.just(PlaybackResult.error(MISSING_PLAYABLE_TRACKS));
+        } else if (shouldDisableSkipping()) {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return playbackStrategyProvider.get()

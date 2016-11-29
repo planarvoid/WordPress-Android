@@ -12,6 +12,7 @@ import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -45,8 +46,8 @@ public class PolicyOperations {
         this.eventBus = eventBus;
     }
 
-    public Observable<Map<Urn, Boolean>> blockedStatuses(List<Urn> urns) {
-        return policyStorage.loadBlockedStatuses(urns).subscribeOn(scheduler);
+    public Func1<List<Urn>, Observable<Map<Urn, Boolean>>> blockedStatuses() {
+        return urns -> policyStorage.loadBlockedStatuses(urns).subscribeOn(scheduler);
     }
 
     public Observable<Collection<ApiPolicyInfo>> updatePolicies(Collection<Urn> urns) {

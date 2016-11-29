@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -329,6 +330,17 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         controller.setCurrentPlayQueueItem(trackPlayQueueItem);
 
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    @Test
+    public void shouldReturnPlaybackErrorWhenNoTracks() {
+        TestSubscriber<PlaybackResult> subscriber = TestSubscriber.create();
+        controller.playNewQueue(PlayQueue.empty(), null, 0, null).subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        PlaybackResult playbackResult = subscriber.getOnNextEvents().get(0);
+        assertThat(playbackResult.isSuccess()).isFalse();
+        assertThat(playbackResult.getErrorReason()).isEqualTo(MISSING_PLAYABLE_TRACKS);
     }
 
     @Test

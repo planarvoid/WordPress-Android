@@ -2,11 +2,9 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayNewQueue;
 import static com.soundcloud.android.testsupport.TestUrns.createTrackUrns;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -68,7 +66,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-        when(policyOperations.blockedStatuses(anyListOf(Urn.class))).thenReturn(Observable.just(Collections.<Urn, Boolean>emptyMap()));
+        when(policyOperations.blockedStatuses()).thenReturn(urns -> Observable.just(Collections.emptyMap()));
 
         observer = new TestObserver<>();
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"),
@@ -104,9 +102,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
-        when(policyOperations.blockedStatuses(singletonList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(
-                TRACK1,
-                true)));
+        when(policyOperations.blockedStatuses()).thenReturn(urns-> Observable.just(Collections.singletonMap(TRACK1, true)));
 
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN))
                          .subscribe(observer);
@@ -145,10 +141,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playPostsPlaysNewQueueFromInitialTrackWithBlockedStatus() {
-        when(policyOperations.blockedStatuses(singletonList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(
-                TRACK1,
-                true)));
         final PlayableWithReposter track = PlayableWithReposter.from(TRACK1);
+        when(policyOperations.blockedStatuses()).thenReturn(urns -> Observable.just(Collections.singletonMap(TRACK1, true)));
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN))
                          .subscribe(observer);
 
@@ -356,7 +350,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .playTracks(Observable.<Urn>empty().toList(), TRACK1, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe(observer);
 
-        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class),
+        verify(playSessionController).playNewQueue(any(PlayQueue.class),
                                                             any(Urn.class),
                                                             anyInt(),
                                                             any(PlaySessionSource.class));
