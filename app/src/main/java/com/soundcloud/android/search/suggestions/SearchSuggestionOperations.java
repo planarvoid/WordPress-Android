@@ -9,11 +9,10 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.WriteMixedRecordsCommand;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
@@ -57,7 +56,8 @@ class SearchSuggestionOperations {
     private final Scheduler scheduler;
 
     private final SearchSuggestionStorage suggestionStorage;
-    private final FeatureFlags featureFlags;
+    private final AutocompleteConfig autocompleteConfig;
+    private final AutocompleteFiltering autocompleteFiltering;
 
     private final Action1<ApiSearchSuggestions> writeDependencies = new Action1<ApiSearchSuggestions>() {
         @Override
@@ -89,12 +89,14 @@ class SearchSuggestionOperations {
                                WriteMixedRecordsCommand writeMixedRecordsCommand,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                SearchSuggestionStorage suggestionStorage,
-                               FeatureFlags featureFlags) {
+                               AutocompleteConfig autocompleteConfig,
+                               AutocompleteFiltering autocompleteFiltering) {
         this.apiClientRx = apiClientRx;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.scheduler = scheduler;
         this.suggestionStorage = suggestionStorage;
-        this.featureFlags = featureFlags;
+        this.autocompleteConfig = autocompleteConfig;
+        this.autocompleteFiltering = autocompleteFiltering;
     }
 
     Observable<List<SuggestionItem>> suggestionsFor(String query) {
@@ -104,24 +106,42 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> localSuggestions(String query) {
-        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
+        if (autocompleteConfig.isEnabled()) {
             return localCollectionSuggestions(query);
         } else {
-            return defaultSearchItem(query).concatWith(localCollectionSuggestions(query));
+            return legacySearchItem(query).concatWith(localCollectionSuggestions(query));
         }
 
     }
 
-    private Observable<List<SuggestionItem>> defaultSearchItem(String query) {
+    private Observable<List<SuggestionItem>> remoteSuggestions(String query) {
+        if (autocompleteConfig.isEnabled()) {
+            return getAutocompletions(query);
+        } else {
+            return getLegacySuggestions(query);
+        }
+    }
+
+    private Observable<List<SuggestionItem>> legacySearchItem(String query) {
         return Observable.just(Collections.singletonList(SuggestionItem.forLegacySearch(query)));
     }
+
 
     private Observable<List<SuggestionItem>> localCollectionSuggestions(String query) {
         return suggestionStorage.getSuggestions(query, MAX_SUGGESTIONS_NUMBER)
                                 .map(localToSuggestionResult(query))
                                 .onErrorResumeNext(Observable.<List<SuggestionItem>>empty())
                                 .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                                .map(filterForExperiments())
                                 .subscribeOn(scheduler);
+    }
+
+    private Func1<List<SuggestionItem>, List<SuggestionItem>> filterForExperiments() {
+        return new Func1<List<SuggestionItem>, List<SuggestionItem>>() {
+            public List<SuggestionItem> call(List<SuggestionItem> suggestionItems) {
+                return autocompleteFiltering.filter(suggestionItems);
+            }
+        };
     }
 
     private static Func1<? super List<PropertySet>, List<SuggestionItem>> localToSuggestionResult(final String searchQuery) {
@@ -144,13 +164,6 @@ class SearchSuggestionOperations {
         };
     }
 
-    private Observable<List<SuggestionItem>> remoteSuggestions(String query) {
-        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
-            return getAutocompletions(query);
-        } else {
-            return getLegacySuggestions(query);
-        }
-    }
 
     private Observable<List<SuggestionItem>> getLegacySuggestions(String query) {
         final ApiRequest request =

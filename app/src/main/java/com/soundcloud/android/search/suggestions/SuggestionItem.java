@@ -7,11 +7,11 @@ import com.soundcloud.java.optional.Optional;
 
 public abstract class SuggestionItem {
 
-    enum Kind {
+    public enum Kind {
         SearchItem, TrackItem, UserItem, PlaylistItem, AutocompletionItem
     }
 
-    abstract Kind kind();
+    public abstract Kind kind();
 
     public abstract String userQuery();
 
@@ -23,11 +23,11 @@ public abstract class SuggestionItem {
         return new AutoValue_SuggestionItem_Default(Kind.SearchItem, query);
     }
 
-    static SuggestionItem forUser(PropertySet source, String query) {
+    public static SuggestionItem forUser(PropertySet source, String query) {
         return new AutoValue_SearchSuggestionItem(Kind.UserItem, query, source);
     }
 
-    static SuggestionItem forTrack(PropertySet source, String query) {
+    public static SuggestionItem forTrack(PropertySet source, String query) {
         return new AutoValue_SearchSuggestionItem(Kind.TrackItem, query, source);
     }
 

@@ -4,6 +4,7 @@ import static com.soundcloud.android.search.suggestions.SuggestionItem.forAutoco
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
@@ -14,11 +15,10 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.WriteMixedRecordsCommand;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
@@ -33,6 +33,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -52,19 +54,30 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Mock private ApiClientRx apiClientRx;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private SearchSuggestionStorage suggestionStorage;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private AutocompleteConfig autocompleteConfig;
+    @Mock private AutocompleteFiltering autocompleteFiltering;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
+    @Captor private ArgumentCaptor<List<SuggestionItem>> suggestionItemsCaptor;
 
     private SearchSuggestionOperations operations;
     private TestSubscriber<List<SuggestionItem>> suggestionsResultSubscriber;
     private ApiTrack track;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(false);
+        when(autocompleteConfig.isEnabled()).thenReturn(false);
+        when(autocompleteFiltering.filter(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
+            @Override
+            public List<SuggestionItem> answer(InvocationOnMock invocation) throws Throwable {
+                return (List<SuggestionItem>) invocation.getArguments()[0];
+            }
+        });
 
         operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
-                                                    Schedulers.immediate(), suggestionStorage, featureFlags);
+                                                    Schedulers.immediate(), suggestionStorage,
+                                                    autocompleteConfig,
+                                                    autocompleteFiltering);
         suggestionsResultSubscriber = new TestSubscriber<>();
 
         track = ModelFixtures.create(ApiTrack.class);
@@ -120,11 +133,11 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsCorrectOrderWithFeatureFlag() {
+    public void returnsCorrectOrderWithAutocompleteEnabled() {
         List<PropertySet> localSuggestions = getLocalSuggestions();
         when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
                 localSuggestions));
-        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(true);
+        when(autocompleteConfig.isEnabled()).thenReturn(true);
 
         final Autocompletion autocompletion = setupAutocompletionRemoteSuggestions();
 
