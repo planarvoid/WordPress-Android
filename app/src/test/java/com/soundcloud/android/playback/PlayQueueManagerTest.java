@@ -141,7 +141,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         assertPlayQueueSaved(queue1);
         assertThat(playQueueEvents.get(0)).isEqualTo(PlayQueueEvent.fromNewQueue(source1.getCollectionUrn()));
-        assertCurrentPlayQueueItemEventsEqual(currentPlayQueueItems.get(0), playQueueItem2, Urn.NOT_SET, 2);
+        assertCurrentPlayQueueItemEventsEqual(currentPlayQueueItems.get(1), playQueueItem2, Urn.NOT_SET, 2);
     }
 
     @Test
@@ -557,9 +557,11 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)),
                                          playlistSessionSource,
                                          1);
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).size()).isEqualTo(1);
 
         playQueueManager.setPosition(1, true);
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).size()).isEqualTo(0);
+
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).size()).isEqualTo(1);
     }
 
     @Test
