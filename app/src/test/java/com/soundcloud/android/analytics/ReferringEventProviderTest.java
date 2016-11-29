@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 
 public class ReferringEventProviderTest extends AndroidUnitTest {
     public static final String ID = "id";
@@ -42,7 +43,7 @@ public class ReferringEventProviderTest extends AndroidUnitTest {
         referringEventProvider.setupReferringEvent();
         referringEventProvider.saveReferringEvent(bundle);
 
-        assertThat(bundle.getParcelable(ReferringEvent.REFERRING_EVENT_KEY)).isEqualTo(REFERRING_EVENT.get());
+        assertThat(bundle.<Parcelable>getParcelable(ReferringEvent.REFERRING_EVENT_KEY)).isEqualTo(REFERRING_EVENT.get());
     }
 
     @Test

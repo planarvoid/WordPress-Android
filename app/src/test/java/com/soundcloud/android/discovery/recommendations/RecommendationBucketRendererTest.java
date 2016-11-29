@@ -121,7 +121,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
         renderer.bindItemView(BUCKET_POSITION, itemView, recommendedTracksItems);
 
-        assertThat(ButterKnife.findById(itemView, R.id.recommendations_view_all)).isGone();
+        assertThat(ButterKnife.<View>findById(itemView, R.id.recommendations_view_all)).isGone();
     }
 
     private RecommendationBucketRenderer createViewAllRenderer() {

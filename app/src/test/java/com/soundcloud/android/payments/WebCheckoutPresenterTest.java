@@ -26,6 +26,7 @@ import rx.Observable;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
@@ -101,7 +102,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        assertThat(intent.getParcelableExtra(WebCheckoutPresenter.PRODUCT_INFO)).isEqualTo(HIGH_TIER.highTier().get());
+        assertThat(intent.<Parcelable>getParcelableExtra(WebCheckoutPresenter.PRODUCT_INFO)).isEqualTo(HIGH_TIER.highTier().get());
     }
 
     @Test

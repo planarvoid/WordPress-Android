@@ -15,7 +15,6 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
-import rx.functions.Func1;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -48,13 +47,6 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @Bind(android.R.id.edit) EditText input;
     @Bind(R.id.chk_private) CheckBox privacy;
     @Bind(R.id.chk_offline) CheckBox offline;
-
-    private final Func1<Urn, Observable<?>> makeAvailableOffline = new Func1<Urn, Observable<?>>() {
-        @Override
-        public Observable<?> call(Urn urn) {
-            return offlineContentOperations.makePlaylistAvailableOffline(urn);
-        }
-    };
 
     public static CreatePlaylistDialogFragment from(long trackId, String invokerScreen, String contextScreen) {
         return createFragment(createBundle(trackId, invokerScreen, contextScreen));
@@ -124,7 +116,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                                                                                  Urn.forTrack(firstTrackId));
 
         fireAndForget(isOffline
-                      ? newPlaylist.flatMap(makeAvailableOffline)
+                      ? newPlaylist.doOnNext(offlineContentOperations::makePlaylistAvailableOffline)
                       : newPlaylist);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
     }

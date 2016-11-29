@@ -23,6 +23,17 @@ public abstract class SuggestionItem {
         return new AutoValue_SuggestionItem_Default(Kind.SearchItem, query);
     }
 
+    static SuggestionItem fromPropertySet(PropertySet source, String query) {
+        final Urn urn = source.get(SearchSuggestionProperty.URN);
+        if (urn.isTrack()) {
+            return SuggestionItem.forTrack(source, query);
+        } else if (urn.isUser()) {
+            return SuggestionItem.forUser(source, query);
+        } else {
+            throw new IllegalStateException("Unexpected suggestion item type.");
+        }
+    }
+
     public static SuggestionItem forUser(PropertySet source, String query) {
         return new AutoValue_SearchSuggestionItem(Kind.UserItem, query, source);
     }

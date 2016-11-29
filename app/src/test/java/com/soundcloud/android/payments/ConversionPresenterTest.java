@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onSaveInstanceState(activity, savedInstanceState);
 
-        assertThat(savedInstanceState.getParcelable(ConversionPresenter.LOADED_PRODUCTS)).isEqualTo(DEFAULT);
+        assertThat(savedInstanceState.<Parcelable>getParcelable(ConversionPresenter.LOADED_PRODUCTS)).isEqualTo(DEFAULT);
     }
 
     @Test
