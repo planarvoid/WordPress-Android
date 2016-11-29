@@ -55,6 +55,7 @@ public class PlaylistExploder {
                 loadPlaylistsSubscription.unsubscribe();
                 loadPlaylistsSubscription = new CompositeSubscription();
                 playlistLoads.clear();
+                loadSurroundingPlaylists();
             }
         }
     }
@@ -63,11 +64,15 @@ public class PlaylistExploder {
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            final Collection<Urn> playlists = getSurroundingPlaylists();
-            for (final Urn playlist : playlists) {
-                if (!playlistLoads.contains(playlist)) {
-                    loadPlaylistTracks(playlist);
-                }
+            loadSurroundingPlaylists();
+        }
+    }
+
+    private void loadSurroundingPlaylists() {
+        final Collection<Urn> playlists = getSurroundingPlaylists();
+        for (final Urn playlist : playlists) {
+            if (!playlistLoads.contains(playlist)) {
+                loadPlaylistTracks(playlist);
             }
         }
     }
