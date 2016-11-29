@@ -30,17 +30,23 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
         screen = new ProfileScreen(solo);
     }
 
-    public void testShowsEmptyInfoView() {
+    public void testEmptyProfile() {
+        assertEmptySounds();
+        assertEmptyInfo();
+        assertEmptyFollowings();
+    }
+
+    private void assertEmptyInfo() {
         screen.touchInfoTab();
         assertTrue(screen.showsEmptyInfoMessage());
     }
 
-    public void testShowsEmptyFollowingView() {
+    private void assertEmptyFollowings() {
         screen.touchFollowingsTab();
         assertTrue(screen.showsEmptyFollowingsMessage());
     }
 
-    public void testShowsEmptySoundsMessage() {
+    private void assertEmptySounds() {
         assertTrue(screen.showsEmptySoundsMessage());
     }
 

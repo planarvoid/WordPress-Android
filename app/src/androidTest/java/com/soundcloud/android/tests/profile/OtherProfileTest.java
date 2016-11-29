@@ -111,6 +111,8 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testOpenPlaylistFromAlbumsBucket() {
+        assertTrue(profileScreen.albumsHeader().hasVisibility());
+        
         startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
