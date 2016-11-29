@@ -60,7 +60,6 @@ public class PlaylistExploder {
         }
     }
 
-
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
