@@ -1,11 +1,10 @@
 package com.soundcloud.android.profile;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWERS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWINGS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_INFO;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
+import static com.soundcloud.android.utils.StatusBarUtils.setFullscreenMode;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -31,7 +30,6 @@ import rx.functions.Func1;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.view.View;
 
 import javax.inject.Inject;
 
@@ -82,9 +80,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
 
-        if (activity.findViewById(R.id.profile_banner) != null && SDK_INT >= JELLY_BEAN_MR2) {
-            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                                                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        if (activity.findViewById(R.id.profile_banner) != null) {
+            setFullscreenMode(activity);
         }
 
         user = ProfileActivity.getUserUrnFromIntent(activity.getIntent());

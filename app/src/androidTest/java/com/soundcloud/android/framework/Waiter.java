@@ -99,7 +99,11 @@ public class Waiter {
     }
 
     public boolean waitForElementCondition(Condition condition) {
-        return solo.waitForCondition(condition, ELEMENT_TIMEOUT);
+        return waitForElementCondition(condition, ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForElementCondition(Condition condition, int timeout) {
+        return solo.waitForCondition(condition, timeout);
     }
 
     public boolean waitForElementToBeChecked(With matcher) {

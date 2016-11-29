@@ -9,7 +9,11 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
+import java.util.concurrent.TimeUnit;
+
 public class QueueExplosionTest extends ActivityTest<MainActivity> {
+
+    private static final int TEN_SECONDS = (int) TimeUnit.SECONDS.toMillis(10);
 
     public QueueExplosionTest() {
         super(MainActivity.class);
@@ -24,7 +28,7 @@ public class QueueExplosionTest extends ActivityTest<MainActivity> {
         final VisualPlayerElement visualPlayerElement =
                 mainNavHelper.goToStream().clickFirstNotPromotedTrackCard();
 
-        visualPlayerElement.waitForTheExpandedPlayerToPlayNextTrack();
+        visualPlayerElement.waitForTheExpandedPlayerToPlayNextTrack(TEN_SECONDS);
 
         assertThat(visualPlayerElement.getTrackTitle(), is(equalTo("Sounds from Friday afternoon")));
     }

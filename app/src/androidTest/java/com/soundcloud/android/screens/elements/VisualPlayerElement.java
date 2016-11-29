@@ -63,6 +63,11 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
+    public VisualPlayerElement waitForTheExpandedPlayerToPlayNextTrack(int timeout) {
+        waiter.waitForElementCondition(new TrackChangedCondition(getTrackTitle()), timeout);
+        return this;
+    }
+
     public VisualPlayerElement unlike() {
         if (likeButton().isChecked()) {
             likeButton().click();
