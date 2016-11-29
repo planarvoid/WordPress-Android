@@ -108,11 +108,14 @@
         <item name="android:textOff">@null</item>
     </style>
 
-    <style name="ToolbarShadow">
+    <style name="BaseToolbarShadow">
         <item name="android:id">@id/legacy_elevation</item>
         <item name="android:background">@drawable/toolbar_shadow</item>
         <item name="android:layout_height">5dp</item>
         <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="ToolbarShadow" parent="BaseToolbarShadow">
         <item name="android:layout_below">@id/toolbar_id</item>
     </style>
 

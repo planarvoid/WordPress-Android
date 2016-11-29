@@ -44,18 +44,23 @@
                         android:id="@+id/tab_layout"
                         style="@style/TabsTheme.Fixed"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <View style="@style/ToolbarShadow" />
+                        android:layout_height="?android:attr/actionBarSize" />
 
                 </android.support.design.widget.AppBarLayout>
 
-                <com.soundcloud.android.view.SafeViewPager
-                    android:id="@+id/pager"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+                    <com.soundcloud.android.view.SafeViewPager
+                        android:id="@+id/pager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <View style="@style/BaseToolbarShadow"/>
+
+                </FrameLayout>
             </android.support.design.widget.CoordinatorLayout>
 
             <FrameLayout

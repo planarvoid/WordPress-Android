@@ -33,6 +33,7 @@
 
     <style name="Theme.SoundCloud.Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@color/dark_gray_text</item>
+        <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>
 
     <style name="Theme.SoundCloud.ActionMode" parent="@style/Widget.AppCompat.ActionMode">

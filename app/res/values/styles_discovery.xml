@@ -14,7 +14,6 @@
 
     <style name="Search.TextView.Input">
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:layout_marginLeft">16dp</item>
     </style>
 
     <style name="Search.TextView.Link">
