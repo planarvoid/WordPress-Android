@@ -25,6 +25,7 @@ enum Feature {
   PROFILE_BANNER,
   CLEAR_TABLES_ON_SIGNOUT,
   AUTOCOMPLETE,
+  ADJUST_DEFERRED_DEEPLINKS,
   CAST_V3;
 }
 
@@ -47,6 +48,7 @@ android {
     buildConfigField FLAG, Feature.APP_INSTALLS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
   }
 
@@ -69,6 +71,7 @@ android {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
     }
 
     debug {
