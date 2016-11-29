@@ -5,9 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.android.more.BasicSettingsFragment;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
 import android.os.Bundle;
 
@@ -15,7 +14,6 @@ import javax.inject.Inject;
 
 public class SettingsActivity extends LoggedInActivity {
 
-    @Inject FeatureFlags featureFlags;
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject Navigator navigator;
 
