@@ -42,6 +42,7 @@
 
                     <com.soundcloud.android.view.CustomFontTabLayout
                         android:id="@+id/tab_layout"
+                        style="@style/TabsTheme.Fixed"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
