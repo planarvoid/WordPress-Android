@@ -109,7 +109,6 @@ public class OnboardActivity extends FragmentActivity
     private static final String LOGIN_DIALOG_TAG = "login_dialog";
 
     private int backgroundImageIdx;
-    private OnboardingState lastAuthState;
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
     private ActivityResult activityResult = ActivityResult.empty();
@@ -386,13 +385,11 @@ public class OnboardActivity extends FragmentActivity
                 onHideOverlay(animated);
                 break;
             case LOGIN:
-                lastAuthState = OnboardingState.LOGIN;
                 hideViews(state, animated);
                 showOverlay(getLoginLayout(), animated);
                 break;
 
             case SIGN_UP_METHOD:
-                lastAuthState = OnboardingState.SIGN_UP_METHOD;
                 hideViews(state, animated);
                 showOverlay(getSignUpMethodLayout(), animated);
                 break;
@@ -554,14 +551,13 @@ public class OnboardActivity extends FragmentActivity
             final Bundle result = new Bundle();
             result.putString(AccountManager.KEY_ACCOUNT_NAME, user.getUsername());
             result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-            boolean wasSignup = via != SignupVia.NONE;
             resultBundle = result;
 
             sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
                                   .putExtra(PublicApiUser.EXTRA_ID, user.getId())
                                   .putExtra(SignupVia.EXTRA, via.name));
 
-            if (wasSignup || wasAuthorizedViaSignupScreen() || Urn.NOT_SET.equals(resourceUrn)) {
+            if (Urn.NOT_SET.equals(resourceUrn)) {
                 startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             } else {
                 navigator.openResolveForUrn(this, resourceUrn);
@@ -619,10 +615,6 @@ public class OnboardActivity extends FragmentActivity
         if (savedInstanceState.containsKey(EXTRA_DEEPLINK_URN)) {
             resourceUrn = savedInstanceState.getParcelable(EXTRA_DEEPLINK_URN);
         }
-    }
-
-    protected boolean wasAuthorizedViaSignupScreen() {
-        return lastAuthState == OnboardingState.SIGN_UP_METHOD;
     }
 
     @Override
