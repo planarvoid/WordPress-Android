@@ -1687,9 +1687,28 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                          PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
         Mockito.reset(playQueueOperations);
 
-        assertThat(playQueueManager.getExplicitQueueItems().size()).isEqualTo(1);
-        assertThat(playQueueManager.getExplicitQueueItems().get(0).getUrn().getNumericId()).isEqualTo(124L);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().size()).isEqualTo(1);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().get(0).getUrn().getNumericId()).isEqualTo(124L);
+    }
 
+    @Test
+    public void shouldReturnOnlyUpcomingPlayQueueItems() {
+        final PlayQueueItem item1 = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
+                PlaybackContext.create(playlistSessionSource)).build();
+        final PlayQueueItem item2 = new TrackQueueItem.Builder(Urn.forTrack(124L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT)).build();
+        final PlayQueueItem item3 = new TrackQueueItem.Builder(Urn.forTrack(125L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(newArrayList(item1, item2, item3));
+
+        playQueueManager.setNewPlayQueue(playQueue,
+                                         PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
+        playQueueManager.setCurrentPlayQueueItem(item1);
+        Mockito.reset(playQueueOperations);
+
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().size()).isEqualTo(2);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().get(0).getUrn().getNumericId()).isEqualTo(124L);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().get(1).getUrn().getNumericId()).isEqualTo(125L);
     }
 
     @Test
