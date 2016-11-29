@@ -12,6 +12,8 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
@@ -67,6 +69,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final FeatureOperations featureOperations;
     private final TrackPageListener listener;
     private final LikeButtonPresenter likeButtonPresenter;
+    private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
     private final WaveformViewController.Factory waveformControllerFactory;
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -86,6 +89,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        FeatureOperations featureOperations,
                        TrackPageListener listener,
                        LikeButtonPresenter likeButtonPresenter,
+                       IntroductoryOverlayPresenter introductoryOverlayPresenter,
                        WaveformViewController.Factory waveformControllerFactory,
                        PlayerArtworkController.Factory artworkControllerFactory,
                        PlayerOverlayController.Factory playerOverlayControllerFactory,
@@ -101,6 +105,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.featureOperations = featureOperations;
         this.listener = listener;
         this.likeButtonPresenter = likeButtonPresenter;
+        this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -200,6 +205,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.errorViewController.setUrn(trackState.getUrn());
 
         setClickListener(this, holder.onClickViews);
+    }
+
+    @Override
+    public void showIntroductoryOverlayForPlayQueue(View trackView) {
+        final View playQueueButton = getViewHolder(trackView).playQueueButton;
+        introductoryOverlayPresenter.show(IntroductoryOverlayKey.PLAY_QUEUE,
+                                          playQueueButton, resources.getString(R.string.play_queue_introductory_overlay_title),
+                                          resources.getString(R.string.play_queue_introductory_overlay_description));
     }
 
     private void configureHighTierStates(PlayerTrackState trackState,

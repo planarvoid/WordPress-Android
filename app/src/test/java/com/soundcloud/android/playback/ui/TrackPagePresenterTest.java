@@ -20,6 +20,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -84,6 +86,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
+    @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
     @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
@@ -103,6 +106,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            featureOperations,
                                            listener,
                                            likeButtonPresenter,
+                                           introductoryOverlayPresenter,
                                            waveformFactory,
                                            artworkFactory,
                                            playerOverlayControllerFactory,
@@ -754,6 +758,16 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         assertThat(getHolder(trackView).upsellText.getText())
                 .isEqualTo(resources().getText(R.string.playback_upsell_2));
+    }
+
+    @Test
+    public void showingPlayQueueIntroductoryOverlayForwardsCallToPresenterWithCorrectParameters() {
+        presenter.showIntroductoryOverlayForPlayQueue(trackView);
+
+        verify(introductoryOverlayPresenter).show(IntroductoryOverlayKey.PLAY_QUEUE,
+                                                  getHolder(trackView).playQueueButton,
+                                                  resources().getString(R.string.play_queue_introductory_overlay_title),
+                                                  resources().getString(R.string.play_queue_introductory_overlay_description));
     }
 
     private TrackPageHolder getHolder(View trackView) {

@@ -17,6 +17,8 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -26,6 +28,8 @@ import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationRecord;
@@ -73,6 +77,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final IntroductoryOverlayOperations introductoryOverlayOperations;
     private final TrackRepository trackRepository;
     private final TrackPagePresenter trackPagePresenter;
     private final AudioAdPresenter audioAdPresenter;
@@ -100,6 +105,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private PlayerUIEvent lastPlayerUIEvent;
     private PlayStateEvent lastPlayStateEvent;
     private boolean isForeground;
+
+    private final FeatureFlags featureFlags;
 
     private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
@@ -137,17 +144,20 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                          TrackRepository trackRepository,
                          StationsOperations stationsOperations,
                          TrackPagePresenter trackPagePresenter,
+                         IntroductoryOverlayOperations introductoryOverlayOperations,
                          AudioAdPresenter audioAdPresenter,
                          VideoAdPresenter videoAdPresenter,
                          CastConnectionHelper castConnectionHelper,
                          AdsOperations adOperations,
                          VideoSurfaceProvider videoSurfaceProvider,
                          PlayerPagerOnboardingPresenter onboardingPresenter,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         FeatureFlags featureFlags) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.introductoryOverlayOperations = introductoryOverlayOperations;
         this.audioAdPresenter = audioAdPresenter;
         this.videoAdPresenter = videoAdPresenter;
         this.castConnectionHelper = castConnectionHelper;
@@ -156,6 +166,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         this.onboardingPresenter = onboardingPresenter;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
+        this.featureFlags = featureFlags;
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
         LightCycles.bind(this);
@@ -215,6 +226,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         populateScrapViews(trackPager);
 
         setupPlayerPanelSubscriber();
+        setupIntroductoryOverlaySubscriber();
         setupTrackMetadataChangedSubscriber();
         setupClearAdOverlaySubscriber();
         setupTextResizeSubscriber();
@@ -233,6 +245,17 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private void setupPlayerPanelSubscriber() {
         backgroundSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber()));
+    }
+
+    private void setupIntroductoryOverlaySubscriber() {
+        if (shouldShowIntroductoryOverlay()) {
+            backgroundSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new IntroductoryOverlaySubscriber()));
+        }
+    }
+
+    private boolean shouldShowIntroductoryOverlay() {
+        return featureFlags.isEnabled(Flag.PLAY_QUEUE) &&
+                !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE);
     }
 
     private void setupTrackMetadataChangedSubscriber() {
@@ -594,6 +617,19 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
+    final class IntroductoryOverlaySubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        @Override
+        public void onNext(PlayerUIEvent event) {
+            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
+                for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
+                    final View view = entry.getKey();
+
+                    showIntroductoryOverlayForPlayQueueIfCurrentPage(view);
+                }
+            }
+        }
+    }
+
     final class PlayNextSubscriber extends DefaultSubscriber<PlayQueueEvent> {
 
         @Override
@@ -693,6 +729,13 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
             presenter.setExpanded(view, playQueueItem, isCurrentPagerPage(playQueueItem));
         } else if (kind == PlayerUIEvent.PLAYER_COLLAPSED) {
             presenter.setCollapsed(view);
+        }
+    }
+
+    private void showIntroductoryOverlayForPlayQueueIfCurrentPage(View view) {
+        final PlayQueueItem playQueueItem = pagesInPlayer.get(view);
+        if (isForeground && isCurrentPagerPage(playQueueItem)) {
+            pagePresenter(playQueueItem).showIntroductoryOverlayForPlayQueue(view);
         }
     }
 

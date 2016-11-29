@@ -3,6 +3,8 @@ package com.soundcloud.android.tests.player.ads;
 import static com.soundcloud.android.framework.helpers.PlayerHelper.assertSwipeToNextTrack;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.activity.resolve.ResolveBaseTest;
@@ -14,6 +16,8 @@ public abstract class AdBaseTest extends ResolveBaseTest {
 
     @Override
     public void setUp() throws Exception {
+        ConfigurationHelper.disableIntroductoryOverlay(getInstrumentation().getTargetContext(),
+                                                       IntroductoryOverlayKey.PLAY_QUEUE);
         super.setUp();
         playAdPlaylist();
         setRunBasedOnTestResource(BuildConfig.RUN_ADS_TEST);

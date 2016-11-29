@@ -4,15 +4,26 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
+import android.content.Context;
+
 public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
 
     public DeleteMyPlaylistTest() {
         super(MainActivity.class);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        Context context = getInstrumentation().getTargetContext();
+        ConfigurationHelper.disableIntroductoryOverlay(context, IntroductoryOverlayKey.PLAY_QUEUE);
     }
 
     @Override
