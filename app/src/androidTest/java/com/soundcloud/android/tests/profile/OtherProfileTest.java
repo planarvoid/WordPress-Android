@@ -67,7 +67,6 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
         Context context = getInstrumentation().getTargetContext();
         ConfigurationHelper.disableIntroductoryOverlay(context, IntroductoryOverlayKey.PLAY_QUEUE);
         profileScreen = new ProfileScreen(solo);
-        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void testPostsTrackClickStartsPlayer() {

@@ -221,6 +221,10 @@ public class Waiter {
         return solo.waitForCondition(new VisibleElementCondition(with), ELEMENT_TIMEOUT);
     }
 
+    public boolean waitForElementToHaveText(TextElement textElement) {
+        return solo.waitForCondition(new ElementHasTextCondition(textElement), TWO_SECONDS);
+    }
+
     public boolean waitForElementTextToChange(TextElement textElement) {
         return solo.waitForCondition(new ElementTextChangeCondition(textElement), TWO_SECONDS);
     }
@@ -435,6 +439,20 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return !view.getText().equals(text);
+        }
+    }
+
+    private class ElementHasTextCondition implements Condition {
+
+        private final TextElement view;
+
+        ElementHasTextCondition(TextElement textElement) {
+            view = textElement;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !view.getText().isEmpty();
         }
     }
 
