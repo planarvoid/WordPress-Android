@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations.AdRequestData;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
@@ -77,6 +78,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Mock private AdViewabilityController adViewabilityController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
+    @Mock private FeatureOperations featureOperations;
     @Mock private TrackRepository trackRepository;
     @Mock private AccountOperations accountOperations;
     @Mock private VisualAdImpressionOperations visualAdImpressionOperations;
@@ -101,9 +103,11 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentItem(currentPlayQueueItem)).thenReturn(true);
         when(playQueueManager.isNextItem(nextPlayQueueItem)).thenReturn(true);
         when(adsOperations.kruxSegments()).thenReturn(Observable.just(Optional.<String>absent()));
+        when(featureOperations.shouldRequestAds()).thenReturn(true);
 
         adsController = new AdsController(eventBus,
                                           adsOperations,
+                                          featureOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
                                           adViewabilityController,
@@ -168,6 +172,31 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void trackChangeEventDoesNotFetchAdIfFeatureShouldReturnAdsIsFalse() throws CreateModelException {
+        when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
+        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(featureOperations.shouldRequestAds()).thenReturn(false);
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
+        adsController.subscribe();
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
+        verify(adsOperations, never()).ads(any(AdRequestData.class), anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    public void trackChangeEventDoesFetchAdsIfFeatureShouldReturnAdsIsTrue() throws CreateModelException {
+        when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
+        when(featureOperations.shouldRequestAds()).thenReturn(true);
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
+        adsController.subscribe();
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
+        verify(adsOperations).ads(any(AdRequestData.class), anyBoolean(), anyBoolean());
+    }
+
+    @Test
     public void trackChangeEventDoesNotFetchTrackFromStorageIfAlreadyTryingToFetchAd() throws CreateModelException {
         when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());
@@ -178,7 +207,6 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
         verify(trackRepository).track(nextTrackUrn);
     }
-
 
     @Test
     public void playQueueUpdateEventInsertsAudioAdIntoPlayQueue() throws CreateModelException {
@@ -506,6 +534,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         // cheap override of stale time to avoid a horrible sequence of exposing internal implementation
         adsController = new AdsController(eventBus,
                                           adsOperations,
+                                          featureOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
                                           adViewabilityController,
