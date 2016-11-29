@@ -6,13 +6,13 @@ import com.soundcloud.java.optional.Optional;
 import android.content.Context;
 import android.graphics.Bitmap;
 
-public class PlayerWidgetRemoteViewsBuilder {
+class PlayerWidgetRemoteViewsBuilder {
 
     private Optional<WidgetItem> optionalItem;
     private Optional<Boolean> optionalIsPlaying;
     private Optional<Bitmap> optionalArtwork;
 
-    public PlayerWidgetRemoteViewsBuilder() {
+    PlayerWidgetRemoteViewsBuilder() {
         optionalItem = Optional.absent();
         optionalIsPlaying = Optional.absent();
     }
@@ -73,20 +73,20 @@ public class PlayerWidgetRemoteViewsBuilder {
         widgetRemoteView.setEmptyState(context);
     }
 
-    public PlayerWidgetRemoteViewsBuilder forItem(WidgetItem widgetItem) {
-        this.optionalItem = Optional.of(widgetItem);
+    PlayerWidgetRemoteViewsBuilder forItem(WidgetItem widgetItem) {
+        this.optionalItem = Optional.fromNullable(widgetItem);
         if (optionalItem.isPresent() && !optionalItem.get().hasArtwork()) {
             optionalArtwork = Optional.absent();
         }
         return this;
     }
 
-    public PlayerWidgetRemoteViewsBuilder forArtwork(Bitmap artwork) {
+    PlayerWidgetRemoteViewsBuilder forArtwork(Bitmap artwork) {
         this.optionalArtwork = Optional.fromNullable(artwork);
         return this;
     }
 
-    public PlayerWidgetRemoteViewsBuilder forIsPlaying(WidgetItem item, boolean isPlaying) {
+    PlayerWidgetRemoteViewsBuilder forIsPlaying(WidgetItem item, boolean isPlaying) {
         this.optionalIsPlaying = Optional.of(isPlaying);
         this.optionalItem = Optional.of(item);
         return this;
