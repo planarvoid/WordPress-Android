@@ -19,14 +19,6 @@ public abstract class SuggestionItem {
         return Urn.NOT_SET;
     }
 
-    static SuggestionItem forSearch(String query) {
-        return new AutoValue_SuggestionItem_AutocompletionItem(Kind.AutocompletionItem,
-                                                               query,
-                                                               query,
-                                                               query,
-                                                               Optional.<Urn>absent());
-    }
-
     static SuggestionItem forLegacySearch(String query) {
         return new AutoValue_SuggestionItem_Default(Kind.SearchItem, query);
     }

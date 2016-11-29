@@ -105,7 +105,7 @@ class SearchSuggestionOperations {
 
     private Observable<List<SuggestionItem>> localSuggestions(String query) {
         if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
-            return localCollectionSuggestions(query).concatWith(defaultSearchItem(query));
+            return localCollectionSuggestions(query);
         } else {
             return defaultSearchItem(query).concatWith(localCollectionSuggestions(query));
         }
@@ -113,11 +113,7 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> defaultSearchItem(String query) {
-        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
-            return Observable.just(Collections.singletonList(SuggestionItem.forSearch(query)));
-        } else {
-            return Observable.just(Collections.singletonList(SuggestionItem.forLegacySearch(query)));
-        }
+        return Observable.just(Collections.singletonList(SuggestionItem.forLegacySearch(query)));
     }
 
     private Observable<List<SuggestionItem>> localCollectionSuggestions(String query) {

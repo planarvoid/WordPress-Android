@@ -130,24 +130,17 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
-        final SuggestionItem suggestionItem = SuggestionItem.forSearch(SEARCH_QUERY);
-        final SuggestionItem localItem = SuggestionItem.forTrack(localSuggestions.get(0),
-                                                                 SEARCH_QUERY);
-        final SuggestionItem autocompletionItem = forAutocompletion(autocompletion,
-                                                                    SEARCH_QUERY,
-                                                                    Optional.of(QUERY_URN));
+        final SuggestionItem localItem = SuggestionItem.forTrack(localSuggestions.get(0), SEARCH_QUERY);
+        final SuggestionItem autocompletionItem = forAutocompletion(autocompletion, SEARCH_QUERY, Optional.of(QUERY_URN));
 
         final List<SuggestionItem> firstItem = newArrayList(localItem);
-        final List<SuggestionItem> secondItem = newArrayList(localItem, suggestionItem);
         final List<SuggestionItem> allItems = newArrayList(localItem,
-                                                           suggestionItem,
                                                            autocompletionItem);
 
 
         final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.getOnNextEvents();
         assertThat(onNextEvents.get(0)).isEqualTo(firstItem);
-        assertThat(onNextEvents.get(1)).isEqualTo(secondItem);
-        assertThat(onNextEvents.get(2)).isEqualTo(allItems);
+        assertThat(onNextEvents.get(1)).isEqualTo(allItems);
     }
 
     @NonNull
