@@ -11,7 +11,6 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -56,14 +55,11 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
         ImageView overflow = (ImageView) holder.itemView.findViewById(R.id.overflow_button);
 
         if (overflow != null) {
-            overflow.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if (dragListener != null) {
-                        dragListener.startDrag(holder);
-                    }
-                    return false;
+            overflow.setOnTouchListener((view, motionEvent) -> {
+                if (dragListener != null) {
+                    dragListener.startDrag(holder);
                 }
+                return false;
             });
         }
     }
@@ -116,7 +112,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
 
     public void addItem(int position, PlayQueueUIItem playQueueUIItem) {
         getItems().add(position, playQueueUIItem);
-        notifyDataSetChanged();
+        notifyItemInserted(position);
     }
 
     private void setPlayState(int currentlyPlayingPosition, int itemPosition, TrackPlayQueueUIItem item, boolean notifyListener) {
@@ -166,13 +162,8 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     }
 
     private static Predicate<PlayQueueUIItem> getPositionForItemPredicate(final PlayQueueItem currentPlayQueueItem) {
-        return new Predicate<PlayQueueUIItem>() {
-            @Override
-            public boolean apply(PlayQueueUIItem input) {
-                return input.isTrack() &&
-                        ((TrackPlayQueueUIItem) input).getPlayQueueItem().equals(currentPlayQueueItem);
-            }
-        };
+        return input -> input.isTrack() &&
+                ((TrackPlayQueueUIItem) input).getPlayQueueItem().equals(currentPlayQueueItem);
     }
 
     int getQueuePosition(int adapterPosition) {

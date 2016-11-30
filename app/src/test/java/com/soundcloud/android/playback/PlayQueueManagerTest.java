@@ -1782,7 +1782,21 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.moveToNextRecommendationItem();
 
         assertThat(playQueueManager.getCurrentPlayQueueItem()).isEqualTo(item3);
+    }
 
+    @Test
+    public void delegatesIndexOfPlayQueueToPlayQueue() {
+        final PlayQueueItem item1 = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
+                PlaybackContext.create(playlistSessionSource)).build();
+        final PlayQueueItem item2 = new TrackQueueItem.Builder(Urn.forTrack(124L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY)).played(true).build();
+        final PlayQueueItem item3 = new TrackQueueItem.Builder(Urn.forTrack(125L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(newArrayList(item1, item2, item3));
+
+        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
+
+        assertThat(playQueueManager.indexOfPlayQueueItem(item2)).isEqualTo(1);
     }
 
     private void assertPlayQueueSaved(PlayQueue expected) {

@@ -168,6 +168,10 @@ public class PlayQueueManager implements OriginProvider {
         saveCurrentPosition();
     }
 
+    public int indexOfPlayQueueItem(PlayQueueItem playQueueItem) {
+        return playQueue.indexOfPlayQueueItem(playQueueItem);
+    }
+
     public void setCurrentPlayQueueItem(Urn urn) {
         setPositionInternal(playQueue.indexOfTrackUrn(urn), true);
     }

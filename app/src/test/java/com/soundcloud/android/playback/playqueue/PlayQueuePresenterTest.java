@@ -121,13 +121,14 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveItemAtPosition() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
+        final PlayQueueItem playQueueItem = upcomingTrack.getPlayQueueItem();
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueManager.indexOfPlayQueueItem(playQueueItem)).thenReturn(1);
 
         presenter.remove(2);
 
-        verify(adapter).getAdapterPosition(upcomingTrack.getPlayQueueItem());
         verify(adapter).removeItem(2);
-        verify(playQueueManager).removeItem(upcomingTrack.getPlayQueueItem());
+        verify(playQueueManager).removeItem(playQueueItem);
     }
 
     @Test
