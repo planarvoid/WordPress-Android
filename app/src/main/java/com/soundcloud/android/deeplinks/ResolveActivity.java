@@ -41,4 +41,10 @@ public class ResolveActivity extends RootActivity {
         intentResolver.handleIntent(getIntent(), this);
         finish();
     }
+
+    @Override
+    protected boolean receiveConfigurationUpdates() {
+        return false;
+    }
+
 }

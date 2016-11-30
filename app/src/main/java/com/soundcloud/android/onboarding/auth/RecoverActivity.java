@@ -130,4 +130,10 @@ public class RecoverActivity extends RootActivity {
             }
         }.execute(email);
     }
+
+    @Override
+    protected boolean receiveConfigurationUpdates() {
+        return false;
+    }
+
 }
