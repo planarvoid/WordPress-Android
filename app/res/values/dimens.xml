@@ -228,4 +228,8 @@
     <dimen name="conversion_divider_top_margin">56dp</dimen>
     <dimen name="conversion_check_margin">10dp</dimen>
 
+    <!-- Player -->
+    <dimen name="collapsed_player_strip">3dp</dimen>
+    <dimen name="expanded_player_strip">20dp</dimen>
+
 </resources>

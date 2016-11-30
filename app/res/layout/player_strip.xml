@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/cast_device"
+        style="@style/TimestampText.Preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/ak_sc_orange"
+        android:textAllCaps="false"
+        tools:text="Casting to Sweet Potato" />
+</merge>

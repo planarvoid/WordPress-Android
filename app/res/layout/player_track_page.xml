@@ -5,9 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <View
-        android:id="@+id/player_strip"
-        style="@style/PlayerStrip" />
+    <com.soundcloud.android.playback.ui.view.PlayerStripView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/PlayerStrip"
+        android:id="@+id/player_strip"/>
 
     <com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView
         android:id="@+id/track_page_artwork"
@@ -24,7 +26,7 @@
     <RelativeLayout
         android:id="@+id/upsell_container"
         style="@style/PlayerUpsellContainer"
-        android:layout_below="@+id/player_strip">
+        android:layout_below="@id/player_strip">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/upsell_text"
@@ -49,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_above="@+id/player_bottom_close"
-        android:layout_below="@+id/player_strip"
+        android:layout_below="@id/player_strip"
         android:orientation="vertical">
 
         <View

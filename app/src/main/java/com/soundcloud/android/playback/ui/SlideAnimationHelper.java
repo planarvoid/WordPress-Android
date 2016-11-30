@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.cast.CastPlayerStripController;
+
 import android.util.Pair;
 import android.view.View;
 
@@ -12,9 +14,12 @@ class SlideAnimationHelper {
     void configureViewsFromSlide(float slideOffset,
                                  View footerView,
                                  Iterable<View> fullscreenViews,
+                                 CastPlayerStripController castPanelController,
                                  PlayerOverlayController... overlayController) {
         configureViewsFromSlide(slideOffset, footerView, overlayController);
         setAlpha(getSlideAnimateValue(slideOffset, SLIDE_TRANSITION_BOUNDS_FULLSCREEN), fullscreenViews);
+        castPanelController.setHeightFromCollapse(getSlideAnimateValue(slideOffset,
+                                                                       SLIDE_TRANSITION_BOUNDS_FULLSCREEN));
     }
 
     void configureViewsFromSlide(float slideOffset,
