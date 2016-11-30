@@ -110,9 +110,5 @@ public class OnboardActivityTest extends AndroidUnitTest {
             this.resultBundle = bundle;
         }
 
-        @Override
-        protected boolean wasAuthorizedViaSignupScreen() {
-            return false;
-        }
     }
 }
