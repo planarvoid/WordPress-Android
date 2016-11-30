@@ -141,7 +141,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         assertPlayQueueSaved(queue1);
         assertThat(playQueueEvents.get(0)).isEqualTo(PlayQueueEvent.fromNewQueue(source1.getCollectionUrn()));
-        assertCurrentPlayQueueItemEventsEqual(currentPlayQueueItems.get(0), playQueueItem2, Urn.NOT_SET, 2);
+        assertCurrentPlayQueueItemEventsEqual(currentPlayQueueItems.get(1), playQueueItem2, Urn.NOT_SET, 2);
     }
 
     @Test
@@ -557,9 +557,11 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)),
                                          playlistSessionSource,
                                          1);
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).size()).isEqualTo(1);
 
         playQueueManager.setPosition(1, true);
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).size()).isEqualTo(0);
+
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).size()).isEqualTo(1);
     }
 
     @Test
@@ -1685,9 +1687,28 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                          PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
         Mockito.reset(playQueueOperations);
 
-        assertThat(playQueueManager.getExplicitQueueItems().size()).isEqualTo(1);
-        assertThat(playQueueManager.getExplicitQueueItems().get(0).getUrn().getNumericId()).isEqualTo(124L);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().size()).isEqualTo(1);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().get(0).getUrn().getNumericId()).isEqualTo(124L);
+    }
 
+    @Test
+    public void shouldReturnOnlyUpcomingPlayQueueItems() {
+        final PlayQueueItem item1 = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
+                PlaybackContext.create(playlistSessionSource)).build();
+        final PlayQueueItem item2 = new TrackQueueItem.Builder(Urn.forTrack(124L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT)).build();
+        final PlayQueueItem item3 = new TrackQueueItem.Builder(Urn.forTrack(125L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(newArrayList(item1, item2, item3));
+
+        playQueueManager.setNewPlayQueue(playQueue,
+                                         PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
+        playQueueManager.setCurrentPlayQueueItem(item1);
+        Mockito.reset(playQueueOperations);
+
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().size()).isEqualTo(2);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().get(0).getUrn().getNumericId()).isEqualTo(124L);
+        assertThat(playQueueManager.getUpcomingExplicitQueueItems().get(1).getUrn().getNumericId()).isEqualTo(125L);
     }
 
     @Test
@@ -1761,7 +1782,21 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.moveToNextRecommendationItem();
 
         assertThat(playQueueManager.getCurrentPlayQueueItem()).isEqualTo(item3);
+    }
 
+    @Test
+    public void delegatesIndexOfPlayQueueToPlayQueue() {
+        final PlayQueueItem item1 = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
+                PlaybackContext.create(playlistSessionSource)).build();
+        final PlayQueueItem item2 = new TrackQueueItem.Builder(Urn.forTrack(124L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY)).played(true).build();
+        final PlayQueueItem item3 = new TrackQueueItem.Builder(Urn.forTrack(125L)).withPlaybackContext(
+                PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(newArrayList(item1, item2, item3));
+
+        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
+
+        assertThat(playQueueManager.indexOfPlayQueueItem(item2)).isEqualTo(1);
     }
 
     private void assertPlayQueueSaved(PlayQueue expected) {

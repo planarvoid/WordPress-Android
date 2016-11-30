@@ -128,13 +128,17 @@ public class PlayQueueManager implements OriginProvider {
         logEmptyPlayQueues(playQueue, playSessionSource);
         currentPosition = startPosition;
 
-        if (isSamePlayQueue(playQueue, playSessionSource) && isSamePlayQueueType(playQueue)) {
-            publishCurrentQueueItemChanged();
-        } else {
+        if (!isSamePlayQueueAndType(playQueue, playSessionSource)) {
             setNewPlayQueueInternal(playQueue, playSessionSource);
             saveQueue(PlayQueueEvent.fromNewQueue(getCollectionUrn()));
         }
+
+        publishCurrentQueueItemChanged();
         saveCurrentPosition();
+    }
+
+    private boolean isSamePlayQueueAndType(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        return isSamePlayQueue(playQueue, playSessionSource) && isSamePlayQueueType(playQueue);
     }
 
     private boolean isSamePlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -162,6 +166,10 @@ public class PlayQueueManager implements OriginProvider {
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
         setPositionInternal(playQueue.indexOfPlayQueueItem(playQueueItem), true);
         saveCurrentPosition();
+    }
+
+    public int indexOfPlayQueueItem(PlayQueueItem playQueueItem) {
+        return playQueue.indexOfPlayQueueItem(playQueueItem);
     }
 
     public void setCurrentPlayQueueItem(Urn urn) {
@@ -772,12 +780,13 @@ public class PlayQueueManager implements OriginProvider {
         saveQueue(PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
     }
 
-    List<PlayQueueItem> getExplicitQueueItems() {
+    public List<PlayQueueItem> getUpcomingExplicitQueueItems() {
         List<PlayQueueItem> explicitPlayQueueItems = new ArrayList<>();
-        for (PlayQueueItem playQueueItem : playQueue) {
-            if (playQueueItem.isPlayable()) {
+        List<PlayQueueItem> upcomingItems = playQueue.items().subList(currentPosition, playQueue.items().size());
+        for (PlayQueueItem playQueueItem : upcomingItems) {
+            if (playQueueItem.isPlayable() && playQueueItem != getCurrentPlayQueueItem()) {
                 PlayableQueueItem playableQueueItem = (PlayableQueueItem) playQueueItem;
-                if (playableQueueItem.isBucket(Bucket.EXPLICIT)) {
+                if (playableQueueItem.isBucket(Bucket.EXPLICIT) ) {
                     explicitPlayQueueItems.add(playQueueItem);
                 }
             }

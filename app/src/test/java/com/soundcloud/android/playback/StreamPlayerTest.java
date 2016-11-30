@@ -57,7 +57,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @After
     public void tearDown() {
-        StreamPlayer.skippyFailedToInitialize = false;
+        StreamPlayer.SKIPPY_FAILED_TO_INITIALIZE = false;
     }
 
     private void instantiateStreamPlaya() {

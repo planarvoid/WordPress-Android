@@ -11,10 +11,10 @@ import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -23,11 +23,10 @@ class StreamPlayer implements PlayerListener {
 
     public static final String TAG = "StreamPlayer";
 
-    @VisibleForTesting
-    static boolean skippyFailedToInitialize;
+    @VisibleForTesting static boolean SKIPPY_FAILED_TO_INITIALIZE;
 
     private final MediaPlayerAdapter mediaPlayerDelegate;
-    private final SkippyAdapter skippyPlayerDelegate;
+    private final Optional<SkippyAdapter> skippyPlayerDelegate;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final EventBus eventBus;
 
@@ -39,28 +38,35 @@ class StreamPlayer implements PlayerListener {
     private PlaybackStateTransition lastStateTransition = PlaybackStateTransition.DEFAULT;
 
     @Inject
-    public StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
-                        SkippyAdapter skippyAdapter,
-                        NetworkConnectionHelper networkConnectionHelper,
-                        EventBus eventBus) {
-        mediaPlayerDelegate = mediaPlayerAdapter;
-        skippyPlayerDelegate = skippyAdapter;
+    StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
+                 SkippyAdapter skippyAdapter,
+                 NetworkConnectionHelper networkConnectionHelper,
+                 EventBus eventBus) {
         this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
+        this.mediaPlayerDelegate = mediaPlayerAdapter;
+        this.skippyPlayerDelegate = initSkippy(skippyAdapter);
+        this.currentPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;
+    }
 
-        if (!skippyFailedToInitialize) {
-            skippyFailedToInitialize = !skippyPlayerDelegate.init();
+    private static Optional<SkippyAdapter> initSkippy(SkippyAdapter skippyAdapter) {
+        if (SKIPPY_FAILED_TO_INITIALIZE) {
+            return Optional.absent();
+        } else {
+            SKIPPY_FAILED_TO_INITIALIZE = !skippyAdapter.init();
+            if (SKIPPY_FAILED_TO_INITIALIZE) {
+                return Optional.absent();
+            } else {
+                return Optional.of(skippyAdapter);
+            }
         }
-
-        currentPlayer = skippyFailedToInitialize ? mediaPlayerAdapter : skippyAdapter;
     }
 
     /**
      * state storage. should be gone in player v2 *
      */
-
     @Deprecated
-    public PlaybackStateTransition getLastStateTransition() {
+    PlaybackStateTransition getLastStateTransition() {
         return lastStateTransition;
     }
 
@@ -84,7 +90,7 @@ class StreamPlayer implements PlayerListener {
     }
 
     public void preload(PreloadItem preloadItem) {
-        skippyPlayerDelegate.preload(preloadItem);
+        currentPlayer.preload(preloadItem);
     }
 
     private void prepareForPlay(PlaybackItem playbackItem) {
@@ -108,11 +114,11 @@ class StreamPlayer implements PlayerListener {
         return currentPlayer.getProgress();
     }
 
-    public void setVolume(float v) {
+    void setVolume(float v) {
         currentPlayer.setVolume(v);
     }
 
-    public float getVolume() {
+    float getVolume() {
         return currentPlayer.getVolume();
     }
 
@@ -120,29 +126,27 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.stop();
     }
 
-    public boolean isSeekable() {
+    boolean isSeekable() {
         return currentPlayer.isSeekable();
     }
 
     public void destroy() {
         // call stop first as it will save the queue/position
         mediaPlayerDelegate.destroy();
-        if (!skippyFailedToInitialize) {
-            skippyPlayerDelegate.destroy();
+        if (skippyPlayerDelegate.isPresent()) {
+            skippyPlayerDelegate.get().destroy();
         }
     }
 
     public void setListener(PlayerListener playerListener) {
         this.playerListener = playerListener;
-        if (currentPlayer != null) {
-            currentPlayer.setListener(playerListener);
-        }
+        currentPlayer.setListener(playerListener);
     }
 
     @Override
     public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
-            final long currentProgress = skippyPlayerDelegate.getProgress();
+            final long currentProgress = skippyPlayerDelegate.get().getProgress();
             configureNextPlayerToUse(mediaPlayerDelegate);
             mediaPlayerDelegate.play(getUpdatedItem(currentProgress));
         } else {
@@ -182,7 +186,7 @@ class StreamPlayer implements PlayerListener {
     private void configureNextPlayerToUse(Player nextPlayer) {
         Log.i(TAG, "Configuring next player to use : " + nextPlayer);
 
-        if (currentPlayer != null && currentPlayer != nextPlayer) {
+        if (currentPlayer != nextPlayer) {
             currentPlayer.stopForTrackTransition();
         }
 
@@ -191,18 +195,19 @@ class StreamPlayer implements PlayerListener {
     }
 
     private Player getNextPlayer(PlaybackItem playbackItem) {
-        if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE && skippyFailedToInitialize) {
+        if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE && !skippyPlayerDelegate.isPresent()) {
             logOfflinePlayNotAvailable();
         }
-        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_AD || skippyFailedToInitialize) {
-            return mediaPlayerDelegate;
+
+        if (skippyPlayerDelegate.isPresent() && playbackItem.getPlaybackType() != PlaybackType.VIDEO_AD) {
+            return skippyPlayerDelegate.get();
         } else {
-            return skippyPlayerDelegate;
+            return mediaPlayerDelegate;
         }
     }
 
     private boolean isUsingSkippyPlayer() {
-        return currentPlayer == skippyPlayerDelegate;
+        return skippyPlayerDelegate.isPresent() && currentPlayer == skippyPlayerDelegate.get();
     }
 
     private void logOfflinePlayNotAvailable() {
@@ -210,10 +215,11 @@ class StreamPlayer implements PlayerListener {
         eventBus.publish(EventQueue.PLAYBACK_ERROR, getOfflinePlayUnavailableErrorEvent());
     }
 
-    @NonNull
     private PlaybackErrorEvent getOfflinePlayUnavailableErrorEvent() {
-        return new PlaybackErrorEvent(PlaybackErrorEvent.CATEGORY_OFFLINE_PLAY_UNAVAILABLE, PlaybackProtocol.HLS,
-                                      Strings.EMPTY, ConnectionType.UNKNOWN);
+        return new PlaybackErrorEvent(PlaybackErrorEvent.CATEGORY_OFFLINE_PLAY_UNAVAILABLE,
+                                      PlaybackProtocol.HLS,
+                                      Strings.EMPTY,
+                                      ConnectionType.UNKNOWN);
     }
 
     private static class OfflinePlayUnavailableException extends Exception {

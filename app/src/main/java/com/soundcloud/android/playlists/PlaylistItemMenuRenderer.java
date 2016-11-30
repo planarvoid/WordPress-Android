@@ -6,10 +6,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
@@ -49,7 +48,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
-    private final FeatureFlags featureFlags;
+    private final PlayQueueExperiment playQueueExperiment;
     private OverflowMenuOptions menuOptions;
     private PopupMenuWrapper menu;
     private PlaylistItem playlist;
@@ -62,13 +61,13 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
                              @Provided ScreenProvider screenProvider,
                              @Provided EventBus eventBus,
                              @Provided FeatureOperations featureOperations,
-                             @Provided FeatureFlags featureFlags) {
+                             @Provided PlayQueueExperiment playQueueExperiment) {
         this.listener = listener;
         this.accountOperations = accountOperations;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
-        this.featureFlags = featureFlags;
+        this.playQueueExperiment = playQueueExperiment;
         this.menuOptions = menuOptions;
 
         this.menu = popupMenuWrapperFactory.build(button.getContext(), button);
@@ -177,7 +176,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private void configurePlayNextOption() {
-        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
+        menu.setItemVisible(R.id.play_next, playQueueExperiment.isEnabled());
     }
 
     @Override

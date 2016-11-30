@@ -17,7 +17,9 @@ public class ActiveExperiments {
                                                                                          PlayerSwipeToSkipExperiment.CONFIGURATION,
                                                                                          PlayerUpsellCopyExperiment.CONFIGURATION,
                                                                                          PlaylistDiscoveryConfig.CONFIGURATION,
-                                                                                         DiscoveryModulesPositionExperiment.CONFIGURATION);
+                                                                                         DiscoveryModulesPositionExperiment.CONFIGURATION,
+                                                                                         AutocompleteConfig.CONFIGURATION,
+                                                                                         PlayQueueExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 

@@ -40,6 +40,9 @@ public class ProfileActivity extends PlayerActivity {
 
     @Override
     protected void setActivityContentView() {
+        setTheme(canShowProfileBanner()
+                ? R.style.Theme_SoundCloud_TransparentStatus
+                : R.style.Theme_SoundCloud);
         baseLayoutHelper.createActionBarLayout(this, canShowProfileBanner()
                                                      ? R.layout.profile
                                                      : R.layout.profile_no_banner);

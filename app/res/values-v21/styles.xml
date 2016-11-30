@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ToolbarShadow">
+    <style name="BaseToolbarShadow">
         <item name="android:id">@id/legacy_elevation</item>
         <item name="android:layout_height">5dp</item>
         <item name="android:layout_width">match_parent</item>

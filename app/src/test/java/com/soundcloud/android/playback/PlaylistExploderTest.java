@@ -93,6 +93,9 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         final Urn playlistUrn2 = Urn.forPlaylist(456);
         final PublishSubject<List<Urn>> playlistLoad1 = PublishSubject.create();
         final PublishSubject<List<Urn>> playlistLoad2 = PublishSubject.create();
+        final PublishSubject<List<Urn>> playlistLoad3 = PublishSubject.create();
+        final PublishSubject<List<Urn>> playlistLoad4 = PublishSubject.create();
+
         when(playQueueManager.getUpcomingPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKAHEAD_COUNT))
                 .thenReturn(Arrays.asList(playlistUrn1, playlistUrn2));
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(playlistLoad1);
@@ -104,10 +107,16 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         assertThat(playlistLoad1.hasObservers()).isTrue();
         assertThat(playlistLoad2.hasObservers()).isTrue();
 
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(playlistLoad3);
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(playlistLoad4);
+
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         assertThat(playlistLoad1.hasObservers()).isFalse();
         assertThat(playlistLoad2.hasObservers()).isFalse();
+        assertThat(playlistLoad3.hasObservers()).isTrue();
+        assertThat(playlistLoad4.hasObservers()).isTrue();
+
     }
 
 }

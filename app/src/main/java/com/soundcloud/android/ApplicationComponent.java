@@ -56,6 +56,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.WebViewActivity;
+import com.soundcloud.android.more.BasicSettingsFragment;
 import com.soundcloud.android.more.MoreFragment;
 import com.soundcloud.android.offline.AlarmManagerReceiver;
 import com.soundcloud.android.offline.OfflineContentService;
@@ -301,6 +302,7 @@ public interface ApplicationComponent {
     void inject(LegalActivity legalActivity);
     void inject(LegalFragment legalFragment);
     void inject(LicensesActivity licensesActivity);
+    void inject(BasicSettingsFragment basicSettingsFragment);
 
     //StationsModule
     void inject(StationInfoActivity stationInfoActivity);
@@ -335,5 +337,6 @@ public interface ApplicationComponent {
     void inject(RecentlyPlayedActivity recentlyPlayedActivity);
     void inject(RecentlyPlayedFragment recentlyPlayedFragmen);
     void inject(MoreFragment moreFragment);
+
     //Features Module --------
 }

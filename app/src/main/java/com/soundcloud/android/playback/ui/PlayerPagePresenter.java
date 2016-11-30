@@ -45,4 +45,5 @@ interface PlayerPagePresenter<T extends PlayerItem> {
 
     void onItemAdded(View view);
 
+    void showIntroductoryOverlayForPlayQueue(View view);
 }

@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.soundcloud.android.ads.AdsOperations.AdRequestData;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
@@ -53,6 +54,7 @@ public class AdsController {
 
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final FeatureOperations featureOperations;
     private final AdViewabilityController adViewabilityController;
     private final VisualAdImpressionOperations visualAdImpressionOperations;
     private final AdOverlayImpressionOperations adOverlayImpressionOperations;
@@ -96,7 +98,8 @@ public class AdsController {
     private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return playQueueManager.hasTrackAsNextItem()
+            return featureOperations.shouldRequestAds()
+                    && playQueueManager.hasTrackAsNextItem()
                     && !adsOperations.isNextItemAd()
                     && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
@@ -106,7 +109,8 @@ public class AdsController {
     private final Func1<Object, Boolean> shouldFetchInterstitialForCurrentTrack = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return playQueueManager.getCurrentPlayQueueItem().isTrack()
+            return featureOperations.shouldRequestAds()
+                    && playQueueManager.getCurrentPlayQueueItem().isTrack()
                     && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getCurrentPlayQueueItem());
         }
@@ -141,30 +145,34 @@ public class AdsController {
 
     @Inject
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
+                         FeatureOperations featureOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
                          AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository) {
-        this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
+        this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
              adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
+                         FeatureOperations featureOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
                          AdViewabilityController adViewabilityController,
-                         VideoSourceProvider videoSourceProvider, PlayQueueManager playQueueManager,
+                         VideoSourceProvider videoSourceProvider,
+                         PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
                          Scheduler scheduler) {
 
-        this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
+        this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
              adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, scheduler,
              DEFAULT_OPERATION_STALE_TIME);
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
+                         FeatureOperations featureOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
                          AdViewabilityController adViewabilityController,
@@ -175,6 +183,7 @@ public class AdsController {
                          long fetchOperationStaleTime) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
+        this.featureOperations = featureOperations;
         this.visualAdImpressionOperations = visualAdImpressionOperations;
         this.adOverlayImpressionOperations = adOverlayImpressionOperations;
         this.adViewabilityController = adViewabilityController;

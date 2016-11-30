@@ -47,7 +47,7 @@ ext {
 
           // Analytics / tracking
           comscore                    : "com.comscore:comscore:3.1508.28",
-          adjustAndroid               : "com.adjust.sdk:adjust-android:4.1.2",
+          adjustAndroid               : "com.adjust.sdk:adjust-android:4.10.4",
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.5",
           appBoy                      : "com.appboy:android-sdk-ui:1.15.3",
           krux                        : "com.krux:androidsdk:2.0.0",
@@ -70,6 +70,7 @@ ext {
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
           tSnackBar                   : "com.androidadvance:topsnackbar:0.0.9",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
+          tapTargetView               : "com.getkeepsafe.taptargetview:taptargetview:1.5.2",
 
           // Android libraries
           androidMultidex                 : "com.android.support:multidex:$androidMultiDex",

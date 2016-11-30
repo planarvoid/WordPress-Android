@@ -72,7 +72,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     private void assertClickSearchSuggestionPlaylist() {
         PlaylistDetailsScreen player = discoveryScreen.clickSearch()
-                                                      .setSearchQuery("test playlist")
+                                                      .setSearchQuery("do not delete")
                                                       .clickOnPlaylistSuggestion();
 
         assertThat("Playlist details should be visible", player.isVisible());

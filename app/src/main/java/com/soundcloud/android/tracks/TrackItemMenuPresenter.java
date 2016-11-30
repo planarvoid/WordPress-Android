@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -24,8 +25,6 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -60,7 +59,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final ScreenProvider screenProvider;
     private final StartStationHandler stationHandler;
     private final AccountOperations accountOperations;
-    private final FeatureFlags featureFlags;
+    private final PlayQueueExperiment playQueueExperiment;
     private final PlayQueueManager playQueueManager;
     private final PlaybackInitiator playbackInitiator;
     private final PlaybackToastHelper playbackToastHelper;
@@ -94,7 +93,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            ShareOperations shareOperations,
                            StartStationHandler stationHandler,
                            AccountOperations accountOperations,
-                           FeatureFlags featureFlags,
+                           PlayQueueExperiment playQueueExperiment,
                            PlayQueueManager playQueueManager,
                            PlaybackInitiator playbackInitiator,
                            PlaybackToastHelper playbackToastHelper,
@@ -110,7 +109,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.stationHandler = stationHandler;
         this.shareOperations = shareOperations;
         this.accountOperations = accountOperations;
-        this.featureFlags = featureFlags;
+        this.playQueueExperiment = playQueueExperiment;
         this.playQueueManager = playQueueManager;
         this.playbackInitiator = playbackInitiator;
         this.playbackToastHelper = playbackToastHelper;
@@ -186,7 +185,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void configurePlayNext(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
+        menu.setItemVisible(R.id.play_next, playQueueExperiment.isEnabled());
         menu.setItemEnabled(R.id.play_next, canPlayNext(track));
     }
 

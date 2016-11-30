@@ -462,26 +462,51 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void includeExplicitContentFromPreviousQueue() {
-        final PlayQueueItem explicitTrack = TestPlayQueueItem.createTrack(Urn.forTrack(123l));
-        final List<PlayQueueItem> currentPlayQueue = Collections.singletonList(explicitTrack);
-        when(playQueueManager.getExplicitQueueItems()).thenReturn(currentPlayQueue);
+        final PlayQueueItem explicitTrack1 = TestPlayQueueItem.createTrack(Urn.forTrack(123l));
+        final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234l));
+        final List<PlayQueueItem> currentPlayQueue = Arrays.asList(explicitTrack1, explicitTrack2);
+        when(playQueueManager.getUpcomingExplicitQueueItems()).thenReturn(currentPlayQueue);
 
         final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
-        playbackInitiator.playTracks(newTrackList, 1, PlaySessionSource.EMPTY).subscribe();
+        playbackInitiator.playTracks(newTrackList, 0, PlaySessionSource.EMPTY).subscribe();
 
         verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(),
-                                                   eq(Urn.forTrack(2)),
-                                                   eq(1),
+                                                   eq(Urn.forTrack(1)),
+                                                   eq(0),
                                                    eq(PlaySessionSource.EMPTY));
 
 
         PlayQueue createdPlayQueue = playQueueTracksCaptor.getValue();
-        assertThat(createdPlayQueue.size()).isEqualTo(4);
+        assertThat(createdPlayQueue.size()).isEqualTo(5);
         assertThat(createdPlayQueue.getUrn(0).getNumericId()).isEqualTo(1);
         assertThat(createdPlayQueue.getUrn(1).getNumericId()).isEqualTo(123);
-        assertThat(createdPlayQueue.getUrn(2).getNumericId()).isEqualTo(2);
-        assertThat(createdPlayQueue.getUrn(3).getNumericId()).isEqualTo(3);
+        assertThat(createdPlayQueue.getUrn(2).getNumericId()).isEqualTo(1234);
+        assertThat(createdPlayQueue.getUrn(3).getNumericId()).isEqualTo(2);
+        assertThat(createdPlayQueue.getUrn(4).getNumericId()).isEqualTo(3);
+    }
 
+    @Test
+    public void addExplicitContentToEndWhenStartPositionisHigherThanNumberOfTracks() {
+        final PlayQueueItem explicitTrack1 = TestPlayQueueItem.createTrack(Urn.forTrack(123l));
+        final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234l));
+        final List<PlayQueueItem> currentPlayQueue = Arrays.asList(explicitTrack1, explicitTrack2);
+        when(playQueueManager.getUpcomingExplicitQueueItems()).thenReturn(currentPlayQueue);
+
+        final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
+        playbackInitiator.playTracks(newTrackList, 2, PlaySessionSource.EMPTY).subscribe();
+
+        verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(),
+                                                   eq(Urn.forTrack(3)),
+                                                   eq(2),
+                                                   eq(PlaySessionSource.EMPTY));
+
+
+        PlayQueue createdPlayQueue = playQueueTracksCaptor.getValue();
+        assertThat(createdPlayQueue.getUrn(0).getNumericId()).isEqualTo(1);
+        assertThat(createdPlayQueue.getUrn(1).getNumericId()).isEqualTo(2);
+        assertThat(createdPlayQueue.getUrn(2).getNumericId()).isEqualTo(3);
+        assertThat(createdPlayQueue.getUrn(3).getNumericId()).isEqualTo(123);
+        assertThat(createdPlayQueue.getUrn(4).getNumericId()).isEqualTo(1234);
     }
 
     private void expectSuccessPlaybackResult() {

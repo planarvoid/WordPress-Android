@@ -16,10 +16,15 @@ import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.cast.CastPlayerStripController;
+import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -27,10 +32,10 @@ import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.playback.ui.view.PlayerStripView;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -81,10 +86,13 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private PlayQueueExperiment playQueueExperiment;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
+    @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
     @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
+    @Mock private CastPlayerStripControllerFactory castPlayerStripControllerFactory;
+    @Mock private CastPlayerStripController castPlayerStripController;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -103,23 +111,26 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            featureOperations,
                                            listener,
                                            likeButtonPresenter,
+                                           introductoryOverlayPresenter,
                                            waveformFactory,
                                            artworkFactory,
                                            playerOverlayControllerFactory,
                                            trackMenuControllerFactory,
+                                           castPlayerStripControllerFactory,
                                            adOverlayControllerFactory,
                                            errorControllerFactory,
                                            castConnectionHelper,
                                            resources(),
                                            upsellImpressionController,
                                            upsellCopyExperiment,
-                                           featureFlags);
+                                           playQueueExperiment);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
         when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(
                 adOverlayController);
+        when(castPlayerStripControllerFactory.create(any(PlayerStripView.class))).thenReturn(castPlayerStripController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_1);
         trackView = presenter.createItemView(container, skipListener);
@@ -226,7 +237,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20, dateProvider), true, true);
 
-        verify(waveformViewController).showPlayingState(eq(TestPlaybackProgress.getPlaybackProgress(10, 20, dateProvider)));
+        verify(waveformViewController).showPlayingState(eq(TestPlaybackProgress.getPlaybackProgress(10,
+                                                                                                    20,
+                                                                                                    dateProvider)));
     }
 
     @Test
@@ -728,15 +741,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldHideShareButtonWhenCasting() {
-        when(castConnectionHelper.getDeviceName()).thenReturn("chromy");
-
-        populateTrackPage();
-
-        assertThat(getHolder(trackView).shareButton).isGone();
-    }
-
-    @Test
     public void shouldShowShareButtonWhenNotCasting() {
         when(castConnectionHelper.getDeviceName()).thenReturn(null);
 
@@ -754,6 +758,16 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         assertThat(getHolder(trackView).upsellText.getText())
                 .isEqualTo(resources().getText(R.string.playback_upsell_2));
+    }
+
+    @Test
+    public void showingPlayQueueIntroductoryOverlayForwardsCallToPresenterWithCorrectParameters() {
+        presenter.showIntroductoryOverlayForPlayQueue(trackView);
+
+        verify(introductoryOverlayPresenter).show(IntroductoryOverlayKey.PLAY_QUEUE,
+                                                  getHolder(trackView).playQueueButton,
+                                                  resources().getString(R.string.play_queue_introductory_overlay_title),
+                                                  resources().getString(R.string.play_queue_introductory_overlay_description));
     }
 
     private TrackPageHolder getHolder(View trackView) {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.view.DefaultAnimationListener;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -76,26 +77,11 @@ public class LoadingAnimationView extends FrameLayout {
         }
     }
 
-    private static class InfiniteAnimationListener implements Animator.AnimatorListener {
-        @Override
-        public void onAnimationStart(Animator animation) {
-
-        }
-
+    private static class InfiniteAnimationListener extends DefaultAnimationListener {
         @Override
         public void onAnimationEnd(Animator animation) {
             animation.setStartDelay(DELAY_BEFORE_REPEATING_ANIMATION);
             animation.start();
-        }
-
-        @Override
-        public void onAnimationCancel(Animator animation) {
-
-        }
-
-        @Override
-        public void onAnimationRepeat(Animator animation) {
-
         }
     }
 }

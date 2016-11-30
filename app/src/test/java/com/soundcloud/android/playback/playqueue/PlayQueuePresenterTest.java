@@ -73,6 +73,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
     private final PlayQueueUIItem headerItem = headerPlayQueueUIItem();
+    private final PublishSubject<List<TrackAndPlayQueueItem>> tracksSubject = PublishSubject.create();
 
     @Before
     public void setUp() throws Exception {
@@ -121,13 +122,16 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveItemAtPosition() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
+        final PlayQueueItem playQueueItem = upcomingTrack.getPlayQueueItem();
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueManager.indexOfPlayQueueItem(playQueueItem)).thenReturn(1);
+        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
+        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
         presenter.remove(2);
 
-        verify(adapter).getAdapterPosition(upcomingTrack.getPlayQueueItem());
         verify(adapter).removeItem(2);
-        verify(playQueueManager).removeItem(upcomingTrack.getPlayQueueItem());
+        verify(playQueueManager).removeItem(playQueueItem);
     }
 
     @Test
@@ -164,7 +168,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSubscribeToPlayQueueChanged() {
-        final PublishSubject<List<TrackAndPlayQueueItem>> tracksSubject = PublishSubject.create();
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
         final PlayQueueEvent event = PlayQueueEvent.fromNewQueue(Urn.NOT_SET);
@@ -177,7 +180,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSubscribeToPlayQueueChangedAndFilterOutItemChanges() {
-        final PublishSubject<List<TrackAndPlayQueueItem>> tracksSubject = PublishSubject.create();
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
         final PlayQueueEvent event = PlayQueueEvent.fromQueueUpdateMoved(Urn.NOT_SET);
@@ -276,6 +278,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(Collections.<PlayQueueUIItem>emptyList());
         when(adapter.getItem(position)).thenReturn(trackPlayQueueUIItem);
         when(adapter.getAdapterPosition(playQueueItem)).thenReturn(position);
+        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
+        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
         presenter.remove(position);
 
@@ -363,6 +367,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     public void shouldTrackRemoval() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
+        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
         presenter.remove(2);
 
@@ -373,6 +379,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldTrackRemovalUndo() {
         when(adapter.getItem(2)).thenReturn(trackPlayQueueUIItemWithPlayState(COMING_UP));
+        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
+        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
         presenter.remove(2);
         feedbackUndo();
@@ -441,3 +449,4 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
 }
+

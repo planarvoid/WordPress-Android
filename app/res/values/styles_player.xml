@@ -79,33 +79,29 @@
     <style name="PlayerLikeBase.PlayerLike">
         <item name="android:background">@drawable/btn_player_like</item>
         <item name="android:paddingLeft">36dp</item>
-
-        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">@dimen/player_like_margin_right</item>
     </style>
 
     <style name="PlayerMediaRouteButton" parent="Widget.MediaRouter.MediaRouteButton">
-        <item name="android:layout_width">60dp</item>
-        <item name="android:layout_height">67dp</item>
-        <item name="android:paddingBottom">2dp</item>
-        <item name="android:paddingLeft">26dp</item>
-        <item name="android:layout_marginRight">-12dp</item>
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:layout_marginRight">-23dp</item>
+        <item name="android:layout_marginTop">-3dp</item>
         <item name="android:visibility">gone</item>
     </style>
 
     <style name="PlayerMore">
-        <item name="android:layout_width">60dp</item>
-        <item name="android:paddingRight">12dp</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
+        <item name="android:layout_marginRight">@dimen/player_more_margin_right</item>
         <item name="android:src">@drawable/btn_player_more</item>
         <item name="android:scaleType">center</item>
     </style>
 
     <style name="PlayerCloseBase">
         <item name="android:layout_width">72dp</item>
-        <item name="android:layout_height">67dp</item>
-        <item name="android:paddingRight">12dp</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingBottom">3dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:layout_marginTop">-3dp</item>
         <item name="android:src">@drawable/btn_player_close</item>
         <item name="android:scaleType">centerInside</item>
         <item name="android:clickable">true</item>
@@ -115,17 +111,19 @@
     <style name="PlayerCloseBase.PlayerClose" />
 
     <style name="PlayerShare">
-        <item name="android:layout_width">@dimen/player_share_width</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:src">@drawable/btn_player_share</item>
+        <item name="android:layout_marginRight">@dimen/player_share_margin_right</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="PlayerQueue">
         <item name="android:src">@drawable/btn_player_play_queue</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:layout_width">@dimen/player_play_queue_height</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
+        <item name="android:layout_marginRight">@dimen/player_queue_margin_right</item>
         <item name="android:scaleType">center</item>
         <item name="android:visibility">gone</item>
         <item name="android:padding">18dp</item>

@@ -25,8 +25,8 @@ public class SyncOperations {
 
     public static <T> Observable<T> emptyResult(Result result) {
         return result == SyncOperations.Result.ERROR ?
-               Observable.<T>error(new SyncFailedException()) :
-               Observable.<T>empty();
+               Observable.error(new SyncFailedException()) :
+               Observable.empty();
     }
 
     public Observable<Result> sync(Syncable syncable) {

@@ -216,22 +216,7 @@ public class CircularProgressDrawable extends Drawable
         mObjectAnimatorSweep.setDuration(SWEEP_ANIMATOR_DURATION);
         mObjectAnimatorSweep.setRepeatMode(ValueAnimator.RESTART);
         mObjectAnimatorSweep.setRepeatCount(ValueAnimator.INFINITE);
-        mObjectAnimatorSweep.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
+        mObjectAnimatorSweep.addListener(new DefaultAnimationListener() {
             @Override
             public void onAnimationRepeat(Animator animation) {
                 toggleAppearingMode();

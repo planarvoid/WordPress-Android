@@ -15,7 +15,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func1;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -38,12 +37,6 @@ public abstract class TimelineOperations<ViewModel, StorageModel> {
     private final Scheduler scheduler;
     private final SyncStateStorage syncStateStorage;
     private final List<ViewModel> noMorePagesSentinel = Collections.emptyList();
-    private Func1<List<StorageModel>, List<ViewModel>> TO_VIEW_MODELS = new Func1<List<StorageModel>, List<ViewModel>>() {
-        @Override
-        public List<ViewModel> call(List<StorageModel> storageModels) {
-            return toViewModels(storageModels);
-        }
-    };
 
     public TimelineOperations(Syncable syncable,
                               TimelineStorage<StorageModel> storage,
@@ -57,100 +50,90 @@ public abstract class TimelineOperations<ViewModel, StorageModel> {
         this.syncStateStorage = syncStateStorage;
     }
 
-    protected Observable<List<ViewModel>> initialTimelineItems(boolean syncCompleted) {
+    protected Observable<List<ViewModel>> initialTimelineItems(final boolean syncCompleted) {
         return storage.timelineItems(PAGE_SIZE)
                       .subscribeOn(scheduler)
                       .toList()
-                      .map(TO_VIEW_MODELS)
-                      .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
+                      .map(this::toViewModels)
+                      .flatMap(viewModels -> handleLocalResult(viewModels, INITIAL_TIMESTAMP, syncCompleted));
     }
 
     protected Observable<List<ViewModel>> updatedTimelineItems() {
         return syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)
-                            .flatMap(handleSyncResult(INITIAL_TIMESTAMP));
+                            .flatMap(syncJobResult -> handleSyncResult(syncJobResult, INITIAL_TIMESTAMP));
     }
 
     protected abstract List<ViewModel> toViewModels(List<StorageModel> storageModels);
 
-    private Func1<List<ViewModel>, Observable<List<ViewModel>>> handleLocalResult(
-            final long timestamp, final boolean syncCompleted) {
-        return new Func1<List<ViewModel>, Observable<List<ViewModel>>>() {
-            @Override
-            public Observable<List<ViewModel>> call(List<ViewModel> result) {
-                if (isEmptyResult(result)) {
-                    return handleEmptyLocalResult(timestamp, syncCompleted);
-                } else {
-                    return Observable.just(result);
-                }
-            }
-        };
+    private Observable<List<ViewModel>> handleLocalResult(List<ViewModel> result,
+                                                          long timestamp,
+                                                          boolean syncCompleted) {
+        if (isEmptyResult(result)) {
+            return handleEmptyLocalResult(timestamp, syncCompleted);
+        } else {
+            return Observable.just(result);
+        }
     }
 
     protected abstract boolean isEmptyResult(List<ViewModel> result);
 
-    private Observable<List<ViewModel>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
+    private Observable<List<ViewModel>> handleEmptyLocalResult(final long timestamp, boolean syncCompleted) {
         if (syncCompleted) {
             Log.d(TAG, "No items after previous sync, return empty page");
             return Observable.just(noMorePagesSentinel);
         } else {
             if (timestamp == INITIAL_TIMESTAMP) {
                 Log.d(TAG, "First page; triggering full sync");
-                return syncInitiator.sync(syncable).flatMap(handleSyncResult(timestamp));
+                return syncInitiator.sync(syncable)
+                                    .flatMap(syncJobResult -> handleSyncResult(syncJobResult, timestamp));
             } else {
                 Log.d(TAG, "Not on first page; triggering backfill sync");
-                return syncInitiator.sync(syncable, ApiSyncService.ACTION_APPEND).flatMap(handleSyncResult(timestamp));
+                return syncInitiator.sync(syncable, ApiSyncService.ACTION_APPEND)
+                                    .flatMap(syncJobResult -> handleSyncResult(syncJobResult, timestamp));
             }
         }
     }
 
-    private Func1<SyncJobResult, Observable<List<ViewModel>>> handleSyncResult(final long currentTimestamp) {
-        return new Func1<SyncJobResult, Observable<List<ViewModel>>>() {
-            @Override
-            public Observable<List<ViewModel>> call(SyncJobResult syncJobResult) {
-                Log.d(TAG, "Sync finished; new items? => " + syncJobResult);
-                if (syncJobResult.wasChanged()) {
-                    if (currentTimestamp == INITIAL_TIMESTAMP) {
-                        // we're coming from page 1, just load from local storage
-                        return initialTimelineItems(true);
-                    } else {
-                        // we're coming from a paged request
-                        return pagedTimelineItems(currentTimestamp, true);
-                    }
-                } else {
-                    return Observable.just(noMorePagesSentinel);
-                }
+    private Observable<List<ViewModel>> handleSyncResult(SyncJobResult syncJobResult, long currentTimestamp) {
+        Log.d(TAG, "Sync finished; new items? => " + syncJobResult);
+        if (syncJobResult.wasChanged()) {
+            if (currentTimestamp == INITIAL_TIMESTAMP) {
+                // we're coming from page 1, just load from local storage
+                return initialTimelineItems(true);
+            } else {
+                // we're coming from a paged request
+                return pagedTimelineItems(currentTimestamp, true);
             }
-        };
+        } else {
+            return Observable.just(noMorePagesSentinel);
+        }
     }
 
-    private Observable<List<ViewModel>> pagedTimelineItems(final long timestamp, boolean syncCompleted) {
+    private Observable<List<ViewModel>> pagedTimelineItems(final long timestamp, final boolean syncCompleted) {
         return storage
                 .timelineItemsBefore(timestamp, PAGE_SIZE)
                 .toList()
                 .subscribeOn(scheduler)
-                .map(TO_VIEW_MODELS)
-                .flatMap(handleLocalResult(timestamp, syncCompleted));
+                .map(this::toViewModels)
+                .flatMap(viewModels -> handleLocalResult(viewModels, timestamp, syncCompleted));
     }
 
     public Pager.PagingFunction<List<ViewModel>> pagingFunction() {
-        return new Pager.PagingFunction<List<ViewModel>>() {
-            @Override
-            public Observable<List<ViewModel>> call(List<ViewModel> result) {
-                // We use NO_MORE_PAGES as a finish token to signal that there really are no more items to be retrieved,
-                // even after doing a backfill sync. This is different from list.isEmpty, since this may be true for
-                // a local result set, but there are more items on the server.
-                if (result == noMorePagesSentinel) {
-                    return Pager.finish();
+        return result -> {
+            // We use NO_MORE_PAGES as a finish token to signal that there really are no more items to be retrieved,
+            // even after doing a backfill sync. This is different from list.isEmpty, since this may be true for
+            // a local result set, but there are more items on the server.
+            if (result == noMorePagesSentinel) {
+                return Pager.finish();
+            } else {
+                // to implement paging, we move the timestamp down reverse chronologically
+                final Optional<Date> lastTimestamp = getLastItemTimestamp(result);
+                if (lastTimestamp.isPresent()) {
+                    final long nextTimestamp = lastTimestamp.get().getTime();
+                    Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
+                    return pagedTimelineItems(nextTimestamp, false);
                 } else {
-                    // to implement paging, we move the timestamp down reverse chronologically
-                    final Optional<Date> lastTimestamp = getLastItemTimestamp(result);
-                    if (lastTimestamp.isPresent()) {
-                        final long nextTimestamp = lastTimestamp.get().getTime();
-                        Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
-                        return pagedTimelineItems(nextTimestamp, false);
-                    } else {
-                        return Pager.finish();
-                    }
+                    return Pager.finish();
                 }
             }
         };

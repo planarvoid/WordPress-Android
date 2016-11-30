@@ -13,6 +13,8 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,13 +45,18 @@ public class TrackItem extends PlayableItem implements TieredTrack {
         return new Func1<List<PropertySet>, List<TrackItem>>() {
             @Override
             public List<TrackItem> call(List<PropertySet> bindings) {
-                List<TrackItem> trackItems = new ArrayList<>(bindings.size());
-                for (PropertySet source : bindings) {
-                    trackItems.add(from(source));
-                }
-                return trackItems;
+                return TrackItem.fromPropertySets(bindings);
             }
         };
+    }
+
+    @NonNull
+    public static List<TrackItem> fromPropertySets(List<PropertySet> bindings) {
+        List<TrackItem> trackItems = new ArrayList<>(bindings.size());
+        for (PropertySet source : bindings) {
+            trackItems.add(from(source));
+        }
+        return trackItems;
     }
 
     public static <T extends Iterable<ApiTrack>> Func1<T, List<TrackItem>> fromApiTracks() {

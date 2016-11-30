@@ -84,6 +84,11 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
         // default no-op
     }
 
+    @Override
+    public void showIntroductoryOverlayForPlayQueue(View view) {
+        // default no-op
+    }
+
     void setClickListener(View.OnClickListener listener, Iterable<View> views) {
         for (View v : views) {
             v.setOnClickListener(listener);

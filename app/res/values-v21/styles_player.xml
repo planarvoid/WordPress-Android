@@ -9,12 +9,13 @@
     <style name="PlayerLikeBase.PlayerLike">
         <item name="android:background">@drawable/btn_player_engagement_ripple</item>
         <item name="android:stateListAnimator">@null</item>
+        <item name="android:layout_marginRight">@dimen/player_like_margin_right</item>
     </style>
 
     <style name="PlayerMore" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:layout_width">60dp</item>
-        <item name="android:paddingRight">12dp</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
+        <item name="android:layout_marginRight">@dimen/player_more_margin_right</item>
         <item name="android:src">@drawable/btn_player_more</item>
         <item name="android:background">@drawable/btn_player_engagement_ripple</item>
         <item name="android:stateListAnimator">@null</item>
@@ -22,9 +23,10 @@
     </style>
 
     <style name="PlayerShare" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:layout_width">@dimen/player_share_width</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:src">@drawable/btn_player_share</item>
+        <item name="android:layout_marginRight">@dimen/player_share_margin_right</item>
         <item name="android:background">@drawable/btn_player_engagement_ripple</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
@@ -33,7 +35,8 @@
         <item name="android:src">@drawable/btn_player_play_queue</item>
         <item name="android:background">@drawable/circular_ripple</item>
         <item name="android:stateListAnimator">@null</item>
-        <item name="android:layout_width">@dimen/player_play_queue_height</item>
+        <item name="android:layout_marginRight">@dimen/player_queue_margin_right</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:scaleType">center</item>

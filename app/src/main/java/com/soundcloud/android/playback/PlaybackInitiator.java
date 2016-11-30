@@ -140,8 +140,12 @@ public class PlaybackInitiator {
         return new Action1<PlayQueue>() {
             @Override
             public void call(PlayQueue playQueueItems) {
-                List<PlayQueueItem> explicitQueueItems = playQueueManager.getExplicitQueueItems();
-                playQueueItems.insertAllItems(startPosition, explicitQueueItems);
+                List<PlayQueueItem> explicitQueueItems = playQueueManager.getUpcomingExplicitQueueItems();
+                if (playQueueItems.size() <= startPosition) {
+                    playQueueItems.insertAllItems(startPosition, explicitQueueItems);
+                } else {
+                    playQueueItems.insertAllItems(startPosition +1, explicitQueueItems);
+                }
             }
         };
     }

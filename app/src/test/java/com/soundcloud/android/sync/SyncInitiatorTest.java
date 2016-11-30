@@ -12,6 +12,7 @@ import rx.observers.TestSubscriber;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.ResultReceiver;
 
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
+        assertThat(intent.<Parcelable>getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
@@ -53,7 +54,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo("action");
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
+        assertThat(intent.<Parcelable>getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
