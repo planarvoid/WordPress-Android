@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:id="@+id/play_controls"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_centerVertical="true"
-              tools:ignore="InconsistentLayout">
+<LinearLayout android:id="@+id/play_controls"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true"
+    android:paddingLeft="@dimen/player_fast_forward_rewind_margin"
+    android:paddingRight="@dimen/player_fast_forward_rewind_margin"
+    tools:ignore="InconsistentLayout"
+    tools:showIn="@layout/player_track_page">
 
     <ImageButton
-            android:id="@+id/player_previous"
-            style="@style/PlayerSkip.Previous"
-            android:layout_gravity="right|center"/>
+        android:id="@+id/player_previous"
+        style="@style/PlayerSkip.Previous"
+        android:layout_gravity="right|center" />
 
-    <FrameLayout android:layout_width="0dp"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:layout_weight="1">
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1">
+
         <ImageButton
-                android:id="@+id/player_play"
-                style="@style/PlayerPlay"
-                android:layout_gravity="center"/>
+            android:id="@+id/player_play"
+            style="@style/PlayerPlay"
+            android:layout_gravity="center" />
     </FrameLayout>
 
     <ImageButton
-            android:id="@+id/player_next"
-            style="@style/PlayerSkip.Next"
-            android:layout_gravity="left|center"/>
+        android:id="@+id/player_next"
+        style="@style/PlayerSkip.Next"
+        android:layout_gravity="left|center" />
 </LinearLayout>
 

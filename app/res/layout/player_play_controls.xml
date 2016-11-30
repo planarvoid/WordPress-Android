@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/play_controls"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_centerVertical="true">
+<RelativeLayout android:id="@+id/play_controls"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true"
+    android:paddingLeft="@dimen/player_fast_forward_rewind_margin"
+    android:paddingRight="@dimen/player_fast_forward_rewind_margin"
+    tools:showIn="@layout/player_track_page">
 
     <ImageButton
-            android:id="@+id/player_previous"
-            style="@style/PlayerSkip.Previous"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true" />
+        android:id="@+id/player_previous"
+        style="@style/PlayerSkip.Previous"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true" />
 
     <ImageButton
-            android:id="@+id/player_play"
-            style="@style/PlayerPlay"
-            android:layout_centerInParent="true" />
+        android:id="@+id/player_play"
+        style="@style/PlayerPlay"
+        android:layout_centerInParent="true" />
 
     <ImageButton
-            android:id="@+id/player_next"
-            style="@style/PlayerSkip.Next"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
+        android:id="@+id/player_next"
+        style="@style/PlayerSkip.Next"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
 </RelativeLayout>
 
