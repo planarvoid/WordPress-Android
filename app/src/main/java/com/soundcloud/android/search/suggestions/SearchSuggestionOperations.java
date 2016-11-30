@@ -24,17 +24,14 @@ import java.util.Collections;
 import java.util.List;
 
 class SearchSuggestionOperations {
-
-    private static final int MAX_SUGGESTIONS_NUMBER = 5;
+    private static final int MAX_SUGGESTIONS_NUMBER = 9;
 
     private final ApiClientRx apiClientRx;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
     private final Scheduler scheduler;
-
     private final SearchSuggestionStorage suggestionStorage;
     private final AutocompleteConfig autocompleteConfig;
-    private final AutocompleteFiltering autocompleteFiltering;
-
+    private final SearchSuggestionFiltering searchSuggestionFiltering;
     private final TypeToken<ModelCollection<Autocompletion>> autocompletionTypeToken = new TypeToken<ModelCollection<Autocompletion>>() {
     };
 
@@ -44,13 +41,13 @@ class SearchSuggestionOperations {
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                SearchSuggestionStorage suggestionStorage,
                                AutocompleteConfig autocompleteConfig,
-                               AutocompleteFiltering autocompleteFiltering) {
+                               SearchSuggestionFiltering searchSuggestionFiltering) {
         this.apiClientRx = apiClientRx;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.scheduler = scheduler;
         this.suggestionStorage = suggestionStorage;
         this.autocompleteConfig = autocompleteConfig;
-        this.autocompleteFiltering = autocompleteFiltering;
+        this.searchSuggestionFiltering = searchSuggestionFiltering;
     }
 
     Observable<List<SuggestionItem>> suggestionsFor(String query) {
@@ -84,7 +81,7 @@ class SearchSuggestionOperations {
                                 .flatMap(Observable::from)
                                 .map(propertySet -> fromPropertySet(propertySet, query))
                                 .toList()
-                                .map(autocompleteFiltering::filter)
+                                .map(searchSuggestionFiltering::filtered)
                                 .filter(list -> !list.isEmpty())
                                 .onErrorResumeNext(Observable.empty())
                                 .subscribeOn(scheduler);
