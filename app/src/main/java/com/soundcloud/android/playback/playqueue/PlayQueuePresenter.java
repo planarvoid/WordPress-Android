@@ -7,10 +7,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
@@ -19,7 +17,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.RxUtils;
@@ -124,19 +121,30 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     @VisibleForTesting
     void subscribeToEvents() {
+        setAdapterStreams();
+        setArtworkStreams();
+    }
+
+    private void setAdapterStreams() {
         eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                       .filter(currentPlayQueueItemEvent -> !isPlayingCurrent())
+                                       .flatMap(currentPlayQueueItemEvent -> fetchPlayQueueUIItems())
                                        .observeOn(AndroidSchedulers.mainThread())
-                                       .subscribe(new UpdateCurrentTrackSubscriber()));
+                                       .subscribe(new UpdateNowPlayingSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
                                        .observeOn(AndroidSchedulers.mainThread())
                                        .filter(playQueueEvent -> !playQueueEvent.itemChanged())
                                        .subscribe(new ChangePlayQueueSubscriber()));
+    }
+
+    private void setArtworkStreams() {
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
+                                       .map(progressEvent -> progressEvent.getPlaybackProgress())
                                        .observeOn(AndroidSchedulers.mainThread())
-                                       .subscribe(new PlaybackProgressSubscriber()));
+                                       .subscribe(progress -> artworkController.setProgress(progress)));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                                        .observeOn(AndroidSchedulers.mainThread())
-                                       .subscribe(new PlaybackStateSubscriber()));
+                                       .subscribe(stateEvent -> artworkController.setPlayState(stateEvent)));
     }
 
     @Override
@@ -276,6 +284,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
             if (playQueuePosition >= 0) {
                 playQueueManager.removeItem(playQueueItem);
                 showFeedback(adapterPosition, adapterItem, playQueueItem, playQueuePosition);
+                setCachedObservables();
             }
 
             rebuildLabels();
@@ -360,32 +369,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         }
 
         return false;
-    }
-
-    private class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
-
-        @Override
-        public void onNext(PlaybackProgressEvent progressEvent) {
-            artworkController.setProgress(progressEvent.getPlaybackProgress());
-        }
-    }
-
-    private class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
-
-        @Override
-        public void onNext(PlayStateEvent stateEvent) {
-            artworkController.setPlayState(stateEvent);
-        }
-    }
-
-    private class UpdateCurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
-
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent event) {
-            if (!isPlayingCurrent()) {
-                fetchPlayQueueUIItems().subscribe(new UpdateNowPlayingSubscriber());
-            }
-        }
     }
 
     private class UpdateNowPlayingSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
