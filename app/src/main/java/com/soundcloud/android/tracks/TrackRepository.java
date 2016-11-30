@@ -22,14 +22,20 @@ import java.util.List;
 import java.util.Map;
 
 public class TrackRepository {
-    private static final Func1<Map<Urn, PropertySet>, PropertySet> TO_MAP_VALUE_OR_EMPTY = new Func1<Map<Urn, PropertySet>, PropertySet>() {
-        @Override
-        public PropertySet call(Map<Urn, PropertySet> track) {
-            if (track.isEmpty()) {
-                return PropertySet.create();
-            } else {
-                return track.values().iterator().next();
-            }
+
+    private static final Func1<Map<Urn, TrackItem>, PropertySet> TO_PROPERTY_MAP_VALUE_OR_EMPTY = track -> {
+        if (track.isEmpty()) {
+            return PropertySet.create();
+        } else {
+            return track.values().iterator().next().getSource();
+        }
+    };
+
+    private static final Func1<Map<Urn, TrackItem>, TrackItem> TO_MAP_VALUE_OR_EMPTY = track -> {
+        if (track.isEmpty()) {
+            return null;
+        } else {
+            return track.values().iterator().next();
         }
     };
 
@@ -46,11 +52,16 @@ public class TrackRepository {
         this.scheduler = scheduler;
     }
 
+    @Deprecated // use trackItem
     public Observable<PropertySet> track(final Urn trackUrn) {
+        return tracks(singletonList(trackUrn)).map(TO_PROPERTY_MAP_VALUE_OR_EMPTY);
+    }
+
+    public Observable<TrackItem> trackItem(final Urn trackUrn) {
         return tracks(singletonList(trackUrn)).map(TO_MAP_VALUE_OR_EMPTY);
     }
 
-    public Observable<Map<Urn, PropertySet>> tracks(final List<Urn> requestedTracks) {
+    public Observable<Map<Urn, TrackItem>> tracks(final List<Urn> requestedTracks) {
         checkTracksUrn(requestedTracks);
 
         return trackStorage
@@ -61,18 +72,15 @@ public class TrackRepository {
     }
 
     private Func1<List<Urn>, Observable<?>> syncMissingTracks(final List<Urn> requestedTracks) {
-        return new Func1<List<Urn>, Observable<?>>() {
-            @Override
-            public Observable<?> call(List<Urn> tracksAvailable) {
-                final List<Urn> missingTracks = minus(requestedTracks, tracksAvailable);
-                if (missingTracks.isEmpty()) {
-                    return Observable.just(null);
-                } else {
-                    return syncInitiator
-                            .batchSyncTracks(missingTracks)
-                            // The syncer is notifying back on the main thread, so this has to be.
-                            .observeOn(scheduler);
-                }
+        return tracksAvailable -> {
+            final List<Urn> missingTracks = minus(requestedTracks, tracksAvailable);
+            if (missingTracks.isEmpty()) {
+                return Observable.just(null);
+            } else {
+                return syncInitiator
+                        .batchSyncTracks(missingTracks)
+                        // The syncer is notifying back on the main thread, so this has to be.
+                        .observeOn(scheduler);
             }
         };
     }

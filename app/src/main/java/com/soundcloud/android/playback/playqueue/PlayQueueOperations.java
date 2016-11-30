@@ -13,14 +13,10 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.DiffUtils;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func0;
 import rx.functions.Func1;
-
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,19 +26,7 @@ import java.util.Map;
 
 public class PlayQueueOperations {
 
-    private static final Predicate<PlayQueueItem> IS_TRACK = new Predicate<PlayQueueItem>() {
-        @Override
-        public boolean apply(@Nullable PlayQueueItem input) {
-            return input != null && input.isTrack() && input.getUrn().isTrack();
-        }
-    };
-
-    private final Func0<Observable<List<TrackAndPlayQueueItem>>> loadTracks = new Func0<Observable<List<TrackAndPlayQueueItem>>>() {
-        @Override
-        public Observable<List<TrackAndPlayQueueItem>> call() {
-            return loadTracks();
-        }
-    };
+    private static final Predicate<PlayQueueItem> IS_TRACK = input -> input != null && input.isTrack() && input.getUrn().isTrack();
 
     private Scheduler scheduler;
     private final PlayQueueManager playQueueManager;
@@ -61,7 +45,7 @@ public class PlayQueueOperations {
     }
 
     public Observable<List<TrackAndPlayQueueItem>> getTracks() {
-        return Observable.defer(loadTracks);
+        return Observable.defer(this::loadTracks);
     }
 
     Observable<Map<Urn, String>> getContextTitles() {
@@ -71,12 +55,7 @@ public class PlayQueueOperations {
     private Observable<List<TrackAndPlayQueueItem>> loadTracks() {
         final List<TrackQueueItem> playQueueItems = Lists.transform(playQueueManager.getPlayQueueItems(IS_TRACK), cast(TrackQueueItem.class));
 
-        final Func1<Map<Urn, PropertySet>, List<TrackAndPlayQueueItem>> fulfillWithKnownProperties = new Func1<Map<Urn, PropertySet>, List<TrackAndPlayQueueItem>>() {
-            @Override
-            public List<TrackAndPlayQueueItem> call(Map<Urn, PropertySet> urnPropertySetMap) {
-                return toTrackAndPlayQueueItem(playQueueItems, urnPropertySetMap);
-            }
-        };
+        final Func1<Map<Urn, TrackItem>, List<TrackAndPlayQueueItem>> fulfillWithKnownProperties = urnPropertySetMap -> toTrackAndPlayQueueItem(playQueueItems, urnPropertySetMap);
 
         final List<Urn> uniqueTrackUrns = DiffUtils.deduplicate(transform(playQueueItems, PlayQueueItem.TO_URN));
         return trackRepository
@@ -86,7 +65,7 @@ public class PlayQueueOperations {
     }
 
     private ArrayList<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<TrackQueueItem> playQueueItems,
-                                                                     Map<Urn, PropertySet> knownProperties) {
+                                                                     Map<Urn, TrackItem> knownProperties) {
         final ArrayList<TrackAndPlayQueueItem> trackItems = new ArrayList<>(playQueueItems.size());
 
         for (TrackQueueItem item : playQueueItems) {
@@ -95,13 +74,12 @@ public class PlayQueueOperations {
         return trackItems;
     }
 
-    private void addTrackAndPlayQueueItemIfPresent(Map<Urn, PropertySet> urnPropertySetMap,
+    private void addTrackAndPlayQueueItemIfPresent(Map<Urn, TrackItem> urnPropertySetMap,
                                                    ArrayList<TrackAndPlayQueueItem> trackItems,
                                                    TrackQueueItem item) {
         final Urn urn = item.getUrn();
         if (urnPropertySetMap.containsKey(urn)) {
-            final PropertySet propertyBindings = urnPropertySetMap.get(urn);
-            trackItems.add(new TrackAndPlayQueueItem(TrackItem.from(propertyBindings), item));
+            trackItems.add(new TrackAndPlayQueueItem(urnPropertySetMap.get(urn), item));
         }
     }
 

@@ -35,10 +35,10 @@ class TrackStorage {
     private final PropellerRx propeller;
     private final TrackItemMapper trackMapper = new TrackItemMapper();
 
-    private Func1<List<QueryResult>, Map<Urn, PropertySet>> toMapOfUrnAndPropertySet = new Func1<List<QueryResult>, Map<Urn, PropertySet>>() {
+    private Func1<List<QueryResult>, Map<Urn, TrackItem>> toMapOfUrnAndTrack = new Func1<List<QueryResult>, Map<Urn, TrackItem>>() {
         @Override
-        public Map<Urn, PropertySet> call(List<QueryResult> cursorReaders) {
-            return toMapOfUrnAndPropertySet(cursorReaders);
+        public Map<Urn, TrackItem> call(List<QueryResult> cursorReaders) {
+            return toMapOfUrnAndTrack(cursorReaders);
         }
     };
 
@@ -68,10 +68,10 @@ class TrackStorage {
                         .firstOrDefault(PropertySet.create());
     }
 
-    Observable<Map<Urn, PropertySet>> loadTracks(List<Urn> urns) {
+    Observable<Map<Urn, TrackItem>> loadTracks(List<Urn> urns) {
         return batchedTracks(urns).toList()
-                                  .map(toMapOfUrnAndPropertySet)
-                                  .firstOrDefault(Collections.<Urn, PropertySet>emptyMap());
+                                  .map(toMapOfUrnAndTrack)
+                                  .firstOrDefault(Collections.<Urn, TrackItem>emptyMap());
     }
 
     private Observable<QueryResult> batchedTracks(List<Urn> urns) {
@@ -82,14 +82,14 @@ class TrackStorage {
         return Observable.from(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchAvailableTrackUrns);
     }
 
-    private Map<Urn, PropertySet> toMapOfUrnAndPropertySet(List<QueryResult> cursorReadersBatches) {
-        final Map<Urn, PropertySet> tracks = new HashMap<>(cursorReadersBatches.size() * MAX_TRACKS_BATCH);
+    private Map<Urn, TrackItem> toMapOfUrnAndTrack(List<QueryResult> cursorReadersBatches) {
+        final Map<Urn, TrackItem> tracks = new HashMap<>(cursorReadersBatches.size() * MAX_TRACKS_BATCH);
         for (QueryResult cursorReaders : cursorReadersBatches) {
             for (CursorReader cursorReader : cursorReaders) {
                 final PropertySet track = trackMapper.map(cursorReader);
                 final Urn urn = track.get(TrackProperty.URN);
 
-                tracks.put(urn, track);
+                tracks.put(urn, TrackItem.from(track));
             }
         }
         return tracks;

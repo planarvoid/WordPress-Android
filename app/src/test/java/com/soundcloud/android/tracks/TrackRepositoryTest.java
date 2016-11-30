@@ -64,7 +64,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void tracksLoadAvailableTracksFromStorage() {
         final List<Urn> requestedTracks = singletonList(trackUrn);
         final List<Urn> availableTracks = singletonList(trackUrn);
-        final Map<Urn, PropertySet> syncedTrackProperties = singletonMap(trackUrn, track);
+        final Map<Urn, TrackItem> syncedTrackProperties = singletonMap(trackUrn, TrackItem.from(track));
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(syncedTrackProperties));
@@ -80,7 +80,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final List<Urn> requestedTracks = singletonList(trackUrn);
         final List<Urn> availableTracks = emptyList();
         final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
-        final Map<Urn, PropertySet> actualTrackProperties = singletonMap(trackUrn, syncedTrack);
+        final Map<Urn, TrackItem> actualTrackProperties = singletonMap(trackUrn, TrackItem.from(syncedTrack));
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));
@@ -95,7 +95,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void trackReturnsEmptyWhenLoadingFailed() {
         final List<Urn> requestedTracks = singletonList(trackUrn);
         final List<Urn> availableTracks = emptyList();
-        final Map<Urn, PropertySet> syncedTracks = emptyMap();
+        final Map<Urn, TrackItem> syncedTracks = emptyMap();
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));

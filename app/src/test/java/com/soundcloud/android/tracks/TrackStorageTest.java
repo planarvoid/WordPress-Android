@@ -169,33 +169,33 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadTracksSetsUserLikeIndividually() {
-        final TestSubscriber<Map<Urn, PropertySet>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Map<Urn, TrackItem>> subscriber = new TestSubscriber<>();
         ApiTrack likedApiTrack = testFixtures().insertLikedTrack(new Date());
         ApiTrack apiTrack = testFixtures().insertTrack();
 
         storage.loadTracks(asList(likedApiTrack.getUrn(), apiTrack.getUrn())).subscribe(subscriber);
-        Map<Urn, PropertySet> map = subscriber.getOnNextEvents().get(0);
+        Map<Urn, TrackItem> map = subscriber.getOnNextEvents().get(0);
 
-        assertThat(map.get(likedApiTrack.getUrn()).get(PlayableProperty.IS_USER_LIKE)).isTrue();
-        assertThat(map.get(apiTrack.getUrn()).get(PlayableProperty.IS_USER_LIKE)).isFalse();
+        assertThat(map.get(likedApiTrack.getUrn()).isLiked()).isTrue();
+        assertThat(map.get(apiTrack.getUrn()).isLiked()).isFalse();
     }
 
     @Test
     public void loadTracksSetsUserRepostsIndividually() {
-        final TestSubscriber<Map<Urn, PropertySet>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Map<Urn, TrackItem>> subscriber = new TestSubscriber<>();
         ApiTrack postedApiTrack = testFixtures().insertPostedTrack(new Date(), true);
         ApiTrack apiTrack = testFixtures().insertTrack();
 
         storage.loadTracks(asList(postedApiTrack.getUrn(), apiTrack.getUrn())).subscribe(subscriber);
-        Map<Urn, PropertySet> map = subscriber.getOnNextEvents().get(0);
+        Map<Urn, TrackItem> map = subscriber.getOnNextEvents().get(0);
 
-        assertThat(map.get(postedApiTrack.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isTrue();
-        assertThat(map.get(apiTrack.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isFalse();
+        assertThat(map.get(postedApiTrack.getUrn()).isRepostedByCurrentUser()).isTrue();
+        assertThat(map.get(apiTrack.getUrn()).isRepostedByCurrentUser()).isFalse();
     }
 
     @Test
     public void loadTracksInBatches() {
-        final TestSubscriber<Map<Urn, PropertySet>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Map<Urn, TrackItem>> subscriber = new TestSubscriber<>();
         List<Urn> trackUrns = insertBulkTracks(BATCH_TRACKS_COUNT);
 
         storage.loadTracks(trackUrns).subscribe(subscriber);
