@@ -29,7 +29,7 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "gcm_gateway_id", ""
-      resValue "string", "web_payment_form_environment", "sandbox"
+      resValue "string", "web_payment_form_environment", "staging"
 
       resValue "bool", "google_plus_enabled", "true"
       resValue "bool", "enforce_concurrent_streaming_limitation", "false"
@@ -45,7 +45,7 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "gcm_gateway_id", ""
-      resValue "string", "web_payment_form_environment", "sandbox"
+      resValue "string", "web_payment_form_environment", "staging"
 
       resValue "bool", "google_plus_enabled", "true"
       resValue "bool", "enforce_concurrent_streaming_limitation", "true"
