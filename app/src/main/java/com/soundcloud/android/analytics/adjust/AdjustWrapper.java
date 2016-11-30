@@ -6,25 +6,38 @@ import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustEvent;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
+import com.adjust.sdk.OnDeeplinkResponseListener;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.rx.eventbus.EventBus;
+import dagger.Lazy;
 
 import android.content.Context;
+import android.net.Uri;
 
 import javax.inject.Inject;
 
 public class AdjustWrapper {
+
     private final EventBus eventBus;
     private final ApplicationProperties applicationProperties;
+    private final Lazy<AccountOperations> accountOperations;
+    private final FeatureFlags flags;
 
     @Inject
-    public AdjustWrapper(EventBus eventBus,
-                         ApplicationProperties applicationProperties) {
+    AdjustWrapper(EventBus eventBus,
+                  ApplicationProperties applicationProperties,
+                  Lazy<AccountOperations> accountOperations,
+                  FeatureFlags flags) {
         this.eventBus = eventBus;
         this.applicationProperties = applicationProperties;
+        this.accountOperations = accountOperations;
+        this.flags = flags;
     }
 
     void onCreate(Context context) {
@@ -58,6 +71,10 @@ public class AdjustWrapper {
         setLogLevel(config);
         setAttributionListener(config);
 
+        if (flags.isEnabled(Flag.ADJUST_DEFERRED_DEEPLINKS)) {
+            enableDeferredDeeplinking(config);
+        }
+
         return config;
     }
 
@@ -87,4 +104,14 @@ public class AdjustWrapper {
                 adjustAttribution.creative
         ));
     }
+
+    private void enableDeferredDeeplinking(AdjustConfig config) {
+        config.setOnDeeplinkResponseListener(new OnDeeplinkResponseListener() {
+            @Override
+            public boolean launchReceivedDeeplink(Uri deeplink) {
+                return accountOperations.get().isUserLoggedIn();
+            }
+        });
+    }
+
 }

@@ -23,6 +23,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -33,6 +34,8 @@ import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -70,6 +73,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private TrackRepository trackRepository;
     @Mock private TrackPagePresenter trackPagePresenter;
+    @Mock private IntroductoryOverlayOperations introductoryOverlayOperations;
     @Mock private AudioAdPresenter audioAdPresenter;
     @Mock private VideoAdPresenter videoAdPresenter;
     @Mock private CastConnectionHelper castConnectionHelper;
@@ -77,6 +81,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private VideoSurfaceProvider videoSurfaceProvider;
     @Mock private PlayerPagerOnboardingPresenter onboardingPresenter;
+    @Mock private FeatureFlags featureFlags;
 
     @Mock private PlayerTrackPager playerTrackPager;
 
@@ -130,16 +135,19 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                              trackRepository,
                                              stationsOperations,
                                              trackPagePresenter,
+                                             introductoryOverlayOperations,
                                              audioAdPresenter,
                                              videoAdPresenter,
                                              castConnectionHelper,
                                              adOperations,
                                              videoSurfaceProvider,
                                              onboardingPresenter,
-                                             eventBus
+                                             eventBus,
+                                             featureFlags
         );
         when(playerFragment.getPlayerPager()).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
+        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
         presenter.onViewCreated(playerFragment, container, null);
         presenter.setCurrentPlayQueue(playQueue, 0);
 
@@ -747,6 +755,45 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         View currentPageView = getPageView();
 
         verify(trackPagePresenter).onViewSelected(currentPageView, playQueue.get(0), true);
+    }
+
+    @Test
+    public void expansionOfPlayerWillForwardTheIntroductoryOverlayCallToTheTrackPage() {
+        presenter.onResume(playerFragment);
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(0);
+        View currentTrackView = getPageView();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        verify(trackPagePresenter).showIntroductoryOverlayForPlayQueue(currentTrackView);
+    }
+
+    @Test
+    public void expansionOfPlayerWillOnlyForwardTheIntroductoryOverlayCallToTheSelectedTrackPage() {
+        int selectedPagePosition = 1;
+        int unselectedPagePosition = 0;
+
+        View unselectedPage = getPageView(unselectedPagePosition);
+        View selectedPage = getPageView(selectedPagePosition);
+        getPageView(2);
+
+        presenter.onResume(playerFragment);
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(selectedPagePosition);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        verify(trackPagePresenter, never()).showIntroductoryOverlayForPlayQueue(unselectedPage);
+        verify(trackPagePresenter).showIntroductoryOverlayForPlayQueue(selectedPage);
+    }
+
+    @Test
+    public void collapsingOfPlayerWillNotCallTheIntroductoryOverlayInTheTrackPage() {
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(0);
+        View currentTrackView = getPageView();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        verify(trackPagePresenter, never()).showIntroductoryOverlayForPlayQueue(currentTrackView);
     }
 
 

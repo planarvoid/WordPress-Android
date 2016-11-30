@@ -776,12 +776,13 @@ public class PlayQueueManager implements OriginProvider {
         saveQueue(PlayQueueEvent.fromQueueUpdateMoved(getCollectionUrn()));
     }
 
-    List<PlayQueueItem> getExplicitQueueItems() {
+    public List<PlayQueueItem> getUpcomingExplicitQueueItems() {
         List<PlayQueueItem> explicitPlayQueueItems = new ArrayList<>();
-        for (PlayQueueItem playQueueItem : playQueue) {
-            if (playQueueItem.isPlayable()) {
+        List<PlayQueueItem> upcomingItems = playQueue.items().subList(currentPosition, playQueue.items().size());
+        for (PlayQueueItem playQueueItem : upcomingItems) {
+            if (playQueueItem.isPlayable() && playQueueItem != getCurrentPlayQueueItem()) {
                 PlayableQueueItem playableQueueItem = (PlayableQueueItem) playQueueItem;
-                if (playableQueueItem.isBucket(Bucket.EXPLICIT)) {
+                if (playableQueueItem.isBucket(Bucket.EXPLICIT) ) {
                     explicitPlayQueueItems.add(playQueueItem);
                 }
             }

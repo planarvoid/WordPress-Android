@@ -215,6 +215,9 @@ dependencies {
   compile libraries.appBoy
   compile libraries.krux
   compile libraries.moat
+  compile (libraries.tapTargetView) {
+    exclude group: 'com.android.support'
+  }
 
   /* Android ... keep order! */
   compile libraries.androidMultidex

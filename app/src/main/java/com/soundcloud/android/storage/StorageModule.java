@@ -39,6 +39,7 @@ public class StorageModule {
     public static final String CHARTS_SYNC = "ChartsSync";
     public static final String GCM = "gcm";
     public static final String FACEBOOK_INVITES = "FacebookInvites";
+    public static final String INTRODUCTORY_OVERLAYS = "IntroductoryOverlays";
     public static final String COLLECTIONS = "collections";
     public static final String STATIONS = "stations";
     public static final String PLAYER = "player";
@@ -66,6 +67,7 @@ public class StorageModule {
     private static final String PREFS_CHARTS_SYNC = "ChartsSync";
     private static final String PREFS_GCM = "gcm";
     private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
+    private static final String PREFS_INTRODUCTORY_OVERLAYS = "intro_overlays";
     private static final String PREFS_COLLECTIONS = "collections";
     private static final String PREFS_STATIONS = "stations";
     private static final String PREFS_PLAYER = "player";
@@ -235,6 +237,12 @@ public class StorageModule {
     @Named(PLAY_SESSION_STATE)
     public SharedPreferences providePlaySessionState(Context context) {
         return context.getSharedPreferences(PREFS_PLAY_SESSION_STATE, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(INTRODUCTORY_OVERLAYS)
+    public SharedPreferences provideIntroductoryOverlayPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_INTRODUCTORY_OVERLAYS, Context.MODE_PRIVATE);
     }
 
     @Provides
