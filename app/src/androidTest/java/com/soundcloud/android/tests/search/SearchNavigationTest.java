@@ -37,10 +37,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
         assertGoBackFromSearchResultsReturnsToDiscoveryScreen();
         assertClickSearchSuggestionTrack();
         assertClickSearchSuggestionUser();
-
-        // TODO: 29/11/2016 Marvin will fix this tomorrow.
-        // search doesn't get playlist suggestion for the term anymore
-//        assertClickSearchSuggestionPlaylist();
+        assertClickSearchSuggestionPlaylist();
     }
 
     private void assertGoBackFromSearchResultsReturnsToDiscoveryScreen() {
@@ -75,7 +72,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     private void assertClickSearchSuggestionPlaylist() {
         PlaylistDetailsScreen player = discoveryScreen.clickSearch()
-                                                      .setSearchQuery("test playlist")
+                                                      .setSearchQuery("do not delete")
                                                       .clickOnPlaylistSuggestion();
 
         assertThat("Playlist details should be visible", player.isVisible());

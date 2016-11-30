@@ -29,6 +29,8 @@ public abstract class SuggestionItem {
             return SuggestionItem.forTrack(source, query);
         } else if (urn.isUser()) {
             return SuggestionItem.forUser(source, query);
+        } else if (urn.isPlaylist()) {
+            return SuggestionItem.forPlaylist(source, query);
         } else {
             throw new IllegalStateException("Unexpected suggestion item type.");
         }
