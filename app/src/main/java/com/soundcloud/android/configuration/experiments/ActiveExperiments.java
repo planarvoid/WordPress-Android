@@ -18,7 +18,8 @@ public class ActiveExperiments {
                                                                                          PlayerUpsellCopyExperiment.CONFIGURATION,
                                                                                          PlaylistDiscoveryConfig.CONFIGURATION,
                                                                                          DiscoveryModulesPositionExperiment.CONFIGURATION,
-                                                                                         AutocompleteConfig.CONFIGURATION);
+                                                                                         AutocompleteConfig.CONFIGURATION,
+                                                                                         PlayQueueExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 

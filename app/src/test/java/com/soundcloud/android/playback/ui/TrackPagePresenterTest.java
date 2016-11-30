@@ -19,6 +19,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -35,7 +36,6 @@ import com.soundcloud.android.playback.ui.view.PlayerStripView;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -86,7 +86,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private PlayQueueExperiment playQueueExperiment;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
@@ -123,7 +123,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            resources(),
                                            upsellImpressionController,
                                            upsellCopyExperiment,
-                                           featureFlags);
+                                           playQueueExperiment);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

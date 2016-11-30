@@ -10,9 +10,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import com.soundcloud.android.offline.OfflineProperty;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
@@ -32,7 +31,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private EventBus eventBus;
     @Mock private FeatureOperations featureOperations;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private PlayQueueExperiment playQueueExperiment;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private AccountOperations accountOperations;
@@ -55,7 +54,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
                                                 screenProvider,
                                                 eventBus,
                                                 featureOperations,
-                                                featureFlags);
+                                                playQueueExperiment);
     }
 
     @Test
@@ -78,7 +77,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowPlaylist() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(false);
+        when(playQueueExperiment.isEnabled()).thenReturn(false);
 
         renderer.render(playlist);
 
@@ -87,7 +86,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Test
     public void showPlaylist() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
+        when(playQueueExperiment.isEnabled()).thenReturn(true);
 
         renderer.render(playlist);
 

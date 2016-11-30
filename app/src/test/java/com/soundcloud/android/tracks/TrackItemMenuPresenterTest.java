@@ -16,11 +16,12 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.PlayableTrackingKeys;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -29,8 +30,6 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -64,7 +63,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PlayQueueManager playQueueManager;
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
-    @Mock FeatureFlags featureFlags;
+    @Mock PlayQueueExperiment playQueueExperiment;
     @Mock StartStationHandler stationHandler;
     @Mock Context context;
     @Mock FragmentActivity activity;
@@ -90,7 +89,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
+        when(playQueueExperiment.isEnabled()).thenReturn(true);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
@@ -105,7 +104,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                shareOperations,
                                                stationHandler,
                                                accountOperations,
-                                               featureFlags,
+                                               playQueueExperiment,
                                                playQueueManager,
                                                playbackInitiator,
                                                playbackToastHelper,

@@ -3,8 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +15,7 @@ import android.view.View;
 @RunWith(MockitoJUnitRunner.class   )
 public class TrackPageHolderTest {
 
-    @Mock private FeatureFlags featureFlags;
+    @Mock private PlayQueueExperiment playQueueExperiment;
     @Mock private View playQueueButton;
     private TrackPagePresenter.TrackPageHolder holder;
 
@@ -28,9 +27,9 @@ public class TrackPageHolderTest {
 
     @Test
     public void viewSetsDoNotContainPQButtonWhenFeatureFlagIsOff() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(false);
+        when(playQueueExperiment.isEnabled()).thenReturn(false);
 
-        holder.populateViewSets(featureFlags);
+        holder.populateViewSets(playQueueExperiment);
 
         assertThat(holder.fullScreenViews).doesNotContain(playQueueButton);
         assertThat(holder.fullScreenAdViews).doesNotContain(playQueueButton);
@@ -43,9 +42,9 @@ public class TrackPageHolderTest {
 
     @Test
     public void viewSetsDoNotContainPQButtonWhenFeatureFlagIsOn() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
+        when(playQueueExperiment.isEnabled()).thenReturn(true);
 
-        holder.populateViewSets(featureFlags);
+        holder.populateViewSets(playQueueExperiment);
 
         assertThat(holder.fullScreenViews).doesNotContain(playQueueButton);
         assertThat(holder.fullScreenAdViews).doesNotContain(playQueueButton);

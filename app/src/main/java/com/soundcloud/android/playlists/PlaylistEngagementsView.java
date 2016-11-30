@@ -4,6 +4,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
@@ -32,6 +33,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     private final Resources resources;
 
     private final FeatureFlags featureFlags;
+    private final PlayQueueExperiment playQueueExperiment;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final DownloadStateView downloadStateView;
     private final LikeButtonPresenter likeButtonPresenter;
@@ -47,11 +49,13 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     @Inject
     PlaylistEngagementsView(Context context,
                             FeatureFlags featureFlags,
+                            PlayQueueExperiment playQueueExperiment,
                             PopupMenuWrapper.Factory popupMenuWrapperFactory,
                             DownloadStateView downloadStateView,
                             LikeButtonPresenter likeButtonPresenter) {
         this.context = context;
         this.featureFlags = featureFlags;
+        this.playQueueExperiment = playQueueExperiment;
         this.likeButtonPresenter = likeButtonPresenter;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -218,7 +222,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     }
 
     private void configurePlayNext() {
-        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
+        menu.setItemVisible(R.id.play_next, playQueueExperiment.isEnabled());
     }
 
     void updateLikeItem(int likesCount, boolean likedByUser) {
