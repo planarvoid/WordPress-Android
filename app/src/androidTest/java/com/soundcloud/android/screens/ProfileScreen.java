@@ -58,8 +58,9 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen(Han solo) {
         super(solo);
-        waiter.waitForContentAndRetryIfLoadingFailed();
+        waiter.waitForElementToBeVisible(userName());
         waiter.waitForElementToHaveText(new TextElement(userName()));
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public ProfileScreen(Han solo, String username) {
