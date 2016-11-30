@@ -4,7 +4,7 @@
     <!-- ratio used for pager adapter -->
     <dimen name="playlist_header_padding">10dp</dimen>
     <dimen name="player_ad_engagement">48dp</dimen>
-    <dimen name="player_engagement">64dp</dimen>
+    <dimen name="player_engagement">70dp</dimen>
     <dimen name="player_title_top">19dp</dimen>
     <dimen name="ad_cta_button_bottom_margin">60dp</dimen>
     <dimen name="ad_cta_button_height">30dp</dimen>

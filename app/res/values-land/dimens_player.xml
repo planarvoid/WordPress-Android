@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- bottom bar buttons margins -->
+    <dimen name="player_like_margin_right">0dp</dimen>
+    <dimen name="player_more_margin_right">0dp</dimen>
+    <dimen name="player_share_margin_right">0dp</dimen>
+    <dimen name="player_queue_margin_right">0dp</dimen>
+
+</resources>

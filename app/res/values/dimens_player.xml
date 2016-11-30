@@ -14,8 +14,12 @@
     <dimen name="player_pager_spacing">2dp</dimen>
     <dimen name="player_waveform_height">108dp</dimen>
     <dimen name="player_skip_margin">24dp</dimen>
-    <dimen name="player_share_width">64dp</dimen>
-    <dimen name="player_play_queue_height">72dp</dimen>
+
+    <!-- bottom bar buttons margins -->
+    <dimen name="player_like_margin_right">-12dp</dimen>
+    <dimen name="player_more_margin_right">-12dp</dimen>
+    <dimen name="player_share_margin_right">-12dp</dimen>
+    <dimen name="player_queue_margin_right">-16dp</dimen>
 
     <!-- waveform -->
     <dimen name="waveform_bar_width">2dp</dimen>
