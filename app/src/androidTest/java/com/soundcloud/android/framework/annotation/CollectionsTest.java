@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.METHOD, ElementType.TYPE})
 public @interface CollectionsTest {
-    // https://github.com/soundcloud/SoundCloud-Android/issues/4176
+    // https://github.com/soundcloud/android/issues/4176
 }

@@ -21,7 +21,7 @@ import rx.functions.Func1;
 
 public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
-    // https://github.com/soundcloud/SoundCloud-Android/issues/4503
+    // https://github.com/soundcloud/android/issues/4503
     private static final String TAG_BUG_4503 = "BUG_4503";
     private final PlayQueueManager playQueueManager;
     private final PlaybackServiceController serviceController;

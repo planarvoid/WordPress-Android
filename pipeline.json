@@ -1,31 +1,31 @@
-{ 
+{
   "stages": [
     {
       "name": "build",
       "jobs": [
         [
           {
-            "compile": { 
+            "compile": {
               "artifacts": [
                 "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-debug-*.apk"
-              ], 
+              ],
               "cmd": "./gradlew buildDebug",
               "plugins": {
                 "androidLint": {
-                "failedTotalHigh": 0, 
-                "failedTotalNormal": 0, 
+                "failedTotalHigh": 0,
+                "failedTotalNormal": 0,
                 "pattern": "app/build/outputs/lint-results-prodDebug.xml"
               },
                 "findbugs": {
                   "pattern": "app/build/reports/findbugs/findbugs.xml"
-              }, 
+              },
                 "pmd": {
                   "pattern": "app/build/reports/pmd/pmd.xml"
-              }, 
+              },
                 "taskPublisher": {
-                  "excludePattern": "app/target/**/*", 
+                  "excludePattern": "app/target/**/*",
                   "pattern": "app/**/*.*"
-              }, 
+              },
                 "violations": {
                   "checkstyle": {
                       "pattern": "app/build/reports/checkstyle/checkstyle.xml"
@@ -44,14 +44,14 @@
             }
           }
         ]
-      ],  
+      ],
       "next-stages": [
         "test",
         "performances",
         "deploy",
         "statistics"
       ]
-    }, 
+    },
     {
       "name": "test",
       "jobs": [
@@ -59,13 +59,13 @@
           {
             "unit_tests": {
               "cmd": "./gradlew clean runUnitTests",
-              "no-clean": true, 
+              "no-clean": true,
               "test-reports": "**/build/test-results/**/*.xml",
               "plugins": {
                 "htmlReports": [
                   {
-                    "reportDir": "app/build/reports/tests/devDebug/", 
-                    "reportFiles": "index.html", 
+                    "reportDir": "app/build/reports/tests/devDebug/",
+                    "reportFiles": "index.html",
                     "reportName": "Unit test report"
                   }
                 ]
@@ -139,11 +139,11 @@
     }
   ],
   "settings": {
-    "default-name": "Android_Listeners_Master", 
-    "git-url": "git@github.com:soundcloud/SoundCloud-Android.git", 
-    "github-url": "https://github.com/soundcloud/SoundCloud-Android/", 
-    "jenkins-server": "http://mobile-jenkins.int.s-cloud.net", 
-    "owner-emails": "android-dev@soundcloud.com", 
+    "default-name": "Android_Listeners_Master",
+    "git-url": "git@github.com:soundcloud/android.git",
+    "github-url": "https://github.com/soundcloud/android/", 
+    "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",
+    "owner-emails": "android-dev@soundcloud.com",
     "slave-label": "mobile-slave"
   }
 }

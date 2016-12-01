@@ -90,7 +90,7 @@ public class MainActivity extends PlayerActivity implements CastConnectionHelper
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
         //Workaround due to a bug related to Google Play Services
-        //https://github.com/soundcloud/SoundCloud-Android/issues/6075
+        //https://github.com/soundcloud/android/issues/6075
         if (intent == null) {
             intent = new Intent();
         }

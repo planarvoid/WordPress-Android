@@ -240,7 +240,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     // this is really ugly. We should introduce a PlaylistRepository.
-    // https://github.com/soundcloud/SoundCloud-Android/issues/2942
+    // https://github.com/soundcloud/android/issues/2942
     private void loadPlaylist(Urn urn) {
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations

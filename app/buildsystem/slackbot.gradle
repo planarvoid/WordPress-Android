@@ -34,12 +34,12 @@ task slogRolloutFull {
 }
 
 def basicText(track, versionCode, prometheus_annotation) {
-  def repoUrl = "https://github.com/soundcloud/SoundCloud-Android"
+  def repoUrl = "https://github.com/soundcloud/android"
   def ciUrl = "http://mobile-jenkins.int.s-cloud.net/view/Android_Listeners_Release/"
   def commit = project.('ext').pipelineVersion.split("-")[1]
   def commitUrl = "$repoUrl/commit/$commit"
 
-  new String ("slog: Deployed <$repoUrl|SoundCloud-Android> " +
+  new String ("slog: Deployed <$repoUrl|android> " +
           "versionCode $versionCode " +
           "(Skippy version ${rootProject.('ext').skippyVersion}) " +
           "to *$track* " +
@@ -90,4 +90,3 @@ class Payload {
   String text
   String icon_emoji
 }
-

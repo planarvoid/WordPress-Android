@@ -30,7 +30,7 @@ task uploadGithubRelease {
 def uploadGithub(String buildType, versionCode){
   def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'
   def owner = 'soundcloud'
-  def repo  = 'soundcloud-android'
+  def repo  = 'android'
 
   def releaseId = createRelease(buildType, versionCode, owner, repo, token)
   uploadApkToRelease(buildType, versionCode, owner, repo, token, releaseId)

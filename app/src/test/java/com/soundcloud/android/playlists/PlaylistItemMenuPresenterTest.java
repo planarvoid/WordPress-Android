@@ -256,7 +256,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3431")
+    @Issue(ref = "https://github.com/soundcloud/android/issues/3431")
     public void clickingOnUnlikeNotOwnedPlaylistRemovesItFromOfflineContent() {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
@@ -272,7 +272,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3431")
+    @Issue(ref = "https://github.com/soundcloud/android/issues/3431")
     public void clickingOnUnlikeOwnPlaylistDoesNotRemoveItFromOfflineContent() {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 

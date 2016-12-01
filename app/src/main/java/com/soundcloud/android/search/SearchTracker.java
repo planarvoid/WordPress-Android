@@ -21,8 +21,8 @@ import java.util.Map;
 
 /**
  * Design discussions:
- * https://github.com/soundcloud/SoundCloud-Android/pull/4845
- * https://github.com/soundcloud/SoundCloud-Android/pull/4900
+ * https://github.com/soundcloud/android/pull/4845
+ * https://github.com/soundcloud/android/pull/4900
  */
 @Singleton
 public class SearchTracker {

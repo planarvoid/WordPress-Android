@@ -218,11 +218,10 @@
   "settings": {
     "default-name": "Android_Listeners_Release",
     "git-branch": "release",
-    "git-url": "git@github.com:soundcloud/SoundCloud-Android.git",
-    "github-url": "https://github.com/soundcloud/SoundCloud-Android/",
+    "git-url": "git@github.com:soundcloud/android.git",
+    "github-url": "https://github.com/soundcloud/android/",
     "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",
     "owner-emails": "android-dev@soundcloud.com",
     "slave-label": "mobile-slave"
   }
 }
-

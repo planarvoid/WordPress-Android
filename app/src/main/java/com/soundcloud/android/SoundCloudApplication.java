@@ -283,7 +283,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     /**
      * Make sure that sets are synced first, to avoid running into data consistency issues around adding tracks
-     * to playlists, see https://github.com/soundcloud/SoundCloud-Android/issues/609
+     * to playlists, see https://github.com/soundcloud/android/issues/609
      * <p/>
      * Alternatively, sync sets lazily where needed.
      */

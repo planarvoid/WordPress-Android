@@ -98,7 +98,7 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         super.removeItem(position);
     }
 
-    // debugging https://github.com/soundcloud/SoundCloud-Android/issues/6323
+    // debugging https://github.com/soundcloud/android/issues/6323
     private void checkMainThread() {
         Preconditions.checkState(Looper.myLooper() == Looper.getMainLooper(),
                                  "Altering adapter off main thread");
