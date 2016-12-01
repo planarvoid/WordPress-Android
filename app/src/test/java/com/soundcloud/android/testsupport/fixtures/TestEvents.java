@@ -1,5 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import com.soundcloud.android.events.LegacyTrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
@@ -39,7 +40,7 @@ public class TestEvents {
     }
 
     public static TrackingEvent unspecifiedTrackingEvent() {
-        return new TrackingEvent("test", 123L, UUID.randomUUID().toString()) {
+        return new LegacyTrackingEvent("test", 123L, UUID.randomUUID().toString()) {
         };
     }
 }

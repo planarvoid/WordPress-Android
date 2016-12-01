@@ -1,5 +1,15 @@
 package com.soundcloud.android.search;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.rx.eventbus.EventBus;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -9,19 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.FlowLayout;
-import com.soundcloud.rx.eventbus.EventBus;
-
-import java.util.List;
-
 import javax.inject.Inject;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
+import java.util.List;
 
 public class PlaylistTagsPresenter {
 
@@ -47,7 +46,7 @@ public class PlaylistTagsPresenter {
     private final View.OnClickListener recentTagClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.recentTagSearch((String) v.getTag()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.recentTagSearch());
             if (listener != null) {
                 listener.onTagSelected(v.getContext(), (String) v.getTag());
             }
@@ -57,7 +56,7 @@ public class PlaylistTagsPresenter {
     private final View.OnClickListener popularTagClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.popularTagSearch((String) v.getTag()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.popularTagSearch());
             if (listener != null) {
                 listener.onTagSelected(v.getContext(), (String) v.getTag());
             }

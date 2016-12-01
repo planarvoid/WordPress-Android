@@ -35,6 +35,7 @@ expected_events:
     client_id: '3152'
     user: soundcloud:users:18173653
     click_name: search
+    page_name: search:everything
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview

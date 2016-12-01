@@ -289,8 +289,12 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         SearchEvent searchEvent = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
                                                .clickName("search")
+                                               .queryPosition(searchQuerySourceInfo.getClickPosition())
+                                               .clickObject(searchQuerySourceInfo.getClickUrn().toString())
+                                               .pageName(Screen.SEARCH_EVERYTHING.get())
+                                               .clickName(SearchEvent.ClickName.SEARCH.key)
                                                .queryUrn("some:search:urn"));
     }
 
@@ -299,7 +303,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         SearchEvent searchEvent = SearchEvent.tapUserOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
                                                .pageName("search:everything")
                                                .clickName("item_navigation")
                                                .clickObject("some:click:urn")
@@ -312,7 +316,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         SearchEvent searchEvent = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
                                                .pageName("search:everything")
                                                .clickName("item_navigation")
                                                .clickObject("some:click:urn")
@@ -325,21 +329,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         SearchEvent searchEvent = SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
                                                .pageName("search:everything")
-                                               .clickName("item_navigation")
-                                               .clickObject("some:click:urn")
-                                               .queryUrn("some:search:urn")
-                                               .queryPosition(5));
-    }
-
-    @Test
-    public void createsClickSearchEventJsonForTapOnSuggestion() throws Exception {
-        SearchEvent searchEvent = SearchEvent.searchSuggestion(Urn.forTrack(1), false, searchQuerySourceInfo);
-        jsonDataBuilder.build(searchEvent);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
-                                               .pageName("search:suggestions")
                                                .clickName("item_navigation")
                                                .clickObject("some:click:urn")
                                                .queryUrn("some:search:urn")

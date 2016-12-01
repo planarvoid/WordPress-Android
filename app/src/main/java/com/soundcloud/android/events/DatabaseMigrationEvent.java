@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 
 import java.util.Locale;
 
-public class DatabaseMigrationEvent extends TrackingEvent implements MetricEvent {
+public class DatabaseMigrationEvent extends LegacyTrackingEvent implements MetricEvent {
 
     private static final String MIGRATION_STATUS = "MigrationStatus";
 

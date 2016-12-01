@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public final class AttributionEvent extends TrackingEvent {
+public final class AttributionEvent extends LegacyTrackingEvent {
 
     public static final String NETWORK = "network";
     public static final String CAMPAIGN = "campaign";

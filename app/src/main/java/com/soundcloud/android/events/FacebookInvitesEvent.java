@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.main.Screen;
 import org.jetbrains.annotations.NotNull;
 
-public final class FacebookInvitesEvent extends TrackingEvent {
+public final class FacebookInvitesEvent extends LegacyTrackingEvent {
 
     public static final String KIND_IMPRESSION = "impression";
     public static final String KIND_CLICK = "click";

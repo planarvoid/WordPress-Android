@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.appboy.models.outgoing.AppboyProperties;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -180,7 +181,9 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackSearchEvents() {
-        SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, null);
+        SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING,
+                                                    new SearchQuerySourceInfo(new Urn("soundcloud:query:123"),
+                                                                                    "query"));
 
         eventHandler.handleEvent(event);
 
@@ -271,7 +274,9 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackOfflinePlaylistEnabled() {
-        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("ignored", Urn.forPlaylist(123L), null);
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("ignored",
+                                                                                       Urn.forPlaylist(123L),
+                                                                                       null);
 
         eventHandler.handleEvent(event);
 
@@ -280,7 +285,9 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackOfflinePlaylistDisabled() {
-        OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist("ignored", Urn.forPlaylist(123L), null);
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist("ignored",
+                                                                                          Urn.forPlaylist(123L),
+                                                                                          null);
 
         eventHandler.handleEvent(event);
 

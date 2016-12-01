@@ -8,9 +8,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDI
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
-import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
-import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
-import static com.soundcloud.android.events.SearchEvent.KEY_QUERY;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
@@ -379,10 +376,10 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForSearchEvent(SearchEvent event) {
-        switch (event.getKind()) {
-            case SearchEvent.KIND_FORMULATION_INIT:
-            case SearchEvent.KIND_FORMULATION_END:
-            case SearchEvent.KIND_LOCAL_SUGGESTION:
+        switch (event.kind()) {
+            case SEARCH_FORMULATION_INIT:
+            case SEARCH_FORMULATION_END:
+            case SEARCH_LOCAL_SUGGESTION:
                 return transform(buildSearchClickEvent(event));
             default:
                 throw new IllegalStateException("Unexpected SearchEvent type: " + event);
@@ -390,17 +387,23 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildSearchClickEvent(SearchEvent event) {
-        final EventLoggerEventData eventLoggerEventData = buildBaseEvent(CLICK_EVENT, event)
-                .clickName(event.get(KEY_CLICK_NAME))
-                .pageName(event.get(KEY_PAGE_NAME))
-                .searchQuery(event.get(KEY_QUERY));
+        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event);
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get().key);
+        }
+        if (event.pageName().isPresent()) {
+            eventData.pageName(event.pageName().get());
+        }
+        if (event.query().isPresent()) {
+            eventData.searchQuery(event.query().get());
+        }
         if (event.queryUrn().isPresent()) {
-            eventLoggerEventData.queryUrn(event.queryUrn().get());
+            eventData.queryUrn(event.queryUrn().get().toString());
         }
         if (event.queryPosition().isPresent()) {
-            eventLoggerEventData.queryPosition(event.queryPosition().get());
+            eventData.queryPosition(event.queryPosition().get());
         }
-        return eventLoggerEventData;
+        return eventData;
     }
 
     private EventLoggerEventData buildRepeatClickEvent(UIEvent event) {

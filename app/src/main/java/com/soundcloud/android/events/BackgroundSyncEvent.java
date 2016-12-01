@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
-public class BackgroundSyncEvent extends TrackingEvent implements MetricEvent {
+public class BackgroundSyncEvent extends LegacyTrackingEvent implements MetricEvent {
 
     private final int syncableCount;
 

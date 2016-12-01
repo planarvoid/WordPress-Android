@@ -5,7 +5,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 
-public final class CollectionEvent extends TrackingEvent {
+public final class CollectionEvent extends LegacyTrackingEvent {
 
     public static final String KIND_SET = "filter_set";
     public static final String KIND_CLEAR = "filter_clear";

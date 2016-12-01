@@ -75,10 +75,6 @@ public class EventTracker {
     }
 
     private TrackingEvent attachReferringEvent(TrackingEvent event, Optional<ReferringEvent> referringEvent) {
-        if (referringEvent.isPresent()) {
-            event.putReferringEvent(referringEvent.get());
-        }
-
-        return event;
+        return referringEvent.isPresent() ? event.putReferringEvent(referringEvent.get()) : event;
     }
 }

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import android.support.annotation.NonNull;
 
-public class OfflineInteractionEvent extends TrackingEvent {
+public class OfflineInteractionEvent extends LegacyTrackingEvent {
 
     public static final String KIND_ONBOARDING_START = "offline_sync_onboarding::start";
     public static final String KIND_ONBOARDING_DISMISS = "offline_sync_onboarding::dismiss";

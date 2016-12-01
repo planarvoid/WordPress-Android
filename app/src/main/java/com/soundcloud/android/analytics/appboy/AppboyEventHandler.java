@@ -9,17 +9,14 @@ import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYAB
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_URN;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLIST_TITLE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLIST_URN;
-import static com.soundcloud.android.events.SearchEvent.CLICK_NAME_SEARCH;
-import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
-import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
-import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.events.AttributionEvent;
+import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.NewTrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -122,14 +119,16 @@ class AppboyEventHandler {
     }
 
     void handleEvent(SearchEvent event) {
-        if (event.getKind().equals(SearchEvent.KIND_SUBMIT) && isSearchEverythingClick(event)) {
+        if (event.kind() == NewTrackingEvent.Kind.SEARCH_SUBMIT && isSearchEverythingClick(event)) {
             tagEvent(AppboyEvents.SEARCH);
         }
     }
 
     private boolean isSearchEverythingClick(SearchEvent event) {
-        return CLICK_NAME_SEARCH.equals(event.get(KEY_CLICK_NAME))
-                && SEARCH_EVERYTHING.get().equals(event.get(KEY_PAGE_NAME));
+        return event.clickName().isPresent()
+                && event.clickName().get() == SearchEvent.ClickName.SEARCH
+                && event.pageName().isPresent()
+                && event.pageName().get().equals(Screen.SEARCH_EVERYTHING.get());
     }
 
     void handleEvent(PlaybackSessionEvent event) {

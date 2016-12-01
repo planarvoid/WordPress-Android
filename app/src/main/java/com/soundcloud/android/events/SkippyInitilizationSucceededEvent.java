@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public class SkippyInitilizationSucceededEvent extends TrackingEvent {
+public class SkippyInitilizationSucceededEvent extends LegacyTrackingEvent {
 
     public static final String FAILURE_COUNT = "failure_count";
     public static final String SUCCESS_COUNT = "success_count";

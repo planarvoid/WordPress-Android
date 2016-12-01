@@ -124,7 +124,7 @@ public class EntityMetadata {
                 playlist.getUrn());
     }
 
-    void addToTrackingEvent(@NonNull TrackingEvent event) {
+    void addToTrackingEvent(@NonNull LegacyTrackingEvent event) {
         event.put(KEY_CREATOR_NAME, creatorName)
              .put(KEY_CREATOR_URN, creatorUrn.toString())
              .put(KEY_PLAYABLE_TITLE, playableTitle)

@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.NewTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
@@ -87,9 +88,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(view, 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
-        assertThat(event.getAttributes().get("type")).isEqualTo("playlist");
-        assertThat(event.getAttributes().get("context")).isEqualTo("tags");
+        assertThat(event.kind()).isEqualTo(NewTrackingEvent.Kind.SEARCH_RESULTS);
     }
 
     @Test

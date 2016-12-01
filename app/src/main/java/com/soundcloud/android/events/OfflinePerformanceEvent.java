@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 
-public class OfflinePerformanceEvent extends TrackingEvent {
+public class OfflinePerformanceEvent extends LegacyTrackingEvent {
 
     public static final String KIND_START = "start";
     public static final String KIND_FAIL = "fail";

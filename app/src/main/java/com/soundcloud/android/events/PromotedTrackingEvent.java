@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class PromotedTrackingEvent extends TrackingEvent {
+public final class PromotedTrackingEvent extends LegacyTrackingEvent {
 
     public static final String KIND_IMPRESSION = "impression";
     public static final String KIND_CLICK = "click";

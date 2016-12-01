@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
-public class FileAccessEvent extends TrackingEvent implements MetricEvent {
+public class FileAccessEvent extends LegacyTrackingEvent implements MetricEvent {
 
     private static final String FILE_ACCESS = "FileAccess";
     private static final String FILE_EXISTS = "FileExists";

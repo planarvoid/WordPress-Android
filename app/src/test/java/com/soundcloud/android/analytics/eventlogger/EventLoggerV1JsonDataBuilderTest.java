@@ -1740,7 +1740,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForSearchEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName(SearchEvent.CLICK_FORMULATION_INIT)
+                                               .clickName(SearchEvent.ClickName.FORMULATION_INIT.key)
                                                .searchQuery(SEARCH_QUERY)
                                                .pageName(Screen.SEARCH_MAIN.get()));
     }
@@ -1755,7 +1755,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForSearchEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName(SearchEvent.CLICK_FORMULATION_END)
+                                               .clickName(SearchEvent.ClickName.FORMULATION_END.key)
                                                .searchQuery(SEARCH_QUERY)
                                                .pageName(Screen.SEARCH_MAIN.get())
                                                .queryUrn(QUERY_URN.toString())

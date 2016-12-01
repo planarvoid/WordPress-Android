@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public class SkippyInitilizationFailedEvent extends TrackingEvent {
+public class SkippyInitilizationFailedEvent extends LegacyTrackingEvent {
 
     public static final String THROWABLE = "throwable";
     public static final String MESSAGE = "message";

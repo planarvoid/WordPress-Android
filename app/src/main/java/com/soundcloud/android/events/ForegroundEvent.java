@@ -4,7 +4,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 
-public class ForegroundEvent extends TrackingEvent {
+public class ForegroundEvent extends LegacyTrackingEvent {
     public static final String KEY_PAGE_NAME = "page_name";
     public static final String KEY_PAGE_URN = "page_urn";
     public static final String KEY_REFERRER = "referrer";

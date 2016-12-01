@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class UIEvent extends TrackingEvent {
+public final class UIEvent extends LegacyTrackingEvent {
 
     public static final String TYPE_MONETIZABLE_PROMOTED = "promoted";
     public static final String KEY_PLAY_QUEUE_REPEAT_MODE = "repeat_mode";

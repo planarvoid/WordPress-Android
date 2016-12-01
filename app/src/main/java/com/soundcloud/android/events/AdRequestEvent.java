@@ -8,7 +8,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.HashMap;
 import java.util.List;
 
-public class AdRequestEvent extends TrackingEvent {
+public class AdRequestEvent extends LegacyTrackingEvent {
 
     public static final String AD_REQUEST_SUCCESS_KIND = "AD_REQUEST_SUCCESS";
     public static final String AD_REQUEST_FAILURE_KIND = "AD_REQUEST_FAILURE";

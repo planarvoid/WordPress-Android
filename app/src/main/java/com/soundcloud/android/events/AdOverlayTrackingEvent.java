@@ -12,7 +12,7 @@ import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
 
-public final class AdOverlayTrackingEvent extends TrackingEvent {
+public final class AdOverlayTrackingEvent extends LegacyTrackingEvent {
     public static final String KIND_IMPRESSION = "impression";
     public static final String KIND_CLICK = "click";
 

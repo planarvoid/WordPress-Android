@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public class PurchaseEvent extends TrackingEvent {
+public class PurchaseEvent extends LegacyTrackingEvent {
 
     public static final String KIND_HIGH_TIER_SUB = "high_tier_sub";
 

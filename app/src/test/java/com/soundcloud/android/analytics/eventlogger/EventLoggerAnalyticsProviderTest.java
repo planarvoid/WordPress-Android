@@ -604,12 +604,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackSearchSuggestionSearchEvents() {
-        SearchEvent event = SearchEvent.searchSuggestion(Urn.forTrack(1), false, searchQuerySourceInfo);
-        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
-    }
-
-    @Test
     public void shouldTrackTapTrackOnScreenSearchEvents() {
         SearchEvent event = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");

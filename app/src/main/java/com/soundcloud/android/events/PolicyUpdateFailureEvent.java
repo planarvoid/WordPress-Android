@@ -4,7 +4,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 import org.jetbrains.annotations.NotNull;
 
-public class PolicyUpdateFailureEvent extends TrackingEvent implements MetricEvent {
+public class PolicyUpdateFailureEvent extends LegacyTrackingEvent implements MetricEvent {
 
     public static final String KIND_POLICY_FETCH_FAILED = "PolicyFetch";
     public static final String KIND_POLICY_WRITE_FAILED = "PolicyWrite";

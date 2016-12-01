@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
-public class PlaybackSessionEvent extends TrackingEvent {
+public class PlaybackSessionEvent extends LegacyTrackingEvent {
 
     public static final int STOP_REASON_PAUSE = 0;
     public static final int STOP_REASON_BUFFERING = 1;

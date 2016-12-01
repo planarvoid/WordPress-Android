@@ -6,7 +6,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.strings.Strings;
 
-public final class ScreenEvent extends TrackingEvent {
+public final class ScreenEvent extends LegacyTrackingEvent {
 
     public static final String KIND = "screen";
     public static final String KEY_SCREEN = "screen";

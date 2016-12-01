@@ -5,7 +5,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 
-public class AdPlaybackErrorEvent extends TrackingEvent {
+public class AdPlaybackErrorEvent extends LegacyTrackingEvent {
 
     public static final String KIND_FAIL_TO_BUFFER = "failToBuffer";
 

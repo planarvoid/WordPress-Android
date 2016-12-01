@@ -4,7 +4,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 import org.jetbrains.annotations.NotNull;
 
-public class DeeplinkReportEvent extends TrackingEvent implements MetricEvent {
+public class DeeplinkReportEvent extends LegacyTrackingEvent implements MetricEvent {
 
     private static final String KIND_SUCCESS = "Success";
     private static final String KIND_FAILURE = "Failed";

@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
-public class PaymentFailureEvent extends TrackingEvent implements MetricEvent {
+public class PaymentFailureEvent extends LegacyTrackingEvent implements MetricEvent {
 
     private static final String PAYMENT_FAIL_METRIC = "Payment failure";
     private static final String KEY_REASON = "reason";
@@ -13,7 +13,7 @@ public class PaymentFailureEvent extends TrackingEvent implements MetricEvent {
     }
 
     private PaymentFailureEvent(String reason) {
-        super(TrackingEvent.KIND_DEFAULT);
+        super(LegacyTrackingEvent.KIND_DEFAULT);
         put(KEY_REASON, reason);
     }
 

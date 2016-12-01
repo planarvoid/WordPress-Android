@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
-public class AdDeliveryEvent extends TrackingEvent {
+public class AdDeliveryEvent extends LegacyTrackingEvent {
 
     public static final String AD_DELIVERED_KIND = "AD_DELIVERED";
 

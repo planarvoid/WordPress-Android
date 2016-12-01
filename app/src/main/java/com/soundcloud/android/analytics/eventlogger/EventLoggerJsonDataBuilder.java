@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
@@ -183,25 +182,34 @@ public class EventLoggerJsonDataBuilder {
     }
 
     public String build(SearchEvent event) {
-        switch (event.getKind()) {
-            case SearchEvent.KIND_RESULTS:
-            case SearchEvent.KIND_SUGGESTION:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                                         .pageName(event.get(SearchEvent.KEY_PAGE_NAME))
-                                         .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
-                                         .queryPosition(event.queryPosition().isPresent() ?
-                                                        event.queryPosition().get() :
-                                                        Consts.NOT_SET)
-                                         .clickName(event.get(SearchEvent.KEY_CLICK_NAME))
-                                         .clickObject(event.get(SearchEvent.KEY_CLICK_OBJECT)));
-
-            case SearchEvent.KIND_SUBMIT:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                                         .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
-                                         .clickName(event.get(SearchEvent.KEY_CLICK_NAME)));
+        switch (event.kind()) {
+            case SEARCH_RESULTS:
+            case SEARCH_SUGGESTION:
+            case SEARCH_SUBMIT:
+                return transform(buildSearchEvent(event));
             default:
                 throw new IllegalArgumentException("Unexpected Search Event type " + event);
         }
+    }
+
+    private EventLoggerEventData buildSearchEvent(SearchEvent event) {
+        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event);
+        if (event.queryPosition().isPresent()) {
+            eventData.queryPosition(event.queryPosition().get());
+        }
+        if (event.pageName().isPresent()) {
+            eventData.pageName(event.pageName().get());
+        }
+        if (event.queryUrn().isPresent()) {
+            eventData.queryUrn(event.queryUrn().get().toString());
+        }
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get().key);
+        }
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get().toString());
+        }
+        return eventData;
     }
 
     public String build(ForegroundEvent event) {

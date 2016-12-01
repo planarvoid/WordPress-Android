@@ -4,7 +4,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.NotNull;
 
-public final class UpgradeFunnelEvent extends TrackingEvent {
+public final class UpgradeFunnelEvent extends LegacyTrackingEvent {
 
     public static final String KIND_UPSELL_IMPRESSION = "upsell_impression";
     public static final String KIND_RESUBSCRIBE_IMPRESSION = "resub_impression";

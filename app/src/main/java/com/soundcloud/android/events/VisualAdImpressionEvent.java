@@ -8,7 +8,7 @@ import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
 
-public class VisualAdImpressionEvent extends TrackingEvent {
+public class VisualAdImpressionEvent extends LegacyTrackingEvent {
     private List<String> impressionUrls;
 
     public VisualAdImpressionEvent(AudioAd adData, Urn userUrn, TrackSourceInfo sessionSource) {

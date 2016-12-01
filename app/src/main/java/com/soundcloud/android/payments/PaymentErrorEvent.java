@@ -1,11 +1,11 @@
 package com.soundcloud.android.payments;
 
+import com.soundcloud.android.events.LegacyTrackingEvent;
 import com.soundcloud.android.events.MetricEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
-public class PaymentErrorEvent extends TrackingEvent implements MetricEvent {
+public class PaymentErrorEvent extends LegacyTrackingEvent implements MetricEvent {
 
     public static final String KIND = "PaymentError";
     private final String errorType;

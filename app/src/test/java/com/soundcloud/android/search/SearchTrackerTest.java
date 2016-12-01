@@ -12,6 +12,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.SearchEvent.ClickName;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
@@ -40,6 +41,9 @@ public class SearchTrackerTest {
     private static final Urn QUERY_URN = new Urn("soundcloud:search:123");
     private static final int SEARCH_RESULT_TYPES = 5;
     private static final String SEARCH_QUERY = "query";
+    private static final Urn CLICK_OBJECT_TRACK = new Urn("soundcloud:tracks:1");
+    private static final Urn CLICK_OBJECT_PLAYLIST = new Urn("soundcloud:playlists:1");
+    private static final Urn CLICK_OBJECT_USER = new Urn("soundcloud:users:1");
 
     private SearchTracker tracker;
 
@@ -75,8 +79,8 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
-        assertThat(searchEventCaptor.getValue().getKind()).isEqualTo(SearchEvent.KIND_SUBMIT);
-        assertThat(searchEventCaptor.getValue().get(SearchEvent.KEY_QUERY_URN)).isEqualTo(QUERY_URN.toString());
+        assertThat(searchEventCaptor.getValue().kind()).isEqualTo(SearchEvent.Kind.SEARCH_SUBMIT);
+        assertThat(searchEventCaptor.getValue().queryUrn().get()).isEqualTo(QUERY_URN);
     }
 
     @Test
@@ -126,7 +130,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackScreen(screenEventCaptor.capture(), referringEventCaptor.capture());
 
         assertThat(screenEventCaptor.getValue().getScreenTag()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
-        assertThat(screenEventCaptor.getValue().get(SearchEvent.KEY_QUERY_URN)).isEqualTo(QUERY_URN.toString());
+        assertThat(screenEventCaptor.getValue().get(ScreenEvent.KEY_QUERY_URN)).isEqualTo(QUERY_URN.toString());
     }
 
     @Test
@@ -160,19 +164,18 @@ public class SearchTrackerTest {
 
     @Test
     public void trackItemClickOnSearchResultsEverythingPublishesEvent() {
-        tracker.trackSearchItemClick(SearchType.ALL, TRACK_URN, new SearchQuerySourceInfo(QUERY_URN, 0, TRACK_URN,
+        final SearchType searchType = SearchType.ALL;
+        tracker.trackSearchItemClick(searchType, TRACK_URN, new SearchQuerySourceInfo(QUERY_URN, 0, TRACK_URN,
                                                                                           SEARCH_QUERY));
 
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
-        assertThat(event.getAttributes().get("type")).isEqualTo("track");
-        assertThat(event.getAttributes().get("context")).isEqualTo("everything");
-        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:everything");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
-        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
-        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.pageName().get()).isEqualTo(searchType.getScreen().get());
+        assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
+        assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_TRACK);
+        assertThat(event.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(event.queryPosition().get()).isEqualTo(0);
     }
 
@@ -184,13 +187,11 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
-        assertThat(event.getAttributes().get("type")).isEqualTo("track");
-        assertThat(event.getAttributes().get("context")).isEqualTo("tracks");
-        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:tracks");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
-        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
-        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.pageName().get()).isEqualTo(SearchType.TRACKS.getScreen().get());
+        assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
+        assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_TRACK);
+        assertThat(event.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(event.queryPosition().get()).isEqualTo(0);
     }
 
@@ -203,13 +204,11 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
-        assertThat(event.getAttributes().get("type")).isEqualTo("playlist");
-        assertThat(event.getAttributes().get("context")).isEqualTo("playlists");
-        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:playlists");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
-        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:playlists:1");
-        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.pageName().get()).isEqualTo(SearchType.PLAYLISTS.getScreen().get());
+        assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
+        assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_PLAYLIST);
+        assertThat(event.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(event.queryPosition().get()).isEqualTo(1);
     }
 
@@ -221,13 +220,11 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
-        assertThat(event.getAttributes().get("type")).isEqualTo("user");
-        assertThat(event.getAttributes().get("context")).isEqualTo("people");
-        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:people");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
-        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:users:1");
-        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.pageName().get()).isEqualTo(SearchType.USERS.getScreen().get());
+        assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
+        assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_USER);
+        assertThat(event.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(event.queryPosition().get()).isEqualTo(0);
     }
 
@@ -239,13 +236,11 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
-        assertThat(event.getAttributes().get("type")).isEqualTo("track");
-        assertThat(event.getAttributes().get("context")).isEqualTo("premium");
-        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:high_tier");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
-        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
-        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.pageName().get()).isEqualTo(Screen.SEARCH_PREMIUM_CONTENT.get());
+        assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
+        assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_TRACK);
+        assertThat(event.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(event.queryPosition().get()).isEqualTo(0);
     }
 
@@ -258,7 +253,7 @@ public class SearchTrackerTest {
         final ScreenEvent event = screenEventCaptor.getValue();
 
         assertThat(event.getScreenTag()).isEqualTo(Screen.SEARCH_PREMIUM_CONTENT.get());
-        assertThat(event.get(SearchEvent.KEY_QUERY_URN)).isEqualTo(QUERY_URN.toString());
+        assertThat(event.get(ScreenEvent.KEY_QUERY_URN)).isEqualTo(QUERY_URN.toString());
     }
 
     @Test

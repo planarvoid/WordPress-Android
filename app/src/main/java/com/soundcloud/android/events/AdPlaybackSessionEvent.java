@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class AdPlaybackSessionEvent extends TrackingEvent {
+public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
 
     public static final String EVENT_KIND_PLAY = "play";
     public static final String EVENT_KIND_STOP = "stop";
