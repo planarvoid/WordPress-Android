@@ -11,8 +11,6 @@ import com.soundcloud.android.screens.elements.ChartsBucketElement;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.TrackRecommendationsBucketElement;
 import com.soundcloud.android.view.SnappedTagView;
-import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 
 import java.util.List;
 
@@ -24,14 +22,12 @@ public class DiscoveryScreen extends Screen {
         super(solo);
     }
 
-    private List<ViewElement> recentTags() {
-        return testDriver
-                .findOnScreenElement(With.id(R.id.recent_tags))
-                .findOnScreenElements(With.className(SnappedTagView.class));
+    private ViewElement scrollToAllTags() {
+        return scrollToItem(With.id(R.id.all_tags));
     }
 
-    private ViewElement allTags() {
-        return scrollToItem(With.id(R.id.all_tags));
+    private boolean enoughTagsVisible(int count) {
+        return testDriver.findOnScreenElements(With.className(SnappedTagView.class)).size() > count;
     }
 
     public TrackRecommendationsBucketElement trackRecommendationsBucket() {
@@ -49,26 +45,30 @@ public class DiscoveryScreen extends Screen {
     }
 
     public boolean isDisplayingTags() {
-        return allTags().isOnScreen();
+        return scrollToAllTags().isOnScreen();
+    }
+
+    public String getTagTitle(int index) {
+        scrollToPlaylistTags(index);
+        return new TextElement(playlistTags().get(index)).getText();
     }
 
     public PlaylistResultsScreen clickOnTag(int index) {
+        scrollToPlaylistTags(index);
         playlistTags().get(index).click();
         return new PlaylistResultsScreen(testDriver);
     }
 
-    private List<ViewElement> playlistTags() {
+    private void scrollToPlaylistTags(int index) {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return allTags().findOnScreenElements(With.className(SnappedTagView.class));
+        scrollToAllTags();
+        while (!enoughTagsVisible(index)) {
+            testDriver.scrollDown();
+        }
     }
 
-    public List<String> playlistRecentTags() {
-        return Lists.transform(recentTags(), new Function<ViewElement, String>() {
-            @Override
-            public String apply(ViewElement input) {
-                return new TextElement(input).getText();
-            }
-        });
+    private List<ViewElement> playlistTags() {
+        return scrollToAllTags().findOnScreenElements(With.className(SnappedTagView.class));
     }
 
     public SearchScreen clickSearch() {

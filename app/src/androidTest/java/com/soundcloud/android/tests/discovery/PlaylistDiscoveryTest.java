@@ -5,8 +5,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
-import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
@@ -32,38 +30,31 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
-    @Ignore
-    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3800")
-    public void testTagDisplayedAsSuggestionAfterTagSearch() {
-        discoveryScreen.clickOnTag(1).pressBack();
-
-        assertThat("Playlist tags screen should be visible", discoveryScreen.isVisible());
-        assertThat("Searched tag should be in recents", discoveryScreen.playlistRecentTags().contains("#rap"));
-    }
-
-    public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWithDefaultNumberOfResults() {
+    public void testPlaylistDiscoveryTags() {
+        String tagTitle = discoveryScreen.getTagTitle(5);
         PlaylistResultsScreen resultsScreen = discoveryScreen.clickOnTag(5);
 
-        assertThat("Playlist results screen should be visible", resultsScreen.isVisible());
-        assertThat("Playlist results should not be empty", resultsScreen.getResultsCount(), is(Consts.CARD_PAGE_SIZE));
+        assertPlaylistResultsScreenShown(tagTitle, resultsScreen);
+        assertPlaylistDetailsScreen(resultsScreen);
+        assertBackNavigationToDiscovery(resultsScreen);
     }
 
-    public void testClickingOnPlaylistOpensPlaylistActivity() {
-        PlaylistDetailsScreen detailsScreen = discoveryScreen.clickOnTag(5).clickOnFirstPlaylist();
-
-        assertThat("Playlist details screen should be shown", detailsScreen.isVisible());
-    }
-
-    public void testClickOnPlaylistTagOpensTagResults() {
-        PlaylistResultsScreen resultsScreen = discoveryScreen.clickOnTag(1);
-
-        assertThat("Screen should show clicked playlist tag as title", resultsScreen.getActionBarTitle(), is("#rap"));
-    }
-
-    public void testGoingBackFromPlayResultsReturnsToDiscoveryPage() {
-        discoveryScreen.clickOnTag(5).pressBack();
-
+    private void assertBackNavigationToDiscovery(PlaylistResultsScreen resultsScreen) {
+        resultsScreen.pressBack();
         assertThat("Main screen should be visible", discoveryScreen.isVisible());
         assertThat("Playlist tags should be visible", discoveryScreen.isDisplayingTags());
+    }
+
+    private void assertPlaylistDetailsScreen(PlaylistResultsScreen resultsScreen) {
+        PlaylistDetailsScreen detailsScreen = resultsScreen.clickOnFirstPlaylist();
+        assertThat("Playlist details screen should be shown", detailsScreen.isVisible());
+        solo.goBack();
+    }
+
+    private void assertPlaylistResultsScreenShown(String tagTitle, PlaylistResultsScreen resultsScreen) {
+        assertThat("Playlist results screen should be visible", resultsScreen.isVisible());
+        assertThat("Screen should show clicked playlist tag as title", resultsScreen.getActionBarTitle(), is(tagTitle));
+        assertThat("Playlist results should not be empty", resultsScreen.getResultsCount(), is(
+                Consts.CARD_PAGE_SIZE));
     }
 }
