@@ -30,7 +30,8 @@ public abstract class PlaybackContext {
         STREAM(Screen.STREAM),
         LINK(Screen.DEEPLINK),
         YOUR_LIKES(Screen.LIKES, Screen.YOUR_LIKES),
-        SEARCH_RESULT(Screen.SEARCH_EVERYTHING, Screen.SEARCH_PREMIUM_CONTENT, Screen.SEARCH_TRACKS);
+        SEARCH_RESULT(Screen.SEARCH_EVERYTHING, Screen.SEARCH_PREMIUM_CONTENT, Screen.SEARCH_TRACKS),
+        CAST;
 
         private List<Screen> screens;
 
@@ -106,6 +107,8 @@ public abstract class PlaybackContext {
             return Bucket.LISTENING_HISTORY;
         } else if (playSessionSource.isFromRecommendations()) {
             return Bucket.SUGGESTED_TRACKS;
+        } else if (DiscoverySource.CAST.equals(playSessionSource.getDiscoverySource())) {
+            return Bucket.CAST;
         } else {
             return Bucket.fromScreen(Screen.fromTag(screenTag));
         }

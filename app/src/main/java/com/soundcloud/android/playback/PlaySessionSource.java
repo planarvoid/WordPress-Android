@@ -69,6 +69,12 @@ public class PlaySessionSource implements Parcelable {
         return source;
     }
 
+    public static PlaySessionSource forCast() {
+        PlaySessionSource source = new PlaySessionSource();
+        source.discoverySource = DiscoverySource.CAST;
+        return source;
+    }
+
     public static PlaySessionSource forExplore(Screen screen, String version) {
         return forExplore(screen.get(), version);
     }
@@ -162,6 +168,7 @@ public class PlaySessionSource implements Parcelable {
             return new Urn(value);
         }
     }
+
     public String getOriginScreen() {
         return originScreen;
     }

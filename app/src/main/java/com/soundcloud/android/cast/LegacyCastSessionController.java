@@ -145,9 +145,9 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl
             Log.d(LegacyCastOperations.TAG, "Does not have the same tracklist, updating locally");
             List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
             final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns,
-                                                                   PlaySessionSource.EMPTY,
+                                                                   PlaySessionSource.forCast(),
                                                                    Collections.<Urn, Boolean>emptyMap());
-            playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, remotePosition);
+            playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forCast(), remotePosition);
             castPlayer.playCurrent();
         }
 

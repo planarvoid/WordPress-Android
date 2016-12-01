@@ -1041,6 +1041,7 @@
     <string name="play_queue_introductory_overlay_description">Control what plays next, shuffle or repeat</string>
     <string name="play_queue_header_magic_box_subtitle">New music based on what’s playing</string>
     <string name="play_queue_header_auto_play_toggle">Station Autoplay</string>
+    <string name="play_queue_header_cast">Casting</string>
 
     <!-- __SUGGESTED CREATORS -->
     <string name="suggested_creators">Suggested artists</string>

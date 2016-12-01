@@ -71,6 +71,8 @@ class HeaderPlayQueueItemRenderer implements CellRenderer<HeaderPlayQueueUIItem>
                 return resources.getString(R.string.play_queue_header_charts_trending, contentTitle);
             case EXPLICIT:
                 return resources.getString(R.string.play_queue_header_explicit);
+            case CAST:
+                return resources.getString(R.string.play_queue_header_cast);
             default:
                 throw new IllegalArgumentException("can't render header of type: " + bucket.name());
         }

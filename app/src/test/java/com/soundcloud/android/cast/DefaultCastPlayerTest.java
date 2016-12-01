@@ -543,7 +543,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         castPlayer.onMetadataUpdated();
 
         verify(playQueueManager, never()).setPosition(anyInt(), anyBoolean());
-        verify(playQueueManager).setNewPlayQueue(any(PlayQueue.class), eq(PlaySessionSource.EMPTY),
+        verify(playQueueManager).setNewPlayQueue(any(PlayQueue.class), eq(PlaySessionSource.forCast()),
                                                  eq(remotePlayQueue.getCurrentPosition()));
     }
 
