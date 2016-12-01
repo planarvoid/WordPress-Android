@@ -98,6 +98,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void returnTrueWhenUpcomingTrack() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
+        when(adapter.getItemCount()).thenReturn(10);
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isTrue();
@@ -106,6 +107,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void returnFalseWhenCurrentTrack() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(PlayState.PLAYING);
+        when(adapter.getItemCount()).thenReturn(10);
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isFalse();
@@ -114,6 +116,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void returnFalseWhenPlayedTrack() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(PlayState.PLAYED);
+        when(adapter.getItemCount()).thenReturn(10);
         when(adapter.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isFalse();
