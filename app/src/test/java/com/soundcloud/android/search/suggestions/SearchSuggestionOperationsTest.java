@@ -48,14 +48,14 @@ import java.util.Map;
 public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
     private static final String SEARCH_QUERY = "query";
-    private static final int MAX_RESULTS_NUMBER = 5;
+    private static final int MAX_RESULTS_NUMBER = 9;
     private static final Urn QUERY_URN = new Urn("soundcloud:autocomplete:123");
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private SearchSuggestionStorage suggestionStorage;
     @Mock private AutocompleteConfig autocompleteConfig;
-    @Mock private AutocompleteFiltering autocompleteFiltering;
+    @Mock private SearchSuggestionFiltering searchSuggestionFiltering;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
     @Captor private ArgumentCaptor<List<SuggestionItem>> suggestionItemsCaptor;
 
@@ -67,7 +67,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         when(autocompleteConfig.isEnabled()).thenReturn(false);
-        when(autocompleteFiltering.filter(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
+        when(searchSuggestionFiltering.filtered(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
             @Override
             public List<SuggestionItem> answer(InvocationOnMock invocation) throws Throwable {
                 return (List<SuggestionItem>) invocation.getArguments()[0];
@@ -77,7 +77,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
                                                     Schedulers.immediate(), suggestionStorage,
                                                     autocompleteConfig,
-                                                    autocompleteFiltering);
+                                                    searchSuggestionFiltering);
         suggestionsResultSubscriber = new TestSubscriber<>();
 
         track = ModelFixtures.create(ApiTrack.class);

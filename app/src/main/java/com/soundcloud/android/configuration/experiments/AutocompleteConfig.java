@@ -44,7 +44,7 @@ public class AutocompleteConfig {
         return VARIANT_QUERIES_ONLY.equals(getVariant());
     }
 
-    private boolean isFeatureFlagEnabled() {
+    public boolean isFeatureFlagEnabled() {
         return featureFlags.isEnabled(Flag.AUTOCOMPLETE);
     }
 
