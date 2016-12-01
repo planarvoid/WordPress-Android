@@ -8,6 +8,7 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.CustomFontTextView;
 
 import android.content.res.Resources;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,12 +45,20 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
     }
 
     private void setBackground(View itemView, WelcomeUserItem welcomeUserItem) {
-        // TODO: 29/11/2016 ¯\_(ツ)_/¯
+        int background = welcomeUserItem.isNight() ? R.drawable.night_sprite : R.drawable.morning_sprite;
+        int detail = welcomeUserItem.isNight() ? R.drawable.dark_moon : R.drawable.morning_sun;
+        int backgroundColor = welcomeUserItem.isNight()
+                              ? ContextCompat.getColor(itemView.getContext(), R.color.welcome_night)
+                              : ContextCompat.getColor(itemView.getContext(), R.color.welcome_day);
+
+        itemView.setBackgroundColor(backgroundColor);
+        ButterKnife.<ImageView>findById(itemView, R.id.background_image).setImageResource(background);
+        ButterKnife.<ImageView>findById(itemView, R.id.background_detail).setImageResource(detail);
     }
 
     private void setAvatar(View itemView, WelcomeUserItem welcomeUserItem) {
         ImageView avatar = ButterKnife.findById(itemView, R.id.welcome_user_avatar);
-        imageOperations.displayInAdapterView(welcomeUserItem, ApiImageSize.getFullImageSize(resources), avatar);
+        imageOperations.displayCircularInAdapterView(welcomeUserItem, ApiImageSize.getFullImageSize(resources), avatar);
     }
 
     private void setWelcomeMessage(View itemView, WelcomeUserItem welcomeUserItem) {

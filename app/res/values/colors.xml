@@ -190,4 +190,9 @@
     <color name="conversion_restrictions_text_pressed">#ffffffff</color>
     <color name="go_gradient_start">#7d02a1</color>
 
+    <!-- Welcome card -->
+    <color name="seventy_percent_white">#B3FFFFFF</color>
+    <color name="welcome_night">#111626</color>
+    <color name="welcome_day">#F08502</color>
+
 </resources>

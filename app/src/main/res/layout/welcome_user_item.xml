@@ -1,38 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/Module.Background"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/default_list_item_padding"
-    android:orientation="vertical"
-    android:paddingBottom="32dp"
-    android:paddingLeft="@dimen/default_list_item_padding"
-    android:paddingRight="@dimen/default_list_item_padding"
-    android:paddingTop="32dp">
+    tools:background="@color/welcome_night">
 
     <ImageView
-        android:id="@+id/welcome_user_avatar"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center_horizontal"
-        tools:src="@drawable/album_art_placeholder" />
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/night_sprite"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/welcome_user_title"
-        style="@style/WelcomeUser.Title"
-        android:layout_width="wrap_content"
+    <ImageView
+        android:id="@+id/background_detail"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="top|right"
+        tools:background="@drawable/dark_moon" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        tools:text="Good Morning, SoundCloud" />
+        android:orientation="vertical"
+        android:paddingBottom="32dp"
+        android:paddingLeft="@dimen/default_list_item_padding"
+        android:paddingRight="@dimen/default_list_item_padding"
+        android:paddingTop="32dp">
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/welcome_user_description"
-        style="@style/WelcomeUser.Description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/welcome_user_subtitle" />
+        <ImageView
+            android:id="@+id/welcome_user_avatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            tools:src="@drawable/ic_launcher" />
 
-</LinearLayout>
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/welcome_user_title"
+            style="@style/WelcomeUser.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:paddingBottom="6dp"
+            android:paddingTop="6dp"
+            tools:text="Good Morning, SoundCloud" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/welcome_user_description"
+            style="@style/WelcomeUser.Description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:text="@string/welcome_user_subtitle" />
+
+    </LinearLayout>
+</FrameLayout>
+

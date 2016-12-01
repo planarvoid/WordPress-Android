@@ -197,12 +197,12 @@
     <style name="WelcomeUser" parent="TextAppearance.SoundCloudLightFont" />
 
     <style name="WelcomeUser.Title">
-        <item name="android:textSize">21sp</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="WelcomeUser.Description">
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/ak_medium_dark_gray</item>
+        <item name="android:textColor">@color/seventy_percent_white</item>
     </style>
 </resources>

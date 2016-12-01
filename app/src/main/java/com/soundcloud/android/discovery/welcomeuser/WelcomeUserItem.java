@@ -11,13 +11,14 @@ import com.soundcloud.java.optional.Optional;
 public abstract class WelcomeUserItem extends DiscoveryItem implements ImageResource {
 
     public abstract Urn userUrn();
-
     public abstract String userName();
-
     public abstract String avatarUrl();
+    public abstract boolean isNight();
 
     public static DiscoveryItem create(ProfileUser user) {
-        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.getUrn(), user.getName(), user.getImageUrlTemplate().get());
+        // TODO: 30/11/2016 calculate day/night
+        boolean isNight = true;
+        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.getUrn(), user.getName(), user.getImageUrlTemplate().get(), isNight);
     }
 
     @Override
