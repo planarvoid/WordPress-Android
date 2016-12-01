@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.cast.CastPlayerStripController;
-
 import android.util.Pair;
 import android.view.View;
+
+import com.soundcloud.android.cast.CastPlayerStripController;
 
 class SlideAnimationHelper {
 
@@ -14,12 +14,14 @@ class SlideAnimationHelper {
     void configureViewsFromSlide(float slideOffset,
                                  View footerView,
                                  Iterable<View> fullscreenViews,
+                                 Iterable<View> fullyHideOnCollapseViews,
                                  CastPlayerStripController castPanelController,
                                  PlayerOverlayController... overlayController) {
         configureViewsFromSlide(slideOffset, footerView, overlayController);
-        setAlpha(getSlideAnimateValue(slideOffset, SLIDE_TRANSITION_BOUNDS_FULLSCREEN), fullscreenViews);
-        castPanelController.setHeightFromCollapse(getSlideAnimateValue(slideOffset,
-                                                                       SLIDE_TRANSITION_BOUNDS_FULLSCREEN));
+        final float alpha = getSlideAnimateValue(slideOffset, SLIDE_TRANSITION_BOUNDS_FULLSCREEN);
+        setAlpha(alpha, fullscreenViews);
+        setVisibility(alpha < 0.001, fullyHideOnCollapseViews);
+        castPanelController.setHeightFromCollapse(alpha);
     }
 
     void configureViewsFromSlide(float slideOffset,
@@ -35,13 +37,13 @@ class SlideAnimationHelper {
                                          PlayerOverlayController... overlayControllers) {
         for (PlayerOverlayController overlayController : overlayControllers) {
             overlayController.setAlphaFromCollapse(getSlideAnimateValue(1 - slideOffset,
-                                                                        SLIDE_TRANSITION_BOUNDS_ARTWORK));
+                    SLIDE_TRANSITION_BOUNDS_ARTWORK));
         }
         setAlpha(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_FOOTER), footerView);
     }
 
-    private void setAlpha(float alpha, Iterable<View> views) {
-        for (View v : views) {
+    private void setAlpha(float alpha, Iterable<View> fullscreenViews) {
+        for (View v : fullscreenViews) {
             setAlpha(alpha, v);
         }
     }
@@ -49,6 +51,16 @@ class SlideAnimationHelper {
     private void setAlpha(float alpha, View view) {
         final float adjustedAlpha = Math.min(1.0f, Math.max(0.0f, alpha));
         view.setAlpha(adjustedAlpha);
+    }
+
+    private void setVisibility(boolean shouldHide, Iterable<View> fullyHideOnCollapseViews) {
+        for (View v : fullyHideOnCollapseViews) {
+            if (shouldHide) {
+                v.setVisibility(View.INVISIBLE);
+            } else {
+                v.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private float getSlideAnimateValue(float slideOffset, Pair<Float, Float> bounds) {
