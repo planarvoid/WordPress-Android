@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
+
     <style name="TabsTheme.Scrollable">
         <item name="tabPaddingStart">16dp</item>
         <item name="tabPaddingEnd">16dp</item>
         <item name="tabMode">scrollable</item>
         <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>
+
+    <style name="TabsTheme.Fixed.Explore">
+        <item name="android:elevation">@dimen/toolbar_elevation</item>
+    </style>
+
 </resources>
