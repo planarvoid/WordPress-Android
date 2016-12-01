@@ -30,6 +30,7 @@ public abstract class DiscoveryItem {
         SearchItem,
         ChartItem,
         RecentlyPlayedItem,
+        WelcomeUserItem,
         Empty
     }
 

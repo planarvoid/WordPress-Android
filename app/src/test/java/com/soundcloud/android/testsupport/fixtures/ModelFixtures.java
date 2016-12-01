@@ -18,7 +18,6 @@ import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
@@ -30,6 +29,7 @@ import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.profile.ApiPlayableSource;
+import com.soundcloud.android.profile.ProfileUser;
 import com.soundcloud.android.sync.activities.ApiActivityItem;
 import com.soundcloud.android.sync.activities.ApiPlaylistLikeActivity;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
@@ -303,5 +303,16 @@ public class ModelFixtures {
                          .trackTime(1234)
                          .user(byUser)
                          .build();
+    }
+
+    public static ProfileUser profileUser() {
+        return new ProfileUser(ModelFixtures.create(ApiUser.class).toPropertySet());
+    }
+
+    public static ProfileUser profileUser(Urn urn) {
+        ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        apiUser.setUrn(urn);
+
+        return new ProfileUser(apiUser.toPropertySet());
     }
 }

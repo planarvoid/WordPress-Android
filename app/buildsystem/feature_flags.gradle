@@ -26,7 +26,8 @@ enum Feature {
   CLEAR_TABLES_ON_SIGNOUT,
   AUTOCOMPLETE,
   ADJUST_DEFERRED_DEEPLINKS,
-  CAST_V3;
+  CAST_V3,
+  WELCOME_USER;
 }
 
 android {
@@ -50,6 +51,7 @@ android {
     buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -64,6 +66,7 @@ android {
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -87,6 +90,7 @@ android {
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
     }
 
     release {

@@ -631,6 +631,10 @@
     <string name="promoted">Promoted</string>
     <string name="promoted_by_promotorname">Promoted by %s</string>
 
+    <!-- __USER WELCOME -->
+    <string name="welcome_user_title">Good Morning, %s</string>
+    <string name="welcome_user_subtitle">Check out some of these new songs!</string>
+
     <!-- __FACEBOOK INVITES -->
     <string name="facebook_invites_title">Invite friends to SoundCloud</string>
     <string name="facebook_invites_description">Sharing is caring. Invite your friends to experience SoundCloud with you.</string>

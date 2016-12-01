@@ -21,7 +21,6 @@ import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.functions.Action0;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
@@ -46,13 +45,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private final StartStationHandler startStationPresenter;
 
     private CompositeSubscription subscription = new CompositeSubscription();
-
-    private final Action0 subscribeToUpdates = new Action0() {
-        @Override
-        public void call() {
-            subscribeToUpdates();
-        }
-    };
 
     @Inject
     DiscoveryPresenter(DiscoveryModulesProvider discoveryModulesProvider,
@@ -130,7 +122,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         adapter.setDiscoveryListener(this);
         final Observable<List<DiscoveryItem>> source = discoveryModulesProvider
                 .discoveryItems()
-                .doOnCompleted(subscribeToUpdates);
+                .doOnCompleted(this::subscribeToUpdates);
 
         return CollectionBinding
                 .from(source)
@@ -143,7 +135,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         adapter.setDiscoveryListener(this);
         final Observable<List<DiscoveryItem>> source = discoveryModulesProvider
                 .refreshItems()
-                .doOnCompleted(subscribeToUpdates);
+                .doOnCompleted(this::subscribeToUpdates);
 
         return CollectionBinding
                 .from(source)

@@ -8,7 +8,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
-class ProfileUser implements ImageResource {
+public class ProfileUser implements ImageResource {
 
     private final PropertySet source;
 

@@ -6,6 +6,7 @@ import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
+import com.soundcloud.android.discovery.welcomeuser.WelcomeUserOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
@@ -13,7 +14,6 @@ import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.utils.EmptyThrowable;
 import rx.Observable;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -21,15 +21,6 @@ import java.util.List;
 
 class DiscoveryModulesProvider {
 
-    private static final DiscoveryItem EMPTY_ITEM = EmptyViewItem.fromThrowable(new EmptyThrowable());
-    private static final DiscoveryItem SEARCH_ITEM = DiscoveryItem.forSearchItem();
-
-    private static final Func1<Throwable, DiscoveryItem> ERROR_ITEM = new Func1<Throwable, DiscoveryItem>() {
-        @Override
-        public DiscoveryItem call(Throwable throwable) {
-            return EmptyViewItem.fromThrowable(throwable);
-        }
-    };
     private final DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
     private final ChartsExperiment chartsExperiment;
     private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
@@ -39,6 +30,7 @@ class DiscoveryModulesProvider {
     private final RecommendedPlaylistsOperations recommendedPlaylistsOperations;
     private final ChartsOperations chartsOperations;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
+    private final WelcomeUserOperations welcomeUserOperations;
 
     @Inject
     DiscoveryModulesProvider(DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment,
@@ -49,7 +41,8 @@ class DiscoveryModulesProvider {
                              RecommendedStationsOperations recommendedStationsOperations,
                              RecommendedPlaylistsOperations recommendedPlaylistsOperations,
                              ChartsOperations chartsOperations,
-                             PlaylistDiscoveryOperations playlistDiscoveryOperations) {
+                             PlaylistDiscoveryOperations playlistDiscoveryOperations,
+                             WelcomeUserOperations welcomeUserOperations) {
         this.discoveryModulesPositionExperiment = discoveryModulesPositionExperiment;
         this.chartsExperiment = chartsExperiment;
         this.playlistDiscoveryConfig = playlistDiscoveryConfig;
@@ -59,6 +52,7 @@ class DiscoveryModulesProvider {
         this.recommendedPlaylistsOperations = recommendedPlaylistsOperations;
         this.chartsOperations = chartsOperations;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
+        this.welcomeUserOperations = welcomeUserOperations;
     }
 
     Observable<List<DiscoveryItem>> discoveryItems() {
@@ -85,6 +79,7 @@ class DiscoveryModulesProvider {
     private List<Observable<DiscoveryItem>> itemsForPlaylistDiscoveryExperiment(boolean isRefresh) {
         if (playlistDiscoveryConfig.isPlaylistDiscoveryFirst()) {
             return Arrays.asList(
+                    userWelcome(),
                     recommendedTracks(isRefresh),
                     recommendedPlaylists(isRefresh),
                     recommendedStations(isRefresh),
@@ -92,6 +87,7 @@ class DiscoveryModulesProvider {
             );
         }
         return Arrays.asList(
+                userWelcome(),
                 recommendedTracks(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
@@ -101,6 +97,7 @@ class DiscoveryModulesProvider {
 
     private List<Observable<DiscoveryItem>> itemsForDiscoveryModulesSwitchExperiment(boolean isRefresh) {
         return Arrays.asList(
+                userWelcome(),
                 recommendedTracks(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
@@ -111,12 +108,19 @@ class DiscoveryModulesProvider {
 
     private List<Observable<DiscoveryItem>> itemsForDefault(boolean isRefresh) {
         return Arrays.asList(
+                userWelcome(),
                 recommendedStations(isRefresh),
                 recommendedTracks(isRefresh),
                 recommendedPlaylists(isRefresh),
                 charts(isRefresh),
                 playlistTags()
         );
+    }
+
+    private Observable<DiscoveryItem> userWelcome() {
+        return featureFlags.isEnabled(Flag.WELCOME_USER) ?
+               welcomeUserOperations.welcome() :
+               Observable.<DiscoveryItem>empty();
     }
 
     private Observable<DiscoveryItem> recommendedTracks(boolean isRefresh) {
@@ -155,12 +159,11 @@ class DiscoveryModulesProvider {
     }
 
     private Observable<List<DiscoveryItem>> items(List<Observable<DiscoveryItem>> discoveryItems) {
-        return Observable
-                .just(discoveryItems)
-                .compose(RxUtils.<DiscoveryItem>concatEagerIgnorePartialErrors())
-                .defaultIfEmpty(EMPTY_ITEM)
-                .onErrorReturn(ERROR_ITEM)
-                .startWith(SEARCH_ITEM)
+        return Observable.just(discoveryItems)
+                .compose(RxUtils.concatEagerIgnorePartialErrors())
+                .defaultIfEmpty(EmptyViewItem.fromThrowable(new EmptyThrowable()))
+                .onErrorReturn(EmptyViewItem::fromThrowable)
+                .startWith(DiscoveryItem.forSearchItem())
                 .toList();
     }
 }

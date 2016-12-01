@@ -7,26 +7,25 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
-import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
-import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.discovery.charts.ChartBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
+import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
+import com.soundcloud.android.discovery.welcomeuser.WelcomeUserItem;
+import com.soundcloud.android.discovery.welcomeuser.WelcomeUserOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
-import com.soundcloud.android.stations.StationViewModel;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
@@ -34,16 +33,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DiscoveryModulesProviderTest {
+public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
-    private static final Function<DiscoveryItem, DiscoveryItem.Kind> TO_KIND = new Function<DiscoveryItem, DiscoveryItem.Kind>() {
-        @Nullable
-        @Override
-        public DiscoveryItem.Kind apply(DiscoveryItem item) {
-            return item.getKind();
-        }
-    };
+    private static final Function<DiscoveryItem, DiscoveryItem.Kind> TO_KIND = DiscoveryItem::getKind;
     private final TestSubscriber<List<DiscoveryItem>> subscriber = new TestSubscriber<>();
 
     private DiscoveryModulesProvider discoveryModulesProvider;
@@ -56,6 +48,7 @@ public class DiscoveryModulesProviderTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private ChartsExperiment chartsExperiment;
     @Mock private RecommendedPlaylistsOperations recommendedPlaylistsOperations;
+    @Mock private WelcomeUserOperations welcomeUserOperations;
     @Mock private DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
 
     @Before
@@ -68,26 +61,30 @@ public class DiscoveryModulesProviderTest {
                                                                 recommendedStationsOperations,
                                                                 recommendedPlaylistsOperations,
                                                                 chartsOperations,
-                                                                playlistDiscoveryOperations);
+                                                                playlistDiscoveryOperations,
+                                                                welcomeUserOperations);
 
         when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
         when(chartsExperiment.isEnabled()).thenReturn(false);
         when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(false);
         when(playlistDiscoveryConfig.isEnabled()).thenReturn(false);
 
-        final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.<Chart>emptyList(),
-                                                                                     Collections.<Chart>emptyList()));
-        final RecommendedStationsBucketItem stationsItem = RecommendedStationsBucketItem.create(Collections.<StationViewModel>emptyList());
+        final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.emptyList(),
+                                                                                     Collections.emptyList()));
+        final RecommendedStationsBucketItem stationsItem = RecommendedStationsBucketItem.create(Collections.emptyList());
         final DiscoveryItem tracksItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.RecommendedTracksItem);
         final DiscoveryItem playlistsItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.RecommendedPlaylistsItem);
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"),
-                                                                          Collections.<String>emptyList());
+                                                                          Collections.emptyList());
+        final DiscoveryItem welcomeUserItem = WelcomeUserItem.create(ModelFixtures.profileUser());
 
-        when(chartsOperations.featuredCharts()).thenReturn(Observable.<DiscoveryItem>just(chartsItem));
-        when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));
+        when(chartsOperations.featuredCharts()).thenReturn(Observable.just(chartsItem));
+        when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.just(stationsItem));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
         when(recommendedPlaylistsOperations.recommendedPlaylists()).thenReturn(Observable.just(playlistsItem));
-        when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>just(playlistTagsItem));
+        when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.just(playlistTagsItem));
+        when(welcomeUserOperations.welcome()).thenReturn(Observable.just(welcomeUserItem));
     }
 
     @Test
@@ -99,6 +96,23 @@ public class DiscoveryModulesProviderTest {
 
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
+
+    @Test
+    public void loadsAllItemsIncludingWelcomeWhenEnabled() {
+        when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(true);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.WelcomeUserItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.PlaylistTagsItem

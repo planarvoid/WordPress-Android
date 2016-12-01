@@ -8,6 +8,7 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedSta
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.WelcomeUserItem;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -17,6 +18,7 @@ import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRen
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsAdapter;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketItem;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
+import com.soundcloud.android.discovery.welcomeuser.WelcomeUserItemRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
@@ -49,6 +51,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
                      @Provided RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer,
                      @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,
                      @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
+                     @Provided WelcomeUserItemRenderer welcomeUserItemRenderer,
                      @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer) {
         super(new CellRendererBinding<>(RecommendedTracksItem.ordinal(), recommendationBucketRenderer),
               new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
@@ -57,6 +60,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
               new CellRendererBinding<>(RecommendedPlaylistsItem.ordinal(), recommendedPlaylistsBucketRenderer),
               new CellRendererBinding<>(ChartItem.ordinal(), chartsBucketItemRenderer),
               new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
+              new CellRendererBinding<>(WelcomeUserItem.ordinal(), welcomeUserItemRenderer),
               new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer)
         );
         this.playlistTagRenderer = playlistTagRenderer;

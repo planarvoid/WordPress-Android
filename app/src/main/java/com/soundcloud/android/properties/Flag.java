@@ -31,8 +31,9 @@ public enum Flag {
     PROFILE_BANNER(BuildConfig.PROFILE_BANNER),
     CLEAR_TABLES_ON_SIGNOUT(BuildConfig.CLEAR_TABLES_ON_SIGNOUT),
     AUTOCOMPLETE(BuildConfig.AUTOCOMPLETE),
+    CAST_V3(BuildConfig.CAST_V3),
     ADJUST_DEFERRED_DEEPLINKS(BuildConfig.ADJUST_DEFERRED_DEEPLINKS),
-    CAST_V3(BuildConfig.CAST_V3);
+    WELCOME_USER(BuildConfig.WELCOME_USER);
 
     private final State state;
 

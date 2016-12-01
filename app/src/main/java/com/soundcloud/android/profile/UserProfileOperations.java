@@ -98,31 +98,16 @@ public class UserProfileOperations {
         this.eventBus = eventBus;
     }
 
-    Observable<ProfileUser> getLocalProfileUser(Urn user) {
-        return userRepository.localUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
-            @Override
-            public ProfileUser call(PropertySet properties) {
-                return new ProfileUser(properties);
-            }
-        });
+    public Observable<ProfileUser> getLocalProfileUser(Urn user) {
+        return userRepository.localUserInfo(user).map(ProfileUser::new);
     }
 
     Observable<ProfileUser> getLocalAndSyncedProfileUser(Urn user) {
-        return userRepository.localAndSyncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
-            @Override
-            public ProfileUser call(PropertySet properties) {
-                return new ProfileUser(properties);
-            }
-        });
+        return userRepository.localAndSyncedUserInfo(user).map(ProfileUser::new);
     }
 
     Observable<ProfileUser> getSyncedProfileUser(Urn user) {
-        return userRepository.syncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
-            @Override
-            public ProfileUser call(PropertySet properties) {
-                return new ProfileUser(properties);
-            }
-        });
+        return userRepository.syncedUserInfo(user).map(ProfileUser::new);
     }
 
     public Observable<PagedRemoteCollection> pagedPostItems(Urn user) {

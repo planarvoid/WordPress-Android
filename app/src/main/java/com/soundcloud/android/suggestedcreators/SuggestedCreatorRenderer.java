@@ -34,7 +34,8 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private final ScreenProvider screenProvider;
 
     @Inject
-    SuggestedCreatorRenderer(ProfileImageHelper profileImageHelper, Resources resources,
+    SuggestedCreatorRenderer(ProfileImageHelper profileImageHelper,
+                             Resources resources,
                              SuggestedCreatorsOperations suggestedCreatorsOperations,
                              Navigator navigator,
                              EngagementsTracking engagementsTracking,
