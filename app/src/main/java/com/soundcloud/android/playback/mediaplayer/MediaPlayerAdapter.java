@@ -133,6 +133,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
+    public void preload(PreloadItem preloadItem) {
+        // Preload is not implemented
+    }
+
+    @Override
     public void play(PlaybackItem playbackItem) {
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
@@ -626,11 +631,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     @Override
     public boolean isSeekable() {
         return mediaPlayer != null && internalState.isSeekable();
-    }
-
-    @Override
-    public void preload(PreloadItem preloadItem) {
-        // media player does not preload
     }
 
     @Override

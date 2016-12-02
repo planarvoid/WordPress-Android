@@ -324,7 +324,7 @@ public class IOUtils {
         }
     }
 
-    public static void createCacheDirs(Context context, File streamCacheDirectory) {
+    public static void createCacheDirs(Context context, @Nullable File streamCacheDirectory) {
         if (isSDCardAvailable()) {
             if (streamCacheDirectory != null) {
                 mkdirs(streamCacheDirectory);

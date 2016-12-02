@@ -109,7 +109,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
-    @Inject @Nullable @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;
@@ -159,8 +158,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         adIdHelper.init();
 
         uncaughtExceptionHandlerController.reportSystemMemoryStats();
-
-        IOUtils.createCacheDirs(this, streamCacheDirectory);
 
         analyticsEngine.onAppCreated(this);
 

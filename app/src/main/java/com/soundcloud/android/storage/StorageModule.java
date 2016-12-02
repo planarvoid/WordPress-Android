@@ -23,7 +23,8 @@ import java.io.File;
 @Module
 public class StorageModule {
 
-    public static final String STREAM_CACHE_DIRECTORY = "StreamCacheDirectory";
+    public static final String STREAM_CACHE_DIRECTORY_SKIPPY = "StreamCacheDirectorySkippy";
+    public static final String STREAM_CACHE_DIRECTORY_FLIPPER = "StreamCacheDirectoryFlipper";
     public static final String PLAYLIST_TAGS = "PlaylistTags";
     public static final String DEVICE_MANAGEMENT = "DeviceManagement";
     public static final String PAYMENTS = "Payments";
@@ -80,10 +81,17 @@ public class StorageModule {
     private static final String PREFS_UNAUTHORIZED_ERRORS = "unauthorized_errors";
 
     @Provides
-    @Named(STREAM_CACHE_DIRECTORY)
+    @Named(STREAM_CACHE_DIRECTORY_SKIPPY)
     @Nullable
-    public File provideStreamCacheDirectory(Context context) {
+    public File provideStreamCacheDirectorySkippy(Context context) {
         return IOUtils.getExternalStorageDir(context, "skippy");
+    }
+
+    @Provides
+    @Named(STREAM_CACHE_DIRECTORY_FLIPPER)
+    @Nullable
+    public File provideStreamCacheDirectoryFlipper(Context context) {
+        return IOUtils.getExternalStorageDir(context, "flipper");
     }
 
     @Provides

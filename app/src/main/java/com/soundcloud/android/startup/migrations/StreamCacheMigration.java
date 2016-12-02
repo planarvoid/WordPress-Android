@@ -7,10 +7,10 @@ import javax.inject.Inject;
 
 class StreamCacheMigration implements Migration {
 
-    private final StreamCacheConfig streamCacheConfig;
+    private final StreamCacheConfig.SkippyConfig streamCacheConfig;
 
     @Inject
-    StreamCacheMigration(StreamCacheConfig streamCacheConfig) {
+    StreamCacheMigration(StreamCacheConfig.SkippyConfig streamCacheConfig) {
         this.streamCacheConfig = streamCacheConfig;
     }
 

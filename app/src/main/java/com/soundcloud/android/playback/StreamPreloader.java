@@ -36,7 +36,7 @@ public class StreamPreloader {
     private final PlayQueueManager playQueueManager;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaybackServiceController serviceController;
-    private final StreamCacheConfig streamCacheConfig;
+    private final StreamCacheConfig.SkippyConfig skippyConfig;
 
     private Subscription preloadSubscription = RxUtils.invalidSubscription();
 
@@ -128,7 +128,7 @@ public class StreamPreloader {
     };
 
     private boolean hasSpaceInCache() {
-        return streamCacheConfig.getRemainingCacheSpace() > CACHE_CUSHION;
+        return skippyConfig.getRemainingCacheSpace() > CACHE_CUSHION;
     }
 
     @Inject
@@ -136,13 +136,13 @@ public class StreamPreloader {
                            TrackRepository trackRepository,
                            PlayQueueManager playQueueManager,
                            OfflinePlaybackOperations offlinePlaybackOperations,
-                           PlaybackServiceController serviceController, StreamCacheConfig streamCacheConfig) {
+                           PlaybackServiceController serviceController, StreamCacheConfig.SkippyConfig skippyConfig) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.serviceController = serviceController;
-        this.streamCacheConfig = streamCacheConfig;
+        this.skippyConfig = skippyConfig;
     }
 
     public void subscribe() {

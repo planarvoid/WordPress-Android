@@ -161,6 +161,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     }
 
+    @Override
     public void preload(PreloadItem preloadItem) {
         try {
             skippyPreloader.fetch(buildRemoteUrl(preloadItem.getUrn(), preloadItem.getPlaybackType()),
@@ -433,7 +434,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         if (allowPerformanceMeasureEvent(metric)) {
             eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE,
-                             createPerformanceEvent(metric, value, cdnHost, format, bitRate));
+                    createPerformanceEvent(metric, value, cdnHost, format, bitRate));
         }
     }
 

@@ -34,7 +34,8 @@ public class ClearCacheDialog extends DialogFragment {
     @Inject Context appContext;
     @Inject ImageOperations imageOperations;
     @Inject WaveformOperations waveformOperations;
-    @Inject StreamCacheConfig streamCacheConfig;
+    @Inject StreamCacheConfig.SkippyConfig skippyConfig;
+    @Inject StreamCacheConfig.FlipperConfig flipperConfig;
 
     public static void show(FragmentManager fragmentManager) {
         new ClearCacheDialog().show(fragmentManager, TAG);
@@ -66,11 +67,15 @@ public class ClearCacheDialog extends DialogFragment {
             public void call(Subscriber<? super Void> subscriber) {
                 waveformOperations.clearWaveforms();
                 imageOperations.clearDiskCache();
-                final File streamCacheDirectory = streamCacheConfig.getStreamCacheDirectory();
-                if (streamCacheDirectory != null) {
-                    IOUtils.cleanDirs(streamCacheDirectory);
-                }
+                clear(skippyConfig.getStreamCacheDirectory());
+                clear(flipperConfig.getStreamCacheDirectory());
                 subscriber.onCompleted();
+            }
+
+            private void clear(File directory) {
+                if (directory != null) {
+                    IOUtils.cleanDirs(directory);
+                }
             }
         });
     }

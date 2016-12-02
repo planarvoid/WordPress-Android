@@ -34,7 +34,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaybackServiceController serviceInitiator;
-    @Mock private StreamCacheConfig streamCacheConfig;
+    @Mock private StreamCacheConfig.SkippyConfig streamCacheConfig;
 
     private final TestEventBus eventBus = new TestEventBus();
     private final Urn nextTrackUrn = Urn.forTrack(123L);

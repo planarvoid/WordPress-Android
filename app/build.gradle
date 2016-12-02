@@ -182,6 +182,7 @@ dependencies {
   compile libraries.androidKit
   compile libraries.propeller
   compile libraries.skippy
+  compile libraries.flipper
   compile libraries.soundCloudVorbisEncoder
   compile libraries.lightCycle
 

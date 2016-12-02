@@ -2,6 +2,8 @@ package com.soundcloud.android.playback;
 
 public interface Player {
 
+    void preload(PreloadItem preloadItem);
+
     void play(PlaybackItem playbackItem);
 
     void resume(PlaybackItem playbackItem);
@@ -27,9 +29,19 @@ public interface Player {
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     boolean isSeekable();
 
-    void preload(PreloadItem preloadItem);
-
     interface PlayerListener {
+
+        PlayerListener EMPTY = new PlayerListener() {
+            @Override
+            public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
+                // no-op
+            }
+
+            @Override
+            public void onProgressEvent(long progress, long duration) {
+                // no-op
+            }
+        };
 
         void onPlaystateChanged(PlaybackStateTransition stateTransition);
 

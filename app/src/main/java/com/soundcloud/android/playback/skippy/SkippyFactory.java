@@ -6,9 +6,11 @@ import com.soundcloud.android.playback.StreamCacheConfig;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -25,13 +27,13 @@ public class SkippyFactory {
     private final Context context;
     private final ApplicationProperties applicationProperties;
     private final CryptoOperations cryptoOperations;
-    private final StreamCacheConfig cacheConfig;
+    private final StreamCacheConfig.SkippyConfig cacheConfig;
     private final OpusExperiment opusExperiment;
 
     @Inject
     SkippyFactory(Context context, CryptoOperations cryptoOperations,
                   ApplicationProperties applicationProperties,
-                  StreamCacheConfig cacheConfig,
+                  StreamCacheConfig.SkippyConfig cacheConfig,
                   OpusExperiment opusExperiment) {
         this.context = context;
         this.cryptoOperations = cryptoOperations;
@@ -62,18 +64,24 @@ public class SkippyFactory {
 
     @NonNull
     private Skippy.Configuration getConfiguration(int bufferDurationMs) {
-        final File streamCacheDirectory = cacheConfig.getStreamCacheDirectory();
         return new Skippy.Configuration(
                 PROGRESS_INTERVAL_MS,
                 bufferDurationMs,
                 cacheConfig.getStreamCacheSize(),
                 cacheConfig.getStreamCacheMinFreeSpaceAvailablePercentage(),
-                streamCacheDirectory == null ? null : streamCacheDirectory.getAbsolutePath(),
+                streamCacheDirectory(),
                 cryptoOperations.getKeyOrGenerateAndStore(KEY_PREFERENCE_NAME),
                 !applicationProperties.isReleaseBuild(),
                 USE_CACHE_ALWAYS,
                 getPreferredMediaType()
         );
+    }
+
+    @Nullable
+    private String streamCacheDirectory() {
+        final File streamCacheDirectory = cacheConfig.getStreamCacheDirectory();
+        IOUtils.createCacheDirs(context, streamCacheDirectory);
+        return streamCacheDirectory == null ? null : streamCacheDirectory.getAbsolutePath();
     }
 
     private Skippy.SkippyMediaType getPreferredMediaType() {

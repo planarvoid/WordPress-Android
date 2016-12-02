@@ -24,48 +24,48 @@ public class StreamCacheConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        cacheConfig = new StreamCacheConfig(countryProvider, cacheDirectory, ioUtils);
+        cacheConfig = new StreamCacheConfig(countryProvider, ioUtils, cacheDirectory);
     }
 
     @Test
     public void cacheIsMinInUS() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("us");
-        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
+        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES);
     }
 
     @Test
     public void cacheIsMinInGB() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("gb");
-        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
+        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES);
     }
 
     @Test
     public void cacheIsMinInDE() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("de");
-        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
+        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES);
     }
 
     @Test
     public void cacheIsMinInFR() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("fr");
-        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
+        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES);
     }
 
     @Test
     public void cacheIsMinWithEmptyCode() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("");
-        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
+        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES);
     }
 
     @Test
     public void cacheIsMinWithNullCode() throws Exception {
-        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
+        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES);
     }
 
     @Test
     public void cacheIsMaxInNepal() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("ne");
-        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MAX_SIZE_BYTES);
+        assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.SkippyConfig.MAX_SIZE_BYTES);
     }
 
     @Test
@@ -75,24 +75,24 @@ public class StreamCacheConfigTest {
         when(cacheDirectory.getTotalSpace()).thenReturn(hugeSdCard);
 
         when(countryProvider.getCountryCode()).thenReturn("us");
-        when(ioUtils.dirSize(cacheDirectory)).thenReturn(StreamCacheConfig.MIN_SIZE_BYTES - 1);
+        when(ioUtils.dirSize(cacheDirectory)).thenReturn(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES - 1);
 
         assertThat(cacheConfig.getRemainingCacheSpace()).isEqualTo(1);
     }
 
     @Test
     public void getsRemainingCacheSpaceReturnsSpaceUntilPercentCeiling() {
-        when(cacheDirectory.getUsableSpace()).thenReturn((long) (StreamCacheConfig.STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE + 1));
+        when(cacheDirectory.getUsableSpace()).thenReturn((long) (StreamCacheConfig.SkippyConfig.STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE + 1));
         when(cacheDirectory.getTotalSpace()).thenReturn(100L);
 
         when(countryProvider.getCountryCode()).thenReturn("us");
-        when(ioUtils.dirSize(cacheDirectory)).thenReturn(StreamCacheConfig.MIN_SIZE_BYTES - 1);
+        when(ioUtils.dirSize(cacheDirectory)).thenReturn(StreamCacheConfig.SkippyConfig.MIN_SIZE_BYTES - 1);
 
         assertThat(cacheConfig.getRemainingCacheSpace()).isEqualTo(1);
     }
 
     @Test
     public void getsRemainingCacheSpaceReturnsZeroIfCacheDirNull() {
-        assertThat( new StreamCacheConfig(countryProvider, null, ioUtils).getRemainingCacheSpace()).isEqualTo(0);
+        assertThat( new StreamCacheConfig(countryProvider, ioUtils, null).getRemainingCacheSpace()).isEqualTo(0);
     }
 }
