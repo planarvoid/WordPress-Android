@@ -303,6 +303,16 @@
         <provider android:authorities="${applicationId}.provider.ScContentProvider" android:exported="false"
             android:name=".storage.provider.ScContentProvider"/>
 
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.soundcloud.android"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!-- services -->
         <service android:name=".sync.ApiSyncService"/>
         <service android:name=".creators.record.SoundRecorderService"/>

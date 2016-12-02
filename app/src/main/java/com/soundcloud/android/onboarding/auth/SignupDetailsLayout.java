@@ -75,14 +75,14 @@ public class SignupDetailsLayout extends RelativeLayout {
     // let's revisit this when re re-do signup.
     @SuppressLint("SetWorldWritable")
     public File generateTempAvatarFile() {
-        avatarFile = ImageUtils.createTempAvatarFile();
+        avatarFile = ImageUtils.createTempAvatarFile(getContext());
         avatarFile.setWritable(true, false);
         return avatarFile;
     }
 
     public void onImagePick(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
-            File tmpAvatar = ImageUtils.createTempAvatarFile();
+            File tmpAvatar = ImageUtils.createTempAvatarFile(getContext());
             if (tmpAvatar != null) {
                 avatarFile = tmpAvatar;
                 ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(avatarFile));
