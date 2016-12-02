@@ -37,7 +37,7 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
     static class ShuffledList<T> implements List<T> {
 
         private final List<T> actualList;
-        private final List<Integer> shuffled2Actual;
+        private final List<Integer> mappedIndices;
 
         ShuffledList(List<T> actualList, int start, int end) {
             this(actualList, createIndicesMapping(start, actualList.size(), end));
@@ -45,7 +45,7 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
 
         ShuffledList(List<T> actualList, List<Integer> shuffledIndices) {
             this.actualList = actualList;
-            this.shuffled2Actual = shuffledIndices;
+            this.mappedIndices = shuffledIndices;
         }
 
         private static List<Integer> createIndicesMapping(int start, int size, int end) {
@@ -63,20 +63,12 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
             return indices;
         }
 
-        private int getActualIndex(int shuffled) {
-            return shuffled2Actual.get(shuffled);
-        }
-
-        private void addIndex(int actual, int shuffledIndex) {
-            shuffled2Actual.add(shuffledIndex, actual);
-        }
-
         private void removeIndex(int shuffled) {
-            final Integer removed = shuffled2Actual.remove(shuffled);
-            for (int i = 0; i < shuffled2Actual.size(); i++) {
-                final Integer actual = shuffled2Actual.get(i);
+            final Integer removed = mappedIndices.remove(shuffled);
+            for (int i = 0; i < mappedIndices.size(); i++) {
+                final Integer actual = mappedIndices.get(i);
                 if (actual >= removed) {
-                    shuffled2Actual.set(i, actual - 1);
+                    mappedIndices.set(i, actual - 1);
                 }
             }
         }
@@ -136,7 +128,7 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
         @Override
         public void clear() {
             actualList.clear();
-            shuffled2Actual.clear();
+            mappedIndices.clear();
         }
 
         @Override
@@ -149,17 +141,30 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
             return actualList.containsAll(collection);
         }
 
-        @Override
-        public void add(int shuffledIndex, T object) {
-            final int actual = size();
-            addIndex(actual, shuffledIndex);
+        private int getMappedIndex(int index) {
+            return mappedIndices.get(index);
+        }
 
-            actualList.add(getActualIndex(shuffledIndex), object);
+        @Override
+        public void add(int index, T object) {
+            int mappedIndex = mappedIndices.get(index-1)+1;
+            updateMappedIndices(mappedIndex);
+            mappedIndices.add(index, mappedIndex);
+            actualList.add(mappedIndex, object);
+        }
+
+        private void updateMappedIndices(int mappedIndex) {
+            for (int i = 0; i < mappedIndices.size(); i++) {
+                int originalMappedIndex = mappedIndices.get(i);
+                if (originalMappedIndex >= mappedIndex) {
+                    mappedIndices.set(i, originalMappedIndex+1);
+                }
+            }
         }
 
         @Override
         public T get(int location) {
-            return actualList.get(getActualIndex(location));
+            return actualList.get(getMappedIndex(location));
         }
 
         @Override
@@ -178,7 +183,7 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
 
         @Override
         public T remove(int location) {
-            final int index = getActualIndex(location);
+            final int index = getMappedIndex(location);
             removeIndex(location);
             return actualList.remove(index);
         }
@@ -186,8 +191,8 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
         @Override
         public int indexOf(Object object) {
             final int actual = actualList.indexOf(object);
-            for (int i = 0; i < shuffled2Actual.size(); i++) {
-                if (actual == shuffled2Actual.get(i)) {
+            for (int i = 0; i < mappedIndices.size(); i++) {
+                if (actual == mappedIndices.get(i)) {
                     return i;
                 }
             }
@@ -216,12 +221,12 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
 
             ShuffledList<?> that = (ShuffledList<?>) o;
             return MoreObjects.equal(actualList, that.actualList) &&
-                    MoreObjects.equal(shuffled2Actual, that.shuffled2Actual);
+                    MoreObjects.equal(mappedIndices, that.mappedIndices);
         }
 
         @Override
         public int hashCode() {
-            return MoreObjects.hashCode(actualList, shuffled2Actual);
+            return MoreObjects.hashCode(actualList, mappedIndices);
         }
 
         @Override
@@ -266,7 +271,7 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
             final Object[] shuffled = new Object[actual.length];
 
             for (int i = 0; i < shuffled.length; i++) {
-                shuffled[i] = actual[getActualIndex(i)];
+                shuffled[i] = actual[getMappedIndex(i)];
             }
 
             return shuffled;

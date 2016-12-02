@@ -75,12 +75,12 @@ public class ShuffledListTest {
     public void addObjectAtIndex() {
         shuffledArrayList.add(1, "test 3");
         assertThat(shuffledArrayList).containsExactly("original 1", "test 3", "original 0", "original 2");
-        assertThat(originalArrayList).containsExactly("original 0", "original 1", "original 2", "test 3");
+        assertThat(originalArrayList).containsExactly("original 0", "original 1", "test 3", "original 2");
         assertThat(shuffledArrayList.get(1)).isEqualTo("test 3");
 
         shuffledLinkedList.add(1, "test 3");
         assertThat(shuffledLinkedList).containsExactly("original 1", "test 3", "original 0", "original 2");
-        assertThat(originalLinkedList).containsExactly("original 0", "original 1", "original 2", "test 3");
+        assertThat(originalLinkedList).containsExactly("original 0", "original 1", "test 3", "original 2");
         assertThat(shuffledLinkedList.get(1)).isEqualTo("test 3");
     }
 
@@ -101,12 +101,12 @@ public class ShuffledListTest {
     public void addAllAtIndex() {
         shuffledArrayList.addAll(1, asList("test 3", "test 4"));
         assertThat(shuffledArrayList).containsExactly("original 1", "test 3", "test 4", "original 0", "original 2");
-        assertThat(originalArrayList).containsExactly("original 0", "original 1", "original 2", "test 3", "test 4");
+        assertThat(originalArrayList).containsExactly("original 0", "original 1",  "test 3", "test 4", "original 2");
         assertThat(shuffledArrayList.get(1)).isEqualTo("test 3");
 
         shuffledLinkedList.addAll(1, asList("test 3", "test 4"));
         assertThat(shuffledLinkedList).containsExactly("original 1", "test 3", "test 4", "original 0", "original 2");
-        assertThat(originalLinkedList).containsExactly("original 0", "original 1", "original 2", "test 3", "test 4");
+        assertThat(originalLinkedList).containsExactly("original 0", "original 1", "test 3", "test 4", "original 2");
         assertThat(shuffledLinkedList.get(1)).isEqualTo("test 3");
     }
 
