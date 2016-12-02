@@ -68,6 +68,7 @@ android {
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
     }
 
     beta {

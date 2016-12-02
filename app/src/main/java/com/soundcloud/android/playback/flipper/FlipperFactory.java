@@ -21,6 +21,11 @@ class FlipperFactory {
     private static final String KEY_PREFERENCE_NAME = "flipper_cache";
     private static final int PROGRESS_INTERVAL_MS = 500;
 
+    // TODO : Flipper should implement it itself
+    // We have to keep the reference to avoid the GC to collect it. Otherwise,
+    // it crashes the app.
+    private static final Decoder DECODER = new Decoder();
+
     private final Context context;
     private final CryptoOperations cryptoOperations;
     private final StreamCacheConfig.FlipperConfig cacheConfig;
@@ -38,7 +43,7 @@ class FlipperFactory {
         Player.setLogLevel(com.soundcloud.flippernative.api.Player.LogLevel.Debug);
 
         final Player player = new Player(getConfiguration(), listener);
-        player.setMediaCodecDelegate(new Decoder());
+        player.setMediaCodecDelegate(DECODER);
         return player;
     }
 
