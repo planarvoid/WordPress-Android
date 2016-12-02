@@ -16,7 +16,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
-import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
+import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableTrackingKeys;
@@ -63,7 +63,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PlayQueueManager playQueueManager;
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
-    @Mock PlayQueueExperiment playQueueExperiment;
+    @Mock PlayQueueConfiguration playQueueConfiguration;
     @Mock StartStationHandler stationHandler;
     @Mock Context context;
     @Mock FragmentActivity activity;
@@ -89,7 +89,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
-        when(playQueueExperiment.isEnabled()).thenReturn(true);
+        when(playQueueConfiguration.isEnabled()).thenReturn(true);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
@@ -104,7 +104,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                shareOperations,
                                                stationHandler,
                                                accountOperations,
-                                               playQueueExperiment,
+                                               playQueueConfiguration,
                                                playQueueManager,
                                                playbackInitiator,
                                                playbackToastHelper,

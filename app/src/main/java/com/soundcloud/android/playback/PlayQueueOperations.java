@@ -11,7 +11,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.TxnResult;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -19,7 +18,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
 
 public class PlayQueueOperations {
 
@@ -57,12 +55,7 @@ public class PlayQueueOperations {
 
         return playQueueStorage.load()
                                .toList()
-                               .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
-                                   @Override
-                                   public PlayQueue call(List<PlayQueueItem> playQueueItems) {
-                                       return PlayQueue.fromPlayQueueItems(playQueueItems);
-                                   }
-                               })
+                               .map(PlayQueue::fromPlayQueueItems)
                                .subscribeOn(scheduler);
     }
 
@@ -102,15 +95,12 @@ public class PlayQueueOperations {
     public Observable<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack,
                                                         final boolean continuousPlay,
                                                         final PlaySessionSource playSessionSource) {
-        return relatedTracks(seedTrack, continuousPlay).map(new Func1<RecommendedTracksCollection, PlayQueue>() {
-            @Override
-            public PlayQueue call(RecommendedTracksCollection recommendedTracks) {
-                if (recommendedTracks.getCollection().isEmpty()) {
-                    return PlayQueue.empty();
-                }
-
-                return PlayQueue.fromRecommendations(seedTrack, continuousPlay, recommendedTracks, playSessionSource);
+        return relatedTracks(seedTrack, continuousPlay).map(recommendedTracks -> {
+            if (recommendedTracks.getCollection().isEmpty()) {
+                return PlayQueue.empty();
             }
+
+            return PlayQueue.fromRecommendations(seedTrack, continuousPlay, recommendedTracks, playSessionSource);
         });
     }
 

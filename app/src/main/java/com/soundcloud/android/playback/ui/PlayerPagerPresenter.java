@@ -32,7 +32,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -44,9 +43,7 @@ import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
@@ -395,11 +392,19 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     @Override
     public void onCastUnavailable() {
         updateCastButton();
+        updatePlayQueueButton();
+    }
+
+    private void updatePlayQueueButton() {
+        for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
+            pagePresenter(entry.getValue()).updatePlayQueueButton(entry.getKey());
+        }
     }
 
     @Override
     public void onCastAvailable() {
         updateCastButton();
+        updatePlayQueueButton();
     }
 
     private void updateCastButton() {
@@ -424,7 +429,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
         foregroundSubscription.add(getTrackOrAdObservable(playQueueItem)
                                            .observeOn(AndroidSchedulers.mainThread())
-                                           .filter(isPlayerItemRelatedToView(view))
+                                           .filter(playerItem -> isPlayerItemRelatedToView(view, playerItem))
                                            .compose(OperationsInstrumentation.<PlayerItem>reportOverdue())
                                            .subscribe(new PlayerItemSubscriber(presenter, view)));
         return view;
@@ -476,59 +481,36 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                 getTrackObservable(playQueueItem.getUrn(), playQueueItem.getAdData()).map(toPlayerTrackState(
                         playQueueItem)),
                 stationsOperations.station(playQueueManager.getCollectionUrn()),
-                new Func2<PlayerTrackState, StationRecord, PlayerItem>() {
-                    @Override
-                    public PlayerItem call(PlayerTrackState playerTrackState, StationRecord station) {
-                        playerTrackState.setStation(station);
-                        return playerTrackState;
-                    }
+                (playerTrackState, station) -> {
+                    playerTrackState.setStation(station);
+                    return playerTrackState;
                 }
         );
     }
 
     private Func1<PropertySet, PlayerTrackState> toPlayerTrackState(final PlayQueueItem playQueueItem) {
-        return new Func1<PropertySet, PlayerTrackState>() {
-            @Override
-            public PlayerTrackState call(PropertySet propertySet) {
-                return new PlayerTrackState(propertySet,
-                                            playQueueManager.isCurrentItem(playQueueItem),
-                                            isForeground, viewVisibilityProvider
-                );
-            }
-        };
+        return propertySet -> new PlayerTrackState(propertySet,
+                                                   playQueueManager.isCurrentItem(playQueueItem),
+                                                   isForeground, viewVisibilityProvider
+        );
     }
 
     private Observable<PropertySet> getTrackObservable(Urn urn, final Optional<AdData> adOverlayData) {
-        return getTrackObservable(urn).doOnNext(new Action1<PropertySet>() {
-            @Override
-            public void call(PropertySet track) {
-                if (adOverlayData.isPresent() && adOverlayData.get() instanceof OverlayAdData) {
-                    adOverlayData.get().setMonetizableTitle(track.get(TrackProperty.TITLE));
-                    adOverlayData.get().setMonetizableCreator(track.get(TrackProperty.CREATOR_NAME));
-                }
+        return getTrackObservable(urn).doOnNext(track -> {
+            if (adOverlayData.isPresent() && adOverlayData.get() instanceof OverlayAdData) {
+                adOverlayData.get().setMonetizableTitle(track.get(TrackProperty.TITLE));
+                adOverlayData.get().setMonetizableCreator(track.get(TrackProperty.CREATOR_NAME));
             }
         });
     }
 
     private Observable<PlayerItem> getAdObservable(final AdData adData) {
         return getTrackObservable(adData.getMonetizableTrackUrn()).map(
-                new Func1<PropertySet, AdData>() {
-                    @Override
-                    public AdData call(PropertySet monetizableTrack) {
-                        adData.setMonetizableTitle(monetizableTrack.get(PlayableProperty.TITLE));
-                        adData.setMonetizableCreator(monetizableTrack.get(PlayableProperty.CREATOR_NAME));
-                        return adData;
-                    }
+                monetizableTrack -> {
+                    adData.setMonetizableTitle(monetizableTrack.get(PlayableProperty.TITLE));
+                    adData.setMonetizableCreator(monetizableTrack.get(PlayableProperty.CREATOR_NAME));
+                    return adData;
                 }).map(TO_PLAYER_AD);
-    }
-
-    private Func1<PlayerItem, Boolean> isPlayerItemRelatedToView(final View pageView) {
-        return new Func1<PlayerItem, Boolean>() {
-            @Override
-            public Boolean call(PlayerItem playerItem) {
-                return isPlayerItemRelatedToView(pageView, playerItem);
-            }
-        };
     }
 
     void onTrackChange() {
@@ -546,6 +528,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
         trackPagePresenter.onPositionSet(view, position, currentPlayQueue.size());
         trackPagePresenter.setCastDeviceName(view, castConnectionHelper.getDeviceName());
+        trackPagePresenter.updatePlayQueueButton(view);
         if (hasAdOverlay(playQueueItem)) {
             final OverlayAdData overlayData = (OverlayAdData) playQueueItem.getAdData().get();
             trackPagePresenter.setAdOverlay(view, overlayData);

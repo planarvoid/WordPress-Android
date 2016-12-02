@@ -212,6 +212,11 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
     }
 
+    @Override
+    public void updatePlayQueueButton(View view) {
+        // no-op
+    }
+
     private void setLoadingState(Holder holder, PlayStateEvent playStateEvent, boolean isCurrentItem) {
         if (isCurrentItem) {
             holder.videoProgress.setVisibility(playStateEvent.isBuffering() && playStateEvent.playSessionIsActive() ?

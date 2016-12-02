@@ -10,7 +10,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayQueueExperiment;
+import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -31,7 +31,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private EventBus eventBus;
     @Mock private FeatureOperations featureOperations;
-    @Mock private PlayQueueExperiment playQueueExperiment;
+    @Mock private PlayQueueConfiguration playQueueConfiguration;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private AccountOperations accountOperations;
@@ -54,7 +54,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
                                                 screenProvider,
                                                 eventBus,
                                                 featureOperations,
-                                                playQueueExperiment);
+                                                playQueueConfiguration);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowPlaylist() {
-        when(playQueueExperiment.isEnabled()).thenReturn(false);
+        when(playQueueConfiguration.isEnabled()).thenReturn(false);
 
         renderer.render(playlist);
 
@@ -86,7 +86,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Test
     public void showPlaylist() {
-        when(playQueueExperiment.isEnabled()).thenReturn(true);
+        when(playQueueConfiguration.isEnabled()).thenReturn(true);
 
         renderer.render(playlist);
 
