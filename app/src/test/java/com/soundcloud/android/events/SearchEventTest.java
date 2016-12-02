@@ -11,6 +11,8 @@ import org.junit.Test;
 
 public class SearchEventTest {
 
+    private static final String QUERY = "query";
+    private static final int CLICK_POSITION = 2;
     private final Urn QUERY_URN = new Urn("soundcloud:search:123");
     private final Urn CLICK_OBJECT_URN = new Urn("soundcloud:tracks:456");
     private SearchEvent searchEvent;
@@ -111,5 +113,16 @@ public class SearchEventTest {
         assertThat(searchEvent.pageName().get()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
         assertThat(searchEvent.clickName().get()).isEqualTo(ClickName.SEARCH);
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
+    }
+
+    @Test
+    public void shouldCreateEventFromTapLocalSuggestion() throws Exception {
+        searchEvent = SearchEvent.tapLocalSuggestionOnScreen(Screen.SEARCH_EVERYTHING, CLICK_OBJECT_URN, QUERY, CLICK_POSITION);
+        assertThat(searchEvent.pageName().get()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
+        assertThat(searchEvent.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
+        assertThat(searchEvent.query().get()).isEqualTo(QUERY);
+        assertThat(searchEvent.clickObject().get()).isEqualTo(CLICK_OBJECT_URN);
+        assertThat(searchEvent.queryPosition().get()).isEqualTo(CLICK_POSITION);
+        assertThat(searchEvent.clickSource().get()).isEqualTo(SearchEvent.ClickSource.AUTOCOMPLETE);
     }
 }

@@ -96,6 +96,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final Plan CONSUMER_SUBS_PLAN = Plan.HIGH_TIER;
     private static final Urn QUERY_URN = new Urn("soundcloud:stations:6d2547a");
+    private static final Urn CLICK_OBJECT_URN = new Urn("soundcloud:track:123");
     private static final Urn AD_URN = Urn.forAd("dfp", "123");
     private static final String PAGE_NAME = "page_name";
     private static final String SOURCE = "stations";
@@ -1759,6 +1760,22 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .searchQuery(SEARCH_QUERY)
                                                .pageName(Screen.SEARCH_MAIN.get())
                                                .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION));
+    }
+
+    @Test
+    public void createsSearchLocalSuggestionJson() throws Exception {
+        SearchEvent event = SearchEvent.tapLocalSuggestionOnScreen(Screen.SEARCH_MAIN, CLICK_OBJECT_URN, SEARCH_QUERY, QUERY_POSITION);
+
+        jsonDataBuilder.buildForSearchEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName(SearchEvent.ClickName.ITEM_NAVIGATION.key)
+                                               .clickObject(CLICK_OBJECT_URN.toString())
+                                               .searchQuery(SEARCH_QUERY)
+                                               .clickSource(SearchEvent.ClickSource.AUTOCOMPLETE.key)
+                                               .searchQuery(SEARCH_QUERY)
+                                               .pageName(Screen.SEARCH_MAIN.get())
                                                .queryPosition(QUERY_POSITION));
     }
 
