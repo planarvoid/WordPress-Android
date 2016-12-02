@@ -1,7 +1,5 @@
 package com.soundcloud.android.cast;
 
-import static java.util.Collections.singletonList;
-
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
@@ -32,8 +30,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 @Singleton
 public class LegacyCastSessionController extends VideoCastConsumerImpl
@@ -120,20 +116,16 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl
     public void onRemoteMediaPlayerMetadataUpdated() {
         Log.d(LegacyCastOperations.TAG, "On metadata updated.");
         final RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
-        if (!remotePlayQueue.getTrackList().isEmpty()) {
+        if (!remotePlayQueue.isEmpty()) {
             updateLocalPlayQueueAndPlayState(remotePlayQueue);
         }
     }
 
     private void updateLocalPlayQueueAndPlayState(RemotePlayQueue remotePlayQueue) {
-        final List<Urn> remoteTrackList = remotePlayQueue.getTrackList();
-        final Urn remoteCurrentUrn = remotePlayQueue.getCurrentTrackUrn();
         final int remotePosition = remotePlayQueue.getCurrentPosition();
 
-        Log.d(LegacyCastOperations.TAG, String.format(Locale.US,
-                                                      "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
-                                                      remoteCurrentUrn, remoteTrackList.size()));
-        if (playQueueManager.hasSameTrackList(remoteTrackList)) {
+        Log.d(LegacyCastOperations.TAG, "Loading " + remotePlayQueue);
+        if (playQueueManager.hasSameTrackList(remotePlayQueue)) {
             if (!isIdleWithInterrupted()) {
                 Log.d(LegacyCastOperations.TAG, "Has the same tracklist, setting remotePosition");
                 playQueueManager.setPosition(remotePosition, true);
@@ -143,10 +135,7 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl
             }
         } else {
             Log.d(LegacyCastOperations.TAG, "Does not have the same tracklist, updating locally");
-            List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
-            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns,
-                                                                   PlaySessionSource.forCast(),
-                                                                   Collections.<Urn, Boolean>emptyMap());
+            final PlayQueue playQueue = remotePlayQueue.toPlayQueue(PlaySessionSource.forCast(), Collections.emptyMap());
             playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forCast(), remotePosition);
             castPlayer.playCurrent();
         }

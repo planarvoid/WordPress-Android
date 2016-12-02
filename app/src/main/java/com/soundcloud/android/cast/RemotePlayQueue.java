@@ -1,30 +1,42 @@
 package com.soundcloud.android.cast;
 
+import static java.util.Collections.singletonList;
+
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.playback.PlaySessionSource;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-class RemotePlayQueue {
+@AutoValue
+public abstract class RemotePlayQueue {
 
-    private final List<Urn> trackList;
-    private final Urn currentTrackUrn;
-
-    RemotePlayQueue(List<Urn> trackList, Urn currentTrackUrn) {
-        this.trackList = Collections.unmodifiableList(trackList);
-        this.currentTrackUrn = currentTrackUrn;
+    public static RemotePlayQueue create(List<Urn> trackList, Urn currentTrackUrn) {
+        return new AutoValue_RemotePlayQueue(Collections.unmodifiableList(trackList), currentTrackUrn);
     }
 
-    List<Urn> getTrackList() {
-        return trackList;
-    }
+    abstract List<Urn> trackList();
 
-    Urn getCurrentTrackUrn() {
-        return currentTrackUrn;
+    abstract Urn currentTrackUrn();
+
+    public boolean hasSameTracks(PlayQueue playQueue) {
+        return trackList().equals(playQueue.getTrackItemUrns());
     }
 
     public int getCurrentPosition() {
-        return trackList.indexOf(currentTrackUrn);
+        return trackList().indexOf(currentTrackUrn());
     }
 
+    public boolean isEmpty() {
+        return trackList().isEmpty();
+    }
+
+    PlayQueue toPlayQueue(PlaySessionSource playSessionSource,
+                          Map<Urn, Boolean> blockedTracks) {
+        List<Urn> trackUrns = isEmpty() ? singletonList(currentTrackUrn()) : trackList();
+        return PlayQueue.fromTrackUrnList(trackUrns, playSessionSource, blockedTracks);
+    }
 }

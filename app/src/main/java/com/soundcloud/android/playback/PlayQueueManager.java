@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.cast.RemotePlayQueue;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -551,8 +552,8 @@ public class PlayQueueManager implements OriginProvider {
         return Consts.NOT_SET;
     }
 
-    public boolean hasSameTrackList(List<Urn> remoteTrackList) {
-        return playQueue.getTrackItemUrns().equals(remoteTrackList);
+    public boolean hasSameTrackList(RemotePlayQueue remotePlayQueue) {
+        return remotePlayQueue.hasSameTracks(playQueue);
     }
 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {

@@ -70,7 +70,7 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
                                                                 eventBus,
                                                                 playSessionStateProvider,
                                                                 expandPlayerSubscriberProvider);
-        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(Collections.<Urn>emptyList(),
+        when(castOperations.loadRemotePlayQueue()).thenReturn(RemotePlayQueue.create(Collections.<Urn>emptyList(),
                                                                                   Urn.NOT_SET));
     }
 
@@ -119,7 +119,7 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
     @Test
     public void onMetaDataUpdatedDoesNotSetPlayQueueWithSameTrackList() throws Exception {
         castSessionController.startListening();
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+        when(playQueueManager.hasSameTrackList(any(RemotePlayQueue.class))).thenReturn(true);
 
         callOnMetadatUpdated();
 
@@ -129,8 +129,9 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
     @Test
     public void onMetaDataUpdatedPlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() throws Exception {
         castSessionController.startListening();
-        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+        RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(PLAY_QUEUE, URN);
+        when(castOperations.loadRemotePlayQueue()).thenReturn(remotePlayQueue);
+        when(playQueueManager.hasSameTrackList(remotePlayQueue)).thenReturn(true);
         when(videoCastManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
 
         callOnMetadatUpdated();
@@ -141,7 +142,7 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
     @Test
     public void onMetaDataUpdatedSetsPlayQueueWithDifferentTracklist() throws Exception {
         castSessionController.startListening();
-        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
+        when(castOperations.loadRemotePlayQueue()).thenReturn(RemotePlayQueue.create(PLAY_QUEUE, URN));
 
         callOnMetadatUpdated();
 
@@ -152,7 +153,7 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
     @Test
     public void onMetaDataUpdatedPlaysCurrentTrackWhenRemotePlayQueueIsDifferent() throws Exception {
         castSessionController.startListening();
-        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
+        when(castOperations.loadRemotePlayQueue()).thenReturn(RemotePlayQueue.create(PLAY_QUEUE, URN));
 
         callOnMetadatUpdated();
 
@@ -162,7 +163,7 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
     @Test
     public void onMetaDataUpdatedShowsPlayer() throws Exception {
         castSessionController.startListening();
-        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
+        when(castOperations.loadRemotePlayQueue()).thenReturn(RemotePlayQueue.create(PLAY_QUEUE, URN));
 
         callOnMetadatUpdated();
 

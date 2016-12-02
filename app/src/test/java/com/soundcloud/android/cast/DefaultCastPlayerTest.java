@@ -494,9 +494,10 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onMetaDataUpdatedDoesNotSetPlayQueueWithSameTrackList() {
+        RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(PLAY_QUEUE, TRACK_URN1);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
-                .thenReturn(new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1));
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+                .thenReturn(remotePlayQueue);
+        when(playQueueManager.hasSameTrackList(remotePlayQueue)).thenReturn(true);
 
         castPlayer.onMetadataUpdated();
 
@@ -505,9 +506,10 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onMetadataUpdatedDoesNotUpdateTrackPositionWhenReceivedIdleInterrupted() {
+        RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(PLAY_QUEUE, TRACK_URN1);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
-                .thenReturn(new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1));
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+                .thenReturn(remotePlayQueue);
+        when(playQueueManager.hasSameTrackList(remotePlayQueue)).thenReturn(true);
         when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
         when(remoteMediaClient.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_INTERRUPTED);
 
@@ -519,10 +521,10 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onMetaDataUpdatedPlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() {
-        final RemotePlayQueue remoteQueue = new RemotePlayQueue(PLAY_QUEUE, TRACK_URN1);
+        final RemotePlayQueue remoteQueue = RemotePlayQueue.create(PLAY_QUEUE, TRACK_URN1);
         mockForPlayCurrent();
 
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+        when(playQueueManager.hasSameTrackList(remoteQueue)).thenReturn(true);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
                 .thenReturn(remoteQueue);
         when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
@@ -534,11 +536,11 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onMetaDataUpdatedSetsPlayQueueWithDifferentTrackList() {
-        final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(PLAY_QUEUE, URN);
+        final RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(PLAY_QUEUE, URN);
         mockForPlayCurrent();
 
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(false);
+        when(playQueueManager.hasSameTrackList(remotePlayQueue)).thenReturn(false);
 
         castPlayer.onMetadataUpdated();
 
@@ -556,7 +558,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onMetaDataUpdatedShowsPlayer() {
-        final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(PLAY_QUEUE, URN);
+        final RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(PLAY_QUEUE, URN);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
         mockForPlayCurrent();
 
@@ -568,13 +570,22 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onMetadataUpdatesDoesUpdateLocalPlayQueueWhenRemoteQueueIsEmpty() {
-        final RemotePlayQueue remotePlayQueue = new RemotePlayQueue(Collections.<Urn>emptyList(), Urn.NOT_SET);
+        final RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(Collections.emptyList(), Urn.NOT_SET);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
-        mockForPlayCurrent();
 
         castPlayer.onMetadataUpdated();
 
         verifyZeroInteractions(playQueueManager);
+    }
+
+    @Test
+    public void onMetadataUpdatedDoesNotShowThePlayerWhenTheRemotePlayQueueIsEmpty() {
+        final RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(Collections.emptyList(), Urn.NOT_SET);
+        when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
+
+        castPlayer.onMetadataUpdated();
+
+        eventBus.verifyNoEventsOn(EventQueue.PLAYER_COMMAND);
     }
 
     @Test
@@ -585,7 +596,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
         verifyZeroInteractions(playStatePublisher);
     }
-
 
     private MediaInfo createMediaInfo(Urn urn) {
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);

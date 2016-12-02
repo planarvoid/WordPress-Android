@@ -11,12 +11,7 @@ import java.util.List;
 public final class TestUrns {
 
     public static List<Urn> createTrackUrns(Long... ids) {
-        return Lists.transform(new ArrayList<>(Arrays.asList(ids)), new Function<Long, Urn>() {
-            @Override
-            public Urn apply(Long id) {
-                return Urn.forTrack(id);
-            }
-        });
+        return Lists.transform(new ArrayList<>(Arrays.asList(ids)), Urn::forTrack);
     }
 
     private TestUrns() {

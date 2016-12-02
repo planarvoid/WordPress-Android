@@ -21,7 +21,6 @@ import org.json.JSONObject;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.schedulers.TimeInterval;
 
 import javax.inject.Inject;
@@ -32,20 +31,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultCastOperations implements CastOperations {
-
-    private static final Func1<PropertySet, Boolean> FILTER_PRIVATE_TRACKS = new Func1<PropertySet, Boolean>() {
-        @Override
-        public Boolean call(PropertySet track) {
-            return !track.get(TrackProperty.IS_PRIVATE);
-        }
-    };
-
-    private static final Func1<PropertySet, Urn> TO_URNS = new Func1<PropertySet, Urn>() {
-        @Override
-        public Urn call(PropertySet track) {
-            return track.get(TrackProperty.URN);
-        }
-    };
 
     private final TrackRepository trackRepository;
     private final PolicyOperations policyOperations;
@@ -94,25 +79,19 @@ public class DefaultCastOperations implements CastOperations {
     Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn, List<Urn> filteredLocalPlayQueueTracks) {
         return Observable.zip(trackRepository.track(currentTrackUrn),
                               Observable.from(filteredLocalPlayQueueTracks).toList(),
-                              new Func2<PropertySet, List<Urn>, LocalPlayQueue>() {
-                                  @Override
-                                  public LocalPlayQueue call(PropertySet track,
-                                                             List<Urn> filteredLocalPlayQueueTracks) {
-                                      return new LocalPlayQueue(
-                                              castProtocol.createPlayQueueJSON(filteredLocalPlayQueueTracks),
-                                              filteredLocalPlayQueueTracks,
-                                              castProtocol.createMediaInfo(track),
-                                              track.get(TrackProperty.URN));
-                                  }
-                              });
+                              (track, filteredLocalPlayQueueTracks1) -> new LocalPlayQueue(
+                                      castProtocol.createPlayQueueJSON(filteredLocalPlayQueueTracks1),
+                                      filteredLocalPlayQueueTracks1,
+                                      castProtocol.createMediaInfo(track),
+                                      track.get(TrackProperty.URN)));
     }
 
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
-                               .flatMap(RxUtils.<Urn>iterableToObservable())
+                               .flatMap(RxUtils.iterableToObservable())
                                .flatMap(loadTracks)
-                               .filter(FILTER_PRIVATE_TRACKS)
-                               .map(TO_URNS);
+                               .filter(track -> !track.get(TrackProperty.IS_PRIVATE))
+                               .map(track1 -> track1.get(TrackProperty.URN));
     }
 
 
@@ -121,21 +100,21 @@ public class DefaultCastOperations implements CastOperations {
             if (mediaInfo != null) {
                 final JSONObject customData = mediaInfo.getCustomData();
                 if (customData != null) {
-                    return new RemotePlayQueue(castProtocol.convertRemoteDataToTrackList(customData),
+                    return RemotePlayQueue.create(castProtocol.convertRemoteDataToTrackList(customData),
                                                castProtocol.getRemoteCurrentTrackUrn(mediaInfo));
                 }
             }
         } catch (JSONException e) {
             Log.e(TAG, "Unable to retrieve remote play queue", e);
         }
-        return new RemotePlayQueue(new ArrayList<Urn>(), Urn.NOT_SET);
+        return RemotePlayQueue.create(new ArrayList<>(), Urn.NOT_SET);
     }
 
     void setNewPlayQueue(LocalPlayQueue localPlayQueue, PlaySessionSource playSessionSource) {
         playQueueManager.setNewPlayQueue(
                 PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns,
                                            playSessionSource,
-                                           Collections.<Urn, Boolean>emptyMap()),
+                                           Collections.emptyMap()),
                 playSessionSource,
                 correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn)
         );

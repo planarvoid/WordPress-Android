@@ -165,8 +165,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
 
         RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
 
-        assertThat(remotePlayQueue.getTrackList()).isEmpty();
-        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(Urn.NOT_SET);
+        assertThat(remotePlayQueue).isEqualTo(RemotePlayQueue.create(Collections.emptyList(), Urn.NOT_SET));
     }
 
     @Test
@@ -175,8 +174,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
 
         RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
 
-        assertThat(remotePlayQueue.getTrackList()).isEmpty();
-        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(Urn.NOT_SET);
+        assertThat(remotePlayQueue).isEqualTo(RemotePlayQueue.create(Collections.emptyList(), Urn.NOT_SET));
     }
 
     @Test
@@ -186,8 +184,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
 
         RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
 
-        assertThat(remotePlayQueue.getTrackList()).isEqualTo(PLAY_QUEUE);
-        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(TRACK2);
+        assertThat(remotePlayQueue).isEqualTo(RemotePlayQueue.create(PLAY_QUEUE, TRACK2));
     }
 
     private MediaInfo createMediaInfo(List<Urn> playQueue, Urn currentTrack) throws JSONException {

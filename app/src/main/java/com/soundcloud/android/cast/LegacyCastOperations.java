@@ -173,7 +173,7 @@ public class LegacyCastOperations implements CastOperations {
             return parseMediaInfoToRemotePlayQueue(remoteMediaInformation);
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(TAG, "Unable to retrieve remote media information", e);
-            return new RemotePlayQueue(Collections.<Urn>emptyList(), Urn.NOT_SET);
+            return RemotePlayQueue.create(Collections.<Urn>emptyList(), Urn.NOT_SET);
         }
     }
 
@@ -182,14 +182,14 @@ public class LegacyCastOperations implements CastOperations {
             if (remoteMediaInformation != null) {
                 final JSONObject customData = remoteMediaInformation.getCustomData();
                 if (customData != null) {
-                    return new RemotePlayQueue(convertRemoteDataToTrackList(customData),
+                    return RemotePlayQueue.create(convertRemoteDataToTrackList(customData),
                                                getCurrentTrackUrn(remoteMediaInformation));
                 }
             }
         } catch (JSONException e) {
             Log.e(TAG, "Unable to retrieve remote play queue", e);
         }
-        return new RemotePlayQueue(new ArrayList<Urn>(), Urn.NOT_SET);
+        return RemotePlayQueue.create(new ArrayList<>(), Urn.NOT_SET);
     }
 
     private List<Urn> convertRemoteDataToTrackList(JSONObject customData) throws JSONException {

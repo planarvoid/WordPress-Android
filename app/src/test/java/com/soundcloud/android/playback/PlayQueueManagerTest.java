@@ -21,6 +21,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.cast.RemotePlayQueue;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -79,6 +80,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Mock private PolicyOperations policyOperations;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private TrackOfflineStateProvider offlineStateProvider;
+    @Mock private RemotePlayQueue remotePlayQueue;
 
     private PlaySessionSource playlistSessionSource;
     private PlaySessionSource exploreSessionSource;
@@ -136,7 +138,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final PlayQueueItem playQueueItem2 = TestPlayQueueItem.createTrack(Urn.forTrack(3L));
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
-        final List<PlayQueueEvent>  playQueueEvents = eventBus.eventsOn(EventQueue.PLAY_QUEUE);
+        final List<PlayQueueEvent> playQueueEvents = eventBus.eventsOn(EventQueue.PLAY_QUEUE);
         final List<CurrentPlayQueueItemEvent> currentPlayQueueItems = eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
 
         assertPlayQueueSaved(queue1);
@@ -188,19 +190,11 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void hasSameTrackListTrueForMatchingUrns() {
-        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
-        playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
+    public void hasSameTracksForwardsCallToRemotePlayQueue() {
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+        when(remotePlayQueue.hasSameTracks(playQueue)).thenReturn(true);
 
-        assertThat(playQueueManager.hasSameTrackList(TestUrns.createTrackUrns(1L, 2L, 3L))).isTrue();
-    }
-
-    @Test
-    public void hasSameTrackListFalseForDifferentOrder() {
-        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
-        playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
-
-        assertThat(playQueueManager.hasSameTrackList(TestUrns.createTrackUrns(3L, 2L, 1L))).isFalse();
+        assertThat(playQueueManager.hasSameTrackList(remotePlayQueue)).isTrue();
     }
 
     @Test
@@ -1241,7 +1235,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         playQueueManager.moveToNextPlayableItem();
         assertThat(playQueueManager.getCurrentTrackSourceInfo()
-                                       .getSource()).isEqualTo(DiscoverySource.PLAY_NEXT.value());
+                                   .getSource()).isEqualTo(DiscoverySource.PLAY_NEXT.value());
     }
 
     @Test

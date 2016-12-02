@@ -91,7 +91,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     }
 
     @Override
-    public void updateLocalPlayQueueAndPlayState() {
+    public void pullRemotePlayQueueAndUpdateLocalState() {
         //no-op
     }
 

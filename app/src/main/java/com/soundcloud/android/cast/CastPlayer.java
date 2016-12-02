@@ -25,7 +25,7 @@ public interface CastPlayer {
 
     void onConnected(RemoteMediaClient remoteMediaClient);
 
-    void updateLocalPlayQueueAndPlayState();
+    void pullRemotePlayQueueAndUpdateLocalState();
 
     void playLocalPlayQueueOnRemote();
 }

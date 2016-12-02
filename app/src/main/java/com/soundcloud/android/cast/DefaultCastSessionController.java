@@ -91,7 +91,7 @@ public class DefaultCastSessionController
         notifyConnectionChange(true, getDeviceName());
 
         castPlayer.onConnected(castSession.getRemoteMediaClient());
-        castPlayer.updateLocalPlayQueueAndPlayState();
+        castPlayer.pullRemotePlayQueueAndUpdateLocalState();
     }
 
     @Override

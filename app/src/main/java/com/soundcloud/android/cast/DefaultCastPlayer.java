@@ -3,7 +3,6 @@ package com.soundcloud.android.cast;
 import static com.soundcloud.android.cast.CastProtocol.TAG;
 import static com.soundcloud.android.playback.AudioPlaybackItem.create;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST;
-import static java.util.Collections.singletonList;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -45,7 +43,6 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 @Singleton
 class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaClient.Listener, CastPlayer {
@@ -113,7 +110,7 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
     public void onMetadataUpdated() {
         Log.d(TAG, "On metadata updated, status: " + remoteMediaClient.getPlayerState());
 
-        updateLocalPlayQueueAndPlayState();
+        pullRemotePlayQueueAndUpdateLocalState();
     }
 
     @Override
@@ -235,33 +232,31 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
         };
     }
 
-    public void updateLocalPlayQueueAndPlayState() {
+    @Override
+    public void pullRemotePlayQueueAndUpdateLocalState() {
         final RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue(remoteMediaClient.getMediaInfo());
-        final List<Urn> remoteTrackList = remotePlayQueue.getTrackList();
-        final Urn remoteCurrentUrn = remotePlayQueue.getCurrentTrackUrn();
+        Log.d(TAG, "Loading " + remotePlayQueue.toString());
+
+        if (!remotePlayQueue.isEmpty()) {
+            updateLocalPlayQueueAndPlayState(remotePlayQueue);
+
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+        }
+    }
+
+    private void updateLocalPlayQueueAndPlayState(RemotePlayQueue remotePlayQueue) {
         final int remotePosition = remotePlayQueue.getCurrentPosition();
 
-        Log.d(TAG, String.format(Locale.US, "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
-                                 remoteCurrentUrn, remoteTrackList.size()));
-        if (remotePlayQueue.getTrackList().isEmpty()) {
-            Log.d(TAG, "Empty track list, not updating locally");
-
-        } else if (playQueueManager.hasSameTrackList(remoteTrackList)) {
+        if (playQueueManager.hasSameTrackList(remotePlayQueue)) {
             if (isNotInterruptedIdle()) {
                 updatePositionAndPlay(remotePosition);
             }
         } else {
             Log.d(TAG, "Does not have the same tracklist, updating locally");
-            List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
-            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns,
-                                                                   PlaySessionSource.forCast(),
-                                                                   Collections.<Urn, Boolean>emptyMap());
+            final PlayQueue playQueue = remotePlayQueue.toPlayQueue(PlaySessionSource.forCast(), Collections.emptyMap());
             playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forCast(), remotePosition);
             playCurrent();
-
         }
-
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
     }
 
     private boolean isNotInterruptedIdle() {
@@ -337,10 +332,9 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
 
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         final PlaybackProgress lastProgressForTrack = currentPlayQueueItem.isEmpty() ? PlaybackProgress.empty() :
-                                                      playSessionStateProvider.getLastProgressForItem(
-                                                              currentPlayQueueItem.getUrn());
+                                                      playSessionStateProvider.getLastProgressForItem(currentPlayQueueItem.getUrn());
         reloadCurrentQueue()
-                .doOnNext(playCurrent(lastProgressForTrack))
+                .doOnNext(playbackResult -> playCurrent(lastProgressForTrack.getPosition()))
                 .subscribe(expandPlayerSubscriber.get());
     }
 
@@ -363,26 +357,7 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
                                                                                    unfilteredLocalPlayQueueTracks)
                              .observeOn(AndroidSchedulers.mainThread())
                              .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource))
-                             .doOnError(reportPlaybackError(initialTrackUrnCandidate));
-    }
-
-    private Action1<Throwable> reportPlaybackError(final Urn initialTrackUrnCandidate) {
-        return new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                reportStateChange(createStateTransition(initialTrackUrnCandidate, PlaybackState.IDLE,
-                                                        PlayStateReason.ERROR_FAILED));
-            }
-        };
-    }
-
-    private Action1<PlaybackResult> playCurrent(final PlaybackProgress lastProgressForTrack) {
-        return new Action1<PlaybackResult>() {
-            @Override
-            public void call(PlaybackResult playbackResult) {
-                playCurrent(lastProgressForTrack.getPosition());
-            }
-        };
+                             .doOnError(throwable -> reportStateChange(createStateTransition(initialTrackUrnCandidate, PlaybackState.IDLE, PlayStateReason.ERROR_FAILED)));
     }
 
     private PlaybackStateTransition createStateTransition(Urn initialTrackUrnCandidate,
