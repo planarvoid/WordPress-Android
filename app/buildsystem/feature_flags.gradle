@@ -68,7 +68,6 @@ android {
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -81,7 +80,6 @@ android {
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
     }
 
     debug {
