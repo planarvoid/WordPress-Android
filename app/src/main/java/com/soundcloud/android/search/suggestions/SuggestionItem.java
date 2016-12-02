@@ -44,7 +44,7 @@ public abstract class SuggestionItem {
         return new AutoValue_SearchSuggestionItem(Kind.TrackItem, query, source);
     }
 
-    static SuggestionItem forPlaylist(PropertySet source, String query) {
+    static SearchSuggestionItem forPlaylist(PropertySet source, String query) {
         return new AutoValue_SearchSuggestionItem(Kind.PlaylistItem, query, source);
     }
 

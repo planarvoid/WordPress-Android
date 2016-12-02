@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -10,13 +9,10 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
-import com.soundcloud.android.search.suggestions.SearchSuggestionItem;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
-import com.soundcloud.android.search.suggestions.SuggestionItem;
 import com.soundcloud.android.utils.KeyboardHelper;
 import com.soundcloud.android.utils.TransitionUtils;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -51,7 +47,6 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
-import java.util.Collections;
 
 class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         implements SearchIntentResolver.DeepLinkListener {
@@ -75,7 +70,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
-    private final MixedItemClickListener.Factory clickListenerFactory;
 
     @Inject
     SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
@@ -83,9 +77,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                     Resources resources,
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper,
-                    MixedItemClickListener.Factory clickListenerFactory,
                     EventTracker eventTracker) {
-        this.clickListenerFactory = clickListenerFactory;
         this.intentResolver = intentResolverFactory.create(this);
         this.searchTracker = searchTracker;
         this.resources = resources;
@@ -137,7 +129,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     void performSearch(String searchQuery) {
-        performSearch(searchQuery, Optional.<String>absent(), Optional.<Urn>absent(), Optional.<Integer>absent());
+        performSearch(searchQuery, Optional.absent(), Optional.absent(), Optional.absent());
     }
 
     void performSearch(String searchQuery,
@@ -148,14 +140,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         showResultsFor(searchQuery, outputString, queryUrn, position);
     }
 
-    void performSuggestionAction(SuggestionItem item) {
+    void onSuggestionClicked() {
         deactivateSearchView();
-        final SearchSuggestionItem suggestionItem = (SearchSuggestionItem) item;
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.NOT_SET,
-                                                                                      suggestionItem.userQuery());
-
-        clickListenerFactory.create(Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
-                            .onItemClick(Collections.singletonList(suggestionItem), window.getContext(), 0);
     }
 
     private void setupTransitionAnimation(Window window) {

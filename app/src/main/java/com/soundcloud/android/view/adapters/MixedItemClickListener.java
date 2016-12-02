@@ -29,6 +29,7 @@ import android.view.View;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MixedItemClickListener {
@@ -118,6 +119,14 @@ public class MixedItemClickListener {
         ListItem playable = playables.get(position);
         if (playable.getUrn().isTrack()) {
             handleTrackClick(playables, position);
+        } else {
+            handleNonTrackItemClick(context, playable, Optional.<Module>absent());
+        }
+    }
+
+    public void onItemClick(ListItem playable, Context context) {
+        if (playable.getUrn().isTrack()) {
+            handleTrackClick(Collections.singletonList(playable), 0);
         } else {
             handleNonTrackItemClick(context, playable, Optional.<Module>absent());
         }

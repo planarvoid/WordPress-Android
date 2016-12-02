@@ -1,5 +1,9 @@
 package com.soundcloud.android.search.suggestions;
 
+import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -7,11 +11,13 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.search.suggestions.SuggestionItem.AutocompletionItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -29,13 +35,15 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
 
         void onSearchClicked(String searchQuery);
 
-        void onSuggestionClicked(SuggestionItem item);
+        void onSuggestionClicked();
 
         void onAutocompleteClicked(String query, String output, Optional<Urn> queryUrn, int position);
     }
 
     private final SuggestionsAdapter adapter;
     private final SearchSuggestionOperations operations;
+    private final MixedItemClickListener.Factory clickListenerFactory;
+    private final EventTracker eventTracker;
 
     private CollectionBinding<List<SuggestionItem>, SuggestionItem> collectionBinding;
     private SuggestionListener suggestionListener;
@@ -44,10 +52,14 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
     @Inject
     SearchSuggestionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                SuggestionsAdapter adapter,
-                               SearchSuggestionOperations operations) {
+                               SearchSuggestionOperations operations,
+                               MixedItemClickListener.Factory clickListenerFactory,
+                               EventTracker eventTracker) {
         super(swipeRefreshAttacher, Options.list().build());
         this.adapter = adapter;
         this.operations = operations;
+        this.clickListenerFactory = clickListenerFactory;
+        this.eventTracker = eventTracker;
     }
 
     @Override
@@ -111,10 +123,19 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
                     suggestionListener.onAutocompleteClicked(autocompletionItem.apiQuery(), autocompletionItem.output(), autocompletionItem.queryUrn(), position);
                     break;
                 default:
-                    suggestionListener.onSuggestionClicked(item);
+                    onSuggestionClicked(position, item, view.getContext());
                     break;
             }
         }
+    }
+
+    private void onSuggestionClicked(int position, SuggestionItem item, Context context) {
+        suggestionListener.onSuggestionClicked();
+        final SearchSuggestionItem suggestionItem = (SearchSuggestionItem) item;
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.NOT_SET, suggestionItem.userQuery());
+        final Screen searchSuggestions = Screen.SEARCH_SUGGESTIONS;
+        eventTracker.trackSearch(SearchEvent.tapLocalSuggestionOnScreen(searchSuggestions, suggestionItem.getUrn(), suggestionItem.userQuery(), position));
+        clickListenerFactory.create(searchSuggestions, searchQuerySourceInfo).onItemClick(suggestionItem, context);
     }
 
     private class SuggestionsScrollListener extends RecyclerView.OnScrollListener {

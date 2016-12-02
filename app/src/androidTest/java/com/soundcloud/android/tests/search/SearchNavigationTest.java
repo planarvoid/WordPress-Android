@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.MainActivity;
@@ -13,10 +14,10 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchNavigationTest extends ActivityTest<MainActivity> {
+public class SearchNavigationTest extends TrackingActivityTest<MainActivity> {
 
+    private static final String SEARCH_LOCAL_RESULTS = "search_local_results";
     private DiscoveryScreen discoveryScreen;
 
     public SearchNavigationTest() {
@@ -38,8 +39,8 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     public void testVerifySearchNavigation() throws Exception {
         assertGoBackFromSearchResultsReturnsToDiscoveryScreen();
-        assertClickSearchSuggestionTrack();
         assertClickSearchSuggestionUser();
+        assertClickSearchSuggestionTrack();
         assertClickSearchSuggestionPlaylist();
     }
 
@@ -52,11 +53,14 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
     }
 
     private void assertClickSearchSuggestionUser() {
+        startEventTracking();
         ProfileScreen profile = discoveryScreen.clickSearch()
                                                .setSearchQuery("skrillex")
                                                .clickOnUserSuggestion();
 
         assertThat("Profile screen should be visible", profile, is(visible()));
+
+        finishEventTracking(SEARCH_LOCAL_RESULTS);
         solo.goBack();
         solo.goBack();
     }
