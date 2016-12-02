@@ -232,4 +232,6 @@
     <dimen name="collapsed_player_strip">3dp</dimen>
     <dimen name="expanded_player_strip">20dp</dimen>
 
+    <!-- Suggested Creators -->
+    <dimen name="card_height">152dp</dimen>
 </resources>
