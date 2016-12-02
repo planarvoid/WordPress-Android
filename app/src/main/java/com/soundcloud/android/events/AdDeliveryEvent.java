@@ -1,34 +1,57 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
-public class AdDeliveryEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class AdDeliveryEvent extends NewTrackingEvent {
 
-    public static final String AD_DELIVERED_KIND = "AD_DELIVERED";
+    public abstract Urn adUrn();
 
-    public final Urn adUrn;
-    public final String adRequestId;
-    public final boolean inForeground;
-    public final boolean playerVisible;
+    public abstract Optional<Urn> monetizableUrn();
 
-    private AdDeliveryEvent(String kind, Optional<Urn> monetizableUrn, Urn adUrn, String adRequestId,
-                            boolean playerVisible, boolean inForeground) {
-        super(kind);
-        this.put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableUrn);
-        this.adUrn = adUrn;
-        this.adRequestId = adRequestId;
-        this.inForeground = inForeground;
-        this.playerVisible = playerVisible;
+    public abstract String adRequestId();
+
+    public abstract boolean inForeground();
+
+    public abstract boolean playerVisible();
+
+    public static AdDeliveryEvent adDelivered(Optional<Urn> monetizableUrn, Urn adUrn, String adRequestId, boolean playerVisible, boolean inForeground) {
+        return new AutoValue_AdDeliveryEvent.Builder().id(defaultId())
+                                                      .timestamp(defaultTimestamp())
+                                                      .referringEvent(Optional.absent())
+                                                      .adUrn(adUrn)
+                                                      .monetizableUrn(monetizableUrn)
+                                                      .adRequestId(adRequestId)
+                                                      .inForeground(inForeground)
+                                                      .playerVisible(playerVisible)
+                                                      .build();
     }
 
-    public static AdDeliveryEvent adDelivered(Optional<Urn> monetizableUrn, Urn adUrn, String adRequestId,
-                                              boolean playerVisible, boolean inForeground) {
-        return new AdDeliveryEvent(AD_DELIVERED_KIND,
-                                   monetizableUrn,
-                                   adUrn,
-                                   adRequestId,
-                                   playerVisible,
-                                   inForeground);
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_AdDeliveryEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder id(String id);
+
+        public abstract Builder timestamp(long timestamp);
+
+        public abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
+
+        public abstract Builder adUrn(Urn adUrn);
+
+        public abstract Builder monetizableUrn(Optional<Urn> monetizableUrn);
+
+        public abstract Builder adRequestId(String adRequestId);
+
+        public abstract Builder inForeground(boolean inForeground);
+
+        public abstract Builder playerVisible(boolean playerVisible);
+
+        public abstract AdDeliveryEvent build();
     }
 }

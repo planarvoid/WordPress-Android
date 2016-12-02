@@ -79,7 +79,7 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
-        assertThat(searchEventCaptor.getValue().kind()).isEqualTo(SearchEvent.Kind.SEARCH_SUBMIT);
+        assertThat(searchEventCaptor.getValue().kind().get()).isEqualTo(SearchEvent.Kind.SUBMIT);
         assertThat(searchEventCaptor.getValue().queryUrn().get()).isEqualTo(QUERY_URN);
     }
 
@@ -171,7 +171,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.kind().isPresent()).isFalse();
         assertThat(event.pageName().get()).isEqualTo(searchType.getScreen().get());
         assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
         assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_TRACK);
@@ -187,7 +187,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.kind().isPresent()).isFalse();
         assertThat(event.pageName().get()).isEqualTo(SearchType.TRACKS.getScreen().get());
         assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
         assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_TRACK);
@@ -204,7 +204,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.kind().isPresent()).isFalse();
         assertThat(event.pageName().get()).isEqualTo(SearchType.PLAYLISTS.getScreen().get());
         assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
         assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_PLAYLIST);
@@ -220,7 +220,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.kind().isPresent()).isFalse();
         assertThat(event.pageName().get()).isEqualTo(SearchType.USERS.getScreen().get());
         assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
         assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_USER);
@@ -236,7 +236,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
 
         final SearchEvent event = searchEventCaptor.getValue();
-        assertThat(event.kind()).isEqualTo(SearchEvent.Kind.SEARCH_RESULTS);
+        assertThat(event.kind().isPresent()).isFalse();
         assertThat(event.pageName().get()).isEqualTo(Screen.SEARCH_PREMIUM_CONTENT.get());
         assertThat(event.clickName().get()).isEqualTo(ClickName.ITEM_NAVIGATION);
         assertThat(event.clickObject().get()).isEqualTo(CLICK_OBJECT_TRACK);

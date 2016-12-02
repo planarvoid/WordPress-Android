@@ -73,7 +73,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
         } else if (event instanceof ScreenEvent) {
             handleScreenEvent((ScreenEvent) event);
         } else if (event instanceof SearchEvent) {
-            handleSearchEvent((SearchEvent) event);
+            trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForSearchEvent((SearchEvent) event));
         } else if (event instanceof ForegroundEvent) {
             handleForegroundEvent((ForegroundEvent) event);
         } else if (event instanceof PromotedTrackingEvent) {
@@ -182,23 +182,6 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
         if (featureFlags.isEnabled(Flag.HOLISTIC_TRACKING) && dataBuilderV1.get().isInteractionEvent(event)) {
             trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForInteractionEvent(event));
-        }
-    }
-
-    private void handleSearchEvent(SearchEvent event) {
-        switch (event.kind()) {
-            case SEARCH_RESULTS:
-            case SEARCH_SUBMIT:
-            case SEARCH_SUGGESTION:
-                trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
-                break;
-            case SEARCH_FORMULATION_INIT:
-            case SEARCH_FORMULATION_END:
-            case SEARCH_LOCAL_SUGGESTION:
-                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForSearchEvent(event));
-            default:
-                // no-op, ignoring certain types
-                break;
         }
     }
 

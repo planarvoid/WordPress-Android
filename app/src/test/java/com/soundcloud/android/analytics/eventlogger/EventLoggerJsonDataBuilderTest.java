@@ -19,7 +19,6 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -282,59 +281,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                .format("mp3")
                                                .errorCode("category")
                                                .url("cdn-uri"));
-    }
-
-    @Test
-    public void createsClickSearchEventJsonForForResults() throws Exception {
-        SearchEvent searchEvent = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        jsonDataBuilder.build(searchEvent);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
-                                               .clickName("search")
-                                               .queryPosition(searchQuerySourceInfo.getClickPosition())
-                                               .clickObject(searchQuerySourceInfo.getClickUrn().toString())
-                                               .pageName(Screen.SEARCH_EVERYTHING.get())
-                                               .clickName(SearchEvent.ClickName.SEARCH.key)
-                                               .queryUrn("some:search:urn"));
-    }
-
-    @Test
-    public void createsClickSearchEventJsonForTapOnUser() throws Exception {
-        SearchEvent searchEvent = SearchEvent.tapUserOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        jsonDataBuilder.build(searchEvent);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
-                                               .pageName("search:everything")
-                                               .clickName("item_navigation")
-                                               .clickObject("some:click:urn")
-                                               .queryUrn("some:search:urn")
-                                               .queryPosition(5));
-    }
-
-    @Test
-    public void createsClickSearchEventJsonForTapOnTrack() throws Exception {
-        SearchEvent searchEvent = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        jsonDataBuilder.build(searchEvent);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
-                                               .pageName("search:everything")
-                                               .clickName("item_navigation")
-                                               .clickObject("some:click:urn")
-                                               .queryUrn("some:search:urn")
-                                               .queryPosition(5));
-    }
-
-    @Test
-    public void createsClickSearchEventJsonForTapOnPlaylist() throws Exception {
-        SearchEvent searchEvent = SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        jsonDataBuilder.build(searchEvent);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.timestamp())
-                                               .pageName("search:everything")
-                                               .clickName("item_navigation")
-                                               .clickObject("some:click:urn")
-                                               .queryUrn("some:search:urn")
-                                               .queryPosition(5));
     }
 
     @Test

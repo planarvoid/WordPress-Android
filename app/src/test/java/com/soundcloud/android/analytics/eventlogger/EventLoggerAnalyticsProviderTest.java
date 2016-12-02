@@ -34,7 +34,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -56,7 +55,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -604,24 +602,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackTapTrackOnScreenSearchEvents() {
-        SearchEvent event = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
-    }
-
-    @Test
-    public void shouldTrackTapUserOnScreenSearchEvents() {
-        SearchEvent event = SearchEvent.tapUserOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
-    }
-
-    @Test
-    public void shouldTrackSearchStartSearchEvents() {
-        SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
-    }
-
-    @Test
     public void shouldTrackLikesToOfflineEvent() {
         OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableOfflineLikes("page_name");
         assertThat(v1OfflineInteractionEventCaptor("ForOfflineLikesEvent", event)).isEqualTo("ForOfflineLikesEvent");
@@ -684,16 +664,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     private String v1OfflineInteractionEventCaptor(String name, OfflineInteractionEvent event) {
         when(dataBuilderv1.buildForOfflineInteractionEvent(event)).thenReturn(name);
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
-
-        verify(eventTrackingManager).trackEvent(captor.capture());
-        return captor.getValue().getData();
-    }
-
-    private String searchEventUrlCaptor(String name, SearchEvent event) {
-        when(dataBuilderv0.build(event)).thenReturn(name);
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

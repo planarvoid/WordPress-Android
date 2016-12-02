@@ -36,7 +36,9 @@ expected_events:
     user: soundcloud:users:18173653
     click_name: search
     page_name: search:everything
-  version: '0'
+    app_version: '[0-9]+'
+    connection_type: wifi
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
@@ -73,7 +75,9 @@ expected_events:
     page_name: search:albums
     user: soundcloud:users:18173653
     query_position: '0'
-  version: '0'
+    app_version: '[0-9]+'
+    connection_type: wifi
+  version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:

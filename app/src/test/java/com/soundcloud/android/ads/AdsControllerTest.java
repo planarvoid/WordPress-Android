@@ -757,7 +757,8 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.publishAdDeliveryEventIfUpcoming();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdDeliveryEvent.AD_DELIVERED_KIND);
+        final TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent).isInstanceOf(AdDeliveryEvent.class);
     }
 
     @Test

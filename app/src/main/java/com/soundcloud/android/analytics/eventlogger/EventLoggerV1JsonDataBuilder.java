@@ -122,13 +122,16 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     public String buildForAdDelivery(AdDeliveryEvent event) {
-        return transform(buildBaseEvent("ad_delivery", event)
-                                 .clientEventId(event.getId())
-                                 .adRequestId(event.adRequestId)
-                                 .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                                 .playerVisible(event.playerVisible)
-                                 .inForeground(event.inForeground)
-                                 .adDelivered(event.adUrn.toString()));
+        final EventLoggerEventData eventData = buildBaseEvent("ad_delivery", event)
+                .clientEventId(event.getId())
+                .adRequestId(event.adRequestId())
+                .playerVisible(event.playerVisible())
+                .inForeground(event.inForeground())
+                .adDelivered(event.adUrn().toString());
+        if (event.monetizableUrn().isPresent()) {
+            eventData.monetizedObject(event.monetizableUrn().get().toString());
+        }
+        return transform(eventData);
     }
 
     String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
@@ -376,14 +379,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForSearchEvent(SearchEvent event) {
-        switch (event.kind()) {
-            case SEARCH_FORMULATION_INIT:
-            case SEARCH_FORMULATION_END:
-            case SEARCH_LOCAL_SUGGESTION:
-                return transform(buildSearchClickEvent(event));
-            default:
-                throw new IllegalStateException("Unexpected SearchEvent type: " + event);
-        }
+        return transform(buildSearchClickEvent(event));
     }
 
     private EventLoggerEventData buildSearchClickEvent(SearchEvent event) {

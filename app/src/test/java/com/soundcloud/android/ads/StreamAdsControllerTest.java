@@ -1,29 +1,5 @@
 package com.soundcloud.android.ads;
 
-import android.support.v7.widget.RecyclerView;
-
-import com.soundcloud.android.ads.AdsOperations.AdRequestData;
-import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.AdDeliveryEvent;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import rx.Observable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -32,6 +8,29 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.soundcloud.android.ads.AdsOperations.AdRequestData;
+import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import rx.Observable;
+
+import android.support.v7.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class StreamAdsControllerTest extends AndroidUnitTest {
 
@@ -143,7 +142,8 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
         controller.insertAds();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdDeliveryEvent.AD_DELIVERED_KIND);
+        final TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent).isInstanceOf(AdDeliveryEvent.class);
     }
 
     @Test
@@ -154,11 +154,13 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.insertAds();
         controller.insertAds();
 
-        assertThat(eventBus.firstEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdDeliveryEvent.AD_DELIVERED_KIND);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdDeliveryEvent.AD_DELIVERED_KIND);
+        final TrackingEvent firstEventOn = eventBus.firstEventOn(EventQueue.TRACKING);
+        final TrackingEvent lastEventOn = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(firstEventOn).isInstanceOf(AdDeliveryEvent.class);
+        assertThat(lastEventOn).isInstanceOf(AdDeliveryEvent.class);
         final AdDeliveryEvent firstEvent = (AdDeliveryEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         final AdDeliveryEvent secondEvent = (AdDeliveryEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(firstEvent.adRequestId).isEqualTo(secondEvent.adRequestId);
+        assertThat(firstEvent.adRequestId()).isEqualTo(secondEvent.adRequestId());
     }
 
     @Test

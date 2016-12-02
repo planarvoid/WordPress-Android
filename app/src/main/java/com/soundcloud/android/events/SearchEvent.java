@@ -22,6 +22,10 @@ public abstract class SearchEvent extends NewTrackingEvent {
         public final String key;
     }
 
+    public enum Kind {
+        SUBMIT
+    }
+
     public abstract Optional<String> pageName();
 
     public abstract Optional<ClickName> clickName();
@@ -34,29 +38,27 @@ public abstract class SearchEvent extends NewTrackingEvent {
 
     public abstract Optional<Integer> queryPosition();
 
+    public abstract Optional<Kind> kind();
+
     @Override
     public SearchEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_SearchEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
     public static SearchEvent recentTagSearch() {
-        return emptyBuilder(Kind.SEARCH_SUBMIT)
-                .clickName(Optional.of(ClickName.ITEM_NAVIGATION))
-                .build();
+        return emptyBuilder().kind(Optional.of(Kind.SUBMIT)).clickName(Optional.of(ClickName.ITEM_NAVIGATION)).build();
     }
 
     public static SearchEvent popularTagSearch() {
-        return emptyBuilder(Kind.SEARCH_SUBMIT)
-                .build();
+        return emptyBuilder().kind(Optional.of(Kind.SUBMIT)).build();
     }
 
     public static SearchEvent searchStart(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return builderWithSearchQuery(Kind.SEARCH_SUBMIT, searchQuerySourceInfo, screen, ClickName.SEARCH)
-                .build();
+        return builderWithSearchQuery(searchQuerySourceInfo, screen, ClickName.SEARCH).kind(Optional.of(Kind.SUBMIT)).build();
     }
 
     public static SearchEvent tapLocalSuggestionOnScreen(Screen screen, Urn itemUrn, String query, int clickPosition) {
-        return emptyBuilder(Kind.SEARCH_LOCAL_SUGGESTION)
+        return emptyBuilder()
                 .pageName(Optional.of(screen.get()))
                 .clickName(Optional.of(ClickName.ITEM_NAVIGATION))
                 .query(Optional.fromNullable(query))
@@ -83,19 +85,19 @@ public abstract class SearchEvent extends NewTrackingEvent {
 
     private static SearchEvent tapItemOnScreen(Screen screen,
                                                SearchQuerySourceInfo searchQuerySourceInfo) {
-        return builderWithSearchQuery(Kind.SEARCH_RESULTS, searchQuerySourceInfo, screen, ClickName.ITEM_NAVIGATION)
+        return builderWithSearchQuery(searchQuerySourceInfo, screen, ClickName.ITEM_NAVIGATION)
                 .build();
     }
 
     private static SearchEvent tapItemOnScreen(Screen screen) {
-        return emptyBuilder(Kind.SEARCH_RESULTS)
+        return emptyBuilder()
                 .clickName(Optional.of(ClickName.ITEM_NAVIGATION))
                 .pageName(Optional.of(screen.get()))
                 .build();
     }
 
     public static SearchEvent searchFormulationInit(Screen screen, String query) {
-        return emptyBuilder(Kind.SEARCH_FORMULATION_INIT)
+        return emptyBuilder()
                 .query(Optional.fromNullable(query))
                 .pageName(Optional.of(screen.get()))
                 .clickName(Optional.of(ClickName.FORMULATION_INIT))
@@ -106,7 +108,7 @@ public abstract class SearchEvent extends NewTrackingEvent {
                                                    String query,
                                                    Optional<Urn> queryUrn,
                                                    Optional<Integer> queryPosition) {
-        return emptyBuilder(Kind.SEARCH_FORMULATION_END)
+        return emptyBuilder()
                 .query(Optional.fromNullable(query))
                 .pageName(Optional.of(screen.get()))
                 .clickName(Optional.of(ClickName.FORMULATION_END))
@@ -115,9 +117,9 @@ public abstract class SearchEvent extends NewTrackingEvent {
                 .build();
     }
 
-    private static SearchEvent.Builder emptyBuilder(Kind kind) {
+    private static SearchEvent.Builder emptyBuilder() {
 
-        return new AutoValue_SearchEvent.Builder().kind(kind)
+        return new AutoValue_SearchEvent.Builder().kind(Optional.absent())
                                                   .id(defaultId())
                                                   .timestamp(defaultTimestamp())
                                                   .referringEvent(Optional.absent())
@@ -129,16 +131,14 @@ public abstract class SearchEvent extends NewTrackingEvent {
                                                   .queryPosition(Optional.absent());
     }
 
-    private static SearchEvent.Builder builderWithSearchQuery(Kind kind,
-                                                              SearchQuerySourceInfo searchQuerySourceInfo,
-                                                              Screen screen,
+    private static SearchEvent.Builder builderWithSearchQuery(SearchQuerySourceInfo searchQuerySourceInfo, Screen screen,
                                                               ClickName clickName) {
 
         final Urn clickUrn = searchQuerySourceInfo.getClickUrn();
         final Optional<Urn> optionalClickUrn = clickUrn != null && clickUrn != Urn.NOT_SET ? Optional.of(clickUrn) : Optional.absent();
         final int clickPosition = searchQuerySourceInfo.getClickPosition();
         final Optional<Integer> optionalClickPosition = clickPosition >= 0 ? Optional.of(clickPosition) : Optional.absent();
-        return new AutoValue_SearchEvent.Builder().kind(kind)
+        return new AutoValue_SearchEvent.Builder().kind(Optional.absent())
                                                   .id(defaultId())
                                                   .timestamp(defaultTimestamp())
                                                   .referringEvent(Optional.absent())
@@ -152,8 +152,6 @@ public abstract class SearchEvent extends NewTrackingEvent {
 
     @AutoValue.Builder
     public abstract static class Builder {
-        public abstract Builder kind(Kind kind);
-
         public abstract Builder id(String id);
 
         public abstract Builder timestamp(long timestamp);
@@ -171,6 +169,8 @@ public abstract class SearchEvent extends NewTrackingEvent {
         public abstract Builder query(Optional<String> query);
 
         public abstract Builder queryPosition(Optional<Integer> clickPosition);
+
+        public abstract Builder kind(Optional<Kind> kind);
 
         public abstract SearchEvent build();
     }

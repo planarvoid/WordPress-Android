@@ -152,6 +152,6 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         assertThat(capturedEvent.pageName().get()).isEqualTo(SCREEN.get());
         assertThat(capturedEvent.query().get()).isEqualTo(SEARCH_QUERY);
         assertThat(capturedEvent.queryPosition().get()).isEqualTo(CLICK_POSITION);
-        assertThat(capturedEvent.kind()).isEqualTo(SearchEvent.Kind.SEARCH_LOCAL_SUGGESTION);
+        assertThat(capturedEvent.kind().isPresent()).isFalse();
     }
 }

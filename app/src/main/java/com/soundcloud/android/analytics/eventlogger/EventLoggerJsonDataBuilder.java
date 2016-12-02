@@ -13,7 +13,6 @@ import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -179,37 +178,6 @@ public class EventLoggerJsonDataBuilder {
 
     public String build(PlaybackErrorEvent event) {
         return transform(buildPlaybackErrorEvent(event));
-    }
-
-    public String build(SearchEvent event) {
-        switch (event.kind()) {
-            case SEARCH_RESULTS:
-            case SEARCH_SUGGESTION:
-            case SEARCH_SUBMIT:
-                return transform(buildSearchEvent(event));
-            default:
-                throw new IllegalArgumentException("Unexpected Search Event type " + event);
-        }
-    }
-
-    private EventLoggerEventData buildSearchEvent(SearchEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event);
-        if (event.queryPosition().isPresent()) {
-            eventData.queryPosition(event.queryPosition().get());
-        }
-        if (event.pageName().isPresent()) {
-            eventData.pageName(event.pageName().get());
-        }
-        if (event.queryUrn().isPresent()) {
-            eventData.queryUrn(event.queryUrn().get().toString());
-        }
-        if (event.clickName().isPresent()) {
-            eventData.clickName(event.clickName().get().key);
-        }
-        if (event.clickObject().isPresent()) {
-            eventData.clickObject(event.clickObject().get().toString());
-        }
-        return eventData;
     }
 
     public String build(ForegroundEvent event) {

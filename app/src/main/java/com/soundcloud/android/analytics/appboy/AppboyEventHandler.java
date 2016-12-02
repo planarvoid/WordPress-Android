@@ -12,11 +12,10 @@ import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLI
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.events.AttributionEvent;
-import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.NewTrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -119,7 +118,7 @@ class AppboyEventHandler {
     }
 
     void handleEvent(SearchEvent event) {
-        if (event.kind() == NewTrackingEvent.Kind.SEARCH_SUBMIT && isSearchEverythingClick(event)) {
+        if (event.kind().isPresent() && event.kind().get() == SearchEvent.Kind.SUBMIT && isSearchEverythingClick(event)) {
             tagEvent(AppboyEvents.SEARCH);
         }
     }

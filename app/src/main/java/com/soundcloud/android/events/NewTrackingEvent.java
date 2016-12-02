@@ -9,16 +9,6 @@ import java.util.UUID;
 
 public abstract class NewTrackingEvent implements TrackingEvent {
 
-    public enum Kind {
-        DEFAULT,
-        SEARCH_SUGGESTION,
-        SEARCH_LOCAL_SUGGESTION,
-        SEARCH_SUBMIT,
-        SEARCH_RESULTS,
-        SEARCH_FORMULATION_INIT,
-        SEARCH_FORMULATION_END
-    }
-
     static String defaultId() {
         return UUID.randomUUID().toString();
     }
@@ -26,8 +16,6 @@ public abstract class NewTrackingEvent implements TrackingEvent {
     static long defaultTimestamp() {
         return System.currentTimeMillis();
     }
-
-    public abstract Kind kind();
 
     public abstract String id();
 
@@ -49,7 +37,7 @@ public abstract class NewTrackingEvent implements TrackingEvent {
     @NotNull
     @Override
     public String getKind() {
-        return kind().toString();
+        throw new UnsupportedOperationException("Not implemented in new tracking");
     }
 
     @Nullable
