@@ -14,7 +14,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -39,15 +38,10 @@ class MagicBoxPlayQueueItemRenderer implements CellRenderer<MagicBoxPlayQueueUII
         setAlpha(itemView, isRepeat);
         setupToggle(itemView, isRepeat);
 
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!playQueueManager.isShuffled()) {
-                    final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-                    if (currentPlayQueueItem.isTrack()) {
-                        playQueueManager.moveToNextRecommendationItem();
-                    }
-                }
+        itemView.setOnClickListener(view -> {
+            final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+            if (currentPlayQueueItem.isTrack()) {
+                playQueueManager.moveToNextRecommendationItem();
             }
         });
     }
@@ -56,12 +50,9 @@ class MagicBoxPlayQueueItemRenderer implements CellRenderer<MagicBoxPlayQueueUII
         final SwitchCompat toggle = (SwitchCompat) itemView.findViewById(R.id.toggle_auto_play);
         ViewUtils.extendTouchArea(toggle);
         toggle.setChecked(playQueueManager.isAutoPlay());
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                playQueueManager.setAutoPlay(checked);
-                setAlpha(itemView, isRepeat);
-            }
+        toggle.setOnCheckedChangeListener((compoundButton, checked) -> {
+            playQueueManager.setAutoPlay(checked);
+            setAlpha(itemView, isRepeat);
         });
     }
 

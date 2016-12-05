@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.playqueue;
 
 
 import static com.soundcloud.android.playback.playqueue.TrackPlayQueueUIItem.ONLY_TRACKS;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -137,7 +136,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private void setAdapterStreams() {
         eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                                        .filter(currentPlayQueueItemEvent -> !isPlayingCurrent())
-                                       .flatMap(continueWith(fetchPlayQueueUIItems()))
+                                       .flatMap(event -> fetchPlayQueueUIItems())
                                        .observeOn(AndroidSchedulers.mainThread())
                                        .subscribe(new UpdateNowPlayingSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
