@@ -125,11 +125,15 @@ public class MainActivity extends PlayerActivity implements CastConnectionHelper
 
     @Override
     public void onCastUnavailable() {
-        mainPresenter.hideToolbar();
+        if (featureFlags.isEnabled(Flag.CAST_V3)) {
+            mainPresenter.hideToolbar();
+        }
     }
 
     @Override
     public void onCastAvailable() {
-        mainPresenter.showToolbar();
+        if (featureFlags.isEnabled(Flag.CAST_V3)) {
+            mainPresenter.showToolbar();
+        }
     }
 }
