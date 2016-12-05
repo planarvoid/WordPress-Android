@@ -4,7 +4,7 @@ set -e
 
 MYSQL_CONFIG_FILE='/home/mobile/installs/config'
 URL=$( cat /home/mobile/installs/webhook.properties | grep -e "url=.*" | cut -d = -f 2)
-ANDROID_CHANNEL='#android'
+ANDROID_TESTING_CHANNEL='#android-testing'
 TEST_AND_BUILD_CHANNEL='#testisthebest'
 USERNAME='ci-slackbot'
 ICON=':chart_with_upwards_trend:'
@@ -42,4 +42,4 @@ GROUP BY test_id
 ORDER BY FailureCount DESC
 LIMIT 10;")
 
-curl -X POST --data-urlencode payload="$(payload $ANDROID_CHANNEL "*Most frequently failing tests over the last 24 hours:*\n\`\`\`$RESULT2\`\`\`")" $URL
+curl -X POST --data-urlencode payload="$(payload $ANDROID_TESTING_CHANNEL "*Most frequently failing tests over the last 24 hours:*\n\`\`\`$RESULT2\`\`\`")" $URL
