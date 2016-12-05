@@ -2,10 +2,10 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
@@ -67,6 +67,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final SearchIntentResolver intentResolver;
     private final SearchTracker searchTracker;
     private final EventTracker eventTracker;
+    private final ScreenProvider screenProvider;
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
@@ -77,13 +78,15 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                     Resources resources,
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper,
-                    EventTracker eventTracker) {
+                    EventTracker eventTracker,
+                    ScreenProvider screenProvider) {
         this.intentResolver = intentResolverFactory.create(this);
         this.searchTracker = searchTracker;
         this.resources = resources;
         this.eventBus = eventBus;
         this.keyboardHelper = keyboardHelper;
         this.eventTracker = eventTracker;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -392,7 +395,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public void onFocusChange(View view, boolean hasFocus) {
             if (hasFocus) {
-                eventTracker.trackSearch(SearchEvent.searchFormulationInit(Screen.SEARCH_MAIN,
+                eventTracker.trackSearch(SearchEvent.searchFormulationInit(screenProvider.getLastScreen(),
                                                                            searchTextView.getText().toString()));
             }
         }

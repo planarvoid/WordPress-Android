@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.main.Screen;
@@ -68,6 +69,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private Navigator navigator;
     @Mock private SearchTracker searchTracker;
+    @Mock private ScreenProvider screenProvider;
 
     @Captor private ArgumentCaptor<List<ListItem>> listArgumentCaptor;
 
@@ -95,7 +97,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                eventBus,
                                                navigator,
                                                searchTracker,
-                                               featureFlags);
+                                               featureFlags,
+                                               screenProvider);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1), SEARCH_QUERY);
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
@@ -108,6 +111,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                            any(SearchType.class))).thenReturn(searchResultObservable);
         when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class), any(String.class))).thenReturn(searchQuerySourceInfo);
+        when(screenProvider.getLastScreen()).thenReturn(Screen.SEARCH_MAIN);
     }
 
     @Test
@@ -139,7 +143,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker, times(0)).trackSearchSubmission(any(SearchType.class), any(Urn.class), any(String.class));
-        verify(searchTracker, times(0)).trackSearchFormulationEnd(any(String.class), any(Optional.class), any(Optional.class));
+        verify(searchTracker, times(0)).trackSearchFormulationEnd(eq(Screen.SEARCH_MAIN), any(String.class), any(Optional.class), any(Optional.class));
         verify(searchTracker, times(0)).trackResultsScreenEvent(any(SearchType.class), any(String.class));
     }
 
@@ -157,10 +161,10 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     public void mustTrackSearchResultsWhenFeatureFlagOn() {
         when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(true);
 
-        presenter.onCreate(fragmentRule.getFragment(),  new Bundle());
+        presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
-        verify(searchTracker).trackSearchFormulationEnd(SEARCH_QUERY, Optional.<Urn>absent(), Optional.of(0));
+        verify(searchTracker).trackSearchFormulationEnd(Screen.SEARCH_MAIN, SEARCH_QUERY, Optional.<Urn>absent(), Optional.of(0));
         verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, SEARCH_QUERY);
     }
 

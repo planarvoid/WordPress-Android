@@ -35,6 +35,7 @@ expected_events:
     connection_type: wifi
     click_attributes:
       q: skrillex
+      source: search-autocomplete
     click_name: item_navigation
     click_object: soundcloud:users:(\w|-)+
     page_name: search:suggestions
