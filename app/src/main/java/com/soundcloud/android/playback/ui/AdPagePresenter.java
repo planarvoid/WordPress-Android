@@ -12,7 +12,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -55,7 +54,7 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
     }
 
     @Override
-    public void setCastDeviceName(View trackPage, String deviceName) {
+    public void setCastDeviceName(View trackPage, String deviceName, boolean animate) {
         // default no-op
     }
 
@@ -210,12 +209,7 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
         final Iterable<View> skipDisableViews;
         boolean isSkippable;
 
-        final Predicate<View> presentInConfig = new Predicate<View>() {
-            @Override
-            public boolean apply(@Nullable View v) {
-                return v != null;
-            }
-        };
+        final Predicate<View> presentInConfig = v -> v != null;
 
         AdHolder(View adView) {
             this.playButton = adView.findViewById(R.id.player_play);

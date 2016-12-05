@@ -116,15 +116,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     };
 
-    private static final Func1<AdData, PlayerItem> TO_PLAYER_AD = new Func1<AdData, PlayerItem>() {
-        @Override
-        public PlayerItem call(AdData adData) {
-            return adData instanceof VideoAd
-                   ? new VideoPlayerAd((VideoAd) adData)
-                   : new AudioPlayerAd((AudioAd) adData);
-        }
-    };
-
     private final ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
         @Override
         public void onPageSelected(int position) {
@@ -467,12 +458,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         } else {
             return getTrackObservable(playQueueItem.getUrn(), playQueueItem.getAdData())
                     // Type lifting necessary here
-                    .map(new Func1<PropertySet, PlayerItem>() {
-                        @Override
-                        public PlayerItem call(PropertySet propertySet) {
-                            return toPlayerTrackState(playQueueItem).call(propertySet);
-                        }
-                    });
+                    .map(propertySet -> toPlayerTrackState(playQueueItem).call(propertySet));
         }
     }
 
@@ -510,7 +496,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                     adData.setMonetizableTitle(monetizableTrack.get(PlayableProperty.TITLE));
                     adData.setMonetizableCreator(monetizableTrack.get(PlayableProperty.CREATOR_NAME));
                     return adData;
-                }).map(TO_PLAYER_AD);
+                }).map(adData1 -> adData1 instanceof VideoAd ? new VideoPlayerAd((VideoAd) adData1) : new AudioPlayerAd((AudioAd) adData1));
     }
 
     void onTrackChange() {
@@ -572,7 +558,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForItem(urn));
     }
 
-    static class PlayerItemSubscriber extends DefaultSubscriber<PlayerItem> {
+    private static class PlayerItemSubscriber extends DefaultSubscriber<PlayerItem> {
         private final PlayerPagePresenter presenter;
         private final View pageView;
 
@@ -587,7 +573,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
             lastPlayerUIEvent = event;
@@ -600,7 +586,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    final class IntroductoryOverlaySubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private final class IntroductoryOverlaySubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
@@ -613,7 +599,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    final class PlayNextSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    private final class PlayNextSubscriber extends DefaultSubscriber<PlayQueueEvent> {
 
         @Override
         public void onNext(PlayQueueEvent playQueueEvent) {
@@ -623,7 +609,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    final class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
+    private final class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
         public void onNext(PlayStateEvent playStateEvent) {
             lastPlayStateEvent = playStateEvent;
@@ -637,7 +623,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
         public void onNext(PlaybackProgressEvent progress) {
             for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
@@ -657,7 +643,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    class TrackMetadataChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private class TrackMetadataChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(EntityStateChangedEvent event) {
             trackObservableCache.remove(event.getFirstUrn());
@@ -672,7 +658,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    final class ClearAdOverlaySubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+    private final class ClearAdOverlaySubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent ignored) {
             for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
@@ -737,7 +723,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         return selectedPage != Consts.NOT_SET && playQueueItem.equals(currentPlayQueue.get(selectedPage));
     }
 
-    class TrackPagerAdapter extends PagerAdapter {
+    private class TrackPagerAdapter extends PagerAdapter {
 
         @Override
         public int getItemPosition(Object object) {
