@@ -400,7 +400,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private void updateCastButton() {
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-            pagePresenter(entry.getValue()).setCastDeviceName(entry.getKey(), castConnectionHelper.getDeviceName());
+            pagePresenter(entry.getValue()).setCastDeviceName(entry.getKey(), castConnectionHelper.getDeviceName(), true);
         }
     }
 
@@ -421,7 +421,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         foregroundSubscription.add(getTrackOrAdObservable(playQueueItem)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .filter(playerItem -> isPlayerItemRelatedToView(view, playerItem))
-                                           .compose(OperationsInstrumentation.<PlayerItem>reportOverdue())
+                                           .compose(OperationsInstrumentation.reportOverdue())
                                            .subscribe(new PlayerItemSubscriber(presenter, view)));
         return view;
     }
@@ -513,7 +513,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private void onTrackPageSet(View view, int position) {
         final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
         trackPagePresenter.onPositionSet(view, position, currentPlayQueue.size());
-        trackPagePresenter.setCastDeviceName(view, castConnectionHelper.getDeviceName());
+        trackPagePresenter.setCastDeviceName(view, castConnectionHelper.getDeviceName(), false);
         trackPagePresenter.updatePlayQueueButton(view);
         if (hasAdOverlay(playQueueItem)) {
             final OverlayAdData overlayData = (OverlayAdData) playQueueItem.getAdData().get();

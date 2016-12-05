@@ -177,7 +177,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.title.setText(trackState.getTitle());
         holder.user.setText(trackState.getUserName());
         holder.profileLink.setTag(trackState.getUserUrn());
-        setCastDeviceName(trackView, castConnectionHelper.getDeviceName());
+        setCastDeviceName(trackView, castConnectionHelper.getDeviceName(), false);
         bindStationsContext(trackState, holder);
 
         updatePlayQueueButton(trackView);
@@ -300,8 +300,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     @Override
-    public void setCastDeviceName(View view, String deviceName) {
-        getViewHolder(view).castPlayerStripController.update();
+    public void setCastDeviceName(View view, String deviceName, boolean animate) {
+        getViewHolder(view).castPlayerStripController.update(animate);
     }
 
     @Override

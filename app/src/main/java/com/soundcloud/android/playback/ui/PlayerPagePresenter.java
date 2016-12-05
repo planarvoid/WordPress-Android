@@ -39,7 +39,7 @@ interface PlayerPagePresenter<T extends PlayerItem> {
 
     void clearAdOverlay(View trackPage);
 
-    void setCastDeviceName(View trackPage, String deviceName);
+    void setCastDeviceName(View trackPage, String deviceName, boolean animate);
 
     void onViewSelected(View view, PlayQueueItem value, boolean isExpanded);
 

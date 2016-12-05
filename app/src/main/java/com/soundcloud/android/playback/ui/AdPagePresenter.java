@@ -54,7 +54,7 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
     }
 
     @Override
-    public void setCastDeviceName(View trackPage, String deviceName) {
+    public void setCastDeviceName(View trackPage, String deviceName, boolean animate) {
         // default no-op
     }
 

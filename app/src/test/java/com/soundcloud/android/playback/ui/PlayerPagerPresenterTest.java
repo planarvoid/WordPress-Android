@@ -608,7 +608,19 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         final View pageView = getPageView(1);
 
-        verify(trackPagePresenter).setCastDeviceName(pageView, castDeviceName);
+        verify(trackPagePresenter).setCastDeviceName(pageView, castDeviceName, false);
+    }
+
+    @Test
+    public void updatesCastButtonsOnCastAvaialable() {
+        final View pageView = getPageView(1);
+
+        final String castDeviceName = "cast";
+        when(castConnectionHelper.getDeviceName()).thenReturn(castDeviceName);
+
+        presenter.onCastAvailable();
+
+        verify(trackPagePresenter).setCastDeviceName(pageView, castDeviceName, true);
     }
 
     @Test

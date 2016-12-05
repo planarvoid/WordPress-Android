@@ -44,9 +44,9 @@ public class CastPlayerStripController {
 
     public void updateWithoutAnimation() {
         if (isPlayerExpanded && castConnectionHelper.isCasting()) {
-            setExpanded();
+            expand(false);
         } else {
-            setCollapsed();
+            collapse(false);
         }
     }
 
@@ -70,23 +70,31 @@ public class CastPlayerStripController {
         subscription.unsubscribe();
     }
 
-    public void update() {
+    public void update(boolean animate) {
         if (isPlayerExpanded && castConnectionHelper.isCasting()) {
-            expand();
+            expand(animate);
         } else {
-            collapse();
+            collapse(animate);
         }
     }
 
-    private void expand() {
+    private void expand(boolean animate) {
         if (!castView.isExpanded()) {
-            expandAnimator.start();
+            if (animate) {
+                expandAnimator.start();
+            } else {
+                setExpanded();
+            }
         }
     }
 
-    private void collapse() {
+    private void collapse(boolean animate) {
         if (!castView.isCollapsed()) {
-            collapseAnimator.start();
+            if (animate) {
+                collapseAnimator.start();
+            } else {
+                setCollapsed();
+            }
         }
     }
 
