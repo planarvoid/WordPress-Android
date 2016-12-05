@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui.view;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
@@ -45,5 +46,8 @@ public class PlayerStripView extends LinearLayout {
         return getLayoutParams().height == expandedHeight;
     }
 
-
+    @Override
+    public void setBackgroundResource(@DrawableRes int backgroundResource) {
+        castDeviceName.setBackgroundResource(backgroundResource);
+    }
 }
