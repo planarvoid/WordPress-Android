@@ -50,4 +50,9 @@
     <!-- Suggested creators -->
     <dimen name="suggested_creators_module_left_padding">0dp</dimen>
 
+    <!-- Search Suggestions -->
+    <!-- Note: In a future PR, default_list_item_padding and this value will be standardized -->
+    <dimen name="search_suggestions_list_item_padding">24dp</dimen>
+    <dimen name="discovery_search_close_icon_margin_right">8dp</dimen>
+
 </resources>
