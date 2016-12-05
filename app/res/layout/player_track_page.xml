@@ -113,17 +113,18 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="16dp"
+        android:layout_marginRight="4dp"
         android:layout_marginTop="@dimen/player_title_top"
         android:layout_below="@+id/upsell_container"
-        android:paddingLeft="16dp"
+        android:layout_toLeftOf="@id/player_expanded_top_bar"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="16dp"
         android:orientation="vertical">
 
         <RelativeLayout
             android:id="@+id/profile_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="112dp"
             android:orientation="vertical">
 
             <com.soundcloud.android.view.JaggedTextView
@@ -136,8 +137,7 @@
                 style="@style/PlayerTitle"
                 tools:text="This is not lemonade, this is strawberry juice (Killswitch X Reed Remix)"
                 android:layout_below="@id/track_page_user"
-                android:layout_marginTop="3dp"
-                android:layout_marginRight="14dp" />
+                android:layout_marginTop="3dp" />
         </RelativeLayout>
 
         <com.soundcloud.android.view.JaggedTextView
@@ -157,7 +157,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/player_bottom_close"
-        android:layout_below="@id/player_close"
+        android:layout_below="@id/player_expanded_top_bar"
         android:inflatedId="@+id/leave_behind"
         android:layout="@layout/ad_leave_behind" />
 

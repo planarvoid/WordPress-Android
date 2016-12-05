@@ -100,7 +100,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void playerCloseOnPlayerCloseClick() {
-        adView.findViewById(R.id.player_close).performClick();
+        adView.findViewById(R.id.player_expanded_top_bar).performClick();
 
         verify(pageListener).onPlayerClose();
     }

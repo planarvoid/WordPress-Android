@@ -649,7 +649,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
-        holder.close = trackView.findViewById(R.id.player_close);
+        holder.close = trackView.findViewById(R.id.player_expanded_top_bar);
         holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
         holder.nextButton = trackView.findViewById(R.id.player_next);
         holder.previousButton = trackView.findViewById(R.id.player_previous);

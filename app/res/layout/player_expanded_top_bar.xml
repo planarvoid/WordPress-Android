@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/player_close"
+<LinearLayout android:id="@+id/player_expanded_top_bar"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/player_track_page"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/upsell_container">
+    android:layout_alignParentRight="true"
+    android:layout_below="@+id/upsell_container"
+    android:orientation="horizontal"
+    tools:showIn="@layout/player_track_page">
 
     <android.support.v7.app.MediaRouteButton
         android:id="@+id/media_route_button"
         style="@style/PlayerMediaRouteButton"
-        android:layout_alignBottom="@+id/player_close_indicator"
-        android:layout_toLeftOf="@id/player_close_indicator"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 
     <ImageView
-        android:id="@id/player_close_indicator"
+        android:id="@+id/player_close_indicator"
         style="@style/PlayerCloseBase.PlayerClose"
-        android:layout_alignParentRight="true"
-        tools:visibility="visible"/>
-
-</RelativeLayout>
+        tools:visibility="visible" />
+</LinearLayout>

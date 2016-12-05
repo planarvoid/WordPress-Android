@@ -63,7 +63,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             case R.id.player_previous:
                 listener.onPrevious();
                 break;
-            case R.id.player_close:
+            case R.id.player_expanded_top_bar:
             case R.id.preview_container:
                 listener.onPlayerClose();
                 break;
@@ -260,7 +260,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             companionlessText = adView.findViewById(R.id.companionless_ad_text);
 
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
-            close = adView.findViewById(R.id.player_close);
+            close = adView.findViewById(R.id.player_expanded_top_bar);
 
             footer = adView.findViewById(R.id.footer_controls);
             footerAdvertisement = (TextView) adView.findViewById(R.id.footer_ad_text);
