@@ -1521,7 +1521,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(2);
         assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).isNewQueue()).isTrue();
-        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isQueueUpdate()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isQueueReorder()).isTrue();
     }
 
     @Test

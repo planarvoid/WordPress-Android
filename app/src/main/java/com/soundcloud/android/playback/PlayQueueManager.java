@@ -97,19 +97,19 @@ public class PlayQueueManager implements OriginProvider {
 
     public void shuffle() {
         final int pivot = currentPosition + 1 >= playQueue.size() ? 0 : currentPosition + 1;
-        setPlayQueueKeepPosition(playQueue.shuffle(pivot));
+        setPlayQueueForReorder(playQueue.shuffle(pivot));
     }
 
     public void unshuffle() {
         checkState(playQueue instanceof ShuffledPlayQueue, "unshuffle must be called on a shuffled play queue.");
-        setPlayQueueKeepPosition(((ShuffledPlayQueue) playQueue).unshuffle());
+        setPlayQueueForReorder(((ShuffledPlayQueue) playQueue).unshuffle());
     }
 
     public boolean isShuffled() {
         return playQueue.isShuffled();
     }
 
-    private void setPlayQueueKeepPosition(PlayQueue newPlayQueue) {
+    private void setPlayQueueForReorder(PlayQueue newPlayQueue) {
         final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
         final int startPosition = newPlayQueue.indexOfPlayQueueItem(currentPlayQueueItem);
 
@@ -117,7 +117,7 @@ public class PlayQueueManager implements OriginProvider {
 
         setNewPlayQueueInternal(newPlayQueue, playSessionSource);
         currentPosition = startPosition;
-        saveQueueForUpdate();
+        saveQueueForReorder();
     }
 
     void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -798,6 +798,11 @@ public class PlayQueueManager implements OriginProvider {
     private void saveQueueForUpdate() {
         saveQueue(PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
     }
+
+    private void saveQueueForReorder() {
+        saveQueue(PlayQueueEvent.fromQueueReordered(getCollectionUrn()));
+    }
+
 
     private void saveQueueAndPublishEvent(PlayQueueEvent event) {
         playQueueOperations.saveQueue(playQueue.copy())

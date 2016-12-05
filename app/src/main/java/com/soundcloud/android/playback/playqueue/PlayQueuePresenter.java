@@ -334,12 +334,24 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     @VisibleForTesting
     Observable<List<PlayQueueUIItem>> rebuildPlayQueueUIItemsObservable(List<PlayQueueUIItem> uiItems) {
-        final Map<Urn, String> existingTitles = buildTitlesMap(uiItems);
+        return uiItemsFromExistingTitles(uiItems, uiItemsToTrackAndPlayQueue(uiItems));
+    }
+
+    private Observable<List<PlayQueueUIItem>> rebuildPlayQueueUIItemsObservable(List<PlayQueueUIItem> uiItems, List<PlayQueueItem> pqItems) {
+        return uiItemsFromExistingTitles(uiItems, uiItemsToTrackAndPlayQueue(uiItems)
+                .sorted((a, b) -> pqItems.indexOf(a.playQueueItem) - pqItems.indexOf(b.playQueueItem)));
+    }
+
+    private Observable<TrackAndPlayQueueItem> uiItemsToTrackAndPlayQueue(List<PlayQueueUIItem> uiItems) {
         return Observable.from(uiItems)
                          .filter(ONLY_TRACKS)
                          .cast(TrackPlayQueueUIItem.class)
-                         .map(TO_TRACK_AND_PLAY_QUEUE_ITEM)
-                         .toList()
+                         .map(TO_TRACK_AND_PLAY_QUEUE_ITEM);
+    }
+
+    private Observable<List<PlayQueueUIItem>> uiItemsFromExistingTitles(List<PlayQueueUIItem> uiItems, Observable<TrackAndPlayQueueItem> observable) {
+        final Map<Urn, String> existingTitles = buildTitlesMap(uiItems);
+        return observable.toList()
                          .zipWith(Observable.just(existingTitles), playQueueUIItemMapper);
     }
 
@@ -421,8 +433,13 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void onNext(PlayQueueEvent playQueueEvent) {
-            updateSubscription.unsubscribe();
-            loadPlayQueueUIItems();
+            if (!adapter.isEmpty() && playQueueEvent.isQueueReorder()) {
+                rebuildPlayQueueUIItemsObservable(adapter.getItems(), playQueueOperations.getQueueTracks())
+                        .subscribe(new RebuildSubscriber());
+            } else {
+                updateSubscription.unsubscribe();
+                loadPlayQueueUIItems();
+            }
         }
     }
 

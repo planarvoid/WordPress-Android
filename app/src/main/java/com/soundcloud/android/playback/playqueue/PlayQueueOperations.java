@@ -48,6 +48,10 @@ public class PlayQueueOperations {
         return Observable.defer(this::loadTracks);
     }
 
+    public List<PlayQueueItem> getQueueTracks() {
+        return playQueueManager.getPlayQueueItems(IS_TRACK);
+    }
+
     Observable<Map<Urn, String>> getContextTitles() {
         return playQueueStorage.contextTitles().subscribeOn(scheduler);
     }
