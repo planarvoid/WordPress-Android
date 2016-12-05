@@ -22,6 +22,16 @@ public abstract class SearchEvent extends NewTrackingEvent {
         public final String key;
     }
 
+    public enum ClickSource {
+        AUTOCOMPLETE("search-autocomplete");
+
+        ClickSource(String key) {
+            this.key = key;
+        }
+
+        public final String key;
+    }
+
     public enum Kind {
         SUBMIT
     }
@@ -31,6 +41,8 @@ public abstract class SearchEvent extends NewTrackingEvent {
     public abstract Optional<ClickName> clickName();
 
     public abstract Optional<Urn> clickObject();
+
+    public abstract Optional<ClickSource> clickSource();
 
     public abstract Optional<Urn> queryUrn();
 
@@ -64,6 +76,7 @@ public abstract class SearchEvent extends NewTrackingEvent {
                 .query(Optional.fromNullable(query))
                 .clickObject(Optional.of(itemUrn))
                 .queryPosition(Optional.of(clickPosition))
+                .clickSource(Optional.of(ClickSource.AUTOCOMPLETE))
                 .build();
     }
 
@@ -120,15 +133,16 @@ public abstract class SearchEvent extends NewTrackingEvent {
     private static SearchEvent.Builder emptyBuilder() {
 
         return new AutoValue_SearchEvent.Builder().kind(Optional.absent())
-                                                  .id(defaultId())
-                                                  .timestamp(defaultTimestamp())
-                                                  .referringEvent(Optional.absent())
-                                                  .pageName(Optional.absent())
-                                                  .clickName(Optional.absent())
-                                                  .clickObject(Optional.absent())
-                                                  .queryUrn(Optional.absent())
-                                                  .query(Optional.absent())
-                                                  .queryPosition(Optional.absent());
+                .id(defaultId())
+                .timestamp(defaultTimestamp())
+                .referringEvent(Optional.absent())
+                .pageName(Optional.absent())
+                .clickName(Optional.absent())
+                .clickObject(Optional.absent())
+                .clickSource(Optional.absent())
+                .queryUrn(Optional.absent())
+                .query(Optional.absent())
+                .queryPosition(Optional.absent());
     }
 
     private static SearchEvent.Builder builderWithSearchQuery(SearchQuerySourceInfo searchQuerySourceInfo, Screen screen,
@@ -139,15 +153,16 @@ public abstract class SearchEvent extends NewTrackingEvent {
         final int clickPosition = searchQuerySourceInfo.getClickPosition();
         final Optional<Integer> optionalClickPosition = clickPosition >= 0 ? Optional.of(clickPosition) : Optional.absent();
         return new AutoValue_SearchEvent.Builder().kind(Optional.absent())
-                                                  .id(defaultId())
-                                                  .timestamp(defaultTimestamp())
-                                                  .referringEvent(Optional.absent())
-                                                  .pageName(Optional.of(screen.get()))
-                                                  .clickName(Optional.of(clickName))
-                                                  .clickObject(optionalClickUrn)
-                                                  .queryUrn(Optional.fromNullable(searchQuerySourceInfo.getQueryUrn()))
-                                                  .query(Optional.absent())
-                                                  .queryPosition(optionalClickPosition);
+                .id(defaultId())
+                .timestamp(defaultTimestamp())
+                .referringEvent(Optional.absent())
+                .pageName(Optional.of(screen.get()))
+                .clickName(Optional.of(clickName))
+                .clickObject(optionalClickUrn)
+                .clickSource(Optional.absent())
+                .queryUrn(Optional.fromNullable(searchQuerySourceInfo.getQueryUrn()))
+                .query(Optional.absent())
+                .queryPosition(optionalClickPosition);
     }
 
     @AutoValue.Builder
@@ -163,6 +178,8 @@ public abstract class SearchEvent extends NewTrackingEvent {
         public abstract Builder clickName(Optional<ClickName> clickName);
 
         public abstract Builder clickObject(Optional<Urn> clickObject);
+
+        public abstract Builder clickSource(Optional<ClickSource> clickSource);
 
         public abstract Builder queryUrn(Optional<Urn> queryUrn);
 

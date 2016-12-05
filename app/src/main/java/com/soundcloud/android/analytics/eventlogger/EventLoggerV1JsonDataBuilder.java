@@ -387,6 +387,12 @@ class EventLoggerV1JsonDataBuilder {
         if (event.clickName().isPresent()) {
             eventData.clickName(event.clickName().get().key);
         }
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get().toString());
+        }
+        if (event.clickSource().isPresent()) {
+            eventData.clickSource(event.clickSource().get().key);
+        }
         if (event.pageName().isPresent()) {
             eventData.pageName(event.pageName().get());
         }

@@ -36,6 +36,7 @@ expected_events:
     click_attributes:
       q: skrillex
     click_name: item_navigation
+    click_object: soundcloud:users:(\w|-)+
     page_name: search:suggestions
     user: soundcloud:users:18173653
     query_position: 1
@@ -49,7 +50,7 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi
-    page_urn: soundcloud:users:856062
+    page_urn: soundcloud:users:(\w|-)+
     page_name: users:main
     user: soundcloud:users:18173653
   version: '1'
