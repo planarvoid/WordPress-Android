@@ -8,6 +8,7 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 
 class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
         implements CastConnectionHelper {
@@ -28,7 +29,12 @@ class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     @Override
-    public void addMediaRouterButton(Context context, Menu menu, int itemId) {
+    public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
+        return null;
+    }
+
+    @Override
+    public void removeMediaRouterButton(MenuItem castMenu) {
         // no-op
     }
 

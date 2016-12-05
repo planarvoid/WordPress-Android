@@ -71,11 +71,18 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     }
 
     @Override
-    public void addMediaRouterButton(Context context, Menu menu, int itemId) {
+    public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
         final MenuItem menuItem = CastButtonFactory.setUpMediaRouteButton(context, menu, itemId);
         Log.d(TAG, "AddMediaRouterButton called for " + menuItem + " vis : " + isCastableDeviceAvailable);
+
         mediaRouteMenuItems.add(menuItem);
         menuItem.setVisible(isCastableDeviceAvailable);
+        return menuItem;
+    }
+
+    @Override
+    public void removeMediaRouterButton(MenuItem castMenu) {
+        mediaRouteMenuItems.remove(castMenu);
     }
 
     @Override

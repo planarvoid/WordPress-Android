@@ -16,6 +16,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import javax.inject.Inject;
 
@@ -32,6 +33,8 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject AccountOperations accountOperations;
 
+    private MenuItem castMenu;
+
     public LoggedInActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
@@ -46,8 +49,14 @@ public abstract class LoggedInActivity extends RootActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item);
+        castMenu = castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item);
         return true;
+    }
+
+    @Override
+    protected void onPause() {
+        castConnectionHelper.removeMediaRouterButton(castMenu);
+        super.onPause();
     }
 
     /**

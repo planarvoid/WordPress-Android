@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 
 public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivity> {
 
@@ -22,7 +23,9 @@ public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivi
 
     void removeOnConnectionChangeListener(OnConnectionChangeListener listener);
 
-    void addMediaRouterButton(Context context, Menu menu, int itemId);
+    MenuItem addMediaRouterButton(Context context, Menu menu, int itemId);
+
+    void removeMediaRouterButton(MenuItem castMenu);
 
     void addMediaRouterButton(MediaRouteButton mediaRouteButton);
 

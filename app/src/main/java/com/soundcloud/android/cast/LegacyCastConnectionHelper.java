@@ -73,8 +73,13 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
     }
 
     @Override
-    public void addMediaRouterButton(Context context, Menu menu, int itemId) {
-        videoCastManager.addMediaRouterButton(menu, itemId);
+    public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
+        return null;
+    }
+
+    @Override
+    public void removeMediaRouterButton(MenuItem castMenu) {
+        // no-op
     }
 
     @Override
