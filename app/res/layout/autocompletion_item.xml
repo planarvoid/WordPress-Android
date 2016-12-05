@@ -20,6 +20,4 @@
             android:layout_width="match_parent" />
     </FrameLayout>
 
-    <View style="@style/Divider.Item" />
-
 </LinearLayout>
