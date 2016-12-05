@@ -44,7 +44,7 @@ public class WelcomeUserOperationsTest {
 
         welcomeUserOperations.welcome().subscribe(testSubscriber);
 
-        testSubscriber.assertValue(WelcomeUserItem.create(profileUser));
+        testSubscriber.assertValue(WelcomeUserItem.create(profileUser, TimeOfDay.getCurrent()));
         testSubscriber.assertNoErrors();
         testSubscriber.assertCompleted();
     }

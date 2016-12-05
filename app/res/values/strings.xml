@@ -632,7 +632,10 @@
     <string name="promoted_by_promotorname">Promoted by %s</string>
 
     <!-- __USER WELCOME -->
-    <string name="welcome_user_title">Good Morning, %s</string>
+    <string name="welcome_user_title_morning">Good Morning, %s</string>
+    <string name="welcome_user_title_afternoon">Good Afternoon, %s</string>
+    <string name="welcome_user_title_evening">Good Evening, %s</string>
+    <string name="welcome_user_title_night">Good Night, %s</string>
     <string name="welcome_user_subtitle">Check out some of these new songs!</string>
 
     <!-- __FACEBOOK INVITES -->

@@ -13,12 +13,10 @@ public abstract class WelcomeUserItem extends DiscoveryItem implements ImageReso
     public abstract Urn userUrn();
     public abstract String userName();
     public abstract String avatarUrl();
-    public abstract boolean isNight();
+    public abstract TimeOfDay timeOfDay();
 
-    public static DiscoveryItem create(ProfileUser user) {
-        // TODO: 30/11/2016 calculate day/night
-        boolean isNight = true;
-        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.getUrn(), user.getName(), user.getImageUrlTemplate().get(), isNight);
+    public static DiscoveryItem create(ProfileUser user, TimeOfDay timeOfDay) {
+        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.getUrn(), user.getName(), user.getImageUrlTemplate().get(), timeOfDay);
     }
 
     @Override

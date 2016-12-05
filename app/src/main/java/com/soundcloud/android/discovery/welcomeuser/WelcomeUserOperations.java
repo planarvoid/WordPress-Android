@@ -26,7 +26,7 @@ public class WelcomeUserOperations {
         return userProfileOperations.getLocalProfileUser(userUrn)
                          .flatMap(user -> {
                              if (shouldShowWelcomeForUser(user)) {
-                                 return Observable.just(WelcomeUserItem.create(user));
+                                 return Observable.just(WelcomeUserItem.create(user, TimeOfDay.getCurrent()));
                              }
                              return Observable.empty();
                          });

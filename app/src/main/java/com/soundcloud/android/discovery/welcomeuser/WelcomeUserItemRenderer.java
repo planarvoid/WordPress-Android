@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.view.CustomFontTextView;
 
 import android.content.res.Resources;
 import android.support.v4.content.ContextCompat;
@@ -13,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -38,22 +38,18 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
     @Override
     public void bindItemView(int position, View itemView, List<WelcomeUserItem> items) {
         WelcomeUserItem welcomeUserItem = items.get(position);
+        WelcomeResourceBundle resourceBundle = WelcomeResourceBundle.forTimeOfDay(welcomeUserItem.timeOfDay());
 
-        setBackground(itemView, welcomeUserItem);
         setAvatar(itemView, welcomeUserItem);
-        setWelcomeMessage(itemView, welcomeUserItem);
+        setBackground(itemView, resourceBundle);
+        setWelcomeMessage(itemView, welcomeUserItem, resourceBundle);
+        setDescription(itemView, resourceBundle);
     }
 
-    private void setBackground(View itemView, WelcomeUserItem welcomeUserItem) {
-        int background = welcomeUserItem.isNight() ? R.drawable.night_sprite : R.drawable.morning_sprite;
-        int detail = welcomeUserItem.isNight() ? R.drawable.dark_moon : R.drawable.morning_sun;
-        int backgroundColor = welcomeUserItem.isNight()
-                              ? ContextCompat.getColor(itemView.getContext(), R.color.welcome_night)
-                              : ContextCompat.getColor(itemView.getContext(), R.color.welcome_day);
-
-        itemView.setBackgroundColor(backgroundColor);
-        ButterKnife.<ImageView>findById(itemView, R.id.background_image).setImageResource(background);
-        ButterKnife.<ImageView>findById(itemView, R.id.background_detail).setImageResource(detail);
+    private void setBackground(View itemView, WelcomeResourceBundle resources) {
+        itemView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), resources.backgroundColorId()));
+        ButterKnife.<ImageView>findById(itemView, R.id.background_image).setImageResource(resources.backgroundResId());
+        ButterKnife.<ImageView>findById(itemView, R.id.background_detail).setImageResource(resources.detailSpriteResId());
     }
 
     private void setAvatar(View itemView, WelcomeUserItem welcomeUserItem) {
@@ -61,9 +57,18 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
         imageOperations.displayCircularInAdapterView(welcomeUserItem, ApiImageSize.getFullImageSize(resources), avatar);
     }
 
-    private void setWelcomeMessage(View itemView, WelcomeUserItem welcomeUserItem) {
-        String title = itemView.getContext()
-                                .getString(R.string.welcome_user_title, welcomeUserItem.userName());
-        ButterKnife.<CustomFontTextView>findById(itemView, R.id.welcome_user_title).setText(title);
+    private void setWelcomeMessage(View itemView,
+                                   WelcomeUserItem welcomeUserItem,
+                                   WelcomeResourceBundle resourceBundle) {
+        String title = itemView.getContext().getString(resourceBundle.titleStringId(), welcomeUserItem.userName());
+
+        TextView titleView = ButterKnife.findById(itemView, R.id.welcome_user_title);
+        titleView.setText(title);
+        titleView.setTextColor(ContextCompat.getColor(itemView.getContext(), resourceBundle.titleTextColorId()));
+    }
+
+    private void setDescription(View itemView, WelcomeResourceBundle resourceBundle) {
+        TextView descriptionView = ButterKnife.findById(itemView, R.id.welcome_user_description);
+        descriptionView.setTextColor(ContextCompat.getColor(itemView.getContext(), resourceBundle.descriptionTextColorId()));
     }
 }

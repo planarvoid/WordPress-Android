@@ -192,7 +192,9 @@
 
     <!-- Welcome card -->
     <color name="seventy_percent_white">#B3FFFFFF</color>
+    <color name="welcome_evening">#475a77</color>
     <color name="welcome_night">#111626</color>
-    <color name="welcome_day">#F08502</color>
+    <color name="welcome_morning">#e0e6f9</color>
+    <color name="welcome_afternoon">#fffdfb</color>
 
 </resources>
