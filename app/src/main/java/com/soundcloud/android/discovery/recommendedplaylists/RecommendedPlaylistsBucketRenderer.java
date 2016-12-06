@@ -10,12 +10,8 @@ import com.soundcloud.android.presentation.CellRenderer;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Parcelable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +20,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class RecommendedPlaylistsBucketRenderer implements CellRenderer<RecommendedPlaylistsBucketItem> {
@@ -92,23 +89,9 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
         }
     }
 
-    private Spannable getReasonText(Context context, RecommendedPlaylistsBucketItem recommendedPlaylists) {
+    private String getReasonText(Context context, RecommendedPlaylistsBucketItem recommendedPlaylists) {
         final String playlistName = nameForKey(recommendedPlaylists.key(), recommendedPlaylists.displayName(), context);
-
-        final String reasonText = context.getString(R.string.recommended_playlists_reason, playlistName);
-        final int beginningOfPlaylistName = reasonText.indexOf(playlistName);
-
-        final Spannable spannable = new SpannableString(reasonText);
-        spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.recommendation_reason_text)),
-                          0,
-                          beginningOfPlaylistName,
-                          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.seed_track_text)),
-                          beginningOfPlaylistName,
-                          reasonText.length(),
-                          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        return spannable;
+        return context.getString(R.string.recommended_playlists_reason, playlistName.toLowerCase(Locale.US));
     }
 
     private String nameForKey(String key, String fallbackName, Context context) {
