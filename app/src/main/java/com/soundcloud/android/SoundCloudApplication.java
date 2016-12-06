@@ -23,6 +23,8 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.performance.PerformanceEngine;
+import com.soundcloud.android.performance.StopWatch;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlayQueueExtender;
@@ -40,13 +42,11 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsController;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -61,12 +61,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import java.io.File;
 
 public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
@@ -77,6 +74,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     public static SoundCloudApplication instance;
 
     // These are not injected because we need them before Dagger initializes
+    private PerformanceEngine performanceEngine;
     private UncaughtExceptionHandlerController uncaughtExceptionHandlerController;
     private SharedPreferences sharedPreferences;
     private ApplicationProperties applicationProperties;
@@ -137,6 +135,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
 
+        performanceEngine.trackStartupTime(this);
         objectGraph.inject(this);
         devTools.initialize(this);
         bootApplication();
@@ -208,6 +207,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void initializePreInjectionObjects() {
+        performanceEngine = new PerformanceEngine(new StopWatch());
         applicationProperties = new ApplicationProperties(getResources());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         uncaughtExceptionHandlerController = new UncaughtExceptionHandlerController(this, isReportingCrashes());
@@ -238,19 +238,10 @@ public class SoundCloudApplication extends MultiDexApplication {
 
             // remove device url so clients resubmit the registration request with
             // device identifier
-            AndroidUtils.doOnce(this, "reset.c2dm.reg_id", new Runnable() {
-                @Override
-                public void run() {
-                    sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply();
-                }
-            });
+            AndroidUtils.doOnce(this, "reset.c2dm.reg_id",
+                    () -> sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply());
             // sync current sets
-            AndroidUtils.doOnce(this, "request.sets.sync", new Runnable() {
-                @Override
-                public void run() {
-                    requestCollectionsSync();
-                }
-            });
+            AndroidUtils.doOnce(this, "request.sets.sync", this::requestCollectionsSync);
         }
     }
 

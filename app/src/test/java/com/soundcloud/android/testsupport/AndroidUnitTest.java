@@ -22,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Base class for unit tests that have hard dependencies on the Android platform.
@@ -74,6 +73,6 @@ public abstract class AndroidUnitTest {
     }
 
     protected static SharedPreferences sharedPreferences() {
-        return new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "Test", Context.MODE_PRIVATE);
+        return new RoboSharedPreferences(new HashMap<>(), "Test", Context.MODE_PRIVATE);
     }
 }
