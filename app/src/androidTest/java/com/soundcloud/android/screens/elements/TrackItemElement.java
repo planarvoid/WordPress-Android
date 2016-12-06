@@ -36,8 +36,8 @@ public class TrackItemElement {
     }
 
     public boolean isLongerThanOneMinute() {
-        String durationText = new TextElement(wrapped.findElement(With.id(R.id.list_item_right_info))).getText();
-        return durationText.length() >= 4;
+        final String durationText = new TextElement(wrapped.findElement(With.id(R.id.list_item_right_info))).getText();
+        return durationText.length() > 0 && Integer.parseInt(durationText.substring(0, 1)) != 0;
     }
 
     public VisualPlayerElement click() {
