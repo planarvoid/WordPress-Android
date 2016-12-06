@@ -336,7 +336,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(AUDIO_AD_PLAY_QUEUE_ITEM, Urn.NOT_SET, 0));
 
-        verify(playerPagerPresenter).setCurrentItem(2, true);
+        verify(playerPagerPresenter, times(2)).setCurrentItem(2, true);
     }
 
     @Test
@@ -397,7 +397,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
         // verify first fullQueue, but it should only happen once
         verify(playerPagerPresenter).setCurrentPlayQueue(fullPlayQueue, 1);
-        verify(playerPagerPresenter).setCurrentItem(1, true);
+        verify(playerPagerPresenter, times(2)).setCurrentItem(1, true);
     }
 
     @Test

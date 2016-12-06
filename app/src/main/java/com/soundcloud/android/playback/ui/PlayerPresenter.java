@@ -11,8 +11,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -25,7 +25,6 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -64,45 +63,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private final PlayerPagerScrollListener playerPagerScrollListener;
 
-    private CompositeSubscription subscription = new CompositeSubscription();
-    private Subscription unblockPagerSubscription = RxUtils.invalidSubscription();
-    private Handler changeTracksHandler;
-
-    private boolean isResumed;
-    private boolean setPlayQueueAfterScroll;
-    private FragmentManager fragmentManager;
-
-    private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentItemAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentPlayQueueItemEvent currentItemEvent) {
-            return currentItemEvent.getCurrentPlayQueueItem().isAd();
-        }
-    };
-
-    private final Action1<Object> updateAdapter = new Action1<Object>() {
-        @Override
-        public void call(Object ignored) {
-            presenter.onTrackChange();
-        }
-    };
-
-    private final Func1<? super Integer, Boolean> isInForeground = new Func1<Integer, Boolean>() {
-        @Override
-        public Boolean call(Integer integer) {
-            return isResumed;
-        }
-    };
-
-    private final Action1<CurrentPlayQueueItemEvent> allowScrollAfterAdSkipTimeout = new Action1<CurrentPlayQueueItemEvent>() {
-        @Override
-        public void call(CurrentPlayQueueItemEvent currentItemEvent) {
-            unblockPagerSubscription = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                                               .first(isBecomingSkippable)
-                                               .observeOn(AndroidSchedulers.mainThread())
-                                               .subscribe(getRestoreQueueSubscriber());
-        }
-    };
-
     private final Func1<PlaybackProgressEvent, Boolean> isBecomingSkippable = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
         public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
@@ -113,38 +73,22 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     };
 
-    private final Action1<CurrentPlayQueueItemEvent> onItemChanged = new Action1<CurrentPlayQueueItemEvent>() {
+    private CompositeSubscription subscription = new CompositeSubscription();
+    private Subscription unblockPagerSubscription = RxUtils.invalidSubscription();
+    private Handler changeTracksHandler;
+    private boolean isResumed = false;
+    private boolean isPlayQueueVisible = false;
+    private boolean setPlayQueueAfterScroll;
+    private final Action1<CurrentPlayQueueItemEvent> allowScrollAfterAdSkipTimeout = new Action1<CurrentPlayQueueItemEvent>() {
         @Override
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
-            presenter.onTrackChange();
-            unblockPagerSubscription.unsubscribe();
+            unblockPagerSubscription = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
+                                               .first(isBecomingSkippable)
+                                               .observeOn(AndroidSchedulers.mainThread())
+                                               .subscribe(getRestoreQueueSubscriber());
         }
     };
-
-    private final Func1<CurrentPlayQueueItemEvent, Boolean> notWaitingForScroll = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentPlayQueueItemEvent currentItemEvent) {
-            return !setPlayQueueAfterScroll;
-        }
-    };
-
-    private final Func1<PlayerUIEvent, PlayQueueUIEvent> toPlayQueueUiEvent = new Func1<PlayerUIEvent, PlayQueueUIEvent>() {
-        @Override
-        public PlayQueueUIEvent call(PlayerUIEvent playerUIEvent) {
-            if (playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
-                return PlayQueueUIEvent.createHideEvent();
-            } else {
-                return PlayQueueUIEvent.createDisplayEvent();
-            }
-        }
-    };
-
-    private static final Predicate<PlayQueueItem> IS_PLAYABLE = new Predicate<PlayQueueItem>() {
-        @Override
-        public boolean apply(PlayQueueItem input) {
-            return input.isTrack() || input.isAd();
-        }
-    };
+    private FragmentManager fragmentManager;
 
     @Inject
     PlayerPresenter(PlayerPagerPresenter presenter,
@@ -167,10 +111,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         changeTracksHandler = new ChangeTracksHandler(this);
     }
 
-    private void setPositionToDisplayedTrack() {
-        playSessionController.setCurrentPlayQueueItem(getDisplayedItem());
-    }
-
     public void onPlayerSlide(float slideOffset) {
         presenter.onPlayerSlide(slideOffset);
     }
@@ -187,7 +127,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         isResumed = true;
         subscription.add(eventBus.queue(EventQueue.PLAYER_UI)
                                  .filter(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                                 .map(toPlayQueueUiEvent)
+                                 .map(playerUIEvent -> playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED ?
+                                                       PlayQueueUIEvent.createHideEvent() : PlayQueueUIEvent.createDisplayEvent())
                                  .subscribe(new PlayQueueVisibilitySubscriber()));
     }
 
@@ -206,39 +147,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         setupScrollingSubscribers();
     }
 
-    private void setupTrackChangeSubscribers() {
-
-        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_UI, new PlayQueueVisibilitySubscriber()));
-
-        // play queue changes
-        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
-
-        // setup player ad
-        subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                 .doOnNext(onItemChanged)
-                                 .filter(isCurrentItemAd)
-                                 .doOnNext(allowScrollAfterAdSkipTimeout)
-                                 .subscribe(new ShowAudioAdSubscriber()));
-
-        // set position from track change
-        subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                 .filter(notWaitingForScroll)
-                                 .subscribe(new UpdateCurrentTrackSubscriber()));
-    }
-
-    private void setupScrollingSubscribers() {
-        final Observable<Integer> pageChangedObservable = playerPagerScrollListener
-                .getPageChangedObservable();
-
-        subscription.add(pageChangedObservable
-                                 .subscribe(new SetQueueOnScrollSubscriber()));
-
-        subscription.add(pageChangedObservable
-                                 .doOnNext(updateAdapter)
-                                 .filter(isInForeground)
-                                 .subscribe(new ChangeTracksSubscriber()));
-    }
-
     @Override
     public void onDestroyView(PlayerFragment playerFragment) {
 
@@ -252,19 +160,45 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         super.onDestroyView(playerFragment);
     }
 
-    boolean handleBackPressed() {
-        Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
-        if (fragment == null) {
-            return false;
-        } else {
-            fragmentManager.beginTransaction()
-                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                           .remove(fragment)
-                           .commitAllowingStateLoss();
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
-            return true;
-        }
+    private void setPositionToDisplayedTrack() {
+        playSessionController.setCurrentPlayQueueItem(getDisplayedItem());
+    }
+
+    private void setupTrackChangeSubscribers() {
+
+        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_UI, new PlayQueueVisibilitySubscriber()));
+
+        // play queue changes
+        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
+
+        // setup player ad
+        subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                 .doOnNext(itemChangeEvent -> {
+                                     presenter.onTrackChange();
+                                     unblockPagerSubscription.unsubscribe();
+                                 })
+                                 .filter(currentItemEvent -> currentItemEvent.getCurrentPlayQueueItem().isAd())
+                                 .doOnNext(allowScrollAfterAdSkipTimeout)
+                                 .subscribe(new ShowAudioAdSubscriber()));
+
+        // set position from track change
+        subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                 .filter(event -> !isPlayQueueVisible)
+                                 .filter(currentItemEvent -> !setPlayQueueAfterScroll)
+                                 .subscribe(new UpdateCurrentTrackSubscriber()));
+    }
+
+    private void setupScrollingSubscribers() {
+        final Observable<Integer> pageChangedObservable = playerPagerScrollListener
+                .getPageChangedObservable();
+
+        subscription.add(pageChangedObservable
+                                 .subscribe(new SetQueueOnScrollSubscriber()));
+
+        subscription.add(pageChangedObservable
+                                 .doOnNext(ignoredObject -> presenter.onTrackChange())
+                                 .filter(ignoredObject -> isResumed)
+                                 .subscribe(new ChangeTracksSubscriber()));
     }
 
     private void setPager(final PlayerTrackPager trackPager) {
@@ -273,7 +207,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setFullQueue() {
-        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems(IS_PLAYABLE);
+        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems(input -> input.isTrack() || input.isAd());
         final int indexOfCurrentPlayQueueitem = getIndexOfPlayQueueItem(playQueueItems);
 
         presenter.setCurrentPlayQueue(playQueueItems, indexOfCurrentPlayQueueitem);
@@ -323,29 +257,79 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         setFullQueue();
     }
 
+    private boolean isLookingAtAdWithFullQueue() {
+        return presenter.getCurrentItem().isAd() && isResumed && presenter.getCount() > 1;
+    }
+
+    private void removePlayQueue(Fragment fragment) {
+        if (fragment != null) {
+            fragmentManager.beginTransaction()
+                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                           .remove(fragment)
+                           .commitAllowingStateLoss();
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
+        }
+    }
+
+    private void addPlayQueue(Fragment fragment) {
+        if (fragment == null) {
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+            fragmentManager.beginTransaction()
+                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                           .add(R.id.player_pager_holder,
+                                playQueueFragmentFactory.create(),
+                                PlayQueueFragment.TAG)
+                           .commitAllowingStateLoss();
+        }
+    }
+
+
+    private DefaultSubscriber<PlaybackProgressEvent> getRestoreQueueSubscriber() {
+        return new DefaultSubscriber<PlaybackProgressEvent>() {
+            @Override
+            public void onNext(PlaybackProgressEvent ignored) {
+                setFullQueue();
+            }
+        };
+    }
+
+    boolean handleBackPressed() {
+        Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
+        if (fragment == null) {
+            return false;
+        } else {
+            setQueuePositionToCurrent();
+            removePlayQueue(fragment);
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
+            return true;
+        }
+    }
+
+    private static class ChangeTracksHandler extends Handler {
+        private final PlayerPresenter playerPresenter;
+
+        private ChangeTracksHandler(PlayerPresenter playerPresenter) {
+            this.playerPresenter = playerPresenter;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            playerPresenter.setPositionToDisplayedTrack();
+        }
+    }
+
     private final class PlayQueueVisibilitySubscriber extends DefaultSubscriber<PlayQueueUIEvent> {
 
         @Override
         public void onNext(PlayQueueUIEvent playQueueUIEvent) {
             Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
             if (playQueueUIEvent.isDisplayEvent()) {
-                if (fragment == null) {
-                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
-                    fragmentManager.beginTransaction()
-                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                                   .add(R.id.player_pager_holder,
-                                        playQueueFragmentFactory.create(),
-                                        PlayQueueFragment.TAG)
-                                   .commitAllowingStateLoss();
-                }
+                isPlayQueueVisible = true;
+                addPlayQueue(fragment);
             } else if (playQueueUIEvent.isHideEvent()) {
-                if (fragment != null) {
-                    fragmentManager.beginTransaction()
-                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                                   .remove(fragment)
-                                   .commitAllowingStateLoss();
-                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
-                }
+                isPlayQueueVisible = false;
+                setQueuePositionToCurrent();
+                removePlayQueue(fragment);
             }
         }
 
@@ -361,10 +345,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                 refreshPlayQueue();
             }
         }
-    }
-
-    private boolean isLookingAtAdWithFullQueue() {
-        return presenter.getCurrentItem().isAd() && isResumed && presenter.getCount() > 1;
     }
 
     private final class SetQueueOnScrollSubscriber extends DefaultSubscriber<Integer> {
@@ -392,28 +372,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void onNext(CurrentPlayQueueItemEvent ignored) {
             showAd();
-        }
-    }
-
-    private DefaultSubscriber<PlaybackProgressEvent> getRestoreQueueSubscriber() {
-        return new DefaultSubscriber<PlaybackProgressEvent>() {
-            @Override
-            public void onNext(PlaybackProgressEvent ignored) {
-                setFullQueue();
-            }
-        };
-    }
-
-    private static class ChangeTracksHandler extends Handler {
-        private final PlayerPresenter playerPresenter;
-
-        private ChangeTracksHandler(PlayerPresenter playerPresenter) {
-            this.playerPresenter = playerPresenter;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            playerPresenter.setPositionToDisplayedTrack();
         }
     }
 
