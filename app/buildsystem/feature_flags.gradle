@@ -69,6 +69,7 @@ android {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
     }
 
@@ -82,6 +83,7 @@ android {
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
     }
 
@@ -94,6 +96,7 @@ android {
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
     }
 
@@ -104,6 +107,7 @@ android {
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
     }
 
     preRelease {
@@ -111,6 +115,7 @@ android {
       buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
     }
 
@@ -119,6 +124,7 @@ android {
       buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
     }
   }
