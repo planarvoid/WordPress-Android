@@ -6,7 +6,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 public class SuggestedCreatorsExperiment {
-    private static final String NAME = "suggested_creators_rollout";
+    private static final String NAME = "suggested_creators_rollout2";
     private static final String VARIANT_CONTROL = "no_change";
     private static final String VARIANT_ENABLED = "show_suggested_creators";
 
