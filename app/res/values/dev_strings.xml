@@ -1,5 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
+    <string name="dev_drawer_about_key">about</string>
+    <string name="dev_drawer_about_title">About</string>
+
+    <string name="dev_drawer_player_key">player</string>
+    <string name="dev_drawer_player_title">current player</string>
+
     <string name="dev_drawer_section_build_features">Build Features</string>
 
     <string name="dev_drawer_category_actions_key">actions</string>

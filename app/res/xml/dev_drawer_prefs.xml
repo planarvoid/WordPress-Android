@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:orderingFromXml="true">
+
+    <PreferenceCategory
+        android:key="@string/dev_drawer_about_key"
+        android:title="@string/dev_drawer_about_title">
+        <Preference
+            android:key="@string/dev_drawer_player_key"
+            android:selectable="false"
+            android:title="@string/dev_drawer_player_title" />
+    </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/dev_drawer_category_actions_key"
         android:title="@string/dev_drawer_category_actions_title">

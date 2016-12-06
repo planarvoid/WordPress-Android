@@ -7,20 +7,23 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.cast.CastConfigStorage;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.gcm.GcmDebugDialogFragment;
 import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
+import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscription;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -28,6 +31,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +49,8 @@ public class DevDrawerFragment extends PreferenceFragment {
     private static final String DEVICE_CONFIG_SETTINGS = "device_config_settings";
     private static final String KEY_LAST_CONFIG_CHECK_TIME = "last_config_check_time";
 
+    private Subscription subscription = RxUtils.invalidSubscription();
+
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
@@ -52,6 +58,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject Navigator navigator;
     @Inject ConcurrentPlaybackOperations concurrentPlaybackOperations;
     @Inject CastConfigStorage castConfigStorage;
+    @Inject EventBus eventBus;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -65,6 +72,26 @@ public class DevDrawerFragment extends PreferenceFragment {
         addActions();
         addFeatureToggles();
         drawerExperimentsHelper.addExperiments(getPreferenceScreen());
+        subscription = subscribeToPlaybackStateEvent();
+    }
+
+    @Override
+    public void onDestroy() {
+        subscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    private Subscription subscribeToPlaybackStateEvent() {
+        return eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(event -> {
+            updatePlayerInformation(event.getPlayerType());
+        });
+    }
+
+    private void updatePlayerInformation(@Nullable String player) {
+        final String name = player == null ? "None" : player;
+        getPreferenceScreen()
+                .findPreference(getString(R.string.dev_drawer_player_key))
+                .setTitle("Current player: " + name);
     }
 
     private void addFeatureToggles() {
@@ -81,97 +108,70 @@ public class DevDrawerFragment extends PreferenceFragment {
         final PreferenceScreen screen = this.getPreferenceScreen();
 
         screen.findPreference(getString(R.string.dev_drawer_action_get_oauth_token_to_clipboard_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      copyTokenToClipboard();
-                      Toast.makeText(getActivity(), R.string.dev_oauth_token_copied, Toast.LENGTH_LONG).show();
-                      return true;
-                  }
+              .setOnPreferenceClickListener(preference -> {
+                  copyTokenToClipboard();
+                  Toast.makeText(getActivity(), R.string.dev_oauth_token_copied, Toast.LENGTH_LONG).show();
+                  return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_show_remote_debug_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      GcmDebugDialogFragment dialogFragment = new GcmDebugDialogFragment();
-                      dialogFragment.show(getFragmentManager(), "gcm_debug");
-                      return true;
-                  }
+              .setOnPreferenceClickListener(preference -> {
+                  GcmDebugDialogFragment dialogFragment = new GcmDebugDialogFragment();
+                  dialogFragment.show(getFragmentManager(), "gcm_debug");
+                  return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_kill_app_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      navigator.restartApp(getActivity());
-                      return true;
-                  }
+              .setOnPreferenceClickListener(preference -> {
+                  navigator.restartApp(getActivity());
+                  return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      navigator.resetForAccountUpgrade(getActivity());
-                      return true;
-                  }
+              .setOnPreferenceClickListener(preference -> {
+                  navigator.resetForAccountUpgrade(getActivity());
+                  return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_downgrade_flow_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      final SharedPreferences configSettings = getActivity().getSharedPreferences(
-                              "device_config_settings", Context.MODE_PRIVATE);
-                      configSettings.edit().putString("pending_plan_downgrade", Plan.FREE_TIER.planId).apply();
-                      navigator.resetForAccountDowngrade(getActivity());
-                      return true;
-                  }
+              .setOnPreferenceClickListener(preference -> {
+                  final SharedPreferences configSettings = getActivity().getSharedPreferences(
+                          "device_config_settings", Context.MODE_PRIVATE);
+                  configSettings.edit().putString("pending_plan_downgrade", Plan.FREE_TIER.planId).apply();
+                  navigator.resetForAccountDowngrade(getActivity());
+                  return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_reset_flags_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      for (Flag flag : Flag.features()) {
-                          final String preferenceKey = featureFlags.getRuntimeFeatureFlagKey(flag);
-                          final CheckBoxPreference chkPreference =
-                                  (CheckBoxPreference) screen.findPreference(preferenceKey);
-                          chkPreference.setChecked(featureFlags.resetRuntimeFlagValue(flag));
-                      }
-                      return true;
+              .setOnPreferenceClickListener(preference -> {
+                  for (Flag flag : Flag.features()) {
+                      final String preferenceKey = featureFlags.getRuntimeFeatureFlagKey(flag);
+                      final CheckBoxPreference chkPreference =
+                              (CheckBoxPreference) screen.findPreference(preferenceKey);
+                      chkPreference.setChecked(featureFlags.resetRuntimeFlagValue(flag));
                   }
+                  return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_policy_sync_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      DailyUpdateService.start(getActivity().getApplicationContext());
-                      return true;
-                  }
+              .setOnPreferenceClickListener(preference -> {
+                  DailyUpdateService.start(getActivity().getApplicationContext());
+                  return true;
               });
 
 
         screen.findPreference(getString(R.string.dev_drawer_action_crash_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      if (!AndroidUtils.isUserAMonkey()) {
-                          throw new RuntimeException("Developer requested crash");
-                      }
-                      return true;
+              .setOnPreferenceClickListener(preference -> {
+                  if (!AndroidUtils.isUserAMonkey()) {
+                      throw new RuntimeException("Developer requested crash");
                   }
+                  return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_concurrent_key))
-              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                  @Override
-                  public boolean onPreferenceClick(Preference preference) {
-                      concurrentPlaybackOperations.pauseIfPlaying();
-                      return true;
-                  }
+              .setOnPreferenceClickListener(preference -> {
+                  concurrentPlaybackOperations.pauseIfPlaying();
+                  return true;
               });
 
         setupForceConfigUpdatePref(screen);
@@ -181,12 +181,9 @@ public class DevDrawerFragment extends PreferenceFragment {
     private void setupCastReceiverIdPref(PreferenceScreen screen) {
         final Preference castIdPref = screen.findPreference(getString(R.string.dev_drawer_action_cast_id_key));
         castIdPref.setSummary(castConfigStorage.getReceiverID());
-        castIdPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                showCastIDInputDialog(preference);
-                return true;
-            }
+        castIdPref.setOnPreferenceClickListener(preference -> {
+            showCastIDInputDialog(preference);
+            return true;
         });
     }
 
@@ -200,24 +197,18 @@ public class DevDrawerFragment extends PreferenceFragment {
 
         new AlertDialog.Builder(preference.getContext())
                 .setView(dialogView)
-                .setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final String newID = input.getText().toString().toUpperCase(Locale.US);
-                        if (Strings.isNotBlank(newID)) {
-                            castConfigStorage.saveReceiverIDOverride(newID);
-                            dialog.dismiss();
-                            navigator.restartApp(getActivity());
-                        }
-                    }
-                })
-                .setNeutralButton(R.string.dev_drawer_dialog_cast_id_reset, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        castConfigStorage.reset();
+                .setPositiveButton(R.string.btn_save, (dialog, which) -> {
+                    final String newID = input.getText().toString().toUpperCase(Locale.US);
+                    if (Strings.isNotBlank(newID)) {
+                        castConfigStorage.saveReceiverIDOverride(newID);
                         dialog.dismiss();
                         navigator.restartApp(getActivity());
                     }
+                })
+                .setNeutralButton(R.string.dev_drawer_dialog_cast_id_reset, (dialog, which) -> {
+                    castConfigStorage.reset();
+                    dialog.dismiss();
+                    navigator.restartApp(getActivity());
                 })
                 .setNegativeButton(R.string.btn_cancel, null)
                 .create()
@@ -226,21 +217,15 @@ public class DevDrawerFragment extends PreferenceFragment {
 
     private void setupForceConfigUpdatePref(PreferenceScreen screen) {
         final Preference updateConfigPref = screen.findPreference(getString(R.string.dev_drawer_action_config_update_key));
-        updateConfigPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                configurationManager.forceConfigurationUpdate();
-                return true;
-            }
+        updateConfigPref.setOnPreferenceClickListener(preference -> {
+            configurationManager.forceConfigurationUpdate();
+            return true;
         });
         final SharedPreferences sharedPrefs = getActivity().getSharedPreferences(DEVICE_CONFIG_SETTINGS,
                                                                                  Context.MODE_PRIVATE);
-        sharedPrefs.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (KEY_LAST_CONFIG_CHECK_TIME.equals(key)) {
-                    DevDrawerFragment.this.updateLastConfigUpdateText(updateConfigPref, sharedPreferences);
-                }
+        sharedPrefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
+            if (KEY_LAST_CONFIG_CHECK_TIME.equals(key)) {
+                DevDrawerFragment.this.updateLastConfigUpdateText(updateConfigPref, sharedPreferences);
             }
         });
         updateLastConfigUpdateText(updateConfigPref, sharedPrefs);
@@ -287,12 +272,9 @@ public class DevDrawerFragment extends PreferenceFragment {
             setTitle(ScTextUtils.fromSnakeCaseToCamelCase(flag.name()));
             setKey(featureFlags.getRuntimeFeatureFlagKey(flag));
             setChecked(featureFlags.isEnabled(flag));
-            setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    featureFlags.setRuntimeFeatureFlagValue(flag, ((CheckBoxPreference) preference).isChecked());
-                    return false;
-                }
+            setOnPreferenceClickListener(preference -> {
+                featureFlags.setRuntimeFeatureFlagValue(flag, ((CheckBoxPreference) preference).isChecked());
+                return false;
             });
         }
     }

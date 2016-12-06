@@ -4,6 +4,8 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.strings.Strings;
 
+import android.support.annotation.Nullable;
+
 @AutoValue
 public abstract class PlayStateEvent {
 
@@ -63,6 +65,11 @@ public abstract class PlayStateEvent {
 
     public boolean isTrackComplete() {
         return getTransition().isPlayerIdle() && getTransition().getReason() == PlayStateReason.PLAYBACK_COMPLETE;
+    }
+
+    @Nullable
+    public String getPlayerType() {
+        return getTransition().getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE);
     }
 
     private static PlaybackProgress getValidProgress(PlaybackStateTransition stateTransition, long apiDuration) {
