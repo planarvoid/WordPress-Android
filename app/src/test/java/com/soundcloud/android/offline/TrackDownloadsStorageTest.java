@@ -8,7 +8,6 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.propeller.PropellerWriteException;
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
@@ -39,43 +38,6 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         storage = new TrackDownloadsStorage(propeller(), propellerRx(), dateProvider);
         listSubscriber = new TestSubscriber<>();
         offlineStateSubscriber = new TestSubscriber<>();
-    }
-
-    @Test
-    public void loadsOfflineLikesOrderedByLikeDate() {
-        final Urn track1 = insertOfflineLikeDownloadCompleted(100);
-        final Urn track2 = insertOfflineLikeDownloadCompleted(200);
-
-        storage.likesUrns().subscribe(listSubscriber);
-
-        listSubscriber.assertValue(Arrays.asList(track2, track1));
-    }
-
-    @Test
-    public void doesNotLoadOfflineLikesPendingRemoval() {
-        testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, new Date(200).getTime());
-
-        storage.likesUrns().subscribe(listSubscriber);
-
-        listSubscriber.assertValue(Lists.<Urn>emptyList());
-    }
-
-    @Test
-    public void doesNotLoadNonOfflineLike() {
-        testFixtures().insertLikedTrack(new Date(100));
-
-        storage.likesUrns().subscribe(listSubscriber);
-
-        listSubscriber.assertValue(Lists.<Urn>emptyList());
-    }
-
-    @Test
-    public void doesNotLoadCreatorOptOutLikeThatWasPreviouslyDownloaded() {
-        insertOfflineLikeCreatorOptOut();
-
-        storage.likesUrns().subscribe(listSubscriber);
-
-        listSubscriber.assertValue(Lists.<Urn>emptyList());
     }
 
     @Test
@@ -116,40 +78,6 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         storage.getLikesOfflineState().subscribe(offlineStateSubscriber);
 
         offlineStateSubscriber.assertValue(OfflineState.DOWNLOADED);
-    }
-
-    @Test
-    public void loadsTracksFromAPlaylist() {
-        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        final Urn trackUrn1 = insertOfflinePlaylistTrack(playlistUrn, 0);
-        final Urn trackUrn2 = insertOfflinePlaylistTrack(playlistUrn, 1);
-
-        storage.playlistTrackUrns(playlistUrn).subscribe(listSubscriber);
-
-        listSubscriber.assertValue(Arrays.asList(trackUrn1, trackUrn2));
-    }
-
-    @Test
-    public void doesNotLoadTracksFromAPlaylistMarkedForRemoval() {
-        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        final ApiTrack track = testFixtures().insertPlaylistTrack(playlistUrn, 0);
-        testFixtures().insertTrackDownloadPendingRemoval(track.getUrn(), new Date(200).getTime());
-
-        storage.playlistTrackUrns(playlistUrn).subscribe(listSubscriber);
-
-        listSubscriber.assertValue(Lists.<Urn>emptyList());
-    }
-
-    @Test
-    public void doesNotLoadCreatorOptOutTracksFromAPlaylistThatWerePreviouslyDownloaded() {
-        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        final ApiTrack track = testFixtures().insertPlaylistTrack(playlistUrn, 0);
-        testFixtures().insertCompletedTrackDownload(track.getUrn(), 100, 200);
-        testFixtures().insertUnavailableTrackDownload(track.getUrn(), 300);
-
-        storage.playlistTrackUrns(playlistUrn).subscribe(listSubscriber);
-
-        listSubscriber.assertValue(Lists.<Urn>emptyList());
     }
 
     @Test
@@ -241,12 +169,6 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
         List<Urn> offlineTracks = storage.onlyOfflineTracks(tracks);
         assertThat(offlineTracks).isEqualTo(tracks);
-    }
-
-    private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {
-        final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
-        testFixtures().insertCompletedTrackDownload(track.getUrn(), 0, 100);
-        return track.getUrn();
     }
 
     private Urn insertOfflineLikeCreatorOptOut() {
