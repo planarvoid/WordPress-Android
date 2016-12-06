@@ -10,11 +10,8 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.AdapterElement;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
-import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -28,11 +25,8 @@ public class PlaylistDetailsScreen extends Screen {
 
     private static final Class ACTIVITY = PlaylistDetailActivity.class;
 
-    private FeatureFlagsHelper featureFlags;
-
     public PlaylistDetailsScreen(Han solo) {
         super(solo);
-        featureFlags = FeatureFlagsHelper.create(solo.getCurrentActivity());
     }
 
     public PlaylistsScreen goBackToPlaylists() {
@@ -173,22 +167,10 @@ public class PlaylistDetailsScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.toggle_like));
     }
 
-    public VisualPlayerElement clickTrack(int trackIndex) {
-        return trackItemElements()
-                .get(trackIndex)
-                .click();
-    }
-
     private RecyclerViewElement tracksRecyclerView() {
         return testDriver
                 .findOnScreenElement(With.id(R.id.ak_recycler_view))
                 .toRecyclerView();
-    }
-
-    private ListElement tracksListView() {
-        return testDriver
-                .findOnScreenElement(With.id(android.R.id.list))
-                .toListView();
     }
 
     public int getTrackCount() {
@@ -204,11 +186,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private AdapterElement getTracksContainer() {
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
-            return tracksRecyclerView();
-        } else {
-            return tracksListView();
-        }
+        return tracksRecyclerView();
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

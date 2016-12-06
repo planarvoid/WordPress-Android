@@ -23,7 +23,6 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -105,16 +104,15 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<TrackItem> trackItems) {
-        final TrackItem track = trackItems.get(position);
+        bindTrackView(position, itemView, trackItems.get(position));
+    }
+
+    public void bindTrackView(final int position, View itemView, TrackItem track) {
         bindTrackView(track,
                       itemView,
                       position,
-                      Optional.<TrackSourceInfo>absent(),
-                      moduleName.transform(new Function<String, Module>() {
-                          public Module apply(String input) {
-                              return Module.create(input, position);
-                          }
-                      }));
+                      Optional.absent(),
+                      moduleName.transform(input -> Module.create(input, position)));
     }
 
     public void bindTrackView(final TrackItem track,

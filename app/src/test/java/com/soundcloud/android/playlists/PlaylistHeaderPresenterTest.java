@@ -108,7 +108,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     private static Bundle fragmentArgs() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(LegacyPlaylistDetailFragment.EXTRA_URN, PLAYLIST_URN);
+        bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, PLAYLIST_URN);
         return bundle;
     }
 
@@ -139,6 +139,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 offlineSettings,
                 connectionHelper,
                 playQueueHelper);
+
+        presenter.bindItemView(0, View.inflate(activity(), com.soundcloud.android.R.layout.playlist_details_view, null), null);
     }
 
     @Test

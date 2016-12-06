@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 /*
  * Doesn't support Go tracks. Indicators need to be added if we bring this feature back!
  */
-class TrackEditItemRenderer implements CellRenderer<TrackItem> {
+class TrackEditItemRenderer implements CellRenderer<PlaylistDetailTrackItem> {
 
     private final ImageOperations imageOperations;
     private final EventBus eventBus;
@@ -61,8 +61,9 @@ class TrackEditItemRenderer implements CellRenderer<TrackItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
-        TrackItem track = trackItems.get(position);
+    public void bindItemView(int position, View itemView, List<PlaylistDetailTrackItem> items) {
+
+        TrackItem track = items.get(position).getTrackItem();
         TrackEditItemView trackEditItemView = (TrackEditItemView) itemView.getTag();
         trackEditItemView.setCreator(track.getCreatorName());
         trackEditItemView.setTitle(track.getTitle(), track.isBlocked() ? R.color.list_disabled : R.color.list_primary);

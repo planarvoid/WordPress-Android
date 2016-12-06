@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="playlist_details_fragment" type="layout">@layout/default_recyclerview_with_refresh</item>
+</resources>

@@ -29,11 +29,13 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -41,20 +43,20 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Func1;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.util.List;
 
 class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragment>
-        implements PlaylistEngagementsView.OnEngagementListener {
+        implements PlaylistEngagementsView.OnEngagementListener, CellRenderer<PlaylistDetailHeaderItem> {
 
     private final EventBus eventBus;
     private final EventTracker eventTracker;
@@ -83,7 +85,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private PlaylistPresenter playlistPresenter;
     private boolean isEditMode = false;
     private PlaylistHeaderItem headerItem;
-    private View headerView;
+    private Optional<View> headerView = Optional.absent();
     private String screen;
 
     @Inject
@@ -132,7 +134,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
         context = fragment.getContext();
         if (featureOperations.upsellOfflineContent()) {
-            Urn playlistUrn = fragment.getArguments().getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN);
+            Urn playlistUrn = fragment.getArguments().getParcelable(PlaylistDetailFragment.EXTRA_URN);
             eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageImpression(playlistUrn));
         }
     }
@@ -140,7 +142,10 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        headerView = view.findViewById(R.id.playlist_details);
+        View headerView = view.findViewById(R.id.playlist_details);
+        if (headerView != null) {
+            this.headerView = Optional.of(headerView);
+        }
     }
 
     @Override
@@ -159,6 +164,17 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onDestroyView(Fragment fragment) {
         playlistEngagementsView.onDestroyView();
+    }
+
+    @Override
+    public View createItemView(ViewGroup parent) {
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_details_view, parent, false);
+    }
+
+    @Override
+    public void bindItemView(int position, View itemView, List<PlaylistDetailHeaderItem> items) {
+        headerView = Optional.of(itemView);
+        bindItemView();
     }
 
     void setPlaylistPresenter(PlaylistPresenter playlistPresenter) {
@@ -180,27 +196,23 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void bindItemView() {
-        bindPlaylistHeader();
-        bingEngagementBars();
+        if (headerView.isPresent() && headerItem != null) {
+            bindPlaylistHeader();
+            bingEngagementBars();
+        }
     }
 
     private void bindPlaylistHeader() {
-        PlaylistHeaderView playlistDetailsView = playlistDetailsViewFactory.create(headerView);
-        playlistDetailsView.setOnPlayButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onHeaderPlay();
-            }
-        });
-        playlistDetailsView.setOnCreatorButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        if (headerView.isPresent()) {
+            PlaylistHeaderView playlistDetailsView = playlistDetailsViewFactory.create(headerView.get());
+            playlistDetailsView.setOnPlayButtonClickListener(v -> onHeaderPlay());
+            playlistDetailsView.setOnCreatorButtonClickListener(view -> {
                 if (headerItem != null) {
                     onGoToCreator(view, headerItem.getCreatorUrn());
                 }
-            }
-        });
-        playlistDetailsView.setPlaylist(headerItem, shouldShowPlayButton(isEditMode));
+            });
+            playlistDetailsView.setPlaylist(headerItem, shouldShowPlayButton(isEditMode));
+        }
     }
 
     private boolean shouldShowPlayButton(boolean isEditMode) {
@@ -208,7 +220,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void onHeaderPlay() {
-        playlistPresenter.play(0);
+        playlistPresenter.playFromBegninning();
     }
 
     private void onGoToCreator(View view, Urn creatorUrn) {
@@ -222,7 +234,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private void bingEngagementBars() {
         updateEngagementBar();
-
         toggleMyOptions();
         togglePublicOptions();
         toggleShuffleOption();
@@ -232,15 +243,17 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void updateEngagementBar() {
-        playlistEngagementsView.bindView(headerView, headerItem, isEditMode);
-        playlistEngagementsView.updateLikeItem(headerItem.getLikesCount(), headerItem.isLikedByUser());
-        playlistEngagementsView.setOnEngagementListener(this);
+        if (headerView.isPresent()) {
+            playlistEngagementsView.bindView(headerView.get(), headerItem, isEditMode);
+            playlistEngagementsView.updateLikeItem(headerItem.getLikesCount(), headerItem.isLikedByUser());
+            playlistEngagementsView.setOnEngagementListener(this);
+        }
     }
 
     private void subscribeForOfflineContentUpdates() {
         offlineStateSubscription.unsubscribe();
         offlineStateSubscription = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                                           .filter(isCurrentPlaylist(headerItem))
+                                           .filter(event -> event.entities.contains(headerItem.getUrn()))
                                            .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .subscribe(new OfflineStateSubscriber());
@@ -272,15 +285,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private boolean isOwned(PlaylistHeaderItem headerItem) {
         return accountOperations.isLoggedInUser(headerItem.getCreatorUrn());
-    }
-
-    private Func1<OfflineContentChangedEvent, Boolean> isCurrentPlaylist(final PlaylistHeaderItem headerItem) {
-        return new Func1<OfflineContentChangedEvent, Boolean>() {
-            @Override
-            public Boolean call(OfflineContentChangedEvent event) {
-                return event.entities.contains(headerItem.getUrn());
-            }
-        };
     }
 
     private void updateOfflineAvailability() {
@@ -353,7 +357,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(headerItem.getUrn());
             playbackInitiator
                     .playTracksShuffled(tracks, headerItem.getPlaySessionSource())
-                    .doOnCompleted(publishAnalyticsEventForShuffle())
+                    .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext())))
                     .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }
     }
@@ -361,16 +365,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onDeletePlaylist() {
         DeletePlaylistDialogFragment.show(fragmentManager, headerItem.getUrn());
-    }
-
-    private Action0 publishAnalyticsEventForShuffle() {
-        return new Action0() {
-            @Override
-            public void call() {
-                final UIEvent fromShufflePlaylist = UIEvent.fromShuffle(getEventContext());
-                eventBus.publish(EventQueue.TRACKING, fromShufflePlaylist);
-            }
-        };
     }
 
     @Override

@@ -4,7 +4,6 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.presentation.TypedListItem;
 
 import android.content.Context;
 import android.view.View;
@@ -14,7 +13,7 @@ import android.widget.Button;
 import javax.inject.Inject;
 import java.util.List;
 
-public class UpsellItemRenderer implements CellRenderer<TypedListItem> {
+public class UpsellItemRenderer<T> implements CellRenderer<T> {
 
     private final FeatureOperations featureOperations;
 
@@ -40,7 +39,7 @@ public class UpsellItemRenderer implements CellRenderer<TypedListItem> {
     }
 
     @Override
-    public void bindItemView(final int position, final View view, final List<TypedListItem> items) {
+    public void bindItemView(int position, View view, List<T> items) {
         bindItemView(position, view);
     }
 

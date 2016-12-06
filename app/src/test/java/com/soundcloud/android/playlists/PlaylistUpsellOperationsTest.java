@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -42,17 +41,17 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
     public void insertsUpsellAfterFirstUpsellableTrack() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
 
-        final List<TypedListItem> items = operations.toListItems(upsellablePlaylist());
+        final List<PlaylistDetailItem> items = operations.toListItems(upsellablePlaylist());
 
         assertThat(items.size()).isEqualTo(4);
-        assertThat(items.get(2).getUrn()).isEqualTo(UpsellListItem.PLAYLIST_UPSELL_URN);
+        assertThat(((PlaylistDetailUpsellItem) items.get(2)).getUrn()).isEqualTo(UpsellListItem.PLAYLIST_UPSELL_URN);
     }
 
     @Test
     public void doesNotInsertUpsellIfNoUpsellableTracksPresent() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
 
-        final List<TypedListItem> items = operations.toListItems(defaultPlaylist());
+        final List<PlaylistDetailItem> items = operations.toListItems(defaultPlaylist());
 
         assertThat(items.size()).isEqualTo(2);
     }
@@ -63,18 +62,18 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(playlist.getCreatorUrn());
 
-        final List<TypedListItem> items = operations.toListItems(playlist);
+        final List<PlaylistDetailItem> items = operations.toListItems(playlist);
 
-        assertThat(items).containsExactly(track1, track2, track3);
+        assertOriginalTracks(items);
     }
 
     @Test
     public void doesNotInsertUpsellIfDismissed() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(false);
 
-        final List<TypedListItem> items = operations.toListItems(upsellablePlaylist());
+        final List<PlaylistDetailItem> items = operations.toListItems(upsellablePlaylist());
 
-        assertThat(items).containsExactly(track1, track2, track3);
+        assertOriginalTracks(items);
     }
 
     @Test
@@ -94,6 +93,12 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
     private PlaylistWithTracks upsellablePlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         return new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(track1, track2, track3));
+    }
+
+    void assertOriginalTracks(List<PlaylistDetailItem> items) {
+        assertThat(items).containsExactly(new PlaylistDetailTrackItem(track1),
+                                          new PlaylistDetailTrackItem(track2),
+                                          new PlaylistDetailTrackItem(track3));
     }
 
 }

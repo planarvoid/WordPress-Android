@@ -39,12 +39,12 @@ class PlaylistDefaultView implements PlaylistContentPresenter.PlaylistContentVie
 
     @Override
     public void onItemClicked(int position) {
-        presenter.play(position);
+        presenter.handlItemClick(position);
     }
 
     @Override
     public void onHeaderClick() {
-        presenter.play(0);
+        presenter.playFromBegninning();
     }
 
     private class ReloadSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {

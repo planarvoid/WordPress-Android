@@ -7,10 +7,10 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
-import com.soundcloud.android.profile.ScrollableProfileFragment;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class PlaylistDetailFragment extends ScrollableProfileFragment implements RefreshableScreen {
+public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDetailFragment> implements RefreshableScreen {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";

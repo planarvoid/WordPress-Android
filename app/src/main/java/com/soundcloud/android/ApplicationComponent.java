@@ -86,7 +86,6 @@ import com.soundcloud.android.playback.widget.PlayerWidgetReceiver;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.CreatePlaylistDialogFragment;
 import com.soundcloud.android.playlists.DeletePlaylistDialogFragment;
-import com.soundcloud.android.playlists.LegacyPlaylistDetailFragment;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.policies.DailyUpdateService;
@@ -216,7 +215,6 @@ public interface ApplicationComponent {
     void inject(NewPlaylistsFragment playlistsFragment);
     void inject(PlaylistDetailActivity playlistDetailActivity);
     void inject(PlaylistDetailFragment playlistDetailFragment);
-    void inject(LegacyPlaylistDetailFragment legacyPlaylistDetailFragment);
     void inject(AddToPlaylistDialogFragment addToPlaylistDialogFragment);
     void inject(CreatePlaylistDialogFragment createPlaylistDialogFragment);
     void inject(DeletePlaylistDialogFragment deletePlaylistDialogFragment);

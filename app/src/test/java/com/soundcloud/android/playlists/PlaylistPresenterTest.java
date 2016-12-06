@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,7 +12,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -25,11 +25,9 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
@@ -41,15 +39,19 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subjects.PublishSubject;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import javax.inject.Provider;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -76,6 +78,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
+    @Mock private Resources resources;
+    @Captor private ArgumentCaptor<List<PlaylistDetailItem>> trackItemCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
@@ -91,7 +95,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
         when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(listItems());
-        when(adapterFactory.create(any(OnStartDragListener.class))).thenReturn(adapter);
+        when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter))).thenReturn(adapter);
 
         createPresenter();
     }
@@ -106,14 +110,19 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
                 playbackInitiator,
                 expandPlayerSubscriberProvider,
                 navigator,
-                eventBus);
+                eventBus,
+                resources);
     }
 
     @Test
     public void shouldLoadInitialItemsInOnCreate() {
         presenter.onCreate(fragmentRule.getFragment(), args);
 
-        verify(adapter).onNext(listItems());
+        verify(adapter).onNext(trackItemCaptor.capture());
+        List<PlaylistDetailItem> itemList = trackItemCaptor.getValue();
+        assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailHeaderItem.class);
+        assertThat(((PlaylistDetailTrackItem)  itemList.get(1)).getTrackItem()).isEqualTo(TrackItem.from(track1));
+        assertThat(((PlaylistDetailTrackItem)  itemList.get(2)).getTrackItem()).isEqualTo(TrackItem.from(track2));
     }
 
     @Test
@@ -141,19 +150,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSetPlaylingTrackWhenTrackChanges() {
-        presenter.onCreate(fragmentRule.getFragment(), args);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(5)),
-                                                                       Urn.NOT_SET,
-                                                                       0));
-
-        verify(adapter).updateNowPlaying(Urn.forTrack(5));
-    }
-
-    @Test
     public void shouldUpdateCurrentDownloadWhenEventReceived() {
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -166,7 +162,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADING);
 
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test
@@ -281,8 +277,11 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
-    private List<TypedListItem> listItems() {
-        return Arrays.<TypedListItem>asList(TrackItem.from(track1), TrackItem.from(track2));
+    private List<PlaylistDetailItem> listItems() {
+        List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>();
+        playlistDetailItems.add(new PlaylistDetailTrackItem(TrackItem.from(track1)));
+        playlistDetailItems.add(new PlaylistDetailTrackItem(TrackItem.from(track2)));
+        return playlistDetailItems;
     }
 
     private PlaylistWithTracks createAlbumPlaylist(String type, String releaseDate) {
