@@ -71,7 +71,7 @@ class EventLoggerV1JsonDataBuilder {
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
-    private static final String BOOGALOO_VERSION = "v1.24.0";
+    private static final String BOOGALOO_VERSION = "v1.25.0";
 
     static final String FOLLOW_ADD = "follow::add";
     static final String FOLLOW_REMOVE = "follow::remove";
