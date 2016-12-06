@@ -7,6 +7,7 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY_UR
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.events.EventQueue;
@@ -74,6 +75,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final Navigator navigator;
     private final SearchTracker searchTracker;
     private final FeatureFlags featureFlags;
+    private final ScreenProvider screenProvider;
 
     private final Action1<SearchResult> trackSearch =
             new Action1<SearchResult>() {
@@ -85,7 +87,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
 
                     if (publishSearchSubmissionEvent) {
                         if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
-                            searchTracker.trackSearchFormulationEnd(searchQuery, autocompleteUrn(), autocompletePosition());
+                            searchTracker.trackSearchFormulationEnd(screenProvider.getLastScreen(), searchQuery, autocompleteUrn(), autocompletePosition());
                         } else {
                             searchTracker.trackSearchSubmission(searchType, queryUrn, searchQuery);
                         }
@@ -116,7 +118,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
                            EventBus eventBus, Navigator navigator,
                            SearchTracker searchTracker,
-                           FeatureFlags featureFlags) {
+                           FeatureFlags featureFlags,
+                           ScreenProvider screenProvider) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -125,6 +128,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.navigator = navigator;
         this.searchTracker = searchTracker;
         this.featureFlags = featureFlags;
+        this.screenProvider = screenProvider;
     }
 
     @Override
