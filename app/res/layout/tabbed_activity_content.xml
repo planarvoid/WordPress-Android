@@ -12,18 +12,18 @@
     <com.soundcloud.android.view.CustomFontTabLayout
         android:layout_below="@+id/toolbar_id"
         android:id="@+id/tab_indicator"
-        style="@style/TabsTheme.Fixed"
+        style="@style/TabsTheme.Fixed.Explore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-    <View
-        style="@style/ToolbarShadow"
-        android:layout_below="@id/tab_indicator" />
 
     <com.soundcloud.android.view.SafeViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"
+        android:layout_below="@id/tab_indicator" />
+
+    <View
+        style="@style/ToolbarShadow"
         android:layout_below="@id/tab_indicator" />
 </RelativeLayout>
