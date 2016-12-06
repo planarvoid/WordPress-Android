@@ -12,6 +12,7 @@ import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
@@ -33,8 +34,10 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.flippernative.api.ErrorReason;
 import com.soundcloud.flippernative.api.PlayerState;
 import com.soundcloud.flippernative.api.audio_performance;
+import com.soundcloud.flippernative.api.error_message;
 import com.soundcloud.flippernative.api.state_change;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,6 +70,9 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     @Nullable private PlaybackItem currentPlaybackItem;
     private PlayerListener playerListener;
 
+    // Flipper may send past progress events when seeking, leading to UI glitches.
+    // This boolean helps us to workaround this.
+    private boolean isSeekPending;
     private long duration;
     private long progress;
 
@@ -90,6 +96,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         this.eventBus = eventBus;
         this.flipper = flipperFactory.create(this);
         this.playerListener = PlayerListener.EMPTY;
+        this.isSeekPending = false;
     }
 
     @Override
@@ -106,6 +113,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         }
 
         stateHandler.removeMessages(0);
+        isSeekPending = false;
         progress = 0;
 
         final String trackUrl = buildStreamUrl(playbackItem);
@@ -131,11 +139,17 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     @Override
     public long seek(long position, boolean performSeek) {
         if (performSeek) {
-            Log.d("Seeking to position: " + position);
+            Log.d(TAG, "Seeking to position: " + position);
+            setSeekingState(position);
             flipper.seek(position);
             reportProgress(position, duration);
         }
         return position;
+    }
+
+    private void setSeekingState(long position) {
+        isSeekPending = true;
+        progress = position;
     }
 
     @Override
@@ -183,12 +197,15 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     @Override
     public void onProgressChanged(state_change event) {
         if (event.getUri().equals(currentStreamUrl)) {
-            reportProgress(event.getPosition(), event.getDuration());
+            isSeekPending = isSeekPending && event.getPosition() != progress;
+            if (!isSeekPending) {
+                reportProgress(event.getPosition(), event.getDuration());
+            }
         }
     }
 
     private void reportProgress(long position, long duration) {
-        progress = position;
+        setProgress(position);
         playerListener.onProgressEvent(position, duration);
     }
 
@@ -243,6 +260,20 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         if (event.getUri().equalsIgnoreCase(currentStreamUrl)) {
             duration = event.getDuration();
         }
+    }
+
+    @Override
+    public void onError(error_message message) {
+        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
+        // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
+        if (!ConnectionType.OFFLINE.equals(currentConnectionType)) {
+            // Use Log as Skippy dumps can be rather large
+            ErrorUtils.handleSilentExceptionWithLog(new FlipperException(message.getCategory(), message.getLine(), message.getSourceFile()), message.getErrorMessage());
+        }
+
+        final PlaybackErrorEvent event = new PlaybackErrorEvent(message.getCategory(), getPlaybackProtocol(),
+                                                                message.getCdn(), message.getFormat(), message.getBitRate(), currentConnectionType);
+        eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
     }
 
     private PlaybackPerformanceEvent createPlaybackPerformanceEvent(audio_performance event) {
@@ -306,11 +337,17 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     private void handleStateChanged(state_change event) {
         Log.i(TAG, "State = " + event.getState().toString());
         if (event.getUri().equals(currentStreamUrl)) {
-            progress = event.getPosition();
+            setProgress(event.getPosition());
 
             final PlaybackState translatedState = playbackState(event.getState());
             final PlayStateReason translatedReason = playStateReason(event);
             reportStateTransition(event, translatedState, translatedReason);
+        }
+    }
+
+    private void setProgress(long position) {
+        if (!isSeekPending) {
+            progress = position;
         }
     }
 
@@ -363,8 +400,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     private PlayStateReason playStateReason(state_change flipperState) {
         if (flipperState.getState().equals(PlayerState.Error)) {
-            // TODO : waiting for a Flipper update.
-            // Add timeout, forbidden and media not found differentiators so we can set proper error code here.
             if (flipperState.getReason().equals(ErrorReason.NotFound)) {
                 return PlayStateReason.ERROR_NOT_FOUND;
             } else if (flipperState.getReason().equals(ErrorReason.Forbidden)) {
@@ -494,6 +529,30 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         StateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
             this.playbackItem = item;
             this.stateTransition = transition;
+        }
+    }
+
+    static class FlipperException extends Exception {
+        private final String errorCategory;
+        private final int line;
+        private final String sourceFile;
+
+        FlipperException(String category, int line, String sourceFile) {
+            this.errorCategory = category;
+            this.line = line;
+            this.sourceFile = sourceFile;
+        }
+
+        @Override
+        public String getMessage() {
+            return errorCategory;
+
+        }
+
+        @Override
+        public StackTraceElement[] getStackTrace() {
+            final StackTraceElement element = new StackTraceElement(errorCategory, Strings.EMPTY, sourceFile, line);
+            return new StackTraceElement[]{element};
         }
     }
 }
