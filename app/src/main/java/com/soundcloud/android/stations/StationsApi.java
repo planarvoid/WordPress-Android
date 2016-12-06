@@ -10,7 +10,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.configuration.experiments.StationsRecoAlgorithmExperiment;
+import com.soundcloud.android.configuration.experiments.SuggestedStationsExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
@@ -28,12 +28,12 @@ import java.util.Map;
 class StationsApi {
     private final ApiClientRx apiClientRx;
     private final ApiClient apiClient;
-    private final StationsRecoAlgorithmExperiment stationsExperiment;
+    private final SuggestedStationsExperiment stationsExperiment;
 
     @Inject
     public StationsApi(ApiClientRx apiClientRx,
                        ApiClient apiClient,
-                       StationsRecoAlgorithmExperiment stationsExperiment) {
+                       SuggestedStationsExperiment stationsExperiment) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
         this.stationsExperiment = stationsExperiment;
@@ -55,6 +55,10 @@ class StationsApi {
 
     ModelCollection<ApiStationMetadata> fetchStationRecommendations() throws ApiRequestException, IOException, ApiMapperException {
         final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION_RECOMMENDATIONS.path());
+        final Optional<String> variant = stationsExperiment.getVariantName();
+        if (variant.isPresent()) {
+            builder.addQueryParam("variant", variant.get());
+        }
         final ApiRequest request = builder
                 .forPrivateApi()
                 .build();
@@ -65,10 +69,6 @@ class StationsApi {
 
     Observable<ApiStation> fetchStation(Urn stationUrn) {
         final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION.path(stationUrn.toString()));
-        final Optional<String> variant = stationsExperiment.getVariantName();
-        if (variant.isPresent()) {
-            builder.addQueryParam("variant", variant.get());
-        }
         final ApiRequest request = builder
                 .forPrivateApi()
                 .build();

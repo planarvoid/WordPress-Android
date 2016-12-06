@@ -5,15 +5,20 @@ import static com.soundcloud.android.configuration.experiments.ActiveExperiments
 import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
-public class StationsRecoAlgorithmExperiment {
-    private static final String PATTERN = "^reco-radio-.*$";
+public class SuggestedStationsExperiment {
+    private static final String NAME = "suggested_stations";
+    private static final String VARIANT_CONTROL = "control";
+    private static final String VARIANT_TRACK_STATIONS = "track_stations";
+    private static final String VARIANT_SUGGESTED_ARTIST_STATIONS = "suggested_artist_stations";
 
     private final ExperimentOperations experimentOperations;
-    static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration.fromPattern(LISTENING_LAYER, PATTERN);
+    static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
+            .fromName(LISTENING_LAYER, NAME, Arrays.asList(VARIANT_CONTROL, VARIANT_TRACK_STATIONS, VARIANT_SUGGESTED_ARTIST_STATIONS));
 
     @Inject
-    public StationsRecoAlgorithmExperiment(ExperimentOperations experimentOperations) {
+    public SuggestedStationsExperiment(ExperimentOperations experimentOperations) {
         this.experimentOperations = experimentOperations;
     }
 
