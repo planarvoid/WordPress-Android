@@ -19,7 +19,7 @@ import javax.inject.Inject;
 public class StationInfoFragment extends LightCycleSupportFragment<StationInfoFragment> implements RefreshableScreen {
     static final String EXTRA_URN = "urn";
     static final String EXTRA_SOURCE = "source";
-    static final String EXTRA_SEED_TRACk = "seed_track";
+    static final String EXTRA_SEED_TRACK = "seed_track";
 
     @Inject @LightCycle StationInfoPresenter stationInfoPresenter;
 
@@ -28,7 +28,7 @@ public class StationInfoFragment extends LightCycleSupportFragment<StationInfoFr
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, stationUrn);
         bundle.putString(EXTRA_SOURCE, source);
-        bundle.putParcelable(EXTRA_SEED_TRACk, seedTrack);
+        bundle.putParcelable(EXTRA_SEED_TRACK, seedTrack);
         fragment.setArguments(bundle);
 
         return fragment;

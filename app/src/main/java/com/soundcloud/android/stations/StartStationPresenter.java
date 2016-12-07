@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
@@ -24,7 +23,6 @@ import rx.Subscription;
 import rx.functions.Func1;
 
 import android.content.Context;
-import android.content.DialogInterface;
 
 import javax.inject.Inject;
 
@@ -55,15 +53,6 @@ public class StartStationPresenter {
         playStation(context, stationsOperations.station(stationUrn), discoverySource);
     }
 
-    void startStation(Context context, Urn stationUrn) {
-        playStation(context, stationsOperations.station(stationUrn), STATIONS);
-    }
-
-    void startStationForTrack(Context context, final Urn seed) {
-        final Urn stationUrn = Urn.forTrackStation(seed.getNumericId());
-        playStation(context, stationsOperations.stationWithSeed(stationUrn, seed), STATIONS);
-    }
-
     void startStation(Context context,
                       Observable<StationRecord> station,
                       DiscoverySource discoverySource,
@@ -85,21 +74,17 @@ public class StartStationPresenter {
 
     private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(final DiscoverySource discoverySource,
                                                                               final int position) {
-        return new Func1<StationRecord, Observable<PlaybackResult>>() {
-            @Override
-            public Observable<PlaybackResult> call(StationRecord stationRecord) {
-                checkArgument(!stationRecord.getTracks().isEmpty(), "The station does not have any tracks.");
+        return stationRecord -> {
+            checkArgument(!stationRecord.getTracks().isEmpty(), "The station does not have any tracks.");
 
-                final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
-                                                                       stationRecord.getUrn(),
-                                                                       discoverySource);
-                return playbackInitiator.playStation(stationRecord.getUrn(),
-                                                     stationRecord.getTracks(),
-                                                     playSessionSource,
-                                                     stationRecord.getTracks().get(position).getTrackUrn(),
-                                                     position);
-            }
-
+            final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
+                                                                   stationRecord.getUrn(),
+                                                                   discoverySource);
+            return playbackInitiator.playStation(stationRecord.getUrn(),
+                                                 stationRecord.getTracks(),
+                                                 playSessionSource,
+                                                 stationRecord.getTracks().get(position).getTrackUrn(),
+                                                 position);
         };
     }
 
@@ -118,38 +103,30 @@ public class StartStationPresenter {
         return dialogBuilder
                 .setLoadingMessage(context.getString(R.string.stations_loading_station))
                 .setOnErrorToastText(context.getString(R.string.stations_unable_to_start_station))
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        subscription.unsubscribe();
-                    }
-                })
+                .setOnCancelListener(dialog -> subscription.unsubscribe())
                 .create()
                 .show(context);
     }
 
     private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(final DiscoverySource source) {
-        return new Func1<StationRecord, Observable<PlaybackResult>>() {
-            @Override
-            public Observable<PlaybackResult> call(StationRecord station) {
-                checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
+        return station -> {
+            checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
 
-                Urn trackToPlay = Urn.NOT_SET;
-                int position = 0;
+            Urn trackToPlay = Urn.NOT_SET;
+            int position = 0;
 
-                if (station.getPreviousPosition() != Stations.NEVER_PLAYED) {
-                    trackToPlay = station.getTracks().get(station.getPreviousPosition()).getTrackUrn();
-                    position = (station.getPreviousPosition() + 1) % station.getTracks().size();
-                }
-                final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
-                                                                       station.getUrn(),
-                                                                       source);
-                return playbackInitiator.playStation(station.getUrn(),
-                                                     station.getTracks(),
-                                                     playSessionSource,
-                                                     trackToPlay,
-                                                     position);
+            if (station.getPreviousPosition() != Stations.NEVER_PLAYED) {
+                trackToPlay = station.getTracks().get(station.getPreviousPosition()).getTrackUrn();
+                position = (station.getPreviousPosition() + 1) % station.getTracks().size();
             }
+            final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
+                                                                   station.getUrn(),
+                                                                   source);
+            return playbackInitiator.playStation(station.getUrn(),
+                                                 station.getTracks(),
+                                                 playSessionSource,
+                                                 trackToPlay,
+                                                 position);
         };
     }
 

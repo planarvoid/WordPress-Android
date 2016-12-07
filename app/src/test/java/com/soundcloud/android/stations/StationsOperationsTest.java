@@ -81,43 +81,6 @@ public class StationsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stationWithSeedShouldNotAddASeedWhenLoadingFromStorage() {
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        final Urn seed = Urn.forTrack(123L);
-
-        operations.stationWithSeed(station, seed).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents().get(0).getTracks()).isEqualTo(stationFromDisk.getTracks());
-    }
-
-    @Test
-    public void stationWithSeedShouldAddASeedWhenLoadingFromNetwork() {
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
-        final Urn seed = Urn.forTrack(123L);
-        when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
-        when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
-
-        operations.stationWithSeed(station, seed).subscribe(subscriber);
-
-        final StationRecord stationWithSeed = Station.stationWithSeedTrack(stationApi, seed);
-        assertThat(subscriber.getOnNextEvents().get(0).getTracks()).isEqualTo(stationWithSeed.getTracks());
-    }
-
-    @Test
-    public void stationWithSeedShouldNotAddASeedWhenTheTrackListIsEmpty() {
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 0);
-        final Urn seed = Urn.forTrack(123L);
-        when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
-        when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
-
-        operations.stationWithSeed(station, seed).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents().get(0).getTracks()).isEqualTo(stationApi.getTracks());
-    }
-
-    @Test
     public void getStationShouldFallbackToNetwork() {
         when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
 

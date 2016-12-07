@@ -36,7 +36,7 @@ class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksB
     public View createItemView(ViewGroup parent) {
         final View view = LayoutInflater.from(parent.getContext())
                                         .inflate(R.layout.station_tracks_bucket, parent, false);
-        initCarousel(ButterKnife.<RecyclerView>findById(view, R.id.station_tracks_carousel));
+        initCarousel(ButterKnife.findById(view, R.id.station_tracks_carousel));
         return view;
     }
 

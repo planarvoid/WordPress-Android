@@ -28,24 +28,8 @@ import rx.internal.util.UtilityFunctions;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
-import java.util.concurrent.Callable;
 
 public class StationsOperations {
-
-    private static final Func1<StationRecord, Boolean> HAS_TRACKS = new Func1<StationRecord, Boolean>() {
-        @Override
-        public Boolean call(StationRecord station) {
-            return station != null && station.getTracks().size() > 0;
-        }
-    };
-
-    private static final Func1<StationWithTracks, Boolean> STATIONS_CONTAINING_TRACKS = new Func1<StationWithTracks, Boolean>() {
-        @Override
-        public Boolean call(StationWithTracks station) {
-            return station != null && station.getStationInfoTracks().size() > 0;
-        }
-    };
 
     private final Action1<ApiStation> storeTracks = new Action1<ApiStation>() {
         @Override
@@ -90,47 +74,36 @@ public class StationsOperations {
     }
 
     public Observable<StationRecord> station(Urn station) {
-        return station(station, UtilityFunctions.<StationRecord>identity());
-    }
-
-    Observable<StationRecord> stationWithSeed(Urn station, final Urn seed) {
-        return station(station, prependSeed(seed));
+        return stationsStorage
+                .clearExpiredPlayQueue(station)
+                .flatMap(continueWith(getStation(station, UtilityFunctions.identity())))
+                .subscribeOn(scheduler);
     }
 
     Observable<StationWithTracks> stationWithTracks(Urn station, final Optional<Urn> seed) {
-        return stationWithTracks(station,
-                                 seed.isPresent() ?
-                                 prependSeed(seed.get()) :
-                                 UtilityFunctions.<StationRecord>identity());
+        return stationWithTracks(station, seed.isPresent() ? prependSeed(seed.get()) : UtilityFunctions.identity());
     }
 
-    private Observable<StationWithTracks> stationWithTracks(Urn station,
-                                                            Func1<StationRecord, StationRecord> toStation) {
+    private Observable<StationWithTracks> stationWithTracks(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return stationsStorage
                 .clearExpiredPlayQueue(station)
                 .flatMap(continueWith(loadStationWithTracks(station, toStation)))
                 .subscribeOn(scheduler);
     }
 
-    private Observable<StationRecord> station(Urn station, Func1<StationRecord, StationRecord> toStation) {
-        return stationsStorage
-                .clearExpiredPlayQueue(station)
-                .flatMap(continueWith(getStation(station, toStation)))
-                .subscribeOn(scheduler);
-    }
-
     private Observable<StationRecord> getStation(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return Observable
-                .concat(stationsStorage.station(station).filter(HAS_TRACKS),
+                .concat(stationsStorage.station(station)
+                                       .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.getTracks().size() > 0),
                         syncSingleStation(station, toStation)
                 )
                 .first();
     }
 
-    private Observable<StationWithTracks> loadStationWithTracks(Urn station,
-                                                                Func1<StationRecord, StationRecord> toStation) {
+    private Observable<StationWithTracks> loadStationWithTracks(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return Observable
-                .concat(loadStationWithTracks(station).filter(STATIONS_CONTAINING_TRACKS),
+                .concat(loadStationWithTracks(station)
+                                .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.getStationInfoTracks().size() > 0),
                         syncSingleStation(station, toStation).flatMap(continueWith(loadStationWithTracks(station))))
                 .first();
     }
@@ -139,8 +112,7 @@ public class StationsOperations {
         return stationsStorage.stationWithTracks(station);
     }
 
-    private Observable<StationRecord> syncSingleStation(Urn station,
-                                                        Func1<StationRecord, StationRecord> toStation) {
+    private Observable<StationRecord> syncSingleStation(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return stationsApi.fetchStation(station)
                           .doOnNext(storeTracks)
                           .map(toStation)
@@ -148,15 +120,7 @@ public class StationsOperations {
     }
 
     private Func1<StationRecord, StationRecord> prependSeed(final Urn seed) {
-        return new Func1<StationRecord, StationRecord>() {
-            @Override
-            public StationRecord call(StationRecord station) {
-                if (station.getTracks().isEmpty()) {
-                    return station;
-                }
-                return Station.stationWithSeedTrack(station, seed);
-            }
-        };
+        return station -> station.getTracks().isEmpty() ? station : Station.stationWithSeedTrack(station, seed);
     }
 
     public Observable<StationRecord> collection(final int type) {
@@ -237,29 +201,10 @@ public class StationsOperations {
                 .fetchStation(station)
                 .doOnNext(storeTracks)
                 .doOnNext(storeStationCommand.toAction1())
-                .flatMap(loadPlayQueue(station, currentSize))
+                .flatMap(ignored -> stationsStorage.loadPlayQueue(station, currentSize))
                 .toList()
-                .map(toPlayQueue(station, discoverySource))
+                .map(tracks -> PlayQueue.fromStation(station, tracks, discoverySource))
                 .subscribeOn(scheduler);
-    }
-
-    private Func1<List<StationTrack>, PlayQueue> toPlayQueue(final Urn station,
-                                                             final PlaySessionSource playSessionSource) {
-        return new Func1<List<StationTrack>, PlayQueue>() {
-            @Override
-            public PlayQueue call(List<StationTrack> tracks) {
-                return PlayQueue.fromStation(station, tracks, playSessionSource);
-            }
-        };
-    }
-
-    private Func1<StationRecord, Observable<StationTrack>> loadPlayQueue(final Urn station, final int startPosition) {
-        return new Func1<StationRecord, Observable<StationTrack>>() {
-            @Override
-            public Observable<StationTrack> call(StationRecord ignored) {
-                return stationsStorage.loadPlayQueue(station, startPosition);
-            }
-        };
     }
 
     public void clearData() {
@@ -273,11 +218,7 @@ public class StationsOperations {
     }
 
     private Observable<Boolean> shouldShowOnboardingStreamItem() {
-        return Observable.fromCallable(new Callable<Boolean>() {
-            public Boolean call() {
-                return !stationsStorage.isOnboardingStreamItemDisabled();
-            }
-        });
+        return Observable.fromCallable(() -> !stationsStorage.isOnboardingStreamItemDisabled());
     }
 
     public void disableOnboardingStreamItem() {

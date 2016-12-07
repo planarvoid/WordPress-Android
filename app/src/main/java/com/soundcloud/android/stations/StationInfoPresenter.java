@@ -21,7 +21,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Func1;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -35,14 +34,6 @@ import java.util.List;
 class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, StationInfoItem>
         implements StationInfoClickListener {
 
-    private final Func1<StationWithTracks, List<StationInfoItem>> toViewModel = new Func1<StationWithTracks, List<StationInfoItem>>() {
-        @Override
-        public List<StationInfoItem> call(StationWithTracks stationWithTracks) {
-            return Arrays.asList(StationInfoHeader.from(stationWithTracks),
-                                 createTracksBucketViewModel(stationWithTracks));
-        }
-    };
-
     private final StartStationPresenter stationPresenter;
     private final StationsOperations stationOperations;
     private final StationInfoAdapter adapter;
@@ -55,13 +46,13 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     private Urn stationUrn;
 
     @Inject
-    public StationInfoPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                                StationInfoAdapterFactory adapterFactory,
-                                StationsOperations stationOperations,
-                                StartStationPresenter stationPresenter,
-                                StationInfoTracksBucketRendererFactory bucketRendererFactory,
-                                PlayQueueManager playQueueManager,
-                                EventBus eventBus) {
+    StationInfoPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                         StationInfoAdapterFactory adapterFactory,
+                         StationsOperations stationOperations,
+                         StartStationPresenter stationPresenter,
+                         StationInfoTracksBucketRendererFactory bucketRendererFactory,
+                         PlayQueueManager playQueueManager,
+                         EventBus eventBus) {
         super(swipeRefreshAttacher);
         this.stationOperations = stationOperations;
         this.stationPresenter = stationPresenter;
@@ -99,11 +90,12 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     }
 
     private Optional<Urn> getSeedTrackUrn(Bundle fragmentArgs) {
-        return Optional.fromNullable((Urn) fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACk));
+        return Optional.fromNullable(fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACK));
     }
 
     private Observable<List<StationInfoItem>> getStation(final Urn stationUrn) {
-        return stationOperations.stationWithTracks(stationUrn, seedTrack).map(toViewModel);
+        return stationOperations.stationWithTracks(stationUrn, seedTrack)
+                                .map(stationWithTracks -> Arrays.asList(StationInfoHeader.from(stationWithTracks), createTracksBucketViewModel(stationWithTracks)));
     }
 
     private StationInfoTracksBucket createTracksBucketViewModel(StationWithTracks station) {
