@@ -34,7 +34,7 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject AccountOperations accountOperations;
 
-    private Optional<MenuItem> castMenu;
+    private Optional<MenuItem> castMenu = Optional.absent();
 
     public LoggedInActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
