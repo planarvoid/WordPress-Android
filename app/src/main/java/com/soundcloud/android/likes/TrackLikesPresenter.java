@@ -1,12 +1,12 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.ApplicationModule.DEFAULT_LIST_PAGE_SIZE;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -47,13 +47,12 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.view.View;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
 class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.TrackLikesPage, TrackLikesItem> {
-
-    private static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private static final int EXTRA_LIST_ITEMS = 1;
     @LightCycle final TrackLikesHeaderPresenter headerPresenter;
@@ -99,7 +98,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         TrackLikesAdapterFactory adapterFactory,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
-                        SwipeRefreshAttacher swipeRefreshAttacher, DataSource dataSource) {
+                        SwipeRefreshAttacher swipeRefreshAttacher,
+                        DataSource dataSource) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackInitiator;
@@ -235,7 +235,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         }
 
         static TrackLikesPage withoutHeader(List<PropertySet> trackLikes){
-            return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
+            return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, false);
         }
 
         abstract List<PropertySet> getTrackLikes();
@@ -245,10 +245,12 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     static class DataSource {
 
         private final TrackLikeOperations trackLikeOperations;
-
+        private final int pageSize;
         @Inject
-        DataSource(TrackLikeOperations trackLikeOperations) {
+        DataSource(TrackLikeOperations trackLikeOperations,
+                   @Named(DEFAULT_LIST_PAGE_SIZE) int pageSize) {
             this.trackLikeOperations = trackLikeOperations;
+            this.pageSize = pageSize;
         }
 
         Observable<TrackLikesPage> initialTrackLikes(){
@@ -264,7 +266,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             return new Pager.PagingFunction<TrackLikesPage>() {
                 @Override
                 public Observable<TrackLikesPage> call(TrackLikesPage result) {
-                    if (result.getTrackLikes().size() < PAGE_SIZE) {
+                    if (result.getTrackLikes().size() < pageSize) {
                         return Pager.finish();
                     } else {
                         final long oldestLike = getLast(result.getTrackLikes()).get(LikeProperty.CREATED_AT).getTime();

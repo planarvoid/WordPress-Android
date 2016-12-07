@@ -53,6 +53,7 @@ import java.util.List;
 
 public class TrackLikesPresenterTest extends AndroidUnitTest {
 
+    private static final int PAGE_SIZE = 2;
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
     private TrackLikesPresenter presenter;
@@ -222,7 +223,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         final List<PropertySet> tracks = Arrays.asList(TestPropertySets.fromApiTrack());
         when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
 
-        dataSource = new DataSource(likeOperations);
+        dataSource = new DataSource(likeOperations, PAGE_SIZE);
         dataSource.initialTrackLikes().subscribe(testSubscriber);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
@@ -233,7 +234,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         final List<PropertySet> tracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likeOperations.updatedLikedTracks()).thenReturn(Observable.just(tracks));
 
-        new DataSource(likeOperations).updatedTrackLikes().subscribe(testSubscriber);
+        new DataSource(likeOperations, PAGE_SIZE).updatedTrackLikes().subscribe(testSubscriber);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
     }
@@ -243,12 +244,12 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         final Date oldestDate = new Date(1);
         final PropertySet likedTrack1 = TestPropertySets.expectedLikedTrackForLikesScreenWithDate(oldestDate);
         final PropertySet likedTrack2 = TestPropertySets.expectedLikedTrackForLikesScreenWithDate(new Date(2));
-        final List<PropertySet> tracks = Arrays.asList(likedTrack1, likedTrack2);
+        final List<PropertySet> tracks = Arrays.asList(likedTrack2, likedTrack1);
         when(likeOperations.likedTracks(oldestDate.getTime())).thenReturn(Observable.just(tracks));
 
-        new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(tracks));
+        new DataSource(likeOperations, PAGE_SIZE).pagingFunction().call(TrackLikesPage.withoutHeader(tracks)).subscribe(testSubscriber);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList());
+        testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withoutHeader(tracks)));
     }
 
     @Test
@@ -256,7 +257,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         final List<PropertySet> tracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
 
-        final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
+        final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations, PAGE_SIZE).pagingFunction();
 
         assertThat(listPager.call(TrackLikesPage.withHeader(tracks))).isSameAs(Pager.<List<PropertySet>>finish());
     }

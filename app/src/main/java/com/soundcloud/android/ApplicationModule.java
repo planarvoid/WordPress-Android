@@ -99,6 +99,7 @@ public class ApplicationModule {
     public static final String LOW_PRIORITY = "LowPriority";
     public static final String MAIN_LOOPER = "MainLooper";
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
+    public static final String DEFAULT_LIST_PAGE_SIZE = "DefaultListPageSize";
 
     private final SoundCloudApplication application;
 
@@ -304,5 +305,11 @@ public class ApplicationModule {
     @Named(CURRENT_DATE_PROVIDER)
     public DateProvider provideCurrentDateProvider() {
         return new CurrentDateProvider();
+    }
+
+    @Provides
+    @Named(DEFAULT_LIST_PAGE_SIZE)
+    public int provideDefaultListPageSize() {
+        return Consts.LIST_PAGE_SIZE;
     }
 }
