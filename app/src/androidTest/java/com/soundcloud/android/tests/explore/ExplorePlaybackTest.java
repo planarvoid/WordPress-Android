@@ -36,15 +36,26 @@ public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
     public void testPlayingTrendingMusicTrack() {
         exploreScreen.touchTrendingMusicTab();
         String trackName = exploreScreen.getTrackTitle(0);
+        String trackName2 = exploreScreen.getTrackTitle(1);
+
         playerScreen = exploreScreen.playPopularTrack(0);
         assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName)));
+
+        playerScreen.swipeNext();
+        assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName2)));
     }
 
     public void testPlayingExploreGenreTrack() {
         exploreScreen.touchGenresTab();
+
         ExploreGenreCategoryScreen categoryScreen = exploreScreen.clickGenreItem("Ambient");
         String trackName = categoryScreen.getTrackTitle(0);
+        String trackName2 = categoryScreen.getTrackTitle(1);
+
         playerScreen = categoryScreen.playTrack(0);
         assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName)));
+
+        playerScreen.swipeNext();
+        assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName2)));
     }
 }
