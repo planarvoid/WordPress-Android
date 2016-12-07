@@ -28,6 +28,7 @@ enum Feature {
   ADJUST_DEFERRED_DEEPLINKS,
   CAST_V3,
   FLIPPER,
+  APPBOY,
   WELCOME_USER;
 }
 
@@ -54,6 +55,7 @@ android {
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.APPBOY.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -71,6 +73,7 @@ android {
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -86,6 +89,7 @@ android {
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
     }
 
     debug {
@@ -99,6 +103,7 @@ android {
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
     }
 
     release {
@@ -109,6 +114,7 @@ android {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
     }
 
     preRelease {
@@ -118,6 +124,7 @@ android {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
@@ -127,6 +134,7 @@ android {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
     }
   }
 }
