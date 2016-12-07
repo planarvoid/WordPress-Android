@@ -97,8 +97,6 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         cardEngagementsPresenter.bind(playlistView,
                                       playlistItem,
                                       getEventContextMetadataBuilder(module).build());
-        playlistView.tagList.setText(formatTags(playlistItem.getTags()));
-        playlistView.tagList.setVisibility(View.VISIBLE);
 
         playlistView.overflowButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,7 +157,8 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
         @BindView(R.id.track_count) TextView trackCount;
         @BindView(R.id.tracks_text) TextView tracksView;
-        @BindView(R.id.playlist_additional_info) TextView tagList;
+        @BindView(R.id.duration) TextView duration;
+        @BindView(R.id.genre) TextView genre;
 
         @BindView(R.id.image) ImageView image;
         @BindView(R.id.title) TextView title;
@@ -194,6 +193,18 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
                 repostButton.setChecked(reposted);
                 repostButton.setVisibility(View.VISIBLE);
             }
+        }
+
+        @Override
+        public void showDuration(String duration) {
+            this.duration.setText(duration);
+            this.duration.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void showGenre(String genre) {
+            this.genre.setText(String.format("#%s", genre));
+            this.genre.setVisibility(View.VISIBLE);
         }
 
         @Override

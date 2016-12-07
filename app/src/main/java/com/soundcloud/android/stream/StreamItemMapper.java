@@ -4,6 +4,7 @@ import static com.soundcloud.android.storage.TableColumns.PromotedTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.strings.Strings.isNotBlank;
 
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.EntityProperty;
@@ -64,6 +65,7 @@ public class StreamItemMapper {
                         Optional.fromNullable(cursorReader.getString(SoundView.ARTWORK_URL)));
 
         addDurations(cursorReader, propertySet, urn.isPlaylist());
+        addGenre(cursorReader, propertySet);
         addSetType(cursorReader, propertySet, urn.isTrack());
         addUserLike(cursorReader, propertySet);
         addUserRepost(cursorReader, propertySet);
@@ -112,6 +114,13 @@ public class StreamItemMapper {
         }
     }
 
+    private static void addGenre(CursorReader cursorReader, PropertySet propertySet) {
+        final String genre = cursorReader.getString(SoundView.GENRE);
+        if (isNotBlank(genre)) {
+            propertySet.put(PlayableProperty.GENRE, genre);
+        }
+    }
+
     private static void addTitle(CursorReader cursorReader, PropertySet propertySet) {
         final String string = cursorReader.getString(SoundView.TITLE);
         if (string == null) {
@@ -147,7 +156,7 @@ public class StreamItemMapper {
 
     private static void addOptionalReposter(CursorReader cursorReader, PropertySet propertySet) {
         final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
-        if (Strings.isNotBlank(reposter)) {
+        if (isNotBlank(reposter)) {
             propertySet.put(PostProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
             propertySet.put(PostProperty.REPOSTER_URN,
                             Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));

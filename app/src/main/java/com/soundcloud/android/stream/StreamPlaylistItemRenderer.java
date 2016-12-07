@@ -12,7 +12,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 
 import android.content.res.Resources;
@@ -24,7 +23,6 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 class StreamPlaylistItemRenderer implements CellRenderer<StreamItem.Playlist> {
 
@@ -76,7 +74,6 @@ class StreamPlaylistItemRenderer implements CellRenderer<StreamItem.Playlist> {
                                       playlistItem,
                                       getEventContextMetadataBuilder(playlistItem, position).build());
 
-        playlistView.showDuration(ScTextUtils.formatTimestamp(playlistItem.getDuration(), TimeUnit.MILLISECONDS));
         playlistView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {

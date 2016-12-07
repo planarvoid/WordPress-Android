@@ -10,7 +10,6 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
-import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
@@ -93,6 +92,7 @@ public class TrackItem extends PlayableItem implements TieredTrack {
         return PLAYABLE_TYPE;
     }
 
+    @Override
     public long getDuration() {
         return getTrackPlayDuration(source);
     }
@@ -107,10 +107,6 @@ public class TrackItem extends PlayableItem implements TieredTrack {
 
     public int getPlayCount() {
         return source.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
-    }
-
-    String getGenre() {
-        return source.getOrElse(TrackProperty.GENRE, Strings.EMPTY);
     }
 
     public void setIsPlaying(boolean isPlaying) {

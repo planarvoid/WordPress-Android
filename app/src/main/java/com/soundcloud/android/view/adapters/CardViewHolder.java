@@ -8,6 +8,10 @@ public interface CardViewHolder {
 
     void showRepostStats(String countString, boolean reposted);
 
+    void showDuration(String duration);
+
+    void showGenre(String genre);
+
     void setEngagementClickListener(CardEngagementClickListener cardEngagementClickListener);
 
     void hideRepostStats();

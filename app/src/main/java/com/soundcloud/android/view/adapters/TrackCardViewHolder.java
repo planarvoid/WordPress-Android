@@ -28,7 +28,8 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     @BindView(R.id.title) TextView title;
     @BindView(R.id.creator) TextView creator;
     @BindView(R.id.play_count) TextView playCount;
-
+    @BindView(R.id.duration) TextView duration;
+    @BindView(R.id.genre) TextView genre;
     @BindView(R.id.toggle_like) ToggleButton likeButton;
     @BindView(R.id.now_playing) View nowPlaying;
     @BindView(R.id.overflow_button) View overflowButton;
@@ -68,6 +69,18 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
             repostButton.setChecked(isUserReposted);
             repostButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void showDuration(String duration) {
+        this.duration.setText(duration);
+        this.duration.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showGenre(String genre) {
+        this.genre.setText(String.format("#%s", genre));
+        this.genre.setVisibility(View.VISIBLE);
     }
 
     @Override

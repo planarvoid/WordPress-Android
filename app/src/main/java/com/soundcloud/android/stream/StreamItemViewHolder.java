@@ -32,7 +32,8 @@ public class StreamItemViewHolder implements CardViewHolder {
     @BindView(R.id.creator) TextView creator;
 
     @BindView(R.id.play_count) TextView playCount;
-    @BindView(R.id.playlist_additional_info) TextView duration;
+    @BindView(R.id.duration) TextView duration;
+    @BindView(R.id.genre) TextView genre;
     @BindView(R.id.toggle_like) ToggleButton likeButton;
     @BindView(R.id.now_playing) View nowPlaying;
     @BindView(R.id.overflow_button) View overflowButton;
@@ -189,9 +190,16 @@ public class StreamItemViewHolder implements CardViewHolder {
         }
     }
 
-    public void showDuration(String playlistDuration) {
-        duration.setText(playlistDuration);
-        duration.setVisibility(View.VISIBLE);
+    @Override
+    public void showDuration(String duration) {
+        this.duration.setText(duration);
+        this.duration.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showGenre(String genre) {
+        this.genre.setText(String.format("#%s", genre));
+        this.genre.setVisibility(View.VISIBLE);
     }
 
     public void setPromoterClickable(View.OnClickListener clickListener) {

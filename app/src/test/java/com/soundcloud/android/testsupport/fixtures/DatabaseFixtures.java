@@ -94,6 +94,7 @@ public class DatabaseFixtures {
         cv.put(Tables.Sounds.SHARING, track.getSharing().value());
         cv.put(Tables.Sounds.CREATED_AT, track.getCreatedAt().getTime());
         cv.put(Tables.Sounds.DESCRIPTION, track.getDescription().orNull());
+        cv.put(Tables.Sounds.GENRE, track.getGenre());
 
         insertInto(Tables.Sounds.TABLE, cv.get());
         insertPolicy(track);

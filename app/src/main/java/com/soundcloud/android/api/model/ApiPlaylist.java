@@ -236,6 +236,7 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
                 PlaylistProperty.CREATOR_NAME.bind(getUsername()),
                 PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
                 PlaylistProperty.TAGS.bind(Optional.fromNullable(tags)),
+                PlaylistProperty.GENRE.bind(Optional.fromNullable(genre).or("")),
                 EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate),
                 PlaylistProperty.IS_ALBUM.bind(isAlbum()),
                 PlaylistProperty.SET_TYPE.bind(getSetType()),

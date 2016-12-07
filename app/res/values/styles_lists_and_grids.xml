@@ -247,6 +247,10 @@
         <item name="android:maxLines">1</item>
     </style>
 
+    <style name="Cards.InfoItem" parent="ListItemText.SecondaryText">
+        <item name="android:layout_marginLeft">0dp</item>
+    </style>
+
     <style name="Cards.ToggleButton" parent="ListItemText">
         <item name="android:layout_marginRight">8dp</item>
         <item name="android:minWidth">0dp</item>

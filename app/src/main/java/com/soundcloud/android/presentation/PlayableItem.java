@@ -85,6 +85,12 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
 
     abstract public String getPlayableType();
 
+    abstract public long getDuration();
+
+    public String getGenre() {
+        return source.getOrElse(PlayableProperty.GENRE, Strings.EMPTY);
+    }
+
     public String getTitle() {
         return source.getOrElse(PlayableProperty.TITLE, Strings.EMPTY);
     }

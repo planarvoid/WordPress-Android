@@ -365,7 +365,8 @@ public class StreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
                 TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()),
-                TrackProperty.SNIPPED.bind(track.isSnipped()));
+                TrackProperty.SNIPPED.bind(track.isSnipped()),
+                PlayableProperty.GENRE.bind(track.getGenre()));
     }
 
     private StreamPlayable createRepostedPlaylist(ApiPlaylist playlist, ApiUser reposter) {
@@ -400,7 +401,8 @@ public class StreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.IS_PRIVATE.bind(false),
                 PlaylistProperty.IS_ALBUM.bind(false),
                 PlaylistProperty.SET_TYPE.bind(""),
-                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
+                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()),
+                PlayableProperty.GENRE.bind(playlist.getGenre()));
     }
 
     private StreamPlayable createPromotedDataItem(ApiTrack track, ApiUser promoter) {
