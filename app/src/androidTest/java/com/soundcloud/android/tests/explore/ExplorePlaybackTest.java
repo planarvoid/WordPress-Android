@@ -23,7 +23,7 @@ public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.testUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.goTestUser.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override

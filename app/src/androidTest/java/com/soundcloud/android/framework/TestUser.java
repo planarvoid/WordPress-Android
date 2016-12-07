@@ -348,4 +348,11 @@ public class TestUser {
             "1-21686-218682740-522313271be9c6",
             218682740,
             true);
+    public static final TestUser goTestUser = new TestUser(
+            "scandroidtestgo",
+            "soundcloud.Android.ScAndroidTestGo@tests.soundcloud",
+            "SoundCloudTest2016",
+            "1-21686-273344775-9b75d0c91573f2",
+            273344775,
+            false);
 }
