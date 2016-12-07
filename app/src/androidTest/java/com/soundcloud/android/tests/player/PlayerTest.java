@@ -60,12 +60,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
-    public void testPlayerCollapsesWhenSwipingDown() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
-        solo.swipeDown();
-        assertThat(visualPlayerElement.isCollapsed(), is(true));
-    }
-
     public void testPlayerExpandsOnFooterTap() {
         visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressBackToCollapse();
