@@ -80,7 +80,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     private UncaughtExceptionHandlerController uncaughtExceptionHandlerController;
     private SharedPreferences sharedPreferences;
     private ApplicationProperties applicationProperties;
-    private PerformanceEngine performanceEngine;
 
     @Inject DevToolsHelper devTools;
     @Inject MigrationEngine migrationEngine;
@@ -145,8 +144,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void initializePerformanceEngine() {
-        performanceEngine = new PerformanceEngine(stopWatch, eventBus);
-        performanceEngine.trackStartupTime(this);
+        new PerformanceEngine(stopWatch, eventBus).trackStartupTime(this);
     }
 
     protected void bootApplication() {
