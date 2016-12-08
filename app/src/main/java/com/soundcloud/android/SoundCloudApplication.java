@@ -125,7 +125,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        initializePerformanceEngine();
         objectGraph = DaggerApplicationComponent.builder()
                                                 .applicationModule(new ApplicationModule(this))
                                                 .build();
@@ -147,6 +146,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void initializePerformanceEngine() {
         performanceEngine = new PerformanceEngine(stopWatch, eventBus);
+        performanceEngine.trackStartupTime(this);
     }
 
     protected void bootApplication() {
@@ -204,8 +204,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
-
-        performanceEngine.trackStartupTime(this);
     }
 
     private void configureCast() {
