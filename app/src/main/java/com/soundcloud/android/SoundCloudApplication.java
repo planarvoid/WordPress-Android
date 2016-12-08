@@ -68,16 +68,19 @@ import javax.inject.Inject;
 public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
+    // Performance: we want to start timing when the class loader loads classes.
+    private StopWatch stopWatch = new StopWatch();
+
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
     @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static SoundCloudApplication instance;
 
     // These are not injected because we need them before Dagger initializes
-    private PerformanceEngine performanceEngine;
     private UncaughtExceptionHandlerController uncaughtExceptionHandlerController;
     private SharedPreferences sharedPreferences;
     private ApplicationProperties applicationProperties;
+    private PerformanceEngine performanceEngine;
 
     @Inject DevToolsHelper devTools;
     @Inject MigrationEngine migrationEngine;
@@ -122,6 +125,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+        initializePerformanceEngine();
         objectGraph = DaggerApplicationComponent.builder()
                                                 .applicationModule(new ApplicationModule(this))
                                                 .build();
@@ -135,10 +139,14 @@ public class SoundCloudApplication extends MultiDexApplication {
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
 
-        performanceEngine.trackStartupTime(this);
         objectGraph.inject(this);
         devTools.initialize(this);
+        initializePerformanceEngine();
         bootApplication();
+    }
+
+    private void initializePerformanceEngine() {
+        performanceEngine = new PerformanceEngine(stopWatch, eventBus);
     }
 
     protected void bootApplication() {
@@ -196,6 +204,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
+
+        performanceEngine.trackStartupTime(this);
     }
 
     private void configureCast() {
@@ -207,7 +217,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void initializePreInjectionObjects() {
-        performanceEngine = new PerformanceEngine(new StopWatch());
         applicationProperties = new ApplicationProperties(getResources());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         uncaughtExceptionHandlerController = new UncaughtExceptionHandlerController(this, isReportingCrashes());

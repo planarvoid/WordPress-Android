@@ -3,12 +3,14 @@ package com.soundcloud.android.performance;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.performance.PerformanceEngine.ActivityLifecycle;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -23,22 +25,20 @@ public class PerformanceEngineTest extends AndroidUnitTest {
     private ActivityLifecycle activityLifecycle;
 
     @Mock private StopWatch stopWatch;
+    @Mock private EventBus eventBus;
     @Mock private Application application;
 
     @Before
     public void setUp() {
-        performanceEngine = new PerformanceEngine(stopWatch);
+        performanceEngine = new PerformanceEngine(stopWatch, eventBus);
         activityLifecycle = new ActivityLifecycle(application, stopWatch);
     }
 
     @Test
-    public void shouldStartStopWatchAndRegisterActivityCallbacks() {
-        final InOrder inOrder = inOrder(stopWatch, application);
-
+    public void shouldRegisterActivityCallbacks() {
         performanceEngine.trackStartupTime(application);
 
-        inOrder.verify(stopWatch).start();
-        inOrder.verify(application).registerActivityLifecycleCallbacks(any(ActivityLifecycle.class));
+        verify(application).registerActivityLifecycleCallbacks(any(ActivityLifecycle.class));
     }
 
     @Test

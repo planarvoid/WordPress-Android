@@ -2,7 +2,9 @@ package com.soundcloud.android.performance;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Activity;
 import android.app.Application;
@@ -14,13 +16,14 @@ public class PerformanceEngine {
     private static final String TAG = PerformanceEngine.class.getSimpleName();
 
     private final StopWatch stopWatch;
+    private final EventBus eventBus;
 
-    public PerformanceEngine(StopWatch stopWatch) {
+    public PerformanceEngine(StopWatch stopWatch, EventBus eventBus) {
         this.stopWatch = stopWatch;
+        this.eventBus = eventBus;
     }
 
     public void trackStartupTime(Application application) {
-        stopWatch.start();
         application.registerActivityLifecycleCallbacks(new ActivityLifecycle(application, stopWatch));
     }
 
@@ -43,9 +46,13 @@ public class PerformanceEngine {
         @Override
         public void onActivityResumed(Activity activity) {
             if (isApplicationMainScreen(activity)) {
-                application.unregisterActivityLifecycleCallbacks(this);
-                stopWatch.stop();
-                trackStartupTime(activity, stopWatch.getTotalTimeMillis());
+                try {
+                    application.unregisterActivityLifecycleCallbacks(this);
+                    stopWatch.stop();
+                    trackStartupTime(activity, stopWatch.getTotalTimeMillis());
+                } catch (Exception exception) {
+                    ErrorUtils.handleSilentException(exception);
+                }
             }
         }
 
@@ -66,8 +73,7 @@ public class PerformanceEngine {
         }
 
         private void trackStartupTime(Activity activity, long timeMillis) {
-            Log.d(TAG, "Activity: " + activity.getClass().getSimpleName() + "Startup time: " + timeMillis + " ms.");
-            //TODO: send data to the analytics provider coming in the next PR
+            Log.d(TAG, String.format("Activity: %s. Startup time: %s ms.", activity.getClass().getSimpleName(), timeMillis));
         }
     }
 }

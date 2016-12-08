@@ -6,7 +6,7 @@ import com.squareup.leakcanary.LeakCanary;
 
 import javax.inject.Inject;
 
-public class DevToolsHelper {
+class DevToolsHelper {
     private final ApplicationProperties applicationProperties;
 
     @Inject

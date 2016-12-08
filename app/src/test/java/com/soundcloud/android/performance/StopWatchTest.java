@@ -18,15 +18,7 @@ public class StopWatchTest {
     }
 
     @Test
-    public void mustResetStopWatch() {
-        stopWatch.reset();
-
-        assertThat(stopWatch.getTotalTimeMillis()).isZero();
-    }
-
-    @Test
-    public void mustStartStopWatch() throws InterruptedException {
-        stopWatch.start();
+    public void mustStartStopWatchAtCreation() throws InterruptedException {
         Thread.sleep(5);
         stopWatch.stop();
 
