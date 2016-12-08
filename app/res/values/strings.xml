@@ -626,6 +626,8 @@
     <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
     <string name="media_route_menu_title">Cast</string>
+    <string name="cast_introductory_overlay_title">Cast SoundCloud</string>
+    <string name="cast_introductory_overlay_description">Tap to cast music to your TV and Cast enabled speakers</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted">Promoted</string>

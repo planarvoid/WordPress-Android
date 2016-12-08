@@ -1,5 +1,8 @@
 package com.soundcloud.android.framework.helpers;
 
+import static com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey.CHROMECAST;
+import static com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey.PLAY_QUEUE;
+
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.configuration.FeatureName;
@@ -42,6 +45,8 @@ public class ConfigurationHelper {
     private static final String TAG = "TestRunner";
 
     private static final Upsell HIGH_TIER = new Upsell(Plan.HIGH_TIER.planId, 0);
+
+    private static final String[] INTRODUCTORY_OVERLAYS_KEYS = {PLAY_QUEUE, CHROMECAST};
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
@@ -216,10 +221,11 @@ public class ConfigurationHelper {
                 .commit();
     }
 
-    public static void disableIntroductoryOverlay(Context context, String key) {
-        getIntroductoryOverlayPreferences(context)
-                .edit()
-                .putBoolean(key, true)
-                .apply();
+    public static void disableIntroductoryOverlays(Context context) {
+        SharedPreferences.Editor editor = getIntroductoryOverlayPreferences(context).edit();
+        for (String key : INTRODUCTORY_OVERLAYS_KEYS) {
+            editor.putBoolean(key, true);
+        }
+        editor.apply();
     }
 }

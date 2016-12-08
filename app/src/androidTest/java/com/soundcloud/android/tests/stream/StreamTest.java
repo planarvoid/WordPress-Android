@@ -9,16 +9,12 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import org.hamcrest.core.Is;
-
-import android.content.Context;
 
 public class StreamTest extends TrackingActivityTest<LauncherActivity> {
     private static final String TEST_SCENARIO_STREAM = "audio-events-v1-stream";
@@ -40,8 +36,6 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        Context context = getInstrumentation().getTargetContext();
-        ConfigurationHelper.disableIntroductoryOverlay(context, IntroductoryOverlayKey.PLAY_QUEUE);
         streamScreen = new StreamScreen(solo);
     }
 

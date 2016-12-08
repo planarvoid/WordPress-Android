@@ -2,7 +2,6 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -20,7 +19,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class MainActivity extends PlayerActivity implements CastConnectionHelper.OnConnectionChangeListener {
+public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
     @Inject Lazy<DefaultCastSessionController> castSessionController;
@@ -101,7 +100,6 @@ public class MainActivity extends PlayerActivity implements CastConnectionHelper
     protected void onResume() {
         super.onResume();
         setupUpgradeUpsell();
-        castConnectionHelper.addOnConnectionChangeListener(this);
     }
 
     @Override
@@ -115,7 +113,6 @@ public class MainActivity extends PlayerActivity implements CastConnectionHelper
     protected void onPause() {
         super.onPause();
         castSessionController.get().onPause(this);
-        castConnectionHelper.removeOnConnectionChangeListener(this);
     }
 
     @Override
@@ -125,6 +122,7 @@ public class MainActivity extends PlayerActivity implements CastConnectionHelper
 
     @Override
     public void onCastUnavailable() {
+        super.onCastUnavailable();
         if (featureFlags.isEnabled(Flag.CAST_V3)) {
             mainPresenter.hideToolbar();
         }
@@ -135,5 +133,6 @@ public class MainActivity extends PlayerActivity implements CastConnectionHelper
         if (featureFlags.isEnabled(Flag.CAST_V3)) {
             mainPresenter.showToolbar();
         }
+        super.onCastAvailable();
     }
 }

@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.with.With;
@@ -58,12 +59,14 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         networkManagerClient.bind();
         networkManagerClient.switchWifiOn();
 
+        // the introductory overlay blocks interaction with the player, so disable it
+        ConfigurationHelper.disableIntroductoryOverlays(getInstrumentation().getTargetContext());
+
         beforeLogIn();
         logIn();
         observeToasts();
         beforeStartActivity();
         getActivity();
-
 
         mainNavHelper = new MainNavigationHelper(solo);
 

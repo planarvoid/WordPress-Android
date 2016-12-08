@@ -764,10 +764,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void showingPlayQueueIntroductoryOverlayForwardsCallToPresenterWithCorrectParameters() {
         presenter.showIntroductoryOverlayForPlayQueue(trackView);
 
-        verify(introductoryOverlayPresenter).show(IntroductoryOverlayKey.PLAY_QUEUE,
-                                                  getHolder(trackView).playQueueButton,
-                                                  resources().getString(R.string.play_queue_introductory_overlay_title),
-                                                  resources().getString(R.string.play_queue_introductory_overlay_description));
+        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlayKey.PLAY_QUEUE,
+                                                          getHolder(trackView).playQueueButton,
+                                                          resources().getString(R.string.play_queue_introductory_overlay_title),
+                                                          resources().getString(R.string.play_queue_introductory_overlay_description));
     }
 
     private TrackPageHolder getHolder(View trackView) {

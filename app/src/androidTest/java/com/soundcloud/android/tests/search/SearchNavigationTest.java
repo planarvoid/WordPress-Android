@@ -6,8 +6,6 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -33,7 +31,6 @@ public class SearchNavigationTest extends TrackingActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        ConfigurationHelper.disableIntroductoryOverlay(getInstrumentation().getTargetContext(), IntroductoryOverlayKey.PLAY_QUEUE);
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
 

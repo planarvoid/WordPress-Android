@@ -8,9 +8,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
@@ -22,7 +20,6 @@ import com.soundcloud.android.tests.TestConsts;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 
-import android.content.Context;
 import android.content.Intent;
 
 public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
@@ -64,8 +61,6 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.OTHER_PROFILE_USER_URI));
         super.setUp();
 
-        Context context = getInstrumentation().getTargetContext();
-        ConfigurationHelper.disableIntroductoryOverlay(context, IntroductoryOverlayKey.PLAY_QUEUE);
         profileScreen = new ProfileScreen(solo);
     }
 

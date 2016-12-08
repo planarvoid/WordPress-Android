@@ -217,9 +217,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void showIntroductoryOverlayForPlayQueue(View trackView) {
         final View playQueueButton = getViewHolder(trackView).playQueueButton;
-        introductoryOverlayPresenter.show(IntroductoryOverlayKey.PLAY_QUEUE,
-                playQueueButton, resources.getString(R.string.play_queue_introductory_overlay_title),
-                resources.getString(R.string.play_queue_introductory_overlay_description));
+        introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.PLAY_QUEUE,
+                                                  playQueueButton, resources.getString(R.string.play_queue_introductory_overlay_title),
+                                                  resources.getString(R.string.play_queue_introductory_overlay_description));
     }
 
     @Override

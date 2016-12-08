@@ -8,26 +8,15 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-
-import android.content.Context;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
     private VisualPlayerElement player;
 
     public PlayerTest() {
         super(MainActivity.class);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        Context context = getInstrumentation().getTargetContext();
-        ConfigurationHelper.disableIntroductoryOverlay(context, IntroductoryOverlayKey.PLAY_QUEUE);
     }
 
     @Override

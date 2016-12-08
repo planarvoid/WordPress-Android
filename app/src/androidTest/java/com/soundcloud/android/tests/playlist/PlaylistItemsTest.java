@@ -8,7 +8,6 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
@@ -40,7 +39,6 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     @Override
     protected void setUp() throws Exception {
         context = getInstrumentation().getTargetContext();
-        ConfigurationHelper.disableIntroductoryOverlay(context, IntroductoryOverlayKey.PLAY_QUEUE);
         super.setUp();
         playlist = String.valueOf(System.currentTimeMillis());
     }

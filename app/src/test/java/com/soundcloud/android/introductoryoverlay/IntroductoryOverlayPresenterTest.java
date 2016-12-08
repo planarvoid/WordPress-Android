@@ -30,7 +30,7 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
     public void noOpIfOverlayWasAlreadyShown() {
         when(operations.wasOverlayShown(fakeKey)).thenReturn(true);
 
-        presenter.show(fakeKey, overlayTargetView, "tt", "ds");
+        presenter.showIfNeeded(fakeKey, overlayTargetView, "tt", "ds");
 
         verify(operations, never()).setOverlayShown(fakeKey);
     }
@@ -39,7 +39,7 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
     public void markOverlayAsShownAfterFirstTimeShown() {
         when(operations.wasOverlayShown(fakeKey)).thenReturn(false);
 
-        presenter.show(fakeKey, overlayTargetView, "tt", "ds");
+        presenter.showIfNeeded(fakeKey, overlayTargetView, "tt", "ds");
 
         verify(operations).setOverlayShown(fakeKey);
     }

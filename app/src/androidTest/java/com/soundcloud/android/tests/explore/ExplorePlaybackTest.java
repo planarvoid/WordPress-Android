@@ -5,8 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
@@ -29,7 +27,6 @@ public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        ConfigurationHelper.disableIntroductoryOverlay(getInstrumentation().getTargetContext(), IntroductoryOverlayKey.PLAY_QUEUE);
         exploreScreen = mainNavHelper.goToExplore();
     }
 

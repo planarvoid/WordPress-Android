@@ -11,6 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.support.annotation.IdRes;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -24,14 +27,23 @@ public class IntroductoryOverlayPresenter {
         this.introductoryOverlayOperations = introductoryOverlayOperations;
     }
 
-    public void show(String overlayKey,
-                     final View targetView, CharSequence title, CharSequence description) {
+    public void showIfNeeded(String overlayKey,
+                             final View targetView, CharSequence title, CharSequence description) {
         if (!introductoryOverlayOperations.wasOverlayShown(overlayKey)) {
             final Activity activity = getActivity(targetView);
             if (activity != null) {
                 show(activity, targetView, title, description);
                 introductoryOverlayOperations.setOverlayShown(overlayKey);
             }
+        }
+    }
+
+    public void showForMenuItemIfNeeded(String overlayKey, Toolbar toolbar, @IdRes int menuItemIdRes,
+                                        CharSequence title, CharSequence description) {
+        Menu menu = toolbar.getMenu();
+        if (menu != null && menu.findItem(menuItemIdRes) != null) {
+            View view = menu.findItem(menuItemIdRes).getActionView();
+            showIfNeeded(overlayKey, view, title, description);
         }
     }
 

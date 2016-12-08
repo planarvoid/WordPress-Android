@@ -7,9 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.PlayerHelper;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -24,12 +22,6 @@ public class EngagementTest extends ActivityTest<MainActivity> {
     @Override
     protected void logInHelper() {
         TestUser.privateUser.logIn(getInstrumentation().getTargetContext());
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        ConfigurationHelper.disableIntroductoryOverlay(getInstrumentation().getTargetContext(), IntroductoryOverlayKey.PLAY_QUEUE);
     }
 
     public void testPrivateTrackHasDisabledShareAndRepost() {
