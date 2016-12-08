@@ -37,3 +37,17 @@ allprojects {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
 }
+
+task deployDevDebug(type: Exec, dependsOn: 'app:installDevDebug') {
+  def rootDir = project.rootDir
+  def localProperties = new File(rootDir, "local.properties")
+  if (localProperties.exists()) {
+    Properties properties = new Properties()
+    localProperties.withInputStream {
+      inputStream -> properties.load(inputStream)
+    }
+    def sdkDir = properties.getProperty('sdk.dir')
+    def adb = "$sdkDir/platform-tools/adb"
+    commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.soundcloud.android.debug/com.soundcloud.android.main.LauncherActivity'
+  }
+}
