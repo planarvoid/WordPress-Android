@@ -169,6 +169,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     }
 
     protected final void logIn() {
+
         logInHelper();
     }
 

@@ -2,6 +2,8 @@ package com.soundcloud.android.framework;
 
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.content.Context;
 
@@ -24,6 +26,8 @@ public class TestUser {
     private final String permalink, email, password;
     private final boolean subgenieExempt;
     private Token token;
+    private static final int MAX_RETRIES = 3;
+
     public static String generateEmail() {
         return "someemail-" + System.currentTimeMillis() + "@tests.soundcloud";
     }
@@ -54,31 +58,35 @@ public class TestUser {
     }
 
     public boolean logIn(Context context) {
-        int maxRetries = 3;
         int tryCount = 0;
-        boolean result = false;
-        boolean shouldRetry = true;
-        while (shouldRetry) {
+        boolean accountAdded = false;
+        do {
             try {
                 tryCount++;
                 PublicApiUser loggedInUser = AccountAssistant.getLoggedInUser(token.getAccessToken());
-                result = AccountAssistant.addAccountAndEnableSync(context, token, loggedInUser.toApiMobileUser());
-            } catch (IOException e) {
-                if (tryCount > maxRetries) {
-                    throw new AssertionError("error logging in: " + e.getMessage());
-                }
+                accountAdded = AccountAssistant.addAccountAndEnableSync(context, token, loggedInUser.toApiMobileUser());
+            } catch (IOException e) {it
+                Log.e(AccountAssistant.TAG, "Error fetching account data", e);
+                cycleWifi(context);
             }
-            try {
-                shouldRetry = !result;
-                if (!result) {
-                    Thread.sleep(5000);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
+        } while (!accountAdded && tryCount <= MAX_RETRIES);
+
+        return accountAdded;
     }
+
+    private void cycleWifi(Context context) {
+        // this should fix a phantom connection (connected to wifi, not to the internet)
+        NetworkManagerClient networkManagerClient = new NetworkManagerClient(context);
+        networkManagerClient.switchWifiOff();
+        networkManagerClient.switchWifiOn();
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static final TestUser defaultUser = new TestUser(
             "android-testing",
