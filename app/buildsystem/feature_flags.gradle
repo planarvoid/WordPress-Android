@@ -27,7 +27,6 @@ enum Feature {
   AUTOCOMPLETE,
   ADJUST_DEFERRED_DEEPLINKS,
   CAST_V3,
-  FLIPPER,
   APPBOY,
   WELCOME_USER;
 }
@@ -53,7 +52,6 @@ android {
     buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APPBOY.name(), UNDER_DEVELOPMENT
   }
@@ -70,7 +68,6 @@ android {
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
