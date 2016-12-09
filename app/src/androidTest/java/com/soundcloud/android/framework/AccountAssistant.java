@@ -35,21 +35,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public final class AccountAssistant {
 
-    private static final long INJECTION_TIMEOUT = 10000;
-
     private AccountAssistant() {
     }
 
-    private static final String TAG = AccountAssistant.class.getSimpleName();
+    static final String TAG = AccountAssistant.class.getSimpleName();
 
     private static final Lock lock = new ReentrantLock();
     private static final Condition accountDataCleaned = lock.newCondition();
-
-    protected static Token setToken(Context context, Token token) throws IOException {
-        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
-        application.getAccountOperations().updateToken(token);
-        return token;
-    }
 
     static boolean addAccountAndEnableSync(Context context, Token token, ApiUser user) {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
@@ -57,31 +49,11 @@ public final class AccountAssistant {
         return application.addUserAccountAndEnableSync(user, token, SignupVia.NONE);
     }
 
-    // Dirty workaround :
-    //      we wait on the integration tests thread for the application
-    //      to perform injection in order to mutate the application.
-    //
-    // A real user can't face this race condition.
-    private static void waitForAccountOperationsToBeInjected(Context context) {
-        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
-        final int waitingTimeBetweenEachAttempt = 200;
-        final int maxAttempt = (int) INJECTION_TIMEOUT / waitingTimeBetweenEachAttempt;
-
-        for (int attempt = 0; application.getAccountOperations() == null && attempt < maxAttempt; attempt++) {
-            try {
-                Log.i(TAG, "Login: waiting for the application to be ready #" + attempt);
-                Thread.sleep(waitingTimeBetweenEachAttempt);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
         return logOut(instrumentation.getTargetContext());
     }
 
-    public static boolean logOut(Context context) throws Exception {
+    private static boolean logOut(Context context) throws Exception {
         Log.i(TAG, "Logging out");
         for (Account account : getAccounts(context)) {
             AccountManager.get(context).removeAccount(account, null, null).getResult(3, TimeUnit.SECONDS);
@@ -107,7 +79,7 @@ public final class AccountAssistant {
         return result;
     }
 
-    static Subscription accountDataCleanup(Context context) {
+    private static Subscription accountDataCleanup(Context context) {
         return SoundCloudApplication.fromContext(context).getEventBus().subscribe(
                 EventQueue.CURRENT_USER_CHANGED, new DefaultSubscriber<CurrentUserChangedEvent>() {
 
@@ -124,7 +96,7 @@ public final class AccountAssistant {
                 });
     }
 
-    static void waitForAccountDataCleanup(Subscription subscription) throws Exception {
+    private static void waitForAccountDataCleanup(Subscription subscription) throws Exception {
         lock.lock();
         // wait for the data cleanup action
         try {
@@ -153,7 +125,11 @@ public final class AccountAssistant {
     }
 
     static PublicApiUser getLoggedInUser(String accessToken) throws IOException {
-        OkHttpClient okHttpClient = new OkHttpClient();
+        OkHttpClient okHttpClient =  new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
+
         Request request = new Request.Builder()
                 .url("http://api.soundcloud.com/me?"+ ApiRequest.Param.OAUTH_TOKEN + "=" + accessToken)
                 .build();
