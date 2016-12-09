@@ -69,7 +69,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
     // Performance: we want to start timing when the class loader loads classes.
-    private StopWatch stopWatch = new StopWatch();
+    private StopWatch stopWatch = StopWatch.start();
 
     // Remove these fields when we've moved to a full DI solution
     @Deprecated

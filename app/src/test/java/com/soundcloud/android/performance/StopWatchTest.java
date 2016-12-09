@@ -14,7 +14,7 @@ public class StopWatchTest {
 
     @Before
     public void setUp() {
-        stopWatch = new StopWatch();
+        stopWatch = StopWatch.start();
     }
 
     @Test

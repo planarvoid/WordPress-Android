@@ -6,9 +6,13 @@ public class StopWatch {
     private long startTime;
     private long endTime;
 
-    public StopWatch() {
+    private StopWatch() {
         startTime = System.nanoTime();
         endTime = 0;
+    }
+
+    public static StopWatch start() {
+        return new StopWatch();
     }
 
     void stop() {
