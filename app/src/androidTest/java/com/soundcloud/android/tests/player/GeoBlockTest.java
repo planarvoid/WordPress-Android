@@ -21,8 +21,8 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.freeNonMonetizedUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.freeNonMonetizedUser;
     }
 
     @Override

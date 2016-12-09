@@ -30,8 +30,8 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.playlistUser;
     }
 
     @Override

@@ -31,8 +31,8 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.likesUser;
     }
 
     @Ignore

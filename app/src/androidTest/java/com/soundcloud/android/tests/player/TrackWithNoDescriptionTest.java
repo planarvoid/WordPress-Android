@@ -15,8 +15,8 @@ import android.net.Uri;
 public class TrackWithNoDescriptionTest extends ResolveBaseTest {
 
     @Override
-    protected void logInHelper() {
-        TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.playerUser;
     }
 
     @Override

@@ -27,8 +27,8 @@ public class GoOffboardingTrackingTest extends TrackingActivityTest<GoOffboardin
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.htCreator.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.htCreator;
     }
 
     @Override

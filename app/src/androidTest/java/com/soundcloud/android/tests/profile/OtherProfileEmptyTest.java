@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.profile;
 import static com.soundcloud.android.framework.TestUser.playerUser;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -18,8 +19,8 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        playerUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return playerUser;
     }
 
     @Override

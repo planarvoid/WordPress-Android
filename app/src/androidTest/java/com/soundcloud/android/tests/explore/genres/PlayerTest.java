@@ -22,8 +22,8 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.streamUser;
     }
 
     @Override

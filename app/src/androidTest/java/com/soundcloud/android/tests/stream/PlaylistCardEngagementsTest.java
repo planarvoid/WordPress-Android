@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
@@ -21,8 +22,13 @@ public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        followingOneTrackOnePlaylistUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return followingOneTrackOnePlaylistUser;
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
         streamScreen = new StreamScreen(solo);
     }
 

@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
@@ -27,8 +28,8 @@ public class FacebookInvitesTest extends TrackingActivityTest<LauncherActivity> 
     }
 
     @Override
-    protected void logInHelper() {
-        streamUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return streamUser;
     }
 
     public void testShouldHideFacebookInvitesNotification() {

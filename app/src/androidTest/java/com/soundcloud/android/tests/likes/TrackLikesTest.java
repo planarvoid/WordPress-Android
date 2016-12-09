@@ -26,8 +26,8 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.likesUser;
     }
 
     public void testLikesScreen() throws Exception {

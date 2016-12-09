@@ -8,6 +8,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -52,8 +53,8 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        profileEntryUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return profileEntryUser;
     }
 
     @Override

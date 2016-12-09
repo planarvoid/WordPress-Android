@@ -13,8 +13,8 @@ public class TrackRecommendationsTrackingTest extends TrackingActivityTest<MainA
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.defaultUser;
     }
 
     public void testStartPlaybackFromReasonOnDiscoveryScreen() {

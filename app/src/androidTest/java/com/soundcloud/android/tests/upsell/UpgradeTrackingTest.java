@@ -20,8 +20,12 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.upsellUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.upsellUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 

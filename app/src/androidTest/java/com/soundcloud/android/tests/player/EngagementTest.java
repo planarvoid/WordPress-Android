@@ -20,8 +20,8 @@ public class EngagementTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.privateUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.privateUser;
     }
 
     public void testPrivateTrackHasDisabledShareAndRepost() {

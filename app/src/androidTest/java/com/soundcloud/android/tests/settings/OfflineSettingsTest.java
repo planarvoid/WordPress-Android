@@ -35,8 +35,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.offlineUser;
     }
 
     @Override

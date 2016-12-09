@@ -4,6 +4,7 @@ import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
@@ -170,12 +171,15 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         return FeatureFlagsHelper.create(getActivity().getApplicationContext());
     }
 
-    protected final void logIn() {
-
-        logInHelper();
+    private void logIn() {
+        TestUser testUser = getUserForLogin();
+        if (testUser != null) {
+            AccountAssistant.loginWith(getInstrumentation().getTargetContext(), testUser, networkManagerClient);
+        }
     }
 
-    protected void logInHelper() {
+    protected TestUser getUserForLogin() {
+        return null;
     }
 
     private void observeToasts() {

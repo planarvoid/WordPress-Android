@@ -20,8 +20,8 @@ public class LikedStationsTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.stationsUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.stationsUser;
     }
 
     @Override

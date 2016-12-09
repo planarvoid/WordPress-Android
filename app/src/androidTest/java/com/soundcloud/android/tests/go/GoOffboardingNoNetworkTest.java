@@ -32,8 +32,8 @@ public class GoOffboardingNoNetworkTest extends ActivityTest<GoOffboardingActivi
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.htCreator.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.htCreator;
     }
 
     public void testCanRetryContinueOnNetworkErrors() throws Exception {

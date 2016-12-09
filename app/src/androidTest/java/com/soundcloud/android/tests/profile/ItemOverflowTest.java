@@ -5,6 +5,7 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -19,8 +20,8 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        streamUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return streamUser;
     }
 
     @Override

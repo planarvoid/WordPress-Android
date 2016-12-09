@@ -23,8 +23,8 @@ public class ChartsTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.chartsTestUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.chartsTestUser;
     }
 
     @Override

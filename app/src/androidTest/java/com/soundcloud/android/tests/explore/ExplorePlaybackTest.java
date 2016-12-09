@@ -20,8 +20,8 @@ public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.goTestUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.goTestUser;
     }
 
     @Override
@@ -36,6 +36,8 @@ public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
         String trackName2 = exploreScreen.getTrackTitle(1);
 
         playerScreen = exploreScreen.playPopularTrack(0);
+        playerScreen.waitForExpandedPlayerToStartPlaying();
+
         assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName)));
 
         playerScreen.swipeNext();
@@ -50,6 +52,8 @@ public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
         String trackName2 = categoryScreen.getTrackTitle(1);
 
         playerScreen = categoryScreen.playTrack(0);
+        playerScreen.waitForExpandedPlayerToStartPlaying();
+
         assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName)));
 
         playerScreen.swipeNext();

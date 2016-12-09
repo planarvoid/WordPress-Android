@@ -20,8 +20,8 @@ public class QueueExplosionTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.playlistExplosionUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.playlistExplosionUser;
     }
 
     public void testExplodesStreamPlaylist() {

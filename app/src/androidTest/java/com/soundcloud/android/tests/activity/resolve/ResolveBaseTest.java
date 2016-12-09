@@ -1,8 +1,7 @@
 package com.soundcloud.android.tests.activity.resolve;
 
-import static com.soundcloud.android.framework.TestUser.defaultUser;
-
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
@@ -18,8 +17,8 @@ public abstract class ResolveBaseTest extends TrackingActivityTest<ResolveActivi
     protected abstract Uri getUri();
 
     @Override
-    protected void logInHelper() {
-        defaultUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.defaultUser;
     }
 
     @Override

@@ -15,8 +15,8 @@ public class PlayerTrackingTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.playerUser;
     }
 
     @Override

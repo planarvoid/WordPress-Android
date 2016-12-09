@@ -24,8 +24,8 @@ public class SearchNavigationTest extends TrackingActivityTest<MainActivity> {
 
 
     @Override
-    protected void logInHelper() {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.defaultUser;
     }
 
     @Override

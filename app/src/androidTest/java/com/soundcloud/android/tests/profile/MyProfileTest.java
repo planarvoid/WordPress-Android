@@ -13,8 +13,8 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.profileTestUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.profileTestUser;
     }
 
     @Override

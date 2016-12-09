@@ -23,8 +23,8 @@ public class ProfileInfoTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.profileUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.profileUser;
     }
 
     @Override

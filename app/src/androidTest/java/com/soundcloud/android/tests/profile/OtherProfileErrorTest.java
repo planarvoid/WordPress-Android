@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -18,8 +19,8 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        profileEntryUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return profileEntryUser;
     }
 
     @Override

@@ -6,6 +6,7 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -19,8 +20,8 @@ public class EmptyStreamTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        emptyUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return emptyUser;
     }
 
     @Override

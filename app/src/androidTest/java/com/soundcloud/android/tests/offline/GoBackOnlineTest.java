@@ -40,8 +40,8 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.offlineUser;
     }
 
     public void testRemovesOfflinePlaylistAfter30DaysOffline() {

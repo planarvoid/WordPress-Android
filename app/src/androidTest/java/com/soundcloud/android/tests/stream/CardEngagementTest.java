@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
@@ -33,8 +34,8 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        streamUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return streamUser;
     }
 
     public void testStreamItemActions() {

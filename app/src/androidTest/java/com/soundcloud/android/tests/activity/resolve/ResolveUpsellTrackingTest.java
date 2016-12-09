@@ -2,6 +2,8 @@ package com.soundcloud.android.tests.activity.resolve;
 
 import static com.soundcloud.android.framework.TestUser.upsellUser;
 
+import com.soundcloud.android.framework.TestUser;
+
 import android.net.Uri;
 
 public class ResolveUpsellTrackingTest extends ResolveBaseTest {
@@ -14,13 +16,13 @@ public class ResolveUpsellTrackingTest extends ResolveBaseTest {
     }
 
     @Override
-    protected void beforeStartActivity() {
-        startEventTracking();
+    protected TestUser getUserForLogin() {
+        return upsellUser;
     }
 
     @Override
-    protected void logInHelper() {
-        upsellUser.logIn(getInstrumentation().getTargetContext());
+    protected void beforeStartActivity() {
+        startEventTracking();
     }
 
     public void testResolveUpsellTracksRefParam() {

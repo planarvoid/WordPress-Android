@@ -16,8 +16,8 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.deletePlaylistUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.deletePlaylistUser;
     }
 
     public void testDeletePlaylistFromOverFlowMenu() {

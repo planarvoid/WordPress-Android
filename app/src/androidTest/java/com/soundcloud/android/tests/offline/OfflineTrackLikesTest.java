@@ -27,8 +27,8 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.offlineUser;
     }
 
     @Override

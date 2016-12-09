@@ -18,8 +18,8 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.likesActionUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.likesActionUser;
     }
 
     // *** Ignore until we come up with a good way to prevent like actions from getting synced ***

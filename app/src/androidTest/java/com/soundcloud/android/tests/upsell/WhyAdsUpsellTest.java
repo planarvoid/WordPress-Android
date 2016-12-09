@@ -20,8 +20,12 @@ public class WhyAdsUpsellTest extends AdBaseTest {
     private static final String WHY_ADS_UPSELL_TEST_SCENARIO = "why-ads-upsell-tracking-test";
 
     @Override
-    protected void logInHelper() {
-        TestUser.upsellUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.upsellUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 

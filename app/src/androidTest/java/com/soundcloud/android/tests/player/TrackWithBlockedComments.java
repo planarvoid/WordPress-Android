@@ -20,8 +20,8 @@ public class TrackWithBlockedComments extends ResolveBaseTest {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.playerUser;
     }
 
     public void testShowDescription() {

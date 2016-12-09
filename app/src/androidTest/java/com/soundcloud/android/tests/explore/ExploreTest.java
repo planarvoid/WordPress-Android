@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreScreen;
@@ -21,8 +22,8 @@ public class ExploreTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        testUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return testUser;
     }
 
     @Override

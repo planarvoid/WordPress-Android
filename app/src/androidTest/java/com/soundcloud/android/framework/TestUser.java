@@ -1,13 +1,6 @@
 package com.soundcloud.android.framework;
 
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
-
-import android.content.Context;
-
-import java.io.IOException;
 
 /* *********************************************************************************************************************
 
@@ -25,8 +18,7 @@ Also be sure to set the subgenieExempt field to the appropriate value if the use
 public class TestUser {
     private final String permalink, email, password;
     private final boolean subgenieExempt;
-    private Token token;
-    private static final int MAX_RETRIES = 3;
+    Token token;
 
     public static String generateEmail() {
         return "someemail-" + System.currentTimeMillis() + "@tests.soundcloud";
@@ -56,37 +48,6 @@ public class TestUser {
     public String getPassword() {
         return this.password;
     }
-
-    public boolean logIn(Context context) {
-        int tryCount = 0;
-        boolean accountAdded = false;
-        do {
-            try {
-                tryCount++;
-                PublicApiUser loggedInUser = AccountAssistant.getLoggedInUser(token.getAccessToken());
-                accountAdded = AccountAssistant.addAccountAndEnableSync(context, token, loggedInUser.toApiMobileUser());
-            } catch (IOException e) {
-                Log.e(AccountAssistant.TAG, "Error fetching account data", e);
-                cycleWifi(context);
-            }
-        } while (!accountAdded && tryCount <= MAX_RETRIES);
-
-        return accountAdded;
-    }
-
-    private void cycleWifi(Context context) {
-        // this should fix a phantom connection (connected to wifi, not to the internet)
-        NetworkManagerClient networkManagerClient = new NetworkManagerClient(context);
-        networkManagerClient.switchWifiOff();
-        networkManagerClient.switchWifiOn();
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     public static final TestUser defaultUser = new TestUser(
             "android-testing",

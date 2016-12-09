@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.LauncherActivity;
@@ -29,8 +30,8 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        streamUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return streamUser;
     }
 
     @Override

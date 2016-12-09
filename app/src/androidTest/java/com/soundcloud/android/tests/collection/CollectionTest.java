@@ -21,8 +21,8 @@ public class CollectionTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.collectionUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.collectionUser;
     }
 
     public void testCollection() {

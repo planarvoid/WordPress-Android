@@ -19,8 +19,8 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.offlineEmptyUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.offlineEmptyUser;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.search.intents;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -15,8 +16,8 @@ public abstract class SearchIntentsBaseTest extends ActivityTest<SearchActivity>
     }
 
     @Override
-    protected void logInHelper() {
-        defaultUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return defaultUser;
     }
 
     @Override

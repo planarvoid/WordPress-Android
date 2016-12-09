@@ -21,14 +21,13 @@ public class ActivitiesTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.testUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.testUser;
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
         waiter = new Waiter(solo);
     }
 

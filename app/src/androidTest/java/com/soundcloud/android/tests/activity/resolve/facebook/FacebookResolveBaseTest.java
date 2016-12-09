@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.activity.resolve.facebook;
 
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -15,8 +16,8 @@ public abstract class FacebookResolveBaseTest extends ActivityTest<MainActivity>
     }
 
     @Override
-    protected void logInHelper() {
-        defaultUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return defaultUser;
     }
 
     @Override

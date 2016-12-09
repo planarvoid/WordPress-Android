@@ -16,8 +16,8 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return TestUser.defaultUser;
     }
 
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {

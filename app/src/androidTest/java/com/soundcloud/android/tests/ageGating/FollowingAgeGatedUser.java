@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.TestUser.over21user;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -15,8 +16,8 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        over21user.logIn(getInstrumentation().getTargetContext());
+    protected TestUser getUserForLogin() {
+        return over21user;
     }
 
     // *** Disable until we come up with a way to prevent syncing of certain events ***
