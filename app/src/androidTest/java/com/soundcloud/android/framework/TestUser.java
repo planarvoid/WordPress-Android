@@ -65,7 +65,7 @@ public class TestUser {
                 tryCount++;
                 PublicApiUser loggedInUser = AccountAssistant.getLoggedInUser(token.getAccessToken());
                 accountAdded = AccountAssistant.addAccountAndEnableSync(context, token, loggedInUser.toApiMobileUser());
-            } catch (IOException e) {it
+            } catch (IOException e) {
                 Log.e(AccountAssistant.TAG, "Error fetching account data", e);
                 cycleWifi(context);
             }
