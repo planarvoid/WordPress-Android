@@ -209,6 +209,24 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
 
 
     @NonNull
+    private void setupFailedPushBadRequest(String body) throws Exception {
+        mockApiFollowingsResponse(Collections.<ApiFollowing>emptyList());
+        when(userAssociationStorage.loadFollowedUserIds()).thenReturn(Collections.<Long>emptySet());
+        when(userAssociationStorage.hasStaleFollowings()).thenReturn(true);
+        when(userAssociationStorage.loadStaleFollowings()).thenReturn(
+                singletonList(
+                        getNewFollowingAddition(USER_1, USERNAME_1)
+                )
+        );
+
+        revertSubject = PublishSubject.create();
+        when(followingOperations.toggleFollowing(USER_1, false)).thenReturn(revertSubject);
+
+        mockApiFollowingAddition(USER_1, TestApiResponses.status(HttpStatus.BAD_REQUEST,  body));
+    }
+
+
+    @NonNull
     private List<Long> toUserIds(List<ApiFollowing> followings) {
         return Lists.transform(followings, ApiFollowing.TO_USER_IDS);
     }
