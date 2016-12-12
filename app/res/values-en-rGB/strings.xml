@@ -585,6 +585,7 @@
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoted</string>
   <string name="promoted_by_promotorname">Promoted by %s</string>
+  <!--__USER WELCOME-->
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Invite friends to SoundCloud</string>
   <string name="facebook_invites_description">Sharing is caring. Invite your friends to experience SoundCloud with you.</string>
@@ -638,7 +639,7 @@
   </plurals>
   <!--__TABS-->
   <string name="tab_home">Home</string>
-  <string name="tab_discovery">Discovery</string>
+  <string name="tab_discovery">Discover</string>
   <string name="tab_collection">Collection</string>
   <string name="tab_more">More</string>
   <!--__MORE-->
@@ -685,6 +686,7 @@
   <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / month</string>
   <string name="conversion_price_promo">%1$s for %2$s</string>
+  <string name="conversion_plus">Plus:</string>
   <string name="conversion_buy_loading">Loading…</string>
   <string name="conversion_buy_no_trial">Upgrade now</string>
   <string name="conversion_buy_promo">Get it for a limited time</string>
@@ -696,8 +698,6 @@
   <string name="conversion_restrictions">Restrictions apply</string>
   <string name="conversion_restrictions_promo">Restrictions apply, %s after</string>
   <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
-  <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd-free is defined by the removal of interruptive audio and visual experiences.</string>
-  <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad-free and continue to support your favourite artists with SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product unavailable</string>
   <string name="payments_error_title_no_billing">Billing unavailable</string>
@@ -739,7 +739,6 @@
   <string name="offline_no_connection">No connection</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
-  <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalogue and ad-free offline listening.</string>
   <string name="go_onboarding_title_2">Play full tracks</string>
   <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud\u00A0Go.</string>
   <string name="go_onboarding_title_3">Listen offline</string>
@@ -757,7 +756,6 @@
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
   <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad-free, offline access to an expanded catalogue, don’t worry. You can come back anytime.</string>
   <string name="go_offboarding_primary_button_text">Resubscribe</string>
   <string name="go_offboarding_secondary_button_text">Continue</string>
   <!--__OFFLINE SETTINGS-->
@@ -847,9 +845,7 @@
   <string name="set_type_single_label_for_text">single</string>
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
-  <string name="upsell_remove_ads">Go ad-free</string>
   <string name="upsell_upgrade_button">Get SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalogue, with ad-free and offline listening.</string>
   <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
   <string name="upsell_track_preview">Preview</string>
@@ -865,6 +861,7 @@
   <!--__PLAYER-->
   <string name="playback_error_blocked">Not available in\nyour country</string>
   <string name="playback_upsell_button">Get SoundCloud Go</string>
+  <string name="playback_upsell_button_trial">Try SoundCloud Go</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Found %1$d SoundCloud Go result</item>
@@ -927,6 +924,7 @@
   <string name="play_queue_header_charts_top">From %1$s top 50 charts</string>
   <string name="play_queue_header_charts_trending">From %1$s New &amp; Hot charts </string>
   <string name="play_queue_header_explicit">Added by you</string>
+  <string name="play_queue_header_auto_play">Auto play</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Suggested artists</string>
   <string name="suggested_creators_blurb">Follow your favourite artists so you never miss any of their latest tracks</string>
