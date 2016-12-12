@@ -26,6 +26,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.TrackingMetadata;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.profile.ApiPlayableSource;
@@ -153,6 +154,10 @@ public class ModelFixtures {
 
     public static List<TrackItem> trackItems(int count) {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
+    }
+
+    public static PlaylistItem playlistItem(){
+        return ModelFixtures.create(PlaylistItem.class);
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {

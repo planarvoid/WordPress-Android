@@ -254,8 +254,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
         @Override
         public void onNext(PlaylistWithTracks details) {
-            final PlaylistItem playlistItem = PlaylistItem.from(details.getSourceSet());
-            renderer.render(playlistItem);
+            renderer.render(details.getPlaylistItem());
         }
     }
 

@@ -1,9 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -12,82 +10,87 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
+
+import android.support.annotation.NonNull;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PlaylistWithTracks implements ImageResource {
 
-    @NotNull private final PropertySet sourceSet;
+    @NotNull private final PlaylistItem playlistItem;
     @NotNull private final List<TrackItem> tracks;
 
-    public PlaylistWithTracks(@NotNull PropertySet sourceSet, @NotNull List<TrackItem> tracks) {
-        this.sourceSet = sourceSet;
+    public PlaylistWithTracks(@NotNull PlaylistItem playlistItem, @NotNull List<TrackItem> tracks) {
+        this.playlistItem = playlistItem;
         this.tracks = tracks;
     }
 
+    @NonNull
     public PlaylistItem getPlaylistItem() {
-        return PlaylistItem.from(sourceSet);
+        return playlistItem;
     }
 
-    public boolean isLocalPlaylist() {
-        return sourceSet.contains(PlaylistProperty.URN) && sourceSet.get(PlaylistProperty.URN).getNumericId() < 0;
+    public boolean isLikedByUser() {
+        return playlistItem.isLikedByUser();
     }
 
-    public boolean isMissingMetaData() {
-        return sourceSet.size() == 0;
+    public Optional<Boolean> isMarkedForOffline() {
+        return playlistItem.isMarkedForOffline();
     }
 
-    public boolean needsTracks() {
+    public OfflineState getDownloadState() {
+        return playlistItem.getDownloadState();
+    }
+
+    public boolean isRepostedByUser() {
+        return playlistItem.isRepostedByUser();
+    }
+
+    public boolean isPostedByUser() {
+        return playlistItem.isPostedByUser();
+    }
+
+    boolean isLocalPlaylist() {
+        return playlistItem.isLocalPlaylist();
+    }
+
+    boolean needsTracks() {
         return getTracks().isEmpty();
     }
 
     @Override
     public Urn getUrn() {
-        return sourceSet.get(PlaylistProperty.URN);
+        return playlistItem.getUrn();
     }
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return sourceSet.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
+        return playlistItem.getImageUrlTemplate();
     }
 
     public Urn getCreatorUrn() {
-        return sourceSet.get(PlaylistProperty.CREATOR_URN);
+        return playlistItem.getCreatorUrn();
     }
 
     public String getCreatorName() {
-        // syncing through public api requires us to fetch usernames lazily. this will be fixed by moving to api-mobile
-        return sourceSet.getOrElse(PlaylistProperty.CREATOR_NAME, Strings.EMPTY);
+        return playlistItem.getCreatorName();
     }
 
     public String getTitle() {
-        return sourceSet.get(PlaylistProperty.TITLE);
+        return playlistItem.getTitle();
     }
 
     public int getLikesCount() {
-        return sourceSet.get(PlaylistProperty.LIKES_COUNT);
-    }
-
-    public boolean isLikedByUser() {
-        return sourceSet.get(PlaylistProperty.IS_USER_LIKE);
+        return playlistItem.getLikesCount();
     }
 
     public int getRepostsCount() {
-        return sourceSet.get(PlaylistProperty.REPOSTS_COUNT);
+        return playlistItem.getRepostCount();
     }
 
-    public boolean isRepostedByUser() {
-        return sourceSet.getOrElse(PlaylistProperty.IS_USER_REPOST, false);
-    }
-
-    public boolean isPostedByUser() {
-        return sourceSet.get(PlaylistProperty.IS_POSTED);
-    }
-
-    public boolean isOwnedBy(Urn userUrn) {
+    boolean isOwnedBy(Urn userUrn) {
         return userUrn.equals(getCreatorUrn());
     }
 
@@ -102,13 +105,9 @@ public class PlaylistWithTracks implements ImageResource {
 
     public String getDuration() {
         final long duration = tracks.isEmpty() ?
-                              sourceSet.get(PlaylistProperty.PLAYLIST_DURATION) :
+                              playlistItem.getDuration() :
                               getCombinedTrackDurations();
         return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
-    }
-
-    public OfflineState getDownloadState() {
-        return sourceSet.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
     private long getCombinedTrackDurations() {
@@ -121,12 +120,12 @@ public class PlaylistWithTracks implements ImageResource {
 
     public int getTrackCount() {
         return tracks.isEmpty()
-               ? sourceSet.get(PlaylistProperty.TRACK_COUNT)
+               ? playlistItem.getTrackCount()
                : tracks.size();
     }
 
     public boolean isPrivate() {
-        return sourceSet.get(PlaylistProperty.IS_PRIVATE);
+        return playlistItem.isPrivate();
     }
 
     public boolean isPublic() {
@@ -134,20 +133,16 @@ public class PlaylistWithTracks implements ImageResource {
     }
 
     public String getPermalinkUrl() {
-        return sourceSet.get(PlaylistProperty.PERMALINK_URL);
-    }
-
-    public boolean isOfflineAvailable() {
-        return sourceSet.get(OfflineProperty.IS_MARKED_FOR_OFFLINE);
+        return playlistItem.getPermalinkUrl();
     }
 
     public void update(PropertySet source) {
-        this.sourceSet.update(source);
+        this.playlistItem.update(source);
     }
 
     @Deprecated // we should avoid this, but apparently we need it to like something currently
     public PropertySet getSourceSet() {
-        return sourceSet;
+        return playlistItem.getSource();
     }
 
     @Override
@@ -160,11 +155,11 @@ public class PlaylistWithTracks implements ImageResource {
         }
 
         PlaylistWithTracks that = (PlaylistWithTracks) o;
-        return sourceSet.equals(that.sourceSet) && tracks.equals(that.tracks);
+        return playlistItem.equals(that.playlistItem) && tracks.equals(that.tracks);
     }
 
     @Override
     public final int hashCode() {
-        return MoreObjects.hashCode(sourceSet, tracks);
+        return MoreObjects.hashCode(playlistItem, tracks);
     }
 }

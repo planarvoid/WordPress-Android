@@ -40,7 +40,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
 
     private PopupMenuWrapper menu;
     private OnEngagementListener listener;
-    private PlaylistHeaderItem playlistHeaderItem;
+    private PlaylistWithTracks playlistItem;
 
     @Bind(R.id.toggle_like) ToggleButton likeToggle;
     @Bind(R.id.toggle_download) IconToggleButton downloadToggle;
@@ -62,13 +62,8 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         this.downloadStateView = downloadStateView;
     }
 
-    @Deprecated // For the legacy screen
-    public void bindView(View view) {
-        bindEngagementBar(view, false);
-    }
-
-    public void bindView(View view, PlaylistHeaderItem item, boolean isEditMode) {
-        this.playlistHeaderItem = item;
+    void bindView(View view, PlaylistWithTracks item, boolean isEditMode) {
+        this.playlistItem = item;
         final String playlistInfoText = getPlaylistInfoText(item);
         bindEngagementBar(view, isEditMode);
         setInfoText(playlistInfoText);
@@ -95,13 +90,13 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         editInfo.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
     }
 
-    private String getPlaylistInfoText(PlaylistHeaderItem item) {
+    private String getPlaylistInfoText(PlaylistWithTracks item) {
         final String trackCount = context.getResources().getQuantityString(
                 R.plurals.number_of_sounds, item.getTrackCount(),
                 item.getTrackCount());
 
         return context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
-                                 trackCount, item.geFormattedDuration());
+                                 trackCount, item.getDuration());
     }
 
     void showOfflineState(OfflineState state) {
@@ -255,7 +250,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.play_next:
-                getListener().onPlayNext(playlistHeaderItem.getUrn());
+                getListener().onPlayNext(playlistItem.getUrn());
                 return true;
             case R.id.repost:
                 getListener().onToggleRepost(true, true);

@@ -103,8 +103,7 @@ public class PlaylistStorage {
 
     public Observable<PropertySet> loadPlaylist(Urn playlistUrn) {
         return propellerRx.query(buildPlaylistQuery(Sets.newHashSet(playlistUrn)))
-                          .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()))
-                          .defaultIfEmpty(PropertySet.create());
+                          .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()));
     }
 
     private Query buildPlaylistModificationQuery(Urn playlistUrn) {

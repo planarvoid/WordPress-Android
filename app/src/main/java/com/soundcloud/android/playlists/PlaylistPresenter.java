@@ -322,7 +322,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
         public void onNext(PlaylistWithTracks playlist) {
             playlistWithTracks = Optional.of(playlist);
             playSessionSource = createPlaySessionSource(playlist);
-            headerPresenter.setPlaylist(PlaylistHeaderItem.create(playlist, playSessionSource));
+            headerPresenter.setPlaylist(playlist, playSessionSource);
             fragment.getActivity().setTitle(playlist.getPlaylistItem().getLabel(fragment.getContext()));
         }
     }

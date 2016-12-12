@@ -5,7 +5,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -84,15 +83,13 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
     }
 
     private PlaylistWithTracks defaultPlaylist() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        return new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(
+        return new PlaylistWithTracks(ModelFixtures.playlistItem(), Arrays.asList(
                 TrackItem.from(TestPropertySets.expectedTrackForListItem(Urn.forTrack(425L))),
                 TrackItem.from(TestPropertySets.expectedTrackForListItem(Urn.forTrack(752L)))));
     }
 
     private PlaylistWithTracks upsellablePlaylist() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        return new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(track1, track2, track3));
+        return new PlaylistWithTracks(ModelFixtures.playlistItem(), Arrays.asList(track1, track2, track3));
     }
 
     void assertOriginalTracks(List<PlaylistDetailItem> items) {

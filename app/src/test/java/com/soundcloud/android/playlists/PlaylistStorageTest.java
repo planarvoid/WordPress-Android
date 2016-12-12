@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
@@ -24,7 +23,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -110,10 +108,12 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadPlaylistReturnsEmptyPropertySetIfNotStored() {
-        PropertySet playlist = storage.loadPlaylist(Urn.forPlaylist(123)).toBlocking().single();
+    public void loadPlaylistReturnsNothingIfNotStored() {
+        TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+        storage.loadPlaylist(Urn.forPlaylist(123)).subscribe(subscriber);
 
-        assertThat(playlist).isEqualTo(PropertySet.create());
+        subscriber.assertNoValues();
+        subscriber.assertCompleted();
     }
 
     @Test

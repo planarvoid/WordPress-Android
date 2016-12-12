@@ -23,31 +23,10 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isNotLocalPlaylistTrueIfUrnIsMissing() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(),
-                                                                             Collections.<TrackItem>emptyList());
-        assertThat(playlistWithTracks.isLocalPlaylist()).isFalse();
-    }
-
-    @Test
     public void isNotLocalPlaylistTrueIfUrnIsPositive() {
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L),
                                                                              Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.isLocalPlaylist()).isFalse();
-    }
-
-    @Test
-    public void isMissingMetadataIfPlaylistMetadataIsEmpty() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(),
-                                                                             Collections.<TrackItem>emptyList());
-        assertThat(playlistWithTracks.isMissingMetaData()).isTrue();
-    }
-
-    @Test
-    public void isNotMissingMetadataIfPlaylistMetadataIsEmpty() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L),
-                                                                             Collections.<TrackItem>emptyList());
-        assertThat(playlistWithTracks.isMissingMetaData()).isFalse();
     }
 
     @Test
@@ -125,6 +104,6 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
     }
 
     private PlaylistWithTracks createPlaylistMetaData(PropertySet playlistMetadata, List<TrackItem> tracks) {
-        return new PlaylistWithTracks(playlistMetadata, tracks);
+        return new PlaylistWithTracks(PlaylistItem.from(playlistMetadata), tracks);
     }
 }

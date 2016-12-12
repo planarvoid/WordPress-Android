@@ -123,6 +123,14 @@ public class PlaylistItem extends PlayableItem {
         return source.get(PlaylistProperty.PLAYLIST_DURATION);
     }
 
+    public String getPermalinkUrl() {
+        return source.get(PlaylistProperty.PERMALINK_URL);
+    }
+
+    public boolean isLocalPlaylist() {
+        return getUrn().getNumericId() < 0;
+    }
+
     public boolean isLikedByUser() {
         return source.get(PlaylistProperty.IS_USER_LIKE);
     }

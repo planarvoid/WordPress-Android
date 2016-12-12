@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -30,15 +31,12 @@ import java.util.Set;
 
 public class PlaylistOperations {
 
-    private static final Func1<List<PlaylistItem>, Map<Urn, PlaylistItem>> TO_URN_MAP = new Func1<List<PlaylistItem>, Map<Urn, PlaylistItem>>() {
-        @Override
-        public Map<Urn, PlaylistItem> call(List<PlaylistItem> playlistEntities) {
-            HashMap<Urn, PlaylistItem> entityMap = new HashMap<>(playlistEntities.size());
-            for (PlaylistItem entity : playlistEntities) {
-                entityMap.put(entity.getUrn(), entity);
-            }
-            return entityMap;
+    private static final Func1<List<PlaylistItem>, Map<Urn, PlaylistItem>> TO_URN_MAP = playlistEntities -> {
+        HashMap<Urn, PlaylistItem> entityMap = new HashMap<>(playlistEntities.size());
+        for (PlaylistItem entity : playlistEntities) {
+            entityMap.put(entity.getUrn(), entity);
         }
+        return entityMap;
     };
 
     private final Action1<PropertySet> publishTrackAddedToPlaylistEvent = new Action1<PropertySet>() {
@@ -84,21 +82,7 @@ public class PlaylistOperations {
     private final EventBus eventBus;
 
     private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
-            new Func2<PropertySet, List<TrackItem>, PlaylistWithTracks>() {
-                @Override
-                public PlaylistWithTracks call(PropertySet playlist, List<TrackItem> tracks) {
-                    return new PlaylistWithTracks(playlist, tracks);
-                }
-            };
-
-    private final Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>> validateLoadedPlaylist = new Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>>() {
-        @Override
-        public Observable<PlaylistWithTracks> call(PlaylistWithTracks playlistWithTracks) {
-            return playlistWithTracks.isMissingMetaData()
-                   ? Observable.<PlaylistWithTracks>error(new PlaylistOperations.PlaylistMissingException())
-                   : Observable.just(playlistWithTracks);
-        }
-    };
+            (playlist, tracks) -> new PlaylistWithTracks(PlaylistItem.from(playlist), tracks);
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
@@ -166,29 +150,19 @@ public class PlaylistOperations {
     }
 
     private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn) {
-        return new Func1<Integer, PropertySet>() {
-            @Override
-            public PropertySet call(Integer newTrackCount) {
-                return PropertySet.from(
-                        PlaylistProperty.URN.bind(targetUrn),
-                        PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
-            }
-        };
+        return newTrackCount -> PropertySet.from(
+                PlaylistProperty.URN.bind(targetUrn),
+                PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
     }
 
     private Func1<Integer, PropertySet> toEditedChangeSet(final Urn targetUrn,
                                                           final String title,
                                                           final boolean isPrivate) {
-        return new Func1<Integer, PropertySet>() {
-            @Override
-            public PropertySet call(Integer newTrackCount) {
-                return PropertySet.from(
-                        PlaylistProperty.URN.bind(targetUrn),
-                        PlaylistProperty.TITLE.bind(title),
-                        PlaylistProperty.IS_PRIVATE.bind(isPrivate),
-                        PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
-            }
-        };
+        return newTrackCount -> PropertySet.from(
+                PlaylistProperty.URN.bind(targetUrn),
+                PlaylistProperty.TITLE.bind(title),
+                PlaylistProperty.IS_PRIVATE.bind(isPrivate),
+                PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback(final Urn playlistUrn) {
@@ -208,7 +182,9 @@ public class PlaylistOperations {
     }
 
     public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
-        return playlistWithTracks(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
+        return playlistWithTracks(playlistUrn)
+                .flatMap(syncIfNecessary(playlistUrn))
+                .switchIfEmpty(updatedPlaylistInfo(playlistUrn));
     }
 
     public Observable<List<PlaylistItem>> playlists(final Set<Urn> playlistUrns) {
@@ -227,12 +203,12 @@ public class PlaylistOperations {
                     @Override
                     public Observable<PlaylistWithTracks> call(SyncJobResult playlistWasUpdated) {
                         return playlistWithTracks(playlistUrn)
-                                .flatMap(validateLoadedPlaylist);
+                                .switchIfEmpty(Observable.error(new PlaylistMissingException()));
                     }
                 });
     }
 
-    Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {
+    private Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
                 .flatMap(new Func1<SyncJobResult, Observable<List<Urn>>>() {
@@ -254,23 +230,17 @@ public class PlaylistOperations {
     }
 
     private Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>> syncIfNecessary(final Urn playlistUrn) {
-        return new Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>>() {
-            @Override
-            public Observable<PlaylistWithTracks> call(PlaylistWithTracks playlistWithTracks) {
+        return playlistWithTracks -> {
 
-                if (playlistWithTracks.isLocalPlaylist()) {
-                    syncInitiatorBridge.refreshMyPlaylists();
-                    return Observable.just(playlistWithTracks);
+            if (playlistWithTracks.isLocalPlaylist()) {
+                fireAndForget(syncInitiatorBridge.refreshMyPlaylists());
+                return Observable.just(playlistWithTracks);
 
-                } else if (playlistWithTracks.isMissingMetaData()) {
-                    return updatedPlaylistInfo(playlistUrn);
+            } else if (playlistWithTracks.needsTracks()) {
+                return Observable.concat(Observable.just(playlistWithTracks), updatedPlaylistInfo(playlistUrn));
 
-                } else if (playlistWithTracks.needsTracks()) {
-                    return Observable.concat(Observable.just(playlistWithTracks), updatedPlaylistInfo(playlistUrn));
-
-                } else {
-                    return Observable.just(playlistWithTracks);
-                }
+            } else {
+                return Observable.just(playlistWithTracks);
             }
         };
     }

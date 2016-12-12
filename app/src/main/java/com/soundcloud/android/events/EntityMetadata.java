@@ -4,7 +4,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerTrackState;
-import com.soundcloud.android.playlists.PlaylistHeaderItem;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.users.UserProperty;
@@ -92,17 +91,6 @@ public class EntityMetadata {
     }
 
     public static EntityMetadata from(@Nullable PlaylistWithTracks playlist) {
-        if (playlist == null) {
-            return EMPTY;
-        }
-        return new EntityMetadata(
-                playlist.getCreatorName(),
-                playlist.getCreatorUrn(),
-                playlist.getTitle(),
-                playlist.getUrn());
-    }
-
-    public static EntityMetadata from(@Nullable PlaylistHeaderItem playlist) {
         if (playlist == null) {
             return EMPTY;
         }

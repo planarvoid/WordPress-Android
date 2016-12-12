@@ -29,6 +29,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -147,7 +148,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldShowUsersOptions() {
         when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
 
-        presenter.setPlaylist(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        presenter.setPlaylist(playlistWithTracks, getPlaySessionSource());
 
         verify(engagementsView).showMyOptions();
     }
@@ -156,7 +157,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldHideUsersOptions() {
         when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(false);
 
-        presenter.setPlaylist(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        presenter.setPlaylist(playlistWithTracks, getPlaySessionSource());
 
         verify(engagementsView).hideMyOptions();
     }
@@ -275,7 +276,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                                         .pageUrn(playlistWithTracks.getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), playlistWithTracks.getSourceSet(), eventContextMetadata, null);
+        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl(), eventContextMetadata, null,
+                                      EntityMetadata.from(playlistWithTracks));
     }
 
     @Test
@@ -371,7 +373,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                                         .pageUrn(playlistWithTracks.getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), playlistWithTracks.getSourceSet(), eventContextMetadata, null);
+        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl(), eventContextMetadata, null,
+                                      EntityMetadata.from(playlistWithTracks));
     }
 
     @Test
@@ -603,7 +606,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 .put(PlaylistProperty.IS_POSTED, true)
                 .put(PlaylistProperty.TRACK_COUNT, 1);
 
-        setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithSingleTrack(sourceSet), getPlaySessionSource()));
+        setPlaylistInfo(createPlaylistWithSingleTrack(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).disableShuffle();
     }
@@ -645,18 +648,18 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private void setPlaylistInfo() {
-        setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
     }
 
     private void setPlaylistInfo(PropertySet sourceSet) {
-        setPlaylistInfo(PlaylistHeaderItem.create(createPlaylistWithTracks(sourceSet), getPlaySessionSource()));
+        setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
     }
 
-    private void setPlaylistInfo(PlaylistHeaderItem playlistHeaderItem) {
+    private void setPlaylistInfo(PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onResume(fragmentRule.getFragment());
         presenter.setScreen(SCREEN.get());
-        presenter.setPlaylist(playlistHeaderItem);
+        presenter.setPlaylist(playlistWithTracks, playSessionSource);
     }
 
     private PlaylistWithTracks createPlaylistInfoWithSharing(Sharing sharing) {
@@ -666,11 +669,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistWithTracks createPlaylistWithTracks(PropertySet sourceSet) {
-        return new PlaylistWithTracks(sourceSet, ModelFixtures.trackItems(10));
+        return new PlaylistWithTracks(PlaylistItem.from(sourceSet), ModelFixtures.trackItems(10));
     }
 
     private PlaylistWithTracks createPlaylistWithSingleTrack(PropertySet sourceSet) {
-        return new PlaylistWithTracks(sourceSet, ModelFixtures.trackItems(1));
+        return new PlaylistWithTracks(PlaylistItem.from(sourceSet), ModelFixtures.trackItems(1));
     }
 
     private PropertySet createPlaylistProperties(Sharing sharing) {

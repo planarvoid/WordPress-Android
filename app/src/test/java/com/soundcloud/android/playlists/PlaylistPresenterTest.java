@@ -84,7 +84,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
     private PlaylistPresenter presenter;
-    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(),
+    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(PlaylistItem.from(playlist),
                                                                            Arrays.asList(TrackItem.from(track1),
                                                                                          TrackItem.from(track2)));
 
@@ -290,7 +290,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.SET_TYPE, type);
         propertySet.put(PlaylistProperty.RELEASE_DATE, releaseDate);
 
-        return new PlaylistWithTracks(propertySet, Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
+        return new PlaylistWithTracks(PlaylistItem.from(propertySet), Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
     }
 
 }
