@@ -7,6 +7,8 @@ import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import com.soundcloud.propeller.schema.Column;
 
+import android.support.annotation.NonNull;
+
 import java.util.Date;
 
 public class OfflineStateMapper extends RxResultMapper<PropertySet> {
@@ -30,6 +32,15 @@ public class OfflineStateMapper extends RxResultMapper<PropertySet> {
         final Date downloadedAt = getDateOr(cursorReader, TrackDownloads.DOWNLOADED_AT, defaultDate);
         final Date unavailableAt = getDateOr(cursorReader, TrackDownloads.UNAVAILABLE_AT, defaultDate);
 
+        return getOfflineState(unavailableEnabled, requestedAt, removedAt, downloadedAt, unavailableAt);
+    }
+
+    @NonNull
+    public static OfflineState getOfflineState(boolean unavailableEnabled,
+                                        Date requestedAt,
+                                        Date removedAt,
+                                        Date downloadedAt,
+                                        Date unavailableAt) {
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {
             return OfflineState.REQUESTED;
         } else if (isMostRecentDate(downloadedAt, requestedAt, removedAt, unavailableAt)) {

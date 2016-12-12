@@ -42,6 +42,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import javax.inject.Provider;
@@ -88,8 +89,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                                             dataSource);
         when(dataSource.initialTrackLikes()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
-        when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
-        when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
+        when(likeOperations.onTrackLiked()).thenReturn(Observable.empty());
+        when(likeOperations.onTrackUnliked()).thenReturn(Observable.empty());
         when(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).thenReturn(Observable.just(true));
     }
 
@@ -198,8 +199,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<PropertySet>emptyList()));
-        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<PropertySet>emptyList()));
+        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<LikeWithTrack>emptyList()));
+        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<LikeWithTrack>emptyList()));
 
         verify(headerPresenter).updateTrackCount(likedTrackUrns.size());
     }
@@ -219,7 +220,9 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void dataSourceInitialTrackLikesReturnsLikedTracksWithHeader() {
-        final List<PropertySet> tracks = Arrays.asList(TestPropertySets.fromApiTrack());
+        TrackItem trackItem = ModelFixtures.trackItem();
+        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
+
         when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
 
         dataSource = new DataSource(likeOperations);
@@ -230,7 +233,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void dataSourceUpdatedTrackLikesReturnsLikedTracksWithHeader() {
-        final List<PropertySet> tracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        TrackItem trackItem = ModelFixtures.trackItem();
+        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
         when(likeOperations.updatedLikedTracks()).thenReturn(Observable.just(tracks));
 
         new DataSource(likeOperations).updatedTrackLikes().subscribe(testSubscriber);
@@ -241,9 +245,12 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void dataSourcePagerReturnsLikedTracksWithHeader() {
         final Date oldestDate = new Date(1);
-        final PropertySet likedTrack1 = TestPropertySets.expectedLikedTrackForLikesScreenWithDate(oldestDate);
-        final PropertySet likedTrack2 = TestPropertySets.expectedLikedTrackForLikesScreenWithDate(new Date(2));
-        final List<PropertySet> tracks = Arrays.asList(likedTrack1, likedTrack2);
+        TrackItem trackItem = ModelFixtures.trackItem();
+        final List<LikeWithTrack> tracks = Arrays.asList(
+                getLikeWithTrack(trackItem, oldestDate),
+                getLikeWithTrack(trackItem, new Date(2))
+        );
+
         when(likeOperations.likedTracks(oldestDate.getTime())).thenReturn(Observable.just(tracks));
 
         new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(tracks));
@@ -253,11 +260,16 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
-        final List<PropertySet> tracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
+        TrackItem trackItem = ModelFixtures.trackItem();
+        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
 
         final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
 
         assertThat(listPager.call(TrackLikesPage.withHeader(tracks))).isSameAs(Pager.<List<PropertySet>>finish());
+    }
+
+    @NonNull
+    LikeWithTrack getLikeWithTrack(TrackItem trackItem, Date likedAt) {
+        return LikeWithTrack.create(Like.create(trackItem.getUrn(), likedAt), trackItem);
     }
 }

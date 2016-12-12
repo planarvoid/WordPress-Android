@@ -63,7 +63,7 @@ public class PlayQueueOperations {
 
         final List<Urn> uniqueTrackUrns = DiffUtils.deduplicate(transform(playQueueItems, PlayQueueItem.TO_URN));
         return trackRepository
-                .tracks(uniqueTrackUrns)
+                .fromUrns(uniqueTrackUrns)
                 .map(fulfillWithKnownProperties)
                 .subscribeOn(scheduler);
     }

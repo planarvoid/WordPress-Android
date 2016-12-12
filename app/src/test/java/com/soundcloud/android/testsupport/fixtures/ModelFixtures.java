@@ -147,6 +147,10 @@ public class ModelFixtures {
         return new ApiPost(apiTrack.getUrn(), new Date());
     }
 
+    public static TrackItem trackItem() {
+        return ModelFixtures.create(TrackItem.class);
+    }
+
     public static List<TrackItem> trackItems(int count) {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }

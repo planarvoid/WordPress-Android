@@ -1072,6 +1072,8 @@ public interface Tables {
 
         public static final Column OFFLINE_REMOVED_AT = Column.create(TABLE, "tv_offline_removed_at", Long.class);
         public static final Column OFFLINE_DOWNLOADED_AT = Column.create(TABLE, "tv_offline_downloaded_at", Long.class);
+        public static final Column OFFLINE_REQUESTED_AT = Column.create(TABLE, "tv_offline_requested_at", Long.class);
+        public static final Column OFFLINE_UNAVAILABLE_AT = Column.create(TABLE, "tv_offline_unavailable_at", Long.class);
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS TrackView AS " +
                 Query.from(SoundView.name())
@@ -1103,9 +1105,10 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(SNIPPED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
 
-                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(
-                                     OFFLINE_DOWNLOADED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(OFFLINE_DOWNLOADED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_REQUESTED_AT)).as(OFFLINE_REQUESTED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_UNAVAILABLE_AT)).as(OFFLINE_UNAVAILABLE_AT.name()),
 
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
 

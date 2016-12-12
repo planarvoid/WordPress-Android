@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +38,7 @@ final class SyncIntentHelper {
         }
     }
 
-    static Intent putSyncEntities(Intent intent, List<Urn> entities) {
+    static Intent putSyncEntities(Intent intent, Collection<Urn> entities) {
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, new ArrayList<Parcelable>(entities));
         return intent;
     }

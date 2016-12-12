@@ -5,21 +5,22 @@ import static com.soundcloud.android.offline.OfflineState.DOWNLOADING;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.offline.OfflineState.REQUESTED;
 import static com.soundcloud.android.offline.OfflineState.UNAVAILABLE;
+import static com.soundcloud.java.collections.Lists.transform;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
+import com.soundcloud.android.likes.Like;
 import com.soundcloud.android.likes.LoadLikedTracksCommand;
+import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -29,6 +30,7 @@ import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +44,9 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
 
     @Mock private IsOfflineLikedTracksEnabledCommand isOfflineLikedEnabledCommand;
     @Mock private LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand;
-    @Mock private LoadLikedTrackUrnsCommand loadLikedTracksUrnsCommand;
-    @Mock private LoadPlaylistTracksCommand loadPlaylistsTracksCommand;
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
+    @Mock private LoadPlaylistTracksCommand loadPlaylistsTracksCommand;
+    @Mock private LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand;
     @Mock private OfflineContentStorage offlineContentStorage;
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
 
@@ -53,9 +55,9 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
         operations = new OfflineStateOperations(
                 isOfflineLikedEnabledCommand,
                 loadOfflinePlaylistsContainingTrackCommand,
-                loadLikedTracksUrnsCommand,
-                loadPlaylistsTracksCommand,
                 loadLikedTracksCommand,
+                loadPlaylistsTracksCommand,
+                loadLikedTracksOfflineStateCommand,
                 offlineContentStorage,
                 trackDownloadsStorage,
                 Schedulers.immediate());
@@ -155,14 +157,10 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
         final List<PropertySet> tracksList = Arrays.asList(tracks);
         when(loadOfflinePlaylistsContainingTrackCommand.call(track)).thenReturn(singletonList(playlist));
         when(loadPlaylistsTracksCommand.call(playlist)).thenReturn(tracksList);
-        when(loadLikedTracksUrnsCommand.call(null)).thenReturn(Lists.transform(tracksList,
-                                                                               new Function<PropertySet, Urn>() {
-                                                                                   @Override
-                                                                                   public Urn apply(PropertySet entity) {
-                                                                                       return entity.get(EntityProperty.URN);
-                                                                                   }
-                                                                               }));
-        when(loadLikedTracksCommand.call(null)).thenReturn(tracksList);
+        when(loadLikedTracksCommand.call(Optional.absent()))
+                .thenReturn(transform(tracksList, entity -> Like.create(entity.get(EntityProperty.URN), new Date())));
+        when(loadLikedTracksOfflineStateCommand.call(null))
+                .thenReturn(transform(tracksList, entity -> entity.get(OfflineProperty.OFFLINE_STATE)));
     }
 
     private PropertySet createTrack(Urn track, OfflineState state) {

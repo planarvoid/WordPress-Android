@@ -1,5 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.offline.OfflineStateMapper.getOfflineState;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -75,12 +77,10 @@ public final class TrackItemMapper extends RxResultMapper<PropertySet> {
         final Date defaultDate = new Date(0);
         final Date removedAt = getDateOr(cursorReader, TrackView.OFFLINE_REMOVED_AT.name(), defaultDate);
         final Date downloadedAt = getDateOr(cursorReader, TrackView.OFFLINE_DOWNLOADED_AT.name(), defaultDate);
-
-        if (isMostRecentDate(downloadedAt, removedAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
-        } else if (isMostRecentDate(removedAt, downloadedAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
-        }
+        final Date requestedAt = getDateOr(cursorReader, TrackView.OFFLINE_REQUESTED_AT.name(), defaultDate);
+        final Date unavailableAt = getDateOr(cursorReader, TrackView.OFFLINE_UNAVAILABLE_AT.name(), defaultDate);
+        OfflineState offlineState = getOfflineState(true, requestedAt, removedAt, downloadedAt, unavailableAt);
+        propertySet.put(OfflineProperty.OFFLINE_STATE, offlineState);
     }
 
     private Date getDateOr(CursorReader cursorReader, String columnName, Date defaultDate) {
@@ -89,15 +89,4 @@ public final class TrackItemMapper extends RxResultMapper<PropertySet> {
         }
         return defaultDate;
     }
-
-
-    private boolean isMostRecentDate(Date dateToTest, Date... dates) {
-        for (Date aDate : dates) {
-            if (aDate.after(dateToTest) || aDate.equals(dateToTest)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 }

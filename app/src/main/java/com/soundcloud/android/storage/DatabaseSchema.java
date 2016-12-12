@@ -127,6 +127,8 @@ final class DatabaseSchema {
             "," + Tables.Users.AVATAR_URL + " as " + TableColumns.SoundView.USER_AVATAR_URL +
             "," + Tables.TrackDownloads.DOWNLOADED_AT + " as " + TableColumns.SoundView.OFFLINE_DOWNLOADED_AT +
             "," + Tables.TrackDownloads.REMOVED_AT + " as " + TableColumns.SoundView.OFFLINE_REMOVED_AT +
+            "," + Tables.TrackDownloads.REQUESTED_AT + " as " + TableColumns.SoundView.OFFLINE_REQUESTED_AT +
+            "," + Tables.TrackDownloads.UNAVAILABLE_AT + " as " + TableColumns.SoundView.OFFLINE_UNAVAILABLE_AT +
             " FROM Sounds" +
             " LEFT JOIN Users ON( " + Tables.Sounds.USER_ID.qualifiedName() + " = " + Tables.Users._ID + ")" +
             " LEFT OUTER JOIN TrackDownloads " +

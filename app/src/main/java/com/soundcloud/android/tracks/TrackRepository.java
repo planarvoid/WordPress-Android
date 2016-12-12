@@ -18,6 +18,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -54,16 +55,15 @@ public class TrackRepository {
 
     @Deprecated // use trackItem
     public Observable<PropertySet> track(final Urn trackUrn) {
-        return tracks(singletonList(trackUrn)).map(TO_PROPERTY_MAP_VALUE_OR_EMPTY);
+        return fromUrns(singletonList(trackUrn)).map(TO_PROPERTY_MAP_VALUE_OR_EMPTY);
     }
 
     public Observable<TrackItem> trackItem(final Urn trackUrn) {
-        return tracks(singletonList(trackUrn)).map(TO_MAP_VALUE_OR_EMPTY);
+        return fromUrns(singletonList(trackUrn)).map(TO_MAP_VALUE_OR_EMPTY);
     }
 
-    public Observable<Map<Urn, TrackItem>> tracks(final List<Urn> requestedTracks) {
+    public Observable<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {
         checkTracksUrn(requestedTracks);
-
         return trackStorage
                 .availableTracks(requestedTracks)
                 .flatMap(syncMissingTracks(requestedTracks))
@@ -97,7 +97,7 @@ public class TrackRepository {
         checkArgument(trackUrn.isTrack(), "Trying to sync track without a valid track urn");
     }
 
-    private void checkTracksUrn(List<Urn> trackUrns) {
+    private void checkTracksUrn(Collection<Urn> trackUrns) {
         final boolean hasOnlyTracks = !Iterators.tryFind(trackUrns.iterator(), Urns.IS_NOT_TRACK).isPresent();
         checkArgument(hasOnlyTracks, "Trying to sync track without a valid track urn. trackUrns = [" + trackUrns + "]");
     }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -16,7 +17,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
+import com.soundcloud.android.utils.EntityUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -25,6 +29,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.util.List;
 import java.util.Map;
@@ -42,11 +47,16 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     private PropertySet track;
     private PropertySet trackDescription;
 
+    private TrackItem trackItem1 = ModelFixtures.trackItem();
+    private TrackItem trackItem2 = ModelFixtures.trackItem();
+
     @Mock private TrackStorage trackStorage;
     @Mock private AccountOperations accountOperations;
     @Mock private SyncInitiator syncInitiator;
 
-    private TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+    private TestSubscriber<PropertySet> propSubscriber = new TestSubscriber<>();
+    private TestSubscriber<Map<Urn,TrackItem>> mapSubscriber = new TestSubscriber<>();
+    private PublishSubject<SyncJobResult> syncTracksSubject = PublishSubject.create();
 
     @Before
     public void setUp() {
@@ -69,9 +79,9 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(syncedTrackProperties));
 
-        trackRepository.track(trackUrn).subscribe(subscriber);
+        trackRepository.track(trackUrn).subscribe(propSubscriber);
 
-        subscriber.assertValue(track);
+        propSubscriber.assertValue(track);
         verifyNoMoreInteractions(syncInitiator);
     }
 
@@ -86,9 +96,9 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(actualTrackProperties));
 
-        trackRepository.track(trackUrn).subscribe(subscriber);
+        trackRepository.track(trackUrn).subscribe(propSubscriber);
 
-        subscriber.assertValue(syncedTrack);
+        propSubscriber.assertValue(syncedTrack);
     }
 
     @Test
@@ -101,9 +111,9 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(syncedTracks));
 
-        trackRepository.track(trackUrn).subscribe(subscriber);
+        trackRepository.track(trackUrn).subscribe(propSubscriber);
 
-        subscriber.assertValue(PropertySet.create());
+        propSubscriber.assertValue(PropertySet.create());
     }
 
     @Test
@@ -112,9 +122,9 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
 
-        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(subscriber);
+        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
 
-        final PropertySet first = subscriber.getOnNextEvents().get(0);
+        final PropertySet first = propSubscriber.getOnNextEvents().get(0);
         assertThat(first.get(PlayableProperty.TITLE)).isEqualTo(TITLE);
         assertThat(first.get(PlayableProperty.CREATOR_NAME)).isEqualTo(CREATOR);
         assertThat(first.get(TrackProperty.DESCRIPTION)).isEqualTo(DESCRIPTION);
@@ -126,11 +136,42 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
 
-        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(subscriber);
+        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
 
         final PropertySet propertySet = track.merge(trackDescription);
-        assertThat(subscriber.getOnNextEvents()).containsExactly(propertySet, propertySet);
+        assertThat(propSubscriber.getOnNextEvents()).containsExactly(propertySet, propertySet);
         verify(trackStorage, times(2)).loadTrack(trackUrn);
+    }
+
+    @Test
+    public void fromUrnsLoadsTracksFromStorage() throws CreateModelException {
+        List<Urn> urns = asList(trackItem1.getUrn(), trackItem2.getUrn());
+        when(trackStorage.availableTracks(urns)).thenReturn(Observable.just(urns));
+        when(trackStorage.loadTracks(urns))
+                .thenReturn(Observable.just(EntityUtils.toEntityMap(asList(trackItem1, trackItem2))));
+
+
+        trackRepository.fromUrns(urns).subscribe(mapSubscriber);
+
+        mapSubscriber.assertValue(EntityUtils.toEntityMap(asList(trackItem1, trackItem2)));
+        mapSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void fromUrnsLoadsTracksFromStorageAfterSyncingMissingTracks() throws CreateModelException {
+        List<Urn> urns = asList(trackItem1.getUrn(), trackItem2.getUrn());
+        when(trackStorage.availableTracks(urns)).thenReturn(Observable.just(singletonList(trackItem1.getUrn())));
+        when(syncInitiator.batchSyncTracks(singletonList(trackItem2.getUrn()))).thenReturn(syncTracksSubject);
+        when(trackStorage.loadTracks(urns))
+                .thenReturn(Observable.just(EntityUtils.toEntityMap(asList(trackItem1, trackItem2))));
+
+        trackRepository.fromUrns(urns).subscribe(mapSubscriber);
+
+        mapSubscriber.assertNoValues();
+        syncTracksSubject.onNext(TestSyncJobResults.successWithChange());
+        syncTracksSubject.onCompleted();
+        mapSubscriber.assertValue(EntityUtils.toEntityMap(asList(trackItem1, trackItem2)));
+        mapSubscriber.assertCompleted();
     }
 
     private SyncJobResult getSuccessResult() {

@@ -16,6 +16,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserAssociationProperty;
@@ -269,7 +270,8 @@ public abstract class TestPropertySets {
                 PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
                 PlayableProperty.IS_PRIVATE.bind(isPrivate),
                 PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
-                PlayableProperty.IS_USER_REPOST.bind(isReposted));
+                PlayableProperty.IS_USER_REPOST.bind(isReposted),
+                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
     }
 
     public static PropertySet likedEntityChangeSet(Urn targetUrn, int likesCount) {

@@ -59,7 +59,7 @@ public class SyncInitiator {
         return batchSyncTracks(Collections.singletonList(trackUrn));
     }
 
-    public Observable<SyncJobResult> batchSyncTracks(List<Urn> trackUrns) {
+    public Observable<SyncJobResult> batchSyncTracks(Collection<Urn> trackUrns) {
         final Intent intent = createIntent(Syncable.TRACKS);
         SyncIntentHelper.putSyncEntities(intent, trackUrns);
         return getSyncObservable(intent);

@@ -75,7 +75,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         final List<TrackAndPlayQueueItem> expected = asList(trackAndPlayQueueItem1, trackAndPlayQueueItem2);
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueue);
-        when(trackRepository.tracks(asList(track1Urn, track2Urn))).thenReturn(just(tracksFromStorage));
+        when(trackRepository.fromUrns(asList(track1Urn, track2Urn))).thenReturn(just(tracksFromStorage));
 
         operations.getTracks().subscribe(subscriber);
 
@@ -85,8 +85,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getTrackItemsDeferPlayQueueItemsLoadingToTheSubscription() {
-        when(trackRepository.tracks(singletonList(track1Urn))).thenReturn(just(singletonMap(track1Urn, trackItem1)));
-        when(trackRepository.tracks(singletonList(track2Urn))).thenReturn(just(singletonMap(track2Urn, trackItem2)));
+        when(trackRepository.fromUrns(singletonList(track1Urn))).thenReturn(just(singletonMap(track1Urn, trackItem1)));
+        when(trackRepository.fromUrns(singletonList(track2Urn))).thenReturn(just(singletonMap(track2Urn, trackItem2)));
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(singletonList(trackQueueItem1));
         final Observable<List<TrackAndPlayQueueItem>> operation = operations.getTracks();
@@ -125,7 +125,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         final List<TrackAndPlayQueueItem> expectedTrackItems = singletonList(trackAndPlayQueueItem1);
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueueItems);
-        when(trackRepository.tracks(requestedTracks)).thenReturn(just(knownTrack));
+        when(trackRepository.fromUrns(requestedTracks)).thenReturn(just(knownTrack));
 
         operations.getTracks().subscribe(subscriber);
 

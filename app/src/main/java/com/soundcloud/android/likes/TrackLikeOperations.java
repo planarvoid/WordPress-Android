@@ -1,22 +1,27 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.utils.RepoUtils.enrich;
+import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.likes.LoadLikedTracksCommand.Params;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.utils.PropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -29,56 +34,51 @@ public class TrackLikeOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
     static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
+    private static final Func2<TrackItem, Like, LikeWithTrack> COMBINER = (trackItem, like) -> LikeWithTrack
+            .create(like, trackItem);
 
-    private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
-    private final LikedTrackStorage likedTrackStorage;
+    private final LoadLikedTracksCommand loadLikedTracksCommand;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
+    private final TrackRepository trackRepo;
 
-    private final Action1<List<PropertySet>> requestTracksSyncAction = new Action1<List<PropertySet>>() {
+    private final Action1<List<Like>> requestTracksSyncAction = new Action1<List<Like>>() {
         @Override
-        public void call(List<PropertySet> propertySets) {
-            if (networkConnectionHelper.isWifiConnected() && !propertySets.isEmpty()) {
-                syncInitiator.batchSyncTracks(PropertySets.extractUrns(propertySets));
+        public void call(List<Like> likes) {
+            if (networkConnectionHelper.isWifiConnected() && !likes.isEmpty()) {
+                syncInitiator.batchSyncTracks(transform(likes, Like::urn));
             }
         }
     };
 
-    private final Func1<Object, Observable<List<PropertySet>>> loadInitialLikedTracks = new Func1<Object, Observable<List<PropertySet>>>() {
+    private final Func1<Urn, Observable<TrackItem>> loadLikedTrack = new Func1<Urn, Observable<TrackItem>>() {
         @Override
-        public Observable<List<PropertySet>> call(Object ignored) {
-            return likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP);
-        }
-    };
-
-    private final Func1<Urn, Observable<PropertySet>> loadLikedTrack = new Func1<Urn, Observable<PropertySet>>() {
-        @Override
-        public Observable<PropertySet> call(Urn urn) {
-            return likedTrackStorage.loadTrackLike(urn);
+        public Observable<TrackItem> call(Urn urn) {
+            return trackRepo.trackItem(urn);
         }
     };
 
     @Inject
-    public TrackLikeOperations(LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
-                               LikedTrackStorage likedTrackStorage,
+    public TrackLikeOperations(LoadLikedTracksCommand loadLikedTracksCommand,
                                SyncInitiator syncInitiator,
                                SyncInitiatorBridge syncInitiatorBridge,
                                EventBus eventBus,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                               NetworkConnectionHelper networkConnectionHelper) {
-        this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
-        this.likedTrackStorage = likedTrackStorage;
+                               NetworkConnectionHelper networkConnectionHelper,
+                               TrackRepository trackRepository) {
+        this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.syncInitiatorBridge = syncInitiatorBridge;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
+        this.trackRepo = trackRepository;
     }
 
-    Observable<PropertySet> onTrackLiked() {
+    Observable<TrackItem> onTrackLiked() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
                        .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
                        .map(EntityStateChangedEvent.TO_URN)
@@ -91,28 +91,43 @@ public class TrackLikeOperations {
                        .map(EntityStateChangedEvent.TO_URN);
     }
 
-    Observable<List<PropertySet>> likedTracks() {
-        return likedTracks(INITIAL_TIMESTAMP)
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                .switchIfEmpty(updatedLikedTracks());
+    Observable<List<LikeWithTrack>> likedTracks() {
+        return syncInitiatorBridge
+                .hasSyncedTrackLikesBefore()
+                .flatMap(new Func1<Boolean, Observable<List<LikeWithTrack>>>() {
+                    @Override
+                    public Observable<List<LikeWithTrack>> call(Boolean hasSynced) {
+                        if (hasSynced) {
+                            return likedTracks(INITIAL_TIMESTAMP);
+                        } else {
+                            return updatedLikedTracks();
+                        }
+                    }
+                }).subscribeOn(scheduler);
     }
 
-    Observable<List<PropertySet>> likedTracks(long beforeTime) {
-        return likedTrackStorage.loadTrackLikes(PAGE_SIZE, beforeTime)
-                                .doOnNext(requestTracksSyncAction)
-                                .subscribeOn(scheduler);
+    Observable<List<LikeWithTrack>> likedTracks(long beforeTime) {
+        Params params = Params.from(beforeTime, PAGE_SIZE);
+        return loadLikedTracksCommand.toObservable(Optional.of(params))
+                                     .doOnNext(requestTracksSyncAction)
+                                     .flatMap(source -> enrich(source,
+                                                               trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
+                                     .subscribeOn(scheduler);
     }
 
-    Observable<List<PropertySet>> updatedLikedTracks() {
+
+
+    Observable<List<LikeWithTrack>> updatedLikedTracks() {
         return syncInitiatorBridge
                 .syncTrackLikes()
                 .observeOn(scheduler)
-                .flatMap(loadInitialLikedTracks)
+                .flatMap(ignored -> likedTracks(INITIAL_TIMESTAMP))
                 .subscribeOn(scheduler);
     }
 
-    public Observable<List<Urn>> likedTrackUrns() {
-        return loadLikedTrackUrnsCommand.toObservable(null).subscribeOn(scheduler);
+    Observable<List<Urn>> likedTrackUrns() {
+        return loadLikedTracksCommand.toObservable(Optional.absent())
+                                     .map(likes -> transform(likes, Like::urn)).subscribeOn(scheduler);
     }
 
 }

@@ -3,12 +3,12 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
+import com.soundcloud.android.likes.Like;
 import com.soundcloud.android.likes.LoadLikedTracksCommand;
+import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -26,9 +26,9 @@ public class OfflineStateOperations {
 
     private final IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
     private final LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand;
-    private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
-    private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final LoadLikedTracksCommand loadLikedTracksCommand;
+    private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
+    private final LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand;
 
     private final OfflineContentStorage offlineContentStorage;
     private final TrackDownloadsStorage trackDownloadsStorage;
@@ -45,28 +45,21 @@ public class OfflineStateOperations {
         }
     };
 
-    private static final Function<PropertySet, OfflineState> TO_OFFLINE_STATE = new Function<PropertySet, OfflineState>() {
-        @Override
-        public OfflineState apply(PropertySet track) {
-            return track.get(OfflineProperty.OFFLINE_STATE);
-        }
-    };
-
     @Inject
     OfflineStateOperations(
             IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand,
             LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand,
-            LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
-            LoadPlaylistTracksCommand loadPlaylistTracksCommand,
             LoadLikedTracksCommand loadLikedTracksCommand,
+            LoadPlaylistTracksCommand loadPlaylistTracksCommand,
+            LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand,
             OfflineContentStorage offlineContentStorage,
             TrackDownloadsStorage trackDownloadsStorage,
             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.isOfflineLikedTracksEnabledCommand = isOfflineLikedTracksEnabledCommand;
         this.loadOfflinePlaylistsContainingTrackCommand = loadOfflinePlaylistsContainingTrackCommand;
-        this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
-        this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;
+        this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
+        this.loadLikedTracksOfflineStateCommand = loadLikedTracksOfflineStateCommand;
         this.offlineContentStorage = offlineContentStorage;
         this.trackDownloadsStorage = trackDownloadsStorage;
         this.scheduler = scheduler;
@@ -101,7 +94,7 @@ public class OfflineStateOperations {
         for (OfflineState state : OfflineState.values()) {
             final Collection<Urn> playlists = playlistsState.containsKey(state)
                                               ? playlistsState.get(state)
-                                              : Collections.<Urn>emptyList();
+                                              : Collections.emptyList();
             final TrackCollections collections = populate(isTrackLiked && state.equals(likedTrackState), playlists);
             if (collections != TrackCollections.EMPTY) {
                 map.put(state, collections);
@@ -152,20 +145,18 @@ public class OfflineStateOperations {
 
     private OfflineState loadLikedTrackState() {
         if (isOfflineLikedTracksEnabledCommand.call(null)) {
-            return getCollectionOfflineState(loadLikedTracksCommand.call(null));
+            return getCollectionOfflineState(loadLikedTracksOfflineStateCommand.call(null));
         } else {
             return OfflineState.NOT_OFFLINE;
         }
     }
 
     private OfflineState getState(Urn playlist) {
-        return getCollectionOfflineState(loadPlaylistTracksCommand.call(playlist));
+        return getCollectionOfflineState(transform(loadPlaylistTracksCommand.call(playlist),
+                                                   track -> track.get(OfflineProperty.OFFLINE_STATE)));
     }
 
-    private OfflineState getCollectionOfflineState(Collection<PropertySet> tracks) {
-
-        final Collection<OfflineState> tracksOfflineState = transform(tracks, TO_OFFLINE_STATE);
-
+    private OfflineState getCollectionOfflineState(Collection<OfflineState> tracksOfflineState) {
         if (tracksOfflineState.contains(OfflineState.REQUESTED)) {
             return OfflineState.REQUESTED;
         } else if (tracksOfflineState.contains(OfflineState.DOWNLOADED)) {
@@ -178,7 +169,7 @@ public class OfflineStateOperations {
     }
 
     private boolean isTrackLiked(Urn track) {
-        return loadLikedTrackUrnsCommand.call(null).contains(track);
+        return transform(loadLikedTracksCommand.call(Optional.absent()), Like::urn).contains(track);
     }
 
 }

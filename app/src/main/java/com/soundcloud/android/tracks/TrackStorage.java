@@ -35,13 +35,6 @@ class TrackStorage {
     private final PropellerRx propeller;
     private final TrackItemMapper trackMapper = new TrackItemMapper();
 
-    private Func1<List<QueryResult>, Map<Urn, TrackItem>> toMapOfUrnAndTrack = new Func1<List<QueryResult>, Map<Urn, TrackItem>>() {
-        @Override
-        public Map<Urn, TrackItem> call(List<QueryResult> cursorReaders) {
-            return toMapOfUrnAndTrack(cursorReaders);
-        }
-    };
-
     private Func1<List<Urn>, Observable<QueryResult>> fetchTracks = new Func1<List<Urn>, Observable<QueryResult>>() {
         @Override
         public Observable<QueryResult> call(List<Urn> urns) {
@@ -70,12 +63,13 @@ class TrackStorage {
 
     Observable<Map<Urn, TrackItem>> loadTracks(List<Urn> urns) {
         return batchedTracks(urns).toList()
-                                  .map(toMapOfUrnAndTrack)
+                                  .map(this::toMapOfUrnAndTrack)
                                   .firstOrDefault(Collections.<Urn, TrackItem>emptyMap());
     }
 
     private Observable<QueryResult> batchedTracks(List<Urn> urns) {
-        return Observable.from(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchTracks);
+        return Observable.from(partition(urns, MAX_TRACKS_BATCH))
+                         .flatMap(fetchTracks);
     }
 
     private Observable<Urn> batchedAvailableTracks(List<Urn> urns) {
@@ -88,7 +82,6 @@ class TrackStorage {
             for (CursorReader cursorReader : cursorReaders) {
                 final PropertySet track = trackMapper.map(cursorReader);
                 final Urn urn = track.get(TrackProperty.URN);
-
                 tracks.put(urn, TrackItem.from(track));
             }
         }
@@ -98,7 +91,7 @@ class TrackStorage {
     Observable<List<Urn>> availableTracks(final List<Urn> requestedTracks) {
         return batchedAvailableTracks(requestedTracks)
                 .toList()
-                .firstOrDefault(Collections.<Urn>emptyList());
+                .firstOrDefault(Collections.emptyList());
     }
 
     Observable<PropertySet> loadTrackDescription(Urn urn) {
