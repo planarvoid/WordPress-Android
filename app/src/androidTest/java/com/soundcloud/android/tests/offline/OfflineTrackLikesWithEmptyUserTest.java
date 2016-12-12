@@ -6,8 +6,10 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.reset
 import com.soundcloud.android.framework.IntegrationTestsFixtures;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
@@ -36,9 +38,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     }
 
     public void testDownloadsTrackWhenLiked() {
-        mainNavHelper.goToStream()
-                     .clickFirstTrackCardOverflowButton()
-                     .toggleLike();
+        likeFirstTrack();
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
         likesScreen
@@ -54,9 +54,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     }
 
     public void testDownloadResumesWhenConnectionBack() {
-        mainNavHelper.goToStream()
-                     .clickFirstTrackCardOverflowButton()
-                     .toggleLike();
+        likeFirstTrack();
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
 
@@ -76,6 +74,16 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
         likesScreen.waitForLikesToStartDownloading();
         assertTrue("Track should be downloading", downloadElement.isDownloading() || downloadElement.isDownloaded());
+    }
+
+    private void likeFirstTrack() {
+        final StreamScreen streamScreen = mainNavHelper.goToStream();
+        final StreamCardElement streamCardElement = streamScreen.scrollToFirstTrack();
+        if (!streamCardElement.isLiked()) {
+            streamScreen
+                    .clickFirstTrackCardOverflowButton()
+                    .toggleLike();
+        }
     }
 
 }
