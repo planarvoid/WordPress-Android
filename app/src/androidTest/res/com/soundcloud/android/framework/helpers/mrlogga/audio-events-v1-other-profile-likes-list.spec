@@ -70,7 +70,7 @@ expected_events:
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     client_id: 3152
-    action: play_start
+    action: play
     policy: ALLOW
     player_type: Skippy
     consumer_subs_plan: none
