@@ -74,7 +74,6 @@ apply plugin: 'com.android.application'
 //You can enable it when need it.
 //apply plugin: 'com.fernandocejas.frodo'
 apply plugin: 'maven'
-apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.getkeepsafe.dexcount'
 apply plugin: "com.nimbledroid.profiler"
@@ -167,11 +166,11 @@ dependencies {
   def acceptanceTestLibraries = rootProject.ext.acceptanceTestLibraries
 
   /* Compile/Dev Time */
-  apt libraries.daggerCompiler
-  apt libraries.lightCycleProcessor
-  apt libraries.autoValue
-  apt libraries.autoFactory
-  apt libraries.autoParcelProcessor
+  annotationProcessor libraries.daggerCompiler
+  annotationProcessor libraries.lightCycleProcessor
+  annotationProcessor libraries.autoValue
+  annotationProcessor libraries.autoFactory
+  annotationProcessor libraries.autoParcelProcessor
 
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
