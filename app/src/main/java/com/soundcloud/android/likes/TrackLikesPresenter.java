@@ -205,7 +205,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         if (item == null) {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
-        } else {
+        } else if (item.isTrack()) {
             TrackItem trackItem = ((TrackLikesTrackItem) item).getTrackItem();
             Urn initialTrack = trackItem.getUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
@@ -230,15 +230,16 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     @AutoValue
     static abstract class TrackLikesPage {
 
-        static TrackLikesPage withHeader(List<PropertySet> trackLikes){
+        static TrackLikesPage withHeader(List<PropertySet> trackLikes) {
             return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
         }
 
-        static TrackLikesPage withoutHeader(List<PropertySet> trackLikes){
+        static TrackLikesPage withoutHeader(List<PropertySet> trackLikes) {
             return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, false);
         }
 
         abstract List<PropertySet> getTrackLikes();
+
         abstract boolean hasHeader();
     }
 
@@ -246,6 +247,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
         private final TrackLikeOperations trackLikeOperations;
         private final int pageSize;
+
         @Inject
         DataSource(TrackLikeOperations trackLikeOperations,
                    @Named(DEFAULT_LIST_PAGE_SIZE) int pageSize) {
@@ -253,7 +255,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             this.pageSize = pageSize;
         }
 
-        Observable<TrackLikesPage> initialTrackLikes(){
+        Observable<TrackLikesPage> initialTrackLikes() {
             return wrapLikedTracks(trackLikeOperations.likedTracks(), true);
         }
 

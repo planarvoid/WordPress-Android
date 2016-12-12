@@ -16,4 +16,8 @@ class TrackLikesItem {
     public Kind getKind() {
         return kind;
     }
+
+    public boolean isTrack() {
+        return Kind.TrackItem.equals(kind);
+    }
 }
