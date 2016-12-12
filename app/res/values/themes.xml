@@ -32,7 +32,7 @@
     </style>
 
     <style name="Theme.SoundCloud.Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
-        <item name="android:textColorPrimary">@color/dark_gray_text</item>
+        <item name="android:textColorPrimary">@color/ak_dark_gray</item>
         <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>
 

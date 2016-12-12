@@ -3,7 +3,7 @@
 <resources>
 
     <style name="Toolbar.Title" parent="TextAppearance.Widget.ScAppCompat.Toolbar.Title">
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:textColor">@color/ak_dark_gray</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
