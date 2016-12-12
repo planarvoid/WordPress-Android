@@ -91,14 +91,10 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     }
 
     private void setListener(final View itemView, final int position) {
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (trackClickListener != null) {
-                    trackClickListener.trackClicked(position);
-                }
+        itemView.setOnClickListener(view -> {
+            if (trackClickListener != null) {
+                trackClickListener.trackClicked(position);
             }
-
         });
     }
 
@@ -134,19 +130,14 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), EXTENDED_TOUCH_DP));
         overflowButton.setSelected(false);
         if (item.getPlayState() == PlayState.COMING_UP) {
-            overflowButton.setImageResource(R.drawable.drag_handle);
+            overflowButton.setImageResource(R.drawable.ic_drag_handle_medium_dark_gray_24dp);
             overflowButton.setOnClickListener(null);
         } else {
             overflowButton.setImageResource(R.drawable.playqueue_track_item_overflow);
-            overflowButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    trackItemMenuPresenter.show(ViewUtils.getFragmentActivity(view),
-                                                view,
-                                                item.getTrackItem(),
-                                                position);
-                }
-            });
+            overflowButton.setOnClickListener(view -> trackItemMenuPresenter.show(ViewUtils.getFragmentActivity(view),
+                                                                          view,
+                                                                          item.getTrackItem(),
+                                                                          position));
         }
     }
 
