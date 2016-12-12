@@ -26,14 +26,20 @@ import javax.inject.Singleton;
 @Module
 public class CastModule {
 
+    private static final int REQUIRED_GOOGLE_PLAY_SERVICE_VERSION = 9256000;
+
     @Provides
     @Singleton
     public CastContextWrapper provideCastContext(GooglePlayServicesWrapper googlePlayServicesWrapper,
                                                  FeatureFlags flags,
                                                  Context context) {
-        if (flags.isEnabled(Flag.CAST_V3) && googlePlayServicesWrapper.isPlayServiceAvailable(context)) {
-            return new DefaultCastContextWrapper(CastContext.getSharedInstance(context));
-        } else {
+        try {
+            if (isCastV3Enabled(flags, googlePlayServicesWrapper, context)) {
+                return new DefaultCastContextWrapper(CastContext.getSharedInstance(context));
+            } else {
+                return new NoOpCastContextWrapper();
+            }
+        } catch (Exception exception) {
             return new NoOpCastContextWrapper();
         }
     }
@@ -96,6 +102,10 @@ public class CastModule {
                                          playStatePublisher, dateProvider, castProtocol, playSessionStateProvider,
                                          expandPlayerSubscriber);
         }
+    }
+
+    private boolean isCastV3Enabled(FeatureFlags featureFlags, GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
+        return featureFlags.isEnabled(Flag.CAST_V3) && googlePlayServicesWrapper.isPlayServiceAvailable(context, REQUIRED_GOOGLE_PLAY_SERVICE_VERSION);
     }
 
 }
