@@ -5,13 +5,14 @@ import com.soundcloud.android.dialog.CustomFontViewBuilder;
 
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
 
 public class ForceUpdateDialog extends DialogFragment {
 
@@ -27,17 +28,27 @@ public class ForceUpdateDialog extends DialogFragment {
         }
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialog.Builder(getActivity())
+        Dialog dialog = new AlertDialog.Builder(getActivity())
                 .setView(new CustomFontViewBuilder(getActivity()).setTitle(R.string.kill_switch_message).get())
-                .setPositiveButton(R.string.kill_switch_confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        closeActivityAndLaunchPlayStore();
-                    }
-                })
+                .setPositiveButton(R.string.kill_switch_confirm, (d, which) -> closeActivityAndLaunchPlayStore())
                 .create();
+
+        dialog.setOnKeyListener((dialogInterface, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                return onBackPressed();
+            }
+            return false;
+        });
+
+        return dialog;
+    }
+
+    private boolean onBackPressed() {
+        getActivity().finish();
+        return true;
     }
 
     private void closeActivityAndLaunchPlayStore() {
