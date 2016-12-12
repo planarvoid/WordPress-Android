@@ -122,9 +122,13 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     }
 
     private void assertCorrectEvent(UIEvent event, UIEvent expectedEvent) {
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getContextScreen()).isEqualTo(expectedEvent.getContextScreen());
-        assertThat(event.getModule()).isEqualTo(expectedEvent.getModule());
+        assertThat(event.kind()).isEqualTo(expectedEvent.kind());
+        if (event.contextScreen().isPresent() && expectedEvent.contextScreen().isPresent()) {
+            assertThat(event.contextScreen().get()).isEqualTo(expectedEvent.contextScreen().get());
+        }
+        if (event.module().isPresent() && expectedEvent.module().isPresent()) {
+            assertThat(event.module().get()).isEqualTo(expectedEvent.module().get());
+        }
     }
 
     private EventContextMetadata getEventContextMetadata() {

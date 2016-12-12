@@ -138,7 +138,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.onMenuItemClick(repost, activityContext);
 
         UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.onMenuItemClick(unpost, activityContext);
 
         UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
     }
 
     @Test

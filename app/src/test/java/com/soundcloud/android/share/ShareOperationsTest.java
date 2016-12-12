@@ -24,8 +24,6 @@ import org.mockito.Mock;
 import android.app.Activity;
 import android.content.Intent;
 
-import java.util.Map;
-
 public class ShareOperationsTest extends AndroidUnitTest {
 
     private static final String SCREEN_TAG = "screen_tag";
@@ -71,12 +69,11 @@ public class ShareOperationsTest extends AndroidUnitTest {
         verify(tracker).trackEngagement(uiEventCaptor.capture());
 
         final UIEvent uiEvent = uiEventCaptor.getValue();
-        final Map<String, String> attributes = uiEvent.getAttributes();
 
-        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
-        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN_TAG);
-        assertThat(attributes.get("origin_screen")).isEqualTo(PAGE_NAME);
-        assertThat(attributes.get("click_object_urn")).isEqualTo("soundcloud:tracks:123");
+        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
+        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
+        assertThat(uiEvent.originScreen().get()).isEqualTo(PAGE_NAME);
+        assertThat(uiEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:123");
     }
 
     @Test
@@ -86,16 +83,15 @@ public class ShareOperationsTest extends AndroidUnitTest {
         verify(tracker).trackEngagement(uiEventCaptor.capture());
 
         final UIEvent uiEvent = uiEventCaptor.getValue();
-        final Map<String, String> attributes = uiEvent.getAttributes();
 
-        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
-        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN_TAG);
-        assertThat(attributes.get("origin_screen")).isEqualTo(PAGE_NAME);
-        assertThat(attributes.get("page_urn")).isEqualTo(PAGE_URN.toString());
-        assertThat(attributes.get("click_object_urn")).isEqualTo("soundcloud:tracks:12345");
-        assertThat(attributes.get("ad_urn")).isEqualTo("ad:urn:123");
-        assertThat(attributes.get("monetization_type")).isEqualTo("promoted");
-        assertThat(attributes.get("promoter_urn")).isEqualTo("soundcloud:users:193");
+        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
+        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
+        assertThat(uiEvent.originScreen().get()).isEqualTo(PAGE_NAME);
+        assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
+        assertThat(uiEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:12345");
+        assertThat(uiEvent.adUrn().get()).isEqualTo("ad:urn:123");
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.promoterUrn().get().toString()).isEqualTo("soundcloud:users:193");
     }
 
     @Test

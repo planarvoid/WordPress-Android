@@ -155,6 +155,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void onPlayQueueOpenTracksUIEvent() {
         listener.onPlayQueue();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_OPEN);
+        final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_OPEN);
     }
 }

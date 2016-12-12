@@ -19,8 +19,6 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableTrackingKeys;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -185,8 +183,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.onMenuItemClick(menuItem, context);
 
         verify(stationHandler).openStationWithSeedTrack(any(Context.class), eq(trackItem.getUrn()), uiEventArgumentCaptor.capture());
-        assertThat(uiEventArgumentCaptor.getValue().getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEventArgumentCaptor.getValue().get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(trackItem.getUrn().toString());
+        assertThat(uiEventArgumentCaptor.getValue().kind()).isEqualTo(UIEvent.Kind.NAVIGATION);
+        assertThat(uiEventArgumentCaptor.getValue().clickObjectUrn().get()).isEqualTo(trackItem.getUrn());
     }
 
     @Test
@@ -206,10 +204,10 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_NEXT);
-        assertThat(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(trackItem.getUrn().toString());
-        assertThat(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(SCREEN);
+        final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_NEXT);
+        assertThat(event.clickObjectUrn().get()).isEqualTo(trackItem.getUrn());
+        assertThat(event.originScreen().get()).isEqualTo(SCREEN);
     }
 
     private TrackItem createTrackItem() {

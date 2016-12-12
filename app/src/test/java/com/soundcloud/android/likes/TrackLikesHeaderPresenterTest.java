@@ -138,7 +138,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onShuffle();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_SHUFFLE);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.Kind.SHUFFLE.toString());
     }
 
     @Test

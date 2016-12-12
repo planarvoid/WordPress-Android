@@ -574,13 +574,14 @@ class EventLoggerEventData {
 
     @VisibleForTesting
     String toReferringEventName(String eventKind) {
+        if (eventKind.equals(UIEvent.Kind.NAVIGATION.toString())) {
+            return ITEM_INTERACTION;
+        }
         switch (eventKind) {
             case ScreenEvent.KIND:
                 return PAGEVIEW_EVENT;
             case ForegroundEvent.KIND_OPEN:
                 return FOREGROUND_EVENT;
-            case UIEvent.KIND_NAVIGATION:
-                return ITEM_INTERACTION;
             default:
                 throw new IllegalArgumentException(
                         "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);

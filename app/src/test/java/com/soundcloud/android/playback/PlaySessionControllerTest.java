@@ -20,7 +20,6 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -314,8 +313,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         inOrder.verify(playQueueManager).setCurrentPlayQueueItem(trackPlayQueueItem);
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
-        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.SKIP_AD_CLICK);
+        assertThat(event.adUrn().get()).isEqualTo(Urn.forAd("dfp", "869").toString());
     }
 
     @Test
@@ -409,8 +408,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         inOrder.verify(playQueueManager).moveToPreviousPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
-        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.SKIP_AD_CLICK);
+        assertThat(event.adUrn().get()).isEqualTo(Urn.forAd("dfp", "869").toString());
     }
 
     @Test
@@ -426,7 +425,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         inOrder.verify(playQueueManager).moveToPreviousPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.SKIP_AD_CLICK);
     }
 
     @Test
@@ -493,8 +492,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         inOrder.verify(playQueueManager).moveToNextPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
-        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.SKIP_AD_CLICK);
+        assertThat(event.adUrn().get()).isEqualTo(Urn.forAd("dfp", "869").toString());
     }
 
     @Test
@@ -509,7 +508,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         inOrder.verify(playQueueManager).moveToNextPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.SKIP_AD_CLICK);
     }
 
     @Test

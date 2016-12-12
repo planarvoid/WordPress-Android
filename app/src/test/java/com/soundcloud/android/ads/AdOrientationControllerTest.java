@@ -133,7 +133,7 @@ public class AdOrientationControllerTest extends AndroidUnitTest {
         setVideoAdIsPlaying(true);
 
         controller.onPause(activity);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_FULLSCREEN);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.Kind.VIDEO_AD_FULLSCREEN.toString());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class AdOrientationControllerTest extends AndroidUnitTest {
         setVideoAdIsPlaying(true);
 
         controller.onPause(activity);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_SHRINK);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.Kind.VIDEO_AD_SHRINK.toString());
     }
 
     private void setAudioPlaying(boolean isAd) {

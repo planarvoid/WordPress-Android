@@ -38,8 +38,6 @@ class AppboyEventHandler {
     private static final List<AppboyAttributeName> CREATOR_ATTRIBUTES = Arrays.asList(CREATOR_DISPLAY_NAME,
                                                                                       CREATOR_URN);
 
-    private static final List<AppboyAttributeName> PLAYLIST_ATTRIBUTES = Arrays.asList(PLAYLIST_TITLE, PLAYLIST_URN);
-
     private static final String ENABLED_PROPERTY = "enabled";
     private static final String CONTEXT_PROPERTY = "context";
     private static final String LIKES_CONTEXT = "likes";
@@ -57,26 +55,26 @@ class AppboyEventHandler {
     }
 
     void handleEvent(UIEvent event) {
-        switch (event.getKind()) {
-            case UIEvent.KIND_LIKE:
+        switch (event.kind()) {
+            case LIKE:
                 tagEvent(AppboyEvents.LIKE, buildPlayableProperties(event));
                 break;
-            case UIEvent.KIND_FOLLOW:
+            case FOLLOW:
                 tagEvent(AppboyEvents.FOLLOW, buildCreatorProperties(event));
                 break;
-            case UIEvent.KIND_COMMENT:
+            case COMMENT:
                 tagEvent(AppboyEvents.COMMENT, buildPlayableProperties(event));
                 break;
-            case UIEvent.KIND_SHARE:
+            case SHARE:
                 tagEvent(AppboyEvents.SHARE, buildPlayableProperties(event));
                 break;
-            case UIEvent.KIND_REPOST:
+            case REPOST:
                 tagEvent(AppboyEvents.REPOST, buildPlayableProperties(event));
                 break;
-            case UIEvent.KIND_CREATE_PLAYLIST:
+            case CREATE_PLAYLIST:
                 tagEvent(AppboyEvents.CREATE_PLAYLIST, buildPlaylistProperties(event));
                 break;
-            case UIEvent.KIND_START_STATION:
+            case START_STATION:
                 tagEvent(AppboyEvents.START_STATION);
                 break;
             default:
@@ -171,9 +169,36 @@ class AppboyEventHandler {
     private AppboyProperties buildPlayableProperties(TrackingEvent event) {
         return buildProperties(PLAYABLE_ATTRIBUTES, event);
     }
+    private AppboyProperties buildPlayableProperties(UIEvent event) {
+        AppboyProperties properties = new AppboyProperties();
+        if (event.creatorName().isPresent()) {
+            properties.addProperty(CREATOR_DISPLAY_NAME.getAppBoyKey(), event.creatorName().get());
+        }
+        if (event.creatorUrn().isPresent()) {
+            properties.addProperty(CREATOR_URN.getAppBoyKey(), event.creatorUrn().get().toString());
+        }
+        if (event.playableTitle().isPresent()) {
+            properties.addProperty(PLAYABLE_TITLE.getAppBoyKey(), event.playableTitle().get());
+        }
+        if (event.playableUrn().isPresent()) {
+            properties.addProperty(PLAYABLE_URN.getAppBoyKey(), event.playableUrn().get().toString());
+        }
+        if (event.playableType().isPresent()) {
+            properties.addProperty(PLAYABLE_TYPE.getAppBoyKey(), event.playableType().get());
+        }
+        return properties;
+    }
 
     private AppboyProperties buildPlaylistProperties(UIEvent event) {
-        return buildProperties(PLAYLIST_ATTRIBUTES, event);
+        AppboyProperties properties = new AppboyProperties();
+
+        if (event.playableTitle().isPresent()) {
+            properties.addProperty(PLAYLIST_TITLE.getAppBoyKey(), event.playableTitle().get());
+        }
+        if (event.playableUrn().isPresent()) {
+            properties.addProperty(PLAYLIST_URN.getAppBoyKey(), event.playableUrn().get().toString());
+        }
+        return properties;
     }
 
     private AppboyProperties buildCreatorProperties(UIEvent event) {

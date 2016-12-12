@@ -18,8 +18,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.StreamAdsController;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -469,6 +469,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onAppInstallItemClicked(view.getContext(), appInstall);
 
         verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(appInstall.getClickThroughUrl()));
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
+        final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
 }

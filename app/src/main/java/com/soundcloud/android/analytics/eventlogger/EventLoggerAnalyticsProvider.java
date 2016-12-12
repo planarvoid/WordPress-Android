@@ -152,34 +152,34 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleUIEvent(UIEvent event) {
-        switch (event.getKind()) {
-            case UIEvent.KIND_LIKE:
-            case UIEvent.KIND_UNLIKE:
-            case UIEvent.KIND_REPOST:
-            case UIEvent.KIND_UNREPOST:
-            case UIEvent.KIND_SHARE:
-            case UIEvent.KIND_FOLLOW:
-            case UIEvent.KIND_UNFOLLOW:
-            case UIEvent.KIND_PLAYER_OPEN:
-            case UIEvent.KIND_PLAYER_CLOSE:
-            case UIEvent.KIND_PLAY_QUEUE_OPEN:
-            case UIEvent.KIND_PLAY_QUEUE_CLOSE:
-            case UIEvent.KIND_SWIPE_SKIP:
-            case UIEvent.KIND_SYSTEM_SKIP:
-            case UIEvent.KIND_BUTTON_SKIP:
-            case UIEvent.KIND_NAVIGATION:
-            case UIEvent.KIND_SHUFFLE:
-            case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
-            case UIEvent.KIND_VIDEO_AD_SHRINK:
-            case UIEvent.KIND_AD_CLICKTHROUGH:
-            case UIEvent.KIND_SKIP_AD_CLICK:
-            case UIEvent.KIND_PLAY_QUEUE_SHUFFLE:
-            case UIEvent.KIND_PLAY_QUEUE_TRACK_REORDER:
-            case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE:
-            case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO:
-            case UIEvent.KIND_PLAY_QUEUE_REPEAT:
-            case UIEvent.KIND_PLAY_NEXT:
-            case UIEvent.KIND_RECOMMENDED_PLAYLISTS:
+        switch (event.kind()) {
+            case LIKE:
+            case UNLIKE:
+            case REPOST:
+            case UNREPOST:
+            case SHARE:
+            case FOLLOW:
+            case UNFOLLOW:
+            case PLAYER_OPEN:
+            case PLAYER_CLOSE:
+            case PLAY_QUEUE_OPEN:
+            case PLAY_QUEUE_CLOSE:
+            case SWIPE_SKIP:
+            case SYSTEM_SKIP:
+            case BUTTON_SKIP:
+            case NAVIGATION:
+            case SHUFFLE:
+            case VIDEO_AD_FULLSCREEN:
+            case VIDEO_AD_SHRINK:
+            case AD_CLICKTHROUGH:
+            case SKIP_AD_CLICK:
+            case PLAY_QUEUE_SHUFFLE:
+            case PLAY_QUEUE_TRACK_REORDER:
+            case PLAY_QUEUE_TRACK_REMOVE:
+            case PLAY_QUEUE_TRACK_REMOVE_UNDO:
+            case PLAY_QUEUE_REPEAT:
+            case PLAY_NEXT:
+            case RECOMMENDED_PLAYLISTS:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

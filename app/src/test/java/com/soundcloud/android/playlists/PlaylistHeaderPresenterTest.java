@@ -218,8 +218,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onToggleLike(true);
 
         UIEvent uiEvent = uiEventCaptor.getValue();
-        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_LIKE);
-        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
+        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.LIKE);
+        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test
@@ -232,8 +232,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onToggleLike(false);
 
         UIEvent uiEvent = uiEventCaptor.getValue();
-        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNLIKE);
-        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
+        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.UNLIKE);
+        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test
@@ -246,8 +246,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onToggleRepost(true, false);
 
         UIEvent uiEvent = uiEventCaptor.getValue();
-        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_REPOST);
-        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
+        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.REPOST);
+        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test
@@ -260,8 +260,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onToggleRepost(false, false);
 
         UIEvent uiEvent = uiEventCaptor.getValue();
-        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNREPOST);
-        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
+        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.UNREPOST);
+        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test

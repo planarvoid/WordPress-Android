@@ -17,7 +17,6 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
@@ -247,9 +246,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         presenter.repeatClicked(new ImageView(context()));
 
-        final TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_REPEAT);
-        assertThat(trackingEvent.get(UIEvent.KEY_PLAY_QUEUE_REPEAT_MODE)).isEqualTo(RepeatMode.REPEAT_ONE.get());
+        final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_REPEAT);
+        assertThat(trackingEvent.playQueueRepeatMode().get()).isEqualTo(RepeatMode.REPEAT_ONE.get());
     }
 
     @Test
@@ -331,7 +330,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     public void shouldEmitUIEventWhenClosing() {
         presenter.closePlayQueue();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_CLOSE);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_CLOSE.toString());
     }
 
     @Test
@@ -341,9 +340,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         presenter.shuffleClicked(toggleButton);
 
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_SHUFFLE);
-        assertThat(event.get(UIEvent.KEY_CLICK_NAME)).isEqualTo("shuffle::on");
+        final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_SHUFFLE);
+        assertThat(event.clickName().get()).isEqualTo(UIEvent.ClickName.SHUFFLE_ON);
     }
 
     @Test
@@ -353,17 +352,17 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         presenter.shuffleClicked(toggleButton);
 
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_SHUFFLE);
-        assertThat(event.get(UIEvent.KEY_CLICK_NAME)).isEqualTo("shuffle::off");
+        final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_SHUFFLE);
+        assertThat(event.clickName().get()).isEqualTo(UIEvent.ClickName.SHUFFLE_OFF);
     }
 
     @Test
     public void shouldTrackReorder() {
         presenter.moveItems(0, 1);
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)
-                           .getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_TRACK_REORDER);
+        final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_TRACK_REORDER);
     }
 
     @Test
@@ -376,7 +375,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter.remove(2);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
-                .isEqualTo(UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE);
+                .isEqualTo(UIEvent.Kind.PLAY_QUEUE_TRACK_REMOVE.toString());
     }
 
     @Test
@@ -389,7 +388,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         feedbackUndo();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
-                .isEqualTo(UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO);
+                .isEqualTo(UIEvent.Kind.PLAY_QUEUE_TRACK_REMOVE_UNDO.toString());
     }
 
     private void feedbackUndo() {

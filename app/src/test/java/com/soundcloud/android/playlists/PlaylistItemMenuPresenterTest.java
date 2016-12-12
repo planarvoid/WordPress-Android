@@ -21,8 +21,6 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -165,8 +163,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent uiEvent = uiEventArgumentCaptor.getValue();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
-        assertThat(uiEvent.isFromOverflow()).isTrue();
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
+        assertThat(uiEvent.isFromOverflow().get()).isTrue();
     }
 
     @Test
@@ -199,8 +197,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent uiEvent = uiEventArgumentCaptor.getValue();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
-        assertThat(uiEvent.isFromOverflow()).isTrue();
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
+        assertThat(uiEvent.isFromOverflow().get()).isTrue();
     }
 
     @Test
@@ -303,10 +301,10 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
         presenter.handlePlayNext();
 
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_PLAY_NEXT);
-        assertThat(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(playlist.getUrn().toString());
-        assertThat(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo(SCREEN);
+        final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_NEXT);
+        assertThat(event.clickObjectUrn().get()).isEqualTo(playlist.getUrn());
+        assertThat(event.originScreen().get()).isEqualTo(SCREEN);
     }
 
 }

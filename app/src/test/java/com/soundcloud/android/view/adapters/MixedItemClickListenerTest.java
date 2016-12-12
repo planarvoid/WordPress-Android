@@ -33,7 +33,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -230,14 +229,13 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        uiEventArgumentCaptor.capture());
 
         assertThat(uiEventArgumentCaptor.getValue()
-                                        .getAttributingActivity()
+                                        .attributingActivity()
                                         .get()).isEqualTo(AttributingActivity.fromPlayableItem(
                 playlistItem));
 
-        assertThat(uiEventArgumentCaptor.getValue().getContextScreen()).isEqualTo(screen.get());
+        assertThat(uiEventArgumentCaptor.getValue().contextScreen().get()).isEqualTo(screen.get());
 
-        assertThat(uiEventArgumentCaptor.getValue()
-                                        .getLinkType()).isEqualTo(LinkType.SELF.getName());
+        assertThat(uiEventArgumentCaptor.getValue().linkType().get()).isEqualTo(LinkType.SELF.getName());
     }
 
     @Test
@@ -305,7 +303,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        any(PromotedSourceInfo.class),
                                        uiEventArgumentCaptor.capture());
 
-        assertThat(uiEventArgumentCaptor.getValue().getModule()).isEqualTo(Optional.of(module));
+        assertThat(uiEventArgumentCaptor.getValue().module().get()).isEqualTo(module);
     }
 
     @Test

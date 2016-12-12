@@ -1,7 +1,5 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.events.UIEvent.TYPE_MONETIZABLE_PROMOTED;
-
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -106,7 +104,7 @@ public class OfflineInteractionEvent extends LegacyTrackingEvent {
     private OfflineInteractionEvent putPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
         if (promotedSourceInfo != null) {
             put(PlayableTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn());
-            put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
+            put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, UIEvent.MonetizationType.PROMOTED.toString());
             if (promotedSourceInfo.getPromoterUrn().isPresent()) {
                 put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
             }

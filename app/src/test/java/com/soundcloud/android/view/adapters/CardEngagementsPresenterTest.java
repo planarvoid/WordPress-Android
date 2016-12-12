@@ -110,10 +110,10 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent trackingEvent = uiEventArgumentCaptor.getValue();
-        assertThat(trackingEvent.getKind()).isEqualTo(playableItem.isRepostedByCurrentUser() ?
-                                                      UIEvent.KIND_UNREPOST :
-                                                      UIEvent.KIND_REPOST);
-        assertThat(trackingEvent.isFromOverflow()).isFalse();
+        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isRepostedByCurrentUser() ?
+                                                      UIEvent.Kind.UNREPOST :
+                                                      UIEvent.Kind.REPOST);
+        assertThat(trackingEvent.isFromOverflow().get()).isFalse();
     }
 
     @Test
@@ -125,8 +125,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent trackingEvent = uiEventArgumentCaptor.getValue();
-        assertThat(trackingEvent.getKind()).isEqualTo(playableItem.isLiked() ? UIEvent.KIND_UNLIKE : UIEvent.KIND_LIKE);
-        assertThat(trackingEvent.isFromOverflow()).isFalse();
+        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isLiked() ? UIEvent.Kind.UNLIKE : UIEvent.Kind.LIKE);
+        assertThat(trackingEvent.isFromOverflow().get()).isFalse();
     }
 
     private CardEngagementClickListener captureListener() {

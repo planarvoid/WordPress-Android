@@ -395,7 +395,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackOtherUIEvents() {
-        UIEvent event = new UIEvent(UIEvent.KIND_START_STATION);
+        UIEvent event = UIEvent.fromStartStation();
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 

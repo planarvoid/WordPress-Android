@@ -38,7 +38,6 @@ import com.soundcloud.android.events.LinkType;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
@@ -1122,10 +1121,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                     .pageUrn(pageUrn)
                                     .build();
 
-        final UIEvent navigationEvent = UIEvent.fromNavigation(TRACK_URN, eventContextMetadata);
         final String pageviewId = randomUUID().toString();
 
-        navigationEvent.putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
+        final UIEvent navigationEvent = UIEvent.fromNavigation(TRACK_URN, eventContextMetadata).putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
 
         jsonDataBuilder.buildForUIEvent(navigationEvent);
 
@@ -1143,8 +1141,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                     attributingActivity.getResource())
                                                .module(module.getName())
                                                .modulePosition(position)
-                                               .queryUrn(navigationEvent.getQueryUrn().get().toString())
-                                               .queryPosition(navigationEvent.getQueryPosition().get())
+                                               .queryUrn(navigationEvent.queryUrn().get().toString())
+                                               .queryPosition(navigationEvent.queryPosition().get())
         );
     }
 
@@ -1168,10 +1166,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                     .pageUrn(pageUrn)
                                     .build();
 
-        final UIEvent navigationEvent = UIEvent.fromNavigation(TRACK_URN, eventContextMetadata);
         final String pageviewId = randomUUID().toString();
-
-        navigationEvent.putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
+        final UIEvent navigationEvent = UIEvent.fromNavigation(TRACK_URN, eventContextMetadata).putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
 
         jsonDataBuilder.buildForUIEvent(navigationEvent);
 
@@ -1187,8 +1183,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageUrn(pageUrn.toString())
                                                .module(module.getName())
                                                .modulePosition(position)
-                                               .queryUrn(navigationEvent.getQueryUrn().get().toString())
-                                               .queryPosition(navigationEvent.getQueryPosition().get())
+                                               .queryUrn(navigationEvent.queryUrn().get().toString())
+                                               .queryPosition(navigationEvent.queryPosition().get())
         );
     }
 
@@ -1204,10 +1200,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                     .module(module)
                                     .build();
 
-        final UIEvent event = UIEvent.fromToggleFollow(true, userMetadata, eventContextMetadata);
         final String pageviewId = randomUUID().toString();
-
-        event.putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
+        final UIEvent event = UIEvent.fromToggleFollow(true, userMetadata, eventContextMetadata).putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
 
         jsonDataBuilder.buildForInteractionEvent(event);
 
@@ -1598,8 +1592,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsScreenEventJsonWithUuidAndReferringEventWhenHtiEnabled() throws ApiMapperException {
-        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
         final String referringEventId = "id";
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
         screenEvent.putReferringEvent(ReferringEvent.create(referringEventId, ScreenEvent.KIND));
         when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(true);
 
@@ -1666,8 +1660,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(shuffleEvent);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, shuffleEvent.getTimestamp())
-                                               .clickName(shuffleEvent.get(UIEvent.KEY_CLICK_NAME))
-                                               .pageName(shuffleEvent.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+                                               .clickName(shuffleEvent.clickName().get().toString())
+                                               .pageName(shuffleEvent.originScreen().get()));
     }
 
     @Test
@@ -1678,7 +1672,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .clickName("track_in_play_queue::reorder")
-                                               .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+                                               .pageName(event.originScreen().get()));
     }
 
     @Test
@@ -1689,7 +1683,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .clickName("track_in_play_queue::remove")
-                                               .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+                                               .pageName(event.originScreen().get()));
     }
 
     @Test
@@ -1700,7 +1694,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .clickName("track_in_play_queue::remove_undo")
-                                               .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)));
+                                               .pageName(event.originScreen().get()));
     }
 
     @Test

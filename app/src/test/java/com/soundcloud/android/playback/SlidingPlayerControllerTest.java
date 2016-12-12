@@ -16,7 +16,6 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerFragment;
@@ -251,10 +250,10 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         controller.onPanelCollapsed(slidingPanel);
 
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerClose(true);
-        assertThat(event.getKind()).isEqualTo(expected.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
+        assertThat(event.kind()).isEqualTo(expected.kind());
+        assertThat(event.trigger().get()).isEqualTo(expected.trigger().get());
     }
 
     @Test
@@ -264,10 +263,10 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         controller.onPanelExpanded(slidingPanel);
 
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerOpen(true);
-        assertThat(event.getKind()).isEqualTo(expected.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
+        assertThat(event.kind()).isEqualTo(expected.kind());
+        assertThat(event.trigger()).isEqualTo(expected.trigger());
     }
 
     @Test
@@ -359,7 +358,8 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         controller.handleBackPressed();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAY_QUEUE_CLOSE);
+        final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_CLOSE);
     }
 
 

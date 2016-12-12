@@ -8,6 +8,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDI
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
+import static com.soundcloud.android.events.FacebookInvitesEvent.KEY_CLICK_NAME;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
@@ -24,7 +25,6 @@ import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
-import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -50,7 +50,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -205,11 +204,6 @@ class EventLoggerV1JsonDataBuilder {
         return transform(data);
     }
 
-    private EventLoggerEventData buildAdClickThroughEvent(UIEvent event) {
-        return buildClickEvent(event.get(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND), event)
-                .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL));
-    }
-
     String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
         return transform(buildBaseEvent(RICH_MEDIA_PERFORMANCE_EVENT, event.getTimestamp())
                                  .mediaType(event.isVideoAd() ? "video" : "audio")
@@ -329,61 +323,37 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForUIEvent(UIEvent event) {
-        switch (event.getKind()) {
-            case UIEvent.KIND_SHARE:
-                return transform(buildEngagementEvent("share", event));
-            case UIEvent.KIND_REPOST:
-                return transform(buildEngagementEvent("repost::add", event));
-            case UIEvent.KIND_UNREPOST:
-                return transform(buildEngagementEvent("repost::remove", event));
-            case UIEvent.KIND_LIKE:
-                return transform(buildEngagementEvent("like::add", event));
-            case UIEvent.KIND_UNLIKE:
-                return transform(buildEngagementEvent("like::remove", event));
-            case UIEvent.KIND_SHUFFLE:
-                return transform(buildPlaybackClickEvent("shuffle:on", event));
-            case UIEvent.KIND_SWIPE_SKIP:
-                return transform(buildPlayerClickEvent("swipe_skip", event));
-            case UIEvent.KIND_SYSTEM_SKIP:
-                return transform(buildPlayerClickEvent("system_skip", event));
-            case UIEvent.KIND_BUTTON_SKIP:
-                return transform(buildPlayerClickEvent("button_skip", event));
-            case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
-                return transform(buildClickEvent("ad::full_screen", event));
-            case UIEvent.KIND_VIDEO_AD_SHRINK:
-                return transform(buildClickEvent("ad::exit_full_screen", event));
-            case UIEvent.KIND_AD_CLICKTHROUGH:
-                return transform(buildAdClickThroughEvent(event));
-            case UIEvent.KIND_SKIP_AD_CLICK:
-                return transform(buildClickEvent("ad::skip", event));
-            case UIEvent.KIND_NAVIGATION:
-                return transform(buildInteractionEvent(ACTION_NAVIGATION, event));
-            case UIEvent.KIND_FOLLOW:
-                return transform(buildEngagementEvent(FOLLOW_ADD, event));
-            case UIEvent.KIND_UNFOLLOW:
-                return transform(buildEngagementEvent(FOLLOW_REMOVE, event));
-            case UIEvent.KIND_PLAYER_OPEN:
-                return transform(buildClickEvent("player::max", event));
-            case UIEvent.KIND_PLAYER_CLOSE:
-                return transform(buildClickEvent("player::min", event));
-            case UIEvent.KIND_PLAY_QUEUE_OPEN:
-                return transform(buildClickEvent("play_queue::max", event));
-            case UIEvent.KIND_PLAY_QUEUE_CLOSE:
-                return transform(buildClickEvent("play_queue::min", event));
-            case UIEvent.KIND_PLAY_QUEUE_SHUFFLE:
-                return transform(buildClickEvent(event.get(UIEvent.KEY_CLICK_NAME), event));
-            case UIEvent.KIND_PLAY_QUEUE_TRACK_REORDER:
-                return transform(buildClickEvent("track_in_play_queue::reorder", event));
-            case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE:
-                return transform(buildClickEvent("track_in_play_queue::remove", event));
-            case UIEvent.KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO:
-                return transform(buildClickEvent("track_in_play_queue::remove_undo", event));
-            case UIEvent.KIND_PLAY_QUEUE_REPEAT:
-                return transform(buildRepeatClickEvent(event));
-            case UIEvent.KIND_PLAY_NEXT:
-                return transform(buildEngagementEvent(PLAY_NEXT, event));
-            case UIEvent.KIND_RECOMMENDED_PLAYLISTS:
+        switch (event.kind()) {
+            case SHARE:
+            case REPOST:
+            case UNREPOST:
+            case LIKE:
+            case UNLIKE:
+            case SHUFFLE:
+            case SWIPE_SKIP:
+            case SYSTEM_SKIP:
+            case BUTTON_SKIP:
+            case VIDEO_AD_FULLSCREEN:
+            case VIDEO_AD_SHRINK:
+            case AD_CLICKTHROUGH:
+            case SKIP_AD_CLICK:
+            case FOLLOW:
+            case UNFOLLOW:
+            case PLAYER_OPEN:
+            case PLAYER_CLOSE:
+            case PLAY_QUEUE_OPEN:
+            case PLAY_QUEUE_CLOSE:
+            case PLAY_QUEUE_SHUFFLE:
+            case PLAY_QUEUE_TRACK_REORDER:
+            case PLAY_QUEUE_TRACK_REMOVE:
+            case PLAY_QUEUE_TRACK_REMOVE_UNDO:
+            case PLAY_QUEUE_REPEAT:
+            case PLAY_NEXT:
+                return transform(buildClickEvent(event));
+            case RECOMMENDED_PLAYLISTS:
                 return transform(buildItemNavigationClickEvent(event));
+            case NAVIGATION:
+                return transform(buildInteractionEvent(ACTION_NAVIGATION, event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -419,25 +389,15 @@ class EventLoggerV1JsonDataBuilder {
         return eventData;
     }
 
-    private EventLoggerEventData buildRepeatClickEvent(UIEvent event) {
-        String repeatMode = event.get(UIEvent.KEY_PLAY_QUEUE_REPEAT_MODE);
-
-        if (Strings.isNotBlank(repeatMode)) {
-            return buildClickEvent("repeat::on", event).clickRepeat(repeatMode);
-        } else {
-            return buildClickEvent("repeat::off", event);
-        }
-    }
-
     boolean isInteractionEvent(UIEvent event) {
-        switch (event.getKind()) {
-            case UIEvent.KIND_SHARE:
-            case UIEvent.KIND_REPOST:
-            case UIEvent.KIND_UNREPOST:
-            case UIEvent.KIND_LIKE:
-            case UIEvent.KIND_UNLIKE:
-            case UIEvent.KIND_FOLLOW:
-            case UIEvent.KIND_UNFOLLOW:
+        switch (event.kind()) {
+            case SHARE:
+            case REPOST:
+            case UNREPOST:
+            case LIKE:
+            case UNLIKE:
+            case FOLLOW:
+            case UNFOLLOW:
                 return true;
             default:
                 return false;
@@ -445,20 +405,20 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForInteractionEvent(UIEvent event) {
-        switch (event.getKind()) {
-            case UIEvent.KIND_SHARE:
+        switch (event.kind()) {
+            case SHARE:
                 return transform(buildInteractionEvent("share", event));
-            case UIEvent.KIND_REPOST:
+            case REPOST:
                 return transform(buildInteractionEvent("repost::add", event));
-            case UIEvent.KIND_UNREPOST:
+            case UNREPOST:
                 return transform(buildInteractionEvent("repost::remove", event));
-            case UIEvent.KIND_LIKE:
+            case LIKE:
                 return transform(buildInteractionEvent("like::add", event));
-            case UIEvent.KIND_UNLIKE:
+            case UNLIKE:
                 return transform(buildInteractionEvent("like::remove", event));
-            case UIEvent.KIND_FOLLOW:
+            case FOLLOW:
                 return transform(buildInteractionEvent(FOLLOW_ADD, event));
-            case UIEvent.KIND_UNFOLLOW:
+            case UNFOLLOW:
                 return transform(buildInteractionEvent(FOLLOW_REMOVE, event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
@@ -506,23 +466,6 @@ class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    private EventLoggerEventData buildPlaybackClickEvent(String clickName, UIEvent event) {
-        EventLoggerEventData eventData =
-                buildClickEvent(clickName, event).clickCategory(EventLoggerClickCategories.PLAYBACK);
-
-        final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
-
-        if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
-            eventData.pageUrn(pageUrn);
-        }
-        return eventData;
-    }
-
-    private EventLoggerEventData buildPlayerClickEvent(String clickName, UIEvent event) {
-        return buildClickEvent(clickName, event)
-                .clickCategory(EventLoggerClickCategories.PLAYER);
-    }
-
     private EventLoggerEventData buildCollectionEvent(String clickName, CollectionEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
                 .clickName(clickName)
@@ -541,46 +484,49 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildItemNavigationClickEvent(UIEvent event) {
-        final EventLoggerEventData eventData = buildClickEvent(CollectionEvent.CLICK_NAME_ITEM_NAVIGATION,
-                                                               event);
+        final EventLoggerEventData eventData = buildClickEvent(event);
 
-        final String clickSource = event.getClickSource();
-        eventData.source(clickSource);
-        eventData.clickSource(clickSource);
-        final Optional<Urn> queryUrn = event.getQueryUrn();
-        final Optional<Integer> queryPosition = event.getQueryPosition();
-
-        if (queryUrn.isPresent() && !queryUrn.get().equals(Urn.NOT_SET)) {
-            eventData.queryUrn(queryUrn.get().toString());
-        }
-
-        if (queryPosition.isPresent()) {
-            eventData.queryPosition(queryPosition.get());
+        if (event.clickSource().isPresent()) {
+            eventData.clickSource(event.clickSource().get());
+            eventData.source(event.clickSource().get());
         }
 
         return eventData;
     }
 
-    private EventLoggerEventData buildClickEvent(String clickName, UIEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .clickName(clickName)
-                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
-                .clickObject(getClickObjectFromEvent(event))
-                .clickTrigger(event.get(PlayableTrackingKeys.KEY_TRIGGER));
-    }
-
-    private EventLoggerEventData buildEngagementEvent(String engagementClickName, UIEvent event) {
-        EventLoggerEventData eventData = buildClickEvent(engagementClickName, event)
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickSource(event.getClickSource());
-
-        final Optional<Urn> sourceUrn = event.getClickSourceUrn();
-        final Optional<Urn> queryUrn = event.getQueryUrn();
-        final Optional<Integer> queryPosition = event.getQueryPosition();
+    private EventLoggerEventData buildClickEvent(UIEvent event) {
+        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event);
+        if (event.clickCategory().isPresent()) {
+            eventData.clickCategory(event.clickCategory().get().toString());
+        }
+        if (event.originScreen().isPresent()) {
+            eventData.pageName(event.originScreen().get());
+        }
+        if (event.adUrn().isPresent()) {
+            eventData.adUrn(event.adUrn().get());
+        }
+        if (event.monetizationType().isPresent()) {
+            eventData.monetizationType(event.monetizationType().get().toString());
+        }
+        if (event.monetizableTrackUrn().isPresent()) {
+            eventData.monetizedObject(event.monetizableTrackUrn().get().toString());
+        }
+        final Optional<Urn> clickObjectFromEvent = getClickObjectFromEvent(event);
+        if (clickObjectFromEvent.isPresent()) {
+            eventData.clickObject(clickObjectFromEvent.get().toString());
+        }
+        if (event.trigger().isPresent()) {
+            eventData.clickTrigger(event.trigger().get().toString());
+        }
+        if (event.promoterUrn().isPresent()) {
+            eventData.promotedBy(event.promoterUrn().get().toString());
+        }
+        if (event.clickSource().isPresent()) {
+            eventData.clickSource(event.clickSource().get());
+        }
+        final Optional<Urn> sourceUrn = event.clickSourceUrn();
+        final Optional<Urn> queryUrn = event.queryUrn();
+        final Optional<Integer> queryPosition = event.queryPosition();
 
         if (sourceUrn.isPresent() && !sourceUrn.get().equals(Urn.NOT_SET)) {
             eventData.clickSourceUrn(sourceUrn.get().toString());
@@ -594,36 +540,60 @@ class EventLoggerV1JsonDataBuilder {
             eventData.queryPosition(queryPosition.get());
         }
 
-        final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
-        if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
-            eventData.pageUrn(pageUrn);
+        final Optional<Urn> pageUrn = event.pageUrn();
+        if (pageUrn.isPresent() && !pageUrn.get().equals(Urn.NOT_SET)) {
+            eventData.pageUrn(pageUrn.get().toString());
         }
 
-        if (event.isFromOverflow()) {
-            eventData.fromOverflowMenu(event.isFromOverflow());
+        if (event.isFromOverflow().isPresent() && event.isFromOverflow().get()) {
+            eventData.fromOverflowMenu(event.isFromOverflow().get());
         }
+        if (event.playQueueRepeatMode().isPresent()) {
+            eventData.clickRepeat(event.playQueueRepeatMode().get());
+        }
+        final Optional<Urn> urnOptional = event.pageUrn();
 
-        return eventData;
+        if (urnOptional.isPresent() && !urnOptional.get().equals(Urn.NOT_SET)) {
+            eventData.pageUrn(urnOptional.get().toString());
+        }
+        if (event.clickthroughsUrl().isPresent()) {
+            eventData.clickTarget(event.clickthroughsUrl().get());
+        }
+        if (event.clickthroughsKind().isPresent()) {
+            eventData.clickName(event.clickthroughsKind().get());
+        }
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get().toString());
+        }
+        return  eventData;
     }
 
     private EventLoggerEventData buildInteractionEvent(String action, UIEvent event) {
-        final Optional<AttributingActivity> attributingActivity = event.getAttributingActivity();
-        final Optional<Module> module = event.getModule();
-        final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
+        final Optional<AttributingActivity> attributingActivity = event.attributingActivity();
+        final Optional<Module> module = event.module();
+        final Optional<Urn> pageUrn = event.pageUrn();
+        final Optional<Urn> clickObjectFromEvent = getClickObjectFromEvent(event);
 
-        final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event)
-                .clientEventId(event.getId())
-                .item(getClickObjectFromEvent(event))
-                .pageviewId(event.get(ReferringEvent.REFERRING_EVENT_ID_KEY))
-                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .action(action);
+        final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event).action(action).clientEventId(event.id());
 
-        if (action.equals(ACTION_NAVIGATION)) {
-            eventData.linkType(event.getLinkType());
+        if (clickObjectFromEvent.isPresent()) {
+            eventData.item(clickObjectFromEvent.get().toString());
         }
 
-        if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
-            eventData.pageUrn(pageUrn);
+        if (event.originScreen().isPresent()) {
+            eventData.pageName(event.originScreen().get());
+        }
+
+        if (event.referringEvent().isPresent()) {
+            eventData.pageviewId(event.referringEvent().get().getId());
+        }
+
+        if (action.equals(ACTION_NAVIGATION) && event.linkType().isPresent()) {
+            eventData.linkType(event.linkType().get());
+        }
+
+        if (pageUrn.isPresent() && !pageUrn.get().equals(Urn.NOT_SET)) {
+            eventData.pageUrn(pageUrn.get().toString());
         }
 
         if (attributingActivity.isPresent() && attributingActivity.get().isActive(module)) {
@@ -635,22 +605,21 @@ class EventLoggerV1JsonDataBuilder {
             eventData.modulePosition(module.get().getPosition());
         }
 
-        if (event.getQueryUrn().isPresent()) {
-            eventData.queryUrn(event.getQueryUrn().get().toString());
+        if (event.queryUrn().isPresent()) {
+            eventData.queryUrn(event.queryUrn().get().toString());
         }
 
-        if (event.getQueryPosition().isPresent()) {
-            eventData.queryPosition(event.getQueryPosition().get());
+        if (event.queryPosition().isPresent()) {
+            eventData.queryPosition(event.queryPosition().get());
         }
 
         return eventData;
     }
 
-    @Nullable
-    private String getClickObjectFromEvent(UIEvent event) {
-        return event.contains(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)
-               ? event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)
-               : event.get(EntityMetadata.KEY_CREATOR_URN);
+    private Optional<Urn> getClickObjectFromEvent(UIEvent event) {
+        return event.clickObjectUrn().isPresent()
+               ? event.clickObjectUrn()
+               : event.creatorUrn();
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
@@ -706,7 +675,7 @@ class EventLoggerV1JsonDataBuilder {
         return buildBaseEvent(CLICK_EVENT, event)
                 .pageName(event.get(FacebookInvitesEvent.KEY_PAGE_NAME))
                 .clickCategory(event.get(FacebookInvitesEvent.KEY_CLICK_CATEGORY))
-                .clickName(event.get(FacebookInvitesEvent.KEY_CLICK_NAME));
+                .clickName(event.get(KEY_CLICK_NAME));
     }
 
     private String transform(EventLoggerEventData data) {

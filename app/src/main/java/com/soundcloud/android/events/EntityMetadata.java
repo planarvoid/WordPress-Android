@@ -132,7 +132,7 @@ public class EntityMetadata {
              .put(KEY_PLAYABLE_TYPE, getPlayableType());
     }
 
-    private String getPlayableType() {
+    String getPlayableType() {
         if (playableUrn.isTrack()) {
             return TYPE_TRACK;
         } else if (playableUrn.isPlaylist()) {

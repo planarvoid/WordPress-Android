@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
@@ -12,410 +13,586 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import org.jetbrains.annotations.NotNull;
 
-import android.support.annotation.NonNull;
+import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public final class UIEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class UIEvent extends NewTrackingEvent {
 
-    public static final String TYPE_MONETIZABLE_PROMOTED = "promoted";
-    public static final String KEY_PLAY_QUEUE_REPEAT_MODE = "repeat_mode";
+    public enum Kind {
+        FOLLOW("follow"),
+        UNFOLLOW("unfollow"),
+        LIKE("like"),
+        UNLIKE("unlike"),
+        REPOST("repost"),
+        UNREPOST("unrepost"),
+        ADD_TO_PLAYLIST("add_to_playlist"),
+        CREATE_PLAYLIST("create_playlist"),
+        COMMENT("comment"),
+        SHARE("share"),
+        SHUFFLE("shuffle"),
+        PLAY_QUEUE_SHUFFLE("play_queue_shuffle"),
+        SWIPE_SKIP("swipe_skip"),
+        SYSTEM_SKIP("system_skip"),
+        BUTTON_SKIP("button_skip"),
+        NAVIGATION("navigation"),
+        PLAYER_OPEN("player_open"),
+        PLAYER_CLOSE("player_close"),
+        VIDEO_AD_FULLSCREEN("video_ad_fullscreen"),
+        VIDEO_AD_SHRINK("video_ad_shrink"),
+        AD_CLICKTHROUGH("ad_click_through"),
+        SKIP_AD_CLICK("skip_ad_click"),
+        START_STATION("start_station"),
+        PLAY_QUEUE_OPEN("play_queue_open"),
+        PLAY_QUEUE_CLOSE("play_queue_close"),
+        PLAY_QUEUE_TRACK_REORDER("play_queue_track_reorder"),
+        PLAY_QUEUE_TRACK_REMOVE("play_queue_track_remove"),
+        PLAY_QUEUE_TRACK_REMOVE_UNDO("play_queue_track_remove_undo"),
+        PLAY_QUEUE_REPEAT("play_queue_repeat"),
+        PLAY_NEXT("play_next"),
+        RECOMMENDED_PLAYLISTS("playlist_discovery");
+        private final String key;
 
-    public static final String KIND_FOLLOW = "follow";
+        Kind(String key) {
+            this.key = key;
+        }
 
-    public static final String KIND_UNFOLLOW = "unfollow";
-    public static final String KIND_LIKE = "like";
-    public static final String KIND_UNLIKE = "unlike";
-    public static final String KIND_REPOST = "repost";
-    public static final String KIND_UNREPOST = "unrepost";
-    public static final String KIND_ADD_TO_PLAYLIST = "add_to_playlist";
-    public static final String KIND_CREATE_PLAYLIST = "create_playlist";
-    public static final String KIND_COMMENT = "comment";
-    public static final String KIND_SHARE = "share";
-    public static final String KIND_SHUFFLE = "shuffle";
-    public static final String KIND_PLAY_QUEUE_SHUFFLE = "play_queue_shuffle";
-    public static final String KIND_SWIPE_SKIP = "swipe_skip";
-    public static final String KIND_SYSTEM_SKIP = "system_skip";
-    public static final String KIND_BUTTON_SKIP = "button_skip";
-    public static final String KIND_NAVIGATION = "navigation";
-    public static final String KIND_PLAYER_OPEN = "player_open";
-    public static final String KIND_PLAYER_CLOSE = "player_close";
-    public static final String KIND_VIDEO_AD_FULLSCREEN = "video_ad_fullscreen";
-    public static final String KIND_VIDEO_AD_SHRINK = "video_ad_shrink";
-    public static final String KIND_AD_CLICKTHROUGH = "ad_click_through";
-    public static final String KIND_SKIP_AD_CLICK = "skip_ad_click";
-    public static final String KIND_START_STATION = "start_station";
-    public static final String KEY_CLICK_NAME = "click_name";
-    public static final String KIND_PLAY_QUEUE_OPEN = "play_queue_open";
-    public static final String KIND_PLAY_QUEUE_CLOSE = "play_queue_close";
-    public static final String KIND_PLAY_QUEUE_TRACK_REORDER = "play_queue_track_reorder";
-    public static final String KIND_PLAY_QUEUE_TRACK_REMOVE = "play_queue_track_remove";
-    public static final String KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO = "play_queue_track_remove_undo";
-    public static final String KIND_PLAY_QUEUE_REPEAT = "play_queue_repeat";
-    public static final String KIND_PLAY_NEXT = "play_next";
-    public static final String KIND_RECOMMENDED_PLAYLISTS = "playlist_discovery";
+        public String toString() {
+            return key;
+        }
+    }
 
-    private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
-    private static final String SKIPS = "SKIPS";
-    private static final String SIZE_CHANGES = "SIZE_CHANGES";
-    private static final String TYPE_VIDEO_AD = "video_ad";
-    private static final String TYPE_AUDIO_AD = "audio_ad";
-    private static final String TYPE_MOBILE_INLAY = "mobile_inlay";
-    private static final String TRIGGER_AUTO = "auto";
-    private static final String TRIGGER_MANUAL = "manual";
-    private static final String SHUFFLE_ON = "shuffle::on";
-    private static final String SHUFFLE_OFF = "shuffle::off";
+    public String getKind() {
+        return kind().toString();
+    }
 
-    private final Map<String, List<String>> promotedTrackingUrls;
-    private EventContextMetadata eventContextMetadata;
+    public enum Trigger {
+        AUTO("auto"),
+        MANUAL("manual");
+        private final String key;
+
+        Trigger(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public enum MonetizationType {
+        PROMOTED("promoted"),
+        AUDIO_AD("audio_ad"),
+        VIDEO_AD("video_ad"),
+        MOBILE_INLAY("mobile_inlay");
+        private final String key;
+
+        MonetizationType(String key) {
+            this.key = key;
+        }
+
+        private static MonetizationType fromAdData(AdData adData) {
+            if (adData instanceof AudioAd) {
+                return AUDIO_AD;
+            } else if (adData instanceof VideoAd) {
+                return VIDEO_AD;
+            } else {
+                return MOBILE_INLAY;
+            }
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public enum ClickName {
+
+        SHARE("share"),
+        REPOST("repost::add"),
+        UNREPOST("repost::remove"),
+        LIKE("like::add"),
+        UNLIKE("like::remove"),
+        SHUFFLE("shuffle:on"),
+        SWIPE_SKIP("swipe_skip"),
+        SYSTEM_SKIP("system_skip"),
+        BUTTON_SKIP("button_skip"),
+        VIDEO_AD_FULLSCREEN("ad::full_screen"),
+        VIDEO_AD_SHRINK("ad::exit_full_screen"),
+        SKIP_AD_CLICK("ad::skip"),
+        FOLLOW_ADD("follow::add"),
+        FOLLOW_REMOVE("follow::remove"),
+        PLAYER_OPEN("player::max"),
+        PLAYER_CLOSE("player::min"),
+        PLAY_QUEUE_OPEN("play_queue::max"),
+        PLAY_QUEUE_CLOSE("play_queue::min"),
+        PLAY_QUEUE_TRACK_REORDER("track_in_play_queue::reorder"),
+        PLAY_QUEUE_TRACK_REMOVE("track_in_play_queue::remove"),
+        PLAY_QUEUE_TRACK_REMOVE_UNDO("track_in_play_queue::remove_undo"),
+        PLAY_QUEUE_REPEAT_ON("repeat::on"),
+        PLAY_QUEUE_REPEAT_OFF("repeat::off"),
+        PLAY_NEXT("play_next"),
+        RECOMMENDED_PLAYLIST("item_navigation"),
+        SHUFFLE_ON("shuffle::on"),
+        SHUFFLE_OFF("shuffle::off");
+        private final String key;
+
+        ClickName(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public enum ClickCategory {
+        PLAYBACK("playback"),
+        PLAYER("player_interaction"),
+        ENGAGEMENT("engagement");
+        private final String key;
+
+        ClickCategory(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public abstract Kind kind();
+
+    public abstract Optional<Trigger> trigger();
+
+    public abstract Optional<String> creatorName();
+
+    public abstract Optional<Urn> creatorUrn();
+
+    public abstract Optional<String> playableTitle();
+
+    public abstract Optional<Urn> playableUrn();
+
+    public abstract Optional<String> playableType();
+
+    public abstract Optional<Urn> pageUrn();
+
+    public abstract Optional<String> originScreen();
+
+    public abstract Optional<AttributingActivity> attributingActivity();
+
+    public abstract Optional<Module> module();
+
+    public abstract Optional<String> linkType();
+
+    public abstract Optional<ClickName> clickName();
+
+    public abstract Optional<ClickCategory> clickCategory();
+
+    public abstract Optional<String> contextScreen();
+
+    public abstract Optional<String> invokerScreen();
+
+    public abstract Optional<String> clickSource();
+
+    public abstract Optional<Urn> clickSourceUrn();
+
+    public abstract Optional<Urn> queryUrn();
+
+    public abstract Optional<Integer> queryPosition();
+
+    public abstract Optional<Boolean> isFromOverflow();
+
+    public abstract Optional<Urn> clickObjectUrn();
+
+    public abstract Optional<String> adUrn();
+
+    public abstract Optional<MonetizationType> monetizationType();
+
+    public abstract Optional<Urn> monetizableTrackUrn();
+
+    public abstract Optional<Urn> promoterUrn();
+
+    public abstract Optional<List<String>> videoSizeChangeUrls();
+
+    public abstract Optional<List<String>> adSkipUrls();
+
+    public abstract Optional<List<String>> adClickthroughUrls();
+
+    public abstract Optional<String> clickthroughsKind();
+
+    public abstract Optional<String> clickthroughsUrl();
+
+    public abstract Optional<Uri> adArtworkUrl();
+
+    public abstract Optional<String> playQueueRepeatMode();
 
     public static UIEvent fromPlayerOpen(boolean manual) {
-        return new UIEvent(KIND_PLAYER_OPEN)
-                .put(PlayableTrackingKeys.KEY_TRIGGER, manual ? TRIGGER_MANUAL : TRIGGER_AUTO);
+        return event(Kind.PLAYER_OPEN, ClickName.PLAYER_OPEN).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
     }
 
     public static UIEvent fromPlayerClose(boolean manual) {
-        return new UIEvent(KIND_PLAYER_CLOSE)
-                .put(PlayableTrackingKeys.KEY_TRIGGER, manual ? TRIGGER_MANUAL : TRIGGER_AUTO);
+        return event(Kind.PLAYER_CLOSE, ClickName.PLAYER_CLOSE).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
     }
 
-    public static UIEvent fromToggleFollow(boolean isFollow,
-                                           @NonNull EntityMetadata userMetadata,
-                                           EventContextMetadata eventContextMetadata) {
-        return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
-                .putPlayableMetadata(userMetadata)
-                .putEventContextMetadata(eventContextMetadata);
+    public static UIEvent fromToggleFollow(boolean isFollow, EntityMetadata userMetadata, EventContextMetadata eventContextMetadata) {
+        final Kind kind = isFollow ? Kind.FOLLOW : Kind.UNFOLLOW;
+        final ClickName clickName = isFollow ? ClickName.FOLLOW_ADD : ClickName.FOLLOW_REMOVE;
+        return event(kind, clickName).clickCategory(Optional.of(ClickCategory.ENGAGEMENT)).entityMetadata(userMetadata).eventContextMetadata(eventContextMetadata).build();
     }
 
-    public static UIEvent fromToggleLike(boolean isLike,
-                                         @NonNull Urn resourceUrn,
-                                         @NonNull EventContextMetadata contextMetadata,
-                                         @Nullable PromotedSourceInfo promotedSourceInfo,
-                                         @NonNull EntityMetadata playable) {
-        return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
-                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .putEventContextMetadata(contextMetadata)
-                .putPromotedItemKeys(promotedSourceInfo)
-                .putPlayableMetadata(playable);
+    public static UIEvent fromToggleLike(boolean isLike, Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
+        final Kind kind = isLike ? Kind.LIKE : Kind.UNLIKE;
+        final ClickName clickName = isLike ? ClickName.LIKE : ClickName.UNLIKE;
+        final Builder builder = event(kind, clickName).clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
+                                                      .clickObjectUrn(Optional.of(resourceUrn))
+                                                      .eventContextMetadata(contextMetadata)
+                                                      .entityMetadata(playable);
+        if (promotedSourceInfo != null) {
+            builder.promotedSourceInfo(promotedSourceInfo);
+        }
+        return builder.build();
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost,
-                                           @NonNull Urn resourceUrn,
-                                           @NonNull EventContextMetadata contextMetadata,
+                                           Urn resourceUrn,
+                                           EventContextMetadata contextMetadata,
                                            @Nullable PromotedSourceInfo promotedSourceInfo,
-                                           @NonNull EntityMetadata entityMetadata) {
-        return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
-                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .putEventContextMetadata(contextMetadata)
-                .putPromotedItemKeys(promotedSourceInfo)
-                .putPlayableMetadata(entityMetadata);
+                                           EntityMetadata entityMetadata) {
+        final Kind kind = isRepost ? Kind.REPOST : Kind.UNREPOST;
+        final ClickName clickName = isRepost ? ClickName.REPOST : ClickName.UNREPOST;
+        final Builder builder = event(kind, clickName).clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
+                                                      .clickObjectUrn(Optional.of(resourceUrn))
+                                                      .eventContextMetadata(contextMetadata)
+                                                      .entityMetadata(entityMetadata);
+        if (promotedSourceInfo != null) {
+            builder.promotedSourceInfo(promotedSourceInfo);
+        }
+        return builder.build();
     }
 
     public static UIEvent fromAddToPlaylist(EventContextMetadata eventContextMetadata) {
-        return new UIEvent(KIND_ADD_TO_PLAYLIST)
-                .putEventContextMetadata(eventContextMetadata);
+        return event(Kind.ADD_TO_PLAYLIST).eventContextMetadata(eventContextMetadata).build();
     }
 
-    public static UIEvent fromComment(EventContextMetadata eventContextMetadata,
-                                      @NonNull EntityMetadata playable) {
-        return new UIEvent(KIND_COMMENT)
-                .putEventContextMetadata(eventContextMetadata)
-                .putPlayableMetadata(playable);
+    public static UIEvent fromComment(EventContextMetadata eventContextMetadata, EntityMetadata playable) {
+        return event(Kind.COMMENT).eventContextMetadata(eventContextMetadata).entityMetadata(playable).build();
     }
 
-    public static UIEvent fromShare(@NonNull Urn resourceUrn,
-                                    @NonNull EventContextMetadata contextMetadata,
-                                    @Nullable PromotedSourceInfo promotedSourceInfo,
-                                    @NonNull EntityMetadata playable) {
-        return new UIEvent(KIND_SHARE)
-                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .putEventContextMetadata(contextMetadata)
-                .putPromotedItemKeys(promotedSourceInfo)
-                .putPlayableMetadata(playable);
+    public static UIEvent fromShare(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
+        final Builder builder = event(Kind.SHARE, ClickName.SHARE).clickObjectUrn(Optional.of(resourceUrn))
+                                                                  .clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
+                                                                  .eventContextMetadata(contextMetadata)
+                                                                  .entityMetadata(playable);
+        if (promotedSourceInfo != null) {
+            builder.promotedSourceInfo(promotedSourceInfo);
+        }
+        return builder.build();
     }
 
-    public static UIEvent fromShuffle(@NotNull EventContextMetadata contextMetadata) {
-        return new UIEvent(KIND_SHUFFLE).putEventContextMetadata(contextMetadata);
+    public static UIEvent fromShuffle(EventContextMetadata contextMetadata) {
+        return event(Kind.SHUFFLE, ClickName.SHUFFLE).clickCategory(Optional.of(ClickCategory.PLAYBACK)).eventContextMetadata(contextMetadata).build();
     }
 
     public static UIEvent fromSystemSkip() {
-        return new UIEvent(KIND_SYSTEM_SKIP);
+        return event(Kind.SYSTEM_SKIP, ClickName.SYSTEM_SKIP).clickCategory(Optional.of(ClickCategory.PLAYER)).build();
     }
 
     public static UIEvent fromButtonSkip() {
-        return new UIEvent(KIND_BUTTON_SKIP);
+        return event(Kind.BUTTON_SKIP, ClickName.BUTTON_SKIP).clickCategory(Optional.of(ClickCategory.PLAYER)).build();
     }
 
     public static UIEvent fromSwipeSkip() {
-        return new UIEvent(KIND_SWIPE_SKIP);
+        return event(Kind.SWIPE_SKIP, ClickName.SWIPE_SKIP).clickCategory(Optional.of(ClickCategory.PLAYER)).build();
     }
 
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        final UIEvent event = new UIEvent(KIND_VIDEO_AD_FULLSCREEN, System.currentTimeMillis());
-        return withPlayerAdAttributes(event, videoAd, trackSourceInfo)
-                .addPromotedTrackingUrls(SIZE_CHANGES, videoAd.getFullScreenUrls());
+        return event(Kind.VIDEO_AD_FULLSCREEN, ClickName.VIDEO_AD_FULLSCREEN).playerAdAttributes(videoAd, trackSourceInfo).videoSizeChangeUrls(Optional.of(videoAd.getFullScreenUrls())).build();
     }
 
     public static UIEvent fromVideoAdShrink(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        final UIEvent event = new UIEvent(KIND_VIDEO_AD_SHRINK, System.currentTimeMillis());
-        return withPlayerAdAttributes(event, videoAd, trackSourceInfo)
-                .addPromotedTrackingUrls(SIZE_CHANGES, videoAd.getExitFullScreenUrls());
+        return event(Kind.VIDEO_AD_SHRINK, ClickName.VIDEO_AD_SHRINK).playerAdAttributes(videoAd, trackSourceInfo).videoSizeChangeUrls(Optional.of(videoAd.getExitFullScreenUrls())).build();
     }
 
     public static UIEvent fromSkipAdClick(PlayerAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {
-        final UIEvent event = new UIEvent(KIND_SKIP_AD_CLICK, System.currentTimeMillis());
-        return withPlayerAdAttributes(event, adData, trackSourceInfo)
-                .addPromotedTrackingUrls(SKIPS, adData.getSkipUrls());
+        return event(Kind.SKIP_AD_CLICK, ClickName.SKIP_AD_CLICK).playerAdAttributes(adData, trackSourceInfo).adSkipUrls(Optional.of(adData.getSkipUrls())).build();
     }
 
     public static UIEvent fromPlayerAdClickThrough(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        final UIEvent event = withPlayerAdAttributes(new UIEvent(KIND_AD_CLICKTHROUGH), adData, trackSourceInfo)
-                .addPromotedTrackingUrls(CLICKTHROUGHS, adData.getClickUrls())
-                .put(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND, "clickthrough::" + getMonetizationType(adData));
-
+        final String clickthroughKind = "clickthrough::" + MonetizationType.fromAdData(adData).key;
+        final Builder builder = event(Kind.AD_CLICKTHROUGH).playerAdAttributes(adData, trackSourceInfo)
+                                                           .adClickthroughUrls(Optional.of(adData.getClickUrls()))
+                                                           .clickthroughsKind(Optional.of(clickthroughKind));
         if (adData instanceof AudioAd) {
             final AudioAd audioAd = (AudioAd) adData;
-            event.put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.getClickThroughUrl());
-            event.put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getCompanionImageUrl());
+            builder.clickthroughsUrl(audioAd.getClickThroughUrl());
+            builder.adArtworkUrl(audioAd.getCompanionImageUrl());
         } else {
-            event.put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, ((VideoAd) adData).getClickThroughUrl());
+            builder.clickthroughsUrl(Optional.of(((VideoAd) adData).getClickThroughUrl()));
         }
 
-        return event;
+        return builder.build();
     }
 
     public static UIEvent fromAppInstallAdClickThrough(AppInstallAd adData) {
-        return withBasicAdAttributes(new UIEvent(KIND_AD_CLICKTHROUGH), adData)
-                .addPromotedTrackingUrls(CLICKTHROUGHS, adData.getClickUrls())
-                .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, adData.getClickThroughUrl())
-                .put(PlayableTrackingKeys.KEY_CLICK_THOUGH_KIND, "clickthrough::app_install");
+        return event(Kind.AD_CLICKTHROUGH).basicAdAttributes(adData)
+                                          .adClickthroughUrls(Optional.of(adData.getClickUrls()))
+                                          .clickthroughsUrl(Optional.of(adData.getClickThroughUrl()))
+                                          .clickthroughsKind(Optional.of("clickthrough::app_install"))
+                                          .build();
     }
 
     public static UIEvent fromStartStation() {
-        return new UIEvent(KIND_START_STATION);
+        return event(Kind.START_STATION).build();
     }
 
     public static UIEvent fromPlayQueueOpen() {
-        return new UIEvent(KIND_PLAY_QUEUE_OPEN);
+        return event(Kind.PLAY_QUEUE_OPEN, ClickName.PLAY_QUEUE_OPEN).build();
     }
 
     public static UIEvent fromPlayQueueClose() {
-        return new UIEvent(KIND_PLAY_QUEUE_CLOSE);
+        return event(Kind.PLAY_QUEUE_CLOSE, ClickName.PLAY_QUEUE_CLOSE).build();
     }
 
     public static UIEvent fromPlayQueueReorder(Screen screen) {
-        return new UIEvent(KIND_PLAY_QUEUE_TRACK_REORDER)
-                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get());
+        return event(Kind.PLAY_QUEUE_TRACK_REORDER, ClickName.PLAY_QUEUE_TRACK_REORDER).originScreen(Optional.of(screen.get())).build();
     }
 
     public static UIEvent fromPlayQueueRemove(Screen screen) {
-        return new UIEvent(KIND_PLAY_QUEUE_TRACK_REMOVE)
-                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get());
+        return event(Kind.PLAY_QUEUE_TRACK_REMOVE, ClickName.PLAY_QUEUE_TRACK_REMOVE).originScreen(Optional.of(screen.get())).build();
     }
 
     public static UIEvent fromPlayQueueRemoveUndo(Screen screen) {
-        return new UIEvent(KIND_PLAY_QUEUE_TRACK_REMOVE_UNDO)
-                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get());
+        return event(Kind.PLAY_QUEUE_TRACK_REMOVE_UNDO, ClickName.PLAY_QUEUE_TRACK_REMOVE_UNDO).originScreen(Optional.of(screen.get())).build();
     }
 
-    public Optional<AttributingActivity> getAttributingActivity() {
-        return Optional.fromNullable(eventContextMetadata.attributingActivity());
-    }
-
-    public Optional<Module> getModule() {
-        return Optional.fromNullable(eventContextMetadata.module());
-    }
-
-    public String getLinkType() {
-        final LinkType linkType = eventContextMetadata.linkType();
-
-        return linkType == null ? null : linkType.getName();
-    }
-
-
-    private static UIEvent withPlayerAdAttributes(UIEvent adEvent,
-                                                  PlayerAdData adData,
-                                                  TrackSourceInfo trackSourceInfo) {
-        return withBasicAdAttributes(adEvent, adData)
-                .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString())
-                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
-    }
-
-    private static UIEvent withBasicAdAttributes(UIEvent adEvent,
-                                                 AdData adData) {
-        return adEvent.put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString())
-                      .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, getMonetizationType(adData));
-    }
-
-    private static String getMonetizationType(AdData adData) {
-        if (adData instanceof AudioAd) {
-            return TYPE_AUDIO_AD;
-        } else if (adData instanceof VideoAd) {
-            return TYPE_VIDEO_AD;
-        } else {
-            return TYPE_MOBILE_INLAY;
-        }
-    }
 
     public static UIEvent fromCreatePlaylist(EntityMetadata metadata) {
-        return new UIEvent(KIND_CREATE_PLAYLIST)
-                .putPlayableMetadata(metadata);
+        return event(Kind.CREATE_PLAYLIST).entityMetadata(metadata).build();
     }
 
-    public static UIEvent fromNavigation(@NonNull Urn itemUrn,
-                                         @NonNull EventContextMetadata contextMetadata) {
-        return new UIEvent(KIND_NAVIGATION)
-                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, itemUrn.toString())
-                .putEventContextMetadata(contextMetadata);
+    public static UIEvent fromNavigation(Urn itemUrn, EventContextMetadata contextMetadata) {
+        return event(Kind.NAVIGATION).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
     public static UIEvent fromPlayQueueShuffle(boolean isShuffled) {
-        return new UIEvent(KIND_PLAY_QUEUE_SHUFFLE)
-                .put(KEY_CLICK_NAME, isShuffled ? SHUFFLE_ON : SHUFFLE_OFF)
-                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, Screen.PLAY_QUEUE.get());
+        return event(Kind.PLAY_QUEUE_SHUFFLE).clickName(Optional.of(isShuffled ? ClickName.SHUFFLE_ON : ClickName.SHUFFLE_OFF)).originScreen(Optional.of(Screen.PLAY_QUEUE.get())).build();
     }
 
     public static UIEvent fromPlayQueueRepeat(Screen screen, PlayQueueManager.RepeatMode repeatMode) {
-        return new UIEvent(KIND_PLAY_QUEUE_REPEAT).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, screen.get())
-                                                  .put(KEY_PLAY_QUEUE_REPEAT_MODE, repeatMode.get());
+        final Builder builder = event(Kind.PLAY_QUEUE_REPEAT).originScreen(Optional.of(screen.get()));
+        if (Strings.isNotBlank(repeatMode.get())) {
+            builder.playQueueRepeatMode(Optional.of(repeatMode.get()));
+            builder.clickName(Optional.of(ClickName.PLAY_QUEUE_REPEAT_ON));
+        } else {
+            builder.clickName(Optional.of(ClickName.PLAY_QUEUE_REPEAT_OFF));
+        }
+        return builder.build();
     }
 
     public static UIEvent fromPlayNext(Urn urn, String lastScreen, EventContextMetadata eventContextMetadata) {
-        return new UIEvent(KIND_PLAY_NEXT)
-                .putEventContextMetadata(eventContextMetadata)
-                .put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, urn.toString())
-                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, lastScreen);
+        return event(Kind.PLAY_NEXT, ClickName.PLAY_NEXT).clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
+                                                         .eventContextMetadata(eventContextMetadata)
+                                                         .clickObjectUrn(Optional.of(urn))
+                                                         .originScreen(Optional.of(lastScreen))
+                                                         .build();
     }
 
-    public static UIEvent fromRecommendedPlaylists(@NonNull Urn itemUrn,
-                                                   @NonNull EventContextMetadata contextMetadata) {
-
-        return  new UIEvent(KIND_RECOMMENDED_PLAYLISTS)
-                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, itemUrn.toString())
-                .putEventContextMetadata(contextMetadata);
+    public static UIEvent fromRecommendedPlaylists(Urn itemUrn,
+                                                   EventContextMetadata contextMetadata) {
+        return event(Kind.RECOMMENDED_PLAYLISTS, ClickName.RECOMMENDED_PLAYLIST).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
-    private static String getNotNullOriginScreen(@Nullable TrackSourceInfo trackSourceInfo) {
-        if (trackSourceInfo != null) {
-            return trackSourceInfo.getOriginScreen();
-        }
-        return Strings.EMPTY;
+    private static Builder event(Kind kind, ClickName clickName) {
+        return event(kind).clickName(Optional.of(clickName));
     }
 
-    @VisibleForTesting
-    public UIEvent(String kind) {
-        this(kind, System.currentTimeMillis());
+    private static Builder event(Kind kind) {
+        return new AutoValue_UIEvent.Builder().id(defaultId())
+                                              .timestamp(defaultTimestamp())
+                                              .referringEvent(Optional.absent())
+                                              .kind(kind)
+                                              .videoSizeChangeUrls(Optional.absent())
+                                              .adSkipUrls(Optional.absent())
+                                              .adClickthroughUrls(Optional.absent())
+                                              .clickthroughsKind(Optional.absent())
+                                              .clickthroughsUrl(Optional.absent())
+                                              .adArtworkUrl(Optional.absent())
+                                              .trigger(Optional.absent())
+                                              .creatorName(Optional.absent())
+                                              .creatorUrn(Optional.absent())
+                                              .playableTitle(Optional.absent())
+                                              .playableUrn(Optional.absent())
+                                              .playableType(Optional.absent())
+                                              .pageUrn(Optional.absent())
+                                              .originScreen(Optional.absent())
+                                              .attributingActivity(Optional.absent())
+                                              .module(Optional.absent())
+                                              .linkType(Optional.absent())
+                                              .contextScreen(Optional.absent())
+                                              .invokerScreen(Optional.absent())
+                                              .clickName(Optional.absent())
+                                              .clickCategory(Optional.absent())
+                                              .clickObjectUrn(Optional.absent())
+                                              .clickSource(Optional.absent())
+                                              .clickSourceUrn(Optional.absent())
+                                              .queryUrn(Optional.absent())
+                                              .queryPosition(Optional.absent())
+                                              .isFromOverflow(Optional.absent())
+                                              .adUrn(Optional.absent())
+                                              .monetizationType(Optional.absent())
+                                              .monetizableTrackUrn(Optional.absent())
+                                              .promoterUrn(Optional.absent())
+                                              .playQueueRepeatMode(Optional.absent());
     }
 
-    private UIEvent(String kind, long timeStamp) {
-        super(kind, timeStamp);
-        promotedTrackingUrls = new HashMap<>();
-    }
-
-    private UIEvent putPromotedItemKeys(@Nullable PromotedSourceInfo promotedSourceInfo) {
-        if (promotedSourceInfo != null) {
-            put(PlayableTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn());
-            put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
-            put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn());
-        }
-        return this;
-    }
-
-    private UIEvent putEventContextMetadata(@NonNull EventContextMetadata contextMetadata) {
-        this.eventContextMetadata = contextMetadata;
-
-        put(PlayableTrackingKeys.KEY_PAGE_URN, contextMetadata.pageUrn().toString());
-        put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, contextMetadata.pageName());
-        return this;
-    }
-
-    private UIEvent putPlayableMetadata(@NonNull EntityMetadata metadata) {
-        metadata.addToTrackingEvent(this);
-        return this;
-    }
-
-    public String getContextScreen() {
-        return eventContextMetadata.contextScreen();
-    }
-
-    public String getInvokerScreen() {
-        return eventContextMetadata.invokerScreen();
-    }
-
-    public String getClickSource() {
-        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
-        if (sourceInfo != null && sourceInfo.hasSource()) {
-            return sourceInfo.getSource();
-        } else {
-            return Strings.EMPTY;
-        }
-    }
-
-    public Optional<Urn> getClickSourceUrn() {
-        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
-
-        if (sourceInfo != null && sourceInfo.hasCollectionUrn()) {
-            return Optional.of(sourceInfo.getCollectionUrn());
-        } else {
-            return Optional.absent();
-        }
-    }
-
-    public Optional<Urn> getQueryUrn() {
-        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
-
-        if (sourceInfo != null && sourceInfo.hasStationsSourceInfo()) {
-            return Optional.of(sourceInfo.getStationsSourceInfo().getQueryUrn());
-        } else if (sourceInfo != null && sourceInfo.hasQuerySourceInfo()) {
-            return Optional.of(sourceInfo.getQuerySourceInfo().getQueryUrn());
-        } else {
-            return Optional.absent();
-        }
-    }
-
-    public Optional<Integer> getQueryPosition() {
-        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
-
-        if (sourceInfo != null && sourceInfo.hasQuerySourceInfo()) {
-            return Optional.of(sourceInfo.getQuerySourceInfo().getQueryPosition());
-        } else {
-            return Optional.absent();
-        }
-    }
-
-    public List<String> getAdClickthroughUrls() {
-        List<String> urls = promotedTrackingUrls.get(CLICKTHROUGHS);
-        return urls == null ? Collections.<String>emptyList() : urls;
-    }
-
-    public List<String> getAdSkipUrls() {
-        List<String> urls = promotedTrackingUrls.get(SKIPS);
-        return urls == null ? Collections.<String>emptyList() : urls;
-    }
-
-    public List<String> getVideoSizeChangeUrls() {
-        List<String> urls = promotedTrackingUrls.get(SIZE_CHANGES);
-        return urls == null ? Collections.<String>emptyList() : urls;
-    }
-
-    public boolean isFromOverflow() {
-        return eventContextMetadata.isFromOverflow();
-    }
 
     @Override
-    public String toString() {
-        return String.format("UI Event with type id %s and %s", kind, attributes.toString());
+    public UIEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_UIEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
-    private UIEvent addPromotedTrackingUrls(String key, List<String> urls) {
-        promotedTrackingUrls.put(key, urls);
-        return this;
+    @AutoValue.Builder
+    abstract static class Builder {
+        abstract Builder id(String id);
+
+        abstract Builder timestamp(long timestamp);
+
+        abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
+
+        abstract Builder kind(Kind kind);
+
+        abstract Builder trigger(Optional<Trigger> trigger);
+
+        abstract Builder creatorName(Optional<String> creatorName);
+
+        abstract Builder creatorUrn(Optional<Urn> creatorUrn);
+
+        abstract Builder playableTitle(Optional<String> playableTitle);
+
+        abstract Builder playableUrn(Optional<Urn> playableUrn);
+
+        abstract Builder playableType(Optional<String> playableType);
+
+        abstract Builder pageUrn(Optional<Urn> pageUrn);
+
+        abstract Builder originScreen(Optional<String> originScreen);
+
+        abstract Builder attributingActivity(Optional<AttributingActivity> attributingActivity);
+
+        abstract Builder module(Optional<Module> module);
+
+        abstract Builder linkType(Optional<String> linkType);
+
+        abstract Builder contextScreen(Optional<String> contextScreen);
+
+        abstract Builder invokerScreen(Optional<String> invokerScreen);
+
+        abstract Builder clickName(Optional<ClickName> clickName);
+
+        abstract Builder clickCategory(Optional<ClickCategory> clickCategory);
+
+        abstract Builder clickObjectUrn(Optional<Urn> clickObjectUrn);
+
+        abstract Builder clickSource(Optional<String> clickSource);
+
+        abstract Builder clickSourceUrn(Optional<Urn> clickSourceUrn);
+
+        abstract Builder queryUrn(Optional<Urn> queryUrn);
+
+        abstract Builder queryPosition(Optional<Integer> queryPosition);
+
+        abstract Builder isFromOverflow(Optional<Boolean> isFromOverflow);
+
+        abstract Builder adUrn(Optional<String> adUrn);
+
+        abstract Builder monetizationType(Optional<MonetizationType> monetizationType);
+
+        abstract Builder monetizableTrackUrn(Optional<Urn> monetizableTrackUrn);
+
+        abstract Builder promoterUrn(Optional<Urn> promoterUrn);
+
+        abstract Builder videoSizeChangeUrls(Optional<List<String>> videoSizeChangeUrls);
+
+        abstract Builder adSkipUrls(Optional<List<String>> adSkipUrls);
+
+        abstract Builder adClickthroughUrls(Optional<List<String>> adClickthroughUrls);
+
+        abstract Builder clickthroughsKind(Optional<String> clickthroughsKind);
+
+        abstract Builder clickthroughsUrl(Optional<String> clickthroughsUrl);
+
+        abstract Builder adArtworkUrl(Optional<Uri> adArtworkUrl);
+
+        abstract Builder playQueueRepeatMode(Optional<String> playQueueRepeatMode);
+
+        Builder entityMetadata(EntityMetadata entityMetadata) {
+            creatorName(Optional.of(entityMetadata.creatorName));
+            creatorUrn(Optional.of(entityMetadata.creatorUrn));
+            playableTitle(Optional.of(entityMetadata.playableTitle));
+            playableUrn(Optional.of(entityMetadata.playableUrn));
+            playableType(Optional.of(entityMetadata.getPlayableType()));
+            return this;
+        }
+
+        Builder eventContextMetadata(EventContextMetadata eventContextMetadata) {
+            pageUrn(Optional.of(eventContextMetadata.pageUrn()));
+            originScreen(Optional.fromNullable(eventContextMetadata.pageName()));
+            contextScreen(Optional.fromNullable(eventContextMetadata.contextScreen()));
+            invokerScreen(Optional.fromNullable(eventContextMetadata.invokerScreen()));
+            attributingActivity(Optional.fromNullable(eventContextMetadata.attributingActivity()));
+            linkType(Optional.fromNullable(eventContextMetadata.linkType()).transform(LinkType::getName));
+            module(Optional.fromNullable(eventContextMetadata.module()));
+            isFromOverflow(Optional.of(eventContextMetadata.isFromOverflow()));
+            trackSourceInfo(eventContextMetadata.trackSourceInfo());
+            return this;
+        }
+
+        Builder trackSourceInfo(TrackSourceInfo sourceInfo) {
+            if (sourceInfo != null) {
+                if (sourceInfo.hasSource()) {
+                    clickSource(Optional.fromNullable(sourceInfo.getSource()));
+                }
+                if (sourceInfo.hasCollectionUrn()) {
+                    clickSourceUrn(Optional.fromNullable(sourceInfo.getCollectionUrn()));
+                }
+                if (sourceInfo.hasStationsSourceInfo()) {
+                    queryUrn(Optional.of(sourceInfo.getStationsSourceInfo().getQueryUrn()));
+                } else if (sourceInfo.hasQuerySourceInfo()) {
+                    queryUrn(Optional.of(sourceInfo.getQuerySourceInfo().getQueryUrn()));
+                }
+                if (sourceInfo.hasQuerySourceInfo()) {
+                    queryPosition(Optional.of(sourceInfo.getQuerySourceInfo().getQueryPosition()));
+                }
+            }
+            return this;
+        }
+
+        Builder promotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
+            adUrn(Optional.of(promotedSourceInfo.getAdUrn()));
+            monetizationType(Optional.of(MonetizationType.PROMOTED));
+            promoterUrn(promotedSourceInfo.getPromoterUrn());
+            return this;
+        }
+
+        Builder basicAdAttributes(AdData adData) {
+            adUrn(Optional.of(adData.getAdUrn().toString()));
+            monetizationType(Optional.of(MonetizationType.fromAdData(adData)));
+            return this;
+        }
+
+        Builder playerAdAttributes(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+            basicAdAttributes(adData);
+            monetizableTrackUrn(Optional.of(adData.getMonetizableTrackUrn()));
+            if (trackSourceInfo != null) {
+                originScreen(Optional.fromNullable(trackSourceInfo.getOriginScreen()));
+            }
+            return this;
+        }
+
+        abstract UIEvent build();
     }
 }

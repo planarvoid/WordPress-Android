@@ -174,7 +174,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
         final String uuid = UUID.randomUUID().toString();
 
-        data.referringEvent(uuid, UIEvent.KIND_NAVIGATION);
+        data.referringEvent(uuid, UIEvent.Kind.NAVIGATION.toString());
 
         final Map<String, String> actual = (Map<String, String>) data.payload.get(EventLoggerParam.REFERRING_EVENT);
 
