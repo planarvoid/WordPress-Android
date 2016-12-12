@@ -32,11 +32,9 @@ class PlayQueueArtworkController
 
     @Override
     public void onNowPlayingChanged(TrackPlayQueueUIItem trackItem) {
-        if (!sameAsLast(trackItem.getUrn())) {
             clearProgress();
             playerArtworkLoader.loadArtwork(trackItem.getImageResource(), artworkImageView.getWrappedImageView());
             lastItem = Optional.fromNullable(trackItem);
-        }
     }
 
     public void setPlayState(PlayStateEvent stateEvent) {
