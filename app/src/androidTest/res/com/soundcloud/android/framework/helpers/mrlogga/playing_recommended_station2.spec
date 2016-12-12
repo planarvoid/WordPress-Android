@@ -25,7 +25,7 @@ expected_events:
     consumer_subs_plan: (\w|-)+
     page_name: search:main
     source_urn: soundcloud:artist-stations:[0-9]+
-    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER)
+    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
     user: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
@@ -53,7 +53,7 @@ expected_events:
     consumer_subs_plan: (\w|-)+
     page_name: search:main
     source_urn: soundcloud:artist-stations:[0-9]+
-    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER)
+    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
     user: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
@@ -83,7 +83,7 @@ expected_events:
     consumer_subs_plan: (\w|-)+
     page_name: search:main
     source_urn: soundcloud:artist-stations:[0-9]+
-    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER)
+    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
     user: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
@@ -112,7 +112,7 @@ expected_events:
     consumer_subs_plan: (\w|-)+
     page_name: search:main
     source_urn: soundcloud:artist-stations:[0-9]+
-    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER)
+    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
     user: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
