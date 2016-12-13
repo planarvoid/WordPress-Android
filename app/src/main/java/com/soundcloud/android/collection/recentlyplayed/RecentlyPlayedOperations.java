@@ -57,7 +57,7 @@ public class RecentlyPlayedOperations {
 
     Observable<Boolean> clearHistory() {
         return clearRecentlyPlayedCommand.toObservable(null)
-                                      .subscribeOn(scheduler);
+                                         .subscribeOn(scheduler);
     }
 
     private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayedItems(int limit) {

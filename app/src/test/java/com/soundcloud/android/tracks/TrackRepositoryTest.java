@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -51,6 +52,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     private TrackItem trackItem2 = ModelFixtures.trackItem();
 
     @Mock private TrackStorage trackStorage;
+    @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     @Mock private AccountOperations accountOperations;
     @Mock private SyncInitiator syncInitiator;
 
@@ -60,7 +62,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        trackRepository = new TrackRepository(trackStorage, syncInitiator, Schedulers.immediate());
+        trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.immediate());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = PropertySet.from(TrackProperty.URN.bind(trackUrn),

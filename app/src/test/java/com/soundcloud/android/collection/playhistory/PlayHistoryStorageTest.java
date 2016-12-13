@@ -87,7 +87,7 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
 
         final TrackItem actual = storage.loadTracks(10).first().toBlocking().single();
 
-        assertThat(actual.getDownloadedState()).isEqualTo(OfflineState.DOWNLOADED);
+        assertThat(actual.getOfflineState()).isEqualTo(OfflineState.DOWNLOADED);
     }
 
     @Test

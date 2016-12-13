@@ -7,7 +7,8 @@ import com.soundcloud.android.likes.Like;
 import com.soundcloud.android.likes.LoadLikedTracksCommand;
 import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
@@ -27,7 +28,7 @@ public class OfflineStateOperations {
     private final IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
     private final LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand;
     private final LoadLikedTracksCommand loadLikedTracksCommand;
-    private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
+    private final TrackRepository trackRepository;
     private final LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand;
 
     private final OfflineContentStorage offlineContentStorage;
@@ -50,7 +51,7 @@ public class OfflineStateOperations {
             IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand,
             LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand,
             LoadLikedTracksCommand loadLikedTracksCommand,
-            LoadPlaylistTracksCommand loadPlaylistTracksCommand,
+            TrackRepository trackRepository,
             LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand,
             OfflineContentStorage offlineContentStorage,
             TrackDownloadsStorage trackDownloadsStorage,
@@ -58,7 +59,7 @@ public class OfflineStateOperations {
         this.isOfflineLikedTracksEnabledCommand = isOfflineLikedTracksEnabledCommand;
         this.loadOfflinePlaylistsContainingTrackCommand = loadOfflinePlaylistsContainingTrackCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;
-        this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
+        this.trackRepository = trackRepository;
         this.loadLikedTracksOfflineStateCommand = loadLikedTracksOfflineStateCommand;
         this.offlineContentStorage = offlineContentStorage;
         this.trackDownloadsStorage = trackDownloadsStorage;
@@ -152,8 +153,12 @@ public class OfflineStateOperations {
     }
 
     private OfflineState getState(Urn playlist) {
-        return getCollectionOfflineState(transform(loadPlaylistTracksCommand.call(playlist),
-                                                   track -> track.get(OfflineProperty.OFFLINE_STATE)));
+        final List<TrackItem> playlistWithTracks = trackRepository
+                .forPlaylist(playlist)
+                .toBlocking()
+                .first();
+        final Collection<OfflineState> tracksOfflineState = transform(playlistWithTracks, TrackItem::getOfflineState);
+        return getCollectionOfflineState(tracksOfflineState);
     }
 
     private OfflineState getCollectionOfflineState(Collection<OfflineState> tracksOfflineState) {

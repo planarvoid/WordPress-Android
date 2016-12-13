@@ -367,6 +367,10 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                         PlaylistProperty.CREATOR_URN,
                         PlaylistProperty.CREATOR_NAME,
                         PlaylistProperty.TRACK_COUNT,
+                        PlaylistProperty.CREATED_AT,
+                        PlaylistProperty.REPOSTS_COUNT,
+                        PlaylistProperty.PLAYLIST_DURATION,
+                        PlaylistProperty.IS_ALBUM,
                         PlaylistProperty.LIKES_COUNT,
                         PlaylistProperty.IS_PRIVATE
                 ).put(PlayableProperty.IS_USER_LIKE, false)),

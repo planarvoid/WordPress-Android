@@ -3,6 +3,9 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
+import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
+import static com.soundcloud.android.utils.Urns.toIds;
+import static com.soundcloud.android.utils.Urns.toIdsColl;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
@@ -16,7 +19,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
-import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.propeller.CursorReader;
@@ -27,10 +29,11 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,23 +43,26 @@ public class PlaylistStorage {
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
     private final AccountOperations accountOperations;
+    private final NewPlaylistMapper playlistMapper;
 
     @Inject
     public PlaylistStorage(PropellerDatabase propeller,
                            PropellerRx propellerRx,
-                           AccountOperations accountOperations) {
+                           AccountOperations accountOperations,
+                           NewPlaylistMapper playlistMapper) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.accountOperations = accountOperations;
+        this.playlistMapper = playlistMapper;
     }
 
     public boolean hasLocalChanges() {
         final QueryResult queryResult =
                 propeller.query(apply(exists(from(Tables.Sounds.TABLE)
-                        .select(TableColumns.SoundView._ID, Tables.Sounds.REMOVED_AT)
-                        .whereEq(TableColumns.SoundView._TYPE, Tables.Sounds.TYPE_PLAYLIST)
-                        .whereLt(Tables.Sounds._ID, 0)).as("has_local_playlists")
-                        .orWhereNotNull(Tables.Sounds.REMOVED_AT)));
+                                                     .select(TableColumns.SoundView._ID, Tables.Sounds.REMOVED_AT)
+                                                     .whereEq(_TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                                                     .whereLt(Tables.Sounds._ID, 0)).as("has_local_playlists")
+                                                                                    .orWhereNotNull(Tables.Sounds.REMOVED_AT)));
         return queryResult.first(Boolean.class);
     }
 
@@ -73,16 +79,29 @@ public class PlaylistStorage {
         return returnSet;
     }
 
-    Observable<List<PlaylistItem>> loadPlaylists(Set<Urn> playlistUrns) {
-        return propellerRx.query(buildPlaylistQuery(playlistUrns))
-                          .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()))
-                          .map(new Func1<PropertySet, PlaylistItem>() {
-                              @Override
-                              public PlaylistItem call(PropertySet propertyBindings) {
-                                  return PlaylistItem.from(propertyBindings);
-                              }
-                          })
-                          .toList();
+    Observable<List<Urn>> availablePlaylists(final Collection<Urn> playlistUrns) {
+        return propellerRx
+                .query(Query.from(Tables.PlaylistView.TABLE)
+                            .select(Tables.PlaylistView.ID)
+                            .whereIn(Tables.PlaylistView.ID, toIdsColl(playlistUrns)))
+                .map(cursorReader -> Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID)))
+                .toList();
+    }
+
+    Observable<List<PlaylistItem>> loadPlaylists(final Collection<Urn> playlistUrns) {
+        return propellerRx.queryResult(buildPlaylistQuery(Sets.newHashSet(playlistUrns)))
+                          .map(this::toPlaylistItems)
+                          .firstOrDefault(Collections.emptyList());
+    }
+
+    private List<PlaylistItem> toPlaylistItems(QueryResult cursorReaders) {
+        final List<PlaylistItem> playlists = new ArrayList<>(cursorReaders.getResultCount());
+
+        for (CursorReader cursorReader : cursorReaders) {
+            final PlaylistItem playlist = playlistMapper.map(cursorReader);
+            playlists.add(playlist);
+        }
+        return playlists;
     }
 
     private Where hasLocalTracks() {
@@ -101,11 +120,6 @@ public class PlaylistStorage {
                         .firstOrDefault(new PlaylistModificationMapper(), PropertySet.create());
     }
 
-    public Observable<PropertySet> loadPlaylist(Urn playlistUrn) {
-        return propellerRx.query(buildPlaylistQuery(Sets.newHashSet(playlistUrn)))
-                          .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()));
-    }
-
     private Query buildPlaylistModificationQuery(Urn playlistUrn) {
         return Query.from(Tables.Sounds.TABLE)
                     .select(
@@ -119,34 +133,11 @@ public class PlaylistStorage {
     }
 
     private Query buildPlaylistQuery(Set<Urn> urns) {
-        List<Long> playlistIds = Urns.toIds(new ArrayList<Urn>(urns));
+        Collection<Long> playlistIds = toIds(new ArrayList<>(urns));
 
-        return  Query.from(Tables.PlaylistView.TABLE)
-                .select(
-                        Tables.PlaylistView.ID,
-                        Tables.PlaylistView.TITLE,
-                        Tables.PlaylistView.USERNAME,
-                        Tables.PlaylistView.USER_ID,
-                        Tables.PlaylistView.DURATION,
-                        Tables.PlaylistView.TRACK_COUNT,
-                        Tables.PlaylistView.LIKES_COUNT,
-                        Tables.PlaylistView.REPOSTS_COUNT,
-                        Tables.PlaylistView.ARTWORK_URL,
-                        Tables.PlaylistView.PERMALINK_URL,
-                        Tables.PlaylistView.SHARING,
-                        Tables.PlaylistView.CREATED_AT,
-                        Tables.PlaylistView.ARTWORK_URL,
-                        Tables.PlaylistView.IS_ALBUM,
-                        Tables.PlaylistView.SET_TYPE,
-                        Tables.PlaylistView.RELEASE_DATE,
-                        Tables.PlaylistView.LOCAL_TRACK_COUNT,
-                        Tables.PlaylistView.IS_USER_LIKE,
-                        Tables.PlaylistView.IS_USER_REPOST,
-                        Tables.PlaylistView.HAS_PENDING_DOWNLOAD_REQUEST,
-                        Tables.PlaylistView.HAS_DOWNLOADED_TRACKS,
-                        Tables.PlaylistView.HAS_UNAVAILABLE_TRACKS,
-                        Tables.PlaylistView.IS_MARKED_FOR_OFFLINE
-                ).whereIn(Tables.PlaylistView.ID, playlistIds);
+        return Query.from(Tables.PlaylistView.TABLE)
+                    .select(Tables.PlaylistView.TABLE.name() + ".*"
+                    ).whereIn(Tables.PlaylistView.ID, playlistIds);
     }
 
     private Query hasOfflineTracks(List<Long> playlistIds) {
@@ -165,7 +156,7 @@ public class PlaylistStorage {
         final Where joinConditions = filter()
                 .whereEq(Table.SoundView.field(TableColumns.SoundView._ID),
                          Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
-                .whereEq(Table.SoundView.field(TableColumns.SoundView._TYPE), Tables.Sounds.TYPE_PLAYLIST);
+                .whereEq(Table.SoundView.field(_TYPE), Tables.Sounds.TYPE_PLAYLIST);
         return Query
                 .from(TrackDownloads.TABLE)
                 .select(TrackDownloads._ID.qualifiedName())

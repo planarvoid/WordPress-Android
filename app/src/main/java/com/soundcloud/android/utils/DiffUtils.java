@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 public class DiffUtils {
-    public static List<Urn> minus(List<Urn> op1, List<Urn> op2) {
+    public static List<Urn> minus(Collection<Urn> op1, Collection<Urn> op2) {
         final List<Urn> result = new ArrayList<>(op1);
         result.removeAll(op2);
         return result;

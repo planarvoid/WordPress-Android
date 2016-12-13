@@ -123,7 +123,9 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
 
         if (maybeMarkedForOffline.isPresent() && menuOptions.showOffline()) {
             final boolean markedForOffline = maybeMarkedForOffline.get();
-            final boolean canShowOfflineOption = (markedForOffline || playlist.isLiked() || playlist.isPostedByUser());
+            final boolean canShowOfflineOption = markedForOffline
+                    || playlist.isLiked()
+                    || accountOperations.isLoggedInUser(playlist.getCreatorUrn());
 
             if (featureOperations.isOfflineContentEnabled() && canShowOfflineOption) {
                 showOfflineContentOption(markedForOffline);

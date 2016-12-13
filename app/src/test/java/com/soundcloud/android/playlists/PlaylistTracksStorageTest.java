@@ -22,7 +22,6 @@ import java.util.List;
 public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
     @Mock private AccountOperations accountOperations;
-    @Mock private LoadPlaylistTracksCommand loadPlaylistTracks;
 
     private static final Date ADDED_AT = new Date();
     private PlaylistTracksStorage playlistTracksStorage;
@@ -32,7 +31,6 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     public void setUp() throws Exception {
         dateProvider = new TestDateProvider(ADDED_AT);
         playlistTracksStorage = new PlaylistTracksStorage(propellerRx(),
-                                                          loadPlaylistTracks,
                                                           dateProvider,
                                                           accountOperations);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(321L));

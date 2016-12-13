@@ -25,6 +25,10 @@ public class NewPlaylistMapper extends RxResultMapper<PlaylistItem> {
         final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
         propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID.name())));
         propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(Tables.PlaylistView.TITLE.name()));
+        propertySet.put(PlaylistProperty.PLAYLIST_DURATION, cursorReader.getLong(Tables.PlaylistView.DURATION.name()));
+        propertySet.put(PlaylistProperty.REPOSTS_COUNT, cursorReader.getInt(Tables.PlaylistView.REPOSTS_COUNT.name()));
+        propertySet.put(PlaylistProperty.CREATED_AT, cursorReader.getDateFromTimestamp(Tables.PlaylistView.CREATED_AT.name()));
+        propertySet.put(PlaylistProperty.IS_ALBUM, cursorReader.getBoolean(Tables.PlaylistView.IS_ALBUM.name()));
         propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.ARTWORK_URL.name())));
         propertySet.put(PlaylistProperty.CREATOR_URN, Urn.forUser(cursorReader.getLong(Tables.PlaylistView.USER_ID.name())));
         propertySet.put(PlaylistProperty.CREATOR_NAME, cursorReader.getString(Tables.PlaylistView.USERNAME.name()));

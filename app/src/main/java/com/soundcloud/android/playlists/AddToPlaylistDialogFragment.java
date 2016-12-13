@@ -88,6 +88,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 
         final Urn trackUrn = Urn.forTrack(getArguments().getLong(KEY_TRACK_ID));
+        // TODO: 12/12/16 Use repository ?
         loadPlaylists = playlistOperations
                 .loadPlaylistForAddingTrack(trackUrn)
                 .observeOn(mainThread())

@@ -108,7 +108,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   navigator,
                                                   playQueueHelper,
                                                   eventTracker,
-                                                  playlistMenuRenderFactory);
+                                                  playlistMenuRenderFactory, accountOperations);
 
         button = new View(activity());
 
@@ -277,6 +277,10 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
         PropertySet likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, true);
         playlist = PlaylistItem.from(likedAndPostedPlaylist);
+
+        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);
+
+
         presenter.show(button, playlist, menuOptions);
 
         presenter.handleLike(playlist);

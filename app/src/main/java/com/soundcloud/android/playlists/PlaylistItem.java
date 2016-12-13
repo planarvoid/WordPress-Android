@@ -106,10 +106,6 @@ public class PlaylistItem extends PlayableItem {
         return Optional.fromNullable(source.getOrElseNull(OfflineProperty.IS_MARKED_FOR_OFFLINE));
     }
 
-    public boolean isPostedByUser() {
-        return source.getOrElse(PlaylistProperty.IS_POSTED, false);
-    }
-
     public OfflineState getDownloadState() {
         return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }

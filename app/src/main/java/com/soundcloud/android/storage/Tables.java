@@ -1065,6 +1065,7 @@ public interface Tables {
         public static final Column BLOCKED = Column.create(TABLE, "tv_blocked", Boolean.class);
         public static final Column SNIPPED = Column.create(TABLE, "tv_snipped", Boolean.class);
         public static final Column SUB_HIGH_TIER = Column.create(TABLE, "tv_sub_high_tier", Boolean.class);
+        public static final Column SUB_MID_TIER = Column.create(TABLE, "tv_sub_mid_tier", Boolean.class);
 
         public static final Column ARTWORK_URL = Column.create(TABLE, "tv_artwork_url", String.class);
         public static final Column IS_USER_LIKE = Column.create(TABLE, "tv_is_user_like", String.class);
@@ -1104,6 +1105,7 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(BLOCKED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(SNIPPED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(SUB_MID_TIER.name()),
 
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(OFFLINE_DOWNLOADED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),

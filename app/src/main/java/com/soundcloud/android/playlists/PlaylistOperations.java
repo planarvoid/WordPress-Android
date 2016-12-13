@@ -13,6 +13,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -24,20 +25,9 @@ import rx.functions.Func2;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class PlaylistOperations {
-
-    private static final Func1<List<PlaylistItem>, Map<Urn, PlaylistItem>> TO_URN_MAP = playlistEntities -> {
-        HashMap<Urn, PlaylistItem> entityMap = new HashMap<>(playlistEntities.size());
-        for (PlaylistItem entity : playlistEntities) {
-            entityMap.put(entity.getUrn(), entity);
-        }
-        return entityMap;
-    };
 
     private final Action1<PropertySet> publishTrackAddedToPlaylistEvent = new Action1<PropertySet>() {
         @Override
@@ -71,9 +61,10 @@ public class PlaylistOperations {
     };
 
     private final Scheduler scheduler;
-    private final PlaylistStorage playlistStorage;
     private final Provider<LoadPlaylistTrackUrnsCommand> loadPlaylistTrackUrnsProvider;
+    private final PlaylistRepository playlistRepository;
     private final PlaylistTracksStorage playlistTracksStorage;
+    private final TrackRepository tracks;
     private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     private final EditPlaylistCommand editPlaylistCommand;
@@ -87,9 +78,10 @@ public class PlaylistOperations {
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                        SyncInitiator syncInitiator,
-                       PlaylistTracksStorage playlistTracksStorage,
-                       PlaylistStorage playlistStorage,
+                       PlaylistRepository playlistRepository,
                        Provider<LoadPlaylistTrackUrnsCommand> loadPlaylistTrackUrnsProvider,
+                       PlaylistTracksStorage playlistTracksStorage,
+                       TrackRepository tracks,
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
                        EditPlaylistCommand editPlaylistCommand,
@@ -97,9 +89,10 @@ public class PlaylistOperations {
                        EventBus eventBus) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
-        this.playlistTracksStorage = playlistTracksStorage;
-        this.playlistStorage = playlistStorage;
+        this.playlistRepository = playlistRepository;
         this.loadPlaylistTrackUrnsProvider = loadPlaylistTrackUrnsProvider;
+        this.playlistTracksStorage = playlistTracksStorage;
+        this.tracks = tracks;
         this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.editPlaylistCommand = editPlaylistCommand;
@@ -115,9 +108,9 @@ public class PlaylistOperations {
 
     Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
-                                    .doOnNext(publishPlaylistCreatedEvent)
-                                    .subscribeOn(scheduler)
-                                    .doOnCompleted(syncInitiator.requestSystemSyncAction());
+                                                       .doOnNext(publishPlaylistCreatedEvent)
+                                                       .subscribeOn(scheduler)
+                                                       .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
     Observable<PropertySet> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
@@ -187,14 +180,6 @@ public class PlaylistOperations {
                 .switchIfEmpty(updatedPlaylistInfo(playlistUrn));
     }
 
-    public Observable<List<PlaylistItem>> playlists(final Set<Urn> playlistUrns) {
-        return playlistStorage.loadPlaylists(playlistUrns);
-    }
-
-    public Observable<Map<Urn, PlaylistItem>> playlistsMap(final Set<Urn> playlistUrns) {
-        return playlists(playlistUrns).map(TO_URN_MAP);
-    }
-
     Observable<PlaylistWithTracks> updatedPlaylistInfo(final Urn playlistUrn) {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
@@ -223,9 +208,9 @@ public class PlaylistOperations {
 
     private Observable<PlaylistWithTracks> playlistWithTracks(Urn playlistUrn) {
         return Observable.zip(
-                playlistStorage.loadPlaylist(playlistUrn),
-                playlistTracksStorage.playlistTracks(playlistUrn).map(TrackItem.fromPropertySets()),
-                mergePlaylistWithTracks
+                playlistRepository.withUrn(playlistUrn),
+                tracks.forPlaylist(playlistUrn),
+                PlaylistWithTracks::new
         ).subscribeOn(scheduler);
     }
 

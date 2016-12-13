@@ -9,6 +9,8 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -33,11 +35,10 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         final ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
         final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
-        final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
+        final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrackWithPolicyHighTierMonetizable(apiPlaylist, 2);
 
-        testFixtures().insertPolicyHighTierMonetizable(apiTrack3.getUrn());
 
-        final List<PropertySet> tracks = command.call(apiPlaylist.getUrn());
+        final List<TrackItem> tracks = command.call(apiPlaylist.getUrn());
 
         assertThat(tracks).containsExactly(
                 fromApiTrack(apiTrack1),
@@ -52,7 +53,7 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrack(apiPlaylist, 0);
         final ApiTrack apiTrackOther = testFixtures().insertPlaylistTrack(testFixtures().insertPlaylist(), 0);
 
-        final List<PropertySet> tracks = command.call(apiPlaylist.getUrn());
+        final List<TrackItem> tracks = command.call(apiPlaylist.getUrn());
 
         assertThat(tracks).doesNotContain(fromApiTrack(apiTrackOther));
     }
@@ -63,7 +64,7 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrack(apiPlaylist, 0);
         propeller().delete(Tables.TrackPolicies.TABLE);
 
-        final List<PropertySet> tracks = command.call(apiPlaylist.getUrn());
+        final List<TrackItem> tracks = command.call(apiPlaylist.getUrn());
 
         assertThat(tracks).isEmpty();
     }
@@ -79,48 +80,48 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
         testFixtures().insertTrackPendingDownload(apiTrack2.getUrn(), 200L);
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack3.getUrn(), 300L);
 
-        final List<PropertySet> tracks = command.call(apiPlaylist.getUrn());
+        final List<TrackItem> tracks = command.call(apiPlaylist.getUrn());
 
         assertThat(tracks).contains(
-                fromApiTrack(apiTrack1)
-                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED),
-                fromApiTrack(apiTrack2)
-                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED),
-                fromApiTrack(apiTrack3)
-                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE)
+                fromApiTrack(apiTrack1, OfflineState.DOWNLOADED),
+                fromApiTrack(apiTrack2, OfflineState.REQUESTED),
+                fromApiTrack(apiTrack3, OfflineState.NOT_OFFLINE)
         );
     }
 
 
     @Test
-    public void loadPlaylistTracksWithUnavailableOfflineStateWhenPlaylistMarkedForOffline() {
+    public void loadUnavailableOfflineStateForPlaylistTracksWhenPlaylistMarkedForOffline() {
         final ApiPlaylist offlinePlaylist = insertPostedPlaylist();
         testFixtures().insertPlaylistMarkedForOfflineSync(offlinePlaylist);
         ApiTrack track = testFixtures().insertPlaylistTrack(offlinePlaylist.getUrn(), 0);
         testFixtures().insertUnavailableTrackDownload(track.getUrn(), new Date().getTime());
 
-        List<PropertySet> result = command.call(offlinePlaylist.getUrn());
+        List<TrackItem> result = command.call(offlinePlaylist.getUrn());
 
-        assertThat(result.get(0).contains(OfflineProperty.OFFLINE_STATE)).isTrue();
+        assertThat(result.get(0).getOfflineState()).isEqualTo(OfflineState.UNAVAILABLE);
     }
 
     @Test
-    public void doesNotLoadUnavailableOfflineStateForPlaylistTracksWhenPlaylistMarkedForOffline() {
+    public void loadUnavailableOfflineStateForPlaylistTracksWhenPlaylistNotMarkedForOffline() {
         final ApiPlaylist normalPlaylist = insertPostedPlaylist();
         ApiTrack track = testFixtures().insertPlaylistTrack(normalPlaylist.getUrn(), 0);
         testFixtures().insertUnavailableTrackDownload(track.getUrn(), new Date().getTime());
 
-        List<PropertySet> result = command.call(normalPlaylist.getUrn());
-        assertThat(result.get(0).get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.NOT_OFFLINE);
+        List<TrackItem> result = command.call(normalPlaylist.getUrn());
+        assertThat(result.get(0).getOfflineState()).isEqualTo(OfflineState.UNAVAILABLE);
     }
 
-    private PropertySet expectedHighTierMonetizableTrackFor(ApiTrack track) {
-        return fromApiTrack(track)
-                .put(TrackProperty.SUB_MID_TIER, false)
-                .put(TrackProperty.SUB_HIGH_TIER, true);
+    private TrackItem expectedHighTierMonetizableTrackFor(ApiTrack track) {
+        return ModelFixtures.highTierMonetizableTrack(track);
+
     }
 
-    private PropertySet fromApiTrack(ApiTrack apiTrack) {
+    private TrackItem fromApiTrack(ApiTrack apiTrack) {
+        return ModelFixtures.trackItem(apiTrack);
+    }
+
+    private PropertySet properties(ApiTrack apiTrack) {
         return PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 TrackProperty.TITLE.bind(apiTrack.getTitle()),
@@ -137,6 +138,11 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
                 TrackProperty.SUB_MID_TIER.bind(apiTrack.isSubMidTier().get()),
                 TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get()),
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
+    }
+
+
+    private TrackItem fromApiTrack(ApiTrack apiTrack, OfflineState offlineState) {
+        return ModelFixtures.trackItemWithOfflineState(apiTrack, offlineState);
     }
 
     private ApiPlaylist insertPostedPlaylist() {

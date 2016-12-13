@@ -96,7 +96,8 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Test
     public void doNotShowOfflineWhenNotMarkedForDownloadAndNotLikedAndNotPosted() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem nonDownloadablePlaylist = buildPlaylist(false, false, false);
+        PlaylistItem nonDownloadablePlaylist = buildPlaylist(false, false);
+        when(accountOperations.isLoggedInUser(nonDownloadablePlaylist.getCreatorUrn())).thenReturn(false);
 
         renderer.render(nonDownloadablePlaylist);
 
@@ -108,7 +109,8 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Test
     public void showOfflineWhenMarkedForDownloadAndNotLikedAndNotPosted() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem nonDownloadablePlaylist = buildPlaylist(true, false, false);
+        PlaylistItem nonDownloadablePlaylist = buildPlaylist(true, false);
+        when(accountOperations.isLoggedInUser(nonDownloadablePlaylist.getCreatorUrn())).thenReturn(false);
 
         renderer.render(nonDownloadablePlaylist);
 
@@ -118,7 +120,8 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Test
     public void showOfflineWhenLikedAndNotMarkedForDownloadAndNotPosted() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem likedPlaylist = buildPlaylist(false, true, false);
+        PlaylistItem likedPlaylist = buildPlaylist(false, true);
+        when(accountOperations.isLoggedInUser(likedPlaylist.getCreatorUrn())).thenReturn(false);
 
         renderer.render(likedPlaylist);
 
@@ -128,18 +131,18 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Test
     public void showOfflineWhenPostedAndNotMarkedForDownloadAndLiked() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem postedPlaylist = buildPlaylist(false, false, true);
+        PlaylistItem postedPlaylist = buildPlaylist(false, false);
+        when(accountOperations.isLoggedInUser(postedPlaylist.getCreatorUrn())).thenReturn(true);
 
         renderer.render(postedPlaylist);
 
         verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, true);
     }
 
-    private PlaylistItem buildPlaylist(boolean markedForDownload, boolean liked, boolean posted) {
+    private PlaylistItem buildPlaylist(boolean markedForDownload, boolean liked) {
         PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
         playlist.getSource().put(OfflineProperty.IS_MARKED_FOR_OFFLINE, markedForDownload);
         playlist.getSource().put(PlaylistProperty.IS_USER_LIKE, liked);
-        playlist.getSource().put(PlaylistProperty.IS_POSTED, posted);
         return playlist;
     }
 

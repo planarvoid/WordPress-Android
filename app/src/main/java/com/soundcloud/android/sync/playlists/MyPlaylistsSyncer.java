@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 @AutoFactory(allowSubclasses = true)
-public class MyPlaylistsSyncer implements Callable<Boolean> {
+class MyPlaylistsSyncer implements Callable<Boolean> {
 
     private static final String TAG = "MyPlaylistsSyncer";
 

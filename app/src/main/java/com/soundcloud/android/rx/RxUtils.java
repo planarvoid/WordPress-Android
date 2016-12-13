@@ -15,7 +15,9 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subscriptions.Subscriptions;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class RxUtils {
 
@@ -131,6 +133,23 @@ public final class RxUtils {
             @Override
             public Optional<T> call(T t) {
                 return Optional.of(t);
+            }
+        };
+    }
+
+    public static <T, P> Func1<Map<T, P>, List<P>> toOrderedList(final List<T> list,
+                                                                 final Optional<P> defaultValue) {
+        return new Func1<Map<T, P>, List<P>>() {
+            public List<P> call(Map<T, P> map) {
+                List<P> result = new ArrayList<>(map.size());
+                for (T key : list) {
+                    if (map.containsKey(key)) {
+                        result.add(map.get(key));
+                    } else if (defaultValue.isPresent()) {
+                        result.add(defaultValue.get());
+                    }
+                }
+                return result;
             }
         };
     }

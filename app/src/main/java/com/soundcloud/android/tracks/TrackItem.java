@@ -85,12 +85,12 @@ public class TrackItem extends PlayableItem implements TieredTrack {
         return getTrackPlayDuration(source);
     }
 
-    public OfflineState getDownloadedState() {
+    public OfflineState getOfflineState() {
         return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
     public boolean isUnavailableOffline() {
-        return getDownloadedState() == OfflineState.UNAVAILABLE;
+        return getOfflineState() == OfflineState.UNAVAILABLE;
     }
 
     public int getPlayCount() {
@@ -142,6 +142,11 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     @Override
     public int hashCode() {
         return MoreObjects.hashCode(source, isPlaying);
+    }
+
+    @Override
+    public String toString() {
+        return source.toString();
     }
 
     public boolean updateNowPlaying(Urn nowPlaying) {

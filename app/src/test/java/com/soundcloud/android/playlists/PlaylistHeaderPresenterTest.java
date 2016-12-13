@@ -345,6 +345,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldUpdateOfflineAvailabilityOnMarkedForOfflineChange() {
         setPlaylistInfo();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          requested(singletonList(playlistWithTracks.getUrn()), false));
@@ -356,6 +357,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldUpdateOfflineAvailabilityOnUnmarkedForOfflineChange() {
         setPlaylistInfo();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
 
@@ -403,11 +405,13 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedAvailable() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC)
-                                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
-                                .put(PlaylistProperty.IS_POSTED, true));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        PropertySet playlistProperties = createPlaylistProperties(Sharing.PUBLIC)
+                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true);
+        when(accountOperations.isLoggedInUser(playlistProperties.get(PlaylistProperty.CREATOR_URN))).thenReturn(true);
+
+        setPlaylistInfo(playlistProperties);
 
         verify(engagementsView).showOfflineOptions(true);
     }
@@ -415,29 +419,31 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsNotOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedUnavailable() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        PropertySet playlistProperties = createPlaylistProperties(Sharing.PUBLIC);
+        when(accountOperations.isLoggedInUser(playlistProperties.get(PlaylistProperty.CREATOR_URN))).thenReturn(true);
 
-        setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC)
-                                .put(PlaylistProperty.IS_POSTED, true));
+        setPlaylistInfo(playlistProperties);
 
         verify(engagementsView).showOfflineOptions(false);
     }
 
     @Test
     public void showsUpsellWhenOfflineContentIsNotEnabledAndAllowedToShowUpsell() {
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
         when(featureOperations.upsellOfflineContent()).thenReturn(true);
 
         setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC)
-                                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
-                                .put(PlaylistProperty.IS_POSTED, true));
+                                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true));
 
         verify(engagementsView).showUpsell();
     }
 
     @Test
     public void hidesOfflineOptionsWhenOfflineContentIsNotEnabledAndNotAllowedToShowUpsell() {
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+
         setPlaylistInfo(createPlaylistProperties(Sharing.PUBLIC)
-                                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
-                                .put(PlaylistProperty.IS_POSTED, true));
+                                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true));
 
         verify(engagementsView).hideOfflineOptions();
     }
@@ -602,8 +608,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void disablesShuffleWithOneTrack() throws Exception {
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
-                .put(PlaylistProperty.IS_POSTED, true)
                 .put(PlaylistProperty.TRACK_COUNT, 1);
 
         setPlaylistInfo(createPlaylistWithSingleTrack(sourceSet), getPlaySessionSource());
@@ -613,8 +619,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enablesShuffleWithMoreThanOneTrack() throws Exception {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
-                .put(PlaylistProperty.IS_POSTED, true);
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC);
 
         setPlaylistInfo(sourceSet);
 
@@ -663,8 +669,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistWithTracks createPlaylistInfoWithSharing(Sharing sharing) {
-        final PropertySet sourceSet = createPlaylistProperties(sharing)
-                .put(PlaylistProperty.IS_POSTED, true);
+        final PropertySet sourceSet = createPlaylistProperties(sharing);
         return createPlaylistWithTracks(sourceSet);
     }
 
@@ -682,8 +687,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         return playlist.toPropertySet()
                        .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, false)
                        .put(PlaylistProperty.IS_USER_LIKE, false)
-                       .put(PlaylistProperty.IS_USER_REPOST, false)
-                       .put(PlaylistProperty.IS_POSTED, false);
+                       .put(PlaylistProperty.IS_USER_REPOST, false);
     }
 
     private PlaySessionSource getPlaySessionSource() {

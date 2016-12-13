@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
@@ -92,7 +91,6 @@ public class SearchResultItemTest extends AndroidUnitTest {
     public void shouldBuildCorrectPlaylistListItemType() {
         final PropertySet propertySet = PropertySet.create();
         propertySet.put(EntityProperty.URN, Urn.forPlaylist(123L));
-        propertySet.put(PlaylistProperty.IS_POSTED, true);
 
         final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
 

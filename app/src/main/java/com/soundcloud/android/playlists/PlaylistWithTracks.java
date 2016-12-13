@@ -48,10 +48,6 @@ public class PlaylistWithTracks implements ImageResource {
         return playlistItem.isRepostedByUser();
     }
 
-    public boolean isPostedByUser() {
-        return playlistItem.isPostedByUser();
-    }
-
     boolean isLocalPlaylist() {
         return playlistItem.isLocalPlaylist();
     }

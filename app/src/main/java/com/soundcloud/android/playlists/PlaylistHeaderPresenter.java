@@ -306,7 +306,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private boolean isEligibleForOfflineContent() {
-        return headerItem.isPostedByUser() || headerItem.isLikedByUser();
+        return accountOperations.isLoggedInUser(headerItem.getCreatorUrn()) || headerItem.isLikedByUser();
     }
 
     @Override

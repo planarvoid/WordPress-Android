@@ -22,9 +22,12 @@ import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
+import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
@@ -44,8 +47,10 @@ import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserBlueprint;
 import com.soundcloud.android.users.UserItemBlueprint;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -129,7 +134,7 @@ public class ModelFixtures {
     public static ApiPlaylistWithTracks apiPlaylistWithNoTracks() {
         return new ApiPlaylistWithTracks(
                 ModelFixtures.create(ApiPlaylist.class),
-                new ModelCollection<ApiTrack>()
+                new ModelCollection<>()
         );
     }
 
@@ -157,7 +162,14 @@ public class ModelFixtures {
     }
 
     public static PlaylistItem playlistItem(){
-        return ModelFixtures.create(PlaylistItem.class);
+        return create(PlaylistItem.class);
+    }
+
+    public static PlaylistItem playlistItem(Urn urn) {
+        final PropertySet properties = ModelFixtures.create(ApiPlaylist.class)
+                                             .toPropertySet()
+                                             .put(EntityProperty.URN, urn);
+        return PlaylistItem.from(properties);
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {
@@ -323,5 +335,26 @@ public class ModelFixtures {
         apiUser.setUrn(urn);
 
         return new ProfileUser(apiUser.toPropertySet());
+    }
+
+    public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
+        final PropertySet trackProperties = ModelFixtures.create(ApiTrack.class).toPropertySet();
+        trackProperties.put(TrackProperty.URN, trackUrn);
+        trackProperties.put(OfflineProperty.OFFLINE_STATE, state);
+        return TrackItem.from(trackProperties);
+    }
+
+    public static TrackItem trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
+        return TrackItem.from(TestPropertySets.fromApiTrack(apiTrack).put(OfflineProperty.OFFLINE_STATE, state));
+    }
+
+    public static TrackItem trackItem(ApiTrack apiTrack) {
+        return TrackItem.from(TestPropertySets.fromApiTrack(apiTrack));
+    }
+
+    public static TrackItem highTierMonetizableTrack(ApiTrack track) {
+        return TrackItem.from(TestPropertySets.fromApiTrack(track)
+                                   .put(TrackProperty.SUB_MID_TIER, false)
+                                   .put(TrackProperty.SUB_HIGH_TIER, true));
     }
 }

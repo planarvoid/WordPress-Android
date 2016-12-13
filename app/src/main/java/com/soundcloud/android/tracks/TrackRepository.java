@@ -7,6 +7,7 @@ import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Iterators;
@@ -41,14 +42,17 @@ public class TrackRepository {
     };
 
     private final TrackStorage trackStorage;
+    private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
+                           LoadPlaylistTracksCommand loadPlaylistTracksCommand,
                            SyncInitiator syncInitiator,
                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.trackStorage = trackStorage;
+        this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
     }
@@ -62,6 +66,7 @@ public class TrackRepository {
         return fromUrns(singletonList(trackUrn)).map(TO_MAP_VALUE_OR_EMPTY);
     }
 
+    // TODO : should we return a Map<Urn, TrackItem>
     public Observable<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {
         checkTracksUrn(requestedTracks);
         return trackStorage
@@ -69,6 +74,10 @@ public class TrackRepository {
                 .flatMap(syncMissingTracks(requestedTracks))
                 .flatMap(continueWith(trackStorage.loadTracks(requestedTracks)))
                 .subscribeOn(scheduler);
+    }
+
+    public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn) {
+        return loadPlaylistTracksCommand.toObservable(playlistUrn);
     }
 
     private Func1<List<Urn>, Observable<?>> syncMissingTracks(final List<Urn> requestedTracks) {

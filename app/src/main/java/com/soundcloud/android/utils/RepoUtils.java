@@ -12,15 +12,15 @@ import java.util.Map;
 
 public class RepoUtils {
 
-    public static <I extends UrnHolder, E, O> Observable<List<O>> enrich(final List<I> sourceItems,
-                                                                         Observable<Map<Urn, E>> entities,
-                                                                         Func2<E, I, O> combiner) {
+    public static <Entity extends UrnHolder, Properties, Aggregate> Observable<List<Aggregate>> enrich(final List<Entity> sourceItems,
+                                                                                                       Observable<Map<Urn, Properties>> entities,
+                                                                                                       Func2<Properties, Entity, Aggregate> combiner) {
         if (sourceItems.isEmpty()) {
             return Observable.just(Collections.emptyList());
         } else {
             return entities.map(urnEntityMap -> {
-                List<O> combined = new ArrayList<>(sourceItems.size());
-                for (I sourceItem : sourceItems) {
+                final List<Aggregate> combined = new ArrayList<>(sourceItems.size());
+                for (Entity sourceItem : sourceItems) {
                     if (urnEntityMap.containsKey(sourceItem.urn())) {
                         combined.add(combiner.call(urnEntityMap.get(sourceItem.urn()), sourceItem));
                     }
@@ -29,4 +29,5 @@ public class RepoUtils {
             });
         }
     }
+
 }

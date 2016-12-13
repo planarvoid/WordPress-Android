@@ -5,34 +5,32 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.java.collections.Iterables;
 import rx.Observable;
 import rx.functions.Func1;
-
-import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class RecommendedPlaylistsOperations {
 
     private final SyncOperations syncOperations;
     private final RecommendedPlaylistsStorage storage;
-    private final PlaylistOperations playlistOperations;
+    private final PlaylistRepository playlistRepository;
 
     @Inject
     RecommendedPlaylistsOperations(SyncOperations syncOperations,
                                    RecommendedPlaylistsStorage storage,
-                                   PlaylistOperations playlistOperations) {
+                                   PlaylistRepository playlistRepository) {
         this.syncOperations = syncOperations;
         this.storage = storage;
-        this.playlistOperations = playlistOperations;
+        this.playlistRepository = playlistRepository;
     }
 
     public Observable<DiscoveryItem> recommendedPlaylists() {
@@ -45,42 +43,36 @@ public class RecommendedPlaylistsOperations {
                              .flatMap(continueWith(readRecommendedPlaylistsFromStorage()));
     }
 
-    private Observable<RecommendedPlaylistsBucketItem> fromEntities(final List<RecommendedPlaylistsEntity> entities) {
-        Set<Urn> urns = new HashSet<>();
-        for (RecommendedPlaylistsEntity entity : entities) {
-            urns.addAll(entity.playlistUrns());
+    private Observable<RecommendedPlaylistsBucketItem> fromEntities(final List<RecommendedPlaylistsEntity> buckets) {
+        final Set<Urn> recommendedPlaylists = new HashSet<>();
+        for (RecommendedPlaylistsEntity bucket : buckets) {
+            recommendedPlaylists.addAll(bucket.playlistUrns());
         }
 
-        if (urns.isEmpty()) {
+        if (recommendedPlaylists.isEmpty()) {
             return Observable.empty();
         }
 
-        return playlistOperations.playlistsMap(urns)
-                                 .flatMap(new Func1<Map<Urn, PlaylistItem>, Observable<RecommendedPlaylistsBucketItem>>() {
-                                     @Override
-                                     public Observable<RecommendedPlaylistsBucketItem> call(final Map<Urn, PlaylistItem> playlistEntities) {
-                                         return Observable.from(entities)
-                                                          .map(mapToBucketItem(playlistEntities));
-                                     }
-                                 });
+        return playlistRepository.withUrns(recommendedPlaylists)
+                                 .flatMap(toOrderedBuckets(buckets));
     }
 
-    @NonNull
-    private Func1<RecommendedPlaylistsEntity, RecommendedPlaylistsBucketItem> mapToBucketItem(final Map<Urn, PlaylistItem> playlistEntities) {
-        return new Func1<RecommendedPlaylistsEntity, RecommendedPlaylistsBucketItem>() {
-            @Override
-            public RecommendedPlaylistsBucketItem call(RecommendedPlaylistsEntity entity) {
-                List<PlaylistItem> matches = new ArrayList<>(entity.playlistUrns().size());
-                for (Urn urn : entity.playlistUrns()) {
-                    matches.add(playlistEntities.get(urn));
-                }
-                return RecommendedPlaylistsBucketItem.create(entity, matches);
+    private Func1<List<PlaylistItem>, Observable<? extends RecommendedPlaylistsBucketItem>> toOrderedBuckets(List<RecommendedPlaylistsEntity> buckets) {
+        return playlistEntities -> Observable
+                .from(buckets)
+                .map(mapToBucketItem(playlistEntities));
+    }
 
+    private Func1<RecommendedPlaylistsEntity, RecommendedPlaylistsBucketItem> mapToBucketItem(final List<PlaylistItem> playlistEntities) {
+        return entity -> {
+            final List<PlaylistItem> matches = new ArrayList<>(entity.playlistUrns().size());
+            for (Urn urn : entity.playlistUrns()) {
+                matches.add(Iterables.find(playlistEntities, input -> urn.equals(input.getUrn())));
             }
+            return RecommendedPlaylistsBucketItem.create(entity, matches);
         };
     }
 
-    @NonNull
     private Observable<? extends DiscoveryItem> readRecommendedPlaylistsFromStorage() {
         return storage.recommendedPlaylists()
                       .flatMap(new Func1<List<RecommendedPlaylistsEntity>, Observable<RecommendedPlaylistsBucketItem>>() {

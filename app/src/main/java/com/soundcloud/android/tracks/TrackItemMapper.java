@@ -15,11 +15,16 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 public final class TrackItemMapper extends RxResultMapper<PropertySet> {
 
     private static final String SHARING_PRIVATE = "private";
+
+    @Inject
+    public TrackItemMapper() {
+    }
 
     @Override
     public PropertySet map(CursorReader cursorReader) {
@@ -38,6 +43,7 @@ public final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(TrackView.BLOCKED.name()));
         propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(TrackView.SNIPPED.name()));
         propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(TrackView.SUB_HIGH_TIER.name()));
+        propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(TrackView.SUB_MID_TIER.name()));
         propertySet.put(TrackProperty.MONETIZATION_MODEL,
                         cursorReader.getString(TrackView.MONETIZATION_MODEL.name()));
         propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(TrackView.IS_USER_LIKE.name()));

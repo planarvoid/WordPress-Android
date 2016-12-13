@@ -19,7 +19,6 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
@@ -37,17 +36,14 @@ import java.util.List;
 class PlaylistTracksStorage {
     private static final String IS_TRACK_ALREADY_ADDED = "track_exists_in_playlist";
 
-    private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
     private final AccountOperations accountOperations;
 
     @Inject
     PlaylistTracksStorage(PropellerRx propellerRx,
-                          LoadPlaylistTracksCommand loadPlaylistTracksCommand,
                           CurrentDateProvider dateProvider,
                           AccountOperations accountOperations) {
-        this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
         this.accountOperations = accountOperations;
@@ -163,10 +159,6 @@ class PlaylistTracksStorage {
                 .query(queryPlaylistsWithTrackExistStatus(trackUrn))
                 .map(new AddTrackToPlaylistItemMapper())
                 .toList();
-    }
-
-    Observable<List<PropertySet>> playlistTracks(Urn playlistUrn) {
-        return loadPlaylistTracksCommand.toObservable(playlistUrn);
     }
 
     private static final class AddTrackToPlaylistItemMapper

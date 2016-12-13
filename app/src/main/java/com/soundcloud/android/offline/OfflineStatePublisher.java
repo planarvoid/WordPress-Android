@@ -84,8 +84,7 @@ class OfflineStatePublisher {
         Map<OfflineState, TrackCollections> collectionsStates = new HashMap<>();
         for (Urn track : tracks) {
             collectionsStates = mergeStates(collectionsStates,
-                                            collectionStateOperations.loadTracksCollectionsState(track,
-                                                                                                 newTracksState));
+                                            collectionStateOperations.loadTracksCollectionsState(track, newTracksState));
         }
 
         for (OfflineState state : OfflineState.values()) {

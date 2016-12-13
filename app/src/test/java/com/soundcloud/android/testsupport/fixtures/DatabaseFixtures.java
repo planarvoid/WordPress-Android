@@ -308,6 +308,32 @@ public class DatabaseFixtures {
         insertInto(Tables.Sounds.TABLE, createPlaylistContentValues(playlist).get());
     }
 
+    public ApiTrack insertPlaylistTrackWithPolicyHighTierMonetizable(ApiPlaylist playlist, int position) {
+        final ApiTrack apiTrack = insertPlaylistTrack(playlist.getUrn(), position);
+        return insertPolicyHighTierMonetizable(apiTrack);
+    }
+
+    private ApiTrack insertPolicyHighTierMonetizable(ApiTrack apiTrack) {
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(Tables.TrackPolicies.TRACK_ID, apiTrack.getUrn().getNumericId());
+        cv.put(Tables.TrackPolicies.POLICY, "SNIP");
+        cv.put(Tables.TrackPolicies.MONETIZABLE, true);
+        cv.put(Tables.TrackPolicies.MONETIZATION_MODEL, "SUB_HIGH_TIER");
+        cv.put(Tables.TrackPolicies.SUB_MID_TIER, false);
+        cv.put(Tables.TrackPolicies.SUB_HIGH_TIER, true);
+        cv.put(Tables.TrackPolicies.SYNCABLE, false);
+        insertInto(Tables.TrackPolicies.TABLE, cv.get());
+
+        apiTrack.setPolicy("SNIP");
+        apiTrack.setMonetizable(true);
+        apiTrack.setMonetizationModel("SUB_HIGH_TIER");
+        apiTrack.setSubMidTier(false);
+        apiTrack.setSubHighTier(true);
+        apiTrack.setSyncable(false);
+
+        return apiTrack;
+    }
+
     public ApiTrack insertPlaylistTrack(ApiPlaylist playlist, int position) {
         return insertPlaylistTrack(playlist.getUrn(), position);
     }

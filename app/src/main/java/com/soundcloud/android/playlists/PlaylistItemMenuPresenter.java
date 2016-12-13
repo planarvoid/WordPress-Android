@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -55,6 +56,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final PlayQueueHelper playQueueHelper;
     private final EventTracker eventTracker;
     private final PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory;
+    private final AccountOperations accountOperations;
 
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private OverflowMenuOptions menuOptions;
@@ -78,7 +80,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      Navigator navigator,
                                      PlayQueueHelper playQueueHelper,
                                      EventTracker eventTracker,
-                                     PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory) {
+                                     PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory,
+                                     AccountOperations accountOperations) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.playlistOperations = playlistOperations;
@@ -92,6 +95,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.playQueueHelper = playQueueHelper;
         this.eventTracker = eventTracker;
         this.playlistItemMenuRendererFactory = playlistItemMenuRendererFactory;
+        this.accountOperations = accountOperations;
     }
 
     public void show(View button, PlaylistItem playlist, OverflowMenuOptions menuOptions) {
@@ -236,7 +240,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike, PlaylistItem playlist) {
         boolean offlineContentEnabled = featureOperations.isOfflineContentEnabled() && menuOptions.showOffline();
-        return offlineContentEnabled && !addLike && !playlist.isPostedByUser();
+        return offlineContentEnabled && !addLike && !accountOperations.isLoggedInUser(playlist.getCreatorUrn());
     }
 
     // this is really ugly. We should introduce a PlaylistRepository.
