@@ -9,6 +9,7 @@ public final class TestConsts {
     }
 
 
+    public static final Uri TWO_MINUTE_TRACK = Uri.parse("soundcloud://sounds:297507739");
     public static final Uri TRACK_WITH_DESCRIPTION = Uri.parse("soundcloud://sounds:205133517");
     public static final Uri TRACK_WITH_NO_DESCRIPTION = Uri.parse("soundcloud://sounds:205133365");
     public static final Uri TRACK_LOTS_OF_COMMENTS = Uri.parse("soundcloud://sounds:203864219");

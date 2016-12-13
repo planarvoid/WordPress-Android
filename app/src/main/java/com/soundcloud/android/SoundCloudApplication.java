@@ -41,9 +41,12 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
+import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsController;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncConfig;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
@@ -112,7 +115,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;
-    @Inject SyncInitiatorBridge syncInitiatorBridge;
+    @Inject SyncInitiator syncInitiator;
+    @Inject StationsOperations stationsOperations;
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
 
     // we need this object to exist throughout the life time of the app,
@@ -281,9 +285,12 @@ public class SoundCloudApplication extends MultiDexApplication {
      * Alternatively, sync sets lazily where needed.
      */
     private void requestCollectionsSync() {
-        fireAndForget(syncInitiatorBridge.refreshMyPostedAndLikedPlaylists());
-        fireAndForget(syncInitiatorBridge.refreshLikedTracks());
-        fireAndForget(syncInitiatorBridge.refreshStations());
+        fireAndForget(syncInitiator.sync(Syncable.MY_PLAYLISTS));
+        fireAndForget(syncInitiator.sync(Syncable.PLAYLIST_LIKES));
+        fireAndForget(syncInitiator.sync(Syncable.TRACK_LIKES));
+        fireAndForget(stationsOperations.syncStations(StationsCollectionsTypes.LIKED));
+        fireAndForget(syncInitiator.sync(Syncable.PLAY_HISTORY));
+        fireAndForget(syncInitiator.sync(Syncable.RECENTLY_PLAYED));
     }
 
     private void setupStrictMode() {
