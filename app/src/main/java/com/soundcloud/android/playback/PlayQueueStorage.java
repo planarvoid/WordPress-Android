@@ -163,7 +163,7 @@ public class PlayQueueStorage {
     private Bucket getPlaybackContextBucket(CursorReader reader) {
         return reader.isNotNull(Tables.PlayQueue.CONTEXT_TYPE) ?
                Bucket.valueOf(reader.getString(Tables.PlayQueue.CONTEXT_TYPE)) :
-               Bucket.EXPLICIT;
+               Bucket.OTHER;
     }
 
     private Optional<String> getPlaybackContextQuery(CursorReader reader) {

@@ -6,11 +6,8 @@ import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.playback.Player.PlayerListener;
-import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -21,7 +18,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 class StreamPlayer implements PlayerListener {
 
@@ -31,7 +27,6 @@ class StreamPlayer implements PlayerListener {
 
     private final MediaPlayerAdapter mediaPlayerDelegate;
     private final Optional<SkippyAdapter> skippyPlayerDelegate;
-    private final Optional<FlipperAdapter> flipperPlayerDelegate;
 
     private final Optional<? extends Player> offlineContentPlayer;
     private final Player videoPlayer;
@@ -50,17 +45,14 @@ class StreamPlayer implements PlayerListener {
     @Inject
     StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
                  SkippyAdapter skippyAdapter,
-                 Provider<FlipperAdapter> flipperAdapterProvider,
                  NetworkConnectionHelper networkConnectionHelper,
-                 EventBus eventBus,
-                 FeatureFlags featureFlags) {
+                 EventBus eventBus) {
 
         this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
 
         this.mediaPlayerDelegate = mediaPlayerAdapter;
         this.skippyPlayerDelegate = initSkippy(skippyAdapter);
-        this.flipperPlayerDelegate = featureFlags.isEnabled(Flag.FLIPPER) ? Optional.of(flipperAdapterProvider.get()) : Optional.<FlipperAdapter>absent();
 
         this.defaultPlayer = defaultPlayer();
         this.offlineContentPlayer = skippyPlayerDelegate;
@@ -82,9 +74,7 @@ class StreamPlayer implements PlayerListener {
     }
 
     private Player defaultPlayer() {
-        if (flipperPlayerDelegate.isPresent()) {
-            return flipperPlayerDelegate.get();
-        } else if (skippyPlayerDelegate.isPresent()) {
+        if (skippyPlayerDelegate.isPresent()) {
             return skippyPlayerDelegate.get();
         } else {
             return mediaPlayerDelegate;
@@ -164,9 +154,6 @@ class StreamPlayer implements PlayerListener {
         mediaPlayerDelegate.destroy();
         if (skippyPlayerDelegate.isPresent()) {
             skippyPlayerDelegate.get().destroy();
-        }
-        if (flipperPlayerDelegate.isPresent()) {
-            flipperPlayerDelegate.get().destroy();
         }
     }
 

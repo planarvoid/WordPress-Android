@@ -9,6 +9,9 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.appboy.AppboyWrapper;
+import com.soundcloud.android.analytics.appboy.EmptyAppboyWrapper;
+import com.soundcloud.android.analytics.appboy.RealAppboyWrapper;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastModule;
@@ -38,6 +41,7 @@ import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncModule;
@@ -99,6 +103,7 @@ public class ApplicationModule {
     public static final String LOW_PRIORITY = "LowPriority";
     public static final String MAIN_LOOPER = "MainLooper";
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
+    public static final String DEFAULT_LIST_PAGE_SIZE = "DefaultListPageSize";
 
     private final SoundCloudApplication application;
 
@@ -272,8 +277,11 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public Appboy provideAppboy(Context context) {
-        return Appboy.getInstance(context);
+    public AppboyWrapper provideAppboy(Context context, FeatureFlags featureFlags) {
+        if (featureFlags.isEnabled(Flag.APPBOY)) {
+            return new RealAppboyWrapper(Appboy.getInstance(context));
+        }
+        return new EmptyAppboyWrapper();
     }
 
     @Provides
@@ -304,5 +312,11 @@ public class ApplicationModule {
     @Named(CURRENT_DATE_PROVIDER)
     public DateProvider provideCurrentDateProvider() {
         return new CurrentDateProvider();
+    }
+
+    @Provides
+    @Named(DEFAULT_LIST_PAGE_SIZE)
+    public int provideDefaultListPageSize() {
+        return Consts.LIST_PAGE_SIZE;
     }
 }

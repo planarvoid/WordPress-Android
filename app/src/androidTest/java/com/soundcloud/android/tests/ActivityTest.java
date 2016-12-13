@@ -49,6 +49,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         waiter = new Waiter(solo);
 
         AccountAssistant.logOut(getInstrumentation());
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.APPBOY);
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
         networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());

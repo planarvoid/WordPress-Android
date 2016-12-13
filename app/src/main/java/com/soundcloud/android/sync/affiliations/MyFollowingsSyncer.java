@@ -133,7 +133,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     private void pushUserAssociationAddition(Urn userUrn, String userName, ApiRequest request) throws IOException, ApiRequestException {
         final ApiResponse response = apiClient.fetchResponse(request);
         int status = response.getStatusCode();
-        if (status == HttpStatus.FORBIDDEN) {
+        if (status == HttpStatus.FORBIDDEN || status == HttpStatus.BAD_REQUEST) {
             forbiddenUserPushHandler(userUrn, userName, extractApiError(response.getResponseBody()));
         } else if (response.isSuccess()) {
             userAssociationStorage.updateFollowingFromPendingState(userUrn);

@@ -41,7 +41,7 @@ public final class AccountAssistant {
     private AccountAssistant() {
     }
 
-    private static final String TAG = AccountAssistant.class.getSimpleName();
+    static final String TAG = AccountAssistant.class.getSimpleName();
 
     private static final Lock lock = new ReentrantLock();
     private static final Condition accountDataCleaned = lock.newCondition();

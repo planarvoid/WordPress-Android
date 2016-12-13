@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="539"
-    android:versionName="2016.11.25"
+    android:versionCode="551"
+    android:versionName="2016.12.12"
     package="com.soundcloud.android">
 
     <!-- required for Robolectric to use the correct values -->
@@ -305,7 +305,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.soundcloud.android"
+            android:authorities="${applicationId}.provider.FileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

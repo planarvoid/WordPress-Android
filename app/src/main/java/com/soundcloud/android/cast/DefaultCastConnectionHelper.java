@@ -4,6 +4,7 @@ import static com.soundcloud.android.cast.CastProtocol.TAG;
 
 import com.appboy.support.StringUtils;
 import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
@@ -72,12 +73,18 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
 
     @Override
     public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
-        final MenuItem menuItem = CastButtonFactory.setUpMediaRouteButton(context, menu, itemId);
-        Log.d(TAG, "AddMediaRouterButton called for " + menuItem + " vis : " + isCastableDeviceAvailable);
+        try {
+            final MenuItem menuItem = CastButtonFactory.setUpMediaRouteButton(context, menu, itemId);
+            Log.d(TAG, "AddMediaRouterButton called for " + menuItem + " vis : " + isCastableDeviceAvailable);
 
-        mediaRouteMenuItems.add(menuItem);
-        menuItem.setVisible(isCastableDeviceAvailable);
-        return menuItem;
+            mediaRouteMenuItems.add(menuItem);
+            menuItem.setVisible(isCastableDeviceAvailable);
+            return menuItem;
+
+        } catch (Exception ex) {
+            ErrorUtils.handleSilentExceptionWithLog(ex, "Unable to set up media route item");
+            return null;
+        }
     }
 
     @Override
@@ -87,10 +94,13 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
 
     @Override
     public void addMediaRouterButton(MediaRouteButton mediaRouteButton) {
-        Log.d(TAG, "AddMediaRouterButton called for " + mediaRouteButton);
-        CastButtonFactory.setUpMediaRouteButton(mediaRouteButton.getContext(), mediaRouteButton);
-        mediaRouteButtons.add(mediaRouteButton);
-        mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
+        try {
+            CastButtonFactory.setUpMediaRouteButton(mediaRouteButton.getContext(), mediaRouteButton);
+            mediaRouteButtons.add(mediaRouteButton);
+            mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
+        } catch (Exception ex) {
+            ErrorUtils.handleSilentExceptionWithLog(ex, "Unable to set up media route item " + mediaRouteButton);
+        }
     }
 
     @Override

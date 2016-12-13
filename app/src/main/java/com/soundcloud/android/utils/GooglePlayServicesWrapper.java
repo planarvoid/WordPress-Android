@@ -20,12 +20,16 @@ public class GooglePlayServicesWrapper {
         return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
     }
 
-    public boolean isPlayServiceAvailable(Context context){
+    public boolean isPlayServiceAvailable(Context context) {
         try {
-            return getPlayServicesAvailableStatus(context) ==  ConnectionResult.SUCCESS;
-        } catch (Exception exception){
+            return getPlayServicesAvailableStatus(context) == ConnectionResult.SUCCESS;
+        } catch (Exception exception) {
             return false;
         }
+    }
+
+    public boolean isPlayServiceAvailable(Context context, int requiredVersion) {
+        return isPlayServiceAvailable(context) && GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE >= requiredVersion;
     }
 
     public boolean isUserRecoverableError(int resultCode) {

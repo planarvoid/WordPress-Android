@@ -31,6 +31,15 @@ public class PlaybackContextTest {
     }
 
     @Test
+    public void fromAnUnknownScreen() {
+        final PlaybackContext context = create(new PlaySessionSource(Screen.AUTH_USER_DETAILS));
+
+        assertThat(context.bucket()).isEqualTo(PlaybackContext.Bucket.OTHER);
+        assertThat(context.query()).isEqualTo(Optional.absent());
+        assertThat(context.urn()).isEqualTo(Optional.absent());
+    }
+
+    @Test
     public void fromYourStream() {
         final PlaybackContext context = create(new PlaySessionSource(Screen.STREAM));
 

@@ -1,6 +1,13 @@
 package com.soundcloud.android.framework;
 
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
+
+import android.content.Context;
+
+import java.io.IOException;
 
 /* *********************************************************************************************************************
 

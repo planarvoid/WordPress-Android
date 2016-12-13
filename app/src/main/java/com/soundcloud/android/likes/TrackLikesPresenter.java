@@ -90,7 +90,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         TrackLikesAdapterFactory adapterFactory,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
-                        SwipeRefreshAttacher swipeRefreshAttacher, DataSource dataSource) {
+                        SwipeRefreshAttacher swipeRefreshAttacher,
+                        DataSource dataSource) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackInitiator;
@@ -196,7 +197,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         if (item == null) {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
-        } else {
+        } else if (item.isTrack()) {
             TrackItem trackItem = ((TrackLikesTrackItem) item).getTrackItem();
             Urn initialTrack = trackItem.getUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
@@ -221,11 +222,11 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     @AutoValue
     static abstract class TrackLikesPage {
 
-        static TrackLikesPage withHeader(List<LikeWithTrack> trackLikes){
+        static TrackLikesPage withHeader(List<LikeWithTrack> trackLikes) {
             return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
         }
 
-        static TrackLikesPage withoutHeader(List<LikeWithTrack> trackLikes){
+        static TrackLikesPage withoutHeader(List<LikeWithTrack> trackLikes) {
             return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
         }
 
@@ -242,7 +243,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             this.trackLikeOperations = trackLikeOperations;
         }
 
-        Observable<TrackLikesPage> initialTrackLikes(){
+        Observable<TrackLikesPage> initialTrackLikes() {
             return wrapLikedTracks(trackLikeOperations.likedTracks(), true);
         }
 
@@ -253,12 +254,12 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
         Pager.PagingFunction<TrackLikesPage> pagingFunction() {
             return result -> {
-                if (result.getTrackLikes().size() < PAGE_SIZE) {
-                    return Pager.finish();
-                } else {
-                    final long oldestLike = getLast(result.getTrackLikes()).like().likedAt().getTime();
-                    return wrapLikedTracks(trackLikeOperations.likedTracks(oldestLike), false);
-                }
+                    if (result.getTrackLikes().size() < PAGE_SIZE) {
+                        return Pager.finish();
+                    } else {
+                        final long oldestLike = getLast(result.getTrackLikes()).like().likedAt().getTime();
+                        return wrapLikedTracks(trackLikeOperations.likedTracks(oldestLike), false);
+                    }
             };
         }
 

@@ -28,7 +28,10 @@ android {
     android.applicationVariants.each { variant ->
       def appId = variant.applicationId
       String accountAuthority = appId + ".provider.ScContentProvider"
+      String fileProviderAuthority = appId + ".provider.FileProvider"
+
       variant.buildConfigField "String", "ACCOUNT_AUTHORITY", "\"$accountAuthority\""
+      variant.buildConfigField "String", "FILE_PROVIDER_AUTHORITY", "\"$fileProviderAuthority\""
 
       variant.resValue "string", "app_id", appId
       variant.resValue "string", "account_type", "${appId}.account"

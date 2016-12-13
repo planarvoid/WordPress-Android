@@ -82,6 +82,7 @@
   <string name="authentication_login_progress_message">Logando</string>
   <string name="authentication_recover_password_failure">Não conseguimos recuperar sua senha agora. Tente novamente em seguida.</string>
   <string name="authentication_recover_password_failure_reason">Falha na recuperação da senha: %s</string>
+  <string name="authentication_recover_password_unknown_email_address">Endereço de e-mail desconhecido</string>
   <string name="authentication_recover_password_success">Verifique seu email para obter instruções sobre como trocar sua senha.</string>
   <string name="authentication_recover_progress_message">Solicitação de redefinição de senha</string>
   <string name="authentication_sign_up">Criar uma conta</string>
@@ -580,9 +581,16 @@
   <string name="age_verify_button">Verificar idade</string>
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Não é possível transmitir a faixa</string>
+  <string name="media_route_menu_title">Transmitir</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promovido</string>
   <string name="promoted_by_promotorname">Promovida por %s</string>
+  <!--__USER WELCOME-->
+  <string name="welcome_user_title_morning">Bom dia, %s</string>
+  <string name="welcome_user_title_afternoon">Boa tarde, %s</string>
+  <string name="welcome_user_title_evening">Boa noite, %s</string>
+  <string name="welcome_user_title_night">Boa noite, %s</string>
+  <string name="welcome_user_subtitle">Confira algumas das novas canções disponíveis!</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Convidar amigos para o SoundCloud</string>
   <string name="facebook_invites_description">Compartilhar é cuidar. Convide seus amigos para
@@ -591,6 +599,11 @@
   <!--__FACEBOOK CREATOR INVITES-->
   <string name="facebook_creator_invites_title">Convidar amigos para ouvir a faixa mais recente na SoundCloud</string>
   <!--__COLLECTION-->
+  <string name="collections_playlists_header">Playlists e álbums</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">Playlists e albums</item>
+    <item quantity="other">%d playlists e albums</item>
+  </plurals>
   <string name="collections_your_liked_tracks">Faixas curtidas</string>
   <string name="track_likes_title">Faixas curtidas</string>
   <string name="collections_options_header_filters">Filtros</string>
@@ -599,7 +612,7 @@
   <string name="collections_options_toggle_likes">Curtiu</string>
   <string name="collections_options_dialog_sort_by_creation">Notícias recentes</string>
   <string name="collections_options_dialog_sort_by_title">Título</string>
-  <string name="collections_empty_playlists">As playlists e álbuns que você curtiu ou criou
+  <string name="collections_empty_playlists">As playlists e álbuns que você curtiu ou criou 
 vão aparecer aqui.</string>
   <string name="collections_filters_active_message">Nem todas as suas playlists e álbuns estão sendo exibidas. Limpe os filtros para ver todos.</string>
   <string name="collections_remove_filters">Limpar filtros</string>
@@ -626,6 +639,7 @@ vão aparecer aqui.</string>
   <string name="collections_recently_played_album">álbum</string>
   <string name="collections_recently_played_profile">perfil</string>
   <string name="collections_upsell_title">Obter SoundCloud Go</string>
+  <string name="collections_upsell_body">Ouça suas curtidas, playlists e álbuns offline e sem anúncios</string>
   <string name="collections_recently_played_clear_action">Limpar músicas reproduzidas recentemente</string>
   <string name="collections_recently_played_clear_dialog_title">Limpar músicas reproduzidas recentemente?</string>
   <string name="collections_recently_played_clear_dialog_message">Tem certeza de que deseja limpar o histórico de músicas reproduzidas recentemente? Esta ação não poderá ser desfeita.</string>
@@ -638,7 +652,7 @@ vão aparecer aqui.</string>
   </plurals>
   <!--__TABS-->
   <string name="tab_home">Início</string>
-  <string name="tab_discovery">Descoberta</string>
+  <string name="tab_discovery">Descobrir</string>
   <string name="tab_collection">Colecção</string>
   <string name="tab_more">Mais</string>
   <!--__MORE-->
@@ -703,7 +717,7 @@ vão aparecer aqui.</string>
   <string name="conversion_restrictions_dialog_title">Aplicam-se restrições</string>
   <string name="conversion_restrictions_message_trial">Oferta limitada para uma avaliação de %1$d dias por usuário. Depois dos primeiros %2$d dias, a assinatura é renovada automaticamente, a menos que seja cancelado antes que termine a avaliação grátis de %3$d dias. A assinatura poderá ser cancelada a qualquer momento na soundcloud.com. Todos os preços incluem taxas locais aplicáveis sobre as vendas.\n\nOs residentes de Québec, no Canadá, não têm direito a avaliações devido a restrições locais.</string>
   <string name="conversion_restrictions_message_no_trial">Você já utilizou sua avaliação gratuita ou é residente de Québec, não tendo direito a uma avaliação devido a restrições locais.\n\nAo adquirir o SoundCloud Go, lhe será cobrado o preço normal atual por mês (incluindo as taxas locais aplicáveis sobre as vendas), a menos que o serviço seja cancelado antes da próxima data de renovação.</string>
-  <string name="conversion_restrictions_message_promo">A oferta está disponível apenas para os usuários que não tiveram avaliação gratuita. Primeiro, %1$s da assinatura para o total de %2$s. Se o usuário não cancelar sua assinatura antes do final desses %1$s, a assinatura será renovada automaticamente a cada mês a um preço de %3$s/mês até que o usuário cancele.\n\nA opção sem anúncios é definida pela remoção das experiências de interrupção no vídeo e no áudio.</string>
+  <string name="conversion_restrictions_message_promo">A oferta só está disponível para os usuários que ainda não receberam uma avaliação grátis. Primeiros %1$s da assinatura para o total de %2$s. Se o usuário não cancelar a assinatura antes do final desses %1$s, a assinatura será renovada automaticamente a cada mês, por um preço de %3$s/mês até que o usuário cancele.\n\nA opção sem anúncios é definida pela remoção das interrupções no áudio e no vídeo.</string>
   <string name="ads_why_ads_upsell_dialog_message">Todas as vezes que você ver ou ouvir um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud grátis para os ouvintes.\n\nQuer saltar as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com o SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produto indisponível</string>
@@ -764,7 +778,8 @@ vão aparecer aqui.</string>
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Sua assinatura da SoundCloud Go terminou</string>
   <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_description">Ficamos tristes em saber que você está indo embora. Se você sente falta de um acesso offline sem anúncios ao nosso catálogo expandido, não se preocupe. Você poderá retornar a qualquer momento.</string>
+  <string name="go_offboarding_description">Ficamos tristes em saber que você está indo embora.
+Se você sente falta de um acesso offline sem anúncios ao nosso catálogo expandido, não se preocupe. Você poderá retornar a qualquer momento.</string>
   <string name="go_offboarding_primary_button_text">Assinar novamente</string>
   <string name="go_offboarding_secondary_button_text">Continuar</string>
   <!--__OFFLINE SETTINGS-->
@@ -856,6 +871,7 @@ vão aparecer aqui.</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Retirar anúncios</string>
   <string name="upsell_upgrade_button">Obter SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_title">Desbloqueie as visualizações com o SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Obtenha acesso completo ao maior catálogo de streaming de música e áudio do mundo, com possibilidade de ouvir offline e sem anúncios.</string>
   <string name="upsell_playlist_upgrade_title">Reproduza faixas completas com o SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">Sem mais visualizações. Ouça todos os segundos de todas as faixas.</string>
@@ -874,6 +890,7 @@ vão aparecer aqui.</string>
   <string name="playback_upsell_1">Chega de visualizações, apenas faixas completas</string>
   <string name="playback_upsell_2">Receba faixas completas, offline e sem anúncios</string>
   <string name="playback_upsell_button">Obter SoundCloud Go</string>
+  <string name="playback_upsell_button_trial">Experimente o SoundCloud Go</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Foi encontrado %1$d resultado no SoundCloud Go</item>
@@ -936,6 +953,12 @@ vão aparecer aqui.</string>
   <string name="play_queue_header_charts_top">Dos 50 gráficos principais %1$s</string>
   <string name="play_queue_header_charts_trending">De gráficos novos e irados %1$s</string>
   <string name="play_queue_header_explicit">Adicionado por você</string>
+  <string name="play_queue_header_auto_play">Reprodução automática</string>
+  <string name="play_queue_introductory_overlay_title">Novo! Próximo para cima</string>
+  <string name="play_queue_introductory_overlay_description">Controle o que será reproduzido em seguida, reorganize ou repita</string>
+  <string name="play_queue_header_magic_box_subtitle">Nova música com base no que está sendo reproduzido</string>
+  <string name="play_queue_header_auto_play_toggle">Reprodução automática da estação</string>
+  <string name="play_queue_header_cast">Enviando para</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistas sugeridos</string>
   <string name="suggested_creators_blurb">Siga seus artistas favoritos, assim você nunca perde as faixas mais recentes</string>

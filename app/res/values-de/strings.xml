@@ -44,17 +44,17 @@
     <item quantity="other">%d Likes</item>
   </plurals>
   <!--__ADS-->
-  <string name="ads_advertisement">Werbung</string>
+  <string name="ads_advertisement">Werbeanzeige</string>
   <string name="ads_companionless">Der folgende Track wird in Kürze abgespielt.</string>
   <string name="ads_call_to_action">WEITERE INFORMATIONEN</string>
   <string name="ads_why_ads">Wozu Werbung?</string>
   <string name="ads_why_ads_dialog_message">Jedes Mal, wenn du einen Werbespot siehst oder hörst, werden Künstler bezahlt. Gelegentliche Werbung ermöglicht es uns, die Künstler zu unterstützen und SoundCloud für die Hörer weiterhin kostenlos anzubieten.</string>
   <string name="ads_skip_ad">Werbung überspringen</string>
   <string name="ads_next_up_tracktitle_creatorname">Es folgt: %1$s (%2$s)</string>
-  <string name="ads_ad_in_progress">Werbung läuft</string>
+  <string name="ads_ad_in_progress">Werbeanzeige läuft</string>
   <string name="ads_reopen_to_continue">Öffne die App erneut, um die Wiedergabe fortzusetzen</string>
   <string name="ads_reopen_to_continue_short">App erneut öffnen und weiterhören</string>
-  <string name="ads_resume_playing_ad_to_continue">Zum Fortfahren Werbung weiter wiedergeben</string>
+  <string name="ads_resume_playing_ad_to_continue">Zum Fortfahren Werbung weiter abspielen</string>
   <string name="ads_skip_in_time">Überspringen in: %s</string>
   <string name="ads_now_playing">Läuft gerade</string>
   <string name="ads_now_playing_tracktitle_username">Läuft jetzt: %1$s (%2$s)</string>
@@ -82,9 +82,10 @@
   <string name="authentication_login_progress_message">Anmeldung läuft</string>
   <string name="authentication_recover_password_failure">Die Wiederherstellung deines Kennworts ist derzeit nicht möglich. Versuch es später noch einmal.</string>
   <string name="authentication_recover_password_failure_reason">Kennwort-Wiederherstellung fehlgeschlagen: %s</string>
+  <string name="authentication_recover_password_unknown_email_address">Unbekannte E-Mail-Adresse</string>
   <string name="authentication_recover_password_success">Öffne deinen Posteingang. Wir haben dir Anweisungen zum Ändern deines Kennworts gesendet.</string>
   <string name="authentication_recover_progress_message">Kennwort wird zurückgesetzt</string>
-  <string name="authentication_sign_up">Erstelle ein Konto.</string>
+  <string name="authentication_sign_up">Erstelle ein Konto</string>
   <string name="authentication_signup_error_message">Leider ist ein Problem aufgetreten. Bitte registriere dich auf SoundCloud.com.</string>
   <string name="authentication_signup_facebook_email_required">Zur Kontoerstellung benötigen wir deine Berechtigung zur Nutzung deiner Facebook-E-Mail-Adresse.</string>
   <string name="authentication_your_email_address">Deine E-Mail-Adresse</string>
@@ -125,7 +126,7 @@
   <string name="list_empty_you_followers_secondary">Teile deine bevorzugten Tracks und Playlists, damit deine Community gedeihen kann.</string>
   <!--new profile-->
   <!--@Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet."-->
-  <string name="new_empty_user_followers_text">Dieser Benutzer hat noch keine Follower.</string>
+  <string name="new_empty_user_followers_text">Dieser Nutzer hat noch keine Follower.</string>
   <string name="new_empty_user_followings_text">Dieser Benutzer folgt noch niemandem.</string>
   <!--__ERRORS-->
   <!--@Todo from l10n: move these error messages to other categories-->
@@ -215,7 +216,7 @@
   <string name="age">Alter</string>
   <string name="enter_age_hint">Gib dein Alter ein.</string>
   <string name="gender">Geschlecht</string>
-  <string name="onboarding_create_account">Erstelle ein Konto.</string>
+  <string name="onboarding_create_account">Erstelle ein Konto</string>
   <string name="onboarding_indicate_gender">Gib dein Geschlecht an.</string>
   <string name="onboarding_custom_gender_hint">Geschlecht eingeben</string>
   <string name="onboarding_gender_option_female">Weiblich</string>
@@ -416,7 +417,7 @@
   <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
   <string name="recommendation_reason_because_you_reason_tracktitle">Grund: %2$s %1$s</string>
   <string name="recommendation_reason_liked">gefällt dir</string>
-  <string name="recommendation_reason_played">gespielt</string>
+  <string name="recommendation_reason_played">abgespielt</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
   <string name="recommendation_seeds_header">Weitere Tracks entdecken</string>
   <string name="discovery_search_hint">SoundCloud durchsuchen</string>
@@ -580,9 +581,16 @@
   <string name="age_verify_button">Alter bestätigen</string>
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Track kann nicht übertragen werden.</string>
+  <string name="media_route_menu_title">Übertragen</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoteter Track</string>
   <string name="promoted_by_promotorname">Promoteter Track von %s</string>
+  <!--__USER WELCOME-->
+  <string name="welcome_user_title_morning">Guten Morgen, %s</string>
+  <string name="welcome_user_title_afternoon">Guten Tag, %s</string>
+  <string name="welcome_user_title_evening">Guten Abend, %s</string>
+  <string name="welcome_user_title_night">Gute Nacht, %s</string>
+  <string name="welcome_user_subtitle">Hör dir einige dieser neuen Songs an!</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Mach Freunde auf SoundCloud aufmerksam</string>
   <string name="facebook_invites_description">Zusammen noch schöner: Empfiehl SoundCloud deinen Freunden.</string>
@@ -590,8 +598,13 @@
   <!--__FACEBOOK CREATOR INVITES-->
   <string name="facebook_creator_invites_title">Mach Freunde auf deinen neuesten Track auf SoundCloud aufmerksam</string>
   <!--__COLLECTION-->
-  <string name="collections_your_liked_tracks">Mit „Gefällt mir“ \nmarkierte Tracks</string>
-  <string name="track_likes_title">Mit „Gefällt mir“ markierte Tracks</string>
+  <string name="collections_playlists_header">Playlists &amp; Alben</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">Playlists &amp; Alben</item>
+    <item quantity="other">%d Playlists &amp; Alben</item>
+  </plurals>
+  <string name="collections_your_liked_tracks">Likes</string>
+  <string name="track_likes_title">Likes</string>
   <string name="collections_options_header_filters">Filter</string>
   <string name="collections_options_header_sorting">Sortierung</string>
   <string name="collections_options_toggle_created">Erstellt am</string>
@@ -624,6 +637,7 @@
   <string name="collections_recently_played_album">Album</string>
   <string name="collections_recently_played_profile">Profil</string>
   <string name="collections_upsell_title">Hol dir SoundCloud Go</string>
+  <string name="collections_upsell_body">Hör dir deine Likes, Playlists und Alben offline und ohne Werbung an</string>
   <string name="collections_recently_played_clear_action">Kürzlich gespielte Inhalte löschen</string>
   <string name="collections_recently_played_clear_dialog_title">Kürzlich gespielte Inhalte löschen?</string>
   <string name="collections_recently_played_clear_dialog_message">Möchtest du wirklich deine kürzlich gespielten Inhalte löschen? Diese Aktion kann nicht rückgängig gemacht werden.</string>
@@ -636,7 +650,7 @@
   </plurals>
   <!--__TABS-->
   <string name="tab_home">Start</string>
-  <string name="tab_discovery">Entdeckung</string>
+  <string name="tab_discovery">Entdecken</string>
   <string name="tab_collection">Sammlung</string>
   <string name="tab_more">Mehr</string>
   <!--__MORE-->
@@ -653,12 +667,12 @@
   <string name="more_go_indicator">SOUNDCLOUD GO</string>
   <string name="more_app_version">App-Version %s</string>
   <!--__NEW STREAM-->
-  <string name="stream_playlist_header_text">%1$s %2$s eine Playlist</string>
+  <string name="stream_playlist_header_text">%1$s hat eine Playlist %2$s</string>
   <string name="stream_track_header_text">%1$s hat einen Track %2$s</string>
-  <string name="stream_album_header_text">%1$s %2$s ein Album</string>
-  <string name="stream_ep_header_text">%1$s %2$s eine EP</string>
-  <string name="stream_single_header_text">%1$s %2$s eine Single</string>
-  <string name="stream_compilation_header_text">%1$s %2$s eine Compilation</string>
+  <string name="stream_album_header_text">%1$s hat ein Album %2$s</string>
+  <string name="stream_ep_header_text">%1$s hat eine EP %2$s</string>
+  <string name="stream_single_header_text">%1$s hat eine Single %2$s</string>
+  <string name="stream_compilation_header_text">%1$s hat eine Compilation %2$s</string>
   <string name="stream_posted_action">gepostet</string>
   <string name="stream_reposted_action">gerepostet</string>
   <string name="stream_promoted_action">promotet</string>
@@ -701,7 +715,7 @@
   <string name="conversion_restrictions_dialog_title">Mit Einschränkungen</string>
   <string name="conversion_restrictions_message_trial">Die Testversion gilt nur für einen Zeitraum von %1$d Tagen pro Benutzer. Nach den ersten %2$d Tagen wird das Abonnement automatisch verlängert, sofern vor Ablauf der %3$d-Tage-Frist keine Kündigung erfolgt. Abonnements können auf soundcloud.com jederzeit gekündigt werden. Alle Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer.\n\nIn Québec, Kanada, ansässige Benutzer können die Testversion aufgrund von regionalen Beschränkungen nicht in Anspruch nehmen.</string>
   <string name="conversion_restrictions_message_no_trial">Dein kostenloser Testzeitraum ist schon abgelaufen oder du bist in Québec ansässig und hast aufgrund von regionalen Beschränkungen keinen Anspruch auf die Testversion.\n\nBeim Kauf von SoundCloud Go fallen die regulären Monatsgebühren an (inklusive gesetzlicher Mehrwertsteuer), sofern du dein Abo nicht vor der nächsten Verlängerungsfrist kündigst.</string>
-  <string name="conversion_restrictions_message_promo">Das Angebot gilt nur für Benutzer, die ihren kostenlosen Testzeitraum noch nicht in Anspruch genommen haben. Für die ersten %1$s des Abonnements fallen insgesamt %2$s an. Sofern vor Ablauf dieser %1$s keine Kündigung erfolgt, verlängert sich die Abolaufzeit automatisch für jeweils %3$s pro Monat bis zur Kündigung.\n\n„Ohne Werbung“ bedeutet ohne akustische oder visuelle Unterbrechungen der Wiedergabe.</string>
+  <string name="conversion_restrictions_message_promo">Dieses Angebot gilt nur für Nutzer, die keine kostenlose Testversiona genutzt haben. Die ersten %1$s des Abonnements kosten insgesamt %2$s. Wenn der Nutzer das Abonnement nicht vor Ablauf dieser %1$s kündigt, verlängert sich das Abonnement zu einem Preis von %3$s/Monat jeden Monat automatisch, bis der Nutzer es kündigt.\n\n„Ohne Werbung“ bedeutet, dass Unterbrechungen durch Audio- und Videoinhalte wegfallen.</string>
   <string name="ads_why_ads_upsell_dialog_message">Jedes Mal, wenn du dir einen Werbespot ansiehst oder anhörst, klingelt beim jeweiligen Interpreten die Kasse. Nur so kann die Nutzung von SoundCloud kostenfrei bleiben.\n\nSchluss mit Werbeunterbrechungen? Mit SoundCloud Go kannst du deine Lieblingskünstler auch ohne Werbespots unterstützen.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produkt ist nicht verfügbar</string>
@@ -794,8 +808,8 @@
   <!--offline playlist creation-->
   <string name="add_playlist_offline">Offline verfügbar</string>
   <!--offline settings-->
-  <string name="title_offline_settings">Offline-Speichereinstellungen</string>
-  <string name="you_offline_sync_settings">Offline-Speichereinstellungen</string>
+  <string name="title_offline_settings">Offline-Einstellungen</string>
+  <string name="you_offline_sync_settings">Offline-Einstellungen</string>
   <string name="unlimited">unbegrenzt</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d Track</item>
@@ -832,11 +846,11 @@
   <string name="user_profile_sounds_view_all_playlists">Alle Playlists anzeigen</string>
   <string name="user_profile_sounds_view_all_reposts">Alle Reposts anzeigen</string>
   <string name="user_profile_sounds_view_all_likes">Alle Likes anzeigen</string>
-  <string name="user_profile_sounds_tracks_empty">Dieser Benutzer hat noch keine Tracks.</string>
-  <string name="user_reposts_empty">Dieser Benutzer hat noch keine Reposts.</string>
-  <string name="user_profile_sounds_albums_empty">Dieser Benutzer hat noch keine Alben.</string>
-  <string name="user_profile_sounds_likes_empty">Dieser Benutzer hat noch keine Likes.</string>
-  <string name="user_profile_sounds_playlists_empty">Dieser Benutzer hat noch keine Playlists.</string>
+  <string name="user_profile_sounds_tracks_empty">Dieser Nutzer hat noch keine Tracks.</string>
+  <string name="user_reposts_empty">Dieser Nutzer hat noch keine Reposts.</string>
+  <string name="user_profile_sounds_albums_empty">Dieser Nutzer hat noch keine Alben.</string>
+  <string name="user_profile_sounds_likes_empty">Dieser Nutzer hat noch keine Likes.</string>
+  <string name="user_profile_sounds_playlists_empty">Dieser Nutzer hat noch keine Playlists.</string>
   <string name="user_reposts_label">Reposts</string>
   <string name="user_albums_label">Alben</string>
   <string name="user_likes_label">Likes</string>
@@ -854,6 +868,7 @@
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Werbefrei Musik hören</string>
   <string name="upsell_upgrade_button">Hol dir SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_title">Tracks ganz anhören mit SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Erhalte vollen Zugriff auf den weltweit größten Streaming-Katalog und hör dir Musik- und Audiotracks ohne Werbung offline an.</string>
   <string name="upsell_playlist_upgrade_title">Tracks in voller Länge spielen – mit SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">Schluss mit dem Vorschaumodus: So entgeht dir keine Sekunde deiner Tracks mehr.</string>
@@ -872,6 +887,7 @@
   <string name="playback_upsell_1">Schluss mit Vorschau, Tracks jetzt in voller Länge</string>
   <string name="playback_upsell_2">Hol dir alle Tracks in voller Länge – offline und ohne Werbung</string>
   <string name="playback_upsell_button">Hol dir SoundCloud Go</string>
+  <string name="playback_upsell_button_trial">SoundCloud Go testen</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">%1$d SoundCloud Go-Ergebnis gefunden</item>
@@ -884,7 +900,7 @@
   <string name="push_notifications_all_summary">Aktiviere alle mobilen Benachrichtigungen oder wähle aus, welche du empfangen möchtest.</string>
   <string name="push_notifications_follower">Neuer Follower</string>
   <string name="push_notifications_repost">Repost deines Posts</string>
-  <string name="push_notifications_new_post">Neuer Post eines Benutzers, dem du folgst</string>
+  <string name="push_notifications_new_post">Neuer Post eines Nutzers, dem du folgst</string>
   <string name="push_notifications_like">Like für deinen Post</string>
   <string name="push_notifications_comment">Kommentar zu deinem Post</string>
   <string name="push_notifications_product_updates">Neue SoundCloud-Funktionen</string>
@@ -895,7 +911,7 @@
   <string name="email_notifications_all_summary">Aktiviere alle E-Mail-Benachrichtigungen oder wähle aus, welche du empfangen möchtest.</string>
   <string name="email_notifications_follower">Neuer Follower</string>
   <string name="email_notifications_repost">Repost deines Posts</string>
-  <string name="email_notifications_new_post">Neuer Post eines Benutzers, dem du folgst</string>
+  <string name="email_notifications_new_post">Neuer Post eines Nutzers, dem du folgst</string>
   <string name="email_notifications_like">Like für deinen Post</string>
   <string name="email_notifications_message">Neue Nachricht</string>
   <string name="email_notifications_comment">Kommentar zu deinem Post</string>
@@ -935,6 +951,11 @@
   <string name="play_queue_header_charts_trending">Aus der Kategorie „Neu und angesagt“ der %1$s-Charts</string>
   <string name="play_queue_header_explicit">Von dir hinzugefügt</string>
   <string name="play_queue_header_auto_play">Automatische Wiedergabe</string>
+  <string name="play_queue_introductory_overlay_title">Neu! „Es folgt:“</string>
+  <string name="play_queue_introductory_overlay_description">Du kannst den nächsten Track wählen sowie Shuffle oder Wiederholung einschalten</string>
+  <string name="play_queue_header_magic_box_subtitle">Neue Musik anhand dessen, was du gerade hörst</string>
+  <string name="play_queue_header_auto_play_toggle">Sender automatisch abspielen</string>
+  <string name="play_queue_header_cast">Übertragung</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Vorgeschlagene Künstler</string>
   <string name="suggested_creators_blurb">Folge deinen Lieblingskünstlern, um keine neuen Tracks zu verpassen.</string>

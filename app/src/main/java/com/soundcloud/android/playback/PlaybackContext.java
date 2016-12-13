@@ -31,7 +31,8 @@ public abstract class PlaybackContext {
         LINK(Screen.DEEPLINK),
         YOUR_LIKES(Screen.LIKES, Screen.YOUR_LIKES),
         SEARCH_RESULT(Screen.SEARCH_EVERYTHING, Screen.SEARCH_PREMIUM_CONTENT, Screen.SEARCH_TRACKS),
-        CAST;
+        CAST,
+        OTHER;
 
         private List<Screen> screens;
 
@@ -45,7 +46,7 @@ public abstract class PlaybackContext {
                     return bucket;
                 }
             }
-            return EXPLICIT;
+            return OTHER;
         }
     }
 

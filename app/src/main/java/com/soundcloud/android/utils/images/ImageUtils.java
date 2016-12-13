@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
@@ -317,8 +318,8 @@ public final class ImageUtils {
             return Uri.fromFile(destinationFile);
         } else {
             return FileProvider.getUriForFile(activity,
-                    "com.soundcloud.android",
-                    destinationFile);
+                                              BuildConfig.FILE_PROVIDER_AUTHORITY,
+                                              destinationFile);
         }
     }
 

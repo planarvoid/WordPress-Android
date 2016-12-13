@@ -10,6 +10,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.policies.PolicyUpdateController;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.stream.StreamRefreshController;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.app.Fragment;
@@ -33,7 +34,7 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject AccountOperations accountOperations;
 
-    private MenuItem castMenu;
+    private Optional<MenuItem> castMenu = Optional.absent();
 
     public LoggedInActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -49,13 +50,15 @@ public abstract class LoggedInActivity extends RootActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        castMenu = castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item);
+        castMenu = Optional.fromNullable(castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item));
         return true;
     }
 
     @Override
     protected void onPause() {
-        castConnectionHelper.removeMediaRouterButton(castMenu);
+        if (castMenu.isPresent()) {
+            castConnectionHelper.removeMediaRouterButton(castMenu.get());
+        }
         super.onPause();
     }
 
