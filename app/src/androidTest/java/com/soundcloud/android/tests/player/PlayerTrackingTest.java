@@ -29,7 +29,7 @@ public class PlayerTrackingTest extends TrackingActivityTest<MainActivity> {
     public void testTrackPlayerExpandAndCollapse() {
         startEventTracking();
 
-        final VisualPlayerElement player = streamScreen.clickFirstNotPromotedTrackCard()
+        final VisualPlayerElement player = streamScreen.clickFirstRepostedTrack()
                                                        .waitForExpandedPlayer();
 
         player.pressCloseButton();
