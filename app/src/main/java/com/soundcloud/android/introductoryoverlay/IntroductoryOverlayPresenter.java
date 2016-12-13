@@ -64,6 +64,12 @@ public class IntroductoryOverlayPresenter {
                 super.onTargetClick(view);
                 targetView.performClick();
             }
+
+            @Override
+            public void onOuterCircleClick(TapTargetView view) {
+                super.onOuterCircleClick(view);
+                view.dismiss(false);
+            }
         });
     }
 
