@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.ads.AdFixtures.getVideoAd;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -15,9 +16,11 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -34,6 +37,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private StreamPlayer streamPlayerWrapper;
     @Mock private MediaPlayerAdapter mediaPlayerAdapter;
     @Mock private SkippyAdapter skippyAdapter;
+    @Mock private FlipperAdapter flipperAdapter;
     @Mock private Player.PlayerListener playerListener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private FeatureFlags featureFlags;
@@ -55,6 +59,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(skippyAdapter.init()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(false);
     }
 
     @After
@@ -63,7 +68,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, skippyAdapter, networkConnectionHelper, eventBus);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, skippyAdapter, providerOf(flipperAdapter), networkConnectionHelper, eventBus, featureFlags);
         streamPlayerWrapper.setListener(playerListener);
     }
 
