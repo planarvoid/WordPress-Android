@@ -28,10 +28,11 @@ public final class ViewUtils {
 
     public static int blendColors(int first, int second, float ratio) {
         final float inverseRatio = 1f - ratio;
+        float a = (Color.alpha(second) * ratio) + (Color.alpha(first) * inverseRatio);
         float r = (Color.red(second) * ratio) + (Color.red(first) * inverseRatio);
         float g = (Color.green(second) * ratio) + (Color.green(first) * inverseRatio);
         float b = (Color.blue(second) * ratio) + (Color.blue(first) * inverseRatio);
-        return Color.rgb((int) r, (int) g, (int) b);
+        return Color.argb((int) a, (int) r, (int) g, (int) b);
     }
 
     public static void setTouchClickable(View view, View.OnClickListener listener) {

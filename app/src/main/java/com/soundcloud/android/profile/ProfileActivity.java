@@ -1,22 +1,25 @@
 package com.soundcloud.android.profile;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 
+import static com.soundcloud.android.view.status.StatusBarUtils.getStatusBarHeight;
+
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class ProfileActivity extends PlayerActivity {
 
@@ -24,6 +27,7 @@ public class ProfileActivity extends PlayerActivity {
     public static final String EXTRA_SEARCH_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
 
     @Inject @LightCycle ProfilePresenter profilePresenter;
+    @Inject @Named(ProfileModule.SHOW_PROFILE_BANNER) boolean showProfileBanner;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject FeatureFlags featureFlags;
@@ -40,16 +44,23 @@ public class ProfileActivity extends PlayerActivity {
 
     @Override
     protected void setActivityContentView() {
-        setTheme(canShowProfileBanner()
-                ? R.style.Theme_SoundCloud_TransparentStatus
-                : R.style.Theme_SoundCloud);
-        baseLayoutHelper.createActionBarLayout(this, canShowProfileBanner()
-                                                     ? R.layout.profile
-                                                     : R.layout.profile_no_banner);
+        if (showProfileBanner) {
+            setTheme(R.style.Theme_SoundCloud_TransparentStatus);
+            baseLayoutHelper.createActionBarLayout(this, R.layout.profile);
+        } else {
+            setTheme(R.style.Theme_SoundCloud);
+            baseLayoutHelper.createActionBarLayout(this, R.layout.profile_no_banner);
+        }
     }
 
-    private boolean canShowProfileBanner() {
-        return SDK_INT >= JELLY_BEAN_MR2 && featureFlags.isEnabled(Flag.PROFILE_BANNER);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (showProfileBanner) {
+            View panel = findViewById(R.id.player_root);
+            ((SlidingUpPanelLayout.LayoutParams) panel
+                                .getLayoutParams()).setMargins(0, getStatusBarHeight(this), 0, 0);
+        }
     }
 
     static Urn getUserUrnFromIntent(Intent intent) {

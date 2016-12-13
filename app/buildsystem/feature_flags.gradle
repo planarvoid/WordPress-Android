@@ -71,6 +71,7 @@ android {
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
     }
 
     beta {

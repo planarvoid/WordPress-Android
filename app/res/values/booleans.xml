@@ -4,4 +4,5 @@
     <bool name="allow_interstitials">true</bool>
     <bool name="light_status_bar">false</bool>
     <bool name="is_tablet">false</bool>
+    <bool name="profile_banner">false</bool>
 </resources>

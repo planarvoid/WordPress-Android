@@ -1,9 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import static com.soundcloud.android.utils.StatusBarUtils.clearLightStatusBar;
-import static com.soundcloud.android.utils.StatusBarUtils.setLightStatusBar;
-import static com.soundcloud.android.utils.StatusBarUtils.shouldColorStatusBarIcons;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
@@ -15,8 +12,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.StatusBarUtils;
-import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.status.StatusBarColorController;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +21,6 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -45,11 +40,10 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
     private static final String EXTRA_PLAYQUEUE_LOCK = "playqueue_lock";
-    private static final String EXTRA_STATUS_BAR_FLAGS = "status_bar_flags";
 
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
-    private final Resources resources;
+    private final StatusBarColorController statusBarColorController;
 
     private SlidingUpPanelLayout slidingPanel;
     private PlayerFragment playerFragment;
@@ -61,14 +55,13 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private boolean expandOnResume;
     private boolean wasDragged;
 
-    private int expandedStatusColor;
-    private int collapsedStatusColor;
-
     @Inject
-    public SlidingPlayerController(PlayQueueManager playQueueManager, Resources resources, EventBus eventBus) {
+    public SlidingPlayerController(PlayQueueManager playQueueManager,
+                                   EventBus eventBus,
+                                   StatusBarColorController statusBarColorController) {
         this.playQueueManager = playQueueManager;
-        this.resources = resources;
         this.eventBus = eventBus;
+        this.statusBarColorController = statusBarColorController;
     }
 
     @Nullable
@@ -80,16 +73,12 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
-        slidingPanel.setPanelSlideListener(this);
-        slidingPanel.setEnableDragViewTouchEvents(true);
+        slidingPanel.addPanelSlideListener(this);
         slidingPanel.setOnTouchListener(new TrackingDragListener());
         if (bundle != null) {
             isPlayQueueLocked = bundle.getBoolean(EXTRA_PLAYQUEUE_LOCK, false);
         }
         expandOnResume = shouldExpand(getCurrentBundle(activity, bundle));
-
-        expandedStatusColor = resources.getColor(R.color.primary_darker);
-        collapsedStatusColor = resources.getColor(R.color.primary_dark);
 
         playerFragment = getPlayerFragmentFromActivity(activity);
         if (playerFragment == null) {
@@ -206,7 +195,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private void restoreExpanded(boolean shouldLockPlayer) {
-        setStatusBarColor(expandedStatusColor);
+        statusBarColorController.onPlayerExpanded();
+
         expand();
         notifyExpandedState();
         if (shouldLockPlayer) {
@@ -229,40 +219,12 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, isExpanded());
         bundle.putBoolean(EXTRA_PLAYQUEUE_LOCK, isPlayQueueLocked);
-
-        if (shouldColorStatusBarIcons()) {
-            saveStatusBarFlagsState(activity, bundle);
-        }
-    }
-
-    @Override
-    public void onRestoreInstanceState(AppCompatActivity activity, Bundle bundle) {
-        super.onRestoreInstanceState(activity, bundle);
-
-        if (shouldColorStatusBarIcons()) {
-            restoreStatusBarFlagsState(activity, bundle);
-        }
-    }
-
-    private void saveStatusBarFlagsState(AppCompatActivity activity, Bundle bundle) {
-        View contentView = activity.findViewById(android.R.id.content);
-        if (contentView != null) {
-            bundle.putInt(EXTRA_STATUS_BAR_FLAGS, contentView.getRootView().getSystemUiVisibility());
-        }
-    }
-
-    private void restoreStatusBarFlagsState(AppCompatActivity activity, Bundle bundle) {
-        View contentView = activity.findViewById(android.R.id.content);
-        if (contentView != null) {
-            int flags = bundle.getInt(EXTRA_STATUS_BAR_FLAGS);
-            contentView.getRootView().setSystemUiVisibility(flags);
-        }
     }
 
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
         playerFragment.onPlayerSlide(slideOffset);
-        setStatusBarColor(ViewUtils.blendColors(collapsedStatusColor, expandedStatusColor, slideOffset));
+        statusBarColorController.onPlayerSlide(slideOffset);
     }
 
     private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {
@@ -312,28 +274,33 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     @Override
-    public void onPanelCollapsed(View panel) {
-        setStatusBarColor(collapsedStatusColor);
-        setLightStatusBar(panel.getRootView());
+    public void onPanelStateChanged(View panel,
+                                    PanelState previousState,
+                                    PanelState newState) {
 
+        switch (newState) {
+            case EXPANDED:
+                onPanelExpanded();
+                break;
+            case COLLAPSED:
+                onPanelCollapsed();
+                break;
+            default:
+                break;
+        }
 
+    }
+
+    public void onPanelCollapsed() {
+        statusBarColorController.onPlayerCollapsed();
         notifyCollapsedState();
         trackPlayerSlide(UIEvent.fromPlayerClose(wasDragged));
     }
 
-    @Override
-    public void onPanelExpanded(View panel) {
-        setStatusBarColor(expandedStatusColor);
-        clearLightStatusBar(panel.getRootView());
-
+    public void onPanelExpanded() {
+        statusBarColorController.onPlayerExpanded();
         notifyExpandedState();
         trackPlayerSlide(UIEvent.fromPlayerOpen(wasDragged));
-    }
-
-    private void setStatusBarColor(int color) {
-        if (playerFragment.isAdded()) {
-            StatusBarUtils.setStatusBarColor(playerFragment.getActivity(), color);
-        }
     }
 
     private void trackPlayerSlide(UIEvent event) {
@@ -348,10 +315,4 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private void notifyCollapsedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
-
-    @Override
-    public void onPanelAnchored(View panel) {/* no-op */}
-
-    @Override
-    public void onPanelHidden(View view) {/* no-op */}
 }

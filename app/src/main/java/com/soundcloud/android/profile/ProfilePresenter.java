@@ -1,15 +1,14 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.ProfileModule.PROFILE_SCROLL_HELPER;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWERS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWINGS;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_INFO;
 import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
-import static com.soundcloud.android.utils.StatusBarUtils.setFullscreenMode;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
@@ -32,6 +31,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         implements EnterScreenDispatcher.Listener {
@@ -58,13 +58,13 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     };
 
     @Inject
-    public ProfilePresenter(ProfileScrollHelper scrollHelper,
-                            ProfileHeaderPresenter profileHeaderPresenter,
-                            UserProfileOperations profileOperations,
-                            EventBus eventBus,
-                            AccountOperations accountOperations,
-                            EventTracker eventTracker,
-                            EnterScreenDispatcher enterScreenDispatcher) {
+    ProfilePresenter(@Named(PROFILE_SCROLL_HELPER) ProfileScrollHelper scrollHelper,
+                     ProfileHeaderPresenter profileHeaderPresenter,
+                     UserProfileOperations profileOperations,
+                     EventBus eventBus,
+                     AccountOperations accountOperations,
+                     EventTracker eventTracker,
+                     EnterScreenDispatcher enterScreenDispatcher) {
         this.scrollHelper = scrollHelper;
         this.headerPresenter = profileHeaderPresenter;
         this.profileOperations = profileOperations;
@@ -80,10 +80,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
 
-        if (activity.findViewById(R.id.profile_banner) != null) {
-            setFullscreenMode(activity);
-        }
-
         user = ProfileActivity.getUserUrnFromIntent(activity.getIntent());
 
         activity.setTitle(accountOperations.isLoggedInUser(user) ? R.string.side_menu_you : R.string.side_menu_profile);
@@ -91,8 +87,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         pager = (ViewPager) activity.findViewById(R.id.pager);
 
         pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
-                                                 (SearchQuerySourceInfo) activity.getIntent()
-                                                                                 .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
+                                                 activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
         pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
         pager.addOnPageChangeListener(enterScreenDispatcher);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);

@@ -42,6 +42,7 @@
     <dimen name="btn_min_height">48dp</dimen>
     <dimen name="btn_padding">15dp</dimen>
     <dimen name="profile_btn_height">36dp</dimen>
+    <dimen name="profile_banner_gradient_height">80dp</dimen>
 
     <dimen name="header_icon_size">70dp</dimen>
 

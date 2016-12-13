@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.view.status.StatusBarColorController;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private View layout;
+    @Mock private StatusBarColorController statusBarColorController;
     @Mock private AppCompatActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
@@ -56,7 +58,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SlidingPlayerController(playQueueManager, resources(), eventBus);
+        controller = new SlidingPlayerController(playQueueManager, eventBus, statusBarColorController);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
@@ -69,8 +71,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Test
     public void configuresSlidingPanelOnAttach() {
-        verify(slidingPanel).setPanelSlideListener(controller);
-        verify(slidingPanel).setEnableDragViewTouchEvents(true);
+        verify(slidingPanel).addPanelSlideListener(controller);
     }
 
     @Test
@@ -237,7 +238,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Test
     public void sendsCollapsedEventWhenCollapsedListenerCalled() {
-        controller.onPanelCollapsed(mock(View.class));
+        controller.onPanelCollapsed();
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         assertThat(uiEvent.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
@@ -248,7 +249,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
         touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
 
-        controller.onPanelCollapsed(slidingPanel);
+        controller.onPanelCollapsed();
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerClose(true);
@@ -261,7 +262,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
         touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
 
-        controller.onPanelExpanded(slidingPanel);
+        controller.onPanelExpanded();
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerOpen(true);
