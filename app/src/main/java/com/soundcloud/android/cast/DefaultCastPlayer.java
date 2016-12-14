@@ -128,6 +128,11 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
         // no-op
     }
 
+    @Override
+    public void onAdBreakStatusUpdated() {
+        // no-op
+    }
+
     void onMediaPlayerStatusUpdatedListener(int playerState, int idleReason) {
         switch (playerState) {
             case MediaStatus.PLAYER_STATE_PLAYING:

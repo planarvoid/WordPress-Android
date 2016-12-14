@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.Me;
@@ -111,12 +110,18 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldRequestSpecificVisibleActivities() throws Exception {
+        Bundle expectedExtras = new Bundle();
+        expectedExtras.putString(GooglePlusSignInTask.KEY_REQUEST_VISIBLE_ACTIVITIES,
+                                 "http://schemas.google.com/AddActivity " +
+                                         "http://schemas.google.com/CreateActivity " +
+                                         "http://schemas.google.com/ListenActivity");
+
         task.doInBackground(null);
 
         ArgumentCaptor<Bundle> argumentCaptor = ArgumentCaptor.forClass(Bundle.class);
 
         verify(accountOperations).getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES))
+        assertThat(argumentCaptor.getValue().getString(GooglePlusSignInTask.KEY_REQUEST_VISIBLE_ACTIVITIES))
                 .isEqualTo("http://schemas.google.com/AddActivity " +
                                    "http://schemas.google.com/CreateActivity " +
                                    "http://schemas.google.com/ListenActivity");
