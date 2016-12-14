@@ -298,6 +298,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         if (fragment == null) {
             return false;
         } else {
+            isPlayQueueVisible = false;
             setQueuePositionToCurrent();
             removePlayQueue(fragment);
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
