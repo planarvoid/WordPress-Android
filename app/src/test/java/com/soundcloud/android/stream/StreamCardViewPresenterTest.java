@@ -277,7 +277,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private PlaylistItem repostedPlaylist() {
         final PlaylistItem playlistItem = postedPlaylist();
-        playlistItem.update(PropertySet.from(
+        playlistItem.updated(PropertySet.from(
                 PostProperty.REPOSTER.bind("reposter"),
                 PostProperty.REPOSTER_URN.bind(Urn.forUser(123L))
         ));
@@ -293,7 +293,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private TrackItem repostedTrack() {
         final TrackItem trackItem = postedTrack();
-        trackItem.update(PropertySet.from(
+        trackItem.updated(PropertySet.from(
                 PostProperty.REPOSTER.bind("reposter"),
                 PostProperty.REPOSTER_URN.bind(Urn.forUser(123L))
         ));

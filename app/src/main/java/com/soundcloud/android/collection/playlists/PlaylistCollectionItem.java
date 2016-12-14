@@ -2,7 +2,6 @@ package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 abstract class PlaylistCollectionItem implements ListItem {
@@ -16,11 +15,6 @@ abstract class PlaylistCollectionItem implements ListItem {
 
     public boolean isSingleSpan() {
         return false;
-    }
-
-    @Override
-    public ListItem update(PropertySet sourceSet) {
-        return this;
     }
 
     @Override

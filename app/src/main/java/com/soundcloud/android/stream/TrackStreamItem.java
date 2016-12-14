@@ -5,6 +5,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
+import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
@@ -22,6 +23,11 @@ abstract class TrackStreamItem extends StreamItem implements PlayableViewItem {
 
     static TrackStreamItem createForPromoted(PromotedTrackItem trackItem, Date createdAt) {
         return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, true, createdAt);
+    }
+
+    TrackStreamItem copyWith(PropertySet changeSet) {
+        final TrackItem updatedTrackItem = trackItem().updated(changeSet);
+        return new AutoValue_TrackStreamItem(Kind.TRACK, updatedTrackItem, this.promoted(), this.createdAt());
     }
 
     @Override

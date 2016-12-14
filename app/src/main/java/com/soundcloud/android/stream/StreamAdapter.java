@@ -82,6 +82,13 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         }
     }
 
+    public void setItem(int position, StreamItem item) {
+        if (position < getItemCount()) {
+            items.set(position, item);
+            notifyItemChanged(position);
+        }
+    }
+
     @Override
     public void clear() {
         checkMainThread();

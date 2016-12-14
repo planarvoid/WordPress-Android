@@ -77,6 +77,18 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     }
 
     @Override
+    public TrackItem updated(PropertySet playableData) {
+        this.source.update(playableData);
+        return this;
+    }
+
+    @Override
+    public TrackItem updatedWithOfflineState(OfflineState offlineState) {
+        this.source.put(OfflineProperty.OFFLINE_STATE, offlineState);
+        return this;
+    }
+
+    @Override
     public String getPlayableType() {
         return PLAYABLE_TYPE;
     }

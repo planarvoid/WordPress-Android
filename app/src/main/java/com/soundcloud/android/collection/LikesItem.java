@@ -1,35 +1,25 @@
 package com.soundcloud.android.collection;
 
-import com.soundcloud.android.offline.OfflineProperty;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.java.collections.PropertySet;
 
 import java.util.List;
 
-final class LikesItem {
+@AutoValue
+abstract class LikesItem {
 
-    private final List<LikedTrackPreview> trackPreviews;
-    private final PropertySet properties;
+    abstract List<LikedTrackPreview> trackPreviews();
+    abstract OfflineState offlineState();
 
     static LikesItem fromTrackPreviews(List<LikedTrackPreview> trackPreviews) {
-        return new LikesItem(trackPreviews, PropertySet.create());
+        return new AutoValue_LikesItem(trackPreviews, OfflineState.NOT_OFFLINE);
     }
 
-    LikesItem(List<LikedTrackPreview> trackPreviews, PropertySet properties) {
-        this.trackPreviews = trackPreviews;
-        this.properties = properties;
+    static LikesItem create(List<LikedTrackPreview> trackPreviews, OfflineState offlineState) {
+        return new AutoValue_LikesItem(trackPreviews, offlineState);
     }
 
-    public void update(PropertySet properties) {
-        this.properties.update(properties);
+    public LikesItem offlineState(OfflineState offlineState) {
+        return new AutoValue_LikesItem(trackPreviews(), offlineState);
     }
-
-    public List<LikedTrackPreview> getTrackPreviews() {
-        return trackPreviews;
-    }
-
-    public OfflineState getDownloadState() {
-        return properties.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
-    }
-
 }

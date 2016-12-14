@@ -7,6 +7,8 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.stream.SoundStreamProperty;
@@ -19,7 +21,7 @@ import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 
-public abstract class PlayableItem implements TypedListItem {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem {
 
     protected final PropertySet source;
 
@@ -65,8 +67,14 @@ public abstract class PlayableItem implements TypedListItem {
     }
 
     @Override
-    public PlayableItem update(PropertySet playableData) {
+    public PlayableItem updated(PropertySet playableData) {
         this.source.update(playableData);
+        return this;
+    }
+
+    @Override
+    public PlayableItem updatedWithOfflineState(OfflineState offlineState) {
+        this.source.put(OfflineProperty.OFFLINE_STATE, offlineState);
         return this;
     }
 

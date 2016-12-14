@@ -2,11 +2,12 @@ package com.soundcloud.android.users;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
-public class UserItem implements ListItem {
+public class UserItem implements ListItem, UpdatableItem {
 
     protected final PropertySet source;
 
@@ -28,7 +29,7 @@ public class UserItem implements ListItem {
     }
 
     @Override
-    public UserItem update(PropertySet sourceSet) {
+    public UserItem updated(PropertySet sourceSet) {
         this.source.update(sourceSet);
         return this;
     }

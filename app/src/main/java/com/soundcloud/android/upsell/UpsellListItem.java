@@ -3,9 +3,7 @@ package com.soundcloud.android.upsell;
 import static com.soundcloud.android.presentation.TypedListItem.Kind.UPSELL;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.TypedListItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
@@ -29,11 +27,6 @@ public class UpsellListItem implements TypedListItem {
     private UpsellListItem(Urn urn) {
         this.urn = urn;
         createdAt = new Date();
-    }
-
-    @Override
-    public ListItem update(PropertySet sourceSet) {
-        return this;
     }
 
     @Override

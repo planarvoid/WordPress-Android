@@ -11,6 +11,7 @@ import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
@@ -81,6 +82,10 @@ public abstract class StreamItem {
         return Optional.absent();
     }
 
+    StreamItem copyWith(PropertySet changeSet) {
+        return this;
+    }
+
     public abstract Kind kind();
 
     public boolean isPromoted() {
@@ -135,6 +140,11 @@ public abstract class StreamItem {
 
         static Playlist createForPromoted(PromotedPlaylistItem playlistItem, Date createdAt) {
             return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, playlistItem, true, createdAt);
+        }
+
+        Playlist copyWith(PropertySet changeSet) {
+            final PlaylistItem updatedPlaylistItem = playlistItem().updated(changeSet);
+            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, updatedPlaylistItem, promoted(), createdAt());
         }
     }
 

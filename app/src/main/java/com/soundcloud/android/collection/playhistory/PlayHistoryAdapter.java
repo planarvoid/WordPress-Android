@@ -30,7 +30,7 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Recy
         super(new CellRendererBinding<>(PlayHistoryTrack.ordinal(), trackRenderer),
               new CellRendererBinding<>(PlayHistoryHeader.ordinal(), headerRenderer),
               new CellRendererBinding<>(PlayHistoryEmpty.ordinal(), emptyRenderer)
-              );
+        );
         this.trackRenderer = trackRenderer;
         this.headerRenderer = headerRenderer;
     }
@@ -50,6 +50,11 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Recy
                 }
             }
         }
+    }
+
+    void setItem(int position, PlayHistoryItem item) {
+        getItems().set(position, item);
+        notifyItemChanged(position);
     }
 
     @Override

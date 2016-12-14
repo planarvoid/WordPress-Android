@@ -90,6 +90,18 @@ public class PlaylistItem extends PlayableItem {
     }
 
     @Override
+    public PlaylistItem updated(PropertySet playableData) {
+        this.source.update(playableData);
+        return this;
+    }
+
+    @Override
+    public PlaylistItem updatedWithOfflineState(OfflineState offlineState) {
+        this.source.put(OfflineProperty.OFFLINE_STATE, offlineState);
+        return this;
+    }
+
+    @Override
     public String getPlayableType() {
         if (isAlbum()) {
             return source.getOrElse(PlaylistProperty.SET_TYPE, TYPE_ALBUM);

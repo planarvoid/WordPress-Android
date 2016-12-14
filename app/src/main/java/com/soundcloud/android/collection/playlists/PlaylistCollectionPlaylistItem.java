@@ -2,13 +2,15 @@ package com.soundcloud.android.collection.playlists;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.OfflineItem;
+import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionItem {
+public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionItem implements OfflineItem, UpdatableItem {
 
     public static PlaylistCollectionPlaylistItem create(PlaylistItem playlistItem) {
         return new AutoValue_PlaylistCollectionPlaylistItem(PlaylistCollectionItem.TYPE_PLAYLIST, playlistItem);
@@ -22,9 +24,13 @@ public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionI
     }
 
     @Override
-    public ListItem update(PropertySet sourceSet) {
-        getPlaylistItem().update(sourceSet);
-        return this;
+    public PlaylistCollectionPlaylistItem updated(PropertySet sourceSet) {
+        return create(getPlaylistItem().updated(sourceSet));
+    }
+
+    @Override
+    public PlaylistCollectionPlaylistItem updatedWithOfflineState(OfflineState offlineState) {
+        return create(getPlaylistItem().updatedWithOfflineState(offlineState));
     }
 
     @Override

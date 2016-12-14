@@ -12,7 +12,6 @@ import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -22,7 +21,6 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Notification;
 import rx.Observable;
@@ -72,17 +70,17 @@ public class CollectionOperations {
     private static final Func2<List<LikedTrackPreview>, OfflineState, LikesItem> TO_LIKES_ITEM = new Func2<List<LikedTrackPreview>, OfflineState, LikesItem>() {
         @Override
         public LikesItem call(List<LikedTrackPreview> likedTracks, OfflineState offlineState) {
-            return new LikesItem(likedTracks, PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(offlineState)));
+            return LikesItem.create(likedTracks, offlineState);
         }
     };
 
     private static List<PlaylistItem> getPlaylistsPreview(Notification<List<PlaylistItem>> playlists) {
-        return playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue();
+        return playlists.isOnError() ? Collections.emptyList() : playlists.getValue();
     }
 
     private static LikesItem getLikesPreviews(Notification<LikesItem> likes) {
         return likes.isOnError() ?
-               LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()) :
+               LikesItem.fromTrackPreviews(Collections.emptyList()) :
                likes.getValue();
     }
 
@@ -111,16 +109,16 @@ public class CollectionOperations {
             };
 
     private static List<RecentlyPlayedPlayableItem> getRecentlyPlayedPlayableItems(Notification<List<RecentlyPlayedPlayableItem>> recentlyPlayed) {
-        return recentlyPlayed.isOnError() ? Collections.<RecentlyPlayedPlayableItem>emptyList() :
+        return recentlyPlayed.isOnError() ? Collections.emptyList() :
                recentlyPlayed.getValue();
     }
 
     private static List<TrackItem> getPlayHistoryTrackItems(Notification<List<TrackItem>> trackItems) {
-        return trackItems.isOnError() ? Collections.<TrackItem>emptyList() : trackItems.getValue();
+        return trackItems.isOnError() ? Collections.emptyList() : trackItems.getValue();
     }
 
     private static List<StationRecord> getStationsPreview(Notification<List<StationRecord>> stations) {
-        return stations.isOnError() ? Collections.<StationRecord>emptyList() : stations.getValue();
+        return stations.isOnError() ? Collections.emptyList() : stations.getValue();
     }
 
     private static final Func1<? super EntityStateChangedEvent, Boolean> IS_COLLECTION_CHANGE_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {

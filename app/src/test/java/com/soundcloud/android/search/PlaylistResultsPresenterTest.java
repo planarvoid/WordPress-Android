@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -30,8 +31,6 @@ import rx.Observable;
 
 import android.os.Bundle;
 import android.view.View;
-
-import java.util.Collections;
 
 public class PlaylistResultsPresenterTest extends AndroidUnitTest {
 
@@ -92,7 +91,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotifyAdapterWhenPlaylistEntityStateChanged() {
-        when(adapter.getItems()).thenReturn(Collections.singletonList(PlaylistItem.from(playlist)));
+        when(adapter.getItems()).thenReturn(Lists.newArrayList(PlaylistItem.from(playlist)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);

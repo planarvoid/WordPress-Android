@@ -12,12 +12,6 @@ import com.soundcloud.java.optional.Optional;
 public abstract class SearchSuggestionItem extends SuggestionItem implements ImageResource, ListItem {
 
     abstract PropertySet source();
-
-    @Override
-    public ListItem update(PropertySet sourceSet) {
-        return this;
-    }
-
     @Override
     public Urn getUrn() {
         return source().get(SearchSuggestionProperty.URN);

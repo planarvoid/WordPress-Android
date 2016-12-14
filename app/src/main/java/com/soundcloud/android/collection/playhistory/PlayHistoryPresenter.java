@@ -16,7 +16,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -29,7 +28,6 @@ import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -187,7 +185,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     private abstract class UpdateSubscriber<T> extends DefaultSubscriber<T> {
 
-        abstract PropertySet getChangeSet(T event, Urn urn);
+        abstract TrackItem getUpdatedTrackItem(T event, TrackItem itemTrack);
 
         abstract boolean containsTrackUrn(T event, Urn urn);
 
@@ -202,9 +200,9 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
                     final TrackItem trackItem = ((PlayHistoryItemTrack) item).trackItem();
                     final Urn trackUrn = trackItem.getUrn();
 
-                    if (containsTrackUrn(event, trackUrn)) {
-                        trackItem.update(getChangeSet(event, trackUrn));
-                        adapter.notifyItemChanged(position);
+                    if (containsTrackUrn(event, trackUrn) && adapter.getItems().size() > position) {
+                        final PlayHistoryItemTrack updatedItem = PlayHistoryItemTrack.create(getUpdatedTrackItem(event, trackItem));
+                        adapter.setItem(position, updatedItem);
                     }
                 }
             }
@@ -213,8 +211,8 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     private class CurrentDownloadSubscriber extends UpdateSubscriber<OfflineContentChangedEvent> {
         @Override
-        PropertySet getChangeSet(OfflineContentChangedEvent event, Urn urn) {
-            return PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.state));
+        TrackItem getUpdatedTrackItem(OfflineContentChangedEvent event, TrackItem trackItem) {
+            return trackItem.updatedWithOfflineState(event.state);
         }
 
         @Override
@@ -225,8 +223,8 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     private class EntityStateChangedSubscriber extends UpdateSubscriber<EntityStateChangedEvent> {
         @Override
-        PropertySet getChangeSet(EntityStateChangedEvent event, Urn urn) {
-            return event.getChangeMap().get(urn);
+        TrackItem getUpdatedTrackItem(EntityStateChangedEvent event, TrackItem trackItem) {
+            return trackItem.updated(event.getChangeMap().get(trackItem.getUrn()));
         }
 
         @Override

@@ -9,7 +9,6 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -17,7 +16,6 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -271,9 +269,11 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                         for (int position = 0; position < adapter.getItems().size(); position++) {
                             PlaylistCollectionItem item = adapter.getItem(position);
 
-                            if (item.getUrn().equals(event.getFirstUrn())) {
-                                item.update(event.getNextChangeSet());
-                                adapter.notifyItemChanged(position);
+                            if (item.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && item.getUrn().equals(event.getFirstUrn())) {
+                                final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
+                                if (position < adapter.getItems().size()) {
+                                    adapter.setItem(position, playlistItem.updated(event.getNextChangeSet()));
+                                }
                             }
                         }
                 }
@@ -296,9 +296,11 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         public void onNext(final OfflineContentChangedEvent event) {
             for (int position = 0; position < adapter.getItems().size(); position++) {
                 PlaylistCollectionItem item = adapter.getItem(position);
-                if (event.entities.contains(item.getUrn())) {
-                    item.update(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.state)));
-                    adapter.notifyItemChanged(position);
+                if (item.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && event.entities.contains(item.getUrn())) {
+                    final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
+                    if (position < adapter.getItems().size()) {
+                        adapter.setItem(position, playlistItem.updatedWithOfflineState(event.state));
+                    }
                 }
             }
         }

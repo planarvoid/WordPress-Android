@@ -15,6 +15,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -145,8 +146,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldNotifyAdapterWhenPlaylistEntityStateChanged() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        when(adapter.getItems())
-                .thenReturn(singletonList(fromPlaylistItem(PlaylistItem.from(playlist), UserSoundsTypes.SPOTLIGHT)));
+        when(adapter.getItems()).thenReturn(Lists.newArrayList(fromPlaylistItem(PlaylistItem.from(playlist), UserSoundsTypes.SPOTLIGHT)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);

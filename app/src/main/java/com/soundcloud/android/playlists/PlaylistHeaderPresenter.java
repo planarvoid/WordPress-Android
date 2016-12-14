@@ -453,7 +453,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         public void onNext(EntityStateChangedEvent event) {
             if (headerItem != null && headerItem.getUrn().equals(event.getFirstUrn())) {
                 final PropertySet changeSet = event.getNextChangeSet();
-                headerItem.update(changeSet);
+                headerItem = headerItem.update(changeSet);
 
                 if (changeSet.contains(PlaylistProperty.IS_USER_LIKE)) {
                     playlistEngagementsView.updateLikeItem(

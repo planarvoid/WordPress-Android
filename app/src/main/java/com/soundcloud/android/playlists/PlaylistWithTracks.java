@@ -132,8 +132,8 @@ public class PlaylistWithTracks implements ImageResource {
         return playlistItem.getPermalinkUrl();
     }
 
-    public void update(PropertySet source) {
-        this.playlistItem.update(source);
+    public PlaylistWithTracks update(PropertySet source) {
+        return new PlaylistWithTracks(this.playlistItem.updated(source), tracks);
     }
 
     @Deprecated // we should avoid this, but apparently we need it to like something currently

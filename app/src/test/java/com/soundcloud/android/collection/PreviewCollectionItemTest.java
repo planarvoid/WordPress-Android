@@ -4,12 +4,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -20,14 +16,12 @@ public class PreviewCollectionItemTest extends AndroidUnitTest {
     public void updatingCollectionPreviewPropertiesUpdatesLikesItem() {
         final LikesItem likesItem = LikesItem.fromTrackPreviews(singletonList(
                 LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
-        final CollectionItem item = PreviewCollectionItem.forLikesPlaylistsAndStations(
-                likesItem, Collections.<PlaylistItem>emptyList(), Collections.<StationRecord>emptyList());
-        final PropertySet updateProperties = PropertySet.from(
-                OfflineProperty.OFFLINE_STATE.bind(OfflineState.REQUESTED));
+        final PreviewCollectionItem item = PreviewCollectionItem.forLikesPlaylistsAndStations(
+                likesItem, Collections.emptyList(), Collections.emptyList());
 
-        item.update(updateProperties);
+        final PreviewCollectionItem updatedItem = item.updatedWithOfflineState(OfflineState.REQUESTED);
 
-        assertThat(likesItem.getDownloadState()).isEqualTo(OfflineState.REQUESTED);
+        assertThat(updatedItem.getLikes().offlineState()).isEqualTo(OfflineState.REQUESTED);
     }
 
 }

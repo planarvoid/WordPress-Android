@@ -2,8 +2,11 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.TypedListItem;
+import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -12,7 +15,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem {
+class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem, OfflineItem, UpdatableItem {
 
     private final TrackItem trackItem;
 
@@ -27,8 +30,13 @@ class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListIte
     }
 
     @Override
-    public ListItem update(PropertySet sourceSet) {
-        return trackItem.update(sourceSet);
+    public ListItem updated(PropertySet sourceSet) {
+        return new PlaylistDetailTrackItem(trackItem.updated(sourceSet));
+    }
+
+    @Override
+    public PlaylistDetailTrackItem updatedWithOfflineState(OfflineState offlineState) {
+        return new PlaylistDetailTrackItem(trackItem.updatedWithOfflineState(offlineState));
     }
 
     @Override

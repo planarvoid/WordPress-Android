@@ -112,7 +112,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     private void bindLikesView(LikesItem likes, View view) {
         final CollectionPreviewView likesPreviewView = getLikesPreviewView(view);
-        setThumbnails(likes.getTrackPreviews(), likesPreviewView);
+        setThumbnails(likes.trackPreviews(), likesPreviewView);
         setLikesDownloadProgressIndicator(likes, view);
     }
 
@@ -125,7 +125,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) likesView.findViewById(R.id.collection_download_state);
 
         if (featureOperations.isOfflineContentEnabled()) {
-            downloadProgressIcon.setState(likes.getDownloadState());
+            downloadProgressIcon.setState(likes.offlineState());
         } else {
             downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
         }

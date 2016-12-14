@@ -21,17 +21,14 @@ class UpdateStreamEntitySubscriber extends DefaultSubscriber<EntityStateChangedE
         if (event.isFollowingKind()) {
             adapter.onFollowingEntityChange(event);
         } else {
-            boolean changed = false;
             final Map<Urn, PropertySet> changeSet = event.getChangeMap();
-            for (final StreamItem item : adapter.getItems()) {
+            for (int position = 0; position < adapter.getItems().size(); position++) {
+                final StreamItem item = adapter.getItem(position);
                 final Optional<ListItem> listItem = item.getListItem();
                 if (listItem.isPresent() && changeSet.containsKey(listItem.get().getUrn())) {
-                    changed = true;
-                    listItem.get().update(changeSet.get(listItem.get().getUrn()));
+                    final StreamItem updatedStreamItem = item.copyWith(changeSet.get(listItem.get().getUrn()));
+                    adapter.setItem(position, updatedStreamItem);
                 }
-            }
-            if (changed) {
-                adapter.notifyDataSetChanged();
             }
         }
     }

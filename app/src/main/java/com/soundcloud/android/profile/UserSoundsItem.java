@@ -6,9 +6,11 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
@@ -17,7 +19,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-abstract class UserSoundsItem implements ListItem {
+abstract class UserSoundsItem implements ListItem, UpdatableItem {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
@@ -100,11 +102,21 @@ abstract class UserSoundsItem implements ListItem {
     }
 
     @Override
-    public ListItem update(PropertySet sourceSet) {
+    public ListItem updated(PropertySet sourceSet) {
         if (isTrack()) {
-            return getTrackItem().get().update(sourceSet);
+            return getTrackItem().get().updated(sourceSet);
         } else if (isPlaylist()) {
-            return getPlaylistItem().get().update(sourceSet);
+            return getPlaylistItem().get().updated(sourceSet);
+        } else {
+            return this;
+        }
+    }
+
+    public ListItem updatedWithOfflineState(OfflineState offlineState) {
+        if (isTrack()) {
+            return getTrackItem().get().updatedWithOfflineState(offlineState);
+        } else if (isPlaylist()) {
+            return getPlaylistItem().get().updatedWithOfflineState(offlineState);
         } else {
             return this;
         }

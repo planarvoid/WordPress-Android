@@ -3,7 +3,6 @@ package com.soundcloud.android.comments;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
@@ -14,12 +13,6 @@ public class Comment implements ListItem {
 
     Comment(PublicApiComment apiComment) {
         this.apiComment = apiComment;
-    }
-
-    @Override
-    public Comment update(PropertySet sourceSet) {
-        // NOP
-        return this;
     }
 
     @Override

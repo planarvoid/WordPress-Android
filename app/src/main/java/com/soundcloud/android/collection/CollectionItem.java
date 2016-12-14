@@ -3,7 +3,6 @@ package com.soundcloud.android.collection;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 public abstract class CollectionItem implements ListItem {
@@ -18,11 +17,6 @@ public abstract class CollectionItem implements ListItem {
 
     boolean isSingleSpan() {
         return false;
-    }
-
-    @Override
-    public ListItem update(PropertySet sourceSet) {
-        return this;
     }
 
     @Override

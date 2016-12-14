@@ -319,7 +319,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {
-        private final TrackItem track;
+        private TrackItem track;
         private final PopupMenuWrapper menu;
 
         TrackSubscriber(TrackItem track, PopupMenuWrapper menu) {
@@ -329,7 +329,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
         @Override
         public void onNext(PropertySet details) {
-            track.update(details);
+            track = track.updated(details);
             updateLikeActionTitle(track.isLiked());
             updateRepostActionTitle(track.isRepostedByCurrentUser());
         }

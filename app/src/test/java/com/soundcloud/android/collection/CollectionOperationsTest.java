@@ -197,7 +197,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         MyCollection collection = subscriber.getOnNextEvents().get(0);
-        assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getLikes().trackPreviews()).isEqualTo(Collections.emptyList());
         assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
         assertThat(collection.hasError()).isTrue();
@@ -216,7 +216,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         MyCollection collection = subscriber.getOnNextEvents().get(0);
-        assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
+        assertThat(collection.getLikes().trackPreviews()).isEqualTo(trackPreviews);
         assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
     }
@@ -235,7 +235,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         subject.onNext(null);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes().trackPreviews()).isEqualTo(trackPreviews);
     }
 
 }

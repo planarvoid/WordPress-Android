@@ -3,13 +3,16 @@ package com.soundcloud.android.stations;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.OfflineItem;
+import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-abstract class StationInfoTrack implements ListItem {
+abstract class StationInfoTrack implements ListItem, OfflineItem, UpdatableItem {
 
     public static StationInfoTrack from(ApiTrack track) {
         return new AutoValue_StationInfoTrack(TrackItem.from(track));
@@ -26,8 +29,13 @@ abstract class StationInfoTrack implements ListItem {
     public abstract TrackItem getTrack();
 
     @Override
-    public ListItem update(PropertySet sourceSet) {
-        return getTrack().update(sourceSet);
+    public ListItem updated(PropertySet sourceSet) {
+        return new AutoValue_StationInfoTrack(getTrack().updated(sourceSet));
+    }
+
+    @Override
+    public ListItem updatedWithOfflineState(OfflineState offlineState) {
+        return new AutoValue_StationInfoTrack(getTrack().updatedWithOfflineState(offlineState));
     }
 
     @Override

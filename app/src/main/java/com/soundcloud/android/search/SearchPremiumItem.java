@@ -5,6 +5,7 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -12,7 +13,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
-class SearchPremiumItem implements ListItem {
+class SearchPremiumItem implements ListItem, UpdatableItem {
 
     static final Urn PREMIUM_URN = new Urn("local:search:premium");
 
@@ -44,7 +45,7 @@ class SearchPremiumItem implements ListItem {
     }
 
     @Override
-    public ListItem update(PropertySet updatedProperties) {
+    public SearchPremiumItem updated(PropertySet updatedProperties) {
         for (PropertySet propertySet : sourceSet) {
             if (propertySet.get(EntityProperty.URN).equals(updatedProperties.get(EntityProperty.URN))) {
                 propertySet.update(updatedProperties);
