@@ -225,8 +225,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         ImageView view = new ImageView(activity);
         view.setImageResource(target.getIcon());
         view.setContentDescription(activity.getString(target.getName()));
-        int tabPadding = (int) view.getContext().getResources().getDimension(R.dimen.fixed_tab_padding);
-        view.setPadding(tabPadding, 0, tabPadding, 0);
         return view;
     }
 
