@@ -73,6 +73,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @Bind(R.id.recycler_view) RecyclerView recyclerView;
     private Observable<List<TrackAndPlayQueueItem>> cachedTracks = Observable.empty();
     private Observable<Map<Urn, String>> cachedTitles = Observable.empty();
+    private boolean initialized = false;
 
     @Inject
     PlayQueuePresenter(PlayQueueAdapter adapter,
@@ -103,8 +104,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         ButterKnife.bind(this, view);
         initRecyclerView();
         artworkController.bind(ButterKnife.findById(view, R.id.artwork_view));
-        subscribeToEvents();
-        loadPlayQueueUIItems();
     }
 
     private void initRecyclerView() {
@@ -158,10 +157,22 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @Override
     public void onResume(Fragment fragment) {
         final View view = fragment.getView();
+        super.onResume(fragment);
+
+        if (!initialized) {
+            initialized = true;
+            loadPlayQueueUIItems();
+        }
+
         setupRepeatButton(view);
         setupShuffleButton(view);
+        subscribeToEvents();
+    }
 
-        super.onResume(fragment);
+    @Override
+    public void onPause(Fragment fragment) {
+        eventSubscriptions.clear();
+        super.onPause(fragment);
     }
 
     @OnClick(R.id.close_play_queue)
@@ -386,12 +397,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private boolean isPlayingCurrent() {
         final int adapterPosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
-
-        if (adapterPosition < adapter.getItems().size() && adapterPosition >= 0) {
-            return adapter.getItem(adapterPosition).getPlayState().equals(PlayState.PLAYING);
-        }
-
-        return false;
+        final boolean isWithinRange = adapterPosition < adapter.getItems().size() && adapterPosition >= 0;
+        return isWithinRange && adapter.getItem(adapterPosition).getPlayState().equals(PlayState.PLAYING);
     }
 
     private class UpdateNowPlayingSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
