@@ -6,7 +6,7 @@ allprojects {
 }
 
 ext {
-  androidBuildToolsVersion = '24.0.2'
+  androidBuildToolsVersion = '25.0.2'
 
   // Dependency versions
   androidMultiDex = "1.0.1"
@@ -14,7 +14,7 @@ ext {
   androidKitVersion = '0.53'
   googleServicesVersion = '10.0.1'
   lightCycleVersion = '1.4.0'
-  daggerVersion = '2.5'
+  daggerVersion = '2.8'
   propellerVersion = '0.70'
   findBugsVersion = '3.0.0'
   networkManager = '29'
@@ -30,7 +30,7 @@ ext {
           findBugsJsr305              : "com.google.code.findbugs:jsr305:$findBugsVersion",
           intellijAnnotations         : "com.intellij:annotations:9.0.4",
           javaxAnnotations            : "javax.annotation:jsr250-api:1.0", // adds the @Generated annotation
-          autoValue                   : "com.google.auto.value:auto-value:1.1",
+          autoValue                   : "com.google.auto.value:auto-value:1.2",
           autoFactory                 : "com.google.auto.factory:auto-factory:1.0-beta3",
           autoParcelProcessor         : "com.github.frankiesardo:auto-parcel-processor:0.3.1",
           autoParcel                  : "com.github.frankiesardo:auto-parcel:0.3.1",
@@ -56,7 +56,7 @@ ext {
 
           // Utility libraries
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
-          okHttp                      : "com.squareup.okhttp3:okhttp:3.4.2",
+          okHttp                      : "com.squareup.okhttp3:okhttp:3.5.0",
           rxAndroid                   : "io.reactivex:rxandroid:1.2.1",
           rxJava                      : "io.reactivex:rxjava:1.2.1",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
@@ -94,8 +94,8 @@ ext {
   ]
 
   devLibraries = [
-          leakCanary                      : "com.squareup.leakcanary:leakcanary-android:1.3.1",
-          leakCanaryStub                  : "com.squareup.leakcanary:leakcanary-android-no-op:1.3.1",
+          leakCanary                      : "com.squareup.leakcanary:leakcanary-android:1.5",
+          leakCanaryStub                  : "com.squareup.leakcanary:leakcanary-android-no-op:1.5",
           stetho                          : "com.facebook.stetho:stetho:1.4.1",
           stethoOkhttp                    : 'com.facebook.stetho:stetho-okhttp3:1.4.1'
   ]
