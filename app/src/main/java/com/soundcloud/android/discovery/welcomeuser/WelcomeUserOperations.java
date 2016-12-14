@@ -13,12 +13,15 @@ public class WelcomeUserOperations {
 
     private final AccountOperations accountOperations;
     private final UserProfileOperations userProfileOperations;
+    private final WelcomeUserStorage welcomeUserStorage;
 
     @Inject
     WelcomeUserOperations(AccountOperations accountOperations,
-                          UserProfileOperations userProfileOperations) {
+                          UserProfileOperations userProfileOperations,
+                          WelcomeUserStorage welcomeUserStorage) {
         this.accountOperations = accountOperations;
         this.userProfileOperations = userProfileOperations;
+        this.welcomeUserStorage = welcomeUserStorage;
     }
 
     public Observable<DiscoveryItem> welcome() {
@@ -26,14 +29,15 @@ public class WelcomeUserOperations {
         return userProfileOperations.getLocalProfileUser(userUrn)
                          .flatMap(user -> {
                              if (shouldShowWelcomeForUser(user)) {
+                                 welcomeUserStorage.onWelcomeUser();
                                  return Observable.just(WelcomeUserItem.create(user, TimeOfDay.getCurrent()));
                              }
                              return Observable.empty();
                          });
     }
 
-    private static boolean shouldShowWelcomeForUser(ProfileUser user) {
-        return isRealUsername(user.getName()) && user.getImageUrlTemplate().isPresent();
+    private boolean shouldShowWelcomeForUser(ProfileUser user) {
+        return welcomeUserStorage.shouldShowWelcome() && isRealUsername(user.getName()) && user.getImageUrlTemplate().isPresent();
     }
 
     private static boolean isRealUsername(String userName) {

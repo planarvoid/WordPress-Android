@@ -23,6 +23,7 @@ public class WelcomeUserOperationsTest {
     
     @Mock private AccountOperations accountOperations;
     @Mock private UserProfileOperations userProfileOperations;
+    @Mock private WelcomeUserStorage welcomeUserStorage;
     @Mock private ProfileUser profileUser;
 
     private final TestSubscriber<DiscoveryItem> testSubscriber = new TestSubscriber<>();
@@ -30,8 +31,9 @@ public class WelcomeUserOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        welcomeUserOperations = new WelcomeUserOperations(accountOperations, userProfileOperations);
+        welcomeUserOperations = new WelcomeUserOperations(accountOperations, userProfileOperations, welcomeUserStorage);
 
+        when(welcomeUserStorage.shouldShowWelcome()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(userProfileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
         when(profileUser.getUrn()).thenReturn(USER_URN);
@@ -77,6 +79,17 @@ public class WelcomeUserOperationsTest {
     public void emptyUserReturnsEmpty() throws Exception {
         when(profileUser.getName()).thenReturn("user-120398471");
         when(profileUser.getImageUrlTemplate()).thenReturn(Optional.absent());
+
+        welcomeUserOperations.welcome().subscribe(testSubscriber);
+
+        testSubscriber.assertNoValues();
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void emptyUserStorageReturnsFalse() throws Exception {
+        when(welcomeUserStorage.shouldShowWelcome()).thenReturn(false);
 
         welcomeUserOperations.welcome().subscribe(testSubscriber);
 

@@ -24,7 +24,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Predicate;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -35,12 +34,14 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
 
     private final PlaylistTagRenderer playlistTagRenderer;
     private final SearchItemRenderer searchItemRenderer;
+    private final WelcomeUserItemRenderer welcomeUserItemRenderer;
     private final RecommendedStationsBucketRenderer stationsBucketRenderer;
 
-    interface DiscoveryItemListenerBucket extends
+    public interface DiscoveryItemListenerBucket extends
             PlaylistTagsPresenter.Listener,
             SearchItemRenderer.SearchListener,
-            RecommendedStationsBucketRenderer.Listener {
+            RecommendedStationsBucketRenderer.Listener,
+            WelcomeUserItemRenderer.Listener {
     }
 
     @SuppressWarnings("unchecked")
@@ -66,6 +67,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
         this.playlistTagRenderer = playlistTagRenderer;
         this.stationsBucketRenderer = stationsBucketRenderer;
         this.searchItemRenderer = searchItemRenderer;
+        this.welcomeUserItemRenderer = welcomeUserItemRenderer;
         recommendedPlaylistsBucketRenderer.setQueryPositionProvider(this);
     }
 
@@ -83,7 +85,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     public int queryPosition(String bucketKey, int bucketPosition) {
         int queryPosition = bucketPosition;
         for (DiscoveryItem discoveryItem : getItems()) {
-            if (discoveryItem.getKind() == DiscoveryItem.Kind.RecommendedPlaylistsItem) {
+            if (discoveryItem.getKind() == RecommendedPlaylistsItem) {
                 final RecommendedPlaylistsBucketItem playlistsBucketItem = (RecommendedPlaylistsBucketItem) discoveryItem;
                 if (!playlistsBucketItem.key().equals(bucketKey)) {
                     queryPosition += playlistsBucketItem.playlists().size();
@@ -94,9 +96,10 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     }
 
     void setDiscoveryListener(DiscoveryItemListenerBucket itemListener) {
-        this.playlistTagRenderer.setOnTagClickListener(itemListener);
-        this.searchItemRenderer.setSearchListener(itemListener);
-        this.stationsBucketRenderer.setListener(itemListener);
+        playlistTagRenderer.setOnTagClickListener(itemListener);
+        searchItemRenderer.setSearchListener(itemListener);
+        stationsBucketRenderer.setListener(itemListener);
+        welcomeUserItemRenderer.setListener(itemListener);
     }
 
     void setItem(int position, DiscoveryItem item) {
@@ -114,11 +117,6 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     }
 
     private int findItemIndex(final DiscoveryItem.Kind kind) {
-        return Iterables.indexOf(getItems(), new Predicate<DiscoveryItem>() {
-            @Override
-            public boolean apply(DiscoveryItem input) {
-                return input.getKind() == kind;
-            }
-        });
+        return Iterables.indexOf(getItems(), input -> input.getKind() == kind);
     }
 }

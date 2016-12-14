@@ -4,6 +4,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
+import com.soundcloud.android.discovery.welcomeuser.WelcomeItemScrollListener;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
@@ -12,6 +13,8 @@ import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
@@ -37,6 +40,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
     private final DiscoveryModulesProvider discoveryModulesProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
+    private final FeatureFlags featureFlags;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
@@ -56,10 +60,12 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        EventBus eventBus,
                        StartStationHandler startStationPresenter,
                        TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
-                       UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
+                       UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory,
+                       FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryModulesProvider = discoveryModulesProvider;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
+        this.featureFlags = featureFlags;
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
@@ -145,6 +151,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
+        if (featureFlags.isEnabled(Flag.WELCOME_USER)) {
+            getRecyclerView().addOnScrollListener(new WelcomeItemScrollListener(this));
+        }
     }
 
     @Override
@@ -155,5 +164,15 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     public void onRecommendedStationClicked(Context context, StationRecord station) {
         startStationPresenter.startStation(context, station.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
+    }
+
+    @Override
+    public void dismissWelcomeUserItem(int position) {
+        removeItem(position);
+    }
+
+    private void removeItem(int position) {
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
     }
 }

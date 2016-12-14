@@ -79,7 +79,7 @@ class DiscoveryModulesProvider {
     private List<Observable<DiscoveryItem>> itemsForPlaylistDiscoveryExperiment(boolean isRefresh) {
         if (playlistDiscoveryConfig.isPlaylistDiscoveryFirst()) {
             return Arrays.asList(
-                    userWelcome(),
+                    userWelcome(isRefresh),
                     recommendedTracks(isRefresh),
                     recommendedPlaylists(isRefresh),
                     recommendedStations(isRefresh),
@@ -87,7 +87,7 @@ class DiscoveryModulesProvider {
             );
         }
         return Arrays.asList(
-                userWelcome(),
+                userWelcome(isRefresh),
                 recommendedTracks(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
@@ -97,7 +97,7 @@ class DiscoveryModulesProvider {
 
     private List<Observable<DiscoveryItem>> itemsForDiscoveryModulesSwitchExperiment(boolean isRefresh) {
         return Arrays.asList(
-                userWelcome(),
+                userWelcome(isRefresh),
                 recommendedTracks(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
@@ -108,7 +108,7 @@ class DiscoveryModulesProvider {
 
     private List<Observable<DiscoveryItem>> itemsForDefault(boolean isRefresh) {
         return Arrays.asList(
-                userWelcome(),
+                userWelcome(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedTracks(isRefresh),
                 recommendedPlaylists(isRefresh),
@@ -117,10 +117,10 @@ class DiscoveryModulesProvider {
         );
     }
 
-    private Observable<DiscoveryItem> userWelcome() {
-        return featureFlags.isEnabled(Flag.WELCOME_USER) ?
+    private Observable<DiscoveryItem> userWelcome(boolean isRefresh) {
+        return !isRefresh && featureFlags.isEnabled(Flag.WELCOME_USER) ?
                welcomeUserOperations.welcome() :
-               Observable.<DiscoveryItem>empty();
+               Observable.empty();
     }
 
     private Observable<DiscoveryItem> recommendedTracks(boolean isRefresh) {

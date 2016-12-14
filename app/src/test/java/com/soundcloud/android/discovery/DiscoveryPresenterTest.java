@@ -86,7 +86,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 eventBus,
                 startStationHandler,
                 trackRecommendationPlaybackInitiator,
-                updatePlayableAdapterSubscriberFactory);
+                updatePlayableAdapterSubscriberFactory,
+                featureFlags);
 
         presenter.onCreate(fragment, bundle);
     }

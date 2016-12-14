@@ -21,6 +21,11 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
+    private Listener listener;
+
+    public interface Listener {
+        void dismissWelcomeUserItem(int position);
+    }
 
     @Inject
     public WelcomeUserItemRenderer(ImageOperations imageOperations,
@@ -31,8 +36,10 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext())
-                             .inflate(R.layout.welcome_user_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                                     .inflate(R.layout.welcome_user_item, parent, false);
+        view.setTag("Welcome");
+        return view;
     }
 
     @Override
@@ -44,6 +51,12 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
         setBackground(itemView, resourceBundle);
         setWelcomeMessage(itemView, welcomeUserItem, resourceBundle);
         setDescription(itemView, resourceBundle);
+
+        itemView.setOnClickListener(click -> listener.dismissWelcomeUserItem(position));
+    }
+
+    public void setListener(Listener itemListener) {
+        listener = itemListener;
     }
 
     private void setBackground(View itemView, WelcomeResourceBundle resources) {
