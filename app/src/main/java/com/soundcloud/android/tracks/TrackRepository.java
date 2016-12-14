@@ -57,12 +57,12 @@ public class TrackRepository {
         this.scheduler = scheduler;
     }
 
-    @Deprecated // use trackItem
+    @Deprecated // use fromUrn
     public Observable<PropertySet> track(final Urn trackUrn) {
         return fromUrns(singletonList(trackUrn)).map(TO_PROPERTY_MAP_VALUE_OR_EMPTY);
     }
 
-    public Observable<TrackItem> trackItem(final Urn trackUrn) {
+    public Observable<TrackItem> fromUrn(final Urn trackUrn) {
         return fromUrns(singletonList(trackUrn)).map(TO_MAP_VALUE_OR_EMPTY);
     }
 
@@ -88,7 +88,6 @@ public class TrackRepository {
             } else {
                 return syncInitiator
                         .batchSyncTracks(missingTracks)
-                        // The syncer is notifying back on the main thread, so this has to be.
                         .observeOn(scheduler);
             }
         };

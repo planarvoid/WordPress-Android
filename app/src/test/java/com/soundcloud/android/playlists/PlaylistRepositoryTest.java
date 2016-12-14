@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.api.TestApiResponses.status;
+import static com.soundcloud.java.collections.Maps.asMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -9,6 +10,7 @@ import static rx.Observable.just;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -22,6 +24,7 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class PlaylistRepositoryTest extends AndroidUnitTest {
@@ -31,7 +34,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncinitiator;
     @Mock private PlaylistStorage playlistStorage;
 
-    private TestSubscriber<List<PlaylistItem>> subscriber =new TestSubscriber<>();
+    private TestSubscriber<Map<Urn,PlaylistItem>> subscriber =new TestSubscriber<>();
     private TestSubscriber<PlaylistItem> singleSubscriber =new TestSubscriber<>();
     private PublishSubject<SyncJobResult> syncSubject = PublishSubject.create();
 
@@ -102,7 +105,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
 
         playlistRepository.withUrns(urns).subscribe(subscriber);
 
-        subscriber.assertValue(playlists);
+        subscriber.assertValue(asMap(playlists, PlayableItem::getUrn));
     }
 
     @Test
@@ -123,7 +126,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         syncSubject.onNext(TestSyncJobResults.successWithChange());
         syncSubject.onCompleted();
 
-        subscriber.assertValue(expectedPlaylists);
+        subscriber.assertValue(asMap(expectedPlaylists, PlayableItem::getUrn));
     }
 
     @Test
@@ -144,6 +147,6 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         syncSubject.onError(ApiRequestException.notFound(null, status(404)));
         syncSubject.onCompleted();
 
-        subscriber.assertValue(expectedPlaylists);
+        subscriber.assertValue(asMap(expectedPlaylists, PlayableItem::getUrn));
     }
 }

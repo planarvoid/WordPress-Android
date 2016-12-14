@@ -216,7 +216,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void onTrackLikedEventReturnsTrackInfoFromLike() throws Exception {
         final PropertySet likedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
         TrackItem trackItem = TrackItem.from(likedTrack);
-        when(trackRepository.trackItem(likedTrack.get(TrackProperty.URN))).thenReturn(Observable.just(trackItem));
+        when(trackRepository.fromUrn(likedTrack.get(TrackProperty.URN))).thenReturn(Observable.just(trackItem));
 
         final TestSubscriber<TrackItem> observer = new TestSubscriber<>();
         operations.onTrackLiked().subscribe(observer);

@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery.recommendedplaylists;
 
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.discovery.DiscoveryItem;
@@ -56,7 +57,7 @@ public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
 
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_PLAYLISTS)).thenReturn(Observable.just(SyncOperations.Result.SYNCED));
         when(playlistsStorage.recommendedPlaylists()).thenReturn(Observable.just(singletonList(recommendedPlaylistEntity)));
-        when(playlistRepository.withUrns(new HashSet<>(urns))).thenReturn(Observable.just(singletonList(item)));
+        when(playlistRepository.withUrns(new HashSet<>(urns))).thenReturn(Observable.just(singletonMap(item.getUrn(), item)));
 
         operations.recommendedPlaylists().subscribe(testSubscriber);
 

@@ -8,7 +8,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.java.collections.Iterables;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -16,6 +15,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class RecommendedPlaylistsOperations {
@@ -57,17 +57,17 @@ public class RecommendedPlaylistsOperations {
                                  .flatMap(toOrderedBuckets(buckets));
     }
 
-    private Func1<List<PlaylistItem>, Observable<? extends RecommendedPlaylistsBucketItem>> toOrderedBuckets(List<RecommendedPlaylistsEntity> buckets) {
+    private Func1<Map<Urn, PlaylistItem>, Observable<? extends RecommendedPlaylistsBucketItem>> toOrderedBuckets(List<RecommendedPlaylistsEntity> buckets) {
         return playlistEntities -> Observable
                 .from(buckets)
                 .map(mapToBucketItem(playlistEntities));
     }
 
-    private Func1<RecommendedPlaylistsEntity, RecommendedPlaylistsBucketItem> mapToBucketItem(final List<PlaylistItem> playlistEntities) {
+    private Func1<RecommendedPlaylistsEntity, RecommendedPlaylistsBucketItem> mapToBucketItem(final Map<Urn, PlaylistItem> playlistEntities) {
         return entity -> {
             final List<PlaylistItem> matches = new ArrayList<>(entity.playlistUrns().size());
             for (Urn urn : entity.playlistUrns()) {
-                matches.add(Iterables.find(playlistEntities, input -> urn.equals(input.getUrn())));
+                matches.add(playlistEntities.get(urn));
             }
             return RecommendedPlaylistsBucketItem.create(entity, matches);
         };

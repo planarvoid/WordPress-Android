@@ -57,7 +57,7 @@ public class TrackLikeOperations {
     private final Func1<Urn, Observable<TrackItem>> loadLikedTrack = new Func1<Urn, Observable<TrackItem>>() {
         @Override
         public Observable<TrackItem> call(Urn urn) {
-            return trackRepo.trackItem(urn);
+            return trackRepo.fromUrn(urn);
         }
     };
 
