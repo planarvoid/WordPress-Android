@@ -628,6 +628,7 @@
     <string name="media_route_menu_title">Cast</string>
     <string name="cast_introductory_overlay_title">Cast SoundCloud</string>
     <string name="cast_introductory_overlay_description">Tap to cast music to your TV and Cast enabled speakers</string>
+    <string name="cast_player_casting_to">Casting to %s</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted">Promoted</string>

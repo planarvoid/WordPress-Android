@@ -7,7 +7,7 @@
         style="@style/TimestampText.Preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ak_sc_orange"
+        android:background="@android:color/transparent"
         android:textAllCaps="false"
         tools:text="Casting to Sweet Potato" />
 </merge>

@@ -2,6 +2,7 @@ package com.soundcloud.android.cast;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.ui.view.PlayerStripView;
@@ -59,7 +60,7 @@ public class CastPlayerStripController {
         castView.getLayoutParams().height = castView.getExpandedHeight();
         castView.requestLayout();
 
-        castView.getCastDeviceName().setText(castConnectionHelper.getDeviceName());
+        updateCastDeviceName();
     }
 
     private void subscribeToEvents() {
@@ -104,7 +105,7 @@ public class CastPlayerStripController {
             castView.requestLayout();
 
             castView.getCastDeviceName().setAlpha(slideAnimateValue);
-            castView.getCastDeviceName().setText(castConnectionHelper.getDeviceName());
+            updateCastDeviceName();
         }
     }
 
@@ -122,10 +123,14 @@ public class CastPlayerStripController {
         animator.addListener(new DefaultAnimationListener() {
             @Override
             public void onAnimationEnd(Animator animator) {
-                castView.getCastDeviceName().setText(castConnectionHelper.getDeviceName());
+                updateCastDeviceName();
             }
         });
         return animator;
+    }
+
+    private void updateCastDeviceName() {
+        castView.getCastDeviceName().setText(castView.getResources().getString(R.string.cast_casting_to_device, castConnectionHelper.getDeviceName()));
     }
 
     private ValueAnimator createValueAnimator(int fromValue, int toValue) {
