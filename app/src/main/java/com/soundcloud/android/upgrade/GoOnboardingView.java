@@ -1,6 +1,6 @@
 package com.soundcloud.android.upgrade;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
@@ -18,9 +18,9 @@ class GoOnboardingView implements ViewPager.OnPageChangeListener {
 
     private static final int BUTTON_TRANSITION_MS = 200;
 
-    @Bind(R.id.go_onboarding_pager) ViewPager pager;
-    @Bind(R.id.go_onboarding_indicator) CirclePageIndicator indicator;
-    @Bind(R.id.btn_go_setup_start) LoadingButton doneButton;
+    @BindView(R.id.go_onboarding_pager) ViewPager pager;
+    @BindView(R.id.go_onboarding_indicator) CirclePageIndicator indicator;
+    @BindView(R.id.btn_go_setup_start) LoadingButton doneButton;
 
     private GoOnboardingPresenter presenter;
     private final GoOnboardingAdapter adapter;

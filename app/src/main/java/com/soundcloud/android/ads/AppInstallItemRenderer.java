@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -25,13 +27,9 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
-
-import javax.inject.Inject;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
 
 public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
@@ -136,13 +134,13 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
     }
 
     static class Holder {
-        @Bind(R.id.ad_item) TextView headerText;
-        @Bind(R.id.app_name) TextView appNameText;
-        @Bind(R.id.ratings_count) TextView ratingsCount;
-        @Bind(R.id.call_to_action) TextView callToAction;
-        @Bind(R.id.image) ImageView image;
-        @Bind(R.id.rating_bar) RatingBar ratingBar;
-        @Bind(R.id.why_ads) TextView whyAds;
+        @BindView(R.id.ad_item) TextView headerText;
+        @BindView(R.id.app_name) TextView appNameText;
+        @BindView(R.id.ratings_count) TextView ratingsCount;
+        @BindView(R.id.call_to_action) TextView callToAction;
+        @BindView(R.id.image) ImageView image;
+        @BindView(R.id.rating_bar) RatingBar ratingBar;
+        @BindView(R.id.why_ads) TextView whyAds;
 
         Holder(View view) {
             ButterKnife.bind(this, view);

@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -44,14 +44,14 @@ class ProfileHeaderPresenter extends ActivityLightCycleDispatcher<RootActivity> 
     private final ScreenProvider screenProvider;
     private final ProfileImageHelper profileImageHelper;
 
-    @Bind(R.id.header_info_layout) View headerInfoLayout;
-    @Bind(R.id.tab_indicator) View tabs;
-    @Bind(R.id.username) TextView username;
-    @Bind(R.id.image) ImageView image;
-    @Nullable @Bind(R.id.profile_banner) ImageView banner; // not present in certain configurations
-    @Bind(R.id.followers_count) TextView followerCount;
-    @Bind(R.id.toggle_btn_follow) ToggleButton followButton;
-    @Bind(R.id.btn_station) ToggleButton stationButton;
+    @BindView(R.id.header_info_layout) View headerInfoLayout;
+    @BindView(R.id.tab_indicator) View tabs;
+    @BindView(R.id.username) TextView username;
+    @BindView(R.id.image) ImageView image;
+    @Nullable @BindView(R.id.profile_banner) ImageView banner; // not present in certain configurations
+    @BindView(R.id.followers_count) TextView followerCount;
+    @BindView(R.id.toggle_btn_follow) ToggleButton followButton;
+    @BindView(R.id.btn_station) ToggleButton stationButton;
 
     private Urn lastUser;
 

@@ -1,8 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.model.Urn;
@@ -42,9 +43,10 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     private OnEngagementListener listener;
     private PlaylistWithTracks playlistItem;
 
-    @Bind(R.id.toggle_like) ToggleButton likeToggle;
-    @Bind(R.id.toggle_download) IconToggleButton downloadToggle;
-    @Bind(R.id.playlist_details_overflow_button) View overflowButton;
+    @BindView(R.id.toggle_like) ToggleButton likeToggle;
+    @BindView(R.id.toggle_download) IconToggleButton downloadToggle;
+    @BindView(R.id.playlist_details_overflow_button) View overflowButton;
+    private Unbinder unbinder;
 
     @Inject
     PlaylistEngagementsView(Context context,
@@ -73,7 +75,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     private void bindEngagementBar(View view, boolean isEditMode) {
         final View bar = view.findViewById(R.id.playlist_engagement_bar);
 
-        ButterKnife.bind(this, bar);
+        unbinder = ButterKnife.bind(this, bar);
         bar.setVisibility(View.VISIBLE);
         menu = popupMenuWrapperFactory.build(view.getContext(), overflowButton);
         menu.inflate(R.menu.playlist_details_actions);
@@ -125,7 +127,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     }
 
     public void onDestroyView() {
-        ButterKnife.unbind(this);
+        unbinder.unbind();
     }
 
     void showOfflineOptions(final boolean isAvailable) {

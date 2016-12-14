@@ -3,7 +3,7 @@ package com.soundcloud.android.profile;
 import static android.os.Build.VERSION_CODES.M;
 import static com.soundcloud.android.view.status.StatusBarUtils.getStatusBarHeight;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.CustomFontTitleToolbar;
@@ -24,8 +24,8 @@ class BannerProfileScrollHelper
         extends ProfileScrollHelper {
 
     private final StatusBarColorController statusBarColorController;
-    @Nullable @Bind(R.id.top_gradient) View topGradient;
-    @Nullable @Bind(R.id.header_scrim) View scrim;
+    @Nullable @BindView(R.id.top_gradient) View topGradient;
+    @Nullable @BindView(R.id.header_scrim) View scrim;
 
     private int statusBarHeight;
     private int changeArrowPosition;

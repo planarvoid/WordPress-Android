@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -168,10 +168,10 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     static class MyPlaylistsAdapter extends ListItemAdapter<AddTrackToPlaylistItem> {
 
-        @Bind(R.id.title) TextView titleView;
-        @Bind(R.id.trackCount) TextView trackCountView;
-        @Bind(R.id.icon_private) ImageView privateIcon;
-        @Bind(R.id.icon_offline) ImageView offlineIcon;
+        @BindView(R.id.title) TextView titleView;
+        @BindView(R.id.trackCount) TextView trackCountView;
+        @BindView(R.id.icon_private) ImageView privateIcon;
+        @BindView(R.id.icon_offline) ImageView offlineIcon;
 
         private final Context context;
         private final FeatureOperations featureOperations;

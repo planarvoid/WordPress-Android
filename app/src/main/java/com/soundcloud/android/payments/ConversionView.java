@@ -1,6 +1,6 @@
 package com.soundcloud.android.payments;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -40,12 +40,12 @@ class ConversionView {
 
     private FragmentManager fragmentManager;
 
-    @Bind(R.id.conversion_background) ImageView background;
-    @Bind(R.id.conversion_buy) LoadingButton buyButton;
-    @Bind(R.id.conversion_price) TextView priceView;
-    @Bind(R.id.conversion_restrictions) TextView restrictionsView;
-    @Bind(R.id.conversion_more_products) Button moreButton;
-    @Bind(R.id.conversion_close) View closeButton;
+    @BindView(R.id.conversion_background) ImageView background;
+    @BindView(R.id.conversion_buy) LoadingButton buyButton;
+    @BindView(R.id.conversion_price) TextView priceView;
+    @BindView(R.id.conversion_restrictions) TextView restrictionsView;
+    @BindView(R.id.conversion_more_products) Button moreButton;
+    @BindView(R.id.conversion_close) View closeButton;
 
     @Inject
     ConversionView(Resources resources, BackgroundDecoder backgroundDecoder) {

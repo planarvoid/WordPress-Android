@@ -1,8 +1,9 @@
 package com.soundcloud.android.view;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ApiImageSize;
@@ -39,8 +40,9 @@ public class FullImageDialog extends DialogFragment {
     @Inject Context context;
     @Inject ImageOperations imageOperations;
 
-    @Bind(R.id.image) ImageView image;
-    @Bind(R.id.progress) ProgressBar progress;
+    @BindView(R.id.image) ImageView image;
+    @BindView(R.id.progress) ProgressBar progress;
+    private Unbinder unbinder;
 
     public static void show(FragmentManager fragmentManager, Urn resourceUrn) {
         Bundle args = new Bundle();
@@ -67,7 +69,7 @@ public class FullImageDialog extends DialogFragment {
     @SuppressLint("InflateParams")
     private void setupLayout(Dialog dialog) {
         View layout = LayoutInflater.from(getActivity()).inflate(R.layout.full_image_dialog, null);
-        ButterKnife.bind(this, layout);
+        unbinder = ButterKnife.bind(this, layout);
         dialog.setContentView(layout);
     }
 
@@ -86,7 +88,7 @@ public class FullImageDialog extends DialogFragment {
 
     @Override
     public void onDestroyView() {
-        ButterKnife.unbind(this);
+        unbinder.unbind();
         super.onDestroyView();
     }
 

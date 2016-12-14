@@ -3,7 +3,7 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
@@ -24,17 +24,17 @@ import android.widget.ToggleButton;
 
 
 public class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
-    @Bind(R.id.image) ImageView image;
-    @Bind(R.id.title) TextView title;
-    @Bind(R.id.creator) TextView creator;
-    @Bind(R.id.play_count) TextView playCount;
+    @BindView(R.id.image) ImageView image;
+    @BindView(R.id.title) TextView title;
+    @BindView(R.id.creator) TextView creator;
+    @BindView(R.id.play_count) TextView playCount;
 
-    @Bind(R.id.toggle_like) ToggleButton likeButton;
-    @Bind(R.id.now_playing) View nowPlaying;
-    @Bind(R.id.overflow_button) View overflowButton;
-    @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
+    @BindView(R.id.toggle_like) ToggleButton likeButton;
+    @BindView(R.id.now_playing) View nowPlaying;
+    @BindView(R.id.overflow_button) View overflowButton;
+    @Nullable @BindView(R.id.toggle_repost) ToggleButton repostButton;
 
-    @Nullable @Bind(R.id.go_indicator) View goIndicator;
+    @Nullable @BindView(R.id.go_indicator) View goIndicator;
 
     private CardEngagementsPresenter.CardEngagementClickListener clickListener;
     private final ImageOperations imageOperations;

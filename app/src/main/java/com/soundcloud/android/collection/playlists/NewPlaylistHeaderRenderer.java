@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playlists;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 
@@ -17,8 +17,8 @@ public class NewPlaylistHeaderRenderer implements PlaylistHeaderRenderer {
 
     private final Resources resources;
 
-    @Bind(R.id.header_text) TextView headerText;
-    @Bind(R.id.header_top_separator) View headerTopSeparator;
+    @BindView(R.id.header_text) TextView headerText;
+    @BindView(R.id.header_top_separator) View headerTopSeparator;
 
     @Inject
     NewPlaylistHeaderRenderer(Resources resources) {

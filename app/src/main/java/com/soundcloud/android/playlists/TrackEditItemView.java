@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
@@ -19,17 +19,17 @@ import javax.inject.Inject;
 
 class TrackEditItemView {
 
-    @Bind(R.id.image) ImageView image;
-    @Bind(R.id.list_item_header) TextView creator;
-    @Bind(R.id.list_item_subheader) TextView title;
-    @Bind(R.id.list_item_right_info) TextView duration;
-    @Bind(R.id.reposter) TextView reposter;
-    @Bind(R.id.now_playing) View nowPlaying;
-    @Bind(R.id.private_indicator) View privateIndicator;
-    @Bind(R.id.promoted_track) TextView promoted;
-    @Bind(R.id.not_available_offline) TextView notAvailableOffline;
-    @Bind(R.id.preview_indicator) View preview;
-    @Bind(R.id.track_list_item_geo_blocked_text) TextView geoBlocked;
+    @BindView(R.id.image) ImageView image;
+    @BindView(R.id.list_item_header) TextView creator;
+    @BindView(R.id.list_item_subheader) TextView title;
+    @BindView(R.id.list_item_right_info) TextView duration;
+    @BindView(R.id.reposter) TextView reposter;
+    @BindView(R.id.now_playing) View nowPlaying;
+    @BindView(R.id.private_indicator) View privateIndicator;
+    @BindView(R.id.promoted_track) TextView promoted;
+    @BindView(R.id.not_available_offline) TextView notAvailableOffline;
+    @BindView(R.id.preview_indicator) View preview;
+    @BindView(R.id.track_list_item_geo_blocked_text) TextView geoBlocked;
 
     public TrackEditItemView(View rootView) {
         ButterKnife.bind(this, rootView);

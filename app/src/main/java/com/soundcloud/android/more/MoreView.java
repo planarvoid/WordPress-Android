@@ -1,8 +1,9 @@
 package com.soundcloud.android.more;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import com.google.auto.factory.AutoFactory;
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
@@ -17,21 +18,22 @@ import android.widget.TextView;
 @AutoFactory(allowSubclasses = true)
 public class MoreView implements ScrollContent {
 
+    private final Unbinder unbinder;
     private Listener listener;
 
-    @Bind(R.id.header_layout) View headerLayout;
-    @Bind(R.id.image) ImageView profileImageView;
-    @Bind(R.id.username) TextView username;
-    @Bind(R.id.more_version_text) TextView versionText;
-    @Bind(R.id.more_offline_sync_settings_link) View offlineSettingsView;
-    @Bind(R.id.more_explore_link) View exploreView;
-    @Bind(R.id.more_report_bug) View reportBug;
-    @Bind(R.id.scroll_view) NestedScrollView scrollView;
-    @Bind(R.id.more_go_indicator) View goIndicator;
+    @BindView(R.id.header_layout) View headerLayout;
+    @BindView(R.id.image) ImageView profileImageView;
+    @BindView(R.id.username) TextView username;
+    @BindView(R.id.more_version_text) TextView versionText;
+    @BindView(R.id.more_offline_sync_settings_link) View offlineSettingsView;
+    @BindView(R.id.more_explore_link) View exploreView;
+    @BindView(R.id.more_report_bug) View reportBug;
+    @BindView(R.id.scroll_view) NestedScrollView scrollView;
+    @BindView(R.id.more_go_indicator) View goIndicator;
 
     MoreView(View view, final Listener listener) {
         this.listener = listener;
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
 
         setAppVersionString(view.getResources());
     }
@@ -51,7 +53,7 @@ public class MoreView implements ScrollContent {
     }
 
     public void unbind() {
-        ButterKnife.unbind(this);
+        unbinder.unbind();
         this.listener = null;
     }
 

@@ -1,7 +1,8 @@
 package com.soundcloud.android.profile;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ScrollHelper;
 import com.soundcloud.android.view.CustomFontTitleToolbar;
@@ -24,12 +25,13 @@ class ProfileScrollHelper
     private List<ProfileScreen> profileScreens = new ArrayList<>();
     private ScrollHelper scrollHelper;
 
-    @Bind(R.id.profile_header) View headerView;
-    @Bind(R.id.pager) View contentView;
-    @Bind(R.id.toolbar_id) CustomFontTitleToolbar toolbar;
-    @Bind(R.id.appbar) AppBarLayout appBarLayout;
+    @BindView(R.id.profile_header) View headerView;
+    @BindView(R.id.pager) View contentView;
+    @BindView(R.id.toolbar_id) CustomFontTitleToolbar toolbar;
+    @BindView(R.id.appbar) AppBarLayout appBarLayout;
 
     private float elevationTarget;
+    private Unbinder unbinder;
 
     @Inject
     public ProfileScrollHelper() {
@@ -37,7 +39,7 @@ class ProfileScrollHelper
 
     @Override
     public void onCreate(final AppCompatActivity activity, Bundle bundle) {
-        ButterKnife.bind(this, activity);
+        unbinder = ButterKnife.bind(this, activity);
         elevationTarget = activity.getResources().getDimension(R.dimen.toolbar_elevation);
         scrollHelper = new ScrollHelper(this);
     }
@@ -55,7 +57,7 @@ class ProfileScrollHelper
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
-        ButterKnife.unbind(this);
+        unbinder.unbind();
         scrollHelper = null;
     }
 

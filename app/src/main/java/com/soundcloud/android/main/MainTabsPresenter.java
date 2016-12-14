@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
@@ -45,11 +45,11 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private RootActivity activity;
     private MainPagerAdapter pagerAdapter;
 
-    @Bind(R.id.pager) ViewPager pager;
-    @Bind(R.id.tab_layout) TabLayout tabBar;
-    @Bind(R.id.toolbar_id) Toolbar toolBar;
-    @Bind(R.id.appbar) AppBarLayout appBarLayout;
-    @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
+    @BindView(R.id.pager) ViewPager pager;
+    @BindView(R.id.tab_layout) TabLayout tabBar;
+    @BindView(R.id.toolbar_id) Toolbar toolBar;
+    @BindView(R.id.appbar) AppBarLayout appBarLayout;
+    @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 

@@ -1,7 +1,8 @@
 package com.soundcloud.android.profile;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -23,14 +24,15 @@ class UserDetailsView {
 
     @Inject ProfileEmptyViewHelper profileEmptyViewHelper;
 
-    @Bind(R.id.description) TextView descriptionText;
-    @Bind(R.id.website) TextView websiteText;
-    @Bind(R.id.discogs_name) TextView discogsText;
-    @Bind(R.id.myspace_name) TextView myspaceText;
-    @Bind(android.R.id.empty) EmptyView emptyView;
+    @BindView(R.id.description) TextView descriptionText;
+    @BindView(R.id.website) TextView websiteText;
+    @BindView(R.id.discogs_name) TextView discogsText;
+    @BindView(R.id.myspace_name) TextView myspaceText;
+    @BindView(android.R.id.empty) EmptyView emptyView;
 
     private UserDetailsListener listener;
     private Urn userUrn;
+    private Unbinder unbinder;
 
     @Inject
     public UserDetailsView() {
@@ -46,11 +48,11 @@ class UserDetailsView {
     }
 
     public void setView(View view) {
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
     }
 
     public void clearViews() {
-        ButterKnife.unbind(this);
+        unbinder.unbind();
     }
 
     void showEmptyView(EmptyView.Status status) {

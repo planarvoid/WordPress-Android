@@ -1,6 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
@@ -27,9 +27,9 @@ public class LoginLayout extends AuthLayout {
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
     @NotNull private LoginHandler loginHandler; // null at creation but must be set before using
 
-    @Bind(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
-    @Bind(R.id.txt_password) EditText passwordField;
-    @Bind(R.id.btn_login) Button loginButton;
+    @BindView(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
+    @BindView(R.id.txt_password) EditText passwordField;
+    @BindView(R.id.btn_login) Button loginButton;
 
     public LoginLayout(Context context) {
         super(context);

@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
@@ -25,8 +25,8 @@ import javax.inject.Inject;
 
 public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
 
-    @Bind(R.id.verify_age_input) EditText yearInput;
-    @Bind(R.id.verify_button) Button submitButton;
+    @BindView(R.id.verify_age_input) EditText yearInput;
+    @BindView(R.id.verify_button) Button submitButton;
 
     private final UpdateAgeCommand updateAgeCommand;
     private final FollowingOperations followingOperations;

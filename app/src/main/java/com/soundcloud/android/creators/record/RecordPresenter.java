@@ -12,7 +12,7 @@ import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE
 import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_LIGHT_TNUM;
 import static com.soundcloud.android.view.CustomFontLoader.getFont;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
@@ -63,23 +63,23 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     private Typeface scNumberFont;
     private Typeface scFont;
 
-    @Bind(R.id.gauge_holder) ViewGroup gaugeHolder;
-    @Bind(R.id.chronometer) ChronometerView chrono;
-    @Bind(R.id.btn_action) ImageButton actionButton;
-    @Bind(R.id.action_text) TextView actionText;
+    @BindView(R.id.gauge_holder) ViewGroup gaugeHolder;
+    @BindView(R.id.chronometer) ChronometerView chrono;
+    @BindView(R.id.btn_action) ImageButton actionButton;
+    @BindView(R.id.action_text) TextView actionText;
 
     // play mode
-    @Bind(R.id.btn_next) View next;
-    @Bind(R.id.btn_delete) View delete;
-    @Bind(R.id.btn_play) ImageButton playButton;
-    @Bind(R.id.btn_edit) ImageButton editButton;
+    @BindView(R.id.btn_next) View next;
+    @BindView(R.id.btn_delete) View delete;
+    @BindView(R.id.btn_play) ImageButton playButton;
+    @BindView(R.id.btn_edit) ImageButton editButton;
 
     // edit mode
-    @Bind(R.id.btn_revert) View revert;
-    @Bind(R.id.btn_apply) View apply;
-    @Bind(R.id.toggle_fade) SwitchCompat toggleFade;
-    @Bind(R.id.edit_controls) @Nullable ViewGroup editControls;
-    @Bind(R.id.btn_play_edit) ImageButton playEditButton;
+    @BindView(R.id.btn_revert) View revert;
+    @BindView(R.id.btn_apply) View apply;
+    @BindView(R.id.toggle_fade) SwitchCompat toggleFade;
+    @BindView(R.id.edit_controls) @Nullable ViewGroup editControls;
+    @BindView(R.id.btn_play_edit) ImageButton playEditButton;
 
     private final RecordingOperations recordingOperations;
     private final ViewHelper viewHelper;

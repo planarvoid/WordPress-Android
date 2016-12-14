@@ -1,6 +1,6 @@
 package com.soundcloud.android.payments;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 
@@ -16,10 +16,10 @@ import javax.inject.Inject;
 
 class WebCheckoutView {
 
-    @Bind(R.id.payment_form) WebView webView;
-    @Bind(R.id.loading) View loading;
-    @Bind(R.id.retry) View retry;
-    @Bind(R.id.retry_button) Button retryButton;
+    @BindView(R.id.payment_form) WebView webView;
+    @BindView(R.id.loading) View loading;
+    @BindView(R.id.retry) View retry;
+    @BindView(R.id.retry_button) Button retryButton;
 
     interface Listener {
         void onRetry();

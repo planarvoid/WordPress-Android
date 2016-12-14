@@ -11,7 +11,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.util.AnimUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 @AutoFactory(allowSubclasses = true)
@@ -19,11 +19,11 @@ class PlaylistHeaderView {
 
     private final ImageOperations imageOperations;
 
-    @Bind(R.id.title) TextView titleView;
-    @Bind(R.id.username) TextView usernameView;
-    @Bind(R.id.title_private) TextView privateTitleView;
-    @Bind(R.id.artwork) ImageView artworkView;
-    @Bind(R.id.btn_play) View playButton;
+    @BindView(R.id.title) TextView titleView;
+    @BindView(R.id.username) TextView usernameView;
+    @BindView(R.id.title_private) TextView privateTitleView;
+    @BindView(R.id.artwork) ImageView artworkView;
+    @BindView(R.id.btn_play) View playButton;
 
     private PlaylistItem playlistInfo;
     private ApiImageSize artworkSize = ApiImageSize.Unknown;

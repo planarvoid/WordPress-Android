@@ -1,6 +1,6 @@
 package com.soundcloud.android.creators.upload;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
@@ -31,8 +31,8 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     private Drawable placeholder;
     private Fragment fragment;
 
-    @Bind(R.id.title) EditText titleText;
-    @Bind(R.id.artwork) ImageView artwork;
+    @BindView(R.id.title) EditText titleText;
+    @BindView(R.id.artwork) ImageView artwork;
 
     @SuppressWarnings("UnusedDeclaration")
     public RecordingMetaDataLayout(Context context) {

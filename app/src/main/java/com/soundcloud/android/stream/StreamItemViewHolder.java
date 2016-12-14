@@ -1,6 +1,6 @@
 package com.soundcloud.android.stream;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
@@ -17,28 +17,28 @@ import android.widget.ToggleButton;
 
 public class StreamItemViewHolder implements CardViewHolder {
 
-    @Bind(R.id.user_image) ImageView userImage;
-    @Bind(R.id.header_text) TextView headerText;
-    @Bind(R.id.reposter) TextView reposter;
-    @Bind(R.id.creation_date) TextView createdAt;
-    @Bind(R.id.private_indicator) View privateIndicator;
-    @Bind(R.id.private_separator) View privateSeparator;
+    @BindView(R.id.user_image) ImageView userImage;
+    @BindView(R.id.header_text) TextView headerText;
+    @BindView(R.id.reposter) TextView reposter;
+    @BindView(R.id.creation_date) TextView createdAt;
+    @BindView(R.id.private_indicator) View privateIndicator;
+    @BindView(R.id.private_separator) View privateSeparator;
 
-    @Bind(R.id.promoted_item) TextView promotedItem;
-    @Bind(R.id.promoter) TextView promoter;
+    @BindView(R.id.promoted_item) TextView promotedItem;
+    @BindView(R.id.promoter) TextView promoter;
 
-    @Bind(R.id.image) ImageView image;
-    @Bind(R.id.title) TextView title;
-    @Bind(R.id.creator) TextView creator;
+    @BindView(R.id.image) ImageView image;
+    @BindView(R.id.title) TextView title;
+    @BindView(R.id.creator) TextView creator;
 
-    @Bind(R.id.play_count) TextView playCount;
-    @Bind(R.id.playlist_additional_info) TextView duration;
-    @Bind(R.id.toggle_like) ToggleButton likeButton;
-    @Bind(R.id.now_playing) View nowPlaying;
-    @Bind(R.id.overflow_button) View overflowButton;
+    @BindView(R.id.play_count) TextView playCount;
+    @BindView(R.id.playlist_additional_info) TextView duration;
+    @BindView(R.id.toggle_like) ToggleButton likeButton;
+    @BindView(R.id.now_playing) View nowPlaying;
+    @BindView(R.id.overflow_button) View overflowButton;
 
-    @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
-    @Nullable @Bind(R.id.go_indicator) View goIndicator;
+    @Nullable @BindView(R.id.toggle_repost) ToggleButton repostButton;
+    @Nullable @BindView(R.id.go_indicator) View goIndicator;
 
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;

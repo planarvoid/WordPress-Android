@@ -1,6 +1,6 @@
 package com.soundcloud.android.comments;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -35,11 +35,11 @@ public class TrackCommentsActivity extends PlayerActivity {
     @Inject ImageOperations imageOperations;
     @Inject TrackRepository trackRepository;
 
-    @Bind(R.id.title) TextView title;
-    @Bind(R.id.username) TextView username;
-    @Bind(R.id.comments_count) TextView count;
-    @Bind(R.id.date) TextView date;
-    @Bind(R.id.header_artwork) ImageView artwork;
+    @BindView(R.id.title) TextView title;
+    @BindView(R.id.username) TextView username;
+    @BindView(R.id.comments_count) TextView count;
+    @BindView(R.id.date) TextView date;
+    @BindView(R.id.header_artwork) ImageView artwork;
 
     private Subscription trackSubscription;
 

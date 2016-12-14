@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -44,9 +44,9 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @Inject ApplicationProperties properties;
     @Inject FeatureOperations featureOperations;
 
-    @Bind(android.R.id.edit) EditText input;
-    @Bind(R.id.chk_private) CheckBox privacy;
-    @Bind(R.id.chk_offline) CheckBox offline;
+    @BindView(android.R.id.edit) EditText input;
+    @BindView(R.id.chk_private) CheckBox privacy;
+    @BindView(R.id.chk_offline) CheckBox offline;
 
     public static CreatePlaylistDialogFragment from(long trackId, String invokerScreen, String contextScreen) {
         return createFragment(createBundle(trackId, invokerScreen, contextScreen));

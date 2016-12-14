@@ -3,7 +3,7 @@ package com.soundcloud.android.search.suggestions;
 import static com.soundcloud.android.search.suggestions.SuggestionHighlighter.findHighlight;
 import static com.soundcloud.android.search.suggestions.SuggestionHighlighter.setHighlightSpans;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
@@ -20,9 +20,9 @@ import android.widget.TextView;
 
 abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
 
-    @Bind(R.id.icon) ImageView icon;
-    @Bind(R.id.title) TextView titleText;
-    @Bind(R.id.iv_search_type) ImageView searchType;
+    @BindView(R.id.icon) ImageView icon;
+    @BindView(R.id.title) TextView titleText;
+    @BindView(R.id.iv_search_type) ImageView searchType;
 
     protected final ImageOperations imageOperations;
 

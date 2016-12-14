@@ -171,6 +171,7 @@ dependencies {
   annotationProcessor libraries.autoValue
   annotationProcessor libraries.autoFactory
   annotationProcessor libraries.autoParcelProcessor
+  annotationProcessor libraries.butterKnifeCompiler
 
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305

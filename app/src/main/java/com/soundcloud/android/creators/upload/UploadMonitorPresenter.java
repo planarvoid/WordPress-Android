@@ -1,6 +1,6 @@
 package com.soundcloud.android.creators.upload;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
@@ -50,14 +50,14 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     private Subscription subscription;
     private UploadMonitorFragment uploadMonitorFragment;
 
-    @Bind(R.id.track) TextView trackTitle;
-    @Bind(R.id.track_username) TextView trackUsername;
-    @Bind(R.id.track_duration) TextView trackDuration;
-    @Bind(R.id.icon) ImageView icon;
-    @Bind(R.id.upload_status_text) TextView uploadStatusText;
-    @Bind(R.id.upload_progress) CircularProgressBar uploadProgress;
-    @Bind(R.id.btn_action) ImageButton actionButton;
-    @Bind(R.id.btn_cancel) Button cancelButton;
+    @BindView(R.id.track) TextView trackTitle;
+    @BindView(R.id.track_username) TextView trackUsername;
+    @BindView(R.id.track_duration) TextView trackDuration;
+    @BindView(R.id.icon) ImageView icon;
+    @BindView(R.id.upload_status_text) TextView uploadStatusText;
+    @BindView(R.id.upload_progress) CircularProgressBar uploadProgress;
+    @BindView(R.id.btn_action) ImageButton actionButton;
+    @BindView(R.id.btn_cancel) Button cancelButton;
 
     @Inject
     public UploadMonitorPresenter(EventBus eventBus,

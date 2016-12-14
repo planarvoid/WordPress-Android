@@ -1,6 +1,6 @@
 package com.soundcloud.android.creators.upload;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Consts;
@@ -43,12 +43,12 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     private final ViewHelper viewHelper;
     private PlaceholderGenerator placeholderGenerator;
 
-    @Bind(R.id.rdo_privacy) RadioGroup rdoPrivacy;
-    @Bind(R.id.rdo_private) RadioButton rdoPrivate;
-    @Bind(R.id.rdo_public) RadioButton rdoPublic;
-    @Bind(R.id.txt_record_options) TextView txtRecordOptions;
-    @Bind(R.id.metadata_layout) RecordingMetaDataLayout recordingMetadata;
-    @Bind(R.id.btn_action) ImageButton actionButton;
+    @BindView(R.id.rdo_privacy) RadioGroup rdoPrivacy;
+    @BindView(R.id.rdo_private) RadioButton rdoPrivate;
+    @BindView(R.id.rdo_public) RadioButton rdoPublic;
+    @BindView(R.id.txt_record_options) TextView txtRecordOptions;
+    @BindView(R.id.metadata_layout) RecordingMetaDataLayout recordingMetadata;
+    @BindView(R.id.btn_action) ImageButton actionButton;
 
     @Inject
     public MetadataPresenter(SoundRecorder recorder, PlaceholderGenerator placeholderGenerator, ViewHelper viewHelper) {

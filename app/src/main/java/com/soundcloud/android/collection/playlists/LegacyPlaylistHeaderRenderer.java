@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playlists;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
@@ -19,8 +19,8 @@ public class LegacyPlaylistHeaderRenderer implements PlaylistHeaderRenderer {
     private OnSettingsClickListener onSettingsClickListener;
     private final Resources resources;
 
-    @Bind(R.id.header_text) TextView headerText;
-    @Bind(R.id.header_top_separator) View headerTopSeparator;
+    @BindView(R.id.header_text) TextView headerText;
+    @BindView(R.id.header_top_separator) View headerTopSeparator;
 
     private final View.OnClickListener onSettingsClicked = new View.OnClickListener() {
         @Override

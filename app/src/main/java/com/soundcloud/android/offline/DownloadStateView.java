@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 
@@ -14,8 +14,8 @@ public class DownloadStateView {
 
     private final Resources resources;
 
-    @Bind(R.id.header_download_state) DownloadImageView downloadStateView;
-    @Bind(R.id.header_text) TextView headerView;
+    @BindView(R.id.header_download_state) DownloadImageView downloadStateView;
+    @BindView(R.id.header_text) TextView headerView;
 
     private String headerText;
 

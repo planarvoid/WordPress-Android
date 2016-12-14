@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -23,8 +23,8 @@ class TrackLikesHeaderView {
     private Resources resources;
     private DownloadStateView downloadStateView;
 
-    @Bind(R.id.shuffle_btn) ImageButton shuffleButton;
-    @Bind(R.id.toggle_download) IconToggleButton downloadToggle;
+    @BindView(R.id.shuffle_btn) ImageButton shuffleButton;
+    @BindView(R.id.toggle_download) IconToggleButton downloadToggle;
 
     private Optional<View> headerOpt;
 

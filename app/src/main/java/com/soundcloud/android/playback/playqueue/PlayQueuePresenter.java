@@ -3,9 +3,10 @@ package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.playback.playqueue.TrackPlayQueueUIItem.ONLY_TRACKS;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -70,10 +71,11 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
-    @Bind(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.recycler_view) RecyclerView recyclerView;
     private Observable<List<TrackAndPlayQueueItem>> cachedTracks = Observable.empty();
     private Observable<Map<Urn, String>> cachedTitles = Observable.empty();
     private boolean initialized = false;
+    private Unbinder unbinder;
 
     @Inject
     PlayQueuePresenter(PlayQueueAdapter adapter,
@@ -101,7 +103,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @Override
     public void onViewCreated(final Fragment fragment, final View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
         initRecyclerView();
         artworkController.bind(ButterKnife.findById(view, R.id.artwork_view));
     }
@@ -221,7 +223,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     public void onDestroyView(Fragment fragment) {
         eventSubscriptions.clear();
         updateSubscription.unsubscribe();
-        ButterKnife.unbind(this);
+        unbinder.unbind();
         super.onDestroyView(fragment);
     }
 

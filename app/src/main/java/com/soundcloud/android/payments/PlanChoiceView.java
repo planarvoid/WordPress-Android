@@ -1,6 +1,6 @@
 package com.soundcloud.android.payments;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 
@@ -12,8 +12,8 @@ import javax.inject.Inject;
 
 class PlanChoiceView {
 
-    @Bind(R.id.buy_1) Button buyMidTier;
-    @Bind(R.id.buy_2) Button buyHighTier;
+    @BindView(R.id.buy_1) Button buyMidTier;
+    @BindView(R.id.buy_2) Button buyHighTier;
 
     interface Listener {
         void onPurchaseMidTier();

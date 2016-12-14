@@ -3,7 +3,7 @@ package com.soundcloud.android.search.suggestions;
 import static com.soundcloud.android.search.suggestions.SuggestionHighlighter.findHighlight;
 import static com.soundcloud.android.search.suggestions.SuggestionHighlighter.setHighlightSpans;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class AutocompletionItemRenderer implements CellRenderer<AutocompletionItem> {
-    @Bind(R.id.title) TextView titleText;
+    @BindView(R.id.title) TextView titleText;
 
     @Inject
     AutocompletionItemRenderer() {

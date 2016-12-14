@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
@@ -27,7 +27,7 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
     private final PlayHistoryAdapter adapter;
     private final Navigator navigator;
 
-    @Bind(R.id.play_history) RecyclerView recyclerView;
+    @BindView(R.id.play_history) RecyclerView recyclerView;
 
     @Inject
     PlayHistoryBucketRenderer(PlayHistoryAdapter adapter, Navigator navigator) {

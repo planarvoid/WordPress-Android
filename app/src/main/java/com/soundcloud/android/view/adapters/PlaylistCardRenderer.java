@@ -2,7 +2,7 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.tracks.OverflowMenuOptions.builder;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
@@ -157,19 +157,19 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
     @VisibleForTesting
     public static class PlaylistViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
 
-        @Bind(R.id.track_count) TextView trackCount;
-        @Bind(R.id.tracks_text) TextView tracksView;
-        @Bind(R.id.playlist_additional_info) TextView tagList;
+        @BindView(R.id.track_count) TextView trackCount;
+        @BindView(R.id.tracks_text) TextView tracksView;
+        @BindView(R.id.playlist_additional_info) TextView tagList;
 
-        @Bind(R.id.image) ImageView image;
-        @Bind(R.id.title) TextView title;
-        @Bind(R.id.creator) TextView creator;
+        @BindView(R.id.image) ImageView image;
+        @BindView(R.id.title) TextView title;
+        @BindView(R.id.creator) TextView creator;
 
-        @Bind(R.id.toggle_like) ToggleButton likeButton;
-        @Bind(R.id.overflow_button) View overflowButton;
+        @BindView(R.id.toggle_like) ToggleButton likeButton;
+        @BindView(R.id.overflow_button) View overflowButton;
 
         @Nullable
-        @Bind(R.id.toggle_repost)
+        @BindView(R.id.toggle_repost)
         ToggleButton repostButton;
 
         private CardEngagementClickListener clickListener;

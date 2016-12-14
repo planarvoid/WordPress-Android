@@ -1,8 +1,9 @@
 package com.soundcloud.android.downgrade;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.upgrade.UnrecoverableErrorDialog;
 import com.soundcloud.android.view.LoadingButton;
@@ -14,9 +15,10 @@ import javax.inject.Inject;
 
 class GoOffboardingView {
 
-    @Bind(R.id.btn_offboarding_resubscribe) LoadingButton resubscribeButton;
-    @Bind(R.id.btn_offboarding_continue) LoadingButton continueButton;
+    @BindView(R.id.btn_offboarding_resubscribe) LoadingButton resubscribeButton;
+    @BindView(R.id.btn_offboarding_continue) LoadingButton continueButton;
     private GoOffboardingPresenter presenter;
+    private Unbinder unbinder;
 
     @Inject
     public GoOffboardingView() {
@@ -24,11 +26,11 @@ class GoOffboardingView {
 
     void bind(Activity activity, GoOffboardingPresenter presenter) {
         this.presenter = presenter;
-        ButterKnife.bind(this, activity);
+        unbinder = ButterKnife.bind(this, activity);
     }
 
     void unbind() {
-        ButterKnife.unbind(this);
+        unbinder.unbind();
     }
 
     @OnClick(R.id.btn_offboarding_resubscribe)
