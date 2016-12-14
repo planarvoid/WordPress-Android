@@ -12,7 +12,9 @@ public class WebViewActivity extends RootActivity {
 
     @Nullable private WebView webView;
 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         final Uri uri = getIntent() != null ? getIntent().getData() : null;
         if (uri != null) {
             super.onCreate(savedInstanceState);
