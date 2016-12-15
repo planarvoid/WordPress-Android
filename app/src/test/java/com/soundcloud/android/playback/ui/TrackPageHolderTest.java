@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
+import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,17 +12,24 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import android.view.View;
+import android.widget.Button;
 
-@RunWith(MockitoJUnitRunner.class   )
+@RunWith(MockitoJUnitRunner.class)
 public class TrackPageHolderTest {
 
     @Mock private PlayQueueConfiguration playQueueConfiguration;
     @Mock private View playQueueButton;
+    @Mock private PlayerUpsellView upsellView;
+    @Mock private Button upsellButton;
+
     private TrackPagePresenter.TrackPageHolder holder;
 
     @Before
     public void setUp() {
+        when(upsellView.getUpsellButton()).thenReturn(upsellButton);
+
         holder = new TrackPagePresenter.TrackPageHolder();
+        holder.upsellView = upsellView;
         holder.playQueueButton = playQueueButton;
     }
 

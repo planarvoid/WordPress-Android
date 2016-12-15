@@ -34,6 +34,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlayerStripView;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
+import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.stations.StationFixtures;
@@ -130,7 +131,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
         when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(
                 adOverlayController);
-        when(castPlayerStripControllerFactory.create(any(PlayerStripView.class))).thenReturn(castPlayerStripController);
+        when(castPlayerStripControllerFactory.create(any(PlayerStripView.class), any(PlayerUpsellView.class))).thenReturn(castPlayerStripController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_1);
         trackView = presenter.createItemView(container, skipListener);
@@ -167,7 +168,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void clearItemViewHidesSnippedAndUpsell() {
         presenter.clearItemView(trackView);
 
-        assertThat(getHolder(trackView).upsellContainer).isGone();
+        assertThat(getHolder(trackView).upsellView).isGone();
     }
 
     @Test
@@ -650,7 +651,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void upsellIsNotVisibleForNormalTracks() {
         populateTrackPage();
 
-        assertThat(getHolder(trackView).upsellContainer).isGone();
+        assertThat(getHolder(trackView).upsellView).isGone();
     }
 
     @Test
@@ -659,7 +660,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         bindSnippedTrack();
 
-        assertThat(getHolder(trackView).upsellContainer).isVisible();
+        assertThat(getHolder(trackView).upsellView).isVisible();
     }
 
     @Test
@@ -667,7 +668,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(featureOperations.upsellHighTier()).thenReturn(false);
         bindUpsellableHighTierTrack();
 
-        assertThat(getHolder(trackView).upsellContainer).isGone();
+        assertThat(getHolder(trackView).upsellView).isGone();
     }
 
     @Test
@@ -676,8 +677,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         final PropertySet track = bindUpsellableHighTierTrack();
 
         final TrackPageHolder holder = getHolder(trackView);
-        assertThat(holder.upsellButton).isVisible();
-        assertThat(holder.upsellButton.getTag()).isEqualTo(track.get(TrackProperty.URN));
+        assertThat(holder.upsellView.getUpsellButton()).isVisible();
+        assertThat(holder.upsellView.getUpsellButton().getTag()).isEqualTo(track.get(TrackProperty.URN));
     }
 
     @Test
@@ -756,7 +757,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         bindUpsellableHighTierTrack();
 
-        assertThat(getHolder(trackView).upsellText.getText())
+        assertThat(getHolder(trackView).upsellView.getUpsellText().getText())
                 .isEqualTo(resources().getText(R.string.playback_upsell_2));
     }
 
@@ -787,9 +788,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     private PropertySet bindUpsellableHighTierTrack() {
         final PropertySet source = TestPropertySets.upsellableTrackForPlayer();
-        presenter.bindItemView(trackView,
-                               new PlayerTrackState(source, true, true,
-                                                    viewVisibilityProvider));
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
         return source;
     }
 }

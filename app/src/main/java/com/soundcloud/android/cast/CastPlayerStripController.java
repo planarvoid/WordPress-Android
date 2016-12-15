@@ -6,41 +6,74 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.ui.view.PlayerStripView;
+import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.DefaultAnimationListener;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import android.animation.Animator;
-import android.animation.ObjectAnimator;
+import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
-import android.view.View;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
 public class CastPlayerStripController {
 
     private static final long ANIMATION_DURATION = 300;
-    private final ValueAnimator collapseAnimator;
+
     private boolean isPlayerExpanded = false;
     private Subscription subscription;
 
-    private final PlayerStripView castView;
+    private final PlayerStripView stripView;
+    private final PlayerUpsellView upsellView;
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
-    private final ValueAnimator expandAnimator;
 
+    private final AnimatorSet expandCastAndCollapseUpsellAnimators;
+    private final AnimatorSet collapseCastAndExpandUpsellAnimators;
+    private final ValueAnimator collapseCastBarAnimator;
+    private final ValueAnimator expandCastBarAnimator;
 
-    CastPlayerStripController(PlayerStripView view,
+    CastPlayerStripController(PlayerStripView playerStripView,
+                              PlayerUpsellView playerUpsellView,
                               @Provided CastConnectionHelper castConnectionHelper,
                               @Provided EventBus eventBus) {
-        this.castView = view;
+        this.stripView = playerStripView;
+        this.upsellView = playerUpsellView;
         this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
 
-        expandAnimator = createExpandAnimator();
-        collapseAnimator = createCollapseAnimator();
+        collapseCastBarAnimator = stripView.createCollapseAnimator().setDuration(ANIMATION_DURATION);
+        collapseCastAndExpandUpsellAnimators = createAnimatorSet(upsellView.getExpandAnimators(), collapseCastBarAnimator);
+
+        expandCastBarAnimator = getExpandAnimator();
+        expandCastAndCollapseUpsellAnimators = createAnimatorSet(upsellView.getCollapseAnimators(), expandCastBarAnimator);
 
         subscribeToEvents();
+    }
+
+    private ValueAnimator getExpandAnimator() {
+        return stripView.createExpandAnimator(new DefaultAnimationListener() {
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                stripView.updateCastDeviceName(getCastDeviceName());
+            }
+        }).setDuration(ANIMATION_DURATION);
+    }
+
+    private AnimatorSet createAnimatorSet(List<ValueAnimator> upsellAnimators, ValueAnimator castBarAnimator) {
+        final Collection<Animator> animators = new ArrayList<>(4);
+        animators.addAll(upsellAnimators);
+        animators.add(castBarAnimator);
+
+        final AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animators);
+        animatorSet.setDuration(ANIMATION_DURATION);
+        return animatorSet;
     }
 
     public void updateWithoutAnimation() {
@@ -49,18 +82,6 @@ public class CastPlayerStripController {
         } else {
             collapse(false);
         }
-    }
-
-    public void setCollapsed() {
-        castView.getLayoutParams().height = castView.getCollapsedHeight();
-        castView.requestLayout();
-    }
-
-    private void setExpanded() {
-        castView.getLayoutParams().height = castView.getExpandedHeight();
-        castView.requestLayout();
-
-        updateCastDeviceName();
     }
 
     private void subscribeToEvents() {
@@ -80,64 +101,58 @@ public class CastPlayerStripController {
     }
 
     private void expand(boolean animate) {
-        if (!castView.isExpanded()) {
-            if (animate) {
-                expandAnimator.start();
-            } else {
-                setExpanded();
-            }
+        if (animate && !stripView.isExpanded()) {
+            animateExpand();
+        }
+
+        stripView.setExpanded();
+        stripView.updateCastDeviceName(getCastDeviceName());
+        if (upsellView.isVisible()) {
+            upsellView.setCollapsed();
+        }
+    }
+
+    private void animateExpand() {
+        if (upsellView.isVisible()) {
+            expandCastAndCollapseUpsellAnimators.start();
+        } else {
+            expandCastBarAnimator.start();
         }
     }
 
     private void collapse(boolean animate) {
-        if (!castView.isCollapsed()) {
-            if (animate) {
-                collapseAnimator.start();
-            } else {
-                setCollapsed();
-            }
+        if (animate && !stripView.isCollapsed()) {
+            animateCollapse();
+        }
+
+        stripView.setCollapsed();
+        if (upsellView.isVisible()) {
+            upsellView.setExpanded();
+        }
+    }
+
+    private void animateCollapse() {
+        if (upsellView.isVisible()) {
+            collapseCastAndExpandUpsellAnimators.start();
+        } else {
+            collapseCastBarAnimator.start();
         }
     }
 
     public void setHeightFromCollapse(float slideAnimateValue) {
         if (castConnectionHelper.isCasting()) {
-            castView.getLayoutParams().height = calculateNewHeight(slideAnimateValue);
-            castView.requestLayout();
-
-            castView.getCastDeviceName().setAlpha(slideAnimateValue);
-            updateCastDeviceName();
+            stripView.setHeight(calculateNewHeight(slideAnimateValue));
+            stripView.updateCastDeviceName(getCastDeviceName(), slideAnimateValue);
         }
     }
 
     private int calculateNewHeight(float slideAnimateValue) {
-        int heightDiff = castView.getExpandedHeight() - castView.getCollapsedHeight();
-        return castView.getExpandedHeight() - (int) ((1 - slideAnimateValue) * heightDiff);
+        int heightDiff = stripView.getExpandedHeight() - stripView.getCollapsedHeight();
+        return stripView.getExpandedHeight() - (int) ((1 - slideAnimateValue) * heightDiff);
     }
 
-    private ValueAnimator createCollapseAnimator() {
-        return createValueAnimator(castView.getExpandedHeight(), castView.getCollapsedHeight());
-    }
-
-    private ValueAnimator createExpandAnimator() {
-        final ValueAnimator animator = createValueAnimator(castView.getCollapsedHeight(), castView.getExpandedHeight());
-        animator.addListener(new DefaultAnimationListener() {
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                updateCastDeviceName();
-            }
-        });
-        return animator;
-    }
-
-    private void updateCastDeviceName() {
-        castView.getCastDeviceName().setText(castView.getResources().getString(R.string.cast_casting_to_device, castConnectionHelper.getDeviceName()));
-    }
-
-    private ValueAnimator createValueAnimator(int fromValue, int toValue) {
-        final ValueAnimator animator = ObjectAnimator.ofInt(fromValue, toValue);
-        animator.addUpdateListener(new RedrawLayoutListener(castView));
-        animator.setDuration(ANIMATION_DURATION);
-        return animator;
+    private String getCastDeviceName() {
+        return stripView.getResources().getString(R.string.cast_casting_to_device, castConnectionHelper.getDeviceName());
     }
 
     private class PlayerStateSubscriber extends DefaultSubscriber<PlayerUIEvent> {
@@ -147,18 +162,4 @@ public class CastPlayerStripController {
         }
     }
 
-    private static class RedrawLayoutListener implements ValueAnimator.AnimatorUpdateListener {
-
-        private final View layout;
-
-        RedrawLayoutListener(View layout) {
-            this.layout = layout;
-        }
-
-        @Override
-        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-            layout.getLayoutParams().height = (int) valueAnimator.getAnimatedValue();
-            layout.requestLayout();
-        }
-    }
 }

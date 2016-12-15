@@ -6,10 +6,10 @@
     android:layout_height="match_parent">
 
     <com.soundcloud.android.playback.ui.view.PlayerStripView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/player_strip"
         style="@style/PlayerStrip"
-        android:id="@+id/player_strip"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView
         android:id="@+id/track_page_artwork"
@@ -17,33 +17,17 @@
         android:layout_height="match_parent"
         android:layout_below="@id/player_strip" />
 
-    <View android:id="@+id/artwork_overlay_dark"
+    <View
+        android:id="@+id/artwork_overlay_dark"
         style="@style/PlayerTrackArtworkOverlay"
         android:layout_below="@id/player_strip" />
 
     <include layout="@layout/player_gradient" />
 
-    <RelativeLayout
+    <com.soundcloud.android.playback.ui.view.PlayerUpsellView
         android:id="@+id/upsell_container"
         style="@style/PlayerUpsellContainer"
-        android:layout_below="@id/player_strip">
-
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/upsell_text"
-            style="@style/PlayerUpsell"
-            android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/upsell_button"
-            android:layout_alignTop="@+id/upsell_button"
-            android:layout_alignBottom="@+id/upsell_button"
-            android:layout_marginRight="14dp"
-            android:text="@string/playback_upsell_1" />
-
-        <com.soundcloud.android.view.CustomFontButton
-            android:id="@+id/upsell_button"
-            style="@style/PlayerUpsell.Button"
-            android:layout_alignParentRight="true"
-            android:text="@string/playback_upsell_button" />
-    </RelativeLayout>
+        android:layout_below="@id/player_strip" />
 
     <include layout="@layout/player_expanded_top_bar" />
 
@@ -101,7 +85,7 @@
         <ImageView
             android:id="@+id/play_queue_button"
             style="@style/PlayerQueue"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
         <com.soundcloud.android.view.OverflowAnchorImageView
             android:id="@+id/track_page_more"
@@ -113,12 +97,12 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/upsell_container"
+        android:layout_marginLeft="16dp"
         android:layout_marginRight="4dp"
         android:layout_marginTop="@dimen/player_title_top"
-        android:layout_below="@+id/upsell_container"
         android:layout_toLeftOf="@id/player_expanded_top_bar"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="16dp"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -129,25 +113,26 @@
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@+id/track_page_user"
-                tools:text="Loozer records"
-                style="@style/PlayerUser" />
+                style="@style/PlayerUser"
+                tools:text="Loozer records" />
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@+id/track_page_title"
                 style="@style/PlayerTitle"
-                tools:text="This is not lemonade, this is strawberry juice (Killswitch X Reed Remix)"
                 android:layout_below="@id/track_page_user"
-                android:layout_marginTop="3dp" />
+                android:layout_marginTop="3dp"
+                tools:text="This is not lemonade, this is strawberry juice (Killswitch X Reed Remix)" />
         </RelativeLayout>
 
         <com.soundcloud.android.view.JaggedTextView
-            android:drawableLeft="@drawable/ic_stations_player_context"
             android:id="@+id/track_page_context"
             style="@style/PlayerContext"
-            tools:text="Placeholder station name"/>
+            android:drawableLeft="@drawable/ic_stations_player_context"
+            tools:text="Placeholder station name" />
     </LinearLayout>
 
-    <include layout="@layout/player_footer_controls"
+    <include
+        layout="@layout/player_footer_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/player_strip" />
@@ -179,8 +164,8 @@
         android:id="@+id/track_page_error_stub"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/player_strip"
         android:inflatedId="@+id/track_page_error"
-        android:layout="@layout/track_page_error"
-        android:layout_below="@+id/player_strip" />
+        android:layout="@layout/track_page_error" />
 
 </RelativeLayout>

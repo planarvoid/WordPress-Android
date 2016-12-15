@@ -17,6 +17,8 @@
     <dimen name="player_share_width">64dp</dimen>
     <dimen name="player_play_queue_height">72dp</dimen>
     <dimen name="player_fast_forward_rewind_margin">-20dp</dimen>
+    <dimen name="player_upsell_height">57dp</dimen>
+    <dimen name="player_upsell_anim_translation_y">100dp</dimen>
 
     <!-- bottom bar buttons margins -->
     <dimen name="player_like_margin_right">-12dp</dimen>
