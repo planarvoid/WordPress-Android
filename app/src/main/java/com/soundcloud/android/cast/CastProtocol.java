@@ -26,6 +26,7 @@ public class CastProtocol {
 
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";
+    private static final String MIME_TYPE_AUDIO_MP3 = "audio/mp3";
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -59,7 +60,7 @@ public class CastProtocol {
         }
 
         return new MediaInfo.Builder(trackUrn.toString())
-                .setContentType("audio/mpeg")
+                .setContentType(MIME_TYPE_AUDIO_MP3)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setMetadata(mediaMetadata)
                 .build();

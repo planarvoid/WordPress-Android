@@ -12,7 +12,6 @@ import android.content.Context;
 import javax.inject.Inject;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class CastOptionsProvider implements OptionsProvider {
 
     @Inject CastConfigStorage castConfigStorage;
@@ -38,6 +37,7 @@ public class CastOptionsProvider implements OptionsProvider {
 
         return new CastMediaOptions.Builder()
                 .setNotificationOptions(notificationOptions)
+                .setImagePicker(new CastImagePicker())
                 .build();
     }
 

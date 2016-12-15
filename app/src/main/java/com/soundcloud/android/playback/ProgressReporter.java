@@ -7,7 +7,9 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import rx.Scheduler;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.TimeInterval;
 
 import android.support.annotation.VisibleForTesting;
@@ -17,12 +19,13 @@ import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 
 /**
-* There is a progress puller already implemented as part of v3 (this should be used only in v2)
- * */
+ * There is a progress puller already implemented as part of v3 (this should be used only in v2)
+ */
 @Deprecated
 public class ProgressReporter {
 
     private final CastOperations castOperations;
+    private final Scheduler scheduler;
     private WeakReference<ProgressPuller> progressPullerReference;
     private Subscription subscription = RxUtils.invalidSubscription();
 
@@ -30,6 +33,14 @@ public class ProgressReporter {
     ProgressReporter(Provider<DefaultCastOperations> castOperations,
                      Provider<LegacyCastOperations> legacyCastOperations,
                      FeatureFlags featureFlags) {
+        this(castOperations, legacyCastOperations, featureFlags, AndroidSchedulers.mainThread());
+    }
+
+    ProgressReporter(Provider<DefaultCastOperations> castOperations,
+                     Provider<LegacyCastOperations> legacyCastOperations,
+                     FeatureFlags featureFlags,
+                     Scheduler scheduler) {
+        this.scheduler = scheduler;
         this.castOperations = featureFlags.isEnabled(Flag.CAST_V3) ? castOperations.get() : legacyCastOperations.get();
     }
 
@@ -44,7 +55,10 @@ public class ProgressReporter {
 
     public void start() {
         subscription.unsubscribe();
-        subscription = castOperations.intervalForProgressPull().subscribe(new ProgressTickSubscriber());
+        subscription = castOperations
+                .intervalForProgressPull()
+                .observeOn(scheduler)
+                .subscribe(new ProgressTickSubscriber());
     }
 
     public void stop() {

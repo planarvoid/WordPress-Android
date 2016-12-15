@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.schedulers.TimeInterval;
 import rx.subjects.PublishSubject;
 
@@ -40,7 +42,7 @@ public class ProgressReporterTest {
     public void setUp() throws Exception {
         when(featureFlags.isEnabled(Flag.CAST_V3)).thenReturn(true);
         when(castOperationsProvider.get()).thenReturn(castOperations);
-        progressReporter = new ProgressReporter(castOperationsProvider, legacyCastOperationsProvider, featureFlags);
+        progressReporter = new ProgressReporter(castOperationsProvider, legacyCastOperationsProvider, featureFlags, Schedulers.immediate());
         progressReporter.setProgressPuller(progressPuller);
         subject = PublishSubject.create();
 

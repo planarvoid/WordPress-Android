@@ -173,7 +173,7 @@ public class CastOperationsTest extends AndroidUnitTest {
                 .isEqualTo(new JSONArray(Urns.toString(playQueueTracks)).toString());
 
         MediaInfo mediaInfo = localPlayQueue.mediaInfo;
-        assertThat(mediaInfo.getContentType()).isEqualTo("audio/mpeg");
+        assertThat(mediaInfo.getContentType()).isEqualTo("audio/mp3");
         assertThat(mediaInfo.getStreamType()).isEqualTo(MediaInfo.STREAM_TYPE_BUFFERED);
 
         MediaMetadata metadata = mediaInfo.getMetadata();
