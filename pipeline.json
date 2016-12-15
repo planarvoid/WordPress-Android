@@ -86,6 +86,11 @@
                     "reportDir": "results/",
                     "reportFiles": "index.html",
                     "reportName": "Test Results"
+                  },
+                  {
+                    "reportDir": "results/",
+                    "reportFiles": "collection_index.html",
+                    "reportName": "Collection Results"
                   }
                 ],
                 "extEmail": {
