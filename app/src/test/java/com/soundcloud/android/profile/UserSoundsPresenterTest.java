@@ -21,8 +21,8 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
@@ -151,7 +151,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fakeLikePlaylistEvent(playlist));
+        eventBus.publish(EventQueue.LIKE_CHANGED, fakeLikePlaylistEvent(playlist));
 
         verify(adapter).notifyItemChanged(0);
     }
@@ -212,8 +212,8 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
                                                    any(Module.class));
     }
 
-    private EntityStateChangedEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {
-        return EntityStateChangedEvent.fromLike(apiPlaylist.getUrn(), true, apiPlaylist.getLikesCount() + 1);
+    private LikesStatusEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {
+        return LikesStatusEvent.create(apiPlaylist.getUrn(), true, apiPlaylist.getLikesCount() + 1);
     }
 
     private View view(EmptyView emptyView) {

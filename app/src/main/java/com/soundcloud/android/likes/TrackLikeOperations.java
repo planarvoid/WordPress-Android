@@ -1,12 +1,12 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.utils.RepoUtils.enrich;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LoadLikedTracksCommand.Params;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
@@ -79,16 +79,19 @@ public class TrackLikeOperations {
     }
 
     Observable<TrackItem> onTrackLiked() {
-        return eventBus.queue(ENTITY_STATE_CHANGED)
-                       .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
-                       .map(EntityStateChangedEvent.TO_URN)
-                       .flatMap(loadLikedTrack);
+        return singleTrackLikeStatusChange(true).flatMap(loadLikedTrack);
     }
 
     Observable<Urn> onTrackUnliked() {
-        return eventBus.queue(ENTITY_STATE_CHANGED)
-                       .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
-                       .map(EntityStateChangedEvent.TO_URN);
+        return singleTrackLikeStatusChange(false);
+    }
+
+    private Observable<Urn> singleTrackLikeStatusChange(boolean wasLiked) {
+        return eventBus.queue(LIKE_CHANGED)
+                       .filter(event -> event.likes().keySet().size() == 1)
+                       .map(event -> event.likes().values().iterator().next())
+                       .filter(like -> like.urn().isTrack() && like.isUserLike() == wasLiked)
+                       .map(LikesStatusEvent.LikeStatus::urn);
     }
 
     Observable<List<LikeWithTrack>> likedTracks() {

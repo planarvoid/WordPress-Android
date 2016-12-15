@@ -8,7 +8,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
@@ -33,6 +32,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -53,6 +53,7 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -166,12 +167,12 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void updatesLikeItemOnPresenterUpdate() {
         setPlaylistInfo();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromLike(playlistWithTracks.getUrn(),
-                                                          true,
-                                                          playlistWithTracks.getLikesCount()));
+        eventBus.publish(EventQueue.LIKE_CHANGED,
+                         LikesStatusEvent.create(playlistWithTracks.getUrn(),
+                                                 true,
+                                                 playlistWithTracks.getLikesCount()));
 
-        verify(engagementsView).updateLikeItem(playlistWithTracks.getLikesCount(), true);
+        verify(engagementsView).updateLikeItem(Optional.of(playlistWithTracks.getLikesCount()), true);
 
     }
 
@@ -179,11 +180,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldUpdateLikeOrRepostButtonWhenCurrentPlayableChanged() {
         setPlaylistInfo();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromLike(playlistWithTracks.getUrn(),
-                                                          true,
-                                                          playlistWithTracks.getLikesCount()));
-        verify(engagementsView).updateLikeItem(playlistWithTracks.getLikesCount(), true);
+        eventBus.publish(EventQueue.LIKE_CHANGED,
+                         LikesStatusEvent.create(playlistWithTracks.getUrn(),
+                                                 true,
+                                                 playlistWithTracks.getLikesCount()));
+        verify(engagementsView).updateLikeItem(Optional.of(playlistWithTracks.getLikesCount()), true);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                          EntityStateChangedEvent.fromRepost(playlistWithTracks.getUrn(), true));
@@ -194,10 +195,10 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldNotUpdateLikeOrRepostButtonStateForOtherPlayables() {
         setPlaylistInfo();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(2L), true, 1));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forTrack(2L), true, 1));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true));
 
-        verify(engagementsView, never()).updateLikeItem(anyInt(), eq(true));
+        verify(engagementsView, never()).updateLikeItem(any(Optional.class), eq(true));
         verify(engagementsView, never()).showPublicOptions(eq(true));
     }
 

@@ -166,6 +166,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         viewLifeCycleSubscription = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, updatePlayableAdapterSubscriberFactory.create(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateStreamEntitySubscriber(adapter)),
+                eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeStreamEntitySubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                                       .filter(FILTER_STREAM_REFRESH_EVENTS)
                                       .flatMap(continueWith(updateIndicatorFromMostRecent()))),

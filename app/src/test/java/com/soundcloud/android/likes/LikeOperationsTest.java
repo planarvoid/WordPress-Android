@@ -6,15 +6,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -75,10 +75,8 @@ public class LikeOperationsTest extends AndroidUnitTest {
     public void togglingLikePublishesPlayableChangedEvent() {
         operations.toggleLike(targetUrn, true).subscribe(observer);
 
-        EntityStateChangedEvent event = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getFirstUrn()).isEqualTo(targetUrn);
-        assertThat(event.getNextChangeSet().contains(PlayableProperty.IS_USER_LIKE)).isTrue();
-        assertThat(event.getNextChangeSet().contains(PlayableProperty.LIKES_COUNT)).isTrue();
+        LikesStatusEvent event = eventBus.firstEventOn(EventQueue.LIKE_CHANGED);
+        assertThat(event.likes()).isEqualTo(Collections.singletonMap(targetUrn, LikesStatusEvent.LikeStatus.create(targetUrn, true, 5)));
     }
 
     @Test

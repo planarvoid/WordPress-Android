@@ -9,6 +9,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -17,11 +18,11 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.functions.Func1;
 
 import android.content.Context;
 
@@ -61,6 +62,7 @@ public class PlayerWidgetController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackMetadataChangeSubscriber());
+        eventBus.subscribe(EventQueue.LIKE_CHANGED, new TrackLikeChangeSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new CurrentItemSubscriber());
@@ -68,22 +70,22 @@ public class PlayerWidgetController {
 
     public void update() {
         updatePlayState();
-        updatePlayableInformation(PropertySet.create());
+        updatePlayableInformation(track -> track);
     }
 
     private void updatePlayState() {
         presenter.updatePlayState(context, playSessionsStateProvider.isPlaying());
     }
 
-    private void updatePlayableInformation(PropertySet extraInfo) {
+    private void updatePlayableInformation(Func1<TrackItem, TrackItem> updateFunction) {
         PlayQueueItem item = playQueueManager.getCurrentPlayQueueItem();
         if (item.isAudioAd()) {
             presenter.updateForAudioAd(context);
         } else if (item.isVideoAd()) {
             presenter.updateForVideoAd(context);
         } else if (item.isTrack()) {
-            trackRepository.track(item.getUrn())
-                           .map(PropertySetFunctions.mergeWith(extraInfo))
+            trackRepository.fromUrn(item.getUrn())
+                           .map(updateFunction)
                            .subscribe(new CurrentTrackSubscriber());
         } else {
             presenter.reset(context);
@@ -134,9 +136,9 @@ public class PlayerWidgetController {
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<TrackItem> {
         @Override
-        public void onNext(PropertySet track) {
+        public void onNext(TrackItem track) {
             presenter.updateTrackInformation(context, track);
         }
     }
@@ -144,7 +146,7 @@ public class PlayerWidgetController {
     private class CurrentItemSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            updatePlayableInformation(PropertySet.create());
+            updatePlayableInformation(track -> track);
         }
     }
 
@@ -152,7 +154,18 @@ public class PlayerWidgetController {
         @Override
         public void onNext(final EntityStateChangedEvent event) {
             if (!playQueueManager.isQueueEmpty() && playQueueManager.isCurrentTrack(event.getFirstUrn())) {
-                updatePlayableInformation(event.getNextChangeSet());
+                updatePlayableInformation(track -> track.updated(event.getNextChangeSet()));
+            }
+        }
+    }
+
+    private final class TrackLikeChangeSubscriber extends DefaultSubscriber<LikesStatusEvent> {
+        @Override
+        public void onNext(final LikesStatusEvent event) {
+            for (Urn urn : event.likes().keySet()) {
+                if (!playQueueManager.isQueueEmpty() && playQueueManager.isCurrentTrack(urn)) {
+                    updatePlayableInformation(track -> track.updatedWithLike(event.likes().get(urn)));
+                }
             }
         }
     }

@@ -2,14 +2,15 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -26,6 +27,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
@@ -68,7 +70,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private CompositeSubscription viewLifeCycle;
 
     private Subscription collectionSubscription = RxUtils.invalidSubscription();
-    private Subscription entityStateChangedSubscription = RxUtils.invalidSubscription();
+    private Subscription likeSubscription = RxUtils.invalidSubscription();
 
     private static final Func1<TrackLikesPage, ? extends Iterable<TrackLikesItem>> TO_TRACK_LIKES_ITEMS =
             (Func1<TrackLikesPage, Iterable<TrackLikesItem>>) page -> {
@@ -159,6 +161,9 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                 eventBus.subscribe(ENTITY_STATE_CHANGED,
                                    new UpdateEntityListSubscriber(adapter)),
 
+                eventBus.subscribe(LIKE_CHANGED,
+                                   new LikeEntityListSubscriber(adapter)),
+
                 likeOperations.onTrackLiked()
                               .map(TrackLikesTrackItem::new)
                               .observeOn(AndroidSchedulers.mainThread())
@@ -172,17 +177,17 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                         .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
 
-        entityStateChangedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                                                 .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
-                                                 .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
-                                                 .observeOn(AndroidSchedulers.mainThread())
-                                                 .subscribe(new AllLikedTracksSubscriber());
+        likeSubscription = eventBus.queue(EventQueue.LIKE_CHANGED)
+                                   .filter(LikesStatusEvent::containsTrackChange)
+                                   .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
+                                   .observeOn(AndroidSchedulers.mainThread())
+                                   .subscribe(new AllLikedTracksSubscriber());
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         // TODO create subscription light cycle
-        entityStateChangedSubscription.unsubscribe();
+        likeSubscription.unsubscribe();
         collectionSubscription.unsubscribe();
         viewLifeCycle.unsubscribe();
         super.onDestroyView(fragment);

@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromLike;
 import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.java.collections.Sets.newHashSet;
 import static java.util.Arrays.asList;
@@ -18,8 +17,8 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -37,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 // AndroidUnitTest because of PropertySets being used
@@ -279,24 +279,14 @@ public class LikesSyncerTest extends AndroidUnitTest {
         assertThat(pushLikeDeletions.getInput().iterator().next().get(LikeProperty.TARGET_URN))
                 .isEqualTo(existsRemotelyPendingRemoval.getTargetUrn());
 
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(
-                fromLike(Collections.singletonList(createLikedEntityChangedProperty(existsRemotelyNotLocally.getTargetUrn()))),
-                fromLike(Collections.singletonList(createUnlikedEntityChangedProperty(existsLocallyNotRemotely.getTargetUrn())))
+        assertThat(eventBus.eventsOn(EventQueue.LIKE_CHANGED)).containsExactly(
+                LikesStatusEvent.createFromSync(createLikedEntityChangedProperty(existsRemotelyNotLocally.getTargetUrn(), true)),
+                LikesStatusEvent.createFromSync(createLikedEntityChangedProperty(existsLocallyNotRemotely.getTargetUrn(), false))
         );
     }
 
-    private PropertySet createLikedEntityChangedProperty(Urn urn) {
-        return PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_USER_LIKE.bind(true)
-        );
-    }
-
-    private PropertySet createUnlikedEntityChangedProperty(Urn urn) {
-        return PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_USER_LIKE.bind(false)
-        );
+    private Map<Urn, LikesStatusEvent.LikeStatus> createLikedEntityChangedProperty(Urn urn, boolean isUserLike) {
+        return Collections.singletonMap(urn, LikesStatusEvent.LikeStatus.create(urn, isUserLike));
     }
 
     @Test

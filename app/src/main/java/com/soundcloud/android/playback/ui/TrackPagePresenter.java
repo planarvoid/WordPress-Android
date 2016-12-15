@@ -15,6 +15,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.PlayableProperty;
@@ -410,19 +411,24 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder holder = getViewHolder(trackPage);
         final PropertySet changeSet = trackChangedEvent.getNextChangeSet();
 
-        if (changeSet.contains(PlayableProperty.IS_USER_LIKE)) {
-            holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_USER_LIKE));
-        }
-        if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
-            likeButtonPresenter.setLikeCount(holder.likeToggle, changeSet.get(PlayableProperty.LIKES_COUNT),
-                                             R.drawable.ic_player_liked, R.drawable.ic_player_like);
-        }
         if (changeSet.contains(PlayableProperty.IS_USER_REPOST)) {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_USER_REPOST);
             holder.menuController.setIsUserRepost(isReposted);
 
             if (trackChangedEvent.getKind() == EntityStateChangedEvent.REPOST) {
                 showRepostToast(trackPage.getContext(), isReposted);
+            }
+        }
+    }
+
+    @Override
+    public void onLikeUpdated(View trackPage, LikesStatusEvent likesStatusEvent) {
+        final TrackPageHolder holder = getViewHolder(trackPage);
+        for (LikesStatusEvent.LikeStatus likeStatus : likesStatusEvent.likes().values()) {
+            holder.likeToggle.setChecked(likeStatus.isUserLike());
+            if (likeStatus.likeCount().isPresent()) {
+                likeButtonPresenter.setLikeCount(holder.likeToggle, likeStatus.likeCount().get(),
+                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like);
             }
         }
     }

@@ -13,12 +13,14 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
+import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -73,8 +75,9 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
         new EmptyViewBuilder().configureForSearch(getEmptyView());
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
 
-        eventSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED,
-                                               new UpdateEntityListSubscriber(adapter));
+        eventSubscription = new CompositeSubscription(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                                                      eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeEntityListSubscriber(adapter))
+        );
     }
 
     @Override

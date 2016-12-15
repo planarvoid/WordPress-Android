@@ -21,7 +21,7 @@ import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem, LikeableItem {
 
     protected final PropertySet source;
 

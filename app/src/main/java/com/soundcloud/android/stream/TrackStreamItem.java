@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
@@ -27,6 +28,11 @@ abstract class TrackStreamItem extends StreamItem implements PlayableViewItem {
 
     TrackStreamItem copyWith(PropertySet changeSet) {
         final TrackItem updatedTrackItem = trackItem().updated(changeSet);
+        return new AutoValue_TrackStreamItem(Kind.TRACK, updatedTrackItem, this.promoted(), this.createdAt());
+    }
+
+    TrackStreamItem copyWith(LikesStatusEvent.LikeStatus likeStatus) {
+        final TrackItem updatedTrackItem = trackItem().updatedWithLike(likeStatus);
         return new AutoValue_TrackStreamItem(Kind.TRACK, updatedTrackItem, this.promoted(), this.createdAt());
     }
 

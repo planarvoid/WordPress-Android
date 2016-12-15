@@ -15,6 +15,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
@@ -222,7 +223,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         menu.setItemVisible(R.id.play_next, playQueueConfiguration.isEnabled());
     }
 
-    void updateLikeItem(int likesCount, boolean likedByUser) {
+    void updateLikeItem(Optional<Integer> likesCount, boolean likedByUser) {
         updateToggleButton(likeToggle,
                            R.string.accessibility_like_action,
                            R.plurals.accessibility_stats_likes,
@@ -295,9 +296,11 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     }
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID,
-                                    int count, boolean checked, int checkedStringId) {
+                                    Optional<Integer> count, boolean checked, int checkedStringId) {
         if (button != null) {
-            likeButtonPresenter.setLikeCount(button, count, R.drawable.ic_liked, R.drawable.ic_like);
+            if (count.isPresent()) {
+                likeButtonPresenter.setLikeCount(button, count.get(), R.drawable.ic_liked, R.drawable.ic_like);
+            }
             button.setChecked(checked);
 
             if (AndroidUtils.accessibilityFeaturesAvailable(context)
@@ -305,9 +308,9 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
                 final StringBuilder builder = new StringBuilder();
                 builder.append(resources.getString(actionStringID));
 
-                if (count >= 0) {
+                if (count.isPresent() && count.get() >= 0) {
                     builder.append(", ");
-                    builder.append(resources.getQuantityString(descriptionPluralID, count, count));
+                    builder.append(resources.getQuantityString(descriptionPluralID, count.get(), count.get()));
                 }
 
                 if (checked) {

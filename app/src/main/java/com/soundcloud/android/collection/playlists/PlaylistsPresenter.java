@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection.playlists;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionItemDecoration;
@@ -8,6 +9,7 @@ import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -227,7 +229,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                     switch (event.getKind()) {
                         case EntityStateChangedEvent.ENTITY_CREATED:
                         case EntityStateChangedEvent.ENTITY_DELETED:
-                        case EntityStateChangedEvent.LIKE:
                             return event.getFirstUrn().isPlaylist();
                         case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
                         case EntityStateChangedEvent.PLAYLIST_MARKED_FOR_DOWNLOAD:
@@ -252,7 +253,12 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_CHANGE)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RefreshCollectionsSubscriber())
+                        .subscribe(new RefreshCollectionsSubscriber()),
+                eventBus.queue(LIKE_CHANGED)
+                        .filter(LikesStatusEvent::containsPlaylistChange)
+                        .filter(isNotRefreshing)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new LikeCollectionsSubscriber())
         );
     }
 
@@ -260,7 +266,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         @Override
         public void onNext(EntityStateChangedEvent event) {
             if (event.isSingularChange()) {
-                switch(event.getKind()) {
+                switch (event.getKind()) {
                     case EntityStateChangedEvent.ENTITY_DELETED:
                     case EntityStateChangedEvent.ENTITY_CREATED:
                         refreshCollections();
@@ -279,6 +285,23 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                 }
             } else {
                 refreshCollections();
+            }
+        }
+    }
+
+    private class LikeCollectionsSubscriber extends DefaultSubscriber<LikesStatusEvent> {
+        @Override
+        public void onNext(LikesStatusEvent event) {
+            for (LikesStatusEvent.LikeStatus like : event.likes().values()) {
+                for (int position = 0; position < adapter.getItems().size(); position++) {
+                    PlaylistCollectionItem item = adapter.getItem(position);
+                    if (item.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && item.getUrn().equals(like.urn())) {
+                        final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
+                        if (position < adapter.getItems().size()) {
+                            adapter.setItem(position, playlistItem.updatedWithLike(like));
+                        }
+                    }
+                }
             }
         }
     }

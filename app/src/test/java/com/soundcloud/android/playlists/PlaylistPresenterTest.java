@@ -14,6 +14,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
@@ -173,8 +174,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(listItems());
 
         final Urn urn = track1.get(TrackProperty.URN);
-        final EntityStateChangedEvent likedChangedEvent = EntityStateChangedEvent.fromLike(urn, true, 2);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, likedChangedEvent);
+        final LikesStatusEvent likedChangedEvent = LikesStatusEvent.create(urn, true, 2);
+        eventBus.publish(EventQueue.LIKE_CHANGED, likedChangedEvent);
 
         assertThat(track1.get(PlayableProperty.IS_USER_LIKE)).isTrue();
         assertThat(track1.get(PlayableProperty.LIKES_COUNT)).isEqualTo(2);

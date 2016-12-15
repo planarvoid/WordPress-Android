@@ -2,10 +2,8 @@ package com.soundcloud.android.playback.widget;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -36,13 +34,13 @@ class WidgetItem implements ImageResource {
         this.isPlayableFromWidget = isPlayableFromWidget;
     }
 
-    public static WidgetItem fromPropertySet(PropertySet source) {
-        return new WidgetItem(source.get(PlayableProperty.TITLE),
-                              source.get(PlayableProperty.CREATOR_NAME),
-                              source.get(PlayableProperty.CREATOR_URN),
-                              source.get(TrackProperty.URN),
-                              source.get(TrackProperty.IMAGE_URL_TEMPLATE),
-                              source.get(PlayableProperty.IS_USER_LIKE));
+    public static WidgetItem fromTrackItem(TrackItem trackItem) {
+        return new WidgetItem(trackItem.getTitle(),
+                              trackItem.getCreatorName(),
+                              trackItem.getCreatorUrn(),
+                              trackItem.getUrn(),
+                              trackItem.getImageUrlTemplate(),
+                              trackItem.isLiked());
     }
 
     public static WidgetItem forAudioAd(Resources res) {

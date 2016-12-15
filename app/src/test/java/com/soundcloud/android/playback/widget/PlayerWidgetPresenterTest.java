@@ -18,7 +18,9 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +49,10 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     @Test
     public void updatesWidgetStateWhenPlayStateChanges() {
         final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
-        setupArtworkLoad(trackProperties, Observable.<Bitmap>empty());
-        presenter.updateTrackInformation(context(), trackProperties);
+        setupArtworkLoad(trackProperties, Observable.empty());
+        final TrackItem trackItem = ModelFixtures.trackItem();
+        trackItem.updated(trackProperties);
+        presenter.updateTrackInformation(context(), trackItem);
 
         presenter.updatePlayState(context(), true);
 
@@ -58,8 +62,10 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     @Test
     public void updatesTrackWhenPlayableChanges() {
         final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
-        setupArtworkLoad(trackProperties, Observable.<Bitmap>empty());
-        presenter.updateTrackInformation(context(), trackProperties);
+        setupArtworkLoad(trackProperties, Observable.empty());
+        final TrackItem trackItem = ModelFixtures.trackItem();
+        trackItem.updated(trackProperties);
+        presenter.updateTrackInformation(context(), trackItem);
 
         verifyUpdateViaPlayBackWidgetProvider();
     }
@@ -76,8 +82,10 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
         final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
         final PublishSubject<Bitmap> subject = PublishSubject.create();
         setupArtworkLoad(trackProperties, subject);
+        final TrackItem trackItem = ModelFixtures.trackItem();
+        trackItem.updated(trackProperties);
 
-        presenter.updateTrackInformation(context(), trackProperties);
+        presenter.updateTrackInformation(context(), trackItem);
         presenter.reset(context());
         reset(appWidgetManager);
 

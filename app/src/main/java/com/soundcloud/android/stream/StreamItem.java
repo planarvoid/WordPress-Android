@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AppInstallAd;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -86,6 +87,10 @@ public abstract class StreamItem {
         return this;
     }
 
+    StreamItem copyWith(LikesStatusEvent.LikeStatus likeStatus) {
+        return this;
+    }
+
     public abstract Kind kind();
 
     public boolean isPromoted() {
@@ -144,6 +149,11 @@ public abstract class StreamItem {
 
         Playlist copyWith(PropertySet changeSet) {
             final PlaylistItem updatedPlaylistItem = playlistItem().updated(changeSet);
+            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, updatedPlaylistItem, promoted(), createdAt());
+        }
+
+        Playlist copyWith(LikesStatusEvent.LikeStatus likeStatus) {
+            final PlaylistItem updatedPlaylistItem = playlistItem().updatedWithLike(likeStatus);
             return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, updatedPlaylistItem, promoted(), createdAt());
         }
     }

@@ -4,6 +4,8 @@ import static com.soundcloud.android.utils.DateUtils.yearFromDateString;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -98,6 +100,14 @@ public class PlaylistItem extends PlayableItem {
     @Override
     public PlaylistItem updatedWithOfflineState(OfflineState offlineState) {
         this.source.put(OfflineProperty.OFFLINE_STATE, offlineState);
+        return this;
+    }
+
+    public PlaylistItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
+        this.source.put(PlayableProperty.IS_USER_LIKE, likeStatus.isUserLike());
+        if (likeStatus.likeCount().isPresent()) {
+            this.source.put(PlayableProperty.LIKES_COUNT, likeStatus.likeCount().get());
+        }
         return this;
     }
 

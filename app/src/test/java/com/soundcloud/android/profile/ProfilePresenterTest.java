@@ -144,7 +144,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(USER_URN));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromLike(Collections.singletonList(userProperties)));
+                         EntityStateChangedEvent.forUpdate(Collections.singletonList(userProperties)));
 
         verify(profileHeaderPresenter).setUserDetails(updatedProfileUser);
     }
@@ -156,7 +156,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(Urn.forUser(444)));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromLike(Collections.singletonList(userProperties)));
+                         EntityStateChangedEvent.forUpdate(Collections.singletonList(userProperties)));
 
         verifyZeroInteractions(profileOperations);
     }

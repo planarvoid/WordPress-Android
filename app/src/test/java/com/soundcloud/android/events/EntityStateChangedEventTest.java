@@ -27,14 +27,14 @@ public class EntityStateChangedEventTest extends AndroidUnitTest {
     @Test
     public void shouldReturnSingleUrnFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
-        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromLike(Collections.singletonList(track));
+        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.forUpdate(Collections.singletonList(track));
         assertThat(singleChangeEvent.getFirstUrn()).isEqualTo(track.get(TrackProperty.URN));
     }
 
     @Test
     public void shouldReturnSingleChangeSetFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
-        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromLike(Collections.singletonList(track));
+        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.forUpdate(Collections.singletonList(track));
         assertThat(singleChangeEvent.getNextChangeSet()).isEqualTo(track);
     }
 }

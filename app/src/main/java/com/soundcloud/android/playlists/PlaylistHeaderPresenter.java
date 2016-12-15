@@ -13,6 +13,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -44,6 +45,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -153,7 +155,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
-        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
+        foregroundSubscription = new CompositeSubscription(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber()),
+                                                           eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()));
     }
 
     @Override
@@ -248,7 +251,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private void updateEngagementBar() {
         if (headerView.isPresent()) {
             playlistEngagementsView.bindView(headerView.get(), headerItem, isEditMode);
-            playlistEngagementsView.updateLikeItem(headerItem.getLikesCount(), headerItem.isLikedByUser());
+            playlistEngagementsView.updateLikeItem(Optional.of(headerItem.getLikesCount()), headerItem.isLikedByUser());
             playlistEngagementsView.setOnEngagementListener(this);
         }
     }
@@ -381,7 +384,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                                                                 headerItem.getUrn(),
                                                                 getEventContext(),
                                                                 playSessionSource
-                                                                          .getPromotedSourceInfo(),
+                                                                        .getPromotedSourceInfo(),
                                                                 EntityMetadata.from(headerItem)));
 
             fireAndForget(likeOperations.toggleLike(headerItem.getUrn(), addLike));
@@ -395,7 +398,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                                                                   headerItem.getUrn(),
                                                                   getEventContext(),
                                                                   playSessionSource
-                                                                            .getPromotedSourceInfo(),
+                                                                          .getPromotedSourceInfo(),
                                                                   EntityMetadata.from(headerItem)));
 
             if (showResultToast) {
@@ -455,16 +458,23 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                 final PropertySet changeSet = event.getNextChangeSet();
                 headerItem = headerItem.update(changeSet);
 
-                if (changeSet.contains(PlaylistProperty.IS_USER_LIKE)) {
-                    playlistEngagementsView.updateLikeItem(
-                            changeSet.get(PlayableProperty.LIKES_COUNT),
-                            changeSet.get(PlayableProperty.IS_USER_LIKE));
-                    updateOfflineAvailability();
-                }
                 if (changeSet.contains(PlaylistProperty.IS_USER_REPOST)) {
                     playlistEngagementsView.showPublicOptions(
                             changeSet.get(PlayableProperty.IS_USER_REPOST));
                 }
+            }
+        }
+    }
+
+    private class PlaylistLikesSubscriber extends DefaultSubscriber<LikesStatusEvent> {
+        @Override
+        public void onNext(LikesStatusEvent event) {
+            if (headerItem != null && event.likes().containsKey(headerItem.getUrn())) {
+                final LikesStatusEvent.LikeStatus likeStatus = event.likes().get(headerItem.getUrn());
+                headerItem = headerItem.updatedWithLikeStatus(likeStatus);
+
+                playlistEngagementsView.updateLikeItem(likeStatus.likeCount(), likeStatus.isUserLike());
+                updateOfflineAvailability();
             }
         }
     }

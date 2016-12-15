@@ -1,6 +1,5 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromLike;
 import static com.soundcloud.android.likes.TrackLikeOperations.INITIAL_TIMESTAMP;
 import static com.soundcloud.android.likes.TrackLikeOperations.PAGE_SIZE;
 import static com.soundcloud.java.collections.Lists.transform;
@@ -14,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LoadLikedTracksCommand.Params;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
@@ -220,8 +220,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
         final TestSubscriber<TrackItem> observer = new TestSubscriber<>();
         operations.onTrackLiked().subscribe(observer);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         fromLike(likedTrack.get(TrackProperty.URN), true, 5));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(likedTrack.get(TrackProperty.URN), true, 5));
 
         assertThat(observer.getOnNextEvents()).containsExactly(trackItem);
     }
@@ -232,7 +231,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         final TestObserver<Urn> observer = new TestObserver<>();
         operations.onTrackUnliked().subscribe(observer);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fromLike(unlikedTrackUrn, false, 5));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(unlikedTrackUrn, false, 5));
 
         assertThat(observer.getOnNextEvents()).containsExactly(unlikedTrackUrn);
     }

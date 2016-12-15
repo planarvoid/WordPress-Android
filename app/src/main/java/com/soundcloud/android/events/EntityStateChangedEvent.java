@@ -26,7 +26,6 @@ import java.util.Map;
 public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static final int UPDATED = 0;
-    public static final int LIKE = 2;
     public static final int REPOST = 3;
     public static final int PLAYLIST_EDITED = 4;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
@@ -42,27 +41,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isSingularChange() && event.getFirstUrn().isTrack();
-        }
-    };
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKE_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackLikeEvent();
-        }
-    };
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackLikeEvent() && event.isEntityLiked();
-        }
-    };
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackLikeEvent() && !event.isEntityLiked();
         }
     };
 
@@ -107,17 +85,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent forUpdate(PropertySet propertySet) {
         return create(UPDATED, propertySet);
-    }
-
-    public static EntityStateChangedEvent fromLike(Urn urn, boolean liked, int likesCount) {
-        return create(LIKE, PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_USER_LIKE.bind(liked),
-                PlayableProperty.LIKES_COUNT.bind(likesCount)));
-    }
-
-    public static EntityStateChangedEvent fromLike(Collection<PropertySet> newLikeState) {
-        return create(LIKE, newLikeState);
     }
 
     public static EntityStateChangedEvent fromFollowing(PropertySet newFollowingState) {
@@ -227,26 +194,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public boolean isSingularChange() {
         return getChangeMap().size() == 1;
-    }
-
-    private boolean isEntityLiked() {
-        return getNextChangeSet().get(PlayableProperty.IS_USER_LIKE);
-    }
-
-    public boolean containsLikedPlaylist() {
-        return getKind() == LIKE && getFirstUrn().isPlaylist() && isEntityLiked();
-    }
-
-    public boolean containsUnlikedPlaylist() {
-        return getKind() == LIKE && getFirstUrn().isPlaylist() && !isEntityLiked();
-    }
-
-    public boolean isTrackLikeEvent() {
-        return isLikeKind() && getFirstUrn().isTrack();
-    }
-
-    private boolean isLikeKind() {
-        return isSingularChange() && getKind() == LIKE;
     }
 
     public boolean containsCreatedPlaylist() {

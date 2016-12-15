@@ -13,6 +13,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -216,6 +217,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         setupPlayerPanelSubscriber();
         setupIntroductoryOverlaySubscriber();
         setupTrackMetadataChangedSubscriber();
+        setupTrackLikeChangedSubscriber();
         setupClearAdOverlaySubscriber();
         setupTextResizeSubscriber();
     }
@@ -251,6 +253,13 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                                            .filter(EntityStateChangedEvent.IS_TRACK_FILTER)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .subscribe(new TrackMetadataChangedSubscriber()));
+    }
+
+    private void setupTrackLikeChangedSubscriber() {
+        backgroundSubscription.add(eventBus.queue(EventQueue.LIKE_CHANGED)
+                                           .filter(LikesStatusEvent::containsTrackChange)
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribe(new TrackLikeChangedSubscriber()));
     }
 
     @Override
@@ -653,6 +662,21 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                 final View trackView = entry.getKey();
                 if (isTrackViewRelatedToUrn(trackView, event.getFirstUrn())) {
                     presenter.onPlayableUpdated(trackView, event);
+                }
+            }
+        }
+    }
+
+    private class TrackLikeChangedSubscriber extends DefaultSubscriber<LikesStatusEvent> {
+        @Override
+        public void onNext(LikesStatusEvent event) {
+            for (Urn urn : event.likes().keySet()) {
+                for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
+                    final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
+                    final View trackView = entry.getKey();
+                    if (isTrackViewRelatedToUrn(trackView, urn)) {
+                        presenter.onLikeUpdated(trackView, event);
+                    }
                 }
             }
         }

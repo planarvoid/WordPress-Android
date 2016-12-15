@@ -48,7 +48,7 @@ public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
 
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.forUpdate(Collections.singletonList(changeSet));
         updateEntityListSubscriber.onNext(event);
 
         assertThat(track1.getCreatorName()).isEqualTo(UPDATED_CREATOR);

@@ -9,8 +9,8 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -66,9 +66,9 @@ class PlayerWidgetPresenter {
         }
     }
 
-    void updateTrackInformation(final Context context, final PropertySet trackProperties) {
+    void updateTrackInformation(final Context context, final TrackItem trackItem) {
         artworkSubscription.unsubscribe();
-        widgetItem = WidgetItem.fromPropertySet(trackProperties);
+        widgetItem = WidgetItem.fromTrackItem(trackItem);
         updateAndLoadArtwork(context);
     }
 

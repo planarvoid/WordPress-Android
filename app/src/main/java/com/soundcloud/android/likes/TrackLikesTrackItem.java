@@ -2,8 +2,10 @@ package com.soundcloud.android.likes;
 
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.UpdatableItem;
@@ -12,7 +14,7 @@ import com.soundcloud.android.view.adapters.PlayableViewItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
-class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, ListItem, OfflineItem, UpdatableItem {
+class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, ListItem, OfflineItem, UpdatableItem, LikeableItem {
 
     private final TrackItem trackItem;
 
@@ -43,6 +45,10 @@ class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, Li
     @Override
     public TrackLikesTrackItem updatedWithOfflineState(OfflineState offlineState) {
         return new TrackLikesTrackItem(trackItem.updatedWithOfflineState(offlineState));
+    }
+
+    public TrackLikesTrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
+        return new TrackLikesTrackItem(trackItem.updatedWithLike(likeStatus));
     }
 
     @Override

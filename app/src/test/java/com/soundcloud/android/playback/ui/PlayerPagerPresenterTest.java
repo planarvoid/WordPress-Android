@@ -20,6 +20,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -271,19 +272,19 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlayableChangedEventSetsLikeStatusOnTrackPage() {
         View currentPageView = getPageView();
-        EntityStateChangedEvent likeEvent = EntityStateChangedEvent.fromLike(TRACK1_URN, true, 1);
+        LikesStatusEvent likeEvent = LikesStatusEvent.create(TRACK1_URN, true, 1);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, likeEvent);
+        eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
-        verify(trackPagePresenter).onPlayableUpdated(currentPageView, likeEvent);
+        verify(trackPagePresenter).onLikeUpdated(currentPageView, likeEvent);
     }
 
     @Test
     public void onPlayableChangedEventIsIgnoredForPlaylistAssociations() {
         getPageView();
-        EntityStateChangedEvent likeEvent = EntityStateChangedEvent.fromLike(Urn.forPlaylist(123L), true, 1);
+        LikesStatusEvent likeEvent = LikesStatusEvent.create(Urn.forPlaylist(123L), true, 1);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, likeEvent);
+        eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
         verify(trackPagePresenter, never()).onPlayableUpdated(any(View.class), any(EntityStateChangedEvent.class));
     }

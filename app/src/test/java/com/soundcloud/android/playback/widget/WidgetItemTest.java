@@ -3,9 +3,10 @@ package com.soundcloud.android.playback.widget;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Test;
@@ -13,21 +14,22 @@ import org.junit.Test;
 public class WidgetItemTest extends AndroidUnitTest {
 
     private PropertySet source = TestPropertySets.expectedTrackForWidget();
+    private TrackItem trackItem = ModelFixtures.trackItem().updated(source);
 
     private WidgetItem viewModel;
 
     @Test
     public void creatorIsPopulatedForNormalTrack() {
-        viewModel = WidgetItem.fromPropertySet(source);
+        viewModel = WidgetItem.fromTrackItem(trackItem);
 
-        assertThat(viewModel.getCreatorName()).isEqualTo(source.get(PlayableProperty.CREATOR_NAME));
+        assertThat(viewModel.getCreatorName()).isEqualTo(trackItem.getCreatorName());
     }
 
     @Test
     public void titleIsTrackTitleForNormalTrack() {
-        viewModel = WidgetItem.fromPropertySet(source);
+        viewModel = WidgetItem.fromTrackItem(trackItem);
 
-        assertThat(viewModel.getTitle()).isEqualTo(source.get(PlayableProperty.TITLE));
+        assertThat(viewModel.getTitle()).isEqualTo(trackItem.getTitle());
     }
 
     @Test

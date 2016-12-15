@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -30,6 +31,11 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
 
     @Override
     public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
+        // default no-op
+    }
+
+    @Override
+    public void onLikeUpdated(View trackPage, LikesStatusEvent likesStatusEvent) {
         // default no-op
     }
 

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
@@ -134,6 +135,10 @@ public class PlaylistWithTracks implements ImageResource {
 
     public PlaylistWithTracks update(PropertySet source) {
         return new PlaylistWithTracks(this.playlistItem.updated(source), tracks);
+    }
+
+    public PlaylistWithTracks updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
+        return new PlaylistWithTracks(this.playlistItem.updatedWithLike(likeStatus), tracks);
     }
 
     @Deprecated // we should avoid this, but apparently we need it to like something currently

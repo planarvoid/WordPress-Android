@@ -82,6 +82,7 @@ public final class EventQueue {
     public static final Queue<EntityStateChangedEvent> ENTITY_STATE_CHANGED = Queue.of(EntityStateChangedEvent.class)
                                                                                    .onError(ON_ERROR)
                                                                                    .get();
+    public static final Queue<LikesStatusEvent> LIKE_CHANGED = Queue.of(LikesStatusEvent.class).onError(ON_ERROR).get();
     public static final Queue<OfflineContentChangedEvent> OFFLINE_CONTENT_CHANGED = Queue.of(OfflineContentChangedEvent.class)
                                                                                          .onError(ON_ERROR)
                                                                                          .replay()

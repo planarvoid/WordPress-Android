@@ -13,6 +13,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
@@ -119,7 +120,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenTrackLikeEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), true, 1));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forTrack(1), true, 1));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
@@ -128,7 +129,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenTrackUnlikeEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), false, 1));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forTrack(1), false, 1));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
@@ -137,8 +138,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistLikeEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forPlaylist(1), true, 1));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
@@ -147,8 +147,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistUnlikeEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forPlaylist(1), true, 1));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }

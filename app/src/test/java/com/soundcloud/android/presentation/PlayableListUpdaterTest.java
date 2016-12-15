@@ -10,6 +10,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -27,6 +28,8 @@ import android.support.v4.app.Fragment;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayableListUpdaterTest extends AndroidUnitTest {
 
@@ -134,13 +137,73 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         PropertySet changeSet = ModelFixtures.create(ApiTrack.class).toPropertySet();
 
-        when(adapter.getItems()).thenReturn(Arrays.<PlayableItem>asList(track1, track2));
+        when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.forUpdate(Collections.singletonList(changeSet));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         verify(adapter, never()).notifyItemChanged(anyInt());
 
+    }
+
+    @Test
+    public void likeEventUpdatesItemWithTheSameUrnAndNotifiesAdapter() throws Exception {
+        TrackItem likedTrack = initTrackForLike();
+        TrackItem unlikedTrack = initTrackForLike();
+        when(adapter.getItems()).thenReturn(Arrays.asList(likedTrack, unlikedTrack));
+
+        final int likesCount = 10;
+        LikesStatusEvent.LikeStatus like = LikesStatusEvent.LikeStatus.create(likedTrack.getUrn(), true, likesCount);
+        final LikesStatusEvent likeEvent = getLikeStatusEvent(like);
+
+        updater.onCreate(fragment, null);
+        eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
+
+        assertThat(likedTrack.getLikesCount()).isEqualTo(likesCount);
+        assertThat(likedTrack.isLiked()).isTrue();
+        verify(adapter).notifyItemChanged(0);
+    }
+
+    @Test
+    public void likeEventDoesNotUpdateItemAfterOnDestroy() throws Exception {
+        TrackItem likedTrack = initTrackForLike();
+        TrackItem unlikedTrack = initTrackForLike();
+        when(adapter.getItems()).thenReturn(Arrays.asList(likedTrack, unlikedTrack));
+
+        final int likesCount = 10;
+        LikesStatusEvent.LikeStatus like = LikesStatusEvent.LikeStatus.create(likedTrack.getUrn(), true, likesCount);
+        final LikesStatusEvent likeEvent = getLikeStatusEvent(like);
+
+        updater.onCreate(fragment, null);
+        updater.onDestroy(fragment);
+
+        eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
+
+        assertThat(likedTrack.getLikesCount()).isNotEqualTo(likesCount);
+        assertThat(likedTrack.isLiked()).isFalse();
+        verify(adapter, never()).notifyItemChanged(anyInt());
+    }
+
+    @Test
+    public void likeEventDoesNotNotifyWithNoMatchingUrns() throws Exception {
+        TrackItem likedTrack = initTrackForLike();
+        TrackItem unlikedTrack = initTrackForLike();
+        when(adapter.getItems()).thenReturn(Arrays.asList(likedTrack, unlikedTrack));
+
+        LikesStatusEvent.LikeStatus like = LikesStatusEvent.LikeStatus.create(Urn.NOT_SET, true, 10);
+        final LikesStatusEvent likeEvent = getLikeStatusEvent(like);
+
+        eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
+
+        verify(adapter, never()).notifyItemChanged(anyInt());
+
+    }
+
+    private TrackItem initTrackForLike() {
+        final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        trackItem.getSource().put(PlayableProperty.LIKES_COUNT, 0);
+        trackItem.getSource().put(PlayableProperty.IS_USER_LIKE, false);
+        return trackItem;
     }
 
     private EntityStateChangedEvent getEntityStateChangedEvent(TrackItem track1, TrackItem track2) {
@@ -148,7 +211,15 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
                 PlayableProperty.URN.bind(track1.getUrn()),
                 PlayableProperty.CREATOR_NAME.bind(UPDATED_CREATOR));
 
-        when(adapter.getItems()).thenReturn(Arrays.<PlayableItem>asList(track1, track2));
-        return EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet));
+        when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
+        return EntityStateChangedEvent.forUpdate(Collections.singletonList(changeSet));
+    }
+
+    private LikesStatusEvent getLikeStatusEvent(LikesStatusEvent.LikeStatus... likes) {
+        final Map<Urn, LikesStatusEvent.LikeStatus> likeMap = new HashMap<>();
+        for (LikesStatusEvent.LikeStatus like : likes) {
+            likeMap.put(like.urn(), like);
+        }
+        return LikesStatusEvent.createFromSync(likeMap);
     }
 }

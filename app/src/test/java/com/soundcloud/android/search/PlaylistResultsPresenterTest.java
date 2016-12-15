@@ -10,8 +10,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -96,13 +96,13 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fakeLikePlaylistEvent(playlist.getUrn()));
+        eventBus.publish(EventQueue.LIKE_CHANGED, fakeLikePlaylistEvent(playlist.getUrn()));
 
         verify(adapter).notifyItemChanged(0);
     }
 
-    private EntityStateChangedEvent fakeLikePlaylistEvent(Urn playlistUrn) {
-        return EntityStateChangedEvent.fromLike(playlistUrn, true, playlist.getLikesCount() + 1);
+    private LikesStatusEvent fakeLikePlaylistEvent(Urn playlistUrn) {
+        return LikesStatusEvent.create(playlistUrn, true, playlist.getLikesCount() + 1);
     }
 
     private void fakePlaylistResultsForTag(String searchTag) {

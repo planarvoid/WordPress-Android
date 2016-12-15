@@ -2,8 +2,8 @@ package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -16,7 +16,9 @@ import com.soundcloud.rx.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -109,17 +111,15 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     }
 
     private void publishLikeChanged(Set<PropertySet> newlocalChanges, boolean isAddition) {
-        final Set<PropertySet> changedEntities = new HashSet<>(newlocalChanges.size());
+        final Map<Urn, LikesStatusEvent.LikeStatus> changedEntities = new HashMap<>(newlocalChanges.size());
 
         for (PropertySet like : newlocalChanges) {
-            changedEntities.add(PropertySet.from(
-                    PlayableProperty.URN.bind(like.get(PlayableProperty.URN)),
-                    PlayableProperty.IS_USER_LIKE.bind(isAddition)
-            ));
+            final Urn urn = like.get(PlayableProperty.URN);
+            changedEntities.put(urn, LikesStatusEvent.LikeStatus.create(urn, isAddition));
         }
 
         if (!changedEntities.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changedEntities));
+            eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.createFromSync(changedEntities));
         }
     }
 

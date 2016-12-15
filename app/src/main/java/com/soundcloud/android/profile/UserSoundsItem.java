@@ -5,9 +5,11 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatableItem;
@@ -19,7 +21,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-abstract class UserSoundsItem implements ListItem, UpdatableItem {
+abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
@@ -117,6 +119,17 @@ abstract class UserSoundsItem implements ListItem, UpdatableItem {
             return getTrackItem().get().updatedWithOfflineState(offlineState);
         } else if (isPlaylist()) {
             return getPlaylistItem().get().updatedWithOfflineState(offlineState);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public ListItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
+        if (isTrack()) {
+            return getTrackItem().get().updatedWithLike(likeStatus);
+        } else if (isPlaylist()) {
+            return getPlaylistItem().get().updatedWithLike(likeStatus);
         } else {
             return this;
         }

@@ -22,6 +22,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
@@ -364,18 +365,18 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromLike(TRACK_URN, true, 1);
+        final LikesStatusEvent trackChangedEvent = LikesStatusEvent.create(TRACK_URN, true, 1);
 
-        presenter.onPlayableUpdated(trackView, trackChangedEvent);
+        presenter.onLikeUpdated(trackView, trackChangedEvent);
 
         assertThat(getHolder(trackView).likeToggle).isChecked();
     }
 
     @Test
     public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromLike(TRACK_URN, true, 9999);
+        final LikesStatusEvent trackChangedEvent = LikesStatusEvent.create(TRACK_URN, true, 9999);
 
-        presenter.onPlayableUpdated(trackView, trackChangedEvent);
+        presenter.onLikeUpdated(trackView, trackChangedEvent);
 
         verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999,
                                                  R.drawable.ic_player_liked, R.drawable.ic_player_like);
@@ -383,9 +384,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotDisplayUnknownLikeCounts() {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromLike(TRACK_URN, true, -1);
+        final LikesStatusEvent trackChangedEvent = LikesStatusEvent.create(TRACK_URN, true, -1);
 
-        presenter.onPlayableUpdated(trackView, trackChangedEvent);
+        presenter.onLikeUpdated(trackView, trackChangedEvent);
 
         assertThat(getHolder(trackView).likeToggle).hasText("");
     }
