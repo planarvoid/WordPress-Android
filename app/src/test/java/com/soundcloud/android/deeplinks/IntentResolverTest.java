@@ -556,10 +556,9 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     private void verifyTrackingEvent(ForegroundEvent event, Urn urn, Referrer referrer) {
-        assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
-        assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());
-        assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(Screen.DEEPLINK.get());
-        assertThat(event.get(ForegroundEvent.KEY_PAGE_URN)).isEqualTo(urn.toString());
+        assertThat(event.referrer()).isEqualTo(referrer.value());
+        assertThat(event.pageName()).isEqualTo(Screen.DEEPLINK.get());
+        assertThat(event.pageUrn().get()).isEqualTo(urn);
     }
 
     private void verifyTrackingEvent(Referrer referrer) {
@@ -569,9 +568,9 @@ public class IntentResolverTest extends AndroidUnitTest {
     private void verifyTrackingEvent(Referrer referrer, Screen screen) {
         ForegroundEvent event = captureForegroundEvent();
 
-        assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
-        assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());
-        assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(screen.get());
+        assertThat(event.referrer()).isEqualTo(referrer.value());
+        assertThat(event.pageName()).isEqualTo(screen.get());
+        assertThat(event.pageUrn().isPresent()).isFalse();
     }
 
 }

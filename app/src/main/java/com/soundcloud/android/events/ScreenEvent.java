@@ -1,62 +1,85 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.explore.ExploreGenre;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.strings.Strings;
+import com.soundcloud.java.optional.Optional;
 
-public final class ScreenEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class ScreenEvent extends NewTrackingEvent {
 
     public static final String KIND = "screen";
-    public static final String KEY_SCREEN = "screen";
-    public static final String KEY_GENRE = "genre";
-    public static final String KEY_QUERY_URN = "query_urn";
-    public static final String KEY_PAGE_URN = "page_urn";
+
+    public String getKind() {
+        return KIND;
+    }
+
+    public abstract String screen();
+
+    public abstract Optional<String> genre();
+
+    public abstract Optional<Urn> queryUrn();
+
+    public abstract Optional<Urn> pageUrn();
+
 
     public static ScreenEvent create(Screen screen) {
-        return new ScreenEvent(screen.get());
+        return create(screen.get());
     }
 
     public static ScreenEvent create(String screen) {
-        return new ScreenEvent(screen);
+        return builder(screen).build();
     }
 
     public static ScreenEvent create(String screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return ScreenEvent.create(screen, searchQuerySourceInfo.getQueryUrn());
+        return create(screen, searchQuerySourceInfo.getQueryUrn());
     }
+
     public static ScreenEvent create(String screen, Urn queryUrn) {
-        return new ScreenEvent(screen).put(KEY_QUERY_URN, queryUrn.toString());
+        return builder(screen).queryUrn(Optional.of(queryUrn)).build();
     }
 
     public static ScreenEvent create(String screen, ExploreGenre genre) {
-        return (ScreenEvent) new ScreenEvent(screen).put(KEY_GENRE, genre.getTitle());
+        return builder(screen).genre(Optional.of(genre.getTitle())).build();
     }
 
     public static ScreenEvent create(Screen screen, Urn pageUrn) {
-        return (ScreenEvent) new ScreenEvent(screen.get()).put(KEY_PAGE_URN, pageUrn.toString());
+        return builder(screen.get()).pageUrn(Optional.of(pageUrn)).build();
     }
 
-    private ScreenEvent(String screenTag) {
-        super(KIND);
-
-        put(KEY_SCREEN, screenTag);
-    }
-
-    public String getScreenTag() {
-        return get(KEY_SCREEN);
-    }
-
-    public String getQueryUrn() {
-        return getAttributes().containsKey(KEY_QUERY_URN) ? get(KEY_QUERY_URN) : Strings.EMPTY;
-    }
-
-    public String getPageUrn() {
-        return getAttributes().containsKey(KEY_PAGE_URN) ? get(KEY_PAGE_URN) : Strings.EMPTY;
+    private static Builder builder(String screen) {
+        return new AutoValue_ScreenEvent.Builder().id(defaultId())
+                                                  .timestamp(defaultTimestamp())
+                                                  .referringEvent(Optional.absent())
+                                                  .screen(screen)
+                                                  .genre(Optional.absent())
+                                                  .queryUrn(Optional.absent())
+                                                  .pageUrn(Optional.absent());
     }
 
     @Override
-    public String toString() {
-        return "user entered " + getScreenTag();
+    public ScreenEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_ScreenEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder id(String id);
+
+        public abstract Builder timestamp(long timestamp);
+
+        public abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
+
+        public abstract Builder screen(String screen);
+
+        public abstract Builder genre(Optional<String> genre);
+
+        public abstract Builder queryUrn(Optional<Urn> queryUrn);
+
+        public abstract Builder pageUrn(Optional<Urn> pageUrn);
+
+        public abstract ScreenEvent build();
     }
 }

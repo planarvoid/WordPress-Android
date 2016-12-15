@@ -23,17 +23,12 @@ import com.soundcloud.java.strings.Strings;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 class AppboyEventHandler {
 
     private static final List<AppboyAttributeName> PLAYABLE_ATTRIBUTES =
             Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN, PLAYABLE_TITLE, PLAYABLE_URN, PLAYABLE_TYPE);
-
-    private static final List<AppboyAttributeName> EXPLORE_CATEGORY_ATTRIBUTES = Collections.singletonList(CATEGORY);
-
-    private static final List<AppboyAttributeName> EXPLORE_GENRE_AND_CATEGORY = Arrays.asList(GENRE, CATEGORY);
 
     private static final List<AppboyAttributeName> CREATOR_ATTRIBUTES = Arrays.asList(CREATOR_DISPLAY_NAME,
                                                                                       CREATOR_URN);
@@ -149,21 +144,7 @@ class AppboyEventHandler {
     }
 
     void handleEvent(ScreenEvent event) {
-        if (isCategoryScreen(event)) {
-            tagEvent(AppboyEvents.EXPLORE, buildProperties(EXPLORE_CATEGORY_ATTRIBUTES, event));
-        } else if (isGenreScreen(event)) {
-            tagEvent(AppboyEvents.EXPLORE, buildProperties(EXPLORE_GENRE_AND_CATEGORY, event));
-        }
-    }
-
-    private boolean isCategoryScreen(ScreenEvent event) {
-        return event.getScreenTag().equals(Screen.EXPLORE_GENRES.get())
-                || event.getScreenTag().equals(Screen.EXPLORE_TRENDING_AUDIO.get())
-                || event.getScreenTag().equals(Screen.EXPLORE_TRENDING_MUSIC.get());
-    }
-
-    private boolean isGenreScreen(ScreenEvent event) {
-        return event.getScreenTag().startsWith(AppboyEvents.EXPLORE);
+        tagEvent(AppboyEvents.EXPLORE, buildProperties(event));
     }
 
     private AppboyProperties buildPlayableProperties(TrackingEvent event) {
@@ -209,6 +190,15 @@ class AppboyEventHandler {
         return new AppboyProperties()
                 .addProperty(CONTEXT_PROPERTY, context)
                 .addProperty(ENABLED_PROPERTY, isEnabled);
+    }
+
+    private AppboyProperties buildProperties(ScreenEvent screenEvent) {
+        AppboyProperties properties = new AppboyProperties();
+        if (screenEvent.genre().isPresent()) {
+            properties.addProperty(GENRE.getAppBoyKey(), screenEvent.genre().get());
+        }
+        properties.addProperty(CATEGORY.getAppBoyKey(), screenEvent.screen());
+        return properties;
     }
 
     private AppboyProperties buildProperties(List<AppboyAttributeName> fields, TrackingEvent event) {

@@ -47,7 +47,7 @@ public class ScreenProvider {
     private class ScreenTrackingEventSubscriber extends DefaultSubscriber<ScreenEvent> {
         @Override
         public void onNext(ScreenEvent event) {
-            lastScreenTag = event.getScreenTag();
+            lastScreenTag = event.screen();
         }
     }
 }

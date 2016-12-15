@@ -75,7 +75,10 @@ public class ScreenTrackerTest extends AndroidUnitTest {
 
         screenTracker.onCreate(activity, null);
 
-        assertThat(getLastEventOnQueue().getAttributes()).isEqualTo(EXPECTED.getAttributes());
+        final ForegroundEvent lastEventOnQueue = getLastEventOnQueue();
+        assertThat(lastEventOnQueue.pageName()).isEqualTo(EXPECTED.pageName());
+        assertThat(lastEventOnQueue.pageUrn().isPresent()).isFalse();
+        assertThat(lastEventOnQueue.referrer()).isEqualTo(EXPECTED.referrer());
     }
 
     @Test
@@ -84,7 +87,10 @@ public class ScreenTrackerTest extends AndroidUnitTest {
 
         screenTracker.onNewIntent(activity, intent);
 
-        assertThat(getLastEventOnQueue().getAttributes()).isEqualTo(EXPECTED.getAttributes());
+        final ForegroundEvent lastEventOnQueue = getLastEventOnQueue();
+        assertThat(lastEventOnQueue.pageName()).isEqualTo(EXPECTED.pageName());
+        assertThat(lastEventOnQueue.pageUrn().isPresent()).isFalse();
+        assertThat(lastEventOnQueue.referrer()).isEqualTo(EXPECTED.referrer());
     }
 
     @Test

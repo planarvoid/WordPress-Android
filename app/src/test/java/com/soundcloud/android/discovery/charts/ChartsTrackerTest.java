@@ -124,10 +124,10 @@ public class ChartsTrackerTest extends AndroidUnitTest {
 
     private void assertEventPostedOnBus(final Urn queryUrn, final Screen expectedScreen) {
         String screenTag = create(format(expectedScreen.get(), CHART_GENRE_URN.getStringId()))
-                .getScreenTag();
+                .screen();
         ScreenEvent screenEvent = screenEventCaptor.getValue();
-        assertThat(screenEvent.getScreenTag()).isEqualTo(screenTag);
-        assertThat(screenEvent.getQueryUrn()).isEqualTo(queryUrn.toString());
+        assertThat(screenEvent.screen()).isEqualTo(screenTag);
+        assertThat(screenEvent.queryUrn().get()).isEqualTo(queryUrn);
         assertThat(queueCaptor.getValue()).isEqualTo(TRACKING);
     }
 }

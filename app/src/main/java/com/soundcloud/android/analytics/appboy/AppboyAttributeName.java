@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.appboy;
 
 
 import com.soundcloud.android.events.EntityMetadata;
-import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.java.strings.Strings;
 
 public enum AppboyAttributeName {
     CREATOR_DISPLAY_NAME("creator_display_name", EntityMetadata.KEY_CREATOR_NAME),
@@ -12,8 +12,8 @@ public enum AppboyAttributeName {
     PLAYABLE_TYPE("playable_type", EntityMetadata.KEY_PLAYABLE_TYPE),
     PLAYLIST_TITLE("playlist_title", EntityMetadata.KEY_PLAYABLE_TITLE),
     PLAYLIST_URN("playlist_urn", EntityMetadata.KEY_PLAYABLE_URN),
-    CATEGORY("category", ScreenEvent.KEY_SCREEN),
-    GENRE("genre", ScreenEvent.KEY_GENRE);
+    CATEGORY("category", Strings.EMPTY),
+    GENRE("genre", Strings.EMPTY);
 
     private final String eventKey;
     private final String appBoyKey;

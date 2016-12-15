@@ -161,7 +161,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_MUSIC_GENRE.get(), ExploreGenre.POPULAR_AUDIO_CATEGORY);
         AppboyProperties properties = new AppboyProperties();
         properties.addProperty("genre", ExploreGenre.POPULAR_AUDIO_CATEGORY.getTitle());
-        properties.addProperty("category", event.getScreenTag());
+        properties.addProperty("category", event.screen());
 
         eventHandler.handleEvent(event);
 
@@ -172,7 +172,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     public void exploreTrendingAudioOrMusicTrackingShouldOnlyContainCategory() {
         ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO);
         AppboyProperties properties = new AppboyProperties();
-        properties.addProperty("category", event.getScreenTag());
+        properties.addProperty("category", event.screen());
 
         eventHandler.handleEvent(event);
 

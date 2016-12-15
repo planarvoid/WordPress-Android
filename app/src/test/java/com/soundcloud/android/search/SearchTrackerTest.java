@@ -70,7 +70,7 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackScreen(screenEventCaptor.capture(), referringEventCaptor.capture());
 
-        assertThat(screenEventCaptor.getValue().getScreenTag()).isEqualTo(Screen.SEARCH_MAIN.get());
+        assertThat(screenEventCaptor.getValue().screen()).isEqualTo(Screen.SEARCH_MAIN.get());
     }
 
     @Test
@@ -129,8 +129,8 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackScreen(screenEventCaptor.capture(), referringEventCaptor.capture());
 
-        assertThat(screenEventCaptor.getValue().getScreenTag()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
-        assertThat(screenEventCaptor.getValue().get(ScreenEvent.KEY_QUERY_URN)).isEqualTo(QUERY_URN.toString());
+        assertThat(screenEventCaptor.getValue().screen()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
+        assertThat(screenEventCaptor.getValue().queryUrn().get()).isEqualTo(QUERY_URN);
     }
 
     @Test
@@ -252,8 +252,8 @@ public class SearchTrackerTest {
 
         final ScreenEvent event = screenEventCaptor.getValue();
 
-        assertThat(event.getScreenTag()).isEqualTo(Screen.SEARCH_PREMIUM_CONTENT.get());
-        assertThat(event.get(ScreenEvent.KEY_QUERY_URN)).isEqualTo(QUERY_URN.toString());
+        assertThat(event.screen()).isEqualTo(Screen.SEARCH_PREMIUM_CONTENT.get());
+        assertThat(event.queryUrn().get()).isEqualTo(QUERY_URN);
     }
 
     @Test
@@ -292,7 +292,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackScreen(screenEventCaptor.capture(), referringEventCaptor.capture());
 
         final ScreenEvent event = screenEventCaptor.getValue();
-        assertThat(event.getScreenTag()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
+        assertThat(event.screen()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
     }
 
     @Test

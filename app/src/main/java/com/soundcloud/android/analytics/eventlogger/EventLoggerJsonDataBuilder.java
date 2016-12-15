@@ -181,21 +181,17 @@ public class EventLoggerJsonDataBuilder {
     }
 
     public String build(ForegroundEvent event) {
-        switch (event.getKind()) {
-            case ForegroundEvent.KIND_OPEN:
-                final EventLoggerEventData eventData = buildBaseEvent(FOREGROUND_EVENT, event)
-                        .pageName(event.get(ForegroundEvent.KEY_PAGE_NAME))
-                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
-                        .referrer(event.get(ForegroundEvent.KEY_REFERRER));
-
-                if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
-                    eventData.clientEventId(event.getId());
-                }
-
-                return transform(eventData);
-            default:
-                throw new IllegalArgumentException("Unexpected Foreground Event type " + event);
+        final EventLoggerEventData eventData = buildBaseEvent(FOREGROUND_EVENT, event)
+                .pageName(event.pageName())
+                .referrer(event.referrer());
+        if (event.pageUrn().isPresent()) {
+            eventData.pageUrn(event.pageUrn().get().toString());
         }
+        if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
+            eventData.clientEventId(event.getId());
+        }
+
+        return transform(eventData);
     }
 
     private EventLoggerEventData buildPlaybackErrorEvent(PlaybackErrorEvent event) {

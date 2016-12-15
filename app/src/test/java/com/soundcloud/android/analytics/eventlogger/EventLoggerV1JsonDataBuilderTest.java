@@ -1593,8 +1593,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsScreenEventJsonWithUuidAndReferringEventWhenHtiEnabled() throws ApiMapperException {
         final String referringEventId = "id";
-        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
-        screenEvent.putReferringEvent(ReferringEvent.create(referringEventId, ScreenEvent.KIND));
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES).putReferringEvent(ReferringEvent.create(referringEventId, ScreenEvent.KIND));
         when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(true);
 
         jsonDataBuilder.buildForScreenEvent(screenEvent);

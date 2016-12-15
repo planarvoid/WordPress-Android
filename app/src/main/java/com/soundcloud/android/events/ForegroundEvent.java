@@ -1,32 +1,65 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
+import org.jetbrains.annotations.NotNull;
 
-public class ForegroundEvent extends LegacyTrackingEvent {
-    public static final String KEY_PAGE_NAME = "page_name";
-    public static final String KEY_PAGE_URN = "page_urn";
-    public static final String KEY_REFERRER = "referrer";
+@AutoValue
+public abstract class ForegroundEvent extends NewTrackingEvent {
     public static final String KIND_OPEN = "open";
+
+    @NotNull
+    @Override
+    public String getKind() {
+        return KIND_OPEN;
+    }
+
+    public abstract String pageName();
+
+    public abstract Optional<Urn> pageUrn();
+
+    public abstract String referrer();
 
     public static ForegroundEvent open(Screen screen, Referrer referrer) {
         return open(screen, referrer.value());
     }
 
     public static ForegroundEvent open(Screen screen, String referrer) {
-        return new ForegroundEvent(KIND_OPEN)
-                .put(KEY_PAGE_NAME, screen.get())
-                .put(KEY_REFERRER, referrer);
+        return open(screen, referrer, null);
     }
 
     public static ForegroundEvent open(Screen screen, String referrer, Urn urn) {
-        return ForegroundEvent.open(screen, referrer)
-                              .put(KEY_PAGE_URN, urn.toString());
+        return new AutoValue_ForegroundEvent.Builder().id(defaultId())
+                                                      .timestamp(defaultTimestamp())
+                                                      .referringEvent(Optional.absent())
+                                                      .pageName(screen.get())
+                                                      .pageUrn(Optional.fromNullable(urn))
+                                                      .referrer(referrer)
+                                                      .build();
     }
 
-    private ForegroundEvent(String kind) {
-        super(kind);
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_ForegroundEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder id(String id);
+
+        public abstract Builder timestamp(long timestamp);
+
+        public abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
+
+        public abstract Builder pageName(String pageName);
+
+        public abstract Builder pageUrn(Optional<Urn> pageUrn);
+
+        public abstract Builder referrer(String referrer);
+
+        public abstract ForegroundEvent build();
+    }
 }

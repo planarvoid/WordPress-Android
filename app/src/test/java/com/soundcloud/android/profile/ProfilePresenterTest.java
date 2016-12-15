@@ -168,8 +168,8 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         profilePresenter.onEnterScreen(activity);
 
         verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
-        assertThat(screenEventArgumentCaptor.getValue().getScreenTag()).isEqualTo(Screen.USER_MAIN.get());
-        assertThat(screenEventArgumentCaptor.getValue().getPageUrn()).isEqualTo(USER_URN.toString());
+        assertThat(screenEventArgumentCaptor.getValue().screen()).isEqualTo(Screen.USER_MAIN.get());
+        assertThat(screenEventArgumentCaptor.getValue().pageUrn().get()).isEqualTo(USER_URN);
     }
 
     @Test
@@ -181,7 +181,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         profilePresenter.onEnterScreen(activity);
 
         verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
-        assertThat(screenEventArgumentCaptor.getValue().getScreenTag()).isEqualTo(Screen.YOUR_MAIN.get());
+        assertThat(screenEventArgumentCaptor.getValue().screen()).isEqualTo(Screen.YOUR_MAIN.get());
     }
 
     private ProfileUser createProfileUser() {

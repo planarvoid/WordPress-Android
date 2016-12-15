@@ -217,16 +217,17 @@ class EventLoggerV1JsonDataBuilder {
 
     String buildForScreenEvent(ScreenEvent event) {
         try {
-            final String referringEventId = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
-            final String referringEventKind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
             final EventLoggerEventData eventData = buildBaseEvent(PAGEVIEW_EVENT, event)
-                    .pageName(event.getScreenTag())
-                    .queryUrn(event.getQueryUrn())
-                    .pageUrn(event.getPageUrn());
-
+                    .pageName(event.screen());
+            if (event.queryUrn().isPresent()) {
+                eventData.queryUrn(event.queryUrn().get().toString());
+            }
+            if (event.pageUrn().isPresent()) {
+                eventData.pageUrn(event.pageUrn().get().toString());
+            }
             if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
-                if (referringEventId != null && referringEventKind != null) {
-                    eventData.referringEvent(referringEventId, referringEventKind);
+                if (event.referringEvent().isPresent()) {
+                    eventData.referringEvent(event.referringEvent().get().getId(), event.referringEvent().get().getKind());
                 }
                 eventData.clientEventId(event.getId());
             }
