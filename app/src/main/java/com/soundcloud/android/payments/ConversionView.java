@@ -74,22 +74,19 @@ class ConversionView {
     }
 
     private void setupListener(final Listener listener) {
-        View.OnClickListener clickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.conversion_buy:
-                        listener.onPurchasePrimary();
-                        break;
-                    case R.id.conversion_close:
-                        listener.onClose();
-                        break;
-                    case R.id.conversion_more_products:
-                        listener.onMoreProducts();
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Click on unknown View ID");
-                }
+        View.OnClickListener clickListener = v -> {
+            switch (v.getId()) {
+                case R.id.conversion_buy:
+                    listener.onPurchasePrimary();
+                    break;
+                case R.id.conversion_close:
+                    listener.onClose();
+                    break;
+                case R.id.conversion_more_products:
+                    listener.onMoreProducts();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Click on unknown View ID");
             }
         };
         buyButton.setOnClickListener(clickListener);
@@ -140,27 +137,19 @@ class ConversionView {
     }
 
     private void setupRestrictions(final int trialDays) {
-        restrictionsView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ConversionRestrictionsDialog dialog = trialDays > 0
-                        ? ConversionRestrictionsDialog.createForTrial(trialDays)
-                        : ConversionRestrictionsDialog.createForNoTrial();
-                dialog.show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
-            }
+        restrictionsView.setOnClickListener(v -> {
+            ConversionRestrictionsDialog dialog = trialDays > 0
+                    ? ConversionRestrictionsDialog.createForTrial(trialDays)
+                    : ConversionRestrictionsDialog.createForNoTrial();
+            dialog.show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
         });
         restrictionsView.setVisibility(View.VISIBLE);
     }
 
     private void setupPromoRestrictions(final String duration, final String promoPrice, final String regularPrice) {
         restrictionsView.setText(resources.getString(R.string.conversion_restrictions_promo, regularPrice));
-        restrictionsView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ConversionRestrictionsDialog.createForPromo(duration, promoPrice, regularPrice)
-                        .show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
-            }
-        });
+        restrictionsView.setOnClickListener(v -> ConversionRestrictionsDialog.createForPromo(duration, promoPrice, regularPrice)
+                                                                        .show(fragmentManager, RESTRICTIONS_DIALOG_TAG));
         restrictionsView.setVisibility(View.VISIBLE);
     }
 
@@ -187,6 +176,7 @@ class ConversionView {
         @Override
         public void onNext(Bitmap image) {
             background.setImageBitmap(image);
+            background.setScaleType(ImageView.ScaleType.CENTER_CROP);
         }
     }
 
