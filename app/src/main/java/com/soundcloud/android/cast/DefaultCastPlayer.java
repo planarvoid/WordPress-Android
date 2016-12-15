@@ -294,6 +294,7 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
             playCurrentSubscription.unsubscribe();
             playCurrentSubscription = castOperations
                     .loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn, position));
         }
     }
