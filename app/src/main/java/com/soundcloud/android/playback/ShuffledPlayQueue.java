@@ -147,17 +147,25 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
 
         @Override
         public void add(int index, T object) {
-            int mappedIndex = mappedIndices.get(index-1)+1;
+            int mappedIndex = getAddNextMappedIndex(index);
             updateMappedIndices(mappedIndex);
             mappedIndices.add(index, mappedIndex);
             actualList.add(mappedIndex, object);
+        }
+
+        private int getAddNextMappedIndex(int index) {
+            if (index > 0) {
+                return mappedIndices.get(index - 1) + 1;
+            } else {
+                return 1;
+            }
         }
 
         private void updateMappedIndices(int mappedIndex) {
             for (int i = 0; i < mappedIndices.size(); i++) {
                 int originalMappedIndex = mappedIndices.get(i);
                 if (originalMappedIndex >= mappedIndex) {
-                    mappedIndices.set(i, originalMappedIndex+1);
+                    mappedIndices.set(i, originalMappedIndex + 1);
                 }
             }
         }

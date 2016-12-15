@@ -188,4 +188,20 @@ public class ShuffledListTest {
         shuffledLinkedList.add("new item");
         assertThat(shuffledArrayList).isNotEqualTo(shuffledLinkedList);
     }
+
+    @Test
+    public void addAtIndex() {
+        shuffledArrayList.add(1, "another one");
+
+        assertThat(shuffledArrayList.get(1)).isEqualTo("another one");
+        assertThat(originalArrayList).containsExactly("original 0", "original 1", "another one", "original 2");
+    }
+
+    @Test
+    public void addAtIndexZero() {
+        shuffledArrayList.add(0, "another one");
+
+        assertThat(shuffledArrayList.get(0)).isEqualTo("another one");
+        assertThat(originalArrayList).containsExactly("original 0", "another one", "original 1", "original 2");
+    }
 }
