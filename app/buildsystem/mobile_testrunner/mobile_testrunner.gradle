@@ -8,7 +8,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'com.soundcloud.mobiletestrunner:client:96-20-94e3b5c'
+    classpath 'com.soundcloud.mobiletestrunner:client:128-27-1b344d2'
   }
 }
 
@@ -33,19 +33,20 @@ def systemProperties = [
         "log.tag.OfflineTests"         : "DEBUG",
         "log.tag.ActivityLifeCycle"    : "DEBUG"
 ]
+def lollipopLabel = new Label("Lollipop")
 
 task runListOfTests << {
   def tests = [
-          new Test("com.soundcloud.android.tests.stream.StreamTest", "testStreamContainsItems"),
+          new Test("com.soundcloud.android.tests.stream.StreamTest", "testPlayAndPauseTrackFromStream"),
   ] as Test[]
 
-  runTests("Lollipop", null, systemProperties, null, tests)
+  runTests(lollipopLabel, null, systemProperties, null, tests)
 }
 
 task runTestClass << {
   def classFilter = "com.soundcloud.android.tests.stream.StreamTest"
 
-  runTests("Lollipop", null, systemProperties, classFilter, null)
+  runTests(lollipopLabel, null, systemProperties, classFilter, null)
 }
 
 task runLollipopTests << {
@@ -59,7 +60,7 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.ReleaseOnly"
   ] as String[]
 
-  runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
+  runTests(lollipopLabel, excludeAnnotations, systemProperties, null, null)
 }
 
 task runLollipopTestsRelease << {
@@ -76,15 +77,16 @@ task runLollipopTestsRelease << {
 
   ] as String[]
 
-  runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
+  runTests(lollipopLabel, excludeAnnotations, systemProperties, null, null)
 }
 
 def runTests(label, excludeAnnotations, systemProperties, classFilter, Test[] tests) {
   def factory = new TestRunnerFactory()
-  def listener = new TestResultListener(new LogHandler(project, executeGet), new TestResultPrinter(),
-          new HTMLReportBuilder(project), project.('mobileTestRunnerReportUrl'))
+  def listener = new TestResultListener(project, new LogHandler(project, executeGet), new CollectionTaskResultPrinter(project),
+          new TestResultPrinter(project), new HTMLReportBuilder(project))
 
-  def testRunner = factory.create(project.ext.mobileTestRunnerUrl, project.ext.mobileTestRunnerUser, project.ext.mobileTestRunnerHost, listener)
+  def testRunner = factory.create(project.ext.mobileTestRunnerUrl, project.ext.mobileTestRunnerUser,
+          project.ext.mobileTestRunnerHost, listener)
   testRunner.run(createExecution(label, excludeAnnotations, systemProperties, classFilter, tests))
 }
 
@@ -96,7 +98,8 @@ def createSession(systemProperties) {
 }
 
 def createRunConfiguration(label, excludeAnnotations, classFilter, Test[] tests) {
-  return new RunConfiguration(label, project.ext.testInstrumentationRunner, 2, false, null, excludeAnnotations, classFilter, null, tests)
+  return new RunConfiguration(label, project.ext.testInstrumentationRunner, project.ext.maxTestAttempts, false,
+          project.ext.maxCollectionTaskAttempts, null, excludeAnnotations, classFilter, null, tests)
 }
 
 def createExecution(label, excludeAnnotations, systemProperties, classFilter, Test[] tests) {
@@ -142,21 +145,59 @@ class LogHandler {
   }
 }
 
+class CollectionTaskResultPrinter {
+  private final Project project
+
+  def CollectionTaskResultPrinter(Project project) {
+    this.project = project
+  }
+
+  def print(CollectionTaskResult collectionTaskResult) {
+    def red = "\u001B[31m"
+    def green = "\u001B[32m"
+    def magenta = "\u001B[35m"
+    def reset = "\u001B[0m"
+    def color = green
+    def resultText = "COLLECTION TASK PASSED"
+    if (!collectionTaskResult.getResult()) {
+      if (collectionTaskResult.getCollectionTask().getRetries() < project.ext.maxCollectionTaskAttempts - 1) {
+        color = magenta
+        resultText = "COLLECTION TASK FAILED... WILL RETRY"
+      } else {
+        color = red
+        resultText = "COLLECTION TASK FAILED"
+      }
+    }
+
+    println "$color$resultText: ${collectionTaskResult.getCollectionTask().getTestRunnerArguments()} $reset"
+    if (!collectionTaskResult.getResult()) {
+      println()
+      collectionTaskResult.getDescription().split("\n").each { println "$color \t$it $reset" }
+    }
+  }
+}
+
 class TestResultPrinter {
+  private final Project project
+
+  def TestResultPrinter(Project project) {
+    this.project = project
+  }
+
   def print(TestResult testResult) {
     def red = "\u001B[31m"
     def green = "\u001B[32m"
     def magenta = "\u001B[35m"
     def reset = "\u001B[0m"
     def color = green
-    def resultText = "PASSED"
+    def resultText = "TEST PASSED"
     if (!testResult.getResult()) {
-      if (testResult.getTest().getRetries() < 1) {
+      if (testResult.getTest().getRetries() < project.ext.maxTestAttempts - 1) {
         color = magenta
-        resultText = "FAILED... WILL RETRY"
+        resultText = "TEST FAILED... WILL RETRY"
       } else {
         color = red
-        resultText = "FAILED"
+        resultText = "TEST FAILED"
       }
     }
 
@@ -175,13 +216,13 @@ class HTMLReportBuilder {
     this.project = project
   }
 
-  def createReport(runIdentifier) {
-    def html_template = new File(project.projectDir, "buildsystem/mobile_testrunner/html_report_redirect_template.html").text
+  def createReport(redirectTemplate, identifierMap, fileName) {
+    def html_template = new File(project.projectDir, redirectTemplate).text
     def engine = new groovy.text.SimpleTemplateEngine()
-    def template = engine.createTemplate(html_template).make(["runIdentifier": runIdentifier])
+    def template = engine.createTemplate(html_template).make(identifierMap)
     def dir = new File(project.rootDir, "results")
     dir.mkdirs()
-    def report = new File(dir.absolutePath, "index.html")
+    def report = new File(dir.absolutePath, fileName)
     report.newWriter().withWriter { w ->
       w << template.toString()
     }
@@ -189,30 +230,45 @@ class HTMLReportBuilder {
 }
 
 class TestResultListener extends TestStatusNotifier {
+  private final Project project
   private final LogHandler logHandler
+  private final CollectionTaskResultPrinter collectionTaskResultPrinter
   private final TestResultPrinter testResultPrinter
   private final HTMLReportBuilder htmlReportBuilder
+  private UUID collectionRunIdentifier
   private UUID runIdentifier
+  private int numFailedCollectionTasks = 0
   private int numFailedTests = 0
 
-  public TestResultListener(LogHandler logHandler, TestResultPrinter testResultPrinter, HTMLReportBuilder htmlReportBuilder, String reportUrl) {
-    super(reportUrl)
+  public TestResultListener(Project project, LogHandler logHandler, CollectionTaskResultPrinter collectionTaskResultPrinter,
+                            TestResultPrinter testResultPrinter, HTMLReportBuilder htmlReportBuilder) {
+    super(project.mobileTestRunnerReportUrl)
+    this.project = project
     this.logHandler = logHandler
+    this.collectionTaskResultPrinter = collectionTaskResultPrinter
     this.testResultPrinter = testResultPrinter
     this.htmlReportBuilder = htmlReportBuilder
   }
 
   @Override
-  void runStarted() {
-    println "A new Mobile Test Runner Run has been initiated"
+  void collectionRunFinished(CollectionRun collectionRun) {
+    super.collectionRunFinished(collectionRun)
+    if (collectionRunIdentifier != null) {
+      htmlReportBuilder.createReport("buildsystem/mobile_testrunner/html_collection_report_redirect_template.html",
+              ["collectionRunIdentifier": collectionRunIdentifier], "collection_index.html")
+    }
+
+    if (numFailedCollectionTasks > 0) {
+      throw new GradleException("FAILED: " + numFailedCollectionTasks + " collection task(s) failed")
+    }
   }
 
   @Override
   void runFinished(Run run) {
-    println "\nRun finished!"
-    println "\nTest Result Report: " + this.getFullReportUrl(run)
+    super.runFinished(run);
     if (runIdentifier != null) {
-      htmlReportBuilder.createReport(runIdentifier)
+      htmlReportBuilder.createReport("buildsystem/mobile_testrunner/html_report_redirect_template.html",
+              ["runIdentifier": runIdentifier], "index.html")
       logHandler.copyLogs(runIdentifier)
     }
 
@@ -230,13 +286,12 @@ class TestResultListener extends TestStatusNotifier {
   void testSuiteStarted(String s) {}
 
   @Override
-  void testSuiteFinished(String s) {
-  }
+  void testSuiteFinished(String s) {}
 
   @Override
   void testFinished(com.soundcloud.mobiletestrunner.client.model.TestResult testResult) {
     this.runIdentifier = testResult.run.id
-    if (!testResult.getResult() && testResult.getTest().getRetries() > 0) {
+    if (!testResult.getResult() && testResult.getTest().getRetries() >= project.ext.maxTestAttempts - 1) {
       numFailedTests += 1
     }
     testResultPrinter.print(testResult)
@@ -244,6 +299,18 @@ class TestResultListener extends TestStatusNotifier {
 
   @Override
   void testStarted(com.soundcloud.mobiletestrunner.client.model.Test test) {}
+
+  @Override
+  void collectionTaskStarted(com.soundcloud.mobiletestrunner.client.model.CollectionTask collectionTask) {}
+
+  @Override
+  void collectionTaskFinished(com.soundcloud.mobiletestrunner.client.model.CollectionTaskResult collectionTaskResult) {
+    this.collectionRunIdentifier = collectionTaskResult.collectionRun.id
+    if (!collectionTaskResult.getResult() && collectionTaskResult.getCollectionTask().getRetries() >= project.ext.maxCollectionTaskAttempts - 1) {
+      numFailedCollectionTasks += 1
+    }
+    collectionTaskResultPrinter.print(collectionTaskResult)
+  }
 
   @Override
   void printMessage(String message) {
