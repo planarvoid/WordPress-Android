@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.java.strings.Strings.EMPTY;
+import static com.soundcloud.java.strings.Strings.isNotBlank;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
@@ -17,11 +18,13 @@ import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.ScTextUtils;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 public class CardEngagementsPresenter {
 
@@ -53,6 +56,11 @@ public class CardEngagementsPresenter {
     public void bind(final CardViewHolder viewHolder,
                      final PlayableItem playable,
                      final EventContextMetadata contextMetadata) {
+
+        viewHolder.showDuration(ScTextUtils.formatTimestamp(playable.getDuration(), TimeUnit.MILLISECONDS));
+        if (isNotBlank(playable.getGenre())) {
+            viewHolder.showGenre(playable.getGenre());
+        }
 
         viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLiked());
 

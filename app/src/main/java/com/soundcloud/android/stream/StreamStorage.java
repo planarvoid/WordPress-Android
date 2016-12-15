@@ -48,6 +48,7 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
             SoundView.POLICIES_SNIPPED,
             SoundView.POLICIES_SUB_HIGH_TIER,
+            SoundView.GENRE,
             SoundStreamView.REPOSTER_USERNAME,
             SoundStreamView.REPOSTER_ID,
             SoundStreamView.REPOSTER_AVATAR_URL,

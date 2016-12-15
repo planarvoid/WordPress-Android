@@ -6,6 +6,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
 public class ApiPlaylistTest extends AndroidUnitTest {
@@ -48,5 +49,7 @@ public class ApiPlaylistTest extends AndroidUnitTest {
         assertThat(propertySet.get(PlaylistProperty.IS_ALBUM)).isEqualTo(playlist.isAlbum());
         assertThat(propertySet.get(PlaylistProperty.SET_TYPE)).isEqualTo(playlist.getSetType());
         assertThat(propertySet.get(PlaylistProperty.RELEASE_DATE)).isEqualTo(playlist.getReleaseDate());
+        assertThat(propertySet.get(PlaylistProperty.TAGS)).isEqualTo(Optional.of(playlist.getTags()));
+        assertThat(propertySet.get(PlaylistProperty.GENRE)).isEqualTo(playlist.getGenre());
     }
 }

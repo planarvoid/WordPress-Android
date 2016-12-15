@@ -15,4 +15,5 @@ public class PlayableProperty extends EntityProperty {
     public static final Property<Boolean> IS_USER_REPOST = Property.of(PlayableProperty.class, Boolean.class);
     public static final Property<Boolean> IS_PRIVATE = Property.of(PlayableProperty.class, Boolean.class);
     public static final Property<String> PERMALINK_URL = Property.of(PlayableProperty.class, String.class);
+    public static final Property<String> GENRE = Property.of(PlayableProperty.class, String.class);
 }

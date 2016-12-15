@@ -1,49 +1,75 @@
-<RelativeLayout
-    style="@style/Cards.Footer"
+<LinearLayout style="@style/Cards.Footer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     tools:ignore="InconsistentLayout">
 
-    <com.soundcloud.android.view.OverflowAnchorImageView
-        android:id="@+id/overflow_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="8dp"
-        android:background="?attr/selectableItemBackground"
-        android:padding="8dp"
-        android:src="@drawable/ic_more" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp">
 
-    <com.soundcloud.android.view.CustomFontToggleButton
-        android:id="@+id/toggle_like"
-        style="@style/Cards.ToggleButton"
-        android:layout_marginLeft="8dp"
-        android:layout_toLeftOf="@id/overflow_button"
-        android:drawableLeft="@drawable/ic_toggle_player_like_states"
-        tools:textOff="2134" />
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/genre"
+            style="@style/Cards.InfoItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:visibility="gone"
+            tools:text="#HIPHOP"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/play_count"
-        style="@style/Cards.StatsItem"
-        android:layout_toLeftOf="@id/toggle_like"
-        android:drawableLeft="@drawable/stats_play"
-        android:visibility="gone"
-        tools:text="1234" />
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/duration"
+            style="@style/Cards.InfoItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:visibility="gone"
+            tools:text="12:53" />
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/playlist_additional_info"
-        style="@style/Cards.StatsItem"
-        android:layout_toLeftOf="@id/toggle_like"
-        android:visibility="gone"
-        tools:text="2134" />
+        <View
+            android:id="@+id/footer_divider"
+            style="@style/Divider.Section"
+            android:layout_gravity="bottom"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/now_playing"
-        style="@style/Stream.NowPlaying"
-        android:layout_toLeftOf="@id/toggle_like"
-        android:drawableLeft="@drawable/ic_now_playing"
-        android:text="@string/title_now_playing"
-        android:visibility="gone" />
+    </FrameLayout>
 
-</RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.soundcloud.android.view.OverflowAnchorImageView
+            android:id="@+id/overflow_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp"
+            android:src="@drawable/ic_more" />
+
+        <com.soundcloud.android.view.CustomFontToggleButton
+            android:id="@+id/toggle_like"
+            style="@style/Cards.ToggleButton"
+            android:layout_marginLeft="8dp"
+            android:layout_toLeftOf="@id/overflow_button"
+            android:drawableLeft="@drawable/ic_toggle_player_like_states"
+            tools:textOff="2134" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/play_count"
+            style="@style/Cards.StatsItem"
+            android:layout_toLeftOf="@id/toggle_repost"
+            android:drawableLeft="@drawable/stats_play"
+            android:visibility="gone"
+            tools:text="1234" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/now_playing"
+            style="@style/Stream.NowPlaying"
+            android:layout_toLeftOf="@id/toggle_repost"
+            android:drawableLeft="@drawable/ic_now_playing"
+            android:text="@string/title_now_playing"
+            android:visibility="gone" />
+    </RelativeLayout>
+</LinearLayout>

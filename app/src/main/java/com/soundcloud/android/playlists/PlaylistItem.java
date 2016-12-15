@@ -137,6 +137,7 @@ public class PlaylistItem extends PlayableItem {
         return optionalTags.isPresent() ? optionalTags.get() : Collections.<String>emptyList();
     }
 
+    @Override
     public long getDuration() {
         return source.get(PlaylistProperty.PLAYLIST_DURATION);
     }

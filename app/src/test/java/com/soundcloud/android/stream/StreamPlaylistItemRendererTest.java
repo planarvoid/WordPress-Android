@@ -101,8 +101,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     public void bindsDurationAndOverflow() {
         renderer.bindItemView(0, itemView, singletonList(playlistStreamItem));
 
-        verify(viewHolder).showDuration(formattedTime(playlistItem.getDuration()));
         verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));
+        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class));
     }
 
     private String tracksString(int trackCount) {

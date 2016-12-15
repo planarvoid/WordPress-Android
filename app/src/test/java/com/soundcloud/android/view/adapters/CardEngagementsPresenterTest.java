@@ -72,6 +72,18 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void setsDuration() {
+        presenter.bind(viewHolder, playableItem, contextMetadata);
+        verify(viewHolder).showDuration("2:03");
+    }
+
+    @Test
+    public void setsGenre() {
+        presenter.bind(viewHolder, playableItem, contextMetadata);
+        verify(viewHolder).showGenre("clownstep");
+    }
+
+    @Test
     public void doesNotShowRepostStatsForOwnTracks() {
         when(accountOperations.isLoggedInUser(playableItem.getCreatorUrn())).thenReturn(true);
         presenter.bind(viewHolder, playableItem, contextMetadata);

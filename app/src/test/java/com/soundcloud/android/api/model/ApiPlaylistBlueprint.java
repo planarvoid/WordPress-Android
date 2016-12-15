@@ -72,6 +72,7 @@ public class ApiPlaylistBlueprint {
         public ApiPlaylist afterCreate(ApiPlaylist model) {
             model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-000151307749-v2r7oy-{size}.jpg");
             model.setTitle("Playlist " + runningId);
+            model.setDuration(123456);
             return model;
         }
     };
