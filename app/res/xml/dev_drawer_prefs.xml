@@ -53,4 +53,7 @@
             android:title="@string/dev_drawer_flush_eventlogger_instantly_title" />
 
     </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/dev_drawer_introductory_overlays_key"
+        android:title="@string/dev_drawer_introductory_overlays_title" />
 </PreferenceScreen>

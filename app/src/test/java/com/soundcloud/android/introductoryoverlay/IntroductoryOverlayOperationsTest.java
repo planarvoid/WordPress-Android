@@ -3,9 +3,12 @@ package com.soundcloud.android.introductoryoverlay;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations.OnIntroductoryOverlayStateChangedListener;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +39,36 @@ public class IntroductoryOverlayOperationsTest extends AndroidUnitTest {
         introductoryOverlayOperations.setOverlayShown(fakeOverlayKey);
 
         verify(sharedPreferencesEditor).putBoolean(fakeOverlayKey, true);
+    }
+
+    @Test
+    public void setOverlayShownShouldForwardTheValueToThePreferencesGivenTheKey() {
+        boolean shown = false;
+
+        introductoryOverlayOperations.setOverlayShown(fakeOverlayKey, shown);
+
+        verify(sharedPreferencesEditor).putBoolean(fakeOverlayKey, shown);
+    }
+
+    @Test
+    public void registeredListenerIsNotifiedWhenStateChangesForKey() {
+        OnIntroductoryOverlayStateChangedListener listener = mock(OnIntroductoryOverlayStateChangedListener.class);
+        introductoryOverlayOperations.registerOnStateChangedListener(listener);
+
+        introductoryOverlayOperations.onSharedPreferenceChanged(sharedPreferences, fakeOverlayKey);
+
+        verify(listener).onIntroductoryOverlayStateChanged(fakeOverlayKey);
+    }
+
+    @Test
+    public void unregisteredListenerIsNotNotifiedWhenStateChangesForKey() {
+        OnIntroductoryOverlayStateChangedListener listener = mock(OnIntroductoryOverlayStateChangedListener.class);
+        introductoryOverlayOperations.registerOnStateChangedListener(listener);
+        introductoryOverlayOperations.unregisterOnStateChangedListener(listener);
+
+        introductoryOverlayOperations.onSharedPreferenceChanged(sharedPreferences, fakeOverlayKey);
+
+        verify(listener, never()).onIntroductoryOverlayStateChanged(fakeOverlayKey);
     }
 
     @Test

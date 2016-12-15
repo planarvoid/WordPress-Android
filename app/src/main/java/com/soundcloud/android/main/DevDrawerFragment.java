@@ -9,6 +9,8 @@ import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.gcm.GcmDebugDialogFragment;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -44,7 +46,7 @@ import javax.inject.Inject;
 import java.util.Locale;
 
 @SuppressLint("ValidFragment")
-public class DevDrawerFragment extends PreferenceFragment {
+public class DevDrawerFragment extends PreferenceFragment implements IntroductoryOverlayOperations.OnIntroductoryOverlayStateChangedListener {
 
     private static final String DEVICE_CONFIG_SETTINGS = "device_config_settings";
     private static final String KEY_LAST_CONFIG_CHECK_TIME = "last_config_check_time";
@@ -59,6 +61,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject ConcurrentPlaybackOperations concurrentPlaybackOperations;
     @Inject CastConfigStorage castConfigStorage;
     @Inject EventBus eventBus;
+    @Inject IntroductoryOverlayOperations introductoryOverlayOperations;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -71,14 +74,21 @@ public class DevDrawerFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.dev_drawer_prefs);
         addActions();
         addFeatureToggles();
+        addIntroductoryOverlaysControls();
         drawerExperimentsHelper.addExperiments(getPreferenceScreen());
         subscription = subscribeToPlaybackStateEvent();
     }
 
     @Override
     public void onDestroy() {
+        introductoryOverlayOperations.unregisterOnStateChangedListener(this);
         subscription.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override
+    public void onIntroductoryOverlayStateChanged(String introductoryOverlayKey) {
+        updateIntroductoryOverlayPreference(introductoryOverlayKey, introductoryOverlayOperations.wasOverlayShown(introductoryOverlayKey));
     }
 
     private Subscription subscribeToPlaybackStateEvent() {
@@ -178,6 +188,26 @@ public class DevDrawerFragment extends PreferenceFragment {
         setupCastReceiverIdPref(screen);
     }
 
+    private void addIntroductoryOverlaysControls() {
+        final PreferenceScreen screen = getPreferenceScreen();
+        final PreferenceCategory category = getIntroductoryOverlaysPreferenceCategory();
+        category.removeAll();
+        for (String key : IntroductoryOverlayKey.ALL_KEYS) {
+            category.addPreference(new IntroductoryOverlayCheckBoxPreference(screen.getContext(), introductoryOverlayOperations, key));
+        }
+
+        introductoryOverlayOperations.registerOnStateChangedListener(this);
+    }
+
+    private PreferenceCategory getIntroductoryOverlaysPreferenceCategory() {
+        return (PreferenceCategory) getPreferenceScreen().findPreference(getString(R.string.dev_drawer_introductory_overlays_key));
+    }
+
+    private void updateIntroductoryOverlayPreference(String key, boolean isChecked) {
+        IntroductoryOverlayCheckBoxPreference preference = (IntroductoryOverlayCheckBoxPreference) getIntroductoryOverlaysPreferenceCategory().findPreference(key);
+        preference.setChecked(isChecked);
+    }
+
     private void setupCastReceiverIdPref(PreferenceScreen screen) {
         final Preference castIdPref = screen.findPreference(getString(R.string.dev_drawer_action_cast_id_key));
         castIdPref.setSummary(castConfigStorage.getReceiverID());
@@ -275,6 +305,29 @@ public class DevDrawerFragment extends PreferenceFragment {
             setOnPreferenceClickListener(preference -> {
                 featureFlags.setRuntimeFeatureFlagValue(flag, ((CheckBoxPreference) preference).isChecked());
                 return false;
+            });
+        }
+    }
+
+    private static class IntroductoryOverlayCheckBoxPreference extends CheckBoxPreference {
+
+        private final IntroductoryOverlayOperations introductoryOverlayOperations;
+        private final String key;
+
+        IntroductoryOverlayCheckBoxPreference(Context context, IntroductoryOverlayOperations introductoryOverlayOperations, String key) {
+            super(context);
+            this.introductoryOverlayOperations = introductoryOverlayOperations;
+            this.key = key;
+            initialize();
+        }
+
+        private void initialize() {
+            setTitle(ScTextUtils.fromSnakeCaseToCamelCase(key));
+            setKey(key);
+            setChecked(introductoryOverlayOperations.wasOverlayShown(key));
+            setOnPreferenceClickListener(preference -> {
+                introductoryOverlayOperations.setOverlayShown(key, ((CheckBoxPreference) preference).isChecked());
+                return true;
             });
         }
     }

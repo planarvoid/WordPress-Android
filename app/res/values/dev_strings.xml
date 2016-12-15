@@ -11,6 +11,9 @@
     <string name="dev_drawer_category_actions_key">actions</string>
     <string name="dev_drawer_category_actions_title">Actions</string>
 
+    <string name="dev_drawer_introductory_overlays_key">introductory_overlays_category</string>
+    <string name="dev_drawer_introductory_overlays_title">Introductory Overlays</string>
+
     <string name="dev_drawer_action_get_oauth_token_to_clipboard_key">get_oauth_token</string>
     <string name="dev_drawer_action_get_oauth_token_to_clipboard_title">Get OAuth Token</string>
 

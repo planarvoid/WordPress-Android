@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -45,8 +46,6 @@ public class ConfigurationHelper {
     private static final String TAG = "TestRunner";
 
     private static final Upsell HIGH_TIER = new Upsell(Plan.HIGH_TIER.planId, 0);
-
-    private static final String[] INTRODUCTORY_OVERLAYS_KEYS = {PLAY_QUEUE, CHROMECAST};
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
@@ -223,7 +222,7 @@ public class ConfigurationHelper {
 
     public static void disableIntroductoryOverlays(Context context) {
         SharedPreferences.Editor editor = getIntroductoryOverlayPreferences(context).edit();
-        for (String key : INTRODUCTORY_OVERLAYS_KEYS) {
+        for (String key : IntroductoryOverlayKey.ALL_KEYS) {
             editor.putBoolean(key, true);
         }
         editor.apply();
