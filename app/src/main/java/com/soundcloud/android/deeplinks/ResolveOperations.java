@@ -12,8 +12,6 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
-import rx.exceptions.OnErrorThrowable;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -43,23 +41,28 @@ class ResolveOperations {
         this.storeUsersCommand = storeUsersCommand;
     }
 
-    public Observable<Urn> resolve(@NonNull final Uri originalUri) {
-        return Observable.create(new Observable.OnSubscribe<Urn>() {
-            @Override
-            public void call(Subscriber<? super Urn> subscriber) {
-                Uri uri = followClickTrackingUrl(originalUri);
-                try {
-                    ApiResolvedResource resolvedResource = resolveResource(uri.toString());
-                    final Urn urn = resolvedResource.getUrn();
-                    if (Urn.NOT_SET.equals(urn)) {
-                        subscriber.onError(new OnErrorThrowable.OnNextValue(ResolveExceptionResult.from(uri, null)));
-                    } else {
-                        storeResource(resolvedResource);
-                        subscriber.onNext(urn);
+    public Observable<ResolveResult> resolve(@NonNull final Uri originalUri) {
+        return Observable.<ResolveResult>create(subscriber -> {
+            Uri uri = followClickTrackingUrl(originalUri);
+            try {
+                ApiResolvedResource resolvedResource = resolveResource(uri.toString());
+                final Urn urn = resolvedResource.getUrn();
+                if (Urn.NOT_SET.equals(urn)) {
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onNext(ResolveResult.error(uri, null));
                         subscriber.onCompleted();
                     }
-                } catch (ApiRequestException | IOException | ApiMapperException e) {
-                    subscriber.onError(new OnErrorThrowable.OnNextValue(ResolveExceptionResult.from(uri, e)));
+                } else {
+                    storeResource(resolvedResource);
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onNext(ResolveResult.succes(urn));
+                        subscriber.onCompleted();
+                    }
+                }
+            } catch (ApiRequestException | IOException | ApiMapperException e) {
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(ResolveResult.error(uri, e));
+                    subscriber.onCompleted();
                 }
             }
         }).subscribeOn(scheduler);

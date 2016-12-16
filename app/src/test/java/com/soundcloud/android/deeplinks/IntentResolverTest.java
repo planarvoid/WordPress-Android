@@ -43,7 +43,10 @@ import android.content.res.Resources;
 import android.net.Uri;
 
 public class IntentResolverTest extends AndroidUnitTest {
-    private final static String TOP_FIFTY = "Top 50";
+    private static final String TOP_FIFTY = "Top 50";
+    private static final ResolveResult RESULT_TRACK = ResolveResult.succes(Urn.forTrack(123));
+    private static final ResolveResult RESULT_PLAYLIST = ResolveResult.succes(Urn.forPlaylist(123));
+    private static final ResolveResult RESULT_USER = ResolveResult.succes(Urn.forUser(123));
 
     @Mock private ResolveOperations resolveOperations;
     @Mock private AccountOperations accountOperations;
@@ -103,7 +106,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldPlayTrackAfterResolvingDeepLink() throws CreateModelException {
         setupIntentForUrl("soundcloud://sounds:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
 
         resolver.handleIntent(intent, context);
 
@@ -113,7 +116,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldPlayTrackAfterResolvingTracksDeepLink() throws CreateModelException {
         setupIntentForUrl("soundcloud://tracks/123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
 
         resolver.handleIntent(intent, context);
 
@@ -123,7 +126,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldShowTheStreamWithAnExpandedPlayer() throws CreateModelException {
         setupIntentForUrl("soundcloud://sounds:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
         when(playbackInitiator.startPlayback(Urn.forTrack(123), Screen.DEEPLINK))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
@@ -135,7 +138,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldNotOpenStreamWhenFailedToStartPlayback() throws CreateModelException {
         setupIntentForUrl("soundcloud://sounds:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
         when(playbackInitiator.startPlayback(Urn.forTrack(123), Screen.DEEPLINK))
                 .thenReturn(Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE)));
 
@@ -158,7 +161,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldGotoPlaylistDetailsAfterResolvingDeepLink() throws CreateModelException {
         setupIntentForUrl("soundcloud://playlists:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forPlaylist(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_PLAYLIST));
 
         resolver.handleIntent(intent, context);
 
@@ -178,7 +181,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldGotoUserProfileAfterResolvingDeepLink() throws CreateModelException {
         setupIntentForUrl("soundcloud://users:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forUser(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_USER));
 
         resolver.handleIntent(intent, context);
 
@@ -188,7 +191,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldTrackForegroundEventsWithResources() {
         setupIntentForUrl("soundcloud://sounds:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
         setupReferrer(Referrer.TWITTER);
 
         resolver.handleIntent(intent, context);
@@ -203,7 +206,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldTrackForegroundEventsWithResourceWhenUserIsNotLoggedIn() {
         setupIntentForUrl("soundcloud://sounds:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
         setupReferrer(Referrer.FACEBOOK);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
@@ -229,7 +232,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldLoginCrawler() {
         setupIntentForUrl("soundcloud://playlists:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forPlaylist(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_PLAYLIST));
         setupReferrer(Referrer.GOOGLE_CRAWLER);
 
         resolver.handleIntent(intent, context);
@@ -242,7 +245,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     public void shouldStartPlaybackForTracksOnCrawlersWithoutRelated() {
         setupIntentForUrl("soundcloud://sounds:123");
         setupReferrer(Referrer.GOOGLE_CRAWLER);
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
 
         resolver.handleIntent(intent, context);
 
@@ -252,7 +255,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() {
         setupIntentForUrl("soundcloud://sounds:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
         resolver.handleIntent(intent, context);

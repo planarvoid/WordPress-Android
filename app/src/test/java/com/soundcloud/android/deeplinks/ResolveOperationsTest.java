@@ -1,7 +1,6 @@
 package com.soundcloud.android.deeplinks;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -15,16 +14,12 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import rx.Observer;
 import rx.Scheduler;
-import rx.exceptions.OnErrorThrowable;
 import rx.schedulers.Schedulers;
 
 import android.net.Uri;
@@ -36,7 +31,6 @@ public class ResolveOperationsTest extends AndroidUnitTest {
 
     private ResolveOperations operations;
 
-    @Mock private Observer<Urn> observer;
     @Mock private ApiClient apiClient;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
@@ -56,10 +50,9 @@ public class ResolveOperationsTest extends AndroidUnitTest {
         ApiResolvedResource resolvedResource = resolvedTrack();
         mockResolutionFor(uri.toString(), resolvedResource);
 
-        operations.resolve(uri).subscribe(observer);
-
-        verify(observer).onNext(resolvedResource.getOptionalTrack().get().getUrn());
-        verify(observer).onCompleted();
+        operations.resolve(uri).test()
+                .assertValue(ResolveResult.succes(resolvedResource.getOptionalTrack().get().getUrn()))
+                .assertCompleted();
     }
 
     @Test
@@ -68,11 +61,9 @@ public class ResolveOperationsTest extends AndroidUnitTest {
         ApiResolvedResource resolvedResource = unsupportedResource();
         mockResolutionFor(uri.toString(), resolvedResource);
 
-        operations.resolve(uri).subscribe(observer);
-
-        ArgumentCaptor<OnErrorThrowable.OnNextValue> captor = ArgumentCaptor.forClass(OnErrorThrowable.OnNextValue.class);
-        verify(observer).onError(captor.capture());
-        assertThat(captor.getValue().getValue()).isEqualTo(ResolveExceptionResult.from(uri, null));
+        operations.resolve(uri).test()
+                  .assertValue(ResolveResult.error(uri, null))
+                  .assertCompleted();
     }
 
     @Test
@@ -83,12 +74,9 @@ public class ResolveOperationsTest extends AndroidUnitTest {
                 argThat(isApiRequestTo("GET", ApiEndpoints.RESOLVE_ENTITY.path()).withQueryParam("identifier", uri.toString())),
                 eq(ApiResolvedResource.class))).thenThrow(ioException);
 
-        operations.resolve(uri).subscribe(observer);
-
-        ArgumentCaptor<OnErrorThrowable.OnNextValue> captor = ArgumentCaptor.forClass(OnErrorThrowable.OnNextValue.class);
-        verify(observer).onError(captor.capture());
-        assertThat(captor.getValue().getValue()).isEqualTo(ResolveExceptionResult.from(uri, ioException));
-
+        operations.resolve(uri).test()
+                .assertValue(ResolveResult.error(uri, ioException))
+                .assertCompleted();
     }
 
     @Test
@@ -98,10 +86,9 @@ public class ResolveOperationsTest extends AndroidUnitTest {
         ApiResolvedResource resolvedResource = resolvedTrack();
         mockResolutionFor("http://soundcloud.com/skrillex/music", resolvedResource);
 
-        operations.resolve(uri).subscribe(observer);
-
-        verify(observer).onNext(resolvedResource.getOptionalTrack().get().getUrn());
-        verify(observer).onCompleted();
+        operations.resolve(uri).test()
+                  .assertValue(ResolveResult.succes(resolvedResource.getOptionalTrack().get().getUrn()))
+                  .assertCompleted();
     }
 
     @Test
@@ -110,7 +97,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
         ApiResolvedResource resolvedResource = resolvedTrack();
         mockResolutionFor(uri.toString(), resolvedResource);
 
-        operations.resolve(uri).subscribe(observer);
+        operations.resolve(uri).test();
 
         verify(storeTracksCommand).call(Collections.singletonList(resolvedResource.getOptionalTrack().get()));
     }
@@ -121,7 +108,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
         ApiResolvedResource resolvedResource = resolvedPlaylist();
         mockResolutionFor(uri.toString(), resolvedResource);
 
-        operations.resolve(uri).subscribe(observer);
+        operations.resolve(uri).test();
 
         verify(storePlaylistsCommand).call(Collections.singletonList(resolvedResource.getOptionalPlaylist().get()));
     }
@@ -132,7 +119,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
         ApiResolvedResource resolvedResource = resolvedUser();
         mockResolutionFor(uri.toString(), resolvedResource);
 
-        operations.resolve(uri).subscribe(observer);
+        operations.resolve(uri).test();
 
         verify(storeUsersCommand).call(Collections.singletonList(resolvedResource.getOptionalUser().get()));
     }

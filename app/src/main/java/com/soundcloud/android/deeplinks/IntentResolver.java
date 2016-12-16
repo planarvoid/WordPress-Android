@@ -26,7 +26,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -170,17 +169,20 @@ public class IntentResolver {
                          .subscribe(fetchSubscriber(context, uri, referrer));
     }
 
-    private DefaultSubscriber<Urn> fetchSubscriber(final Context context, final Uri uri, final String referrer) {
-        return new DefaultSubscriber<Urn>() {
+    private DefaultSubscriber<ResolveResult> fetchSubscriber(final Context context, final Uri uri, final String referrer) {
+        return new DefaultSubscriber<ResolveResult>() {
             @Override
-            public void onNext(Urn urn) {
-                startActivityForResource(context, urn, referrer);
+            public void onNext(ResolveResult resolveResult) {
+                if (resolveResult.success()) {
+                    startActivityForResource(context, resolveResult.urn().get(), referrer);
+                } else {
+                    handleError(resolveResult);
+                }
             }
 
-            @Override
-            public void onError(Throwable e) {
-                Optional<ResolveExceptionResult> result = resultFromResolveException(e);
-                Uri resolvedUri = result.isPresent() ? result.get().getUri() : uri;
+            private void handleError(ResolveResult resolveResult) {
+                Optional<Uri> errorUri = resolveResult.uri();
+                Uri resolvedUri = errorUri.isPresent() ? errorUri.get() : uri;
                 DeepLink deepLink = DeepLink.fromUri(resolvedUri);
 
                 if (DeepLink.WEB_VIEW.equals(deepLink)) {
@@ -188,9 +190,10 @@ public class IntentResolver {
                 } else {
                     trackForegroundEvent(referrer);
                     launchApplicationWithMessage(context, R.string.error_loading_url);
-                    if (result.isPresent() && !ErrorUtils.isNetworkError(result.get().getException())) {
-                        ErrorUtils.handleSilentException("unable to load deeplink:" + result.get().getUri(),
-                                                         result.get().getException());
+
+                    Optional<Exception> exception = resolveResult.exception();
+                    if (exception.isPresent() && !ErrorUtils.isNetworkError(exception.get())) {
+                        ErrorUtils.handleSilentException("unable to load deeplink:" + errorUri.get(), exception.get());
                         reportFailedToResolveDeeplink(referrer);
                     }
                 }
@@ -393,16 +396,6 @@ public class IntentResolver {
     private void showOnboardingForUrn(Context context, Urn urn) {
         AndroidUtils.showToast(context, R.string.error_toast_user_not_logged_in);
         navigator.openOnboarding(context, urn, Screen.DEEPLINK);
-    }
-
-    private Optional<ResolveExceptionResult> resultFromResolveException(Throwable e) {
-        if (e instanceof OnErrorThrowable.OnNextValue) {
-            Object emitted = ((OnErrorThrowable.OnNextValue) e).getValue();
-            if (emitted instanceof ResolveExceptionResult) {
-                return Optional.of((ResolveExceptionResult) emitted);
-            }
-        }
-        return Optional.absent();
     }
 
     private void launchApplicationWithMessage(Context context, int messageId) {
