@@ -219,7 +219,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
             }
         }
 
-        @Nullable
+        @butterknife.Optional
         @OnClick(R.id.toggle_repost)
         public void repost() {
             if (clickListener != null) {

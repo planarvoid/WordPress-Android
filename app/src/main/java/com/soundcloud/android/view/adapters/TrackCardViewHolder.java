@@ -6,6 +6,7 @@ import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Optional;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
@@ -95,8 +96,8 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         }
     }
 
-    // @Nullable is required here to avoid crash in landscape mode
-    @Nullable
+    // @Optional is required here to avoid crash in landscape mode
+    @Optional
     @OnClick(R.id.toggle_repost)
     public void repost() {
         if (clickListener != null) {

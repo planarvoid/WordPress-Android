@@ -56,7 +56,7 @@ public class StreamItemViewHolder implements CardViewHolder {
         }
     }
 
-    // yes this @nullable annotation here is required
+    // yes this @Optional annotation here is required
     @Optional
     @OnClick(R.id.toggle_repost)
     public void repost() {
