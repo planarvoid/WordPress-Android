@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.android.view.adapters.CardViewHolder;
@@ -56,7 +57,7 @@ public class StreamItemViewHolder implements CardViewHolder {
     }
 
     // yes this @nullable annotation here is required
-    @Nullable
+    @Optional
     @OnClick(R.id.toggle_repost)
     public void repost() {
         if (clickListener != null) {
