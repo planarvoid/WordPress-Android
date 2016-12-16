@@ -45,6 +45,14 @@ abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem {
                 Optional.<PlaylistItem>absent());
     }
 
+    private UserSoundsItem copyWithTrackItem(TrackItem trackItem) {
+        return new AutoValue_UserSoundsItem(getItemType(), getCollectionType(), Optional.of(trackItem), getPlaylistItem());
+    }
+
+    private UserSoundsItem copyWithPlaylistItem(PlaylistItem playlistItem) {
+        return new AutoValue_UserSoundsItem(getItemType(), getCollectionType(), getTrackItem(), Optional.of(playlistItem));
+    }
+
     static UserSoundsItem fromViewAll(int collectionType) {
         return new AutoValue_UserSoundsItem(
                 TYPE_VIEW_ALL,
@@ -104,32 +112,32 @@ abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem {
     }
 
     @Override
-    public ListItem updated(PropertySet sourceSet) {
+    public UserSoundsItem updated(PropertySet sourceSet) {
         if (isTrack()) {
-            return getTrackItem().get().updated(sourceSet);
+            return copyWithTrackItem(getTrackItem().get().updated(sourceSet));
         } else if (isPlaylist()) {
-            return getPlaylistItem().get().updated(sourceSet);
+            return copyWithPlaylistItem(getPlaylistItem().get().updated(sourceSet));
         } else {
             return this;
         }
     }
 
-    public ListItem updatedWithOfflineState(OfflineState offlineState) {
+    public UserSoundsItem updatedWithOfflineState(OfflineState offlineState) {
         if (isTrack()) {
-            return getTrackItem().get().updatedWithOfflineState(offlineState);
+            return copyWithTrackItem(getTrackItem().get().updatedWithOfflineState(offlineState));
         } else if (isPlaylist()) {
-            return getPlaylistItem().get().updatedWithOfflineState(offlineState);
+            return copyWithPlaylistItem(getPlaylistItem().get().updatedWithOfflineState(offlineState));
         } else {
             return this;
         }
     }
 
     @Override
-    public ListItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
+    public UserSoundsItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
         if (isTrack()) {
-            return getTrackItem().get().updatedWithLike(likeStatus);
+            return copyWithTrackItem(getTrackItem().get().updatedWithLike(likeStatus));
         } else if (isPlaylist()) {
-            return getPlaylistItem().get().updatedWithLike(likeStatus);
+            return copyWithPlaylistItem(getPlaylistItem().get().updatedWithLike(likeStatus));
         } else {
             return this;
         }

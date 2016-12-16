@@ -5,7 +5,6 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.LikeableItem;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.presentation.UpdatableItem;
@@ -32,7 +31,7 @@ class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListIte
     }
 
     @Override
-    public ListItem updated(PropertySet sourceSet) {
+    public PlaylistDetailTrackItem updated(PropertySet sourceSet) {
         return new PlaylistDetailTrackItem(trackItem.updated(sourceSet));
     }
 
@@ -42,7 +41,7 @@ class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListIte
     }
 
     @Override
-    public ListItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
+    public PlaylistDetailTrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
         return new PlaylistDetailTrackItem(trackItem.updatedWithLike(likeStatus));
     }
 

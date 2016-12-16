@@ -27,7 +27,7 @@ abstract class StationInfoTrack implements ListItem, UpdatableItem {
     public abstract TrackItem getTrack();
 
     @Override
-    public ListItem updated(PropertySet sourceSet) {
+    public StationInfoTrack updated(PropertySet sourceSet) {
         return new AutoValue_StationInfoTrack(getTrack().updated(sourceSet));
     }
 
