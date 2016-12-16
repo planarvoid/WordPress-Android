@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -22,5 +22,5 @@
             android:layout_marginRight="@dimen/conversion_margin"
             android:layout_marginLeft="@dimen/conversion_margin" />
 
-    </RelativeLayout>
+    </FrameLayout>
 </ScrollView>

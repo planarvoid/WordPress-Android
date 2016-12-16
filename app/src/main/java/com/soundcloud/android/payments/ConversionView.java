@@ -176,7 +176,6 @@ class ConversionView {
         @Override
         public void onNext(Bitmap image) {
             background.setImageBitmap(image);
-            background.setScaleType(ImageView.ScaleType.CENTER_CROP);
         }
     }
 
