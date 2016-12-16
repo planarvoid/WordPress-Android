@@ -114,17 +114,18 @@ class StreamPlayer implements PlayerListener {
     }
 
     public void play(PlaybackItem playbackItem) {
-        prepareForPlay(playbackItem);
-        currentPlayer.play(playbackItem);
+        lastItemPlayed = playbackItem;
+        final Optional<Player> nextPlayer = getNextPlayer(playbackItem);
+        if (nextPlayer.isPresent()) {
+            configureNextPlayerToUse(nextPlayer.get());
+            currentPlayer.play(playbackItem);
+        } else {
+            publishOfflinePlayNotAvailable();
+        }
     }
 
     public void preload(PreloadItem preloadItem) {
         currentPlayer.preload(preloadItem);
-    }
-
-    private void prepareForPlay(PlaybackItem playbackItem) {
-        lastItemPlayed = playbackItem;
-        configureNextPlayerToUse(playbackItem);
     }
 
     public void resume(PlaybackItem playbackItem) {
@@ -212,10 +213,6 @@ class StreamPlayer implements PlayerListener {
         playerListener.onProgressEvent(progress, duration);
     }
 
-    private void configureNextPlayerToUse(PlaybackItem playbackItem) {
-        configureNextPlayerToUse(getNextPlayer(playbackItem));
-    }
-
     private void configureNextPlayerToUse(Player nextPlayer) {
         Log.i(TAG, "Configuring next player to use : " + nextPlayer);
 
@@ -227,30 +224,31 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.setListener(this);
     }
 
-    private Player getNextPlayer(PlaybackItem playbackItem) {
-        if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE && !offlineContentPlayer.isPresent()) {
-            logOfflinePlayNotAvailable();
-        }
-
+    private Optional<Player> getNextPlayer(PlaybackItem playbackItem) {
+        final Player player;
         switch (playbackItem.getPlaybackType()) {
             case VIDEO_AD:
-                return videoPlayer;
+                player = videoPlayer;
+                break;
             case AUDIO_OFFLINE:
-                return offlineContentPlayer.isPresent() ? offlineContentPlayer.get() : defaultPlayer;
+                player = offlineContentPlayer.isPresent() ? offlineContentPlayer.get() : null;
+                break;
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
             case AUDIO_AD:
-                return defaultPlayer;
+                player = defaultPlayer;
+                break;
             default:
                 throw new IllegalArgumentException("Unknown playback type: " + playbackItem.getPlaybackType());
         }
+        return Optional.fromNullable(player);
     }
 
     private boolean isNotUsingMediaPlayer() {
         return currentPlayer != mediaPlayerDelegate;
     }
 
-    private void logOfflinePlayNotAvailable() {
+    private void publishOfflinePlayNotAvailable() {
         ErrorUtils.handleSilentException(new StreamPlayer.OfflinePlayUnavailableException());
         eventBus.publish(EventQueue.PLAYBACK_ERROR, getOfflinePlayUnavailableErrorEvent());
     }

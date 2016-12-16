@@ -79,7 +79,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    // TODO: Do we need it ? For Flipper also ?
     public void initDoesNotCallInitOnSkippyIfInitAlreadyFailed() {
         when(skippyAdapter.init()).thenReturn(false);
         instantiateStreamPlaya();
@@ -164,6 +163,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnSkippy(offlinePlaybackItem);
 
+        verify(mediaPlayerAdapter, never()).play(offlinePlaybackItem);
         assertThat(eventBus.lastEventOn(EventQueue.PLAYBACK_ERROR).getCategory())
                 .isEqualTo(PlaybackErrorEvent.CATEGORY_OFFLINE_PLAY_UNAVAILABLE);
     }
