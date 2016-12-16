@@ -5,6 +5,7 @@ import static com.soundcloud.android.cast.CastProtocol.TAG;
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPositionLegacy;
 
 import com.google.android.gms.cast.MediaInfo;
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -121,7 +122,7 @@ public class DefaultCastOperations implements CastOperations {
     }
 
     List<Urn> getCurrentQueueUrnsWithoutAds() {
-        return PlayQueue.fromPlayQueueItems(playQueueManager.filterAdQueueItems()).getTrackItemUrns();
+        return PlayQueue.fromPlayQueueItems(playQueueManager.getPlayQueueItems(AdUtils.IS_NOT_AD)).getTrackItemUrns();
     }
 
     @Override

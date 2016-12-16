@@ -10,6 +10,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCa
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
@@ -309,7 +310,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     }
 
     private List<Urn> getCurrentQueueUrnsWithoutAds() {
-        return PlayQueue.fromPlayQueueItems(playQueueManager.filterAdQueueItems()).getTrackItemUrns();
+        return PlayQueue.fromPlayQueueItems(playQueueManager.getPlayQueueItems(AdUtils.IS_NOT_AD)).getTrackItemUrns();
     }
 
     private boolean isCurrentlyLoadedOnRemotePlayer(Urn urn) {

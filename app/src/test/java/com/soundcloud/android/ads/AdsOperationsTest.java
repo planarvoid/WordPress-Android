@@ -474,6 +474,28 @@ public class AdsOperationsTest extends AndroidUnitTest {
                                                 TestPlayQueueItem.createTrack(TRACK_URN)));
     }
 
+    @Test
+    public void sendsEventWhenClearingAds() {
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
+        when(playQueueManager.removeItems(any())).thenReturn(true);
+
+        adsOperations.clearAllAdsFromQueue();
+
+        verify(playQueueManager).removeItems(eq(AdUtils.IS_PLAYER_AD_ITEM));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).adsRemoved()).isTrue();
+    }
+
+    @Test
+    public void doesNotSendEventWhenNoAdsCleared() {
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
+        when(playQueueManager.removeItems(any())).thenReturn(false);
+
+        adsOperations.clearAllAdsFromQueue();
+
+        verify(playQueueManager).removeItems(eq(AdUtils.IS_PLAYER_AD_ITEM));
+        eventBus.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
+    }
+
     private void verifyAudioAdInserted(ApiAdsForTrack adsForTrack) {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
 
@@ -503,4 +525,5 @@ public class AdsOperationsTest extends AndroidUnitTest {
                                                                                           .build();
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(interstitialItem));
     }
+
 }

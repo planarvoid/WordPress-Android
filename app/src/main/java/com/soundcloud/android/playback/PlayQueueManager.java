@@ -5,7 +5,6 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.cast.RemotePlayQueue;
@@ -14,19 +13,16 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.java.strings.Strings;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,8 +60,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private final PlayQueueOperations playQueueOperations;
     private final EventBus eventBus;
-    private final NetworkConnectionHelper networkConnectionHelper;
-    private final TrackOfflineStateProvider offlineStateProvider;
+    private final PlayQueueItemVerifier playQueueItemVerifier;
 
     private Action1<PlayQueue> onPlayQueueLoaded = new Action1<PlayQueue>() {
         @Override
@@ -87,12 +82,10 @@ public class PlayQueueManager implements OriginProvider {
     @Inject
     public PlayQueueManager(PlayQueueOperations playQueueOperations,
                             EventBus eventBus,
-                            NetworkConnectionHelper networkConnectionHelper,
-                            TrackOfflineStateProvider offlineStateProvider) {
+                            PlayQueueItemVerifier playQueueItemVerifier) {
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
-        this.networkConnectionHelper = networkConnectionHelper;
-        this.offlineStateProvider = offlineStateProvider;
+        this.playQueueItemVerifier = playQueueItemVerifier;
     }
 
     public void shuffle() {
@@ -341,6 +334,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public boolean isCurrentTrack(@NotNull Urn trackUrn) {
+
         return trackUrn.isTrack() && isCurrentItem(trackUrn);
     }
 
@@ -518,16 +512,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private boolean isPlayableAtPosition(int i) {
         final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
-        return isNotBlockedTrackOrAd(playQueueItem) &&
-                (networkConnectionHelper.isNetworkConnected() || isOfflineAvailable(playQueueItem));
-    }
-
-    private boolean isNotBlockedTrackOrAd(PlayQueueItem playQueueItem) {
-        return playQueueItem.isAd() || (playQueueItem.isTrack() && !((TrackQueueItem) playQueueItem).isBlocked());
-    }
-
-    private boolean isOfflineAvailable(PlayQueueItem playQueueItem) {
-        return offlineStateProvider.getOfflineState(playQueueItem.getUrn()) == OfflineState.DOWNLOADED;
+        return playQueueItemVerifier.isItemPlayable(playQueueItem);
     }
 
     boolean moveToPreviousPlayableItem() {
@@ -695,17 +680,12 @@ public class PlayQueueManager implements OriginProvider {
 
     }
 
-    @VisibleForTesting
-    void removeAds() {
-        removeAds(PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
-    }
-
-    public void removeAds(PlayQueueEvent updateEvent) {
+    public boolean removeItems(Predicate<PlayQueueItem> predicate) {
         boolean queueUpdated = false;
         int i = 0;
         for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext(); ) {
             final PlayQueueItem item = iterator.next();
-            if (AdUtils.IS_PLAYER_AD_ITEM.apply(item)) {
+            if (predicate.apply(item)) {
                 iterator.remove();
                 queueUpdated = true;
                 if (i <= currentPosition) {
@@ -715,20 +695,7 @@ public class PlayQueueManager implements OriginProvider {
                 i++;
             }
         }
-
-        if (queueUpdated) {
-            eventBus.publish(EventQueue.PLAY_QUEUE, updateEvent);
-        }
-    }
-
-    public List<PlayQueueItem> filterAdQueueItems() {
-        List<PlayQueueItem> matchingQueueItems = new ArrayList<>();
-        for (PlayQueueItem playQueueItem : playQueue) {
-            if (!AdUtils.IS_PLAYER_AD_ITEM.apply(playQueueItem)) {
-                matchingQueueItems.add(playQueueItem);
-            }
-        }
-        return matchingQueueItems;
+        return queueUpdated;
     }
 
     @Nullable
