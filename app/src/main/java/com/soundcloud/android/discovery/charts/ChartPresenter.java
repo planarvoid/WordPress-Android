@@ -12,7 +12,6 @@ import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -66,7 +65,6 @@ class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implemen
 
         final TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator);
         tabLayout.setupWithViewPager(pager);
-        LightCycles.bind(this);
     }
 
     @Override

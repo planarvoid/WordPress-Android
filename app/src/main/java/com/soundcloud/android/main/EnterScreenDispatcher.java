@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 
 import android.support.v4.view.ViewPager;
 
@@ -22,7 +21,6 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
     @Inject
     public EnterScreenDispatcher(ScreenStateProvider screenStateProvider) {
         this.screenStateProvider = screenStateProvider;
-        LightCycles.bind(this);
     }
 
     public void setListener(Listener listener) {

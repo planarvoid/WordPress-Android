@@ -7,7 +7,6 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -36,7 +35,6 @@ public class PlayerController extends ActivityLightCycleDispatcher<AppCompatActi
         this.adOrientationController = adOrientationController;
         this.adViewabilityController = adViewabilityController;
         this.feedbackController = feedbackController;
-        LightCycles.bind(this);
     }
 
     @Override

@@ -39,7 +39,6 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -158,7 +157,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         this.featureFlags = featureFlags;
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
-        LightCycles.bind(this);
     }
 
     void setCurrentPlayQueue(List<PlayQueueItem> playQueue, int currentItem) {

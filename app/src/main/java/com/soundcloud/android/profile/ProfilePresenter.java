@@ -20,7 +20,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -73,7 +72,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         this.eventTracker = eventTracker;
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.enterScreenDispatcher.setListener(this);
-        LightCycles.bind(this);
     }
 
     @Override

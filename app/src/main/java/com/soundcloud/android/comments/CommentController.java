@@ -15,7 +15,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import rx.Subscription;
@@ -29,7 +29,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class CommentController extends ActivityLightCycleDispatcher<AppCompatActivity> {
+public class CommentController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final Lazy<CommentsOperations> commentsOperationsLazy;
     private final FeedbackController feedbackController;

@@ -26,7 +26,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -105,10 +104,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         this.playerPagerScrollListener = playerPagerScrollListener;
         this.adsOperations = adsOperations;
         this.playQueueFragmentFactory = playQueueFragmentFactory;
-
-        LightCycles.bind(this);
-
-        changeTracksHandler = new ChangeTracksHandler(this);
+        this.changeTracksHandler = new ChangeTracksHandler(this);
     }
 
     public void onPlayerSlide(float slideOffset) {

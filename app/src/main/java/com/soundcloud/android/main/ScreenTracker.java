@@ -7,7 +7,6 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,7 +30,6 @@ public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity>
         this.eventTracker = eventTracker;
 
         enterScreenDispatcher.setListener(this);
-        LightCycles.bind(this);
     }
 
     @Override
@@ -44,22 +42,26 @@ public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity>
 
     @Override
     public void onCreate(RootActivity activity, Bundle bundle) {
+        super.onCreate(activity, bundle);
         trackForegroundEvent(activity.getIntent());
         referringEventProvider.setupReferringEvent();
     }
 
     @Override
     public void onNewIntent(RootActivity activity, Intent intent) {
+        super.onNewIntent(activity, intent);
         trackForegroundEvent(intent);
     }
 
     @Override
     public void onRestoreInstanceState(RootActivity activity, Bundle bundle) {
+        super.onRestoreInstanceState(activity, bundle);
         referringEventProvider.restoreReferringEvent(bundle);
     }
 
     @Override
     public void onSaveInstanceState(RootActivity activity, Bundle bundle) {
+        super.onSaveInstanceState(activity, bundle);
         referringEventProvider.saveReferringEvent(bundle);
     }
 

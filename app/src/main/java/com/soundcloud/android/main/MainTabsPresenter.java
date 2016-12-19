@@ -15,7 +15,6 @@ import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 import rx.Subscription;
 
 import android.content.Intent;
@@ -71,7 +70,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.featureOperations = featureOperations;
         enterScreenDispatcher.setListener(this);
-        LightCycles.bind(this);
     }
 
     public void setBaseLayout(RootActivity activity) {

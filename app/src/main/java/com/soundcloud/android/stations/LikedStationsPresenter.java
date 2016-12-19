@@ -13,7 +13,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -74,7 +73,6 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         this.eventBus = eventBus;
         this.stationsNowPlayingController = stationsNowPlayingController;
         this.stationsNowPlayingController.setAdapter(adapter);
-        LightCycles.bind(this);
     }
 
     @Override

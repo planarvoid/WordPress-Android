@@ -20,7 +20,7 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.ProfileToggleButton;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,7 +31,7 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-class ProfileHeaderPresenter extends ActivityLightCycleDispatcher<RootActivity> {
+class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
 
     private static final int POSITION_IN_CONTEXT = 0;
 

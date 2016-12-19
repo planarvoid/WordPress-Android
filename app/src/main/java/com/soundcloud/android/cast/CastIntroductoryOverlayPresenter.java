@@ -3,7 +3,7 @@ package com.soundcloud.android.cast;
 import com.soundcloud.android.R;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
-import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.support.v7.widget.Toolbar;
 
 import javax.inject.Inject;
 
-public class CastIntroductoryOverlayPresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
+public class CastIntroductoryOverlayPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private IntroductoryOverlayPresenter introductoryOverlayPresenter;
     private Resources resources;
