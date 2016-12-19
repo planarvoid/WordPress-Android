@@ -26,7 +26,7 @@ expected_events:
     connection_type: wifi
     click_name: ad::first_quartile
     page_name: deeplink
-    user: soundcloud:users:soundcloud:users:[0-9]+
+    user: soundcloud:users:[0-9]+
     monetization_type: video_ad
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
@@ -41,7 +41,7 @@ expected_events:
     connection_type: wifi
     click_name: ad::second_quartile
     page_name: deeplink
-    user: soundcloud:users:soundcloud:users:[0-9]+
+    user: soundcloud:users:[0-9]+
     monetization_type: video_ad
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
@@ -56,7 +56,7 @@ expected_events:
     connection_type: wifi
     click_name: ad::third_quartile
     page_name: deeplink
-    user: soundcloud:users:soundcloud:users:[0-9]+
+    user: soundcloud:users:[0-9]+
     monetization_type: video_ad
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
@@ -71,6 +71,6 @@ expected_events:
     connection_type: wifi
     click_name: ad::finish
     page_name: deeplink
-    user: soundcloud:users:soundcloud:users:[0-9]+
+    user: soundcloud:users:[0-9]+
     monetization_type: video_ad
   version: '1'
