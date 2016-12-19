@@ -93,7 +93,6 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     private CompositeSubscription eventSubscriptions = new CompositeSubscription();
 
-
     @Inject
     CollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                         CollectionOperations collectionOperations,

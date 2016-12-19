@@ -36,11 +36,11 @@ public class LoginTask extends AuthTask {
     @VisibleForTesting
     static String IS_CONFLICTING_DEVICE = "isConflictingDevice";
 
+    protected final AccountOperations accountOperations;
+    protected final TokenInformationGenerator tokenUtils;
     private final ConfigurationOperations configurationOperations;
     private final EventBus eventBus;
-    protected final AccountOperations accountOperations;
     private final ApiClient apiClient;
-    protected final TokenInformationGenerator tokenUtils;
 
     public LoginTask(@NotNull SoundCloudApplication application, TokenInformationGenerator tokenUtils,
                      StoreUsersCommand storeUsersCommand, ConfigurationOperations configurationOperations,
@@ -106,7 +106,7 @@ public class LoginTask extends AuthTask {
         }
     }
 
-    protected ApiRequest buildRequest() {
+    private ApiRequest buildRequest() {
         return ApiRequest.get(ApiEndpoints.ME.path())
                          .forPrivateApi()
                          .build();

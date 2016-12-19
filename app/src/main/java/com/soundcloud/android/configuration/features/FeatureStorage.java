@@ -66,16 +66,11 @@ public class FeatureStorage {
     }
 
     private Func1<String, Boolean> isFeature(final String name) {
-        return new Func1<String, Boolean>() {
-            @Override
-            public Boolean call(String feature) {
-                return feature.equals(name + ENABLED_POSTFIX);
-            }
-        };
+        return feature -> feature.equals(name + ENABLED_POSTFIX);
     }
 
     public List<Plan> getPlans(String name) {
-        return Plan.fromIds(sharedPreferences.getStringSet(name + PLANS_POSTFIX, Collections.<String>emptySet()));
+        return Plan.fromIds(sharedPreferences.getStringSet(name + PLANS_POSTFIX, Collections.emptySet()));
     }
 
     public void clear() {

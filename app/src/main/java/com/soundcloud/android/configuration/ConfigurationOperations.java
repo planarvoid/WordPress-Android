@@ -8,7 +8,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
@@ -22,8 +21,6 @@ import com.soundcloud.java.net.HttpHeaders;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Single;
-import rx.functions.Action1;
-import rx.functions.Func0;
 import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
@@ -37,8 +34,8 @@ import java.util.concurrent.TimeUnit;
 public class ConfigurationOperations {
 
     public static final String TAG = "Configuration";
-    static final long CONFIGURATION_STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(30);
 
+    static final long CONFIGURATION_STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(30);
     private static final String PARAM_EXPERIMENT_LAYERS = "experiment_layers";
 
     private static final int POLLING_INITIAL_DELAY = 1;
@@ -57,27 +54,10 @@ public class ConfigurationOperations {
     private final Scheduler scheduler;
 
     private final Func1<Long, Observable<Configuration>> toFetchConfiguration =
-            new Func1<Long, Observable<Configuration>>() {
-                @Override
-                public Observable<Configuration> call(Long tick) {
-                    return fetchConfigurationWithRetry(configurationRequestBuilderForGet().build()).toObservable();
-                }
-            };
-
-    private final Action1<Configuration> saveConfiguration = new Action1<Configuration>() {
-        @Override
-        public void call(Configuration configuration) {
-            saveConfiguration(configuration);
-        }
-    };
+            tick -> fetchConfigurationWithRetry(configurationRequestBuilderForGet().build()).toObservable();
 
     private static Func1<Configuration, Boolean> isExpectedPlan(final Plan plan) {
-        return new Func1<Configuration, Boolean>() {
-            @Override
-            public Boolean call(Configuration configuration) {
-                return configuration.getUserPlan().currentPlan.equals(plan);
-            }
-        };
+        return configuration -> configuration.getUserPlan().currentPlan.equals(plan);
     }
 
     @Inject
@@ -92,7 +72,7 @@ public class ConfigurationOperations {
                                    ImageConfigurationStorage imageConfigurationStorage) {
         this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler,
              configurationSettingsStorage, imageConfigurationStorage,
-             tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
+             tryWithBackOffFactory.withDefaults(), scheduler);
     }
 
     @VisibleForTesting
@@ -118,34 +98,21 @@ public class ConfigurationOperations {
     }
 
     Observable<Configuration> update() {
-        return Observable.defer(new Func0<Observable<Configuration>>() {
-            @Override
-            public Observable<Configuration> call() {
-                experimentOperations.loadAssignment();
-                return fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
-                        .subscribeOn(scheduler)
-                        .toObservable();
-            }
+        return Observable.defer(() -> {
+            experimentOperations.loadAssignment();
+            return fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
+                    .subscribeOn(scheduler)
+                    .toObservable();
         });
     }
 
     @NonNull
     private Single<Configuration> fetchConfigurationWithRetry(final ApiRequest request) {
-        return Single.defer(new Callable<Single<Configuration>>() {
-            @Override
-            public Single<Configuration> call() throws Exception {
-                return Single.just(tryWithBackOff.call(fetchConfiguration(request)));
-            }
-        });
+        return Single.defer(() -> Single.just(tryWithBackOff.call(fetchConfiguration(request))));
     }
 
     private Callable<Configuration> fetchConfiguration(final ApiRequest request) {
-        return new Callable<Configuration>() {
-            @Override
-            public Configuration call() throws Exception {
-                return apiClient.fetchMappedResponse(request, Configuration.class);
-            }
-        };
+        return () -> apiClient.fetchMappedResponse(request, Configuration.class);
     }
 
     Observable<Configuration> updateIfNecessary() {
@@ -158,15 +125,15 @@ public class ConfigurationOperations {
         }
     }
 
-    public Observable<Configuration> awaitConfigurationWithPlan(final Plan expectedPlan) {
+    Observable<Configuration> awaitConfigurationWithPlan(final Plan expectedPlan) {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
                          .take(POLLING_MAX_ATTEMPTS)
                          .flatMap(toFetchConfiguration)
                          .takeFirst(isExpectedPlan(expectedPlan))
-                         .doOnNext(saveConfiguration);
+                         .doOnNext(this::saveConfiguration);
     }
 
-    public Observable<Configuration> awaitConfigurationFromPendingPlanChange() {
+    Observable<Configuration> awaitConfigurationFromPendingPlanChange() {
         //TODO: account for mid-tier
         if (isPendingHighTierUpgrade()) {
             return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanUpgrade());
@@ -207,18 +174,8 @@ public class ConfigurationOperations {
         return apiClientRx.response(ApiRequest.delete(ApiEndpoints.DEVICE_REGISTRATION.path())
                                               .forPrivateApi()
                                               .build())
-                          .doOnNext(new Action1<ApiResponse>() {
-                              @Override
-                              public void call(ApiResponse apiResponse) {
-                                  Log.d(TAG, "De-registered device");
-                              }
-                          })
-                          .doOnError(new Action1<Throwable>() {
-                              @Override
-                              public void call(Throwable throwable) {
-                                  ErrorUtils.handleThrowable(throwable, ConfigurationOperations.class);
-                              }
-                          })
+                          .doOnNext(apiResponse -> Log.d(TAG, "De-registered device"))
+                          .doOnError(throwable -> ErrorUtils.handleThrowable(throwable, ConfigurationOperations.class))
                           .cast(Object.class)
                           .onErrorResumeNext(Observable.just(RxUtils.EMPTY_VALUE));
     }
@@ -243,15 +200,15 @@ public class ConfigurationOperations {
         featureOperations.updatePlan(configuration.getUserPlan());
     }
 
-    public boolean isPendingHighTierUpgrade() {
+    boolean isPendingHighTierUpgrade() {
         return configurationSettingsStorage.getPendingPlanUpgrade() == Plan.HIGH_TIER;
     }
 
-    public boolean isPendingDowngrade() {
+    boolean isPendingDowngrade() {
         return configurationSettingsStorage.getPendingPlanDowngrade() != Plan.UNDEFINED;
     }
 
-    public void clearPendingPlanChanges() {
+    void clearPendingPlanChanges() {
         configurationSettingsStorage.clearPendingPlanChanges();
     }
 

@@ -15,9 +15,9 @@ public class PlanChangeDetector {
     private final ConfigurationSettingsStorage configurationSettingsStorage;
 
     @Inject
-    public PlanChangeDetector(EventBus eventBus,
-                              FeatureOperations featureOperations,
-                              ConfigurationSettingsStorage configurationSettingsStorage) {
+    PlanChangeDetector(EventBus eventBus,
+                       FeatureOperations featureOperations,
+                       ConfigurationSettingsStorage configurationSettingsStorage) {
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
         this.configurationSettingsStorage = configurationSettingsStorage;

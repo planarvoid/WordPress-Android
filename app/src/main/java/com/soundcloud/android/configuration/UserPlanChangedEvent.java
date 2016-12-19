@@ -6,8 +6,8 @@ public class UserPlanChangedEvent {
     private static final int UPGRADE = 1;
 
     private final int kind;
-    public final Plan oldPlan;
-    public final Plan newPlan;
+    final Plan oldPlan;
+    final Plan newPlan;
 
     static UserPlanChangedEvent forDowngrade(Plan oldPlan, Plan newPlan) {
         return new UserPlanChangedEvent(DOWNGRADE, oldPlan, newPlan);
@@ -17,7 +17,7 @@ public class UserPlanChangedEvent {
         return new UserPlanChangedEvent(UPGRADE, oldPlan, newPlan);
     }
 
-    UserPlanChangedEvent(int kind, Plan oldPlan, Plan newPlan) {
+    private UserPlanChangedEvent(int kind, Plan oldPlan, Plan newPlan) {
         this.kind = kind;
         this.oldPlan = oldPlan;
         this.newPlan = newPlan;
