@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.player.ads;
 import static com.soundcloud.android.framework.helpers.PlayerHelper.assertSwipeToNextTrack;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.activity.resolve.ResolveBaseTest;
@@ -17,6 +18,11 @@ public abstract class AdBaseTest extends ResolveBaseTest {
         super.setUp();
         playAdPlaylist();
         setRunBasedOnTestResource(BuildConfig.RUN_ADS_TEST);
+    }
+
+    @Override
+    protected TestUser getUserForLogin() {
+        return TestUser.adTestUser;
     }
 
     /**

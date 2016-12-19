@@ -282,13 +282,22 @@ public class TestUser {
             false);
 
     // not used directly in a test, but user info is kept here for documentation
-    public static final TestUser adUser = new TestUser(
+    public static final TestUser adOwnerUser = new TestUser(
             "scandroidad1",
             "scandroidtestad1@gmail.com",
             "scandtest",
             "",
             107640680,
             true);
+
+    public static final TestUser adTestUser = new TestUser(
+            "android_ad_user",
+            "guillaume+android+ad+user@soundcloud.com",
+            "android_ad_user",
+            "2-138878-276289453-shI8k3BLfM0cU7",
+            276289453,
+            true);
+
     public static final TestUser androidTestUser = new TestUser(
             "andtestpl",
             "sc.test.user.pl1@gmail.com",
