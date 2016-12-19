@@ -21,6 +21,7 @@ enum Feature {
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
   MOAT_ADS_VIEWABILITY,
   NEW_HOME,
+  STREAM_HIGHLIGHTS,
   APP_INSTALLS,
   PROFILE_BANNER,
   CLEAR_TABLES_ON_SIGNOUT,
@@ -47,6 +48,7 @@ android {
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APP_INSTALLS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), UNDER_DEVELOPMENT
@@ -69,6 +71,7 @@ android {
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW

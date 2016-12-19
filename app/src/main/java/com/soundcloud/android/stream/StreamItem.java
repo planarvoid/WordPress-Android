@@ -4,6 +4,7 @@ package com.soundcloud.android.stream;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -29,7 +30,8 @@ public abstract class StreamItem {
         FACEBOOK_CREATORS,
         STREAM_UPSELL,
         SUGGESTED_CREATORS,
-        APP_INSTALL
+        APP_INSTALL,
+        STREAM_HIGHLIGHTS
     }
 
     static StreamItem forUpsell() {
@@ -62,13 +64,15 @@ public abstract class StreamItem {
 
     static StreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
         if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
-            return TrackStreamItem.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
+            return TrackStreamItem.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(),
+                                                     streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof TrackItem) {
-            return TrackStreamItem.create((TrackItem)streamPlayable.playableItem(), streamPlayable.createdAt());
+            return TrackStreamItem.create((TrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof PromotedPlaylistItem) {
-            return Playlist.createForPromoted((PromotedPlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
+            return Playlist.createForPromoted((PromotedPlaylistItem) streamPlayable.playableItem(),
+                                              streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof PlaylistItem) {
-            return Playlist.create((PlaylistItem)streamPlayable.playableItem(), streamPlayable.createdAt());
+            return Playlist.create((PlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else {
             throw new IllegalArgumentException("Unknown playable item.");
         }
@@ -94,16 +98,16 @@ public abstract class StreamItem {
     public abstract Kind kind();
 
     public boolean isPromoted() {
-        return (this.kind() == Kind.TRACK && ((TrackStreamItem)this).promoted())
-                || (this.kind() == Kind.PLAYLIST && ((Playlist)this).promoted());
+        return (this.kind() == Kind.TRACK && ((TrackStreamItem) this).promoted())
+                || (this.kind() == Kind.PLAYLIST && ((Playlist) this).promoted());
     }
 
     public boolean isAd() {
-       return kind() == Kind.APP_INSTALL;
+        return kind() == Kind.APP_INSTALL;
     }
 
     public boolean isUpsell() {
-       return kind() == Kind.STREAM_UPSELL;
+        return kind() == Kind.STREAM_UPSELL;
     }
 
     @AutoValue
@@ -113,6 +117,7 @@ public abstract class StreamItem {
     @AutoValue
     public abstract static class FacebookCreatorInvites extends StreamItem {
         public abstract Urn trackUrn();
+
         abstract String trackUrl();
 
         private static FacebookCreatorInvites create(Urn trackUrn, String trackUrl) {
@@ -136,7 +141,9 @@ public abstract class StreamItem {
     @AutoValue
     public abstract static class Playlist extends StreamItem {
         public abstract PlaylistItem playlistItem();
+
         public abstract boolean promoted();
+
         public abstract Date createdAt();
 
         static Playlist create(PlaylistItem playlistItem, Date createdAt) {
@@ -161,12 +168,26 @@ public abstract class StreamItem {
     @AutoValue
     public abstract static class SuggestedCreators extends StreamItem {
         public abstract List<SuggestedCreatorItem> suggestedCreators();
+
         public static SuggestedCreators create(List<SuggestedCreator> suggestedCreators) {
             final List<SuggestedCreatorItem> suggestedCreatorItems = new ArrayList<>(suggestedCreators.size());
             for (SuggestedCreator suggestedCreator : suggestedCreators) {
                 suggestedCreatorItems.add(SuggestedCreatorItem.fromSuggestedCreator(suggestedCreator));
             }
             return new AutoValue_StreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreatorItems);
+        }
+    }
+
+    @AutoValue
+    public abstract static class StreamHighlights extends StreamItem {
+        public abstract List<TrackItem> suggestedTrackItems();
+
+        public static StreamHighlights create(List<ApiTrack> suggestedTracks) {
+            final List<TrackItem> suggestedTrackItems = new ArrayList<>(suggestedTracks.size());
+            for (ApiTrack apiTrack : suggestedTracks) {
+                suggestedTrackItems.add(TrackItem.from(apiTrack.toPropertySet()));
+            }
+            return new AutoValue_StreamItem_StreamHighlights(Kind.STREAM_HIGHLIGHTS, suggestedTrackItems);
         }
     }
 

@@ -43,24 +43,29 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     private final StreamAdsController streamAdsController;
     private final StationsOperations stationsOperations;
     private final InlineUpsellOperations upsellOperations;
+    private final StreamHighlightsOperations streamHighlightsOperations;
     private final SuggestedCreatorsOperations suggestedCreatorsOperations;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
 
-    private static boolean isSuggestedCreatorsNotification(Optional<StreamItem> notificationItemOptional) {
+    private static boolean isSuggestedCreatorsNotification(Optional<? extends StreamItem> notificationItemOptional) {
         return notificationItemOptional.isPresent() && notificationItemOptional.get().kind() == Kind.SUGGESTED_CREATORS;
     }
 
     @Inject
-    StreamOperations(StreamStorage streamStorage, SyncInitiator syncInitiator,
+    StreamOperations(StreamStorage streamStorage,
+                     SyncInitiator syncInitiator,
                      RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
-                     MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
+                     MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand,
+                     EventBus eventBus,
                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                      FacebookInvitesOperations facebookInvites,
                      StreamAdsController streamAdsController,
-                     StationsOperations stationsOperations, InlineUpsellOperations upsellOperations,
+                     StationsOperations stationsOperations,
+                     InlineUpsellOperations upsellOperations,
                      SyncStateStorage syncStateStorage,
+                     StreamHighlightsOperations streamHighlightsOperations,
                      SuggestedCreatorsOperations suggestedCreatorsOperations) {
         super(Syncable.SOUNDSTREAM,
               streamStorage,
@@ -75,6 +80,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         this.facebookInvites = facebookInvites;
         this.streamAdsController = streamAdsController;
         this.stationsOperations = stationsOperations;
+        this.streamHighlightsOperations = streamHighlightsOperations;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.upsellOperations = upsellOperations;
     }
@@ -93,6 +99,10 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         return removeStalePromotedItemsCommand.toObservable(null)
                                               .subscribeOn(scheduler)
                                               .flatMap(continueWith(initialTimelineItems(false)))
+                                              .zipWith(streamHighlightsOperations.highlights().map(Optional::of)
+                                                                                 .defaultIfEmpty(Optional.absent())
+                                                                                 .onErrorReturn(throwable -> Optional.absent())
+                                                      , StreamOperations::addNotificationItemToStream)
                                               .zipWith(initialNotificationItem(),
                                                        StreamOperations::addNotificationItemToStream)
                                               .map(this::addUpsellableItem)
@@ -122,6 +132,8 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     Observable<List<StreamItem>> updatedStreamItems() {
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
+                    .zipWith(streamHighlightsOperations.highlights().map(Optional::of).defaultIfEmpty(Optional.absent())
+                            , StreamOperations::addNotificationItemToStream)
                     .zipWith(updatedNotificationItem(), StreamOperations::addNotificationItemToStream)
                     .doOnNext(this::promotedImpressionAction)
                     .doOnNext(streamItems -> streamAdsController.insertAds());
@@ -217,7 +229,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     }
 
     private static List<StreamItem> addNotificationItemToStream(List<StreamItem> streamItems,
-                                                                Optional<StreamItem> notificationItemOptional) {
+                                                                Optional<? extends StreamItem> notificationItemOptional) {
         List<StreamItem> result = Lists.newArrayList(streamItems);
         if (isSuggestedCreatorsNotification(notificationItemOptional) || !streamItems.isEmpty()) {
             result.addAll(0, notificationItemOptional.asSet());

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:foreground="@drawable/artwork_border"
+    android:layout_marginTop="12dp"
+    android:layout_marginBottom="12dp"
+    tools:showIn="@layout/collection_preview">
+
+    <LinearLayout
+        android:id="@+id/thumbnail_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" />
+
+</FrameLayout>

@@ -54,6 +54,7 @@
     </declare-styleable>
 
     <declare-styleable name="CollectionPreviewView">
+        <attr name="collectionTitleEnabled" format="boolean" />
         <attr name="collectionTitle" format="string" />
         <attr name="collectionIcon" format="integer" />
         <attr name="collectionPreviewOverlay" format="integer" />

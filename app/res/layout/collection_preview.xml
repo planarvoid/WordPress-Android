@@ -26,19 +26,8 @@
             android:layout_toRightOf="@id/title"
             android:visibility="gone" />
 
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:foreground="@drawable/artwork_border">
+        <include layout="@layout/preview_thumbnails" />
 
-            <LinearLayout
-                android:id="@+id/thumbnail_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
-
-        </FrameLayout>
     </RelativeLayout>
 
 </merge>

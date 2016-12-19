@@ -31,25 +31,31 @@ public class CollectionPreviewView extends FrameLayout {
     private ViewGroup thumbnailContainer;
     private int numThumbnails;
     private TextView title;
+    private boolean titleEnabled;
 
 
     public CollectionPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
 
         final TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.CollectionPreviewView);
-
-        title = (TextView) findViewById(R.id.title);
-        setTitle(styledAttributes.getString(R.styleable.CollectionPreviewView_collectionTitle));
-        title.setCompoundDrawablesWithIntrinsicBounds(
-                styledAttributes.getDrawable(R.styleable.CollectionPreviewView_collectionIcon), null, null, null);
-
+        titleEnabled = styledAttributes.getBoolean(R.styleable.CollectionPreviewView_collectionTitleEnabled, true);
+        if (titleEnabled) {
+            init(context, R.layout.collection_preview);
+            title = (TextView) findViewById(R.id.title);
+            setTitle(styledAttributes.getString(R.styleable.CollectionPreviewView_collectionTitle));
+            title.setCompoundDrawablesWithIntrinsicBounds(
+                    styledAttributes.getDrawable(R.styleable.CollectionPreviewView_collectionIcon), null, null, null);
+        } else {
+            init(context, R.layout.preview_thumbnails);
+        }
         previewIconOverlay = fromNullable(styledAttributes.getDrawable(R.styleable.CollectionPreviewView_collectionPreviewOverlay));
         styledAttributes.recycle();
     }
 
     public void setTitle(String text) {
-        title.setText(text);
+        if (titleEnabled) {
+            title.setText(text);
+        }
     }
 
     @VisibleForTesting
@@ -57,12 +63,12 @@ public class CollectionPreviewView extends FrameLayout {
                                  @Nullable Drawable previewIconOverlay) {
         super(context);
         this.previewIconOverlay = fromNullable(previewIconOverlay);
-        init(context);
+        init(context, R.layout.collection_preview);
     }
 
-    private void init(Context context) {
+    private void init(Context context, int layout) {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.collection_preview, this);
+        inflater.inflate(layout, this);
         thumbnailContainer = (ViewGroup) findViewById(R.id.thumbnail_container);
     }
 

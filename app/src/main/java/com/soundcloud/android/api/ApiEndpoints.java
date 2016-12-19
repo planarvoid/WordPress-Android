@@ -115,6 +115,7 @@ public enum ApiEndpoints {
     // timeline features
     STREAM("/stream"),
     ACTIVITIES("/activities"),
+    STREAM_HIGHLIGHTS("/stream/highlights"),
 
     // streams
     HLS_STREAM("/tracks/%s/streams/hls"),

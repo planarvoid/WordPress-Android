@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static rx.Observable.empty;
 import static rx.Observable.from;
 
 import com.soundcloud.android.ads.StreamAdsController;
@@ -66,6 +67,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Mock private StationsOperations stationsOperations;
     @Mock private InlineUpsellOperations upsellOperations;
     @Mock private SuggestedCreatorsOperations suggestedCreatorsOperations;
+    @Mock private StreamHighlightsOperations streamHighlightsOperations;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -74,11 +76,12 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Before
     public void setUp() throws Exception {
-        when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
-        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.<StreamItem>empty());
-        when(facebookInvitesOperations.listenerInvites()).thenReturn(Observable.<StreamItem>empty());
-        when(stationsOperations.onboardingStreamItem()).thenReturn(Observable.<StreamItem>empty());
-        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Observable.<StreamItem>empty());
+        when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
+        when(facebookInvitesOperations.creatorInvites()).thenReturn(empty());
+        when(facebookInvitesOperations.listenerInvites()).thenReturn(empty());
+        when(stationsOperations.onboardingStreamItem()).thenReturn(empty());
+        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(empty());
+        when(streamHighlightsOperations.highlights()).thenReturn(empty());
         this.operations = (StreamOperations) super.operations;
     }
 
@@ -89,8 +92,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
                                                                              SyncStateStorage syncStateStorage) {
         return new StreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
                                     markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
-                streamAdsController, stationsOperations, upsellOperations, syncStateStorage,
-                                    suggestedCreatorsOperations);
+                                    streamAdsController, stationsOperations, upsellOperations, syncStateStorage,
+                                    streamHighlightsOperations, suggestedCreatorsOperations);
     }
 
     @Override

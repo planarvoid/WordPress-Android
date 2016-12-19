@@ -14,8 +14,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.StreamAdsController;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -66,7 +66,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         FacebookCreatorInvitesItemRenderer.Listener,
         UpsellItemRenderer.Listener,
         AppInstallItemRenderer.Listener,
-        NewItemsIndicator.Listener {
+        NewItemsIndicator.Listener, StreamHighlightsItemRenderer.Listener {
 
     private static final Func1<StreamEvent, Boolean> FILTER_STREAM_REFRESH_EVENTS = new Func1<StreamEvent, Boolean>() {
         @Override
@@ -130,6 +130,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         adapter.setOnStationsOnboardingStreamClickListener(this);
         adapter.setOnUpsellClickListener(this);
         adapter.setOnAppInstallClickListener(this);
+        adapter.setOnStreamHighlightsClickListener(this);
     }
 
     @Override
@@ -286,6 +287,11 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onUpsellItemCreated() {
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamImpression());
+    }
+
+    @Override
+    public void onStreamHighlightsClicked(List<Urn> highlights) {
+        navigator.openStreamHighlights(fragment.getActivity(), highlights);
     }
 
     private void removeItem(int position) {

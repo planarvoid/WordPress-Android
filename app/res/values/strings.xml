@@ -736,6 +736,9 @@
     <string name="stream_track">track</string>
     <string name="stream_promoted_playable">Promoted %s</string>
     <string name="stream_sponsored_item">Sponsored %s</string>
+    <string name="stream_highlights">Stream Highlights</string>
+    <string name="stream_highlights_description">Recommended items from the past week</string>
+
 
     <!-- __NOTIFICATIONS (prev. ACTIVITIES) -->
     <!--

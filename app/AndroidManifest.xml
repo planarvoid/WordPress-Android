@@ -104,6 +104,11 @@
         </activity>
 
         <activity
+            android:name=".stream.StreamHighlightsActivity"
+            android:theme="@style/Theme.SoundCloud"
+            android:label="@string/stream_highlights"/>
+
+        <activity
             android:name=".upgrade.GoOnboardingActivity"
             android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
         <activity

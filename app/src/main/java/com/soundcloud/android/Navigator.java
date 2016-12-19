@@ -53,6 +53,7 @@ import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
+import com.soundcloud.android.stream.StreamHighlightsActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -291,6 +292,12 @@ public class Navigator {
         } else {
             context.startActivity(createRecordPermissionIntent(context, recording, screen));
         }
+    }
+
+    public void openStreamHighlights(Context context, List<Urn> highlights) {
+        Intent intent = new Intent(context, StreamHighlightsActivity.class);
+        intent.putExtra(StreamHighlightsActivity.URN_ARGS, new ArrayList<>(highlights));
+        context.startActivity(intent);
     }
 
     private boolean hasMicrophonePermission(Context context) {

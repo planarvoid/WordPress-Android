@@ -5,6 +5,9 @@
     <integer name="waveform_ratio_bottom">4</integer>
     <integer name="timestamp_animate_percentage">25</integer>
 
+    <!-- Stream -->
+    <integer name="stream_preview_highlights_thumbnail_count">5</integer>
+
     <!-- Collection -->
     <integer name="stations_recommendation_card_count">3</integer>
     <integer name="collection_grid_span_count">3</integer>

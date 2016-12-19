@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        style="@style/Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:ignore="UselessParent">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            style="@style/Cards.PrimaryHeaderText"
+            android:text="@string/stream_highlights" />
+
+        <com.soundcloud.android.collection.CollectionPreviewView
+            android:id="@+id/stream_highlights_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:collectionTitleEnabled="false" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            style="@style/Cards.SecondaryHeaderText"
+            android:text="@string/stream_highlights_description" />
+
+    </LinearLayout>
+</FrameLayout>
+
+
+
