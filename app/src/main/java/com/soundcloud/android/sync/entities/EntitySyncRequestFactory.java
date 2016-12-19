@@ -15,17 +15,17 @@ import java.util.List;
 
 public class EntitySyncRequestFactory {
     private final Lazy<EntitySyncJob> tracksSyncJob;
-    private final Lazy<EntitySyncJob> playlistSyncJob;
+    private final Lazy<EntitySyncJob> playlistsSyncJob;
     private final Lazy<EntitySyncJob> usersSyncJob;
     private final EventBus eventBus;
 
     @Inject
     public EntitySyncRequestFactory(@Named(EntitySyncModule.TRACKS_SYNC) Lazy<EntitySyncJob> trackSyncJob,
-                                    @Named(EntitySyncModule.PLAYLISTS_SYNC) Lazy<EntitySyncJob> playlistSyncJob,
+                                    @Named(EntitySyncModule.PLAYLISTS_SYNC) Lazy<EntitySyncJob> playlistsSyncJob,
                                     @Named(EntitySyncModule.USERS_SYNC) Lazy<EntitySyncJob> usersSyncJob,
                                     EventBus eventBus) {
         this.tracksSyncJob = trackSyncJob;
-        this.playlistSyncJob = playlistSyncJob;
+        this.playlistsSyncJob = playlistsSyncJob;
         this.usersSyncJob = usersSyncJob;
         this.eventBus = eventBus;
     }
@@ -43,8 +43,8 @@ public class EntitySyncRequestFactory {
                 return tracksSyncJob.get();
             case USERS:
                 return usersSyncJob.get();
-            case PLAYLIST:
-                return playlistSyncJob.get();
+            case PLAYLISTS:
+                return playlistsSyncJob.get();
             default:
                 throw new IllegalArgumentException("Unexpected syncable : " + syncable);
         }
