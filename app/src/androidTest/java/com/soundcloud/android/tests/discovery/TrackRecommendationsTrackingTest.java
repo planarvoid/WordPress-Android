@@ -14,7 +14,7 @@ public class TrackRecommendationsTrackingTest extends TrackingActivityTest<MainA
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.subscribeUser;
+        return TestUser.defaultUser;
     }
 
     public void testStartPlaybackFromReasonOnDiscoveryScreen() {

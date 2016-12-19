@@ -23,7 +23,7 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.subscribeUser;
+        return TestUser.defaultUser;
     }
 
     @Override
