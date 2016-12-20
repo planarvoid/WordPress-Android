@@ -175,7 +175,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         operations.playlistsForTag("tag1").subscribe(observer);
 
         PlaylistItem playlistItem = PlaylistItem.from(captureFirstPlaylist());
-        assertThat(playlistItem.isLiked()).isTrue();
+        assertThat(playlistItem.isLikedByCurrentUser()).isTrue();
     }
 
     @Test
@@ -189,7 +189,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         operations.playlistsForTag("tag1").subscribe(observer);
 
         PlaylistItem playlistItem = PlaylistItem.from(captureFirstPlaylist());
-        assertThat(playlistItem.isLiked()).isFalse();
+        assertThat(playlistItem.isLikedByCurrentUser()).isFalse();
     }
 
     @Test

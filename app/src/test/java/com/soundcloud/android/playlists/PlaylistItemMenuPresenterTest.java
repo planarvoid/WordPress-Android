@@ -21,6 +21,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -128,7 +129,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingOnAddToLikesAddPlaylistLike() {
         final PublishSubject<PropertySet> likeObservable = PublishSubject.create();
-        when(likeOperations.toggleLike(playlist.getUrn(), !playlist.isLiked())).thenReturn(likeObservable);
+        when(likeOperations.toggleLike(playlist.getUrn(), !playlist.isLikedByCurrentUser())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.show(button, playlist, menuOptions);
@@ -139,7 +140,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickRepostItemRepostsPlaylist() {
-        final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
+        final PublishSubject<RepostsStatusEvent.RepostStatus> repostObservable = PublishSubject.create();
         when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isRepostedByCurrentUser())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
@@ -152,7 +153,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnRepostSendsTrackingEvent() {
-        final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
+        final PublishSubject<RepostsStatusEvent.RepostStatus> repostObservable = PublishSubject.create();
         when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isRepostedByCurrentUser())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);

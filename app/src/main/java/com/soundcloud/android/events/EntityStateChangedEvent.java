@@ -26,7 +26,6 @@ import java.util.Map;
 public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static final int UPDATED = 0;
-    public static final int REPOST = 3;
     public static final int PLAYLIST_EDITED = 4;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
     public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
@@ -36,13 +35,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
     public static final int STATIONS_COLLECTION_UPDATED = 11;
     public static final int PLAYLIST_MARKED_FOR_DOWNLOAD = 12;
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isSingularChange() && event.getFirstUrn().isTrack();
-        }
-    };
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_ADDED_TO_PLAYLIST_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -89,16 +81,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent fromFollowing(PropertySet newFollowingState) {
         return create(FOLLOWING, newFollowingState);
-    }
-
-    public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted) {
-        return create(REPOST, PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_USER_REPOST.bind(reposted)));
-    }
-
-    public static EntityStateChangedEvent fromRepost(Collection<PropertySet> newRepostStates) {
-        return create(REPOST, newRepostStates);
     }
 
     public static EntityStateChangedEvent fromEntityCreated(Urn urn) {
@@ -198,6 +180,15 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public boolean containsCreatedPlaylist() {
         return getFirstUrn().isPlaylist() && getKind() == ENTITY_CREATED;
+    }
+
+    public boolean containsTrackChange() {
+        for (Urn urn : getChangeMap().keySet()) {
+            if (urn.isTrack()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean containsDeletedPlaylist() {

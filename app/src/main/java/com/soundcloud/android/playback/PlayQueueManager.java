@@ -21,6 +21,7 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -343,6 +344,14 @@ public class PlayQueueManager implements OriginProvider {
         return currentPosition1 < getQueueSize() &&
                 !getPlayQueueItemAtPosition(currentPosition1).isEmpty() &&
                 getPlayQueueItemAtPosition(currentPosition1).getUrn().equals(itemUrn);
+    }
+
+    public Optional<Urn> getCurrentItemUrn() {
+        final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
+        if (!currentPlayQueueItem.isEmpty()) {
+            return Optional.of(currentPlayQueueItem.getUrn());
+        }
+        return Optional.absent();
     }
 
     public boolean isQueueEmpty() {

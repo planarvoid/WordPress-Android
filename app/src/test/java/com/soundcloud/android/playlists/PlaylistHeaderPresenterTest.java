@@ -29,10 +29,11 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -186,8 +187,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                  playlistWithTracks.getLikesCount()));
         verify(engagementsView).updateLikeItem(Optional.of(playlistWithTracks.getLikesCount()), true);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromRepost(playlistWithTracks.getUrn(), true));
+        eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.createReposted(playlistWithTracks.getUrn()));
         verify(engagementsView).showPublicOptions(true);
     }
 
@@ -196,7 +196,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forTrack(2L), true, 1));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true));
+        eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.createReposted(Urn.forTrack(2L)));
 
         verify(engagementsView, never()).updateLikeItem(any(Optional.class), eq(true));
         verify(engagementsView, never()).showPublicOptions(eq(true));
@@ -242,7 +242,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenRepostingPlayable() {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
-                                           anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+                                           anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleRepost(true, false);
@@ -256,7 +256,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
-                                           anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+                                           anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleRepost(false, false);
@@ -305,7 +305,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldRepostTrackWhenCheckingRepostButton() {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
-                                           anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+                                           anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
 
         presenter.onToggleRepost(true, false);
 

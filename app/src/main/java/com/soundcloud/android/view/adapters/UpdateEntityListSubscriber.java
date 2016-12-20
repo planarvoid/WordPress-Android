@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -22,11 +21,11 @@ public final class UpdateEntityListSubscriber extends DefaultSubscriber<EntitySt
     @Override
     public void onNext(final EntityStateChangedEvent event) {
         final Map<Urn, PropertySet> changeSet = event.getChangeMap();
-        final Iterable<ListItem> filtered = Iterables.filter(adapter.getItems(), ListItem.class);
-        for (ListItem item : filtered) {
+        final Iterable<UpdatableItem> filtered = Iterables.filter(adapter.getItems(), UpdatableItem.class);
+        for (UpdatableItem item : filtered) {
             final Urn urn = item.getUrn();
-            if (changeSet.containsKey(urn) && item instanceof UpdatableItem) {
-                final ListItem updatedListItem = ((UpdatableItem)item).updated(changeSet.get(urn));
+            if (changeSet.containsKey(urn)) {
+                final UpdatableItem updatedListItem = item.updated(changeSet.get(urn));
                 final int position = adapter.getItems().indexOf(item);
                 if (adapter.getItems().size() > position) {
                     adapter.getItems().set(position, updatedListItem);

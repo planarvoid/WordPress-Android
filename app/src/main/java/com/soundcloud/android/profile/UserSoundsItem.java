@@ -6,12 +6,14 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -21,7 +23,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem {
+abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem, RepostableItem {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
@@ -138,6 +140,17 @@ abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem {
             return copyWithTrackItem(getTrackItem().get().updatedWithLike(likeStatus));
         } else if (isPlaylist()) {
             return copyWithPlaylistItem(getPlaylistItem().get().updatedWithLike(likeStatus));
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public UserSoundsItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
+        if (isTrack()) {
+            return copyWithTrackItem(getTrackItem().get().updatedWithRepost(repostStatus));
+        } else if (isPlaylist()) {
+            return copyWithPlaylistItem(getPlaylistItem().get().updatedWithRepost(repostStatus));
         } else {
             return this;
         }

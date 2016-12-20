@@ -14,11 +14,10 @@ import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -40,7 +39,6 @@ import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -407,29 +405,20 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     @Override
-    public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
+    public void onPlayableReposted(View trackPage, RepostsStatusEvent.RepostStatus repostStatus) {
         final TrackPageHolder holder = getViewHolder(trackPage);
-        final PropertySet changeSet = trackChangedEvent.getNextChangeSet();
-
-        if (changeSet.contains(PlayableProperty.IS_USER_REPOST)) {
-            final boolean isReposted = changeSet.get(PlayableProperty.IS_USER_REPOST);
-            holder.menuController.setIsUserRepost(isReposted);
-
-            if (trackChangedEvent.getKind() == EntityStateChangedEvent.REPOST) {
-                showRepostToast(trackPage.getContext(), isReposted);
-            }
-        }
+        final boolean isReposted = repostStatus.isReposted();
+        holder.menuController.setIsUserRepost(isReposted);
+        showRepostToast(trackPage.getContext(), isReposted);
     }
 
     @Override
-    public void onLikeUpdated(View trackPage, LikesStatusEvent likesStatusEvent) {
+    public void onPlayableLiked(View trackPage, LikesStatusEvent.LikeStatus likeStatus) {
         final TrackPageHolder holder = getViewHolder(trackPage);
-        for (LikesStatusEvent.LikeStatus likeStatus : likesStatusEvent.likes().values()) {
-            holder.likeToggle.setChecked(likeStatus.isUserLike());
-            if (likeStatus.likeCount().isPresent()) {
-                likeButtonPresenter.setLikeCount(holder.likeToggle, likeStatus.likeCount().get(),
-                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like);
-            }
+        holder.likeToggle.setChecked(likeStatus.isUserLike());
+        if (likeStatus.likeCount().isPresent()) {
+            likeButtonPresenter.setLikeCount(holder.likeToggle, likeStatus.likeCount().get(),
+                                             R.drawable.ic_player_liked, R.drawable.ic_player_like);
         }
     }
 

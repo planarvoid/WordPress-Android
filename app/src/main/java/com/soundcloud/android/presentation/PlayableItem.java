@@ -2,6 +2,8 @@ package com.soundcloud.android.presentation;
 
 import static com.soundcloud.android.presentation.TypedListItem.Kind.PLAYABLE;
 
+import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
@@ -21,7 +23,7 @@ import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem, LikeableItem {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem, LikeableItem, RepostableItem {
 
     protected final PropertySet source;
 
@@ -78,6 +80,23 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
         return this;
     }
 
+    public PlayableItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
+        this.source.put(PlayableProperty.IS_USER_LIKE, likeStatus.isUserLike());
+        if (likeStatus.likeCount().isPresent()) {
+            this.source.put(PlayableProperty.LIKES_COUNT, likeStatus.likeCount().get());
+        }
+        return this;
+    }
+
+    @Override
+    public PlayableItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
+        this.source.put(PlayableProperty.IS_USER_REPOST, repostStatus.isReposted());
+        if (repostStatus.repostCount().isPresent()) {
+            this.source.put(PlayableProperty.REPOSTS_COUNT, repostStatus.repostCount().get());
+        }
+        return null;
+    }
+
     @Override
     public Kind getKind() {
         return PLAYABLE;
@@ -111,7 +130,7 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
         return source.getOrElse(PlayableProperty.IS_PRIVATE, false);
     }
 
-    public boolean isLiked() {
+    public boolean isLikedByCurrentUser() {
         return source.getOrElse(PlayableProperty.IS_USER_LIKE, false);
     }
 

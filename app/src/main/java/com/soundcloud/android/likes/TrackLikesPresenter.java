@@ -4,6 +4,7 @@ import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
+import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.google.auto.value.AutoValue;
@@ -30,6 +31,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
+import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.LightCycle;
@@ -158,11 +160,9 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
 
-                eventBus.subscribe(ENTITY_STATE_CHANGED,
-                                   new UpdateEntityListSubscriber(adapter)),
-
-                eventBus.subscribe(LIKE_CHANGED,
-                                   new LikeEntityListSubscriber(adapter)),
+                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
+                eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
 
                 likeOperations.onTrackLiked()
                               .map(TrackLikesTrackItem::new)

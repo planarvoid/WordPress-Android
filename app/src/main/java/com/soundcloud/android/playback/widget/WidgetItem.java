@@ -40,7 +40,7 @@ class WidgetItem implements ImageResource {
                               trackItem.getCreatorUrn(),
                               trackItem.getUrn(),
                               trackItem.getImageUrlTemplate(),
-                              trackItem.isLiked());
+                              trackItem.isLikedByCurrentUser());
     }
 
     public static WidgetItem forAudioAd(Resources res) {

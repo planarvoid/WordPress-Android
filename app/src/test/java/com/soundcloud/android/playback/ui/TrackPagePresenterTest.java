@@ -21,8 +21,8 @@ import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
@@ -364,19 +364,21 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
+        populateTrackPage();
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
-        final LikesStatusEvent trackChangedEvent = LikesStatusEvent.create(TRACK_URN, true, 1);
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 1);
 
-        presenter.onLikeUpdated(trackView, trackChangedEvent);
+        presenter.onPlayableLiked(trackView, likeStatus);
 
         assertThat(getHolder(trackView).likeToggle).isChecked();
     }
 
     @Test
     public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
-        final LikesStatusEvent trackChangedEvent = LikesStatusEvent.create(TRACK_URN, true, 9999);
+        populateTrackPage();
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 9999);
 
-        presenter.onLikeUpdated(trackView, trackChangedEvent);
+        presenter.onPlayableLiked(trackView, likeStatus);
 
         verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999,
                                                  R.drawable.ic_player_liked, R.drawable.ic_player_like);
@@ -384,36 +386,39 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotDisplayUnknownLikeCounts() {
-        final LikesStatusEvent trackChangedEvent = LikesStatusEvent.create(TRACK_URN, true, -1);
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, -1);
 
-        presenter.onLikeUpdated(trackView, trackChangedEvent);
+        presenter.onPlayableLiked(trackView, likeStatus);
 
         assertThat(getHolder(trackView).likeToggle).hasText("");
     }
 
     @Test
     public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true);
+        populateTrackPage();
+        final RepostStatus repostStatus = RepostStatus.createReposted(TRACK_URN);
 
-        presenter.onPlayableUpdated(trackView, trackChangedEvent);
+        presenter.onPlayableReposted(trackView, repostStatus);
 
         verify(trackPageMenuController).setIsUserRepost(true);
     }
 
     @Test
     public void showToastWhenUserRepostedATrack() {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true);
+        populateTrackPage();
+        final RepostStatus repostStatus = RepostStatus.createReposted(TRACK_URN);
 
-        presenter.onPlayableUpdated(trackView, trackChangedEvent);
+        presenter.onPlayableReposted(trackView, repostStatus);
 
         assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(RuntimeEnvironment.application.getString(R.string.reposted_to_followers));
     }
 
     @Test
     public void showToastWhenUserUnpostedATrack() {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, false);
+        populateTrackPage();
+        final RepostStatus repostStatus = RepostStatus.createUnposted(TRACK_URN);
 
-        presenter.onPlayableUpdated(trackView, trackChangedEvent);
+        presenter.onPlayableReposted(trackView, repostStatus);
 
         assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(RuntimeEnvironment.application.getString(R.string.unposted_to_followers));
     }

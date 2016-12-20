@@ -37,6 +37,7 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -147,8 +148,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingNormalTrack() {
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
-        when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
+        when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(WIDGET_TRACK_URN));
         when(trackRepository.fromUrn(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrackItem));
         LikesStatusEvent event = LikesStatusEvent.create(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
@@ -157,15 +157,16 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         ArgumentCaptor<TrackItem> captor = ArgumentCaptor.forClass(TrackItem.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
-        assertThat(captor.getValue().isLiked()).isTrue();
+        assertThat(captor.getValue().isLikedByCurrentUser()).isTrue();
         assertThat(captor.getValue().getSource().get(AdProperty.IS_AUDIO_AD)).isFalse();
     }
 
     @Test
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingTrackAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
-        when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
+                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(WIDGET_TRACK_URN)));
+        when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(WIDGET_TRACK_URN));
+
         LikesStatusEvent event = LikesStatusEvent.create(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
@@ -176,8 +177,10 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotUpdatePresenterWhenChangedTrackIsNotCurrentlyPlayingTrack() {
-        when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(false);
-        LikesStatusEvent event = LikesStatusEvent.create(WIDGET_TRACK_URN, true, 1);
+        final Urn currentlyPlayingTrackUrn = Urn.forTrack(111L);
+        final Urn likedUrn = Urn.forTrack(222L);
+        when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(currentlyPlayingTrackUrn));
+        LikesStatusEvent event = LikesStatusEvent.create(likedUrn, true, 1);
 
         controller.subscribe();
 

@@ -138,7 +138,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final TrackItem trackItem = TrackItem.from(expectedTrackForListItem(Urn.forTrack(123L)));
         TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT);
         final PlaylistItem playlistItem = PlaylistItem.from(expectedLikedPlaylistForPlaylistsScreen());
-        StreamItem.Playlist playlistStreamItem = StreamItem.Playlist.create(playlistItem, CREATED_AT);
+        PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, CREATED_AT);
         final List<StreamItem> items = Arrays.asList(promotedTrackStreamItem,
                                                      normalTrackStreamItem,
                                                      playlistStreamItem);
@@ -200,7 +200,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(clickedPlaylist.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(StreamItem.Playlist.createForPromoted(clickedPlaylist, clickedPlaylist.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.createForPromoted(clickedPlaylist, clickedPlaylist.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -216,7 +216,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 Arrays.asList(playlistItem.getUrn().toPropertySet(),
                               Urn.forTrack(634L).toPropertySet()));
 
-        when(adapter.getItem(0)).thenReturn(StreamItem.Playlist.create(playlistItem, playlistItem.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(playlistItem, playlistItem.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);

@@ -24,7 +24,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class StreamPlaylistItemRenderer implements CellRenderer<StreamItem.Playlist> {
+class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
 
     private final Resources resources;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
@@ -51,7 +51,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<StreamItem.Playlist> {
     }
 
     @Override
-    public void bindItemView(int position, View view, List<StreamItem.Playlist> playlistItems) {
+    public void bindItemView(int position, View view, List<PlaylistStreamItem> playlistItems) {
         final PlaylistItem playlistItem = playlistItems.get(position).playlistItem();
         StreamPlaylistViewHolder itemView = (StreamPlaylistViewHolder) view.getTag();
         itemView.resetAdditionalInformation();

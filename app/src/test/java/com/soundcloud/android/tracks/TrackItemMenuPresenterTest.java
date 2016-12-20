@@ -19,6 +19,7 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -112,7 +113,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingOnAddToLikesAddTrackLike() {
         final PublishSubject<PropertySet> likeObservable = PublishSubject.create();
-        when(likeOperations.toggleLike(trackItem.getUrn(), !trackItem.isLiked())).thenReturn(likeObservable);
+        when(likeOperations.toggleLike(trackItem.getUrn(), !trackItem.isLikedByCurrentUser())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.show(activity, view, trackItem, 0);
@@ -123,7 +124,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickRepostItemRepostsTrack() {
-        final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
+        final PublishSubject<RepostsStatusEvent.RepostStatus> repostObservable = PublishSubject.create();
         when(repostOperations.toggleRepost(trackItem.getUrn(), !trackItem.isRepostedByCurrentUser())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 

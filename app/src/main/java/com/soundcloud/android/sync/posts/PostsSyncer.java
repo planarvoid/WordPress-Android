@@ -1,9 +1,13 @@
 package com.soundcloud.android.sync.posts;
 
+import static com.soundcloud.android.events.RepostsStatusEvent.RepostStatus.createReposted;
+import static com.soundcloud.android.events.RepostsStatusEvent.RepostStatus.createUnposted;
+
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
@@ -17,9 +21,11 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -106,21 +112,20 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     }
 
     private void publishStateChanges(Set<PropertySet> changes, boolean isAddition) {
-        final Set<PropertySet> updatedEntities = new HashSet<>(changes.size());
+        final Map<Urn, RepostsStatusEvent.RepostStatus> updatedEntities = new HashMap<>(changes.size());
         final Set<PropertySet> newEntities = new HashSet<>(changes.size());
 
         for (PropertySet post : changes) {
             if (post.get(PostProperty.IS_REPOST)) {
-                updatedEntities.add(PropertySet.from(
-                        PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
-                        PlayableProperty.IS_USER_REPOST.bind(isAddition)));
+                final Urn urn = post.get(PlayableProperty.URN);
+                updatedEntities.put(urn, isAddition ? createReposted(urn) : createUnposted(urn));
             } else {
                 newEntities.add(PropertySet.from(PlayableProperty.URN.bind(post.get(PlayableProperty.URN))));
             }
         }
 
         if (!updatedEntities.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(updatedEntities));
+            eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.create(updatedEntities));
         }
 
         if (!newEntities.isEmpty()) {

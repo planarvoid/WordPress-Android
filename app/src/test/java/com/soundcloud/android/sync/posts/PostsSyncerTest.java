@@ -2,7 +2,6 @@ package com.soundcloud.android.sync.posts;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromEntityCreated;
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromEntityDeleted;
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromRepost;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,8 +14,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
@@ -28,11 +28,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 // uses AndroidUnitTest because of PropertySet
@@ -121,10 +122,10 @@ public class PostsSyncerTest extends AndroidUnitTest {
 
         assertThat(syncer.call()).isTrue();
 
-        final EntityStateChangedEvent postedEvent = fromRepost(createRepostedEntityChangedProperty(remotePostUrn));
-        final EntityStateChangedEvent unpostedEvent = fromRepost(createUnrepostedEntityChangedProperty(localPostUrn));
+        final RepostsStatusEvent postedEvent = RepostsStatusEvent.create(createRepostedEntityChangedProperty(true, remotePostUrn));
+        final RepostsStatusEvent unpostedEvent = RepostsStatusEvent.create(createRepostedEntityChangedProperty(false, localPostUrn));
 
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(postedEvent, unpostedEvent);
+        assertThat(eventBus.eventsOn(EventQueue.REPOST_CHANGED)).containsExactly(postedEvent, unpostedEvent);
     }
 
     @Test
@@ -153,26 +154,12 @@ public class PostsSyncerTest extends AndroidUnitTest {
                 .containsExactly(fromEntityDeleted(singletonList(expectedEntity)));
     }
 
-    private List<PropertySet> createRepostedEntityChangedProperty(Urn... urns) {
-        final List<PropertySet> reposts = new ArrayList<>(urns.length);
+    private Map<Urn, RepostStatus> createRepostedEntityChangedProperty(boolean reposted, Urn... urns) {
+        final Map<Urn, RepostStatus> reposts = new HashMap<>(urns.length);
         for (Urn urn : urns) {
-            reposts.add(PropertySet.from(
-                    PlayableProperty.URN.bind(urn),
-                    PlayableProperty.IS_USER_REPOST.bind(true)
-            ));
+            reposts.put(urn, reposted ? RepostStatus.createReposted(urn) : RepostStatus.createUnposted(urn));
         }
         return reposts;
-    }
-
-    private List<PropertySet> createUnrepostedEntityChangedProperty(Urn... urns) {
-        final List<PropertySet> unReposts = new ArrayList<>(urns.length);
-        for (Urn urn : urns) {
-            unReposts.add(PropertySet.from(
-                    PlayableProperty.URN.bind(urn),
-                    PlayableProperty.IS_USER_REPOST.bind(false)
-            ));
-        }
-        return unReposts;
     }
 
     @Test

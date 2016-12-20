@@ -42,8 +42,10 @@ import com.soundcloud.android.upsell.UpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.NewItemsIndicator;
+import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
+import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -167,7 +169,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         viewLifeCycleSubscription = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, updatePlayableAdapterSubscriberFactory.create(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateStreamEntitySubscriber(adapter)),
-                eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeStreamEntitySubscriber(adapter)),
+                eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                                       .filter(FILTER_STREAM_REFRESH_EVENTS)
                                       .flatMap(continueWith(updateIndicatorFromMostRecent()))),

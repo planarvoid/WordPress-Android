@@ -31,7 +31,7 @@ public class LikeEntityListSubscriberTest extends AndroidUnitTest {
 
     @Mock private ListItem nonLikeableListItem;
     @Mock private LikeableListItem likeableListItem;
-    @Mock private ListItem updatedListItem;
+    @Mock private LikeableListItem updatedListItem;
     @Mock private RecyclerItemAdapter<ListItem, RecyclerView.ViewHolder> adapter;
 
     private LikeEntityListSubscriber subscriber;
@@ -67,21 +67,6 @@ public class LikeEntityListSubscriberTest extends AndroidUnitTest {
         verify(adapter, never()).notifyItemChanged(anyInt());
         assertThat(adapterItems.get(1)).isEqualTo(likeableListItem);
     }
-//
-//    @Test
-//    public void doesNotNotifyWithNoMatchingUrns() {
-//        TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-//        TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-//
-//        PropertySet changeSet = ModelFixtures.create(ApiTrack.class).toPropertySet();
-//
-//        when(adapter.getItems()).thenReturn(newArrayList(track1, track2));
-//
-//        final EntityStateChangedEvent event = EntityStateChangedEvent.fromFollowing(changeSet);
-//        subscriber.onNext(event);
-//
-//        verify(adapter, never()).notifyItemChanged(anyInt());
-//    }
 
     abstract static class LikeableListItem implements ListItem, LikeableItem {
     }

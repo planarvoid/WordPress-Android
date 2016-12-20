@@ -17,6 +17,7 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
@@ -214,7 +215,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
         setupPlayerPanelSubscriber();
         setupIntroductoryOverlaySubscriber();
-        setupTrackMetadataChangedSubscriber();
+        setupTrackChangedSubscriber();
+        setupTrackRepostChangedSubscriber();
         setupTrackLikeChangedSubscriber();
         setupClearAdOverlaySubscriber();
         setupTextResizeSubscriber();
@@ -246,11 +248,23 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                 !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE);
     }
 
-    private void setupTrackMetadataChangedSubscriber() {
+    private void setupTrackChangedSubscriber() {
         backgroundSubscription.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                                           .filter(EntityStateChangedEvent.IS_TRACK_FILTER)
+                                           .filter(EntityStateChangedEvent::containsTrackChange)
                                            .observeOn(AndroidSchedulers.mainThread())
-                                           .subscribe(new TrackMetadataChangedSubscriber()));
+                                           .subscribe(event -> {
+                                               for (Urn urn : event.getChangeMap().keySet()) {
+                                                   trackObservableCache.remove(urn);
+                                               }
+                                           }
+                                           ));
+    }
+
+    private void setupTrackRepostChangedSubscriber() {
+        backgroundSubscription.add(eventBus.queue(EventQueue.REPOST_CHANGED)
+                                           .filter(RepostsStatusEvent::containsTrackChange)
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribe(new TrackRepostChangedSubscriber()));
     }
 
     private void setupTrackLikeChangedSubscriber() {
@@ -550,11 +564,11 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                     && pagesInPlayer.get(pageView).isAd()
                     && pagesInPlayer.get(pageView).getAdData().get().getAdUrn().equals(itemAdUrn);
         } else {
-            return isTrackViewRelatedToUrn(pageView, item.getTrackUrn());
+            return isTrackViewRelatedToChange(pageView, item.getTrackUrn());
         }
     }
 
-    private boolean isTrackViewRelatedToUrn(View pageView, Urn trackUrn) {
+    private boolean isTrackViewRelatedToChange(View pageView, Urn trackUrn) {
         if (pagesInPlayer.containsKey(pageView) && pagesInPlayer.get(pageView).isTrack()) {
             return pagesInPlayer.get(pageView).getUrn().equals(trackUrn);
         }
@@ -645,21 +659,23 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
 
         private boolean isProgressEventForPage(PlayQueueItem pageData, View pageView, PlaybackProgressEvent progress) {
-            return (progress.getUrn().isTrack() && isTrackViewRelatedToUrn(pageView, progress.getUrn()))
+            return (progress.getUrn().isTrack() && isTrackViewRelatedToChange(pageView, progress.getUrn()))
                     || progress.getUrn().isAd() && progress.getUrn().equals(pageData.getUrn());
         }
     }
 
-    private class TrackMetadataChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private class TrackRepostChangedSubscriber extends DefaultSubscriber<RepostsStatusEvent> {
         @Override
-        public void onNext(EntityStateChangedEvent event) {
-            trackObservableCache.remove(event.getFirstUrn());
+        public void onNext(RepostsStatusEvent event) {
+            for (RepostsStatusEvent.RepostStatus repostStatus : event.reposts().values()) {
+                trackObservableCache.remove(repostStatus.urn());
 
-            for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-                final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
-                final View trackView = entry.getKey();
-                if (isTrackViewRelatedToUrn(trackView, event.getFirstUrn())) {
-                    presenter.onPlayableUpdated(trackView, event);
+                for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
+                    final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
+                    final View trackView = entry.getKey();
+                    if (isTrackViewRelatedToChange(trackView, repostStatus.urn())) {
+                        presenter.onPlayableReposted(trackView, repostStatus);
+                    }
                 }
             }
         }
@@ -668,12 +684,14 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private class TrackLikeChangedSubscriber extends DefaultSubscriber<LikesStatusEvent> {
         @Override
         public void onNext(LikesStatusEvent event) {
-            for (Urn urn : event.likes().keySet()) {
+            for (LikesStatusEvent.LikeStatus likeStatus : event.likes().values()) {
+                trackObservableCache.remove(likeStatus.urn());
+
                 for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
                     final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
                     final View trackView = entry.getKey();
-                    if (isTrackViewRelatedToUrn(trackView, urn)) {
-                        presenter.onLikeUpdated(trackView, event);
+                    if (isTrackViewRelatedToChange(trackView, likeStatus.urn())) {
+                        presenter.onPlayableLiked(trackView, likeStatus);
                     }
                 }
             }
@@ -705,7 +723,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                 && playStateEvent.getPlayingItemUrn().equals(pagesInPlayer.get(view).getUrn());
         final boolean viewPresentingCurrentTrack = pagesInPlayer.containsKey(view)
                 && pagesInPlayer.get(view).isTrack()
-                && isTrackViewRelatedToUrn(view, playStateEvent.getPlayingItemUrn());
+                && isTrackViewRelatedToChange(view, playStateEvent.getPlayingItemUrn());
 
         presenter.setPlayState(view,
                                playStateEvent,

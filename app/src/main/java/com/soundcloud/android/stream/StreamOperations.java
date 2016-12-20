@@ -213,7 +213,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         if (Kind.TRACK.equals(streamItem.kind())) {
             return ((TrackStreamItem) streamItem).createdAt();
         } else if (Kind.PLAYLIST.equals(streamItem.kind())) {
-            return ((StreamItem.Playlist) streamItem).createdAt();
+            return ((PlaylistStreamItem) streamItem).createdAt();
         }
         return null;
     }

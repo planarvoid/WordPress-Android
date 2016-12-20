@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -48,6 +49,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final PlayableItem playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
     private final PublishSubject<PropertySet> testSubject = PublishSubject.create();
+    private final PublishSubject<RepostsStatusEvent.RepostStatus> repostTestSubject = PublishSubject.create();
     private final EventContextMetadata contextMetadata = EventContextMetadata.builder().build();
 
     private CardEngagementsPresenter presenter;
@@ -58,8 +60,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
                 numberFormatter, likeOperations, repostOperations, accountOperations, eventTracker);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
-        when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isLiked())).thenReturn(testSubject);
-        when(repostOperations.toggleRepost(playableItem.getUrn(), !playableItem.isRepostedByCurrentUser())).thenReturn(testSubject);
+        when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isLikedByCurrentUser())).thenReturn(testSubject);
+        when(repostOperations.toggleRepost(playableItem.getUrn(), !playableItem.isRepostedByCurrentUser())).thenReturn(repostTestSubject);
         when(viewHolder.getContext()).thenReturn(context());
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
     }
@@ -67,7 +69,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void setsLikeAndRepostsStats() {
         presenter.bind(viewHolder, playableItem, contextMetadata);
-        verify(viewHolder).showLikeStats(formattedStats(playableItem.getLikesCount()), playableItem.isLiked());
+        verify(viewHolder).showLikeStats(formattedStats(playableItem.getLikesCount()), playableItem.isLikedByCurrentUser());
         verify(viewHolder).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isRepostedByCurrentUser());
     }
 
@@ -99,7 +101,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
         captureListener().onLikeClick(view);
 
-        verify(likeOperations).toggleLike(playableItem.getUrn(), !playableItem.isLiked());
+        verify(likeOperations).toggleLike(playableItem.getUrn(), !playableItem.isLikedByCurrentUser());
         assertThat(testSubject.hasObservers()).isTrue();
     }
 
@@ -110,7 +112,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         captureListener().onRepostClick(view);
 
         verify(repostOperations).toggleRepost(playableItem.getUrn(), !playableItem.isRepostedByCurrentUser());
-        assertThat(testSubject.hasObservers()).isTrue();
+        assertThat(repostTestSubject.hasObservers()).isTrue();
     }
 
     @Test
@@ -137,7 +139,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent trackingEvent = uiEventArgumentCaptor.getValue();
-        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isLiked() ? UIEvent.Kind.UNLIKE : UIEvent.Kind.LIKE);
+        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isLikedByCurrentUser() ? UIEvent.Kind.UNLIKE : UIEvent.Kind.LIKE);
         assertThat(trackingEvent.isFromOverflow().get()).isFalse();
     }
 

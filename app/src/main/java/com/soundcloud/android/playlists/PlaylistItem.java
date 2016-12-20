@@ -5,7 +5,7 @@ import static com.soundcloud.android.utils.DateUtils.yearFromDateString;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -93,21 +93,23 @@ public class PlaylistItem extends PlayableItem {
 
     @Override
     public PlaylistItem updated(PropertySet playableData) {
-        this.source.update(playableData);
+        super.updated(playableData);
         return this;
     }
 
     @Override
     public PlaylistItem updatedWithOfflineState(OfflineState offlineState) {
-        this.source.put(OfflineProperty.OFFLINE_STATE, offlineState);
+        super.updatedWithOfflineState(offlineState);
         return this;
     }
 
     public PlaylistItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-        this.source.put(PlayableProperty.IS_USER_LIKE, likeStatus.isUserLike());
-        if (likeStatus.likeCount().isPresent()) {
-            this.source.put(PlayableProperty.LIKES_COUNT, likeStatus.likeCount().get());
-        }
+        super.updatedWithLike(likeStatus);
+        return this;
+    }
+
+    public PlaylistItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
+        super.updatedWithRepost(repostStatus);
         return this;
     }
 
@@ -148,14 +150,6 @@ public class PlaylistItem extends PlayableItem {
 
     public boolean isLocalPlaylist() {
         return getUrn().getNumericId() < 0;
-    }
-
-    public boolean isLikedByUser() {
-        return source.get(PlaylistProperty.IS_USER_LIKE);
-    }
-
-    public boolean isRepostedByUser() {
-        return source.getOrElse(PlaylistProperty.IS_USER_REPOST, false);
     }
 
     public boolean isPublic() {

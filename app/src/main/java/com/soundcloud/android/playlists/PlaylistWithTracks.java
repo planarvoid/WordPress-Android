@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
@@ -34,7 +35,7 @@ public class PlaylistWithTracks implements ImageResource {
     }
 
     public boolean isLikedByUser() {
-        return playlistItem.isLikedByUser();
+        return playlistItem.isLikedByCurrentUser();
     }
 
     public Optional<Boolean> isMarkedForOffline() {
@@ -46,7 +47,7 @@ public class PlaylistWithTracks implements ImageResource {
     }
 
     public boolean isRepostedByUser() {
-        return playlistItem.isRepostedByUser();
+        return playlistItem.isRepostedByCurrentUser();
     }
 
     boolean isLocalPlaylist() {
@@ -139,6 +140,10 @@ public class PlaylistWithTracks implements ImageResource {
 
     public PlaylistWithTracks updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
         return new PlaylistWithTracks(this.playlistItem.updatedWithLike(likeStatus), tracks);
+    }
+
+    public PlaylistWithTracks updatedWithRepostStatus(RepostsStatusEvent.RepostStatus repostStatus) {
+        return new PlaylistWithTracks(this.playlistItem.updatedWithRepost(repostStatus), tracks);
     }
 
     @Deprecated // we should avoid this, but apparently we need it to like something currently

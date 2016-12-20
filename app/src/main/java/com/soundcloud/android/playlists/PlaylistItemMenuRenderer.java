@@ -82,7 +82,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private void setupMenu(PlaylistItem playlist) {
-        updateLikeActionTitle(playlist.isLiked());
+        updateLikeActionTitle(playlist.isLikedByCurrentUser());
         configureAdditionalEngagementsOptions(playlist);
         configureOfflineOptions(playlist);
         configurePlayNextOption();
@@ -124,7 +124,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
         if (maybeMarkedForOffline.isPresent() && menuOptions.showOffline()) {
             final boolean markedForOffline = maybeMarkedForOffline.get();
             final boolean canShowOfflineOption = markedForOffline
-                    || playlist.isLiked()
+                    || playlist.isLikedByCurrentUser()
                     || accountOperations.isLoggedInUser(playlist.getCreatorUrn());
 
             if (featureOperations.isOfflineContentEnabled() && canShowOfflineOption) {

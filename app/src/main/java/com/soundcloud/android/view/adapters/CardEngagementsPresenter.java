@@ -62,7 +62,7 @@ public class CardEngagementsPresenter {
             viewHolder.showGenre(playable.getGenre());
         }
 
-        viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLiked());
+        viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLikedByCurrentUser());
 
         if (accountOperations.isLoggedInUser(playable.getCreatorUrn())) {
             viewHolder.hideRepostStats();
@@ -98,7 +98,7 @@ public class CardEngagementsPresenter {
 
     private void handleLike(View likeButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
         final Urn entityUrn = playableItem.getUrn();
-        final boolean addLike = !playableItem.isLiked();
+        final boolean addLike = !playableItem.isLikedByCurrentUser();
         likeOperations.toggleLike(entityUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike));

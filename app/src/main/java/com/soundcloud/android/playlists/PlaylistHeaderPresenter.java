@@ -15,12 +15,12 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -154,7 +154,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
         foregroundSubscription = new CompositeSubscription(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber()),
-                                                           eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()));
+                                                           eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()),
+                                                           eventBus.subscribe(EventQueue.REPOST_CHANGED, new PlaylistRepostsSubscriber()));
     }
 
     @Override
@@ -455,11 +456,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             if (headerItem != null && headerItem.getUrn().equals(event.getFirstUrn())) {
                 final PropertySet changeSet = event.getNextChangeSet();
                 headerItem = headerItem.update(changeSet);
-
-                if (changeSet.contains(PlaylistProperty.IS_USER_REPOST)) {
-                    playlistEngagementsView.showPublicOptions(
-                            changeSet.get(PlayableProperty.IS_USER_REPOST));
-                }
             }
         }
     }
@@ -467,14 +463,27 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private class PlaylistLikesSubscriber extends DefaultSubscriber<LikesStatusEvent> {
         @Override
         public void onNext(LikesStatusEvent event) {
-            if (headerItem != null && event.likes().containsKey(headerItem.getUrn())) {
-                final LikesStatusEvent.LikeStatus likeStatus = event.likes().get(headerItem.getUrn());
-                headerItem = headerItem.updatedWithLikeStatus(likeStatus);
-
-                playlistEngagementsView.updateLikeItem(likeStatus.likeCount(), likeStatus.isUserLike());
-                updateOfflineAvailability();
+            if (headerItem != null) {
+                final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(headerItem.getUrn());
+                if (likeStatus.isPresent()) {
+                    headerItem = headerItem.updatedWithLikeStatus(likeStatus.get());
+                    playlistEngagementsView.updateLikeItem(likeStatus.get().likeCount(), likeStatus.get().isUserLike());
+                    updateOfflineAvailability();
+                }
             }
         }
     }
 
+    private class PlaylistRepostsSubscriber extends DefaultSubscriber<RepostsStatusEvent> {
+        @Override
+        public void onNext(RepostsStatusEvent event) {
+            if (headerItem != null) {
+                final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(headerItem.getUrn());
+                if (repostStatus.isPresent()) {
+                    headerItem = headerItem.updatedWithRepostStatus(repostStatus.get());
+                    playlistEngagementsView.showPublicOptions(repostStatus.get().isReposted());
+                }
+            }
+        }
+    }
 }

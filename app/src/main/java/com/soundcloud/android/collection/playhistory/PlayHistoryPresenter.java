@@ -4,14 +4,13 @@ import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
+import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
@@ -29,6 +28,9 @@ import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
+import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -149,8 +151,9 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
                 eventBus.queue(OFFLINE_CONTENT_CHANGED)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new CurrentDownloadSubscriber()),
-                eventBus.subscribe(ENTITY_STATE_CHANGED, new EntityStateChangedSubscriber()),
-                eventBus.subscribe(LIKE_CHANGED, new EntityLikeChangedSubscriber()),
+                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
+                eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()
                                         .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
@@ -223,29 +226,4 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
             return event.entities.contains(urn);
         }
     }
-
-    private class EntityStateChangedSubscriber extends UpdateSubscriber<EntityStateChangedEvent> {
-        @Override
-        TrackItem getUpdatedTrackItem(EntityStateChangedEvent event, TrackItem trackItem) {
-            return trackItem.updated(event.getChangeMap().get(trackItem.getUrn()));
-        }
-
-        @Override
-        boolean containsTrackUrn(EntityStateChangedEvent event, Urn urn) {
-            return event.getChangeMap().containsKey(urn);
-        }
-    }
-
-    private class EntityLikeChangedSubscriber extends UpdateSubscriber<LikesStatusEvent> {
-        @Override
-        TrackItem getUpdatedTrackItem(LikesStatusEvent event, TrackItem trackItem) {
-            return trackItem.updatedWithLike(event.likes().get(trackItem.getUrn()));
-        }
-
-        @Override
-        boolean containsTrackUrn(LikesStatusEvent event, Urn urn) {
-            return event.likes().containsKey(urn);
-        }
-    }
-
 }

@@ -5,7 +5,7 @@ import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
@@ -79,23 +79,26 @@ public class TrackItem extends PlayableItem implements TieredTrack {
 
     @Override
     public TrackItem updated(PropertySet playableData) {
-        this.source.update(playableData);
+        super.updated(playableData);
         return this;
     }
 
     @Override
     public TrackItem updatedWithOfflineState(OfflineState offlineState) {
-        this.source.put(OfflineProperty.OFFLINE_STATE, offlineState);
+        super.updatedWithOfflineState(offlineState);
         return this;
     }
 
     public TrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-        this.source.put(PlayableProperty.IS_USER_LIKE, likeStatus.isUserLike());
-        if (likeStatus.likeCount().isPresent()) {
-            this.source.put(PlayableProperty.LIKES_COUNT, likeStatus.likeCount().get());
-        }
+        super.updatedWithLike(likeStatus);
         return this;
     }
+
+    public TrackItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
+        super.updatedWithRepost(repostStatus);
+        return this;
+    }
+
 
     @Override
     public String getPlayableType() {

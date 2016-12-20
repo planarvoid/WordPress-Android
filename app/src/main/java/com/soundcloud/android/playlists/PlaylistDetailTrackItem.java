@@ -2,10 +2,12 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.OfflineItem;
+import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -16,7 +18,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem, OfflineItem, UpdatableItem, LikeableItem {
+class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem, OfflineItem, UpdatableItem, LikeableItem, RepostableItem {
 
     private final TrackItem trackItem;
 
@@ -43,6 +45,11 @@ class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListIte
     @Override
     public PlaylistDetailTrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
         return new PlaylistDetailTrackItem(trackItem.updatedWithLike(likeStatus));
+    }
+
+    @Override
+    public PlaylistDetailTrackItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
+        return new PlaylistDetailTrackItem(trackItem.updatedWithRepost(repostStatus));
     }
 
     @Override

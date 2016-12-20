@@ -3,7 +3,6 @@ package com.soundcloud.android.stream;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AppInstallAd;
-import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -17,7 +16,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public abstract class StreamItem {
@@ -47,7 +45,7 @@ public abstract class StreamItem {
     }
 
     public static StreamItem forFacebookListenerInvites() {
-        return FacebookListenerInvites.create(Optional.<List<String>>absent());
+        return FacebookListenerInvites.create(Optional.absent());
     }
 
     public static FacebookListenerInvites forFacebookListenerInvites(final List<String> friendPictureUrls) {
@@ -64,15 +62,13 @@ public abstract class StreamItem {
 
     static StreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
         if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
-            return TrackStreamItem.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(),
-                                                     streamPlayable.createdAt());
+            return TrackStreamItem.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof TrackItem) {
             return TrackStreamItem.create((TrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof PromotedPlaylistItem) {
-            return Playlist.createForPromoted((PromotedPlaylistItem) streamPlayable.playableItem(),
-                                              streamPlayable.createdAt());
+            return PlaylistStreamItem.createForPromoted((PromotedPlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else if (streamPlayable.playableItem() instanceof PlaylistItem) {
-            return Playlist.create((PlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
+            return PlaylistStreamItem.create((PlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
         } else {
             throw new IllegalArgumentException("Unknown playable item.");
         }
@@ -80,18 +76,19 @@ public abstract class StreamItem {
 
     Optional<ListItem> getListItem() {
         if (kind() == Kind.TRACK) {
-            return Optional.<ListItem>of(((TrackStreamItem) this).trackItem());
+            return Optional.of(((TrackStreamItem) this).trackItem());
         } else if (kind() == Kind.PLAYLIST) {
-            return Optional.<ListItem>of(((Playlist) this).playlistItem());
+            return Optional.of(((PlaylistStreamItem) this).playlistItem());
         }
         return Optional.absent();
     }
 
-    StreamItem copyWith(PropertySet changeSet) {
-        return this;
-    }
-
-    StreamItem copyWith(LikesStatusEvent.LikeStatus likeStatus) {
+    StreamItem updated(PropertySet propertySet) {
+        if (this instanceof TrackStreamItem) {
+            return ((TrackStreamItem)this).updated(propertySet);
+        } else if (this instanceof PlaylistStreamItem) {
+            return ((PlaylistStreamItem)this).updated(propertySet);
+        }
         return this;
     }
 
@@ -99,7 +96,7 @@ public abstract class StreamItem {
 
     public boolean isPromoted() {
         return (this.kind() == Kind.TRACK && ((TrackStreamItem) this).promoted())
-                || (this.kind() == Kind.PLAYLIST && ((Playlist) this).promoted());
+                || (this.kind() == Kind.PLAYLIST && ((PlaylistStreamItem) this).promoted());
     }
 
     public boolean isAd() {
@@ -135,33 +132,6 @@ public abstract class StreamItem {
 
         private static FacebookListenerInvites create(Optional<List<String>> friendPictureUrls) {
             return new AutoValue_StreamItem_FacebookListenerInvites(Kind.FACEBOOK_LISTENER_INVITES, friendPictureUrls);
-        }
-    }
-
-    @AutoValue
-    public abstract static class Playlist extends StreamItem {
-        public abstract PlaylistItem playlistItem();
-
-        public abstract boolean promoted();
-
-        public abstract Date createdAt();
-
-        static Playlist create(PlaylistItem playlistItem, Date createdAt) {
-            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, playlistItem, false, createdAt);
-        }
-
-        static Playlist createForPromoted(PromotedPlaylistItem playlistItem, Date createdAt) {
-            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, playlistItem, true, createdAt);
-        }
-
-        Playlist copyWith(PropertySet changeSet) {
-            final PlaylistItem updatedPlaylistItem = playlistItem().updated(changeSet);
-            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, updatedPlaylistItem, promoted(), createdAt());
-        }
-
-        Playlist copyWith(LikesStatusEvent.LikeStatus likeStatus) {
-            final PlaylistItem updatedPlaylistItem = playlistItem().updatedWithLike(likeStatus);
-            return new AutoValue_StreamItem_Playlist(Kind.PLAYLIST, updatedPlaylistItem, promoted(), createdAt());
         }
     }
 

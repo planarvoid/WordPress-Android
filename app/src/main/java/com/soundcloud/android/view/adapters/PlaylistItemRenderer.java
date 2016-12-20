@@ -180,7 +180,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
             likesCountText.setVisibility(View.VISIBLE);
             likesCountText.setText(numberFormatter.format(likesCount));
             final Drawable heartIcon = likesCountText.getCompoundDrawables()[0];
-            heartIcon.setLevel(playlist.isLiked() ? 1 : 0);
+            heartIcon.setLevel(playlist.isLikedByCurrentUser() ? 1 : 0);
         }
     }
 

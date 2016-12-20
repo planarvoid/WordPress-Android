@@ -18,7 +18,6 @@ import com.soundcloud.android.ads.InterstitialAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -276,7 +275,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
-        verify(trackPagePresenter).onLikeUpdated(currentPageView, likeEvent);
+        verify(trackPagePresenter).onPlayableLiked(currentPageView, likeEvent.likes().values().iterator().next());
     }
 
     @Test
@@ -286,7 +285,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
-        verify(trackPagePresenter, never()).onPlayableUpdated(any(View.class), any(EntityStateChangedEvent.class));
+        verify(trackPagePresenter, never()).onPlayableLiked(any(View.class), any(LikesStatusEvent.LikeStatus.class));
     }
 
     @Test

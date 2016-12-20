@@ -48,6 +48,13 @@ public abstract class LikesStatusEvent {
         return false;
     }
 
+    public Optional<LikeStatus> likeStatusForUrn(Urn urn) {
+        if (likes().containsKey(urn)) {
+            return Optional.of(likes().get(urn));
+        }
+        return Optional.absent();
+    }
+
     @AutoValue
     public abstract static class LikeStatus {
         public abstract Urn urn();

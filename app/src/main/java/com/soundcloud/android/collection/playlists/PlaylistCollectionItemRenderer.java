@@ -66,7 +66,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
         title.setText(playlistItem.getTitle());
         creator.setText(playlistItem.getCreatorName());
         privateIndicator.setVisibility(playlistItem.isPrivate() ? View.VISIBLE : View.GONE);
-        likeIndicator.setVisibility(playlistItem.isLiked() ? View.VISIBLE : View.GONE);
+        likeIndicator.setVisibility(playlistItem.isLikedByCurrentUser() ? View.VISIBLE : View.GONE);
         trackCount.setText(String.valueOf(playlistItem.getTrackCount()));
 
         imageOperations.displayInAdapterView(

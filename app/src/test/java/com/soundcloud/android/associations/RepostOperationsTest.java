@@ -13,12 +13,10 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -40,7 +38,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
     private RepostOperations operations;
-    private TestObserver<PropertySet> testObserver = new TestObserver<>();
+    private TestObserver<RepostsStatusEvent.RepostStatus> testObserver = new TestObserver<>();
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private RepostStorage repostStorage;
@@ -69,11 +67,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
-                PlayableProperty.URN.bind(TRACK_URN),
-                PlayableProperty.IS_USER_REPOST.bind(true),
-                PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
-        ));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createReposted(TRACK_URN, REPOST_COUNT));
     }
 
     @Test
@@ -83,11 +77,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(PLAYLIST_URN, true).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
-                PlayableProperty.URN.bind(PLAYLIST_URN),
-                PlayableProperty.IS_USER_REPOST.bind(true),
-                PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
-        ));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createReposted(PLAYLIST_URN, REPOST_COUNT));
     }
 
     @Test
@@ -97,16 +87,11 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
-        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
-        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(true),
-                        PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
-                )
-        );
+        final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
+        final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
+        assertThat(next.urn()).isEqualTo(TRACK_URN);
+        assertThat(next.isReposted()).isEqualTo(true);
+        assertThat(next.repostCount().get()).isEqualTo(REPOST_COUNT);
     }
 
     @Test
@@ -129,15 +114,10 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
-        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
-        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(false)
-                )
-        );
+        final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
+        final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
+        assertThat(next.urn()).isEqualTo(TRACK_URN);
+        assertThat(next.isReposted()).isEqualTo(false);
     }
 
     @Test
@@ -148,12 +128,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
         verify(removeRepost).toObservable(TRACK_URN);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(false),
-                        PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
-                ));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createUnposted(TRACK_URN, UNPOST_COUNT));
     }
 
     @Test
@@ -163,16 +138,10 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
-        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
-        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(false),
-                        PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
-                )
-        );
+        final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
+        final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
+        assertThat(next.urn()).isEqualTo(TRACK_URN);
+        assertThat(next.isReposted()).isEqualTo(false);
     }
 
     @Test
@@ -182,11 +151,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
-                PlayableProperty.URN.bind(TRACK_URN),
-                PlayableProperty.IS_USER_REPOST.bind(false),
-                PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
-        ));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createUnposted(TRACK_URN, UNPOST_COUNT));
     }
 
     @Test
@@ -196,11 +161,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(PLAYLIST_URN, false).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
-                PlayableProperty.URN.bind(PLAYLIST_URN),
-                PlayableProperty.IS_USER_REPOST.bind(false),
-                PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
-        ));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createUnposted(PLAYLIST_URN, UNPOST_COUNT));
     }
 
     @Test
@@ -210,16 +171,10 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
-        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
-        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(false),
-                        PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
-                )
-        );
+        final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
+        final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
+        assertThat(next.urn()).isEqualTo(TRACK_URN);
+        assertThat(next.isReposted()).isEqualTo(false);
     }
 
     @Test
@@ -228,15 +183,10 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
-        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
-        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(true)
-                )
-        );
+        final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
+        final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
+        assertThat(next.urn()).isEqualTo(TRACK_URN);
+        assertThat(next.isReposted()).isEqualTo(true);
     }
 
     @Test
@@ -247,12 +197,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
         verify(addRepost).toObservable(TRACK_URN);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(true),
-                        PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
-                ));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createReposted(TRACK_URN, REPOST_COUNT));
     }
 
     @Test
@@ -262,16 +207,11 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
-        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
-        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
-                PropertySet.from(
-                        PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_USER_REPOST.bind(true),
-                        PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
-                )
-        );
+        final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
+        final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
+        assertThat(next.urn()).isEqualTo(TRACK_URN);
+        assertThat(next.isReposted()).isEqualTo(true);
+        assertThat(next.repostCount().get()).isEqualTo(REPOST_COUNT);
     }
 
 

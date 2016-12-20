@@ -188,7 +188,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     public void handleLike(PlaylistItem playlist) {
-        boolean addLike = !playlist.isLiked();
+        boolean addLike = !playlist.isLikedByCurrentUser();
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(appContext, addLike));

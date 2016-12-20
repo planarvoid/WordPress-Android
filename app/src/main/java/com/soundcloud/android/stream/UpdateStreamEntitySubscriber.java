@@ -26,8 +26,8 @@ class UpdateStreamEntitySubscriber extends DefaultSubscriber<EntityStateChangedE
                 final StreamItem item = adapter.getItem(position);
                 final Optional<ListItem> listItem = item.getListItem();
                 if (listItem.isPresent() && changeSet.containsKey(listItem.get().getUrn())) {
-                    final StreamItem updatedStreamItem = item.copyWith(changeSet.get(listItem.get().getUrn()));
-                    adapter.setItem(position, updatedStreamItem);
+                    final StreamItem updated = item.updated(changeSet.get(listItem.get().getUrn()));
+                    adapter.setItem(position, updated);
                 }
             }
         }

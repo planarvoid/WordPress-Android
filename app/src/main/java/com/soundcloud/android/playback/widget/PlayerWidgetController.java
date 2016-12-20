@@ -10,6 +10,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -21,6 +22,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
 
@@ -63,6 +65,7 @@ public class PlayerWidgetController {
     public void subscribe() {
         eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackMetadataChangeSubscriber());
         eventBus.subscribe(EventQueue.LIKE_CHANGED, new TrackLikeChangeSubscriber());
+        eventBus.subscribe(EventQueue.REPOST_CHANGED, new TrackRepostChangeSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new CurrentItemSubscriber());
@@ -162,9 +165,24 @@ public class PlayerWidgetController {
     private final class TrackLikeChangeSubscriber extends DefaultSubscriber<LikesStatusEvent> {
         @Override
         public void onNext(final LikesStatusEvent event) {
-            for (Urn urn : event.likes().keySet()) {
-                if (!playQueueManager.isQueueEmpty() && playQueueManager.isCurrentTrack(urn)) {
-                    updatePlayableInformation(track -> track.updatedWithLike(event.likes().get(urn)));
+            final Optional<Urn> currentItemUrn = playQueueManager.getCurrentItemUrn();
+            if (currentItemUrn.isPresent() && currentItemUrn.get().isTrack()) {
+                final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(currentItemUrn.get());
+                if (likeStatus.isPresent()) {
+                    updatePlayableInformation(track -> track.updatedWithLike(likeStatus.get()));
+                }
+            }
+        }
+    }
+
+    private final class TrackRepostChangeSubscriber extends DefaultSubscriber<RepostsStatusEvent> {
+        @Override
+        public void onNext(final RepostsStatusEvent event) {
+            final Optional<Urn> currentItemUrn = playQueueManager.getCurrentItemUrn();
+            if (currentItemUrn.isPresent() && currentItemUrn.get().isTrack()) {
+                final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(currentItemUrn.get());
+                if (repostStatus.isPresent()) {
+                    updatePlayableInformation(track -> track.updatedWithRepost(repostStatus.get()));
                 }
             }
         }

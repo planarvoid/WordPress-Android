@@ -301,7 +301,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleLike() {
-        final boolean addLike = !track.isLiked();
+        final boolean addLike = !track.isLikedByCurrentUser();
         likeOperations.toggleLike(track.getUrn(), addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(context, addLike));
@@ -330,7 +330,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         @Override
         public void onNext(PropertySet details) {
             track = track.updated(details);
-            updateLikeActionTitle(track.isLiked());
+            updateLikeActionTitle(track.isLikedByCurrentUser());
             updateRepostActionTitle(track.isRepostedByCurrentUser());
         }
 

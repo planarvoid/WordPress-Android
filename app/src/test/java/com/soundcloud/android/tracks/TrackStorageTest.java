@@ -176,8 +176,8 @@ public class TrackStorageTest extends StorageIntegrationTest {
         storage.loadTracks(asList(likedApiTrack.getUrn(), apiTrack.getUrn())).subscribe(subscriber);
         Map<Urn, TrackItem> map = subscriber.getOnNextEvents().get(0);
 
-        assertThat(map.get(likedApiTrack.getUrn()).isLiked()).isTrue();
-        assertThat(map.get(apiTrack.getUrn()).isLiked()).isFalse();
+        assertThat(map.get(likedApiTrack.getUrn()).isLikedByCurrentUser()).isTrue();
+        assertThat(map.get(apiTrack.getUrn()).isLikedByCurrentUser()).isFalse();
     }
 
     @Test

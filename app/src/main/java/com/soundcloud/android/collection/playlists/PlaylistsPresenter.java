@@ -2,6 +2,7 @@ package com.soundcloud.android.collection.playlists;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionItemDecoration;
@@ -10,6 +11,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -18,6 +20,8 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
+import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -258,7 +262,12 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                         .filter(LikesStatusEvent::containsPlaylistChange)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new LikeCollectionsSubscriber())
+                        .subscribe(new LikeEntityListSubscriber(adapter)),
+                eventBus.queue(REPOST_CHANGED)
+                        .filter(RepostsStatusEvent::containsPlaylistChange)
+                        .filter(isNotRefreshing)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RepostEntityListSubscriber(adapter))
         );
     }
 
@@ -285,23 +294,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                 }
             } else {
                 refreshCollections();
-            }
-        }
-    }
-
-    private class LikeCollectionsSubscriber extends DefaultSubscriber<LikesStatusEvent> {
-        @Override
-        public void onNext(LikesStatusEvent event) {
-            for (LikesStatusEvent.LikeStatus like : event.likes().values()) {
-                for (int position = 0; position < adapter.getItems().size(); position++) {
-                    PlaylistCollectionItem item = adapter.getItem(position);
-                    if (item.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && item.getUrn().equals(like.urn())) {
-                        final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
-                        if (position < adapter.getItems().size()) {
-                            adapter.setItem(position, playlistItem.updatedWithLike(like));
-                        }
-                    }
-                }
             }
         }
     }

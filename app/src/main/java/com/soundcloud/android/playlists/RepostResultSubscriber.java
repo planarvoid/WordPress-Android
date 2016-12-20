@@ -1,27 +1,26 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Context;
 import android.widget.Toast;
 
-public class RepostResultSubscriber extends DefaultSubscriber<PropertySet> {
+public class RepostResultSubscriber extends DefaultSubscriber<RepostsStatusEvent.RepostStatus> {
     private final Context context;
-    private final boolean repostStatus;
+    private final boolean isReposted;
 
-    public RepostResultSubscriber(Context context, boolean repostStatus) {
+    public RepostResultSubscriber(Context context, boolean isReposted) {
         this.context = context;
-        this.repostStatus = repostStatus;
+        this.isReposted = isReposted;
     }
 
     @Override
-    public void onNext(PropertySet changeSet) {
+    public void onNext(RepostsStatusEvent.RepostStatus repostStatus) {
         // do not show toast when repost failed (repost status will be reversed)
-        if (isCorrectRepostStatus(changeSet)) {
-            if (repostStatus) {
+        if (repostStatus.isReposted() == this.isReposted) {
+            if (this.isReposted) {
                 Toast.makeText(context, R.string.reposted_to_followers, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(context, R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
@@ -36,8 +35,4 @@ public class RepostResultSubscriber extends DefaultSubscriber<PropertySet> {
         Toast.makeText(context, R.string.repost_error_toast_overflow_action, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean isCorrectRepostStatus(PropertySet changeSet) {
-        final boolean reposted = changeSet.getOrElse(PlayableProperty.IS_USER_REPOST, !repostStatus);
-        return reposted == repostStatus;
-    }
 }
