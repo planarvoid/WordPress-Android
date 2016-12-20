@@ -125,7 +125,7 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl
         final int remotePosition = remotePlayQueue.getCurrentPosition();
 
         Log.d(LegacyCastOperations.TAG, "Loading " + remotePlayQueue);
-        if (playQueueManager.hasSameTrackList(remotePlayQueue)) {
+        if (remotePlayQueue.hasSameTracks(playQueueManager.getCurrentQueueTrackUrns())) {
             if (!isIdleWithInterrupted()) {
                 Log.d(LegacyCastOperations.TAG, "Has the same tracklist, setting remotePosition");
                 playQueueManager.setPosition(remotePosition, true);

@@ -23,7 +23,6 @@ import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.cast.RemotePlayQueue;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -72,7 +71,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PolicyOperations policyOperations;
     @Mock private PlayQueueItemVerifier playQueueItemVerifier;
-    @Mock private RemotePlayQueue remotePlayQueue;
     private PlaySessionSource playlistSessionSource;
     private PlaySessionSource exploreSessionSource;
 
@@ -171,14 +169,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
 
         assertThat(playQueueManager.getCurrentQueueTrackUrns()).isEqualTo(tracksUrn);
-    }
-
-    @Test
-    public void hasSameTracksForwardsCallToRemotePlayQueue() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        when(remotePlayQueue.hasSameTracks(playQueue)).thenReturn(true);
-
-        assertThat(playQueueManager.hasSameTrackList(remotePlayQueue)).isTrue();
     }
 
     @Test

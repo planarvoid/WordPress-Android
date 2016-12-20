@@ -497,7 +497,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(PLAY_QUEUE, TRACK_URN1);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
                 .thenReturn(remotePlayQueue);
-        when(playQueueManager.hasSameTrackList(remotePlayQueue)).thenReturn(true);
+        when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(PLAY_QUEUE);
 
         castPlayer.onMetadataUpdated();
 
@@ -509,7 +509,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(PLAY_QUEUE, TRACK_URN1);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
                 .thenReturn(remotePlayQueue);
-        when(playQueueManager.hasSameTrackList(remotePlayQueue)).thenReturn(true);
+        when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(PLAY_QUEUE);
         when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
         when(remoteMediaClient.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_INTERRUPTED);
 
@@ -524,7 +524,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         final RemotePlayQueue remoteQueue = RemotePlayQueue.create(PLAY_QUEUE, TRACK_URN1);
         mockForPlayCurrent();
 
-        when(playQueueManager.hasSameTrackList(remoteQueue)).thenReturn(true);
+        when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(PLAY_QUEUE);
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class)))
                 .thenReturn(remoteQueue);
         when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
@@ -540,7 +540,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         mockForPlayCurrent();
 
         when(castOperations.loadRemotePlayQueue(any(MediaInfo.class))).thenReturn(remotePlayQueue);
-        when(playQueueManager.hasSameTrackList(remotePlayQueue)).thenReturn(false);
+        when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(Collections.emptyList());
 
         castPlayer.onMetadataUpdated();
 

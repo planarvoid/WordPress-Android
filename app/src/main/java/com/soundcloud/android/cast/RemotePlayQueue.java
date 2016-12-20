@@ -22,8 +22,8 @@ public abstract class RemotePlayQueue {
 
     abstract Urn currentTrackUrn();
 
-    public boolean hasSameTracks(PlayQueue playQueue) {
-        return trackList().equals(playQueue.getTrackItemUrns());
+    boolean hasSameTracks(List<Urn> trackList) {
+        return trackList().equals(trackList);
     }
 
     public int getCurrentPosition() {

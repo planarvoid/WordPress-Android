@@ -252,7 +252,7 @@ class DefaultCastPlayer implements ProgressReporter.ProgressPuller, RemoteMediaC
     private void updateLocalPlayQueueAndPlayState(RemotePlayQueue remotePlayQueue) {
         final int remotePosition = remotePlayQueue.getCurrentPosition();
 
-        if (playQueueManager.hasSameTrackList(remotePlayQueue)) {
+        if (remotePlayQueue.hasSameTracks(playQueueManager.getCurrentQueueTrackUrns())) {
             if (isNotInterruptedIdle()) {
                 updatePositionAndPlay(remotePosition);
             }

@@ -27,16 +27,15 @@ public class RemotePlayQueueTest {
     @Test
     public void hasSameTrackListTrueForMatchingUrns() {
         RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(TRACK_LIST, URN);
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(TRACK_LIST, PlaySessionSource.EMPTY, Collections.emptyMap());
 
-        assertThat(remotePlayQueue.hasSameTracks(playQueue)).isTrue();
+        assertThat(remotePlayQueue.hasSameTracks(TRACK_LIST)).isTrue();
     }
 
     @Test
     public void hasSameTrackListFalseForDifferentOrder() {
         RemotePlayQueue remotePlayQueue = RemotePlayQueue.create(TestUrns.createTrackUrns(1L, 2L, 3L), URN);
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(3L, 2L, 1L), PlaySessionSource.EMPTY, Collections.emptyMap());
+        List<Urn> trackUrns = TestUrns.createTrackUrns(3L, 2L, 1L);
 
-        assertThat(remotePlayQueue.hasSameTracks(playQueue)).isFalse();
+        assertThat(remotePlayQueue.hasSameTracks(trackUrns)).isFalse();
     }
 }
