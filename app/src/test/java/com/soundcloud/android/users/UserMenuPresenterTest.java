@@ -10,6 +10,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -42,8 +43,7 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Observable.just(USER_PROPERTY_SET));
-        when(followingOperations.toggleFollowing(any(Urn.class), anyBoolean())).thenReturn(Observable.just(
-                USER_PROPERTY_SET));
+        when(followingOperations.toggleFollowing(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         presenter = new UserMenuPresenter(userMenuRenderFactory,
                                           followingOperations,
@@ -57,10 +57,9 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void togglesFollowStatus() {
-        final PublishSubject<PropertySet> followObservable = PublishSubject.create();
+        final PublishSubject<FollowingStatusEvent> followObservable = PublishSubject.create();
 
-        when(followingOperations.toggleFollowing(USER.getUrn(), !USER.isFollowedByMe()))
-                .thenReturn(followObservable);
+        when(followingOperations.toggleFollowing(USER.getUrn(), !USER.isFollowedByMe())).thenReturn(followObservable);
         presenter.show(button, USER.getUrn(), EVENT_CONTEXT_METADATA);
 
         presenter.handleToggleFollow(USER);

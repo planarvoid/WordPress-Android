@@ -31,7 +31,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.FacebookListenerInvites;
@@ -46,6 +45,7 @@ import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -168,14 +168,15 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
         viewLifeCycleSubscription = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, updatePlayableAdapterSubscriberFactory.create(adapter)),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateStreamEntitySubscriber(adapter)),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.queue(EventQueue.FOLLOWING_CHANGED).subscribe(adapter::onFollowingEntityChange),
                 eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                                       .filter(FILTER_STREAM_REFRESH_EVENTS)
                                       .flatMap(continueWith(updateIndicatorFromMostRecent()))),
-                followingOperations.onUserFollowed().subscribe(buildFollowSubscription()),
-                followingOperations.onUserUnfollowed().subscribe(buildFollowSubscription())
+                followingOperations.onUserFollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh()),
+                followingOperations.onUserUnfollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh())
         );
     }
 
@@ -300,15 +301,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private void removeItem(int position) {
         adapter.removeItem(position);
         adapter.notifyItemRemoved(position);
-    }
-
-    private DefaultSubscriber<Urn> buildFollowSubscription() {
-        return new DefaultSubscriber<Urn>() {
-            @Override
-            public void onNext(Urn urn) {
-                swipeRefreshAttacher.forceRefresh();
-            }
-        };
     }
 
     private void trackInvitesEvent(FacebookInvitesEvent event) {

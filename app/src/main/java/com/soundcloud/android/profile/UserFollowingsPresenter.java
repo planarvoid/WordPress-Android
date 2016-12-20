@@ -4,6 +4,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LinkType;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
@@ -16,9 +17,12 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.FollowEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
 import rx.functions.Func1;
 
 import android.os.Bundle;
@@ -34,6 +38,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
     private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
     private final Navigator navigator;
+    private final EventBus eventBus;
 
     private final Func1<PagedRemoteCollection, List<UserItem>> pageTransformer = new Func1<PagedRemoteCollection, List<UserItem>>() {
         @Override
@@ -47,18 +52,21 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
     };
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private Screen screen;
+    private Subscription subscription;
 
     @Inject
     UserFollowingsPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener,
                             SwipeRefreshAttacher swipeRefreshAttacher,
                             UserProfileOperations profileOperations,
                             UserRecyclerItemAdapter adapter,
-                            Navigator navigator) {
+                            Navigator navigator,
+                            EventBus eventBus) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.navigator = navigator;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -80,6 +88,12 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
     }
 
     @Override
+    protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onCreateCollectionView(fragment, view, savedInstanceState);
+        subscription = eventBus.subscribe(EventQueue.FOLLOWING_CHANGED, new FollowEntityListSubscriber(adapter));
+    }
+
+    @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
@@ -90,6 +104,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
     @Override
     public void onDestroyView(Fragment fragment) {
         getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        subscription.unsubscribe();
         super.onDestroyView(fragment);
     }
 

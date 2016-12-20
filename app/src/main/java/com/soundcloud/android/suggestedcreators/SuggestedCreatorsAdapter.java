@@ -1,15 +1,10 @@
 package com.soundcloud.android.suggestedcreators;
 
-import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-
-import java.util.Map;
 
 class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem, RecyclerView.ViewHolder> {
     private static final int SUGGESTED_CREATORS_TYPE = 0;
@@ -24,18 +19,10 @@ class SuggestedCreatorsAdapter extends RecyclerItemAdapter<SuggestedCreatorItem,
         suggestedCreatorRenderer.unsubscribe();
     }
 
-    void onFollowingEntityChange(EntityStateChangedEvent event) {
-        final Map<Urn, PropertySet> changeMap = event.getChangeMap();
-        for (Urn urn : changeMap.keySet()) {
-            final Boolean followed = changeMap.get(urn).get(UserProperty.IS_FOLLOWED_BY_ME);
-            setFollowingState(urn, followed);
-        }
-    }
-
-    private void setFollowingState(Urn urn, Boolean isFollowing) {
+    void onFollowingEntityChange(FollowingStatusEvent event) {
         for (SuggestedCreatorItem item : items) {
-            if (item.creator().urn().equals(urn) && item.following != isFollowing) {
-                item.following = isFollowing;
+            if (event.urn().equals(item.creator().urn()) && item.following != event.isFollowed()) {
+                item.following = event.isFollowed();
                 notifyDataSetChanged();
                 break;
             }

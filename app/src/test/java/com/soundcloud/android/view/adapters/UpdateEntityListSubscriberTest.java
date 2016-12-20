@@ -64,7 +64,7 @@ public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
 
         when(adapter.getItems()).thenReturn(newArrayList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromFollowing(changeSet);
+        final EntityStateChangedEvent event = EntityStateChangedEvent.forUpdate(changeSet);
         updateEntityListSubscriber.onNext(event);
 
         verify(adapter, never()).notifyItemChanged(anyInt());

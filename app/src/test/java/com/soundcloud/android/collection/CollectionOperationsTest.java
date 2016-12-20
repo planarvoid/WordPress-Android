@@ -14,7 +14,6 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableIt
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
@@ -149,15 +148,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forPlaylist(1), true, 1));
-
-        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
-    }
-
-    @Test
-    public void onCollectionChangedWhenPlaylistRepostEventFires() {
-        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
-
-        eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.createReposted(Urn.forPlaylist(1), 1));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }

@@ -1,13 +1,14 @@
 package com.soundcloud.android.users;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.FollowableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
-public class UserItem implements ListItem, UpdatableItem {
+public class UserItem implements ListItem, UpdatableItem, FollowableItem {
 
     protected final PropertySet source;
 
@@ -31,6 +32,13 @@ public class UserItem implements ListItem, UpdatableItem {
     @Override
     public UserItem updated(PropertySet sourceSet) {
         this.source.update(sourceSet);
+        return this;
+    }
+
+    @Override
+    public FollowableItem updatedWithFollowing(boolean isFollowedByMe, int followingsCount) {
+        this.source.put(UserProperty.IS_FOLLOWED_BY_ME, isFollowedByMe);
+        this.source.put(UserProperty.FOLLOWERS_COUNT, followingsCount);
         return this;
     }
 
@@ -60,4 +68,5 @@ public class UserItem implements ListItem, UpdatableItem {
     public boolean isFollowedByMe() {
         return source.getOrElse(UserProperty.IS_FOLLOWED_BY_ME, false);
     }
+
 }

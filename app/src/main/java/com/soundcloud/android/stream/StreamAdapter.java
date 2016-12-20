@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream;
 
 import com.soundcloud.android.ads.AppInstallItemRenderer;
-import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
@@ -86,13 +86,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         }
     }
 
-    public void setItem(int position, StreamItem item) {
-        if (position < getItemCount()) {
-            items.set(position, item);
-            notifyItemChanged(position);
-        }
-    }
-
     @Override
     public void clear() {
         checkMainThread();
@@ -117,7 +110,7 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
                                  "Altering adapter off main thread");
     }
 
-    void onFollowingEntityChange(EntityStateChangedEvent event) {
+    void onFollowingEntityChange(FollowingStatusEvent event) {
         suggestedCreatorsItemRenderer.onFollowingEntityChange(event);
     }
 

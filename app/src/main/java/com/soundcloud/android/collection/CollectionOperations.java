@@ -3,7 +3,6 @@ package com.soundcloud.android.collection;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_HISTORY;
-import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_CHANGE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
@@ -166,7 +165,6 @@ public class CollectionOperations {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(LIKE_CHANGED).cast(Object.class),
-                eventBus.queue(REPOST_CHANGED).cast(Object.class),
                 eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_CHANGE)
         );
     }

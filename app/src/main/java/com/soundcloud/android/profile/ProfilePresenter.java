@@ -9,7 +9,6 @@ import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.EnterScreenDispatcher;
@@ -23,7 +22,7 @@ import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -48,13 +47,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     private Subscription userUpdatedSubscription = RxUtils.invalidSubscription();
 
     private Urn user;
-
-    private final Func1<EntityStateChangedEvent, Boolean> isProfileUser = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent entityStateChangedEvent) {
-            return entityStateChangedEvent.getChangeMap().containsKey(user);
-        }
-    };
 
     @Inject
     ProfilePresenter(@Named(PROFILE_SCROLL_HELPER) ProfileScrollHelper scrollHelper,
@@ -96,9 +88,12 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
         refreshUser();
 
-        userUpdatedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                                          .filter(isProfileUser)
-                                          .subscribe(new RefreshUserSubscriber());
+        userUpdatedSubscription = new CompositeSubscription(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                                                                    .filter(entityStateChangedEvent -> entityStateChangedEvent.getChangeMap().containsKey(user))
+                                                                    .subscribe(event -> refreshUser()),
+                                                            eventBus.queue(EventQueue.FOLLOWING_CHANGED)
+                                                                    .filter(event -> event.urn().equals(user))
+                                                                    .subscribe(event -> refreshUser()));
     }
 
     @Override
@@ -165,10 +160,4 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         }
     }
 
-    private final class RefreshUserSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(EntityStateChangedEvent args) {
-            refreshUser();
-        }
-    }
 }

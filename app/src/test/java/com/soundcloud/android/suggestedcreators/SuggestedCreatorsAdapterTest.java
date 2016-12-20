@@ -1,15 +1,11 @@
 package com.soundcloud.android.suggestedcreators;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromFollowing;
 import static com.soundcloud.android.suggestedcreators.SuggestedCreatorsFixtures.createSuggestedCreatorItems;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,7 +30,7 @@ public class SuggestedCreatorsAdapterTest extends AndroidUnitTest {
     @Test
     public void updateItemOnFollowEvent() throws Exception {
         final SuggestedCreatorItem item = suggestedCreatorItems.get(0);
-        final EntityStateChangedEvent event = createEvent(item.creator().urn(), false);
+        final FollowingStatusEvent event = FollowingStatusEvent.createUnfollowed(item.creator().urn(), 0);
 
         suggestedCreatorsAdapter.onFollowingEntityChange(event);
 
@@ -44,16 +40,11 @@ public class SuggestedCreatorsAdapterTest extends AndroidUnitTest {
     @Test
     public void doNotUpdateUnrelatedItemOnFollowEvent() throws Exception {
         final SuggestedCreatorItem item = suggestedCreatorItems.get(0);
-        final EntityStateChangedEvent event = createEvent(Urn.forUser(104918), false);
+        final FollowingStatusEvent event = FollowingStatusEvent.createFollowed(Urn.forUser(104918), 1);
 
         suggestedCreatorsAdapter.onFollowingEntityChange(event);
 
         assertThat(item.following).isTrue();
     }
 
-    private EntityStateChangedEvent createEvent(Urn urn, boolean followed) {
-        return fromFollowing(PropertySet.create()
-                                        .put(EntityProperty.URN, urn)
-                                        .put(UserProperty.IS_FOLLOWED_BY_ME, followed));
-    }
 }

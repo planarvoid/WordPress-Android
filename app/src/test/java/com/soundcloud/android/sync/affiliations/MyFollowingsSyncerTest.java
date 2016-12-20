@@ -21,6 +21,7 @@ import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer.ForbiddenFollowNotificationBuilder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -66,7 +67,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private UserAssociationStorage userAssociationStorage;
     private JsonTransformer jsonTransformer = new JacksonJsonTransformer();
-    private PublishSubject<PropertySet> revertSubject;
+    private PublishSubject<FollowingStatusEvent> followingStatusPublishSubject;
 
     @Before
     public void setUp() throws Exception {
@@ -157,7 +158,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
                                           NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
                                           notification);
 
-        assertThat(revertSubject.hasObservers()).isTrue();
+        assertThat(followingStatusPublishSubject.hasObservers()).isTrue();
     }
 
     @Test
@@ -172,7 +173,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
                                           NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
                                           notification);
 
-        assertThat(revertSubject.hasObservers()).isTrue();
+        assertThat(followingStatusPublishSubject.hasObservers()).isTrue();
     }
 
     @Test
@@ -187,7 +188,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
                                           NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
                                           notification);
 
-        assertThat(revertSubject.hasObservers()).isTrue();
+        assertThat(followingStatusPublishSubject.hasObservers()).isTrue();
     }
 
     @NonNull
@@ -201,30 +202,11 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
                 )
         );
 
-        revertSubject = PublishSubject.create();
-        when(followingOperations.toggleFollowing(USER_1, false)).thenReturn(revertSubject);
+        followingStatusPublishSubject = PublishSubject.create();
+        when(followingOperations.toggleFollowing(USER_1, false)).thenReturn(followingStatusPublishSubject);
 
         mockApiFollowingAddition(USER_1, TestApiResponses.status(HttpStatus.FORBIDDEN,  body));
     }
-
-
-    @NonNull
-    private void setupFailedPushBadRequest(String body) throws Exception {
-        mockApiFollowingsResponse(Collections.<ApiFollowing>emptyList());
-        when(userAssociationStorage.loadFollowedUserIds()).thenReturn(Collections.<Long>emptySet());
-        when(userAssociationStorage.hasStaleFollowings()).thenReturn(true);
-        when(userAssociationStorage.loadStaleFollowings()).thenReturn(
-                singletonList(
-                        getNewFollowingAddition(USER_1, USERNAME_1)
-                )
-        );
-
-        revertSubject = PublishSubject.create();
-        when(followingOperations.toggleFollowing(USER_1, false)).thenReturn(revertSubject);
-
-        mockApiFollowingAddition(USER_1, TestApiResponses.status(HttpStatus.BAD_REQUEST,  body));
-    }
-
 
     @NonNull
     private List<Long> toUserIds(List<ApiFollowing> followings) {

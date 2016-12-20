@@ -84,6 +84,7 @@ public final class EventQueue {
                                                                                    .get();
     public static final Queue<LikesStatusEvent> LIKE_CHANGED = Queue.of(LikesStatusEvent.class).onError(ON_ERROR).get();
     public static final Queue<RepostsStatusEvent> REPOST_CHANGED = Queue.of(RepostsStatusEvent.class).onError(ON_ERROR).get();
+    public static final Queue<FollowingStatusEvent> FOLLOWING_CHANGED = Queue.of(FollowingStatusEvent.class).onError(ON_ERROR).get();
     public static final Queue<OfflineContentChangedEvent> OFFLINE_CONTENT_CHANGED = Queue.of(OfflineContentChangedEvent.class)
                                                                                          .onError(ON_ERROR)
                                                                                          .replay()

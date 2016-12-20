@@ -20,7 +20,6 @@ import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import org.junit.Before;
@@ -233,7 +232,7 @@ public class SuggestedCreatorsOperationsTest {
         final boolean isFollowing = true;
         when(suggestedCreatorsStorage.toggleFollowSuggestedCreator(urn,
                                                                    isFollowing)).thenReturn(Observable.<ChangeResult>empty());
-        when(followingOperations.toggleFollowing(urn, isFollowing)).thenReturn(Observable.<PropertySet>empty());
+        when(followingOperations.toggleFollowing(urn, isFollowing)).thenReturn(Observable.empty());
 
         operations.toggleFollow(urn, isFollowing).subscribe();
 

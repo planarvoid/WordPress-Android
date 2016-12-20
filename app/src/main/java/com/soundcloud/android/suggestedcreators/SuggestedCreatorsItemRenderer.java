@@ -2,7 +2,7 @@ package com.soundcloud.android.suggestedcreators;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stream.StreamItem.SuggestedCreators;
 
@@ -35,7 +35,7 @@ public class SuggestedCreatorsItemRenderer implements CellRenderer<SuggestedCrea
         return view;
     }
 
-    public void onFollowingEntityChange(EntityStateChangedEvent event) {
+    public void onFollowingEntityChange(FollowingStatusEvent event) {
         if (adapter != null) {
             adapter.onFollowingEntityChange(event);
         }

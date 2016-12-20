@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -40,10 +40,12 @@ public class FollowingOperationsTest extends AndroidUnitTest {
     @Mock private EventBus mockEventBus;
     @Captor private ArgumentCaptor<UpdateFollowingParams> commandParamsCaptor;
     @Captor private ArgumentCaptor<EntityStateChangedEvent> entityStateChangedEventArgumentCaptor;
+    @Captor private ArgumentCaptor<FollowingStatusEvent> followingChangedEventArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
     private TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+    private TestSubscriber<FollowingStatusEvent> followingStatusTestSubscriber = new TestSubscriber<>();
     private Urn targetUrn = Urn.forUser(123);
 
     @Before
@@ -67,31 +69,30 @@ public class FollowingOperationsTest extends AndroidUnitTest {
 
         when(syncOperations.failSafeSync(Syncable.MY_FOLLOWINGS)).thenReturn(Observable.just(SyncOperations.Result.SYNCED));
 
-        ops.toggleFollowing(targetUrn, true).subscribe(subscriber);
+        ops.toggleFollowing(targetUrn, true).subscribe(followingStatusTestSubscriber);
 
         final InOrder inOrder = Mockito.inOrder(updateFollowingCommand, syncOperations, mockEventBus);
         inOrder.verify(updateFollowingCommand).toObservable(commandParamsCaptor.capture());
         inOrder.verify(syncOperations).failSafeSync(Syncable.MY_FOLLOWINGS);
-        inOrder.verify(mockEventBus).publish(eq(EventQueue.ENTITY_STATE_CHANGED), entityStateChangedEventArgumentCaptor.capture());
+        inOrder.verify(mockEventBus).publish(eq(EventQueue.FOLLOWING_CHANGED), followingChangedEventArgumentCaptor.capture());
 
         final UpdateFollowingParams params = commandParamsCaptor.getValue();
         assertThat(params.following).isTrue();
         assertThat(params.targetUrn).isEqualTo(targetUrn);
 
-        final EntityStateChangedEvent event = entityStateChangedEventArgumentCaptor.getValue();
-        assertThat(event.getChangeMap().get(targetUrn)).isEqualTo(getFollowingChangeSet(true));
-        assertThat(event.isFollowingKind()).isTrue();
+        final FollowingStatusEvent event = followingChangedEventArgumentCaptor.getValue();
+        assertThat(event).isEqualTo(FollowingStatusEvent.createFollowed(targetUrn, FOLLOWER_COUNT));
     }
 
     @Test
     public void onUserFollowedEmptsFollowedUser() {
         operations.populatedOnUserFollowed().subscribe(subscriber);
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromFollowing(getFollowingChangeSet(true));
+        final FollowingStatusEvent event = FollowingStatusEvent.createFollowed(targetUrn, FOLLOWER_COUNT);
         final PropertySet following = PropertySet.create();
         when(userAssociationStorage.followedUser(targetUrn)).thenReturn(Observable.just(following));
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
+        eventBus.publish(EventQueue.FOLLOWING_CHANGED, event);
 
         subscriber.assertValues(following);
     }
@@ -101,16 +102,10 @@ public class FollowingOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
         operations.onUserUnfollowed().subscribe(subscriber);
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromFollowing(getFollowingChangeSet(false));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
+        final FollowingStatusEvent event = FollowingStatusEvent.createUnfollowed(targetUrn, FOLLOWER_COUNT);
+        eventBus.publish(EventQueue.FOLLOWING_CHANGED, event);
 
         subscriber.assertValues(targetUrn);
     }
 
-    private PropertySet getFollowingChangeSet(boolean isFollowing) {
-        return PropertySet.from(
-                UserProperty.URN.bind(targetUrn),
-                UserProperty.FOLLOWERS_COUNT.bind(FOLLOWER_COUNT),
-                UserProperty.IS_FOLLOWED_BY_ME.bind(isFollowing));
-    }
 }

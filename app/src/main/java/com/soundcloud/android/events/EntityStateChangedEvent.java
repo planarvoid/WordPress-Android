@@ -29,7 +29,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int PLAYLIST_EDITED = 4;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
     public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
-    public static final int FOLLOWING = 7;
     public static final int ENTITY_CREATED = 8;
     public static final int ENTITY_DELETED = 9;
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
@@ -77,10 +76,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent forUpdate(PropertySet propertySet) {
         return create(UPDATED, propertySet);
-    }
-
-    public static EntityStateChangedEvent fromFollowing(PropertySet newFollowingState) {
-        return create(FOLLOWING, newFollowingState);
     }
 
     public static EntityStateChangedEvent fromEntityCreated(Urn urn) {
@@ -193,10 +188,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public boolean containsDeletedPlaylist() {
         return getFirstUrn().isPlaylist() && getKind() == ENTITY_DELETED;
-    }
-
-    public boolean isFollowingKind() {
-        return getKind() == FOLLOWING;
     }
 
     private boolean isTrackAddedEvent() {

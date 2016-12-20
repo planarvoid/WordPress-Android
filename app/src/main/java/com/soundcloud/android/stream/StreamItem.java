@@ -12,7 +12,6 @@ import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
@@ -81,15 +80,6 @@ public abstract class StreamItem {
             return Optional.of(((PlaylistStreamItem) this).playlistItem());
         }
         return Optional.absent();
-    }
-
-    StreamItem updated(PropertySet propertySet) {
-        if (this instanceof TrackStreamItem) {
-            return ((TrackStreamItem)this).updated(propertySet);
-        } else if (this instanceof PlaylistStreamItem) {
-            return ((PlaylistStreamItem)this).updated(propertySet);
-        }
-        return this;
     }
 
     public abstract Kind kind();
