@@ -12,11 +12,10 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.PropertySet;
 import org.json.JSONException;
 import org.json.JSONObject;
 import rx.Observable;
@@ -38,13 +37,6 @@ public class DefaultCastOperations implements CastOperations {
     private final PlayQueueManager playQueueManager;
     private final Scheduler progressPullIntervalScheduler;
     private final CastProtocol castProtocol;
-
-    private final Func1<Urn, Observable<PropertySet>> loadTracks = new Func1<Urn, Observable<PropertySet>>() {
-        @Override
-        public Observable<PropertySet> call(Urn urn) {
-            return trackRepository.track(urn);
-        }
-    };
 
     @Inject
     public DefaultCastOperations(TrackRepository trackRepository,
@@ -78,21 +70,21 @@ public class DefaultCastOperations implements CastOperations {
     }
 
     Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn, List<Urn> filteredLocalPlayQueueTracks) {
-        return Observable.zip(trackRepository.track(currentTrackUrn),
+        return Observable.zip(trackRepository.fromUrn(currentTrackUrn),
                               Observable.from(filteredLocalPlayQueueTracks).toList(),
                               (track, filteredLocalPlayQueueTracks1) -> new LocalPlayQueue(
                                       castProtocol.createPlayQueueJSON(filteredLocalPlayQueueTracks1),
                                       filteredLocalPlayQueueTracks1,
                                       castProtocol.createMediaInfo(track),
-                                      track.get(TrackProperty.URN)));
+                                      track.getUrn()));
     }
 
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
                                .flatMap(RxUtils.iterableToObservable())
-                               .flatMap(loadTracks)
-                               .filter(track -> !track.get(TrackProperty.IS_PRIVATE))
-                               .map(track1 -> track1.get(TrackProperty.URN));
+                               .flatMap(trackRepository::fromUrn)
+                               .filter(track -> !track.isPrivate())
+                               .map(PlayableItem::getUrn);
     }
 
 
@@ -102,7 +94,7 @@ public class DefaultCastOperations implements CastOperations {
                 final JSONObject customData = mediaInfo.getCustomData();
                 if (customData != null) {
                     return RemotePlayQueue.create(castProtocol.convertRemoteDataToTrackList(customData),
-                                               castProtocol.getRemoteCurrentTrackUrn(mediaInfo));
+                                                  castProtocol.getRemoteCurrentTrackUrn(mediaInfo));
                 }
             }
         } catch (JSONException e) {

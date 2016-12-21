@@ -5,10 +5,9 @@ import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.common.images.WebImage;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.collections.PropertySet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,12 +46,12 @@ public class CastProtocol {
         return playQueue;
     }
 
-    MediaInfo createMediaInfo(PropertySet track) {
-        final Urn trackUrn = track.get(TrackProperty.URN);
+    MediaInfo createMediaInfo(TrackItem track) {
+        final Urn trackUrn = track.getUrn();
         final String artworkUrl = imageOperations.getUrlForLargestImage(resources, trackUrn);
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-        mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.get(TrackProperty.TITLE));
-        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.get(TrackProperty.CREATOR_NAME));
+        mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.getTitle());
+        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.getCreatorName());
         mediaMetadata.putString(KEY_URN, trackUrn.toString());
 
         if (artworkUrl != null) {
