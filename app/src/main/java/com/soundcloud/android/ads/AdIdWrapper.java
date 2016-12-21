@@ -7,6 +7,7 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -24,7 +25,7 @@ class AdIdWrapper {
         return GooglePlayServicesUtil.isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS;
     }
 
-    public AdvertisingIdClient.Info getAdInfo() throws IOException, GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
+    @Nullable public AdvertisingIdClient.Info getAdInfo() throws IOException, GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
         return AdvertisingIdClient.getAdvertisingIdInfo(context);
     }
 

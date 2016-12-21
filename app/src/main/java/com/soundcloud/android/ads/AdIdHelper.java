@@ -1,21 +1,19 @@
 package com.soundcloud.android.ads;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.IOException;
 
 @Singleton
 public class AdIdHelper {
@@ -36,7 +34,9 @@ public class AdIdHelper {
 
     public void init() {
         if (adIdWrapper.isPlayServicesAvailable()) {
-            getAdInfo()
+
+            Observable
+                    .fromCallable(adIdWrapper::getAdInfo)
                     .subscribeOn(scheduler)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new AdInfoSubscriber());
@@ -51,25 +51,17 @@ public class AdIdHelper {
         return adIdTracking;
     }
 
-    private Observable<AdvertisingIdClient.Info> getAdInfo() {
-        return Observable.create(new Observable.OnSubscribe<AdvertisingIdClient.Info>() {
-            @Override
-            public void call(Subscriber<? super AdvertisingIdClient.Info> subscriber) {
-                try {
-                    subscriber.onNext(adIdWrapper.getAdInfo());
-                    subscriber.onCompleted();
-                } catch (IOException | GooglePlayServicesNotAvailableException | GooglePlayServicesRepairableException e) {
-                    subscriber.onError(e);
-                }
-            }
-        });
-    }
-
     private class AdInfoSubscriber extends DefaultSubscriber<AdvertisingIdClient.Info> {
         @Override
-        public void onNext(AdvertisingIdClient.Info adInfo) {
-            adId = Optional.of(adInfo.getId());
-            adIdTracking = !adInfo.isLimitAdTrackingEnabled(); // We reverse this value to match the iOS param
+        public void onNext(@Nullable AdvertisingIdClient.Info adInfo) {
+            if (adInfo == null) {
+                adId = Optional.absent();
+                adIdTracking = false;
+            } else {
+                adId = Optional.of(adInfo.getId());
+                adIdTracking = !adInfo.isLimitAdTrackingEnabled(); // We reverse this value to match the iOS param
+            }
+
             Log.i(TAG, "Loaded ADID: " + adId + "\nTracking:" + adIdTracking);
         }
     }
