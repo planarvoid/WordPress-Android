@@ -42,6 +42,7 @@ def basicText(track, versionCode, prometheus_annotation) {
   new String ("slog: Deployed <$repoUrl|android> " +
           "versionCode $versionCode " +
           "(Skippy version ${rootProject.('ext').skippyVersion}) " +
+          "(Flipper version ${rootProject.('ext').flipperVersion}) " +
           "to *$track* " +
           "(commit <$commitUrl|$commit> " +
           "via pipeline #<$ciUrl|${project.('ext').pipelineVersion}>) " +
