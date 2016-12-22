@@ -93,6 +93,7 @@ android {
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
     }
 
     debug {
