@@ -1,19 +1,15 @@
 package com.soundcloud.android.image;
 
-import android.graphics.Bitmap;
-import android.view.View;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
-
 import rx.observers.TestSubscriber;
 
-import static org.mockito.Mockito.when;
+import android.graphics.Bitmap;
+import android.view.View;
+
+import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BitmapLoadingAdapterTest {
@@ -34,11 +30,9 @@ public class BitmapLoadingAdapterTest {
 
     @Test
     public void onLoadingCompleteDoesNotEmitBitmapIfUnsubscribed() throws Exception {
-        final Bitmap copiedBitmap = Mockito.mock(Bitmap.class);
-        when(bitmap.copy(Bitmap.Config.ARGB_8888, false)).thenReturn(copiedBitmap);
         adapter = new BitmapLoadingAdapter(subscriber);
         subscriber.unsubscribe();
         adapter.onLoadingComplete("uri", view, bitmap);
-        subscriber.assertReceivedOnNext(Collections.<Bitmap>emptyList());
+        subscriber.assertReceivedOnNext(Collections.emptyList());
     }
 }

@@ -103,6 +103,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)));
 
         likedTrackUrns = asList(TRACK1, TRACK2);
+        when(fragment.getActivity()).thenReturn(activity());
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
@@ -132,6 +133,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
+        when(likeOperations.likedTrackUrns()).thenReturn(just(likedTrackUrns));
         when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
         createAndBindView();

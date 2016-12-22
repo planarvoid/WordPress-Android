@@ -54,7 +54,6 @@ public class WelcomeUserOperationsTest {
     @Test
     public void defaultUserNameReturnsEmpty() throws Exception {
         when(profileUser.getName()).thenReturn("user-120398471");
-        when(profileUser.getImageUrlTemplate()).thenReturn(Optional.of("https://images.soundcloud.com/fancyimage.bmp"));
 
         welcomeUserOperations.welcome().subscribe(testSubscriber);
 
@@ -78,7 +77,6 @@ public class WelcomeUserOperationsTest {
     @Test
     public void emptyUserReturnsEmpty() throws Exception {
         when(profileUser.getName()).thenReturn("user-120398471");
-        when(profileUser.getImageUrlTemplate()).thenReturn(Optional.absent());
 
         welcomeUserOperations.welcome().subscribe(testSubscriber);
 

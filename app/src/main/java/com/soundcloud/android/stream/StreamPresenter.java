@@ -70,12 +70,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         AppInstallItemRenderer.Listener,
         NewItemsIndicator.Listener, StreamHighlightsItemRenderer.Listener {
 
-    private static final Func1<StreamEvent, Boolean> FILTER_STREAM_REFRESH_EVENTS = new Func1<StreamEvent, Boolean>() {
-        @Override
-        public Boolean call(StreamEvent streamEvent) {
-            return streamEvent.isStreamRefreshed();
-        }
-    };
+    private static final Func1<StreamEvent, Boolean> FILTER_STREAM_REFRESH_EVENTS = StreamEvent::isStreamRefreshed;
 
     private final StreamOperations streamOperations;
     private final StreamAdapter adapter;

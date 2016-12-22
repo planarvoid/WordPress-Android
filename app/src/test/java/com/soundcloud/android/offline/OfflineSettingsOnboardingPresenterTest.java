@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Navigator;
@@ -10,12 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
-
 public class OfflineSettingsOnboardingPresenterTest extends AndroidUnitTest {
 
-    @Mock private AppCompatActivity activity;
     @Mock private Navigator navigator;
     @Mock private OfflineSettingsStorage storage;
 
@@ -29,15 +25,13 @@ public class OfflineSettingsOnboardingPresenterTest extends AndroidUnitTest {
     @Test
     public void onContinueSetsOnboardingAsSeen() {
         presenter.onContinue();
-
         verify(storage).setOfflineSettingsOnboardingSeen();
     }
 
     @Test
     public void onContinueOpensOfflineSettings() {
         presenter.onContinue();
-
-        verify(navigator).openOfflineSettings(any(Activity.class));
+        verify(navigator).openOfflineSettings(isNull());
     }
 
 }

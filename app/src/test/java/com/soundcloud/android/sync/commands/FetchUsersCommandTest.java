@@ -2,10 +2,10 @@ package com.soundcloud.android.sync.commands;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -83,10 +83,9 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
 
     private void setupRequest(List<Urn> urns, List<PublicApiUser> users) throws Exception {
         final String joinedIds = Urns.toJoinedIds(urns, ",");
-        when(apiClient.fetchMappedResponse(argThat(
-                isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_USERS.path())
-                        .withQueryParam("ids", joinedIds)
-                        .withQueryParam("linked_partitioning", "1")), isA(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_USERS.path())
+                                                                           .withQueryParam("ids", joinedIds)
+                                                                           .withQueryParam("linked_partitioning", "1")), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(users));
     }
 }

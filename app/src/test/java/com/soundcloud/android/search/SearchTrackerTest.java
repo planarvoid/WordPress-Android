@@ -265,8 +265,6 @@ public class SearchTrackerTest {
 
     @Test
     public void mustNotTrackUpsellImpressionIfNotUpsellUser() {
-        when(featureOperations.upsellHighTier()).thenReturn(false);
-
         tracker.setTrackingData(SearchType.ALL, Urn.NOT_SET, true);
         tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY);
 
@@ -275,10 +273,6 @@ public class SearchTrackerTest {
 
     @Test
     public void mustNotTrackUpsellImpressionIfThereIsNoPremiumContent() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-
-        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY);
-
         verifyZeroInteractions(eventTracker);
     }
 

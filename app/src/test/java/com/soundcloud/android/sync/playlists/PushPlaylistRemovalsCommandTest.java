@@ -4,9 +4,9 @@ import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiR
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -44,10 +44,8 @@ public class PushPlaylistRemovalsCommandTest extends AndroidUnitTest {
 
         Collection<Urn> result = command.with(playlistUrn).with(input).call();
 
-        verify(apiClient).fetchResponse(argThat(
-                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))));
-        verify(apiClient).fetchResponse(argThat(
-                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track2))));
+        verify(apiClient).fetchResponse(argThat(isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))));
+        verify(apiClient).fetchResponse(argThat(isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track2))));
         assertThat(result).isSameAs(input);
     }
 
@@ -57,8 +55,7 @@ public class PushPlaylistRemovalsCommandTest extends AndroidUnitTest {
         final Urn track1 = Urn.forTrack(1);
         final List<Urn> input = singletonList(track1);
 
-        when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(
+        when(apiClient.fetchResponse(argThat(isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(
                 TestApiResponses.networkError());
 
         command.with(playlistUrn).with(input).call();
@@ -70,8 +67,7 @@ public class PushPlaylistRemovalsCommandTest extends AndroidUnitTest {
         final Urn track1 = Urn.forTrack(1);
         final List<Urn> input = singletonList(track1);
 
-        when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(
+        when(apiClient.fetchResponse(argThat(isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(
                 TestApiResponses.status(502));
 
         command.with(playlistUrn).with(input).call();

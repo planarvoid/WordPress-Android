@@ -44,6 +44,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
+        when(button.getContext()).thenReturn(context());
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         renderer = new PlaylistItemMenuRenderer(listener,

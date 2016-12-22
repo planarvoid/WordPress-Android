@@ -5,9 +5,10 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
-import org.mockito.ArgumentMatcher;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 
-public class ImageResourceMatcher extends ArgumentMatcher<ImageResource> {
+public class ImageResourceMatcher extends BaseMatcher<ImageResource> {
 
     private final Urn urn;
     private final Optional<String> imageUrlTemplate;
@@ -25,6 +26,11 @@ public class ImageResourceMatcher extends ArgumentMatcher<ImageResource> {
                     imageResource.getImageUrlTemplate().equals(imageUrlTemplate);
         }
         return false;
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("Expected to match ImageResource");
     }
 
     public static ImageResourceMatcher isImageResourceFor(Urn urn, Optional<String> imageUrlTemplate) {

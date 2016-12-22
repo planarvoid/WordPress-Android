@@ -31,7 +31,6 @@ public class MyTrackLikesStateProviderTest {
     @Test
     public void hasLocalChangesIsTrueIfTrackAdditionsIsNotEmpty() throws Exception {
         when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(singletonList(TestPropertySets.fromApiTrack()));
-        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
 
         assertThat(myTrackLikesStateProvider.hasLocalChanges()).isTrue();
     }

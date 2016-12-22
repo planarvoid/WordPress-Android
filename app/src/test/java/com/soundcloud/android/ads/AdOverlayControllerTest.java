@@ -55,6 +55,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
     @Mock private Context context;
+    @Mock private ImageView imageView;
     @Mock private Resources resources;
     @Mock private InterstitialPresenterFactory interstitialPresenterFactory;
     @Mock private LeaveBehindPresenterFactory leaveBehindPresenterFactory;
@@ -99,6 +100,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
                 .thenReturn(interstitialPresenter);
         when(leaveBehindPresenterFactory.create(same(trackView), any(AdOverlayPresenter.Listener.class)))
                 .thenReturn(leaveBehindPresenter);
+        when(interstitialPresenter.getImageView()).thenReturn(imageView);
     }
 
     @Test
@@ -269,7 +271,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.setExpanded();
         controller.show(true);
 
-        verify(adViewabilityController).startOverlayTracking(any(ImageView.class), eq(interstitialData));
+        verify(adViewabilityController).startOverlayTracking(imageView, interstitialData);
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.soundcloud.android.properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -23,6 +22,7 @@ public class FeatureFlagsTest {
     @Mock private RemoteConfig remoteConfig;
     @Mock private LocalConfig localConfig;
     @Mock private RuntimeConfig runtimeConfig;
+    @Mock private Context context;
 
     private FeatureFlags featureFlags;
 
@@ -33,9 +33,9 @@ public class FeatureFlagsTest {
 
     @Test
     public void shouldFetchRemoteFlags() {
-        featureFlags.fetchRemoteFlags(any(Context.class));
+        featureFlags.fetchRemoteFlags(context);
 
-        verify(remoteConfig).fetchFeatureFlags(any(Context.class));
+        verify(remoteConfig).fetchFeatureFlags(context);
     }
 
     @Test
@@ -48,7 +48,6 @@ public class FeatureFlagsTest {
     public void shouldReturnLocalConfigValueIfThereIsNoRemoteConfigValue() {
         final boolean localValue = FEATURE_FLAG.featureValue();
 
-        when(runtimeConfig.getFlagValue(FEATURE_FLAG)).thenReturn(localValue);
         when(localConfig.getFlagValue(FEATURE_FLAG)).thenReturn(localValue);
         when(remoteConfig.getFlagValue(FEATURE_FLAG, localValue)).thenReturn(localValue);
 
@@ -59,7 +58,6 @@ public class FeatureFlagsTest {
     public void shouldReturnRemoteConfigValueIfThereIsNoOverriddenConfigValue() {
         final boolean localValue = FEATURE_FLAG.featureValue();
 
-        when(runtimeConfig.getFlagValue(FEATURE_FLAG)).thenReturn(localValue);
         when(localConfig.getFlagValue(FEATURE_FLAG)).thenReturn(localValue);
         when(remoteConfig.getFlagValue(FEATURE_FLAG, localValue)).thenReturn(false);
 
@@ -70,7 +68,6 @@ public class FeatureFlagsTest {
     public void isEnabledShouldReturnRuntimeConfigValueIfThereIsFlagOverriddenValue() {
         when(runtimeConfig.containsFlagValue(FEATURE_FLAG)).thenReturn(true);
         when(runtimeConfig.getFlagValue(FEATURE_FLAG)).thenReturn(true);
-        when(localConfig.getFlagValue(FEATURE_FLAG)).thenReturn(false);
 
         assertThat(featureFlags.isEnabled(FEATURE_FLAG)).isEqualTo(true);
         verifyZeroInteractions(remoteConfig);
@@ -80,7 +77,6 @@ public class FeatureFlagsTest {
     public void isDisabledShouldReturnRuntimeConfigValueIfThereIsFlagOverriddenValue() {
         when(runtimeConfig.containsFlagValue(FEATURE_FLAG)).thenReturn(true);
         when(runtimeConfig.getFlagValue(FEATURE_FLAG)).thenReturn(false);
-        when(localConfig.getFlagValue(FEATURE_FLAG)).thenReturn(true);
 
         assertThat(featureFlags.isDisabled(FEATURE_FLAG)).isEqualTo(true);
         verifyZeroInteractions(remoteConfig);

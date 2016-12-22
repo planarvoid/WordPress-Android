@@ -5,7 +5,9 @@ import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expec
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedTrack;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForListItem;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -422,10 +424,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldSetOverlayViewOnViewCreated() {
         presenter.onCreate(fragmentRule.getFragment(), null);
-
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        verify(newItemsIndicator).setTextView(any(TextView.class));
+        verify(newItemsIndicator).setTextView(or(isNull(), any(TextView.class)));
     }
 
     @Test

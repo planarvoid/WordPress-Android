@@ -32,12 +32,6 @@ import java.util.concurrent.TimeUnit;
 public class SuggestedCreatorsOperations {
     private static final long VISIBLE_INTERVAL = TimeUnit.MINUTES.toMillis(5);
     private static final int FOLLOWINGS_LIMIT = 5;
-    private static final Func1<List<SuggestedCreator>, StreamItem> TO_SOUND_STREAM_ITEM = new Func1<List<SuggestedCreator>, StreamItem>() {
-        @Override
-        public StreamItem call(List<SuggestedCreator> suggestedCreators) {
-            return StreamItem.forSuggestedCreators(suggestedCreators);
-        }
-    };
     private final Func1<List<UserAssociation>, Boolean> lessThanLimitFollowers = new Func1<List<UserAssociation>, Boolean>() {
         @Override
         public Boolean call(List<UserAssociation> userAssociations) {
@@ -90,37 +84,30 @@ public class SuggestedCreatorsOperations {
     }
 
     private Func1<List<UserAssociation>, Observable<StreamItem>> loadSuggestedCreators() {
-        return new Func1<List<UserAssociation>, Observable<StreamItem>>() {
-            public Observable<StreamItem> call(final List<UserAssociation> userAssociations) {
-                return lazySyncCreators().map(filterOutAlreadyFollowed(userAssociations))
-                                         .filter(IS_NOT_EMPTY_LIST)
-                                         .map(TO_SOUND_STREAM_ITEM);
-            }
-        };
+        return userAssociations -> lazySyncCreators().map(filterOutAlreadyFollowed(userAssociations))
+                                             .filter(IS_NOT_EMPTY_LIST)
+                                             .map(StreamItem::forSuggestedCreators);
     }
 
     private Func1<List<SuggestedCreator>, List<SuggestedCreator>> filterOutAlreadyFollowed(final List<UserAssociation> userAssociations) {
-        return new Func1<List<SuggestedCreator>, List<SuggestedCreator>>() {
-            public List<SuggestedCreator> call(List<SuggestedCreator> suggestedCreators) {
-                final List<SuggestedCreator> result = Lists.newArrayList();
-                final long currentTimeMillis = dateProvider.getCurrentTime();
-                for (SuggestedCreator suggestedCreator : suggestedCreators) {
-                    boolean add = true;
-                    for (final UserAssociation userAssociation : userAssociations) {
-                        final Optional<Date> followedAt = suggestedCreator.followedAt();
-                        final boolean wasRecentlyFollowed = followedAt.isPresent() && followedAt.get()
-                                                                                                .getTime() > (currentTimeMillis - VISIBLE_INTERVAL);
-                        if (userAssociation.userUrn().equals(suggestedCreator.getCreator().urn()) && !wasRecentlyFollowed) {
-                            add = false;
-                            break;
-                        }
-                    }
-                    if (add) {
-                        result.add(suggestedCreator);
+        return suggestedCreators -> {
+            final List<SuggestedCreator> result = Lists.newArrayList();
+            final long currentTimeMillis = dateProvider.getCurrentTime();
+            for (SuggestedCreator suggestedCreator : suggestedCreators) {
+                boolean add = true;
+                for (final UserAssociation userAssociation : userAssociations) {
+                    final Optional<Date> followedAt = suggestedCreator.followedAt();
+                    final boolean wasRecentlyFollowed = followedAt.isPresent() && followedAt.get().getTime() > (currentTimeMillis - VISIBLE_INTERVAL);
+                    if (userAssociation.userUrn().equals(suggestedCreator.getCreator().urn()) && !wasRecentlyFollowed) {
+                        add = false;
+                        break;
                     }
                 }
-                return result;
+                if (add) {
+                    result.add(suggestedCreator);
+                }
             }
+            return result;
         };
     }
 

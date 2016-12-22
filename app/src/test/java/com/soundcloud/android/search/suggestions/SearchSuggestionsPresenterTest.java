@@ -34,7 +34,6 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.observers.TestSubscriber;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
@@ -68,6 +67,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         when(clickListenerFactory.create(eq(Screen.SEARCH_SUGGESTIONS), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         presenter = new SearchSuggestionsPresenter(swipeRefreshAttacher, adapter, operations, clickListenerFactory, eventTracker);
         when(operations.suggestionsFor(anyString())).thenReturn(Observable.just(suggestionItems));
+        when(view.getContext()).thenReturn(context());
 
         presenter.setSuggestionListener(suggestionListener);
     }
@@ -146,7 +146,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(view, CLICK_POSITION);
 
         verify(eventTracker).trackSearch(searchEventCaptor.capture());
-        verify(clickListener).onItemClick(eq(suggestionItem), any(Context.class));
+        verify(clickListener).onItemClick(suggestionItem, context());
 
         final SearchEvent capturedEvent = searchEventCaptor.getValue();
         assertThat(capturedEvent.pageName().get()).isEqualTo(SCREEN.get());

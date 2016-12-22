@@ -4,11 +4,11 @@ import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiR
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -99,8 +99,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALL).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALL.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -108,8 +108,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.<Urn>absent(), SearchType.TRACKS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_TRACKS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -117,9 +117,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.<Urn>absent(), SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET",
-                                                                  ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                                  ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS.path())
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -127,8 +127,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.<Urn>absent(), SearchType.ALBUMS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALBUMS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -136,8 +136,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.USERS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_USERS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -145,8 +145,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.ALL).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_ALL.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -154,8 +154,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.TRACKS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_TRACKS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -163,8 +163,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_PLAYLISTS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -172,8 +172,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.ALBUMS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_ALBUMS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -181,8 +181,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.<Urn>absent(), SearchType.USERS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_USERS.path())
-                                                           .withQueryParam("limit", "30")
-                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                           .withQueryParam("limit", "30")
+                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test

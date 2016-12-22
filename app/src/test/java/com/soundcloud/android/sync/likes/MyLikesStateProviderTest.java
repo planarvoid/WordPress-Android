@@ -32,9 +32,6 @@ public class MyLikesStateProviderTest {
     @Test
     public void hasLocalChangesIsTrueIfTrackAdditionsIsNotEmpty() throws Exception {
         when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(singletonList(TestPropertySets.fromApiTrack()));
-        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
-        when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
 
         assertThat(myLikesStateProvider.hasLocalChanges()).isTrue();
     }
@@ -44,7 +41,6 @@ public class MyLikesStateProviderTest {
         when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
         when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(singletonList(TestPropertySets.fromApiTrack()));
         when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
 
         assertThat(myLikesStateProvider.hasLocalChanges()).isTrue();
     }
@@ -52,9 +48,7 @@ public class MyLikesStateProviderTest {
     @Test
     public void hasLocalChangesIsTrueIfPlaylistAdditionsIsNotEmpty() throws Exception {
         when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
         when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(singletonList(TestPropertySets.fromApiTrack()));
-        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
 
         assertThat(myLikesStateProvider.hasLocalChanges()).isTrue();
     }

@@ -69,10 +69,8 @@ public class SuggestedCreatorsOperationsTest {
                                                      dateProvider,
                                                      suggestedCreatorsExperiment);
         when(featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)).thenReturn(true);
-        when(suggestedCreatorsExperiment.isEnabled()).thenReturn(true);
         when(featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL)).thenReturn(false);
-        when(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS)).thenReturn(Observable.just(
-                SYNCED));
+        when(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS)).thenReturn(Observable.just(SYNCED));
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.<List<SuggestedCreator>>empty());
         subscriber = new TestSubscriber<>();
     }
@@ -97,14 +95,10 @@ public class SuggestedCreatorsOperationsTest {
 
     @Test
     public void returnsNotificationItemIfNumberOfFollowingsIsGreaterThanLimitAndForceFeatureFlag() {
-        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(6,
-                                                                                 SuggestedCreatorRelation.LIKED);
         when(featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL)).thenReturn(true);
-        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(
-                suggestedCreators));
-
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Observable.just(
-                generateNonUserFollowings(5)));
+        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(3, SuggestedCreatorRelation.LIKED);
+        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(suggestedCreators));
+        when(myProfileOperations.followingsUserAssociations()).thenReturn(Observable.just(generateNonUserFollowings(6)));
 
         operations.suggestedCreators().subscribe(subscriber);
 

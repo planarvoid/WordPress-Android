@@ -26,6 +26,7 @@ public class CastSessionControllerTest extends AndroidUnitTest {
     @Mock private CastSession castSession;
     @Mock private CastDevice castDevice;
     @Mock private CastConnectionHelper castConnectionHelper;
+    @Mock private RemoteMediaClient remoteMediaClient;
 
     @Before
     public void setUp() throws Exception {
@@ -35,6 +36,7 @@ public class CastSessionControllerTest extends AndroidUnitTest {
                                                                  playSessionController,
                                                                  castConnectionHelper);
         when(castSession.getCastDevice()).thenReturn(castDevice);
+        when(castSession.getRemoteMediaClient()).thenReturn(remoteMediaClient);
         when(castDevice.getFriendlyName()).thenReturn("My Cast");
     }
 
@@ -70,7 +72,7 @@ public class CastSessionControllerTest extends AndroidUnitTest {
 
         callOnConnectedToReceiverApp();
 
-        verify(castPlayer).onConnected(any(RemoteMediaClient.class));
+        verify(castPlayer).onConnected(castSession.getRemoteMediaClient());
     }
 
     @Test

@@ -7,8 +7,8 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -49,10 +49,7 @@ public class UpdatePoliciesCommandTest extends AndroidUnitTest {
     public void setUp() {
         final TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
         this.command = new UpdatePoliciesCommand(apiClient, storePoliciesCommand,
-                                                 factory.<ModelCollection<ApiPolicyInfo>>create(0,
-                                                                                                TimeUnit.SECONDS,
-                                                                                                0,
-                                                                                                1));
+                                                 factory.<ModelCollection<ApiPolicyInfo>>create(0, TimeUnit.SECONDS, 0, 1));
     }
 
     @Test
@@ -85,8 +82,7 @@ public class UpdatePoliciesCommandTest extends AndroidUnitTest {
     }
 
     private void whenSingleBatchFetched() throws Exception {
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(body)), any(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(body)), any(TypeToken.class)))
                 .thenReturn(policiesResponse);
     }
 
@@ -98,11 +94,9 @@ public class UpdatePoliciesCommandTest extends AndroidUnitTest {
         Collection<ApiPolicyInfo> expectedResult = new ArrayList<>();
         expectedResult.addAll(batch1Response.getCollection());
         expectedResult.addAll(batch2Response.getCollection());
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(batch1Input)), any(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(batch1Input)), any(TypeToken.class)))
                 .thenReturn(batch1Response);
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(batch2Input)), any(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(batch2Input)), any(TypeToken.class)))
                 .thenReturn(batch2Response);
         return expectedResult;
     }

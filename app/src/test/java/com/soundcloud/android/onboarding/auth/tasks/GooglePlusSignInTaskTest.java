@@ -4,13 +4,12 @@ import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiR
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.soundcloud.android.SoundCloudApplication;
@@ -69,7 +68,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, storeUsersCommand,
                                         accountOperations, configurationOperations, new TestEventBus(), apiClient, syncInitiatorBridge);
 
-        stub(tokenInformationGenerator.getGrantBundle(anyString(), anyString())).toReturn(bundle);
+        when(tokenInformationGenerator.getGrantBundle(anyString(), anyString())).thenReturn(bundle);
     }
 
     @Test
@@ -99,8 +98,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException, ApiMapperException, ApiRequestException {
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
                 .thenReturn(Me.create(user));
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
                 "validtoken");
@@ -110,12 +108,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldRequestSpecificVisibleActivities() throws Exception {
-        Bundle expectedExtras = new Bundle();
-        expectedExtras.putString(GooglePlusSignInTask.KEY_REQUEST_VISIBLE_ACTIVITIES,
-                                 "http://schemas.google.com/AddActivity " +
-                                         "http://schemas.google.com/CreateActivity " +
-                                         "http://schemas.google.com/ListenActivity");
-
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         task.doInBackground(null);
 
         ArgumentCaptor<Bundle> argumentCaptor = ArgumentCaptor.forClass(Bundle.class);

@@ -43,6 +43,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(fragment.getActivity()).thenReturn(activity);
+        when(fragment.getContext()).thenReturn(activity);
         view = new GoOffboardingViewStub();
         presenter = new GoOffboardingPresenter(navigator, operations, view, eventBus);
     }

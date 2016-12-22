@@ -2,10 +2,10 @@ package com.soundcloud.android.sync.commands;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -89,8 +89,7 @@ public class FetchPlaylistsCommandTest extends AndroidUnitTest {
         Map<String, List<String>> body = new HashMap<>();
         body.put("urns", Urns.toString(urns));
 
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_FETCH.path()).withContent(body)), isA(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_FETCH.path()).withContent(body)), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(playlists));
     }
 

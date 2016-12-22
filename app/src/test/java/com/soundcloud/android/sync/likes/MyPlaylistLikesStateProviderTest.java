@@ -34,7 +34,6 @@ public class MyPlaylistLikesStateProviderTest {
     @Test
     public void hasLocalChangesIsTrueIfPlaylistAdditionsIsNotEmpty() throws Exception {
         when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(buildPlaylist());
-        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
 
         assertThat(myPlaylistLikesStateProvider.hasLocalChanges()).isTrue();
     }

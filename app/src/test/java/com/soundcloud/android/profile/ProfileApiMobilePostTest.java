@@ -1,9 +1,9 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -55,10 +55,10 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
     @Test
     public void returnsUserPostsByUrnFromApi() {
         final Observable<ModelCollection<ApiPostSource>> results = Observable.just(apiMobileHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET",
-                                                               "/users/soundcloud%3Ausers%3A123/posted_and_reposted_tracks_and_playlists")
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<ModelCollection<ApiPostSource>>mappedResponse(argThat(isApiRequestTo("GET",
+                                                                               "/users/soundcloud%3Ausers%3A123/posted_and_reposted_tracks_and_playlists")
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         isA(TypeToken.class))).thenReturn(results);
 
         api.userPosts(Urn.forUser(123L)).subscribe(subscriber);
@@ -68,9 +68,9 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
     @Test
     public void returnsUserPostsByNextPageLinkFromApi() {
         final Observable<ModelCollection<ApiPostSource>> results = Observable.just(apiMobileHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<ModelCollection<ApiPostSource>>mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         isA(TypeToken.class))).thenReturn(results);
 
         api.userPosts(NEXT_HREF).subscribe(subscriber);

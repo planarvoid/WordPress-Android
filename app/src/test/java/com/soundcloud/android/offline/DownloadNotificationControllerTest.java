@@ -5,6 +5,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
@@ -40,11 +41,13 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
 
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
+    @Mock private Notification notification;
 
     private DownloadNotificationController notificationController;
     private Provider<NotificationCompat.Builder> notificationBuilderProvider = new Provider<NotificationCompat.Builder>() {
         @Override
         public NotificationCompat.Builder get() {
+            when(notificationBuilder.build()).thenReturn(notification);
             return notificationBuilder;
         }
     };
@@ -141,6 +144,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         notificationController.onPendingRequests(createQueue(3));
         reset(notificationBuilder);
 
+        when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
@@ -156,6 +160,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         notificationController.onPendingRequests(createQueue(1));
         reset(notificationBuilder);
 
+        when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
@@ -167,11 +172,12 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         notificationController.onPendingRequests(createQueue(3));
         reset(notificationBuilder);
 
+        when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
         Mockito.reset(notificationBuilder, notificationManager);
 
-        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest,
-                                                                           TRACK_DURATION_IN_BYTES / 2));
+        when(notificationBuilder.build()).thenReturn(notification);
+        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest, TRACK_DURATION_IN_BYTES / 2));
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -202,6 +208,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         notificationController.onPendingRequests(createQueue(3));
 
         reset(notificationBuilder);
+        when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadError(failedDownloadState);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
@@ -217,6 +224,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         notificationController.onPendingRequests(createQueue(3));
         reset(notificationBuilder);
 
+        when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);

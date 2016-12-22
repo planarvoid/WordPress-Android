@@ -5,7 +5,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.never;
@@ -13,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -129,7 +129,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         operations.playlistsForTag("electronic").subscribe(observer);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET",
-                                                                  ApiEndpoints.PLAYLIST_DISCOVERY.path())),
+                                                                                  ApiEndpoints.PLAYLIST_DISCOVERY.path())),
                                            eq(ApiPlaylistCollection.class));
     }
 

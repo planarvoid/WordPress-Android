@@ -2,9 +2,9 @@ package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -33,8 +33,7 @@ public class FetchPlaylistWithTracksCommandTest extends AndroidUnitTest {
     public void shouldResolveUrnsToFullTracksViaApiMobile() throws Exception {
         ApiPlaylistWithTracks playlistWithTracks = ModelFixtures.apiPlaylistWithNoTracks();
 
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints.PLAYLIST_WITH_TRACKS.path(URN))), isA(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PLAYLIST_WITH_TRACKS.path(URN))), isA(TypeToken.class)))
                 .thenReturn(playlistWithTracks);
 
         assertThat(command.with(URN).call()).isSameAs(playlistWithTracks);

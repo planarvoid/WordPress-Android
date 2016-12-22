@@ -4,7 +4,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.model.Urn;
@@ -32,7 +31,6 @@ public class PlayerOverlayControllerTest {
     @Before
     public void setUp() {
         controller = new PlayerOverlayController(overlay, overlayAnimator);
-        when(adOverlayController.isNotVisible()).thenReturn(true);
     }
 
     @Test
@@ -133,8 +131,6 @@ public class PlayerOverlayControllerTest {
 
     @Test
     public void shouldNotHideTheOverlayWhileExpandingWhenAdOverlayDisplayed() {
-        when(adOverlayController.isNotVisible()).thenReturn(false);
-
         controller.setAlphaFromCollapse(0);
 
         verifyZeroInteractions(overlayAnimator);

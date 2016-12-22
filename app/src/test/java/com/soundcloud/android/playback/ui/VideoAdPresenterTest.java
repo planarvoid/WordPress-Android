@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -275,7 +274,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void showAboutAdsOnWhyAdsClick() {
         adView.findViewById(R.id.why_ads).performClick();
 
-        verify(pageListener).onAboutAds(any(FragmentActivity.class));
+        verify(pageListener).onAboutAds(any());
     }
 
     @Test(expected = IllegalArgumentException.class)

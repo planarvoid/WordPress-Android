@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.screen;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -89,12 +88,12 @@ public class BaseLayoutHelperTest {
 
     @Test
     public void shouldAddContentToContainerOnSetBaseLayoutWithContent() {
+        when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
         when(inflater.inflate(R.layout.profile, null)).thenReturn(content);
-        when(inflater.inflate(anyInt(), any(ViewGroup.class))).thenReturn(layout);
 
         helper.setBaseLayoutWithContent(activity, R.layout.profile);
 
-        verify(container).addView(layout);
+        verify(container).addView(content);
     }
 
 }

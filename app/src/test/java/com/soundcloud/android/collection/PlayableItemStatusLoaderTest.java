@@ -4,7 +4,7 @@ import static com.soundcloud.android.model.PlayableProperty.IS_USER_LIKE;
 import static com.soundcloud.android.model.PlayableProperty.IS_USER_REPOST;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -46,7 +46,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePlaylistLikedStatusToTrue() throws Exception {
         statusMap.put(playlistPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_LIKE.bind(true)));
-        when(loadPlaylistLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadPlaylistLikedStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(playlistPropertySet));
 
@@ -56,7 +56,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePlaylistLikedStatusToFalse() throws Exception {
         statusMap.put(playlistPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_LIKE.bind(false)));
-        when(loadPlaylistLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadPlaylistLikedStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(playlistPropertySet));
 
@@ -66,7 +66,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePlaylistRepostStatusToTrue() throws Exception {
         statusMap.put(playlistPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_REPOST.bind(true)));
-        when(loadPlaylistRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadPlaylistRepostStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(playlistPropertySet));
 
@@ -76,7 +76,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePlaylistRepostStatusToFalse() throws Exception {
         statusMap.put(playlistPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_REPOST.bind(false)));
-        when(loadPlaylistRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadPlaylistRepostStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(playlistPropertySet));
 
@@ -86,7 +86,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdateTrackLikedStatusToTrue() throws Exception {
         statusMap.put(trackPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_LIKE.bind(true)));
-        when(loadTrackLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadTrackLikedStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(trackPropertySet));
 
@@ -96,7 +96,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdateTrackLikedStatusToFalse() throws Exception {
         statusMap.put(trackPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_LIKE.bind(false)));
-        when(loadTrackLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadTrackLikedStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(trackPropertySet));
 
@@ -106,7 +106,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdateTrackRepostStatusToTrue() throws Exception {
         statusMap.put(trackPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_REPOST.bind(true)));
-        when(loadTrackRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadTrackRepostStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(trackPropertySet));
 
@@ -116,7 +116,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Test
     public void shouldUpdateTrackRepostStatusToFalse() throws Exception {
         statusMap.put(trackPropertySet.get(PlayableProperty.URN), PropertySet.from(IS_USER_REPOST.bind(false)));
-        when(loadTrackRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
+        when(loadTrackRepostStatuses.call(anyCollection())).thenReturn(statusMap);
 
         subject.call(singletonList(trackPropertySet));
 

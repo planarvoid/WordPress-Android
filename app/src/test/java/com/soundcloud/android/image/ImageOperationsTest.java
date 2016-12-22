@@ -21,7 +21,6 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.imageaware.NonViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
@@ -155,7 +154,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         // 2nd load
         imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
-                                                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+                                                 any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
     }
 
@@ -173,7 +172,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         // 2nd load
         imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
-                                                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+                                                 any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
     }
 
     @Test
@@ -190,7 +189,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         // 2nd load
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
-                                                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+                                                 any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
     }
 
     @Test
@@ -198,7 +197,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         verify(imageLoader).displayImage(
                 eq(RESOLVER_URL), any(ImageAware.class),
-                any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+                any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
     }
 
     @Test
@@ -207,7 +206,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
         verify(imageLoader).displayImage(
                 anyString(), imageViewAwareCaptor.capture(),
-                any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+                any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
         assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
     }
 
@@ -216,7 +215,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(anyString(), any(ImageAware.class),
-                                         displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+                                         displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));
 
         assertThat(displayOptionsCaptor.getValue().isResetViewBeforeLoading()).isTrue();
         assertThat(displayOptionsCaptor.getValue().getDisplayer()).isInstanceOf(PlaceholderTransitionDisplayer.class);
@@ -261,7 +260,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
-                                         displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+                                         displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));
 
         assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
         verifyFallbackDrawableOptions(RES_ID);
@@ -276,7 +275,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageOperations.displayInPlayer(imageResource, ApiImageSize.T120, imageView, bitmap, true);
 
         verify(imageLoader).displayImage(eq(CDN_URL), imageViewAwareCaptor.capture(),
-                                         displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+                                         displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));
 
         verifyFullCacheOptions();
         assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
@@ -295,7 +294,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         verify(imageLoader).displayImage(eq(CDN_URL),
                                          imageViewAwareCaptor.capture(),
                                          displayOptionsCaptor.capture(),
-                                         any(SimpleImageLoadingListener.class));
+                                         any(ImageOperations.FallbackImageListener.class));
         assertThat(displayOptionsCaptor.getValue().getDelayBeforeLoading()).isEqualTo(DELAY_BEFORE_LOADING);
     }
 
@@ -313,7 +312,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageOperations.displayLeaveBehind(Uri.parse(URL), imageView, imageListener);
 
         verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(),
-                                         displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+                                         displayOptionsCaptor.capture(), any(ImageListenerUILAdapter.class));
 
         assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
         assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
@@ -328,7 +327,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageOperations.displayAppInstall(Urn.forAd("dfp", "123"), URL, imageView);
 
         verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(),
-                                         displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+                                         displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));
 
         assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
         assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();

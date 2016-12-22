@@ -131,7 +131,6 @@ public class FeatureOperationsTest {
     public void doNotUpsellOfflineContentIfUnavailableForHighTier() {
         when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
         when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(new ArrayList<Plan>());
-        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
@@ -139,7 +138,6 @@ public class FeatureOperationsTest {
     @Test
     public void doNotUpsellOfflineContentIfAlreadyEnabled() {
         when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(true);
-        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
@@ -166,7 +164,6 @@ public class FeatureOperationsTest {
     public void doNotUpsellRemoveAdsIfUnavailableForHighTier() {
         when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
         when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(new ArrayList<Plan>());
-        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
     }
@@ -174,7 +171,6 @@ public class FeatureOperationsTest {
     @Test
     public void doNotUpsellRemoveAdsIfAlreadyEnabled() {
         when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(true);
-        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(Arrays.asList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
     }

@@ -5,7 +5,6 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.InsertResult;
@@ -83,12 +82,7 @@ class TrackingStorage {
      * @return the last {@link com.soundcloud.propeller.ChangeResult}
      */
     ChangeResult deleteEvents(List<TrackingRecord> submittedEvents) {
-        final List<String> idList = Lists.transform(submittedEvents, new Function<TrackingRecord, String>() {
-            @Override
-            public String apply(TrackingRecord input) {
-                return Long.toString(input.getId());
-            }
-        });
+        final List<String> idList = Lists.transform(submittedEvents, input -> Long.toString(input.getId()));
 
         int start = 0;
         ChangeResult changeResult;

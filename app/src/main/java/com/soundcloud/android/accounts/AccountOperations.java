@@ -25,7 +25,6 @@ import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.accounts.Account;
@@ -223,19 +222,16 @@ public class AccountOperations {
     }
 
     public Observable<Void> purgeUserData() {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> subscriber) {
-                clearTrackDownloadsCommand.get().call(null);
-                accountCleanupAction.get().call();
-                tokenOperations.resetToken();
-                clearFacebookStorage();
-                clearLoggedInUser();
-                eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-                resetPlaybackService();
-                subscriber.onCompleted();
-                playSessionStateStorage.clear();
-            }
+        return Observable.<Void>create(subscriber -> {
+            clearTrackDownloadsCommand.get().call(null);
+            accountCleanupAction.get().call();
+            tokenOperations.resetToken();
+            clearFacebookStorage();
+            clearLoggedInUser();
+            eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
+            resetPlaybackService();
+            subscriber.onCompleted();
+            playSessionStateStorage.clear();
         }).subscribeOn(scheduler);
     }
 

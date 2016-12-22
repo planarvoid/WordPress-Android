@@ -126,12 +126,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                                  ? trackItemViewFactory.getDisabledTitleColor()
                                                  : trackItemViewFactory.getPrimaryTitleColor());
         if (listener != null) {
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.trackItemClicked(track.getUrn(), position);
-                }
-            });
+            itemView.setOnClickListener(v -> listener.trackItemClicked(track.getUrn(), position));
         }
         if (track.isBlocked()) {
             itemView.setClickable(false);

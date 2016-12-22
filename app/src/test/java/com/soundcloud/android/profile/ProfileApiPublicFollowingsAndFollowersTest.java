@@ -3,8 +3,8 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
@@ -53,10 +53,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     @Test
     public void returnsUserFollowingsByUrnFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
-        when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followings")
-                                                        .withQueryParam("linked_partitioning", "1")
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<CollectionHolder<PublicApiUser>>mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followings")
+                                                                        .withQueryParam("linked_partitioning", "1")
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         any(TypeToken.class))).thenReturn(results);
 
         api.userFollowings(Urn.forUser(123L)).subscribe(observer);
@@ -66,10 +66,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     @Test
     public void returnsUserFollowingsByNextPageLinkFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
-        when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
-                                                        .withQueryParam("linked_partitioning", "1")
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<CollectionHolder<PublicApiUser>>mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
+                                                                        .withQueryParam("linked_partitioning", "1")
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         any(TypeToken.class))).thenReturn(results);
 
         api.userFollowings(NEXT_HREF).subscribe(observer);
@@ -79,10 +79,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     @Test
     public void returnsUserFollowersByUrnFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
-        when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followers")
-                                                        .withQueryParam("linked_partitioning", "1")
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<CollectionHolder<PublicApiUser>>mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followers")
+                                                                        .withQueryParam("linked_partitioning", "1")
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         any(TypeToken.class))).thenReturn(results);
 
         api.userFollowers(Urn.forUser(123L)).subscribe(observer);
@@ -92,10 +92,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     @Test
     public void returnsUserFollowersByNextPageLinkFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
-        when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
-                                                        .withQueryParam("linked_partitioning", "1")
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<CollectionHolder<PublicApiUser>>mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
+                                                                        .withQueryParam("linked_partitioning", "1")
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         any(TypeToken.class))).thenReturn(results);
 
         api.userFollowers(NEXT_HREF).subscribe(observer);

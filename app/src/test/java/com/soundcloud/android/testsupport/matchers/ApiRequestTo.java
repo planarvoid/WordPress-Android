@@ -6,8 +6,8 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.FormPart;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.objects.MoreObjects;
+import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.mockito.ArgumentMatcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
+public class ApiRequestTo extends BaseMatcher<ApiRequest> {
 
     private final boolean isMobileApi;
     private Map<String, String> expectedQueryParams = new HashMap<>();
@@ -36,7 +36,7 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
     @Override
     public boolean matches(Object argument) {
         if (argument instanceof ApiRequest) {
-            this.request = (ApiRequest) argument;
+            request = (ApiRequest) argument;
 
             return containsExpectedQueryParams()
                     && containsExpectedHeaders()
@@ -47,6 +47,53 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
                     && request.isPrivate() == isMobileApi;
         }
         return false;
+    }
+
+    public ApiRequestTo withQueryParam(String key, String... values) {
+        for (String value : values) {
+            expectedQueryParams.put(key, value);
+        }
+        return this;
+    }
+
+    public ApiRequestTo withHeader(String key, String value) {
+        expectedHeaders.put(key, value);
+        return this;
+    }
+
+    public ApiRequestTo withoutHeader(String header) {
+        unExpectedHeaders.add(header);
+        return this;
+    }
+
+    public ApiRequestTo withContent(Object content) {
+        this.content = content;
+        return this;
+    }
+
+    public ApiRequestTo withFormParts(FormPart... formParts) {
+        this.formParts = Arrays.asList(formParts);
+        return this;
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        if (queryMatchError) {
+            description.appendText("Expected query params to contain ");
+            description.appendValue(expectedQueryParams);
+            description.appendText("\nBut found ");
+            description.appendValue(request.getQueryParameters());
+        } else if (headerMatchError) {
+            description.appendText("Expected headers to contain ");
+            description.appendValue(expectedHeaders);
+            description.appendText("\nBut found ");
+            description.appendValue(request.getHeaders());
+        } else if (formMatchError) {
+            description.appendText("Multipart form parts to equal ");
+            description.appendValue(formParts);
+            description.appendText("\nBut found ");
+            description.appendValue(((ApiMultipartRequest) request).getParts());
+        }
     }
 
     private boolean containsExpectedHeaders() {
@@ -115,55 +162,5 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
             return matches;
         }
         return true;
-    }
-
-    public ApiRequestTo withQueryParam(String key, String... values) {
-        for (String value : values) {
-            expectedQueryParams.put(key, value);
-        }
-        return this;
-    }
-
-    public ApiRequestTo withHeader(String key, String value) {
-        expectedHeaders.put(key, value);
-        return this;
-    }
-
-
-    public ApiRequestTo withoutHeader(String header) {
-        unExpectedHeaders.add(header);
-        return this;
-    }
-
-    public ApiRequestTo withContent(Object content) {
-        this.content = content;
-        return this;
-    }
-
-    public ApiRequestTo withFormParts(FormPart... formParts) {
-        this.formParts = Arrays.asList(formParts);
-        return this;
-    }
-
-    @Override
-    public void describeTo(Description description) {
-        if (queryMatchError) {
-            description.appendText("Expected query params to contain ");
-            description.appendValue(expectedQueryParams);
-            description.appendText("\nBut found ");
-            description.appendValue(request.getQueryParameters());
-        } else if (headerMatchError) {
-            description.appendText("Expected headers to contain ");
-            description.appendValue(expectedHeaders);
-            description.appendText("\nBut found ");
-            description.appendValue(request.getHeaders());
-        } else if (formMatchError) {
-            description.appendText("Multipart form parts to equal ");
-            description.appendValue(formParts);
-            description.appendText("\nBut found ");
-            description.appendValue(((ApiMultipartRequest) request).getParts());
-        } else {
-            super.describeTo(description);
-        }
     }
 }

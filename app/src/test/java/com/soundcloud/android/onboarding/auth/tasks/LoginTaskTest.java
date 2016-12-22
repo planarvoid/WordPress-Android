@@ -3,10 +3,10 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -58,8 +58,7 @@ public class LoginTaskTest extends AndroidUnitTest {
                                   apiClient, syncInitiatorBridge);
 
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
                 .thenReturn(Me.create(user));
     }
 

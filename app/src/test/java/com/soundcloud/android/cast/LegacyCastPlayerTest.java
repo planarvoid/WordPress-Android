@@ -3,6 +3,8 @@ package com.soundcloud.android.cast;
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueSet;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -293,7 +295,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
 
         castPlayer.playCurrent();
 
-        verify(castManager).loadMedia(any(MediaInfo.class), eq(true), anyInt(), any(JSONObject.class));
+        verify(castManager).loadMedia(or(isNull(), any(MediaInfo.class)), eq(true), anyInt(), or(isNull(), any(JSONObject.class)));
     }
 
     @Test
@@ -305,7 +307,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
 
         castPlayer.playCurrent();
 
-        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(0), any(JSONObject.class));
+        verify(castManager).loadMedia(or(isNull(), any(MediaInfo.class)), anyBoolean(), eq(0), or(isNull(), any(JSONObject.class)));
     }
 
     @Test
@@ -317,7 +319,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
 
         castPlayer.playCurrent(123L);
 
-        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(123), any(JSONObject.class));
+        verify(castManager).loadMedia(or(isNull(), any(MediaInfo.class)), anyBoolean(), eq(123), or(isNull(), any(JSONObject.class)));
     }
 
     @Test

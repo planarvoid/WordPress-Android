@@ -2,10 +2,10 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiClient;
@@ -58,7 +58,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
                                                                          TRACK_URN, 0, 0)));
 
         verify(apiClient).fetchResponse(argThat(isPublicApiRequestTo("POST",
-                                                                     "/tpub").withContent(new PlayPublisher.Payload(
+                                                                                     "/tpub").withContent(new PlayPublisher.Payload(
                 resources().getString(R.string.gcm_gateway_id),
                 "token",
                 123L,

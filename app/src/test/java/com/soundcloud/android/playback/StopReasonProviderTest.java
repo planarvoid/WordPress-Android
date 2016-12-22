@@ -29,7 +29,6 @@ public class StopReasonProviderTest {
     @Test
     public void stateChangeEventReturnsStopEventForTrackBuffering() throws Exception {
         final PlaybackStateTransition event = getStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE);
-        when(playQueueManager.hasNextItem()).thenReturn(true);
         assertThat(provider.fromTransition(event)).isEqualTo(PlaybackSessionEvent.STOP_REASON_BUFFERING);
     }
 

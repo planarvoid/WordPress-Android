@@ -22,7 +22,6 @@ import rx.subjects.PublishSubject;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -183,7 +182,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     public void showAboutAdsOnWhyAdsClick() {
         adView.findViewById(R.id.why_ads).performClick();
 
-        verify(pageListener).onAboutAds(any(FragmentActivity.class));
+        verify(pageListener).onAboutAds(any());
     }
 
     @Test
@@ -202,7 +201,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bothLayoutsInvisibleOnNullAdImage() {
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just((Bitmap) null));
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just(null));
         bindSkippableAd();
 
         assertCenteredLayoutInvisible();

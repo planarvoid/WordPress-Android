@@ -1,6 +1,7 @@
 package com.soundcloud.android.accounts;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.inOrder;
@@ -145,12 +146,12 @@ public class AccountOperationsTest extends AndroidUnitTest {
     public void shouldReplaceExistingAccount() {
         Account old = new Account("oldUsername", SC_ACCOUNT_TYPE);
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{old});
-        when(accountManager.addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class))).thenReturn(true);
+        when(accountManager.addAccountExplicitly(any(Account.class), isNull(), isNull())).thenReturn(true);
 
         final Account actual = accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
         assertThat(actual).isInstanceOf(Account.class);
         verify(accountManager).removeAccount(old, null, null);
-        verify(accountManager).addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class));
+        verify(accountManager).addAccountExplicitly(any(Account.class), isNull(), isNull());
         verify(accountManager).setUserData(actual, "currentUsername", user.getUsername());
     }
 
@@ -378,7 +379,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     public void purgeUserDataShouldRemoveOfflineContent() {
         accountOperations.purgeUserData().subscribe(observer);
 
-        verify(clearTrackDownloadsCommand).call(any(Void.class));
+        verify(clearTrackDownloadsCommand).call(null);
     }
 
     private void mockSoundCloudAccount() {

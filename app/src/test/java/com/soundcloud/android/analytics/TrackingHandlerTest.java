@@ -1,6 +1,8 @@
 package com.soundcloud.android.analytics;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
@@ -33,7 +35,7 @@ public class TrackingHandlerTest extends AndroidUnitTest {
     @Before
     public void before() {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
-        when(apiFactory.create(anyString())).thenReturn(api);
+        when(apiFactory.create(or(isNull(), anyString()))).thenReturn(api);
         trackingHandler = new TrackingHandler(context().getMainLooper(), networkConnectionHelper, storage, apiFactory);
     }
 

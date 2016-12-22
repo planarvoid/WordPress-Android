@@ -4,10 +4,10 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;

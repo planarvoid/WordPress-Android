@@ -3,8 +3,8 @@ package com.soundcloud.android.sync.playlists;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -40,13 +40,11 @@ public class PushPlaylistAdditionsCommandTest extends AndroidUnitTest {
         final Urn track2 = Urn.forTrack(2);
         final List<Urn> input = Arrays.asList(track1, track2);
 
-        when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST",
-                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
+        when(apiClient.fetchResponse(argThat(isApiRequestTo("POST",
+                                                                            ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
                 TestApiResponses.ok());
-        when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST",
-                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track2))))).thenReturn(
+        when(apiClient.fetchResponse(argThat(isApiRequestTo("POST",
+                                                                            ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track2))))).thenReturn(
                 TestApiResponses.status(404));
 
         Collection<Urn> result = command.with(playlistUrn).with(input).call();
@@ -60,9 +58,8 @@ public class PushPlaylistAdditionsCommandTest extends AndroidUnitTest {
         final Urn track1 = Urn.forTrack(1);
         final List<Urn> input = singletonList(track1);
 
-        when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST",
-                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
+        when(apiClient.fetchResponse(argThat(isApiRequestTo("POST",
+                                                                            ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
                 TestApiResponses.networkError());
 
         command.with(playlistUrn).with(input).call();
@@ -74,9 +71,8 @@ public class PushPlaylistAdditionsCommandTest extends AndroidUnitTest {
         final Urn track1 = Urn.forTrack(1);
         final List<Urn> input = singletonList(track1);
 
-        when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST",
-                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
+        when(apiClient.fetchResponse(argThat(isApiRequestTo("POST",
+                                                                            ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
                 TestApiResponses.status(503));
 
         command.with(playlistUrn).with(input).call();

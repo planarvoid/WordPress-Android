@@ -42,7 +42,6 @@ public class DownloadConnexionHelperTest {
     @Test
     public void invalidNetworkWhenNotConnectedOnWifiAndOnlyWifiAllowed() {
         when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
-        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
         assertThat(helper.isDownloadPermitted()).isFalse();
@@ -51,8 +50,6 @@ public class DownloadConnexionHelperTest {
     @Test
     public void validNetworkWhenConnectedOnWifiAndOnlyWifiAllowed() {
         when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
-        when(connectionHelper.isNetworkConnected()).thenReturn(true);
-        when(connectionHelper.isWifiConnected()).thenReturn(true);
 
         assertThat(helper.isDownloadPermitted()).isTrue();
     }

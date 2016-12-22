@@ -49,8 +49,6 @@ public class SearchSuggestionFilteringTest {
     @Test
     public void filtersAllItemsWhenVariantIsQueriesOnly() {
         when(autocompleteConfig.isQueriesOnlyVariant()).thenReturn(true);
-        when(autocompleteConfig.isShortcutsAndQueriesVariant()).thenReturn(false);
-        when(autocompleteConfig.isFeatureFlagEnabled()).thenReturn(false);
         assertThat(searchSuggestionFiltering.filtered(list(P, P, P, U, U, U, T, T, T))).isEqualTo(emptyList());
     }
 
@@ -66,7 +64,6 @@ public class SearchSuggestionFilteringTest {
     @Test
     public void filtersToThreeItemsPreferingUserOverTrackOverPlaylistWhenFeatureFlagIsEnabled() {
         when(autocompleteConfig.isQueriesOnlyVariant()).thenReturn(false);
-        when(autocompleteConfig.isShortcutsAndQueriesVariant()).thenReturn(false);
         when(autocompleteConfig.isFeatureFlagEnabled()).thenReturn(true);
 
         assertFiltersCorrectly();

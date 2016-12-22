@@ -2,9 +2,9 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -50,9 +50,9 @@ public class ProfileApiMobileRepostsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnUserRepostsByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiRepostsHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/reposts")
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<ModelCollection<ApiPlayableSource>>mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/reposts")
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         isA(TypeToken.class))).thenReturn(results);
 
         api.userReposts(Urn.forUser(123L)).subscribe(subscriber);
@@ -62,9 +62,9 @@ public class ProfileApiMobileRepostsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnUserRepostsByNextPageLink() {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiRepostsHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+        when(apiClientRx.<ModelCollection<ApiPlayableSource>>mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                                         isA(TypeToken.class))).thenReturn(results);
 
         api.userReposts(NEXT_HREF).subscribe(subscriber);

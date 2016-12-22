@@ -1,11 +1,12 @@
 package com.soundcloud.android.testsupport.matchers;
 
 import com.soundcloud.android.api.ApiRequest;
-import org.mockito.ArgumentMatcher;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 
 import android.net.Uri;
 
-public class ApiRequestToUrl extends ArgumentMatcher<ApiRequest> {
+public class ApiRequestToUrl extends BaseMatcher<ApiRequest> {
 
     private final String expectedUri;
 
@@ -22,4 +23,8 @@ public class ApiRequestToUrl extends ArgumentMatcher<ApiRequest> {
         return false;
     }
 
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("matches ApiRequest");
+    }
 }

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.UuidProvider;
@@ -24,9 +23,7 @@ import android.support.annotation.NonNull;
 @RunWith(MockitoJUnitRunner.class)
 public class PlayStatePublisherTest {
 
-    private static final boolean IS_FIRST_PLAY = true;
     private static final String PLAY_ID = "play-id";
-    private static final Urn URN = TestPlayStates.URN;
     private static final int DURATION = 456;
 
     private PlayStatePublisher publisher;
@@ -42,15 +39,11 @@ public class PlayStatePublisherTest {
         publisher = new PlayStatePublisher(sessionStateProvider, analyticsController,
                                            playQueueAdvancer,
                                            adsController, eventBus);
-        when(uuidProvider.getRandomUuid()).thenReturn(PLAY_ID);
-        when(sessionStateProvider.getCurrentPlayId()).thenReturn(PLAY_ID);
         when(playQueueAdvancer.onPlayStateChanged(any(PlayStateEvent.class))).thenReturn(PlayQueueAdvancer.Result.NO_OP);
     }
 
     @Test
     public void publishesPlayStateForFirstPlayToControllers() {
-        when(sessionStateProvider.isLastPlayed(URN)).thenReturn(false);
-
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
         final AudioPlaybackItem playbackItem = getPlaybackItem();
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
@@ -67,8 +60,6 @@ public class PlayStatePublisherTest {
 
     @Test
     public void publishesPlayQueueCompleteState() {
-        when(sessionStateProvider.isLastPlayed(URN)).thenReturn(true);
-
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
         final AudioPlaybackItem playbackItem = getPlaybackItem();
 
@@ -87,9 +78,6 @@ public class PlayStatePublisherTest {
 
     @Test
     public void publishesPlayStateWithLastPlayIdIfNotFirstPlayEvent() {
-        when(sessionStateProvider.isLastPlayed(URN)).thenReturn(true);
-        when(sessionStateProvider.getCurrentPlayId()).thenReturn("current-play-id");
-
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
         final AudioPlaybackItem playbackItem = getPlaybackItem();
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, "current-play-id");

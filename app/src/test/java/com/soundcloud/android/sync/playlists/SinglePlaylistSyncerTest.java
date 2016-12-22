@@ -2,12 +2,14 @@ package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -42,6 +44,8 @@ import java.util.Date;
 
 public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
+    private static final Urn URN = Urn.forPlaylist(123L);
+
     @Mock private LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     @Mock private FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;
     @Mock private StorePlaylistsCommand storePlaylistCommand;
@@ -71,7 +75,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         singlePlaylistSyncer.call();
 
         verify(storePlaylistCommand, never()).call(any(Iterable.class));
-        verify(removePlaylist).call(any(Urn.class));
+        verify(removePlaylist).call(or(isNull(), any(Urn.class)));
     }
 
     @Test
@@ -81,7 +85,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         singlePlaylistSyncer.call();
 
         verify(storePlaylistCommand, never()).call(any(Iterable.class));
-        verify(removePlaylist).call(any(Urn.class));
+        verify(removePlaylist).call(or(isNull(), any(Urn.class)));
     }
 
     @Test
@@ -318,9 +322,8 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     private void withPushes(Urn playlistUrn, PropertySet playlistMetadata, Urn... trackList) throws Exception {
         final PlaylistApiUpdateObject expectedUpdateObject = PlaylistApiUpdateObject.create(playlistMetadata,
                                                                                             Arrays.asList(trackList));
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("put", ApiEndpoints.PLAYLISTS_UPDATE.path(playlistUrn))
-                        .withContent(expectedUpdateObject)), any(Class.class)))
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("put", ApiEndpoints.PLAYLISTS_UPDATE.path(playlistUrn))
+                                                                           .withContent(expectedUpdateObject)), any(Class.class)))
                 .thenReturn(new ApiPlaylistWrapper(updatedPlaylist));
     }
 

@@ -74,6 +74,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<List<ListItem>> listArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
+    private Bundle bundle;
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh,
@@ -112,6 +113,9 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class), any(String.class))).thenReturn(searchQuerySourceInfo);
         when(screenProvider.getLastScreen()).thenReturn(Screen.SEARCH_MAIN);
+
+        bundle = new Bundle();
+        bundle.putString(EXTRA_QUERY, SEARCH_QUERY);
     }
 
     @Test
@@ -119,7 +123,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final List<ListItem> listItems = setupAdapter();
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
 
-        presenter.onBuildBinding(new Bundle());
+        presenter.onBuildBinding(bundle);
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
         verify(clickListener).onItemClick(listItems, fragmentRule.getActivity(), 0);
@@ -128,8 +132,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void mustTrackItemClick() {
         setupAdapter();
-
-        presenter.onBuildBinding(new Bundle());
+        presenter.onBuildBinding(bundle);
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
         verify(searchTracker).trackSearchItemClick(any(SearchType.class),
@@ -215,7 +218,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupAdapterWithPremiumContent();
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
 
-        presenter.onBuildBinding(new Bundle());
+        presenter.onBuildBinding(bundle);
         presenter.onItemClicked(fragmentRule.getView(), 1);
 
         verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getActivity()), eq(1));
@@ -236,7 +239,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                 PREMIUM_TRACK_URN_TWO)));
         final List<ListItem> premiumItems = Arrays.asList(premiumTrackItemOne, premiumTrackItemTwo);
 
-        presenter.onBuildBinding(new Bundle());
+        presenter.onBuildBinding(bundle);
         presenter.onPremiumItemClicked(fragmentRule.getView(), premiumItems);
 
         verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getActivity()), eq(0));

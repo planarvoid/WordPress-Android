@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -54,8 +55,7 @@ import java.util.List;
 public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     private final Screen screen = Screen.ACTIVITIES;
-    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(
-            123), "query");
+    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123), "query");
     private MixedItemClickListener listener;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
@@ -143,7 +143,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        eq(playlistItem.getUrn()),
                                        eq(screen),
                                        eq(searchQuerySourceInfo),
-                                       any(PromotedSourceInfo.class),
+                                       isNull(),
                                        any(UIEvent.class));
     }
 
@@ -210,7 +210,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        eq(playlistItem.getUrn()),
                                        eq(screen),
                                        eq(searchQuerySourceInfo),
-                                       any(PromotedSourceInfo.class),
+                                       isNull(),
                                        any(UIEvent.class));
     }
 
@@ -225,7 +225,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        eq(playlistItem.getUrn()),
                                        eq(screen),
                                        eq(searchQuerySourceInfo),
-                                       any(PromotedSourceInfo.class),
+                                       isNull(),
                                        uiEventArgumentCaptor.capture());
 
         assertThat(uiEventArgumentCaptor.getValue()
@@ -282,7 +282,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        eq(playlistItem.getUrn()),
                                        eq(screen),
                                        eq(searchQuerySourceInfo),
-                                       any(PromotedSourceInfo.class),
+                                       isNull(),
                                        any(UIEvent.class));
     }
 
@@ -300,7 +300,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        eq(playlistItem.getUrn()),
                                        eq(screen),
                                        eq(searchQuerySourceInfo),
-                                       any(PromotedSourceInfo.class),
+                                       isNull(),
                                        uiEventArgumentCaptor.capture());
 
         assertThat(uiEventArgumentCaptor.getValue().module().get()).isEqualTo(module);

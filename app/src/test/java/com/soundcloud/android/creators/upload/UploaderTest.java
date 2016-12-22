@@ -3,10 +3,10 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiRequest;
@@ -102,17 +102,17 @@ public class UploaderTest extends AndroidUnitTest {
         final File transcodedFile = new File(recording.audio_path.getAbsolutePath().replaceAll(".wav", ".ogg"));
         verify(apiClient).fetchMappedResponse(
                 argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)
-                                .withFormParts(
-                                        StringPart.from(Uploader.PARAM_TITLE, recording.title),
-                                        StringPart.from(Uploader.PARAM_TYPE, "recording"),
-                                        StringPart.from(Uploader.PARAM_STREAMABLE, "true"),
-                                        StringPart.from(Uploader.PARAM_SHARING, "public"),
-                                        StringPart.from(Uploader.PARAM_TAG_LIST, "soundcloud:source=android-record"),
-                                        StringPart.from(Uploader.PARAM_DOWNLOADABLE, "false"),
-                                        FilePart.from(Uploader.PARAM_ASSET_DATA, transcodedFile,
-                                                      recording.title.replaceAll(" ", "_") + ".ogg",
-                                                      FilePart.BLOB_MEDIA_TYPE)
-                                )),
+                                                .withFormParts(
+                                                        StringPart.from(Uploader.PARAM_TITLE, recording.title),
+                                                        StringPart.from(Uploader.PARAM_TYPE, "recording"),
+                                                        StringPart.from(Uploader.PARAM_STREAMABLE, "true"),
+                                                        StringPart.from(Uploader.PARAM_SHARING, "public"),
+                                                        StringPart.from(Uploader.PARAM_TAG_LIST, "soundcloud:source=android-record"),
+                                                        StringPart.from(Uploader.PARAM_DOWNLOADABLE, "false"),
+                                                        FilePart.from(Uploader.PARAM_ASSET_DATA, transcodedFile,
+                                                                      recording.title.replaceAll(" ", "_") + ".ogg",
+                                                                      FilePart.BLOB_MEDIA_TYPE)
+                                                )),
                 eq(PublicApiTrack.class));
     }
 

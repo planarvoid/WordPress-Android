@@ -45,7 +45,6 @@ public class SyncOperationsTest {
 
     @Test
     public void syncSyncsThenEmitsIfNeverSynced() {
-        when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(false);
         syncOperations.sync(SYNCABLE).subscribe(subscriber);
 
         subscriber.assertNoValues();
@@ -63,7 +62,6 @@ public class SyncOperationsTest {
 
     @Test
     public void syncIfNeededSyncsThenEmitsIfNeverSynced() {
-        when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(false);
         syncOperations.sync(SYNCABLE).subscribe(subscriber);
 
         subscriber.assertNoValues();
@@ -76,7 +74,6 @@ public class SyncOperationsTest {
 
     @Test
     public void syncIfNeededSyncsThenEmitsWhenStaleContent() {
-        when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(true);
         when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(false);
 
         syncOperations.syncIfStale(SYNCABLE).subscribe(subscriber);
@@ -91,7 +88,6 @@ public class SyncOperationsTest {
 
     @Test
     public void syncIfNeededDoesNotSyncWhenContentNotStale() {
-        when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(false);
         when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(true);
 
         syncOperations.syncIfStale(SYNCABLE).subscribe(subscriber);

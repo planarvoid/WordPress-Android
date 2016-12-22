@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations.AdRequestData;
@@ -42,10 +42,11 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -501,8 +502,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
         when(adsOperations.ads(argThat(new AdRequestDataMatcher(nextTrackUrn)),
-                                       anyBoolean(),
-                                       anyBoolean())).thenReturn(adsObservable);
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(adsObservable);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -798,7 +799,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                          CurrentPlayQueueItemEvent.fromPositionChanged(adItem, Urn.NOT_SET, 0));
     }
 
-    private static class AdRequestDataMatcher extends ArgumentMatcher<AdRequestData> {
+    private static class AdRequestDataMatcher extends BaseMatcher<AdRequestData> {
 
         final Urn trackUrn;
 
@@ -810,6 +811,11 @@ public class AdsControllerTest extends AndroidUnitTest {
         public boolean matches(Object argument) {
             return argument instanceof AdRequestData
                     && ((AdRequestData) argument).getMonetizableTrackUrn().equals(Optional.of(trackUrn));
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("matches AdRequestData");
         }
     }
 }

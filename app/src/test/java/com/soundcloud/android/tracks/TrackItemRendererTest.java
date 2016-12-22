@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -218,6 +217,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
+        when(itemView.getContext()).thenReturn(context());
         PromotedListItem promotedListItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         renderer.bindItemView(0, itemView, singletonList((TrackItem) promotedListItem));
 
@@ -225,7 +225,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         verify(trackItemView).setPromotedClickable(captor.capture());
         captor.getValue().onClick(itemView);
 
-        verify(navigator).legacyOpenProfile(any(Context.class), eq(Urn.forUser(193L)));
+        verify(navigator).legacyOpenProfile(context(), Urn.forUser(193L));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

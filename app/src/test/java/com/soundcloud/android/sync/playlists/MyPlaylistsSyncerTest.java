@@ -5,13 +5,13 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -115,11 +115,11 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(loadPlaylistTrackUrns.call()).thenReturn(playlist1Tracks, playlist2Tracks);
         when(apiClient
                 .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))), eq(ApiPlaylistWrapper.class)))
+                                                                     .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))), eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist1));
         when(apiClient
                 .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(1), playlist2Tracks))), eq(ApiPlaylistWrapper.class)))
+                                                                     .withContent(createPushRequestBody(playlists.get(1), playlist2Tracks))), eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist2));
 
         syncer.call();
@@ -269,7 +269,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(loadPlaylistTrackUrns.call()).thenReturn(playlistTracks);
         when(apiClient
                 .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(0), playlistTracks))), eq(ApiPlaylistWrapper.class)))
+                                                                     .withContent(createPushRequestBody(playlists.get(0), playlistTracks))), eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist));
         return newPlaylist;
     }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.Mockito.times;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -42,7 +42,7 @@ public class FadeHelperTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(TWO_SECONDS, TimeUnit.MILLISECONDS);
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener, times(expectedSteps)).onFade(anyLong());
+        inOrder.verify(listener, times(expectedSteps)).onFade(anyFloat());
         inOrder.verify(listener).onFadeFinished();
         inOrder.verifyNoMoreInteractions();
     }
@@ -91,7 +91,7 @@ public class FadeHelperTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(TWO_SECONDS, TimeUnit.MILLISECONDS);
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener, times(3)).onFade(anyLong());
+        inOrder.verify(listener, times(3)).onFade(anyFloat());
         inOrder.verify(listener).onFadeFinished();
         inOrder.verifyNoMoreInteractions();
     }

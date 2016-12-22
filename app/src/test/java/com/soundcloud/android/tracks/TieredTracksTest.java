@@ -23,8 +23,6 @@ public class TieredTracksTest {
 
     @Test
     public void shouldNotIndicateHighTierPreviewIfTrackIsNotSnipped() {
-        when(tieredTrack.isSubHighTier()).thenReturn(true);
-
         assertThat(TieredTracks.isHighTierPreview(tieredTrack)).isFalse();
     }
 
@@ -46,7 +44,6 @@ public class TieredTracksTest {
     @Test
     public void shouldNotIndicateHighTierUnlockedTrackIfSnippedAndHighTier() {
         when(tieredTrack.isSnipped()).thenReturn(true);
-        when(tieredTrack.isSubHighTier()).thenReturn(true);
 
         assertThat(TieredTracks.isFullHighTierTrack(tieredTrack)).isFalse();
     }

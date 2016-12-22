@@ -5,10 +5,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
@@ -230,7 +230,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
 
     private void mockApiFollowingsResponse(List<ApiFollowing> collection) throws Exception {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.MY_FOLLOWINGS.path())),
-                                     any(TypeToken.class))).thenReturn(new ModelCollection<>(collection));
+                                           any(TypeToken.class))).thenReturn(new ModelCollection<>(collection));
     }
 
     private PropertySet getNewFollowingAddition(Urn urn, String username) {

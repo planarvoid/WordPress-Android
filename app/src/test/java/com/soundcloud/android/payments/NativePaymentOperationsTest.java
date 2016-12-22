@@ -5,10 +5,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -44,11 +44,11 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
                                 eq(AvailableProducts.class)))
                 .thenReturn(availableProductsObservable());
         when(api.mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
-                                                .withContent(new StartCheckout("product_id"))),
+                                                                .withContent(new StartCheckout("product_id"))),
                                 eq(CheckoutStarted.class)))
                 .thenReturn(checkoutResultObservable());
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                                          .withContent(UpdateCheckout.fromFailure("user cancelled")))))
+                                                          .withContent(UpdateCheckout.fromFailure("user cancelled")))))
                 .thenReturn(Observable.<ApiResponse>empty());
     }
 
@@ -122,7 +122,7 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
         paymentOperations.purchase("product_id").subscribe();
 
         verify(api).mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
-                                                   .withContent(new StartCheckout("product_id"))),
+                                                                   .withContent(new StartCheckout("product_id"))),
                                    eq(CheckoutStarted.class));
     }
 
@@ -147,7 +147,7 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
         paymentOperations.cancel("user cancelled").subscribe();
 
         verify(api).response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                                             .withContent(UpdateCheckout.fromFailure("user cancelled"))));
+                                                             .withContent(UpdateCheckout.fromFailure("user cancelled"))));
     }
 
     @Test

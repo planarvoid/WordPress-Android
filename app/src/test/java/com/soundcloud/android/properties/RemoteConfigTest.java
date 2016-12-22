@@ -127,8 +127,6 @@ public class RemoteConfigTest {
         when(task.isSuccessful()).thenReturn(false);
         when(task.getException()).thenReturn(mock(Exception.class));
 
-        when(firebaseRemoteConfig.getString(anyString())).thenReturn("feature");
-
         remoteConfig.fetchFeatureFlags(context);
 
         verify(task).addOnCompleteListener(onCompleteListenerCaptor.capture());

@@ -1,6 +1,5 @@
 package com.soundcloud.android.explore;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,7 +14,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -36,7 +34,6 @@ public class ExplorePresenterTest {
     public void setUp() throws Exception {
         when(activity.findViewById(R.id.pager)).thenReturn(viewPager);
         when(activity.findViewById(R.id.tab_indicator)).thenReturn(tabLayout);
-        when(adapterFactory.create(any(FragmentManager.class))).thenReturn(pagerAdapter);
 
         presenter = new ExplorePresenter(resources, adapterFactory, screenListener);
     }

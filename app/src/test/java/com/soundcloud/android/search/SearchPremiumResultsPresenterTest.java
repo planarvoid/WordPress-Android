@@ -1,6 +1,12 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS;
+import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY;
+import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -34,6 +40,7 @@ import rx.Observable;
 
 import android.os.Bundle;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,9 +50,9 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     private static final Urn PREMIUM_TRACK_URN_TWO = Urn.forTrack(2L);
     private static final Urn TRACK_URN = Urn.forTrack(3L);
     private static final Urn QUERY_URN = Urn.forUser(3L);
-
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh,
+                                                                    new Bundle());
     private SearchPremiumResultsPresenter presenter;
-
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private SearchOperations searchOperations;
     @Mock private SearchResultsAdapter adapter;
@@ -54,20 +61,18 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener clickListener;
     @Mock private FeatureOperations featureOperations;
     @Mock private Navigator navigator;
+    @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Mock private SearchTracker searchTracker;
-
     private TestEventBus eventBus = new TestEventBus();
-
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh,
-                                                                    new Bundle());
+    private Bundle bundle = new Bundle();
 
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        final List<PropertySet> propertySets =
-                Collections.singletonList(PropertySet.create()
-                                                     .put(EntityProperty.URN, PREMIUM_TRACK_URN_ONE)
-                                                     .put(EntityProperty.URN, PREMIUM_TRACK_URN_TWO));
+        final ArrayList<PropertySet> propertySets = new ArrayList<>();
+        propertySets.add(PropertySet.create()
+                                    .put(EntityProperty.URN, PREMIUM_TRACK_URN_ONE)
+                                    .put(EntityProperty.URN, PREMIUM_TRACK_URN_TWO));
         final SearchResult searchResult = SearchResult.fromPropertySets(propertySets,
                                                                         Optional.<Link>absent(),
                                                                         QUERY_URN);
@@ -82,13 +87,16 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
                                                       eventBus,
                                                       searchTracker);
 
-        when(clickListenerFactory.create(any(Screen.class),
-                                         any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
-        when(searchOperations.searchPremiumResultFrom(any(List.class), any(Optional.class), any(Urn.class))).thenReturn(
-                searchResultObservable);
-        when(searchOperations.searchPremiumResult(anyString(),
-                                                  any(SearchType.class))).thenReturn(searchResultObservable);
+        when(searchTracker.getPremiumTrackingScreen()).thenReturn(Screen.SEARCH_PREMIUM_CONTENT);
+        when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class), anyString())).thenReturn(searchQuerySourceInfo);
+        when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
+        when(searchOperations.searchPremiumResultFrom(or(isNull(), any(List.class)), any(Optional.class), or(isNull(), any(Urn.class)))).thenReturn(searchResultObservable);
+        when(searchOperations.searchPremiumResult(anyString(), any(SearchType.class))).thenReturn(searchResultObservable);
         when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
+
+        bundle.putParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS, propertySets);
+        bundle.putString(EXTRA_SEARCH_QUERY, "query");
+        bundle.putParcelable(EXTRA_SEARCH_QUERY_URN, QUERY_URN);
     }
 
     @Test
@@ -96,7 +104,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         final List<ListItem> listItems = setupAdapter();
         when(clickListenerFactory.create(Screen.SEARCH_PREMIUM_CONTENT, null)).thenReturn(clickListener);
 
-        presenter.onBuildBinding(new Bundle());
+        presenter.onBuildBinding(bundle);
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
         verify(clickListener).onItemClick(listItems, fragmentRule.getActivity(), 0);
@@ -142,7 +150,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     public void shouldTrackPremiumResultsUpsellImpression() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
 
-        presenter.onCreate(fragmentRule.getFragment(), new Bundle());
+        presenter.onCreate(fragmentRule.getFragment(), bundle);
 
         verify(searchTracker).trackPremiumResultsUpsellImpression();
     }

@@ -94,9 +94,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void doNotShowSkipOnboardingWhenOnlyOnePage() {
-        when(experiment.isEnabled()).thenReturn(true);
-        when(pager.getChildCount()).thenReturn(1);
-
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(pager, never()).beginFakeDrag();

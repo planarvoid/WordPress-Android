@@ -64,11 +64,6 @@ public class PlayableItemStatusLoader extends Command<Iterable<PropertySet>, Ite
     }
 
     private Iterable<PropertySet> filteredItems(Iterable<PropertySet> propertySets, final Predicate<Urn> urnPredicate) {
-        return filter(newArrayList(propertySets), new Predicate<PropertySet>() {
-            @Override
-            public boolean apply(PropertySet input) {
-                return urnPredicate.apply(input.getOrElse(PlayableProperty.URN, Urn.NOT_SET));
-            }
-        });
+        return filter(newArrayList(propertySets), input -> urnPredicate.apply(input.getOrElse(PlayableProperty.URN, Urn.NOT_SET)));
     }
 }

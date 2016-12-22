@@ -3,10 +3,10 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
@@ -50,7 +50,7 @@ public class StationsApiTest extends AndroidUnitTest {
         final TestSubscriber<ApiStation> subscriber = new TestSubscriber<>();
         when(stationsExperiment.getVariantName()).thenReturn(Optional.<String>absent());
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET",
-                                                               ApiEndpoints.STATION.path(stationUrn.toString()))),
+                                                                               ApiEndpoints.STATION.path(stationUrn.toString()))),
                                         eq(ApiStation.class)))
                 .thenReturn(Observable.just(apiStation));
         api.fetchStation(stationUrn).subscribe(subscriber);
@@ -63,12 +63,10 @@ public class StationsApiTest extends AndroidUnitTest {
         when(stationsExperiment.getVariantName()).thenReturn(Optional.of("variant_name"));
         final ApiStationMetadata station = new ApiStationMetadata(stationUrn, "", "", "", "");
 
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints
-                        .STATION_RECOMMENDATIONS
-                        .path(stationUrn.toString()))
-                        .withQueryParam("variant", "variant_name")
-        ), isA(TypeToken.class))).thenReturn(new ModelCollection<>(singletonList(station)));
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints
+                .STATION_RECOMMENDATIONS
+                .path(stationUrn.toString()))
+                                                                           .withQueryParam("variant", "variant_name")), isA(TypeToken.class))).thenReturn(new ModelCollection<>(singletonList(station)));
 
         assertThat(api.fetchStationRecommendations().getCollection()).containsExactly(station);
     }

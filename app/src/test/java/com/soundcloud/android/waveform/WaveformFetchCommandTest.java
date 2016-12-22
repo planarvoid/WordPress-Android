@@ -13,7 +13,6 @@ import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observer;
 
 import android.content.Context;
@@ -51,7 +50,7 @@ public class WaveformFetchCommandTest extends AndroidUnitTest {
         when(urlConnection.getResponseCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
 
         command.toObservable(WAVEFORM_URL).subscribe(observer);
-        verify(observer).onError(any(IOException.class));
+        verify(observer).onError(any(WaveformFetchCommand.WaveformFetchException.class));
         verify(observer, never()).onNext(any(WaveformData.class));
     }
 
@@ -93,8 +92,8 @@ public class WaveformFetchCommandTest extends AndroidUnitTest {
         setupWaveformResponse(INVALID_WIDTH_WAVEFORM_DATA);
 
         command.toObservable(WAVEFORM_URL).subscribe(observer);
-        verify(observer).onError(any(IOException.class));
-        verify(observer, Mockito.never()).onNext(any(WaveformData.class));
+        verify(observer).onError(any(WaveformFetchCommand.WaveformFetchException.class));
+        verify(observer, never()).onNext(any(WaveformData.class));
     }
 
     @Test
@@ -102,8 +101,8 @@ public class WaveformFetchCommandTest extends AndroidUnitTest {
         setupWaveformResponse(EMPTY_WAVEFORM_DATA);
 
         command.toObservable(WAVEFORM_URL).subscribe(observer);
-        verify(observer).onError(any(IOException.class));
-        verify(observer, Mockito.never()).onNext(any(WaveformData.class));
+        verify(observer).onError(any(WaveformFetchCommand.WaveformFetchException.class));
+        verify(observer, never()).onNext(any(WaveformData.class));
     }
 
     private void setupValidWaveformResponse() throws IOException {
