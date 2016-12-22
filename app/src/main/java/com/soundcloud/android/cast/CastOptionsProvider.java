@@ -5,6 +5,7 @@ import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
 import com.google.android.gms.cast.framework.media.CastMediaOptions;
 import com.google.android.gms.cast.framework.media.NotificationOptions;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 
 import android.content.Context;
@@ -32,6 +33,7 @@ public class CastOptionsProvider implements OptionsProvider {
 
     private CastMediaOptions castMediaOptions() {
         NotificationOptions notificationOptions = new NotificationOptions.Builder()
+                .setSmallIconDrawableResId(R.drawable.ic_notification_cloud)
                 .setTargetActivityClassName(CastRedirectActivity.class.getName())
                 .build();
 
