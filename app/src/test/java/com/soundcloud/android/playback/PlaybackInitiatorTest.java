@@ -91,6 +91,21 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playTrackFixWrongStartingPosition() {
+        // This issue has been here forever and we don't know the root cause.
+        // This is needed to fix a crash in the context the of the new PQ explicit items feature too.
+        // Don't judge me.
+        // https://github.com/soundcloud/android/issues/6706
+        final int wrongStartPosition = 3;
+        playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, wrongStartPosition, new PlaySessionSource(ORIGIN_SCREEN))
+                         .subscribe(observer);
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+
+        assertPlayNewQueue(playSessionController, TestPlayQueue.fromUrns(playSessionSource, TRACK1), TRACK1, wrongStartPosition, playSessionSource);
+    }
+
+    @Test
     public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
         when(policyOperations.blockedStatuses(singletonList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(
                 TRACK1,

@@ -13,7 +13,6 @@ import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
@@ -130,23 +129,22 @@ public class PlaybackInitiator {
             return Observable.just(PlaybackResult.success());
         } else {
             return playQueue
-                    .doOnNext(addExplicitContentFromCurrentPlayQueue(startPosition))
+                    .map(addExplicitContentFromCurrentPlayQueue(startPosition, initialTrack))
                     .flatMap(toPlaybackResult(initialTrack, startPosition, playSessionSource))
                     .observeOn(AndroidSchedulers.mainThread());
         }
     }
 
-    private Action1<PlayQueue> addExplicitContentFromCurrentPlayQueue(final int startPosition) {
-        return new Action1<PlayQueue>() {
-            @Override
-            public void call(PlayQueue playQueueItems) {
-                List<PlayQueueItem> explicitQueueItems = playQueueManager.getUpcomingExplicitQueueItems();
-                if (playQueueItems.size() <= startPosition) {
-                    playQueueItems.insertAllItems(startPosition, explicitQueueItems);
-                } else {
-                    playQueueItems.insertAllItems(startPosition +1, explicitQueueItems);
-                }
+    private Func1<PlayQueue, PlayQueue> addExplicitContentFromCurrentPlayQueue(final int startPosition, Urn initialTrack) {
+        return playQueueItems -> {
+            final List<PlayQueueItem> explicitQueueItems = playQueueManager.getUpcomingExplicitQueueItems();
+            final int updatedInitialPosition = PlaybackUtils.correctInitialPosition(playQueueItems, startPosition, initialTrack);
+            if (playQueueItems.size() <= updatedInitialPosition) {
+                playQueueItems.insertAllItems(updatedInitialPosition, explicitQueueItems);
+            } else {
+                playQueueItems.insertAllItems(updatedInitialPosition + 1, explicitQueueItems);
             }
+            return playQueueItems;
         };
     }
 
