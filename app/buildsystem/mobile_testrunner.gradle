@@ -1,0 +1,123 @@
+import com.soundcloud.mobiletestrunner.client.groovy.TestRunner
+import com.soundcloud.mobiletestrunner.client.model.*
+
+buildscript {
+  repositories {
+    mavenLocal()
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+  }
+  dependencies {
+    classpath project.mobileTestRunner
+  }
+}
+
+configurations {
+  htmlTemplates
+}
+
+dependencies {
+  htmlTemplates project.mobileTestRunner
+}
+
+task extractHtmlTemplates(type: Sync) {
+  dependsOn configurations.htmlTemplates
+
+  from { // use of closure defers evaluation until execution time
+    configurations.htmlTemplates.collect { zipTree(it) }
+  }
+  include 'html*template.html'
+  into "$project.projectDir/htmlTemplates/"
+}
+
+apply from: "${project.buildSrcDir}/apk_finder.gradle"
+
+def applicationPackage() {
+  new Package(project.applicationId, findApkPath(project.buildType, project.alphaVersionCode))
+}
+
+def testPackage() {
+  new Package(project.testApplicationId, project.testApkPath)
+}
+
+def toolsPackages() {
+  [new Package(project.androidNetworkManagerApplicationId, project.networkManagerApkPath)] as Package[]
+}
+
+def testRunner() {
+  new TestRunner(project.projectDir, project.rootDir, project.mobileTestRunnerUrl, project.mobileTestRunnerUser, project.mobileTestRunnerHost, project.mobileTestRunnerReportUrl,
+          project.testInstrumentationRunner, project.mobileTestRunnerMaxTestAttempts, project.mobileTestRunnerScheduleAllTestAttemptsAtOnce, project.mobileTestRunnerMaxCollectionTaskAttempts,
+          applicationPackage(), testPackage(), toolsPackages())
+}
+
+def systemProperties = [
+        //"log.tag.Propeller": "DEBUG", -- too noisy
+        "log.tag.ApiClient"            : "DEBUG",
+        "log.tag.PublicApi"            : "DEBUG",
+        "log.tag.ApiSyncer"            : "DEBUG",
+        "log.tag.Timeline"             : "DEBUG",
+        "log.tag.SC_ANDROID_TEST"      : "DEBUG",
+        "log.tag.BUG_4503"             : "DEBUG",
+        "log.tag.EventTrackingManager" : "DEBUG",
+        "log.tag.MrLoggaVerifier"      : "DEBUG",
+        "log.tag.Configuration"        : "DEBUG",
+        "log.tag.TestRunner"           : "DEBUG",
+        "log.tag.PlaybackService"      : "DEBUG",
+        "log.tag.ScAds"                : "DEBUG",
+        "log.tag.SoundCloudApplication": "DEBUG",
+        "log.tag.OfflineTests"         : "DEBUG",
+        "log.tag.ActivityLifeCycle"    : "DEBUG"
+]
+def lollipopLabel = new Label("Lollipop")
+
+
+task runListOfTests(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def tests = [
+            new Test("com.soundcloud.android.tests.stream.StreamTest", "testPlayAndPauseTrackFromStream"),
+    ] as Test[]
+
+    testRunner().runTests(lollipopLabel, null, null, systemProperties, null, null, tests)
+  }
+}
+
+task runTestClass(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def classFilter = "com.soundcloud.android.tests.stream.StreamTest"
+
+    testRunner().runTests(lollipopLabel, null, null, systemProperties, classFilter, null, null)
+  }
+}
+
+task runLollipopTests(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def excludeAnnotations = [
+            "com.soundcloud.android.framework.annotation.Ignore",
+            "com.soundcloud.android.framework.annotation.CollectionsTest",
+            "com.soundcloud.android.framework.annotation.BlockedTrackTest",
+            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
+            "com.soundcloud.android.framework.annotation.PaymentTest",
+            "com.soundcloud.android.framework.annotation.LegacyStationTest",
+            "com.soundcloud.android.framework.annotation.ReleaseOnly"
+    ] as String[]
+
+    testRunner().runTests(lollipopLabel, null, excludeAnnotations, systemProperties, null, null, null)
+  }
+}
+
+task runLollipopTestsRelease(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def excludeAnnotations = [
+            "com.soundcloud.android.framework.annotation.Ignore",
+            "com.soundcloud.android.framework.annotation.AdsTest",
+            "com.soundcloud.android.framework.annotation.BlockedTrackTest",
+            "com.soundcloud.android.framework.annotation.CollectionsTest",
+            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
+            "com.soundcloud.android.framework.annotation.StationsTabTest",
+            "com.soundcloud.android.framework.annotation.PaymentTest",
+            "com.soundcloud.android.framework.annotation.LegacyStationTest",
+            "com.soundcloud.android.framework.annotation.PlayQueue"
+    ] as String[]
+
+    testRunner().runTests(lollipopLabel, null, excludeAnnotations, systemProperties, null, null, null)
+  }
+}

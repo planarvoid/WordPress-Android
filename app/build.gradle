@@ -67,7 +67,7 @@ apply from: "${buildSrcDir}/git.gradle"
 apply from: "${buildSrcDir}/github.gradle"
 apply from: "${buildSrcDir}/ci.gradle"
 apply from: "${buildSrcDir}/networkmanager.gradle"
-apply from: "${buildSrcDir}/mobile_testrunner/mobile_testrunner.gradle"
+apply from: "${buildSrcDir}/mobile_testrunner.gradle"
 apply from: "${buildSrcDir}/system_utilities.gradle"
 
 apply plugin: 'com.android.application'

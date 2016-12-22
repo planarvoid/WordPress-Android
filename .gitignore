@@ -78,3 +78,7 @@ nimbledroid.properties
 
 # MrLoggerLogger
 app/src/androidTest/res/com/soundcloud/android/framework/helpers/mrlogga/log/
+
+# Mobile Test Runner
+results
+htmlTemplates
