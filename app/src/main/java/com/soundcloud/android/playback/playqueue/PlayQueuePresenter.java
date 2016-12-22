@@ -72,6 +72,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.loading_indicator) View loadingIndicator;
     private Observable<List<TrackAndPlayQueueItem>> cachedTracks = Observable.empty();
     private Observable<Map<Urn, String>> cachedTitles = Observable.empty();
     private boolean initialized = false;
@@ -420,10 +421,13 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         public void onNext(List<PlayQueueUIItem> items) {
             boolean wasEmpty = adapter.isEmpty();
 
+            loadingIndicator.setVisibility(View.GONE);
             rebuildAdapter(items);
+
             if (wasEmpty) {
                 recyclerView.scrollToPosition(getScrollPosition());
             }
+
             adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), true);
         }
 
