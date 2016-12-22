@@ -130,8 +130,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     @Override
     public void onPause(PlayerFragment fragment) {
-        super.onPause(fragment);
         isResumed = false;
+        super.onPause(fragment);
     }
 
     @Override
@@ -145,7 +145,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     @Override
     public void onDestroyView(PlayerFragment playerFragment) {
-
         unblockPagerSubscription.unsubscribe();
         playerPagerScrollListener.unsubscribe();
         changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
@@ -157,11 +156,12 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setPositionToDisplayedTrack() {
-        playSessionController.setCurrentPlayQueueItem(getDisplayedItem());
+        if (isResumed) {
+            playSessionController.setCurrentPlayQueueItem(getDisplayedItem());
+        }
     }
 
     private void setupTrackChangeSubscribers() {
-
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_UI, new PlayQueueVisibilitySubscriber()));
 
         // play queue changes
