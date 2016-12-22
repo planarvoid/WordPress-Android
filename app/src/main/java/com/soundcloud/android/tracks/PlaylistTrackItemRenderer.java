@@ -23,7 +23,7 @@ import android.view.View;
 
 import java.util.List;
 
-@AutoFactory
+@AutoFactory(allowSubclasses = true)
 public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
 
     private RemoveTrackListener removeTrackListener;
