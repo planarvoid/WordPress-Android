@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -62,6 +63,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueArtworkController playerArtworkController;
     @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
+    @Mock private PlaybackStateProvider playbackStateProvider;
 
     @Mock private PlayQueueUIItem item;
     @Mock private FeedbackController feedbackController;
@@ -81,6 +83,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter = new PlayQueuePresenter(
                 adapter,
                 playQueueManager,
+                playbackStateProvider,
                 playSessionController,
                 playQueueOperations,
                 playerArtworkController,
@@ -88,10 +91,12 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 eventBus,
                 context(),
                 feedbackController,
-                playQueueUIItemMapper);
+                playQueueUIItemMapper
+                );
         when(adapter.getItem(anyInt())).thenReturn(item);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(item.isTrack()).thenReturn(true);
+        when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
     }
 
     @Test
@@ -149,7 +154,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter.subscribeToEvents();
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(adapter).updateNowPlaying(0, true);
+        verify(adapter).updateNowPlaying(0, true, true);
     }
 
     @Test
@@ -165,7 +170,24 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter.subscribeToEvents();
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(adapter).updateNowPlaying(0, true);
+        verify(adapter).updateNowPlaying(0, true, true);
+    }
+
+    @Test
+    public void shouldSetPausedStateWhenNotPlayingCurrent() {
+        setCachedObservables();
+        when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(false);
+
+        presenter.setCachedObservables();
+        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
+        final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
+        final CurrentPlayQueueItemEvent event = fromNewQueue(queueItem, Urn.NOT_SET, 0);
+        when(adapter.getAdapterPosition(queueItem)).thenReturn(0);
+
+        presenter.subscribeToEvents();
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
+
+        verify(adapter).updateNowPlaying(0, true, false);
     }
 
     @Test

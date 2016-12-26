@@ -286,12 +286,14 @@
     <!-- __PLAYABLE -->
     <string name="private_indicator">Private</string>
     <string name="title_now_playing">Now playing</string>
+    <string name="title_paused">Paused</string>
     <string name="like_toast_overflow_action">Saved to your likes</string>
     <string name="unlike_toast_overflow_action">Removed from your likes</string>
     <string name="like_error_toast_overflow_action">Like status was not changed</string>
     <string name="reposted_to_followers">Reposted to your followers</string>
     <string name="unposted_to_followers">Unposted</string>
     <string name="repost_error_toast_overflow_action">Repost status could not be changed</string>
+
 
     <!-- __PLAYER -->
     <string name="share">Share</string>

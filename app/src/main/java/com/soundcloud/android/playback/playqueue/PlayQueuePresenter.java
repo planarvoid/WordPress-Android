@@ -20,6 +20,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayableQueueItem;
+import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -58,6 +59,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private final PlayQueueAdapter adapter;
     private final PlayQueueManager playQueueManager;
+    private final PlaybackStateProvider playbackStateProvider;
     private final PlaySessionController playSessionController;
     private final PlayQueueOperations playQueueOperations;
     private final PlayQueueArtworkController artworkController;
@@ -81,6 +83,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     @Inject
     PlayQueuePresenter(PlayQueueAdapter adapter,
                        PlayQueueManager playQueueManager,
+                       PlaybackStateProvider playbackStateProvider,
                        PlaySessionController playSessionController,
                        PlayQueueOperations playQueueOperations,
                        PlayQueueArtworkController playerArtworkController,
@@ -91,6 +94,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                        PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
+        this.playbackStateProvider = playbackStateProvider;
         this.playSessionController = playSessionController;
         this.playQueueOperations = playQueueOperations;
         this.artworkController = playerArtworkController;
@@ -145,6 +149,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                                        .filter(playQueueEvent -> !playQueueEvent.itemChanged())
                                        .observeOn(AndroidSchedulers.mainThread())
                                        .subscribe(new ChangePlayQueueSubscriber()));
+
+        eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                                       .observeOn(AndroidSchedulers.mainThread())
+                                       .subscribe(e -> setNowPlaying(false)));
     }
 
     private void setArtworkStreams() {
@@ -401,7 +409,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private boolean isPlayingCurrent() {
         final int adapterPosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
         final boolean isWithinRange = adapterPosition < adapter.getItems().size() && adapterPosition >= 0;
-        return isWithinRange && adapter.getItem(adapterPosition).getPlayState().equals(PlayState.PLAYING);
+        return isWithinRange && adapter.getItem(adapterPosition).isPlayingOrPaused();
     }
 
     private class UpdateNowPlayingSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
@@ -411,7 +419,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
             if (items.size() != adapter.getItemCount()) {
                 rebuildAdapter(items);
             }
-            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), true);
+            setNowPlaying(true);
         }
     }
 
@@ -428,9 +436,14 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                 recyclerView.scrollToPosition(getScrollPosition());
             }
 
-            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), true);
+            setNowPlaying(true);
         }
 
+    }
+
+    private void setNowPlaying(boolean notifyListener) {
+        final int adapterPosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
+        adapter.updateNowPlaying(adapterPosition, notifyListener, playbackStateProvider.isSupposedToBePlaying());
     }
 
     private class RebuildSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
@@ -438,7 +451,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
             rebuildAdapter(items);
-            adapter.updateNowPlaying(adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem()), false);
+            setNowPlaying(false);
         }
     }
 
@@ -466,12 +479,15 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void trackClicked(final int listPosition) {
-            if (adapter.getItem(listPosition).isTrack()) {
-                adapter.updateNowPlaying(listPosition, true);
-                playQueueManager.setCurrentPlayQueueItem(((TrackPlayQueueUIItem) adapter.getItem(listPosition)).getPlayQueueItem());
+            final PlayQueueUIItem item = adapter.getItem(listPosition);
+            if (item.isTrack()) {
+                adapter.updateNowPlaying(listPosition, true, playbackStateProvider.isSupposedToBePlaying());
+                playQueueManager.setCurrentPlayQueueItem(((TrackPlayQueueUIItem) item).getPlayQueueItem());
 
                 if (!playSessionController.isPlayingCurrentPlayQueueItem()) {
                     playSessionController.play();
+                } else if (item.isPlayingOrPaused()) {
+                    playSessionController.togglePlayback();
                 }
             }
         }

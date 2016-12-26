@@ -9,7 +9,7 @@ abstract class PlayQueueUIItem {
     private PlayState playState;
     private PlayQueueManager.RepeatMode repeatMode;
 
-    public PlayQueueUIItem(PlayState playState, PlayQueueManager.RepeatMode repeatMode) {
+    PlayQueueUIItem(PlayState playState, PlayQueueManager.RepeatMode repeatMode) {
         this.playState = playState;
         this.repeatMode = repeatMode;
     }
@@ -26,8 +26,12 @@ abstract class PlayQueueUIItem {
         return getKind().equals(Kind.HEADER);
     }
 
-    public PlayState getPlayState() {
+    PlayState getPlayState() {
         return playState;
+    }
+
+    boolean isPlayingOrPaused() {
+        return PlayState.PLAYING.equals(playState) || PlayState.PAUSED.equals(playState);
     }
 
     public void setPlayState(PlayState playState) {

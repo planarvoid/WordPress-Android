@@ -8,6 +8,7 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
 
+import android.graphics.drawable.AnimationDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     @Override
     public void bindItemView(final int position, View itemView, List<TrackPlayQueueUIItem> items) {
         final TrackPlayQueueUIItem item = items.get(position);
-        itemView.setSelected(item.getPlayState() == PlayState.PLAYING);
+        itemView.setSelected(item.isPlayingOrPaused());
         ViewGroup statusPlaceHolder = (ViewGroup) itemView.findViewById(R.id.status_place_holder);
         View textHolder = itemView.findViewById(R.id.text_holder);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.image);
@@ -79,15 +80,19 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         titleTextView.setTextColor(item.getTitleTextColor());
     }
 
-    private void setStatusLabel(ViewGroup statusPlaceHolder,
-                                View itemView,
-                                TrackPlayQueueUIItem trackPlayQueueUIItem) {
-        if (trackPlayQueueUIItem.getPlayState() == PlayState.PLAYING) {
-            View.inflate(itemView.getContext(), R.layout.playing, statusPlaceHolder);
+    private void setStatusLabel(ViewGroup statusPlaceHolder, View itemView, TrackPlayQueueUIItem trackPlayQueueUIItem) {
+        final PlayState playState = trackPlayQueueUIItem.getPlayState();
+
+        if (playState == PlayState.PLAYING) {
+            final View view = View.inflate(itemView.getContext(), R.layout.playing, statusPlaceHolder);
+            final TextView label = (TextView) view.findViewById(R.id.now_playing);
+            final AnimationDrawable drawable = (AnimationDrawable) label.getCompoundDrawables()[0];
+            drawable.start();
+        } else if (playState == PlayState.PAUSED) {
+            View.inflate(itemView.getContext(), R.layout.paused, statusPlaceHolder);
         } else if (trackPlayQueueUIItem.getStatusLabelId() != -1) {
             View.inflate(itemView.getContext(), trackPlayQueueUIItem.getStatusLabelId(), statusPlaceHolder);
         }
-
     }
 
     private void setListener(final View itemView, final int position) {
@@ -135,9 +140,9 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         } else {
             overflowButton.setImageResource(R.drawable.playqueue_track_item_overflow);
             overflowButton.setOnClickListener(view -> trackItemMenuPresenter.show(ViewUtils.getFragmentActivity(view),
-                                                                          view,
-                                                                          item.getTrackItem(),
-                                                                          position));
+                                                                                  view,
+                                                                                  item.getTrackItem(),
+                                                                                  position));
         }
     }
 

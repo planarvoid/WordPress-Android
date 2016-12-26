@@ -17,7 +17,7 @@ public class QueueUtils {
                     return ALPHA_ENABLED;
                 }
             case REPEAT_ONE:
-                if (playstate == PlayState.PLAYING) {
+                if (playstate == PlayState.PLAYING || playstate == PlayState.PAUSED) {
                     return ALPHA_ENABLED;
                 } else {
                     return ALPHA_DISABLED;

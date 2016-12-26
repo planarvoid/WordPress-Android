@@ -84,10 +84,10 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
         return itemsChangedAndShouldRerender;
     }
 
-    public void updateNowPlaying(int position, boolean notifyListener) {
+    public void updateNowPlaying(int position, boolean notifyListener, boolean isPlaying) {
 
         if (items.size() == position && getItem(position).isTrack()
-                && getItem(position).getPlayState() == PlayState.PLAYING) {
+                && getItem(position).isPlayingOrPaused()) {
             return;
         }
 
@@ -97,7 +97,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
             final PlayQueueUIItem item = items.get(i);
             if (item.isTrack()) {
                 final TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
-                setPlayState(position, i, trackItem, notifyListener);
+                setPlayState(position, i, trackItem, notifyListener, isPlaying);
                 if (!headerPlayStateSet && lastHeaderPlayQueueUiItem.isPresent()) {
                     headerPlayStateSet = shouldAddHeader(trackItem);
                     lastHeaderPlayQueueUiItem.get().setPlayState(trackItem.getPlayState());
@@ -115,9 +115,9 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
         notifyItemInserted(position);
     }
 
-    private void setPlayState(int currentlyPlayingPosition, int itemPosition, TrackPlayQueueUIItem item, boolean notifyListener) {
+    private void setPlayState(int currentlyPlayingPosition, int itemPosition, TrackPlayQueueUIItem item, boolean notifyListener, boolean isPlaying) {
         if (currentlyPlayingPosition == itemPosition) {
-            item.setPlayState(PlayState.PLAYING);
+            item.setPlayState(isPlaying ? PlayState.PLAYING : PlayState.PAUSED);
             if (notifyListener && nowPlayingListener != null) {
                 nowPlayingListener.onNowPlayingChanged(item);
             }
@@ -129,8 +129,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     }
 
     private boolean shouldAddHeader(TrackPlayQueueUIItem trackItem) {
-        return trackItem.getPlayState() == PlayState.PLAYING ||
-                trackItem.getPlayState() == PlayState.COMING_UP;
+        return trackItem.isPlayingOrPaused() || PlayState.COMING_UP.equals(trackItem.getPlayState());
     }
 
     void setNowPlayingChangedListener(NowPlayingListener nowPlayingListener) {
