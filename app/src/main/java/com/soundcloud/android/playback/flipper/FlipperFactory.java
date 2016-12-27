@@ -73,6 +73,13 @@ class FlipperFactory {
     private String cacheDirectory() {
         final File streamCacheDirectory = cacheConfig.getStreamCacheDirectory();
         IOUtils.createCacheDirs(context, streamCacheDirectory);
-        return streamCacheDirectory == null ? null : streamCacheDirectory.getAbsolutePath();
+        String result = Strings.EMPTY;
+        if (streamCacheDirectory != null) {
+            result = streamCacheDirectory.getAbsolutePath();
+            if (result == null) {
+                result = Strings.EMPTY;
+            }
+        }
+        return result;
     }
 }
