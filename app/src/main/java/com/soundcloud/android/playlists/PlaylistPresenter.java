@@ -9,6 +9,7 @@ import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROM
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Navigator;
@@ -56,6 +57,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.ActionMode;
@@ -296,7 +298,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     @Override
     protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, PlaylistDetailItem> collectionBinding,
                                       CompositeSubscription viewLifeCycle) {
-        collectionBinding.source().subscribe(new PlaylistSubscriber());
+        viewLifeCycle.add(collectionBinding.source().subscribe(new PlaylistSubscriber()));
     }
 
     @Override
@@ -337,10 +339,14 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     private class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
         @Override
         public void onNext(PlaylistWithTracks playlist) {
+            FragmentActivity activity = fragment.getActivity();
+            // remove when https://github.com/soundcloud/android/issues/6715 is confirmed fixed
+            checkNotNull(activity, "Unexpected null activity in playlist details");
+
             playlistWithTracks = Optional.of(playlist);
             playSessionSource = createPlaySessionSource(playlist);
             headerPresenter.setPlaylist(playlist, playSessionSource);
-            fragment.getActivity().setTitle(playlist.getPlaylistItem().getLabel(fragment.getContext()));
+            activity.setTitle(playlist.getPlaylistItem().getLabel(activity));
             trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlist.getUrn(), playlist.getCreatorUrn());
         }
     }
