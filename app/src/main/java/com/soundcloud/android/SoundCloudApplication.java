@@ -3,8 +3,6 @@ package com.soundcloud.android;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.facebook.FacebookSdk;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.moat.analytics.mobile.scl.MoatAnalytics;
 import com.moat.analytics.mobile.scl.MoatOptions;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -142,19 +140,11 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
-        configureFirebase();
 
         objectGraph.inject(this);
         devTools.initialize(this);
         initializePerformanceEngine();
         bootApplication();
-    }
-
-    void configureFirebase() {
-        // we do this manually, so that we can support LeakCanary :
-        // http://stackoverflow.com/questions/37585090/leakcanary-crashes-with-googles-firebase
-        FirebaseOptions options = FirebaseOptions.fromResource(this);
-        FirebaseApp.initializeApp(this, options);
     }
 
     private void initializePerformanceEngine() {
