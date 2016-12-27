@@ -11,6 +11,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.DefaultAnimationListener;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -26,7 +27,7 @@ public class CastPlayerStripController {
     private static final long ANIMATION_DURATION = 300;
 
     private boolean isPlayerExpanded = false;
-    private Subscription subscription;
+    private Subscription subscription = Subscriptions.unsubscribed();
 
     private final PlayerStripView stripView;
     private final PlayerUpsellView upsellView;
@@ -52,8 +53,6 @@ public class CastPlayerStripController {
 
         expandCastBarAnimator = getExpandAnimator();
         expandCastAndCollapseUpsellAnimators = createAnimatorSet(upsellView.getCollapseAnimators(), expandCastBarAnimator);
-
-        subscribeToEvents();
     }
 
     private ValueAnimator getExpandAnimator() {
@@ -84,11 +83,12 @@ public class CastPlayerStripController {
         }
     }
 
-    private void subscribeToEvents() {
+    public void subscribeToEvents() {
+        subscription.unsubscribe();
         subscription = eventBus.queue(EventQueue.PLAYER_UI).subscribe(new PlayerStateSubscriber());
     }
 
-    public void clear() {
+    public void unsubscribeFromEvents() {
         subscription.unsubscribe();
     }
 
