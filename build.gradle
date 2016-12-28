@@ -28,7 +28,7 @@ allprojects {
 
     mobileTestRunnerUser = "mobile"
     mobileTestRunnerHost = 'chaos-slave.mobile.s-cloud.net'
-    mobileTestRunner = "com.soundcloud.mobiletestrunner:client:134-33-0c35c66"
+    mobileTestRunner = "com.soundcloud.mobiletestrunner:client:132-31-55df03b"
     mobileTestRunnerUrl = "http://$mobileTestRunnerHost:5000"
     mobileTestRunnerReportUrl = "http://mobile-jenkins.int.s-cloud.net:84"
     mobileTestRunnerMaxTestAttempts = 2
