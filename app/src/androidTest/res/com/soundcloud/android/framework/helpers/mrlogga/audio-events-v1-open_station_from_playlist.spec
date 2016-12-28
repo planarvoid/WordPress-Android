@@ -23,7 +23,7 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    policy: (ALLOW|SNIP)
+    policy: (ALLOW|SNIP|MONETIZE)
     app_version: '[0-9]+'
     monetization_model: (\w|-)+
   version: '1'
@@ -52,7 +52,7 @@ expected_events:
     pause_reason: skip
     trigger: manual
     local_storage_playback: false
-    policy: (ALLOW|SNIP)
+    policy: (ALLOW|SNIP|MONETIZE)
     app_version: '[0-9]+'
     monetization_model: (\w|-)+
   version: '1'
@@ -80,7 +80,7 @@ expected_events:
     trigger: manual
     query_urn: soundcloud:radio:(\w|-)+
     local_storage_playback: false
-    policy: (ALLOW|SNIP)
+    policy: (ALLOW|SNIP|MONETIZE)
     app_version: '[0-9]+'
     monetization_model: (\w|-)+
   version: '1'
@@ -110,7 +110,7 @@ expected_events:
     trigger: manual
     query_urn: soundcloud:radio:(\w|-)+
     local_storage_playback: false
-    policy: (ALLOW|SNIP)
+    policy: (ALLOW|SNIP|MONETIZE)
     app_version: '[0-9]+'
     monetization_model: (\w|-)+
   version: '1'
