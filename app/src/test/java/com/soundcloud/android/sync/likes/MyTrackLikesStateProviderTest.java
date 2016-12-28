@@ -5,18 +5,16 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.Date;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MyTrackLikesStateProviderTest {
+public class MyTrackLikesStateProviderTest extends AndroidUnitTest {
 
     private MyTrackLikesStateProvider myTrackLikesStateProvider;
 
@@ -30,23 +28,23 @@ public class MyTrackLikesStateProviderTest {
 
     @Test
     public void hasLocalChangesIsTrueIfTrackAdditionsIsNotEmpty() throws Exception {
-        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(singletonList(TestPropertySets.fromApiTrack()));
+        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(singletonList(ApiLike.create(TestPropertySets.fromApiTrack().getUrn(), new Date())));
 
         assertThat(myTrackLikesStateProvider.hasLocalChanges()).isTrue();
     }
 
     @Test
     public void hasLocalChangesIsTrueIfTrackRemovalsIsNotEmpty() throws Exception {
-        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(singletonList(TestPropertySets.fromApiTrack()));
+        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.emptyList());
+        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(singletonList(ApiLike.create(TestPropertySets.fromApiTrack().getUrn(), new Date())));
 
         assertThat(myTrackLikesStateProvider.hasLocalChanges()).isTrue();
     }
 
     @Test
     public void hasLocalChangesIsFalseIfNoPendingAdditionsOrRemovals() throws Exception {
-        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
+        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.emptyList());
+        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(Collections.emptyList());
 
         assertThat(myTrackLikesStateProvider.hasLocalChanges()).isFalse();
     }

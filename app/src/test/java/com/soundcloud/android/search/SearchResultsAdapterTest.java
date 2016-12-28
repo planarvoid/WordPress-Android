@@ -121,26 +121,20 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private UserItem dummyUserItem() {
-        return UserItem.from(new ApiUniversalSearchItem(ModelFixtures.create(ApiUser.class),
-                                                        null,
-                                                        null).toPropertySet());
+        return (UserItem) new ApiUniversalSearchItem(ModelFixtures.create(ApiUser.class), null, null).toSearchableItem();
     }
 
     private TrackItem dummyTrackItem() {
-        return TrackItem.from(new ApiUniversalSearchItem(null,
-                                                         null,
-                                                         ModelFixtures.create(ApiTrack.class)).toPropertySet());
+        return (TrackItem) new ApiUniversalSearchItem(null, null, ModelFixtures.create(ApiTrack.class)).toSearchableItem();
     }
 
     private PlaylistItem dummyPlaylistItem() {
-        return PlaylistItem.from(new ApiUniversalSearchItem(null,
-                                                            ModelFixtures.create(ApiPlaylist.class),
-                                                            null).toPropertySet());
+        return (PlaylistItem) new ApiUniversalSearchItem(null, ModelFixtures.create(ApiPlaylist.class), null).toSearchableItem();
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
-        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L));
-        return new SearchPremiumItem(Collections.singletonList(propertySet),
+        final TrackItem trackItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L)));
+        return new SearchPremiumItem(Collections.singletonList(trackItem),
                                      Optional.<Link>absent(),
                                      SEARCH_RESULTS_COUNT);
     }

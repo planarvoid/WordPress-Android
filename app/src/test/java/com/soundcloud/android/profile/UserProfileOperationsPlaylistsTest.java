@@ -12,13 +12,10 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,9 +42,11 @@ public class UserProfileOperationsPlaylistsTest extends AndroidUnitTest {
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
     @Mock private EventBus eventBus;
 
-    final TestSubscriber<PagedRemoteCollection> subscriber = new TestSubscriber<>();
+    final TestSubscriber<PagedRemoteCollection<PlaylistItem>> subscriber = new TestSubscriber<>();
     final ApiPlaylist apiPlaylist = create(ApiPlaylist.class);
     final ApiPlaylistPost apiPlaylistPost = new ApiPlaylistPost(apiPlaylist);
+    final PlaylistItem playlistItem = PlaylistItem.from(apiPlaylist, false);
+    final PlaylistItem playlistItemWithoutRepost = PlaylistItem.from(apiPlaylist);
 
     final ModelCollection<ApiPlaylistPost> page = new ModelCollection<>(singletonList(apiPlaylistPost), NEXT_HREF);
 
@@ -70,31 +69,32 @@ public class UserProfileOperationsPlaylistsTest extends AndroidUnitTest {
 
         operations.userPlaylists(USER_URN).subscribe(subscriber);
 
-        assertResponse(apiPlaylistPost.toPropertySet());
+        assertResponse(playlistItem);
     }
 
     @Test
     public void mergesLikesInfoForUserPlaylists() throws Exception {
         when(profileApi.userPlaylists(USER_URN)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page))))
+        when(loadPlaylistLikedStatuses.call(eq(Collections.singletonList(playlistItem.getUrn()))))
                 .thenReturn(addLikeStatusToPlaylist());
 
         operations.userPlaylists(USER_URN).subscribe(subscriber);
 
-        assertResponse(apiPlaylistPost.toPropertySet().put(PlayableProperty.IS_USER_LIKE, true));
+        playlistItem.setLikedByCurrentUser(true);
+        assertResponse(playlistItem);
     }
 
     @Test
     public void mergesLikesInfoForUserPlaylistsWithPagination() throws Exception {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
-                                                                      NEXT_HREF);
+        final PagedRemoteCollection<PlaylistItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
+                                                                                      NEXT_HREF);
         when(profileApi.userPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page))))
+        when(loadPlaylistLikedStatuses.call(eq(Collections.singletonList(playlistItemWithoutRepost.getUrn()))))
                 .thenReturn(addLikeStatusToPlaylist());
 
-        operations.userPlaylistsPagingFunction().call(page1).subscribe(subscriber);
-
-        assertResponse(apiPlaylistPost.toPropertySet().put(PlayableProperty.IS_USER_LIKE, true));
+        operations.pagingFunction(nextPage -> operations.userPlaylists(nextPage)).call(page1).subscribe(subscriber);
+        playlistItemWithoutRepost.setLikedByCurrentUser(true);
+        assertResponse(playlistItemWithoutRepost);
     }
 
     @Test
@@ -106,15 +106,14 @@ public class UserProfileOperationsPlaylistsTest extends AndroidUnitTest {
         verify(writeMixedRecordsCommand).call(page);
     }
 
-    private Map<Urn, PropertySet> addLikeStatusToPlaylist() {
-        final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_USER_LIKE.bind(true));
-        return Collections.singletonMap(apiPlaylist.getUrn(), playlistIsLikedStatus);
+    private Map<Urn, Boolean> addLikeStatusToPlaylist() {
+        return Collections.singletonMap(apiPlaylist.getUrn(), true);
     }
 
-    private void assertResponse(PropertySet propertySet) {
-        List<PagedRemoteCollection> onNextEvents = subscriber.getOnNextEvents();
+    private void assertResponse(PlaylistItem playlistItem) {
+        List<PagedRemoteCollection<PlaylistItem>> onNextEvents = subscriber.getOnNextEvents();
         assertThat(onNextEvents).hasSize(1);
         assertThat(onNextEvents.get(0).nextPageLink().get()).isEqualTo(NEXT_HREF);
-        assertThat(onNextEvents.get(0)).containsExactly(propertySet);
+        assertThat(onNextEvents.get(0)).containsExactly(playlistItem);
     }
 }

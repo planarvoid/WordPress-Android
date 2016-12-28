@@ -305,11 +305,11 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet apiUserToResultSet(ApiUser apiUser1) {
-        return apiUser1.toPropertySet().slice(
-                UserProperty.URN,
-                UserProperty.USERNAME,
-                UserProperty.COUNTRY,
-                UserProperty.FOLLOWERS_COUNT,
-                UserProperty.IMAGE_URL_TEMPLATE);
+        return PropertySet.create()
+                          .put(UserProperty.URN, apiUser1.getUrn())
+                          .put(UserProperty.USERNAME, apiUser1.getUsername())
+                          .put(UserProperty.COUNTRY, apiUser1.getCountry())
+                          .put(UserProperty.FOLLOWERS_COUNT, apiUser1.getFollowersCount())
+                          .put(UserProperty.IMAGE_URL_TEMPLATE, apiUser1.getImageUrlTemplate());
     }
 }

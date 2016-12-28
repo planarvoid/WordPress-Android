@@ -60,11 +60,11 @@ public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
         TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
         TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
-        PropertySet changeSet = ModelFixtures.create(ApiTrack.class).toPropertySet();
+        ApiTrack changeSet = ModelFixtures.create(ApiTrack.class);
 
         when(adapter.getItems()).thenReturn(newArrayList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.forUpdate(changeSet);
+        final EntityStateChangedEvent event = changeSet.toUpdateEvent();
         updateEntityListSubscriber.onNext(event);
 
         verify(adapter, never()).notifyItemChanged(anyInt());

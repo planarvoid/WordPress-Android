@@ -22,7 +22,6 @@ import com.soundcloud.android.profile.WriteMixedRecordsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.assertj.core.util.Lists;
@@ -85,7 +84,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void returnsLocalSuggestionsWhenEmptyRemote() {
-        List<PropertySet> localSuggestions = getLocalSuggestions();
+        List<SearchSuggestion> localSuggestions = getLocalSuggestions();
         when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
                 localSuggestions));
 
@@ -96,9 +95,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
         final List<SuggestionItem> searchQueryItem = newArrayList(suggestionItem);
-        final List<SuggestionItem> localSuggestionItems = newArrayList(suggestionItem,
-                                                                       SuggestionItem.forTrack(localSuggestions.get(0),
-                                                                                               SEARCH_QUERY));
+        final List<SuggestionItem> localSuggestionItems = newArrayList(suggestionItem, SuggestionItem.fromSearchSuggestion(localSuggestions.get(0), SEARCH_QUERY));
 
 
         final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.getOnNextEvents();
@@ -113,18 +110,13 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
                                                                                                        null));
         setupLegacyRemoteSuggestions(apiSearchSuggestions);
 
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY,
-                                              MAX_RESULTS_NUMBER)).thenReturn(Observable.<List<PropertySet>>empty());
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.empty());
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
         final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
         final List<SuggestionItem> searchQueryItem = newArrayList(suggestionItem);
-        final List<SuggestionItem> remoteSuggestionItems = newArrayList(suggestionItem,
-                                                                        SuggestionItem.forTrack(
-                                                                                apiSearchSuggestions.get(0)
-                                                                                                    .toPropertySet(),
-                                                                                SEARCH_QUERY));
+        final List<SuggestionItem> remoteSuggestionItems = newArrayList(suggestionItem, SuggestionItem.fromSearchSuggestion(apiSearchSuggestions.get(0), SEARCH_QUERY));
 
 
         final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.getOnNextEvents();
@@ -134,7 +126,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void returnsCorrectOrderWithAutocompleteEnabled() {
-        List<PropertySet> localSuggestions = getLocalSuggestions();
+        List<SearchSuggestion> localSuggestions = getLocalSuggestions();
         when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
                 localSuggestions));
         when(autocompleteConfig.isEnabled()).thenReturn(true);
@@ -143,7 +135,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
-        final SuggestionItem localItem = SuggestionItem.forTrack(localSuggestions.get(0), SEARCH_QUERY);
+        final SuggestionItem localItem = SuggestionItem.fromSearchSuggestion(localSuggestions.get(0), SEARCH_QUERY);
         final SuggestionItem autocompletionItem = forAutocompletion(autocompletion, SEARCH_QUERY, Optional.of(QUERY_URN));
 
         final List<SuggestionItem> firstItem = newArrayList(localItem);
@@ -157,13 +149,9 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private List<PropertySet> getLocalSuggestions() {
+    private List<SearchSuggestion> getLocalSuggestions() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        final PropertySet localSuggestion = apiTrack.toPropertySet();
-        localSuggestion.put(SearchSuggestionProperty.URN, apiTrack.getUrn());
-        final List<PropertySet> localSuggestions = newArrayList();
-        localSuggestions.add(localSuggestion);
-        return localSuggestions;
+        return newArrayList(DatabaseSearchSuggestion.create(apiTrack.getUrn(), SEARCH_QUERY, apiTrack.getImageUrlTemplate()));
     }
 
     @NonNull

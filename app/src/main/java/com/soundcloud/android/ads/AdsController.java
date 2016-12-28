@@ -22,9 +22,8 @@ import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -80,18 +79,18 @@ public class AdsController {
         }
     };
 
-    private static final Func1<PropertySet, Boolean> IS_MONETIZABLE = new Func1<PropertySet, Boolean>() {
+    private static final Func1<TrackItem, Boolean> IS_MONETIZABLE = new Func1<TrackItem, Boolean>() {
         @Override
-        public Boolean call(PropertySet propertySet) {
-            return propertySet.get(TrackProperty.MONETIZABLE);
+        public Boolean call(TrackItem trackItem) {
+            return trackItem.isMonetizable();
         }
     };
 
-    private static final Func2<PropertySet, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
-            new Func2<PropertySet, Optional<String>, AdRequestData>() {
+    private static final Func2<TrackItem, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
+            new Func2<TrackItem, Optional<String>, AdRequestData>() {
                 @Override
-                public AdRequestData call(PropertySet track, Optional<String> kruxSegments) {
-                    return AdRequestData.forPlayerAd(track.get(TrackProperty.URN), kruxSegments);
+                public AdRequestData call(TrackItem track, Optional<String> kruxSegments) {
+                    return AdRequestData.forPlayerAd(track.getUrn(), kruxSegments);
                 }
             };
 

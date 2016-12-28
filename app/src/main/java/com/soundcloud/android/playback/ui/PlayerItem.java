@@ -1,17 +1,16 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 
 public class PlayerItem {
-    protected final PropertySet source;
+    protected final TrackItem source;
 
-    public PlayerItem(PropertySet source) {
+    public PlayerItem(TrackItem source) {
         this.source = source;
     }
 
     public Urn getTrackUrn() {
-        return source.get(TrackProperty.URN);
+        return source.getUrn();
     }
 }

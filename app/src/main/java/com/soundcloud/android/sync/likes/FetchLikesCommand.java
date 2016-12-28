@@ -5,9 +5,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.LegacyCommand;
-import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.utils.PropertySetComparator;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.reflect.TypeToken;
 
 import javax.inject.Inject;
@@ -15,9 +12,14 @@ import java.util.Comparator;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
-class FetchLikesCommand extends LegacyCommand<ApiEndpoints, NavigableSet<PropertySet>, FetchLikesCommand> {
+class FetchLikesCommand extends LegacyCommand<ApiEndpoints, NavigableSet<LikeRecord>, FetchLikesCommand> {
 
-    static final Comparator<PropertySet> LIKES_COMPARATOR = new PropertySetComparator<>(LikeProperty.TARGET_URN);
+    public static final Comparator<LikeRecord> LIKES_COMPARATOR = new Comparator<LikeRecord>() {
+        @Override
+        public int compare(LikeRecord lhs, LikeRecord rhs) {
+            return lhs.getTargetUrn().compareTo(rhs.getTargetUrn());
+        }
+    };
 
     private final ApiClient apiClient;
 
@@ -27,7 +29,7 @@ class FetchLikesCommand extends LegacyCommand<ApiEndpoints, NavigableSet<Propert
     }
 
     @Override
-    public NavigableSet<PropertySet> call() throws Exception {
+    public NavigableSet<LikeRecord> call() throws Exception {
         final ApiRequest request =
                 ApiRequest.get(input.path())
                           .forPrivateApi()
@@ -36,9 +38,9 @@ class FetchLikesCommand extends LegacyCommand<ApiEndpoints, NavigableSet<Propert
         final ModelCollection<ApiLike> apiLikes = apiClient.fetchMappedResponse(request,
                                                                                 new TypeToken<ModelCollection<ApiLike>>() {
                                                                                 });
-        final NavigableSet<PropertySet> result = new TreeSet<>(LIKES_COMPARATOR);
+        final NavigableSet<LikeRecord> result = new TreeSet<>(LIKES_COMPARATOR);
         for (ApiLike like : apiLikes) {
-            result.add(like.toPropertySet());
+            result.add(like);
         }
         return result;
     }

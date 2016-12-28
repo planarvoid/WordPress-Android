@@ -83,12 +83,12 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         setupFragmentArguments(true);
-        final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create()
+        final List<SearchableItem> trackItems = Collections.singletonList(TrackItem.from(PropertySet.create()
                                                                                     .put(EntityProperty.URN,
-                                                                                         TRACK_URN));
-        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets,
-                                                                        Optional.<Link>absent(),
-                                                                        QUERY_URN);
+                                                                                         TRACK_URN)));
+        final SearchResult searchResult = SearchResult.fromSearchableItems(trackItems,
+                                                                           Optional.<Link>absent(),
+                                                                           QUERY_URN);
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchResultsPresenter(swipeRefreshAttacher,
@@ -194,7 +194,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        final List<PropertySet> premiumItemsSource = Collections.emptyList();
+        final List<SearchableItem> premiumItemsSource = Collections.emptyList();
         final Optional<Link> nextHref = Optional.absent();
         presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource, nextHref);
 
@@ -263,7 +263,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         PropertySet propertySet = PropertySet.create();
         propertySet.put(TrackProperty.URN, PREMIUM_TRACK_URN_ONE);
 
-        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(propertySet),
+        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(TrackItem.from(propertySet)),
                                                            Optional.<Link>absent(),
                                                            1);
         final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));

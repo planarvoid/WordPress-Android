@@ -1,11 +1,15 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
@@ -50,11 +54,36 @@ class SearchModelCollection<T> extends ModelCollection<T> {
         this.usersCount = usersCount;
     }
 
+    SearchModelCollection(List<T> collection,
+                          Map<String, Link> links,
+                          Urn queryUrn,
+                          Optional<SearchModelCollection<T>> premiumContent,
+                          int tracksCount,
+                          int playlistsCount,
+                          int usersCount) {
+        super(collection, links, queryUrn);
+        this.premiumContent = premiumContent;
+        this.tracksCount = tracksCount;
+        this.playlistsCount = playlistsCount;
+        this.usersCount = usersCount;
+    }
+
     Optional<SearchModelCollection<T>> premiumContent() {
         return premiumContent;
     }
 
     int resultsCount() {
         return tracksCount + playlistsCount + usersCount;
+    }
+
+    @Override
+    public <S> SearchModelCollection<S> transform(Function<T, S> function) {
+        return new SearchModelCollection<S>(newArrayList(Iterables.transform(collection, function)),
+                                            links,
+                                            queryUrn,
+                                            premiumContent.transform(model -> model.transform(function)),
+                                            tracksCount,
+                                            playlistsCount,
+                                            usersCount);
     }
 }

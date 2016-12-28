@@ -2,11 +2,9 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
@@ -37,10 +35,10 @@ class SearchOperations {
         return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query, queryUrn, ContentType.NORMAL);
     }
 
-    Observable<SearchResult> searchPremiumResultFrom(List<PropertySet> propertySets,
+    Observable<SearchResult> searchPremiumResultFrom(List<SearchableItem> searchableItems,
                                                      Optional<Link> nextHref,
                                                      Urn queryUrn) {
-        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, nextHref, queryUrn);
+        final SearchResult searchResult = SearchResult.fromSearchableItems(searchableItems, nextHref, queryUrn);
         return Observable.just(searchResult);
     }
 
@@ -99,16 +97,16 @@ class SearchOperations {
             }
         }
 
-        private List<PropertySet> removeFirstUpsellItemIfAny(List<PropertySet> resultItems) {
+        private List<SearchableItem> removeFirstUpsellItemIfAny(List<SearchableItem> resultItems) {
             if (isFirstItemForUpsell(resultItems)) {
                 return resultItems.subList(1, resultItems.size());
             }
             return resultItems;
         }
 
-        private boolean isFirstItemForUpsell(List<PropertySet> propertySets) {
-            return !propertySets.isEmpty() && propertySets.get(0)
-                                                          .get(EntityProperty.URN)
+        private boolean isFirstItemForUpsell(List<SearchableItem> searchableItems) {
+            return !searchableItems.isEmpty() && searchableItems.get(0)
+                                                          .getUrn()
                                                           .equals(SearchUpsellItem.UPSELL_URN);
         }
 

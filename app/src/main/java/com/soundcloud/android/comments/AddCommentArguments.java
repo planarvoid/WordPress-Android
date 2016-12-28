@@ -1,16 +1,16 @@
 package com.soundcloud.android.comments;
 
 import auto.parcel.AutoParcel;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 
 @AutoParcel
 public abstract class AddCommentArguments {
 
-    public static AddCommentArguments create(PropertySet track, long position, String commentText, String originScreen) {
+    public static AddCommentArguments create(TrackItem track, long position, String commentText, String originScreen) {
         return new AutoParcel_AddCommentArguments(track, position, commentText, originScreen);
     }
 
-    public abstract PropertySet getTrack();
+    public abstract TrackItem getTrack();
 
     public abstract long getPosition();
 

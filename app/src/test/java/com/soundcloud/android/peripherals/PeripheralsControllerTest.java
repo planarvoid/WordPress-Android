@@ -9,16 +9,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -78,8 +76,8 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final Urn trackUrn = track.get(TrackProperty.URN);
+        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final Urn trackUrn = track.getUrn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -89,10 +87,10 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
-        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.get(TrackProperty.URN).getNumericId());
-        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.get(PlayableProperty.CREATOR_NAME));
-        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.get(PlayableProperty.TITLE));
-        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.get(TrackProperty.FULL_DURATION));
+        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.getUrn().getNumericId());
+        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.getCreatorName());
+        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.getTitle());
+        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.getFullDuration());
     }
 
     @Test
@@ -109,9 +107,9 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotifyWithAnEmptyArtistName() {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        track.put(PlayableProperty.CREATOR_NAME, "");
-        final Urn trackUrn = track.get(TrackProperty.URN);
+        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        track.setCreatorName("");
+        final Urn trackUrn = track.getUrn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,

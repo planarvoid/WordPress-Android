@@ -1,18 +1,21 @@
 package com.soundcloud.android.profile;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.ApiEntityHolder;
 
-@AutoValue
-abstract class ApiUserProfile implements UserProfileRecord {
-    @JsonCreator
-    public static ApiUserProfile create(
+class ApiUserProfile implements UserProfileRecord {
+    private final ApiUser user;
+    private final ModelCollection<ApiPlayableSource> spotlight;
+    private final ModelCollection<ApiTrackPost> tracks;
+    private final ModelCollection<ApiPlaylistPost> albums;
+    private final ModelCollection<ApiPlaylistPost> playlists;
+    private final ModelCollection<ApiPlayableSource> reposts;
+    private final ModelCollection<ApiPlayableSource> likes;
+
+    public ApiUserProfile(
             @JsonProperty("user") ApiUser user,
             @JsonProperty("spotlight") ModelCollection<ApiPlayableSource> spotlight,
             @JsonProperty("tracks") ModelCollection<ApiTrackPost> tracks,
@@ -20,29 +23,40 @@ abstract class ApiUserProfile implements UserProfileRecord {
             @JsonProperty("playlists") ModelCollection<ApiPlaylistPost> playlists,
             @JsonProperty("reposts") ModelCollection<ApiPlayableSource> reposts,
             @JsonProperty("likes") ModelCollection<ApiPlayableSource> likes) {
-
-        return new AutoValue_ApiUserProfile(
-                user,
-                spotlight,
-                tracks,
-                albums,
-                playlists,
-                reposts,
-                likes
-        );
+        this.user = user;
+        this.spotlight = spotlight;
+        this.tracks = tracks;
+        this.albums = albums;
+        this.playlists = playlists;
+        this.reposts = reposts;
+        this.likes = likes;
     }
 
-    public abstract ApiEntityHolder getUser();
+    public ApiUser getUser() {
+        return user;
+    }
 
-    public abstract ModelCollection<? extends ApiEntityHolderSource> getSpotlight();
+    public ModelCollection<ApiPlayableSource> getSpotlight() {
+        return spotlight;
+    }
 
-    public abstract ModelCollection<? extends ApiEntityHolder> getTracks();
+    public ModelCollection<ApiTrackPost> getTracks() {
+        return tracks;
+    }
 
-    public abstract ModelCollection<? extends ApiEntityHolder> getAlbums();
+    public ModelCollection<ApiPlaylistPost> getAlbums() {
+        return albums;
+    }
 
-    public abstract ModelCollection<? extends ApiEntityHolder> getPlaylists();
+    public ModelCollection<ApiPlaylistPost> getPlaylists() {
+        return playlists;
+    }
 
-    public abstract ModelCollection<? extends ApiEntityHolderSource> getReposts();
+    public ModelCollection<ApiPlayableSource> getReposts() {
+        return reposts;
+    }
 
-    public abstract ModelCollection<? extends ApiEntityHolderSource> getLikes();
+    public ModelCollection<ApiPlayableSource> getLikes() {
+        return likes;
+    }
 }

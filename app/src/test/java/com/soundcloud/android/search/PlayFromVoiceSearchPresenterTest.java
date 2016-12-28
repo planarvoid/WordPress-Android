@@ -15,8 +15,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -90,9 +92,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
-        searchResult = SearchResult.fromPropertySetSource(new ArrayList(),
-                                                          Optional.<Link>absent(),
-                                                          Optional.<Urn>absent());
+        searchResult = SearchResult.fromSearchableItems(new ArrayList(),
+                                                        Optional.<Link>absent(),
+                                                        Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY,
                                            Optional.<Urn>absent(),
                                            SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
@@ -106,9 +108,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void callsPlayTrackWithSearchResult() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        searchResult = SearchResult.fromPropertySetSource(Collections.singletonList(apiTrack), Optional.<Link>absent(),
-                                                          Optional.<Urn>absent());
+        final TrackItem apiTrack = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        searchResult = SearchResult.fromSearchableItems(Collections.singletonList(apiTrack), Optional.<Link>absent(),
+                                                        Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY,
                                            Optional.<Urn>absent(),
                                            SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
@@ -151,10 +153,10 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startsPlaylistActivityWithRandomPlaylistWithAutoplayIfGenreSearchReturnsAnyResults() throws Exception {
-        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
 
-        List<ApiPlaylist> playlistResults = Arrays.asList(ModelFixtures.create(ApiPlaylist.class), apiPlaylist);
-        Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromPropertySetSource(
+        List<PlaylistItem> playlistResults = Arrays.asList(PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)), playlistItem);
+        Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromSearchableItems(
                 playlistResults,
                 Optional.<Link>absent(),
                 Optional.<Urn>absent()));
@@ -168,7 +170,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(navigator).openPlaylistWithAutoPlay(activity, apiPlaylist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        verify(navigator).openPlaylistWithAutoPlay(activity, playlistItem.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     private Intent getPlayFromSearchIntent(String query) {

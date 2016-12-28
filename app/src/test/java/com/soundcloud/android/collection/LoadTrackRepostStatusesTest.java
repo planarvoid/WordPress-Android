@@ -3,13 +3,11 @@ package com.soundcloud.android.collection;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.collection.LoadTrackRepostStatuses;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,21 +30,21 @@ public class LoadTrackRepostStatusesTest extends StorageIntegrationTest {
         final ApiTrack repostedTrack = insertRepostedTrack();
         final ApiTrack track = testFixtures().insertTrack();
 
-        List<PropertySet> input = Arrays.asList(repostedTrack.toPropertySet(), track.toPropertySet());
+        List<ApiTrack> input = Arrays.asList(repostedTrack, track);
 
-        Map<Urn, PropertySet> repostStatuses = command.call(input);
+        Map<Urn, Boolean> repostStatuses = command.call(Lists.transform(input, ApiTrack::getUrn));
 
         assertThat(repostStatuses).hasSize(2);
-        assertThat(repostStatuses.get(repostedTrack.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isTrue();
-        assertThat(repostStatuses.get(track.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isFalse();
+        assertThat(repostStatuses.get(repostedTrack.getUrn())).isTrue();
+        assertThat(repostStatuses.get(track.getUrn())).isFalse();
     }
 
     @Test
     public void shouldOnlyReturnLikedStatusForTracks() {
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
-        final List<PropertySet> input = singletonList(playlist.toPropertySet());
+        final List<ApiPlaylist> input = singletonList(playlist);
 
-        Map<Urn, PropertySet> repostStatuses = command.call(input);
+        Map<Urn, Boolean> repostStatuses = command.call(Lists.transform(input, ApiPlaylist::getUrn));
 
         assertThat(repostStatuses.containsKey(playlist.getUrn())).isFalse();
     }

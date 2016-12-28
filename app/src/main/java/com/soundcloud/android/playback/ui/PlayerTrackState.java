@@ -1,34 +1,17 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TieredTrack;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerTrackState extends PlayerItem implements TieredTrack, PropertySetSource, ImageResource {
+public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageResource {
 
-    static final PlayerTrackState EMPTY = new PlayerTrackState(PropertySet.from(
-            TrackProperty.URN.bind(Urn.NOT_SET),
-            TrackProperty.TITLE.bind(Strings.EMPTY),
-            TrackProperty.CREATOR_NAME.bind(Strings.EMPTY),
-            TrackProperty.CREATOR_URN.bind(Urn.NOT_SET),
-            TrackProperty.SNIPPET_DURATION.bind(0L),
-            TrackProperty.FULL_DURATION.bind(0L),
-            TrackProperty.WAVEFORM_URL.bind(Strings.EMPTY),
-            TrackProperty.IS_USER_LIKE.bind(false),
-            TrackProperty.IS_USER_REPOST.bind(false),
-            TrackProperty.LIKES_COUNT.bind(0),
-            TrackProperty.PERMALINK_URL.bind(Strings.EMPTY),
-            TrackProperty.IS_PRIVATE.bind(false)
-    ), false, false, ViewVisibilityProvider.EMPTY);
+    static final PlayerTrackState EMPTY = new PlayerTrackState(TrackItem.EMPTY, false, false, ViewVisibilityProvider.EMPTY);
 
     private final boolean isCurrentTrack;
     private final boolean isForeground;
@@ -36,7 +19,7 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
 
     private Optional<StationRecord> station = Optional.absent();
 
-    PlayerTrackState(PropertySet source,
+    PlayerTrackState(TrackItem source,
                      boolean isCurrentTrack,
                      boolean isForeground,
                      ViewVisibilityProvider viewVisibilityProvider) {
@@ -46,7 +29,7 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
         this.viewVisibilityProvider = viewVisibilityProvider;
     }
 
-    public PropertySet getSource() {
+    public TrackItem getSource() {
         return source;
     }
 
@@ -71,44 +54,44 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
     }
 
     public Urn getUrn() {
-        return source.get(TrackProperty.URN);
+        return source.getUrn();
     }
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return source.get(TrackProperty.IMAGE_URL_TEMPLATE);
+        return source.getImageUrlTemplate();
     }
 
     public String getTitle() {
-        return source.get(PlayableProperty.TITLE);
+        return source.getTitle();
     }
 
     public String getUserName() {
-        return source.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY);
+        return source.getCreatorName();
     }
 
     public Urn getUserUrn() {
-        return source.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET);
+        return source.getCreatorUrn();
     }
 
     @Override
     public boolean isBlocked() {
-        return source.getOrElse(TrackProperty.BLOCKED, false);
+        return source.isBlocked();
     }
 
     @Override
     public boolean isSnipped() {
-        return source.getOrElse(TrackProperty.SNIPPED, false);
+        return source.isSnipped();
     }
 
     @Override
     public boolean isSubMidTier() {
-        return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+        return source.isSubMidTier();
     }
 
     @Override
     public boolean isSubHighTier() {
-        return source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
+        return source.isSubHighTier();
     }
 
     long getPlayableDuration() {
@@ -116,40 +99,36 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
     }
 
     long getFullDuration() {
-        return source.get(TrackProperty.FULL_DURATION);
+        return source.getFullDuration();
     }
 
     @Nullable
     String getWaveformUrl() {
-        return source.getOrElseNull(TrackProperty.WAVEFORM_URL);
+        return source.getWaveformUrl();
     }
 
     boolean isUserLike() {
-        return source.get(PlayableProperty.IS_USER_LIKE);
+        return source.isLikedByCurrentUser();
     }
 
     public boolean isUserRepost() {
-        return source.getOrElse(PlayableProperty.IS_USER_REPOST, false);
+        return source.isUserRepost();
     }
 
     int getLikeCount() {
-        return source.get(PlayableProperty.LIKES_COUNT);
+        return source.getLikesCount();
     }
 
     public String getPermalinkUrl() {
-        return source.get(PlayableProperty.PERMALINK_URL);
+        return source.getPermalinkUrl();
     }
 
     public boolean isPrivate() {
-        return source.get(PlayableProperty.IS_PRIVATE);
+        return source.isPrivate();
     }
 
     public boolean isCommentable() {
-        return source.getOrElse(TrackProperty.IS_COMMENTABLE, false);
+        return source.isCommentable();
     }
 
-    @Override
-    public PropertySet toPropertySet() {
-        return source;
-    }
 }

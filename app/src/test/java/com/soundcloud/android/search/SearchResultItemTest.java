@@ -2,16 +2,8 @@ package com.soundcloud.android.search;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.users.UserItem;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 
 public class SearchResultItemTest extends AndroidUnitTest {
@@ -74,47 +66,5 @@ public class SearchResultItemTest extends AndroidUnitTest {
         assertThat(searchResultItem.isTrack()).isFalse();
         assertThat(searchResultItem.isPlaylist()).isFalse();
         assertThat(searchResultItem.isPremiumContent()).isFalse();
-    }
-
-    @Test
-    public void shouldBuildCorrectTrackListItemType() {
-        final PropertySet propertySet = PropertySet.create();
-        propertySet.put(EntityProperty.URN, Urn.forTrack(123L));
-        propertySet.put(TrackProperty.DESCRIPTION, "IronMan");
-
-        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
-
-        assertThat(listItem).isInstanceOf(TrackItem.class);
-    }
-
-    @Test
-    public void shouldBuildCorrectPlaylistListItemType() {
-        final PropertySet propertySet = PropertySet.create();
-        propertySet.put(EntityProperty.URN, Urn.forPlaylist(123L));
-
-        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
-
-        assertThat(listItem).isInstanceOf(PlaylistItem.class);
-    }
-
-    @Test
-    public void shouldBuildCorrectUserListItemType() {
-        final PropertySet propertySet = PropertySet.create();
-        propertySet.put(EntityProperty.URN, Urn.forUser(123L));
-        propertySet.put(UserProperty.COUNTRY, "Argentina");
-
-        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
-
-        assertThat(listItem).isInstanceOf(UserItem.class);
-    }
-
-    @Test
-    public void shouldBuildCorrectSearchUpsellItemType() {
-        final PropertySet propertySet = PropertySet.create();
-        propertySet.put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
-
-        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
-
-        assertThat(listItem).isInstanceOf(SearchUpsellItem.class);
     }
 }

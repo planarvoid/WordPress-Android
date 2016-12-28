@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,14 +27,14 @@ public class LoadFollowingCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldAddFollowings() throws Exception {
-        Map<Urn, PropertySet> userFollowings = command.call(getUserList());
-        PropertySet followedPropertySet = userFollowings.get(followedUser.getUrn());
+        Map<Urn, Boolean> userFollowings = command.call(getUserList());
+        boolean followed = userFollowings.get(followedUser.getUrn());
 
-        assertThat(followedPropertySet.get(UserProperty.IS_FOLLOWED_BY_ME)).isTrue();
+        assertThat(followed).isTrue();
         assertThat(userFollowings.get(unfollowedUser.getUrn())).isNull();
     }
 
-    private Iterable<PropertySet> getUserList() {
-        return Arrays.asList(followedUser.toPropertySet(), unfollowedUser.toPropertySet());
+    private Iterable<Urn> getUserList() {
+        return Arrays.asList(followedUser.getUrn(), unfollowedUser.getUrn());
     }
 }

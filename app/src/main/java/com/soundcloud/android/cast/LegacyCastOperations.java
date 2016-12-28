@@ -13,11 +13,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.collections.PropertySet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,16 +43,16 @@ public class LegacyCastOperations implements CastOperations {
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";
 
-    private static final Func1<PropertySet, Boolean> FILTER_PRIVATE_TRACKS = new Func1<PropertySet, Boolean>() {
+    private static final Func1<TrackItem, Boolean> FILTER_PRIVATE_TRACKS = new Func1<TrackItem, Boolean>() {
         @Override
-        public Boolean call(PropertySet track) {
-            return !track.get(TrackProperty.IS_PRIVATE);
+        public Boolean call(TrackItem track) {
+            return !track.isPrivate();
         }
     };
-    private static final Func1<PropertySet, Urn> TO_URNS = new Func1<PropertySet, Urn>() {
+    private static final Func1<TrackItem, Urn> TO_URNS = new Func1<TrackItem, Urn>() {
         @Override
-        public Urn call(PropertySet track) {
-            return track.get(TrackProperty.URN);
+        public Urn call(TrackItem track) {
+            return track.getUrn();
         }
     };
 
@@ -64,9 +63,9 @@ public class LegacyCastOperations implements CastOperations {
     private final Resources resources;
     private final Scheduler progressPullIntervalScheduler;
 
-    private final Func1<Urn, Observable<PropertySet>> loadTracks = new Func1<Urn, Observable<PropertySet>>() {
+    private final Func1<Urn, Observable<TrackItem>> loadTracks = new Func1<Urn, Observable<TrackItem>>() {
         @Override
-        public Observable<PropertySet> call(Urn urn) {
+        public Observable<TrackItem> call(Urn urn) {
             return trackRepository.track(urn);
         }
     };
@@ -116,15 +115,15 @@ public class LegacyCastOperations implements CastOperations {
     public Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn, List<Urn> filteredLocalPlayQueueTracks) {
         return Observable.zip(trackRepository.track(currentTrackUrn),
                               Observable.from(filteredLocalPlayQueueTracks).toList(),
-                              new Func2<PropertySet, List<Urn>, LocalPlayQueue>() {
+                              new Func2<TrackItem, List<Urn>, LocalPlayQueue>() {
                                   @Override
-                                  public LocalPlayQueue call(PropertySet track,
+                                  public LocalPlayQueue call(TrackItem track,
                                                              List<Urn> filteredLocalPlayQueueTracks) {
                                       return new LocalPlayQueue(
                                               createPlayQueueJSON(filteredLocalPlayQueueTracks),
                                               filteredLocalPlayQueueTracks,
                                               createMediaInfo(track),
-                                              track.get(TrackProperty.URN));
+                                              track.getUrn());
                                   }
                               });
     }
@@ -147,12 +146,12 @@ public class LegacyCastOperations implements CastOperations {
         return playQueue;
     }
 
-    private MediaInfo createMediaInfo(PropertySet track) {
-        final Urn trackUrn = track.get(TrackProperty.URN);
+    private MediaInfo createMediaInfo(TrackItem track) {
+        final Urn trackUrn = track.getUrn();
         final String artworkUrl = imageOperations.getUrlForLargestImage(resources, trackUrn);
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-        mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.get(TrackProperty.TITLE));
-        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.get(TrackProperty.CREATOR_NAME));
+        mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.getTitle());
+        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.getCreatorName());
         mediaMetadata.putString(KEY_URN, trackUrn.toString());
 
         if (artworkUrl != null) {

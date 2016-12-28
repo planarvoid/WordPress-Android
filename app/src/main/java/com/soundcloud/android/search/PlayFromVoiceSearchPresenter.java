@@ -12,10 +12,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -50,17 +47,17 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final Func1<SearchResult, Observable<PlaybackResult>> toPlayWithRecommendations = new Func1<SearchResult, Observable<PlaybackResult>>() {
         @Override
         public Observable<PlaybackResult> call(SearchResult searchResult) {
-            List<PropertySet> items = searchResult.getItems();
+            List<SearchableItem> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
-            return playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).get(TrackProperty.URN),
+            return playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).getUrn(),
                                                                         new PlaySessionSource(Screen.VOICE_COMMAND));
         }
     };
 
-    private final Func1<SearchResult, PropertySet> toRandomSearchResultItem = new Func1<SearchResult, PropertySet>() {
+    private final Func1<SearchResult, SearchableItem> toRandomSearchResultItem = new Func1<SearchResult, SearchableItem>() {
         @Override
-        public PropertySet call(SearchResult searchResult) {
-            List<PropertySet> items = searchResult.getItems();
+        public SearchableItem call(SearchResult searchResult) {
+            List<SearchableItem> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
             return items.get(random.nextInt(items.size()));
         }
@@ -155,7 +152,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         }
     }
 
-    private class PlayFromPlaylistSubscriber extends DefaultSubscriber<PropertySet> {
+    private class PlayFromPlaylistSubscriber extends DefaultSubscriber<SearchableItem> {
         private final String query;
 
         public PlayFromPlaylistSubscriber(String query) {
@@ -163,9 +160,9 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         }
 
         @Override
-        public void onNext(PropertySet result) {
+        public void onNext(SearchableItem result) {
             navigator.openPlaylistWithAutoPlay(activityContext,
-                                               result.get(PlaylistProperty.URN),
+                                               result.getUrn(),
                                                Screen.SEARCH_PLAYLIST_DISCO);
         }
 

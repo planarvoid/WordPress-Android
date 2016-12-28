@@ -7,14 +7,13 @@ import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.timeline.TimelineStorage;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
@@ -139,24 +138,22 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
         return propellerRx.query(query).map(scalar(Integer.class));
     }
 
-    public Observable<PropertySet> playbackItems() {
+    public Observable<PlayableWithReposter> playbackItems() {
         Query query = Query.from(Table.SoundStreamView.name())
                            .select(PLAYBACK_ITEMS_SELECTION);
         return propellerRx.query(query).map(new ItemsForPlayback());
     }
 
 
-    private static final class ItemsForPlayback extends RxResultMapper<PropertySet> {
+    private static final class ItemsForPlayback extends RxResultMapper<PlayableWithReposter> {
         @Override
-        public PropertySet map(CursorReader cursorReader) {
-            final PropertySet propertySet = PropertySet.from(
-                    EntityProperty.URN.bind(readSoundUrn(cursorReader))
-            );
+        public PlayableWithReposter map(CursorReader cursorReader) {
+            final Urn urn = readSoundUrn(cursorReader);
+            Optional<Urn> reposterUrn = Optional.absent();
             if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)) {
-                propertySet.put(PostProperty.REPOSTER_URN,
-                                Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
+                reposterUrn = Optional.of(Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
             }
-            return propertySet;
+            return PlayableWithReposter.create(urn, reposterUrn);
         }
     }
 

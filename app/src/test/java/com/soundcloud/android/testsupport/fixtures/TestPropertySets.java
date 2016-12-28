@@ -5,10 +5,10 @@ import static java.util.Arrays.asList;
 import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -17,7 +17,10 @@ import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserProperty;
@@ -30,12 +33,12 @@ public abstract class TestPropertySets {
 
     public static final String MONETIZATION_MODEL = "monetization-model";
 
-    public static PropertySet user() {
-        return ModelFixtures.create(ApiUser.class).toPropertySet();
+    public static ApiUser user() {
+        return ModelFixtures.create(ApiUser.class);
     }
 
-    public static PropertySet expectedTrackForWidget() {
-        return PropertySet.from(
+    public static TrackItem expectedTrackForWidget() {
+        return TrackItem.from(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.IMAGE_URL_TEMPLATE.bind(Optional.of(
                         "https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")),
@@ -44,15 +47,18 @@ public abstract class TestPropertySets {
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L)),
                 PlayableProperty.IS_USER_LIKE.bind(false),
                 AdProperty.IS_AUDIO_AD.bind(false)
-        );
+        ));
     }
 
-    public static PropertySet upsellableTrackForPlayer() {
-        return expectedTrackForPlayer().put(TrackProperty.SNIPPED, true).put(TrackProperty.SUB_HIGH_TIER, true);
+    public static TrackItem upsellableTrackForPlayer() {
+        final TrackItem trackItem = expectedTrackForPlayer();
+        trackItem.setSnipped(true);
+        trackItem.setSubHighTier(true);
+        return trackItem;
     }
 
-    public static PropertySet expectedTrackForPlayer() {
-        return PropertySet.from(
+    public static TrackItem expectedTrackForPlayer() {
+        return TrackItem.from(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
                 TrackProperty.IMAGE_URL_TEMPLATE.bind(Optional.of(
@@ -74,20 +80,48 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_PRIVATE.bind(false),
                 PlayableProperty.IS_USER_REPOST.bind(false),
                 PlayableProperty.CREATED_AT.bind(new Date())
-        );
+        ));
     }
 
-    public static PropertySet expectedPrivateTrackForPlayer() {
-        return PropertySet.from(
+    public static TrackItem expectedPrivateTrackForPlayer() {
+        return TrackItem.from(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.IS_PRIVATE.bind(true),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind(""),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
-                PlayableProperty.IS_USER_REPOST.bind(true));
+                PlayableProperty.IS_USER_REPOST.bind(true)));
     }
 
-    public static PropertySet expectedTrackForListItem(Urn urn) {
+    public static TrackItem expectedTrackForListItem(Urn urn) {
+        return TrackItem.from(PropertySet.from(
+                TrackProperty.URN.bind(urn),
+                TrackProperty.TITLE.bind("Title " + urn),
+                TrackProperty.CREATOR_NAME.bind("Creator " + urn),
+                TrackProperty.PERMALINK_URL.bind("http://permalink.url"),
+                TrackProperty.SNIPPET_DURATION.bind(20000L),
+                TrackProperty.FULL_DURATION.bind(30000L),
+                TrackProperty.SNIPPED.bind(true),
+                TrackProperty.PLAY_COUNT.bind(4),
+                TrackProperty.LIKES_COUNT.bind(2),
+                LikeProperty.CREATED_AT.bind(new Date()),
+                TrackProperty.IS_PRIVATE.bind(false)));
+    }
+
+    public static PromotedTrackItem expectedPromotedTrack() {
+        return PromotedTrackItem.from(basePromotedTrack()
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud")));
+    }
+
+    public static PromotedTrackItem expectedPromotedTrackWithoutPromoter() {
+        return PromotedTrackItem.from(basePromotedTrack()
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent()));
+    }
+
+    private static PropertySet basePromotedTrack() {
+        final Urn urn = Urn.forTrack(12345L);
         return PropertySet.from(
                 TrackProperty.URN.bind(urn),
                 TrackProperty.TITLE.bind("Title " + urn),
@@ -99,29 +133,13 @@ public abstract class TestPropertySets {
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
-                TrackProperty.IS_PRIVATE.bind(false));
-    }
-
-    public static PropertySet expectedPromotedTrack() {
-        return basePromotedTrack()
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
-    }
-
-    public static PropertySet expectedPromotedTrackWithoutPromoter() {
-        return basePromotedTrack()
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent());
-    }
-
-    private static PropertySet basePromotedTrack() {
-        return expectedTrackForListItem(Urn.forTrack(12345L))
-                .put(PromotedItemProperty.AD_URN, "ad:urn:123")
-                .put(PromotedItemProperty.CREATED_AT, new Date(Long.MAX_VALUE))
-                .put(PromotedItemProperty.TRACK_CLICKED_URLS, asList("promoted1", "promoted2"))
-                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, asList("promoted3", "promoted4"))
-                .put(PromotedItemProperty.TRACK_PLAYED_URLS, asList("promoted5", "promoted6"))
-                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, asList("promoted7", "promoted8"));
+                TrackProperty.IS_PRIVATE.bind(false),
+                PromotedItemProperty.AD_URN.bind("ad:urn:123"),
+                PromotedItemProperty.CREATED_AT.bind(new Date(Long.MAX_VALUE)),
+                PromotedItemProperty.TRACK_CLICKED_URLS.bind(asList("promoted1", "promoted2")),
+                PromotedItemProperty.TRACK_IMPRESSION_URLS.bind(asList("promoted3", "promoted4")),
+                PromotedItemProperty.TRACK_PLAYED_URLS.bind(asList("promoted5", "promoted6")),
+                PromotedItemProperty.PROMOTER_CLICKED_URLS.bind(asList("promoted7", "promoted8")));
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {
@@ -152,11 +170,11 @@ public abstract class TestPropertySets {
                 PlaylistProperty.IS_PRIVATE.bind(false));
     }
 
-    public static PropertySet expectedPostedPlaylistsForPostedPlaylistsScreen() {
-        return postedPlaylistForPostedPlaylistScreen(Urn.forPlaylist(123L));
+    public static PlaylistItem expectedPostedPlaylistsForPostedPlaylistsScreen() {
+        return PlaylistItem.from(postedPlaylistForPostedPlaylistScreen(Urn.forPlaylist(123L)));
     }
 
-    public static PropertySet postedPlaylistForPostedPlaylistScreen(Urn playlistUrn) {
+    private static PropertySet postedPlaylistForPostedPlaylistScreen(Urn playlistUrn) {
         return PropertySet.from(
                 PlaylistProperty.URN.bind(playlistUrn),
                 PlaylistProperty.TITLE.bind("squirlex galore"),
@@ -178,7 +196,7 @@ public abstract class TestPropertySets {
                 UserProperty.IS_FOLLOWED_BY_ME.bind(true));
     }
 
-    public static PropertySet expectedPostedPlaylistForPostsScreen() {
+    public static PlaylistItem expectedPostedPlaylistForPostsScreen() {
         return expectedPostedPlaylistsForPostedPlaylistsScreen();
     }
 
@@ -196,7 +214,7 @@ public abstract class TestPropertySets {
     }
 
     private static PropertySet basePromotedPlaylist() {
-        return expectedPostedPlaylistsForPostedPlaylistsScreen()
+        return postedPlaylistForPostedPlaylistScreen(Urn.forPlaylist(123L))
                 .put(PromotedItemProperty.AD_URN, "ad:urn:123")
                 .put(PromotedItemProperty.CREATED_AT, new Date(Long.MAX_VALUE))
                 .put(PromotedItemProperty.TRACK_CLICKED_URLS, asList("promoted1", "promoted2"))
@@ -221,8 +239,8 @@ public abstract class TestPropertySets {
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn, String policy, long duration) {
-        return PropertySet.from(
+    public static TrackItem expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn, String policy, long duration) {
+        return TrackItem.from(PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.CREATOR_URN.bind(creatorUrn),
                 TrackProperty.POLICY.bind(policy),
@@ -230,23 +248,23 @@ public abstract class TestPropertySets {
                 TrackProperty.SNIPPET_DURATION.bind(duration),
                 TrackProperty.FULL_DURATION.bind(duration),
                 TrackProperty.SNIPPED.bind(false)
-        );
+        ));
     }
 
-    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn) {
+    public static TrackItem expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn) {
         return expectedTrackForAnalytics(trackUrn, creatorUrn, "ALLOW", 1000);
     }
 
-    public static PropertySet fromApiTrack() {
+    public static TrackItem fromApiTrack() {
         return fromApiTrack(ModelFixtures.create(ApiTrack.class));
     }
 
-    public static PropertySet fromApiTrack(ApiTrack apiTrack) {
+    public static TrackItem fromApiTrack(ApiTrack apiTrack) {
         return fromApiTrack(apiTrack, false, false, false);
     }
 
-    public static PropertySet fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted) {
-        return PropertySet.from(
+    public static TrackItem fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted) {
+        return TrackItem.from(PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 PlayableProperty.TITLE.bind(apiTrack.getTitle()),
                 TrackProperty.SNIPPET_DURATION.bind(apiTrack.getSnippetDuration()),
@@ -272,7 +290,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_PRIVATE.bind(isPrivate),
                 PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
                 PlayableProperty.IS_USER_REPOST.bind(isReposted),
-                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
+                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)));
     }
 
     public static PropertySet likedEntityChangeSet(Urn targetUrn, int likesCount) {
@@ -292,16 +310,16 @@ public abstract class TestPropertySets {
     }
 
 
-    public static PropertySet fromApiPlaylist() {
+    public static PlaylistItem fromApiPlaylist() {
         return fromApiPlaylist(ModelFixtures.create(ApiPlaylist.class), false, false, false, false);
     }
 
-    public static PropertySet fromApiPlaylist(ApiPlaylist apiPlaylist,
+    public static PlaylistItem fromApiPlaylist(ApiPlaylist apiPlaylist,
                                               boolean isLiked,
                                               boolean isReposted,
                                               boolean markedForOffline,
                                               boolean isPosted) {
-        return PropertySet.from(
+        return PlaylistItem.from(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
                 EntityProperty.IMAGE_URL_TEMPLATE.bind(apiPlaylist.getImageUrlTemplate()),
@@ -319,7 +337,7 @@ public abstract class TestPropertySets {
                 PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()),
                 PlaylistProperty.IS_ALBUM.bind(apiPlaylist.isAlbum()),
                 PlaylistProperty.SET_TYPE.bind(apiPlaylist.getSetType()),
-                PlaylistProperty.RELEASE_DATE.bind(apiPlaylist.getReleaseDate()));
+                PlaylistProperty.RELEASE_DATE.bind(apiPlaylist.getReleaseDate())));
     }
 
     public static PropertySet followingEntityChangeSet(Urn targetUrn, int followersCount, boolean following) {
@@ -382,12 +400,16 @@ public abstract class TestPropertySets {
         );
     }
 
-    public static PropertySet highTierTrack() {
-        return fromApiTrack(ModelFixtures.create(ApiTrack.class)).put(TrackProperty.SUB_HIGH_TIER, true);
+    public static TrackItem highTierTrack() {
+        final TrackItem trackItem = fromApiTrack(ModelFixtures.create(ApiTrack.class));
+        trackItem.setSubHighTier(true);
+        return trackItem;
     }
 
-    public static PropertySet upsellableTrack() {
-        return highTierTrack().put(TrackProperty.SNIPPED, true);
+    public static TrackItem upsellableTrack() {
+        final TrackItem trackItem = highTierTrack();
+        trackItem.setSnipped(true);
+        return trackItem;
     }
 
 }

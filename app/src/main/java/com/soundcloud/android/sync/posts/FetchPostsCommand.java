@@ -6,14 +6,13 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.reflect.TypeToken;
 
 import javax.inject.Inject;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
-class FetchPostsCommand extends LegacyCommand<ApiEndpoints, NavigableSet<PropertySet>, FetchPostsCommand> {
+class FetchPostsCommand extends LegacyCommand<ApiEndpoints, NavigableSet<PostRecord>, FetchPostsCommand> {
 
     private final ApiClient apiClient;
 
@@ -23,7 +22,7 @@ class FetchPostsCommand extends LegacyCommand<ApiEndpoints, NavigableSet<Propert
     }
 
     @Override
-    public NavigableSet<PropertySet> call() throws Exception {
+    public NavigableSet<PostRecord> call() throws Exception {
         final ApiRequest request =
                 ApiRequest.get(input.path())
                           .forPrivateApi()
@@ -32,10 +31,11 @@ class FetchPostsCommand extends LegacyCommand<ApiEndpoints, NavigableSet<Propert
         final ModelCollection<ApiPostItem> apiPosts = apiClient.fetchMappedResponse(request,
                                                                                     new TypeToken<ModelCollection<ApiPostItem>>() {
                                                                                     });
-        final NavigableSet<PropertySet> result = new TreeSet<>(PostProperty.COMPARATOR);
+        final NavigableSet<PostRecord> result = new TreeSet<>(PostProperty.COMPARATOR);
         for (ApiPostItem post : apiPosts) {
-            result.add(post.toPropertySet());
+            result.add(post.getPostRecord());
         }
         return result;
     }
+
 }

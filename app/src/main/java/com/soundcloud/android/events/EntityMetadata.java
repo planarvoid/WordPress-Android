@@ -1,11 +1,13 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerTrackState;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
@@ -51,6 +53,30 @@ public class EntityMetadata {
         return new EntityMetadata(
                 userProperties.getOrElse(UserProperty.USERNAME, Strings.EMPTY),
                 userProperties.getOrElse(UserProperty.URN, Urn.NOT_SET),
+                Strings.EMPTY,
+                Urn.NOT_SET);
+    }
+
+    public static EntityMetadata fromUser(@Nullable ApiUser apiUser) {
+        if (apiUser == null) {
+            return EMPTY;
+        }
+
+        return new EntityMetadata(
+                apiUser.getUsername(),
+                apiUser.getUrn(),
+                Strings.EMPTY,
+                Urn.NOT_SET);
+    }
+
+    public static EntityMetadata fromUser(@Nullable UserItem userItem) {
+        if (userItem == null) {
+            return EMPTY;
+        }
+
+        return new EntityMetadata(
+                userItem.getName(),
+                userItem.getUrn(),
                 Strings.EMPTY,
                 Urn.NOT_SET);
     }

@@ -2,31 +2,25 @@ package com.soundcloud.android.search.suggestions;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
 public abstract class SearchSuggestionItem extends SuggestionItem implements ImageResource, ListItem {
 
-    abstract PropertySet source();
-    @Override
-    public Urn getUrn() {
-        return source().get(SearchSuggestionProperty.URN);
+    abstract Optional<SuggestionHighlight> suggestionHighlight();
+    abstract String displayedText();
+
+    public static SearchSuggestionItem forUser(Urn urn, Optional<String> imageUrlTemplate, String query, Optional<SuggestionHighlight> suggestionHighlight, String displayedText) {
+        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.UserItem, query, suggestionHighlight, displayedText);
     }
 
-    String getDisplayedText() {
-        return source().get(SearchSuggestionProperty.DISPLAY_TEXT);
+    public static SearchSuggestionItem forTrack(Urn urn, Optional<String> imageUrlTemplate, String query, Optional<SuggestionHighlight> suggestionHighlight, String displayedText) {
+        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.TrackItem, query, suggestionHighlight, displayedText);
     }
 
-    @Override
-    public Optional<String> getImageUrlTemplate() {
-        return source().getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
-    }
-
-    Optional<SuggestionHighlight> getSuggestionHighlight() {
-        return source().get(SearchSuggestionProperty.HIGHLIGHT);
+    public static SearchSuggestionItem forPlaylist(Urn urn, Optional<String> imageUrlTemplate, String query, Optional<SuggestionHighlight> suggestionHighlight, String displayedText) {
+        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.PlaylistItem, query, suggestionHighlight, displayedText);
     }
 }

@@ -4,7 +4,6 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.tracks.TrackProperty;
 
 import android.support.annotation.NonNull;
 
@@ -81,11 +80,11 @@ public class PlaybackSessionEvent extends LegacyTrackingEvent {
         this.marketablePlay = args.isMarketablePlay();
         this.clientEventId = args.getClientEventId();
         this.playId = args.getPlayId();
-        this.trackUrn = args.getTrackData().get(TrackProperty.URN);
-        this.creatorUrn = args.getTrackData().get(TrackProperty.CREATOR_URN);
-        this.monetizationModel = args.getTrackData().get(TrackProperty.MONETIZATION_MODEL);
+        this.trackUrn = args.getTrackData().getUrn();
+        this.creatorUrn = args.getTrackData().getCreatorUrn();
+        this.monetizationModel = args.getTrackData().getMonetizationModel();
         put(KEY_PROTOCOL, args.getProtocol());
-        put(KEY_POLICY, args.getTrackData().getOrElseNull(TrackProperty.POLICY));
+        put(KEY_POLICY, args.getTrackData().getPolicy());
         put(PLAYER_TYPE, args.getPlayerType());
         this.trackSourceInfo = args.getTrackSourceInfo();
         this.progress = args.getProgress();

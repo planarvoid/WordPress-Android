@@ -1,6 +1,8 @@
 package com.soundcloud.android.tracks;
 
-public interface TrackRecordHolder {
+import com.soundcloud.android.model.RecordHolder;
+
+public interface TrackRecordHolder extends RecordHolder {
 
     TrackRecord getTrackRecord();
 

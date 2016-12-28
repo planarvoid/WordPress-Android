@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -265,7 +264,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
     private PlaylistItem getLikedPlaylistOffline(Urn urn, String title, OfflineState state) {
         final PlaylistItem playlist = getPlaylistItem(urn, title);
-        playlist.getSource().put(OfflineProperty.OFFLINE_STATE, state);
+        playlist.setOfflineState(state);
         return playlist;
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.StoreProfileCommand.TO_RECORD_HOLDERS;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -9,12 +10,11 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
-import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,15 +42,15 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
     @Mock private EventBus eventBus;
 
-    final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
-    final ApiTrack apiTrack = create(ApiTrack.class);
+    private final TestObserver<PagedRemoteCollection<PlayableItem>> observer = new TestObserver<>();
+    private ApiTrack apiTrack;
 
-    final ModelCollection<ApiEntityHolder> page = new ModelCollection<>(
-            Collections.<ApiEntityHolder>singletonList(apiTrack),
-            NEXT_HREF);
+    private ModelCollection<ApiPlayableSource> page;
 
     @Before
     public void setUp() {
+        apiTrack = create(ApiTrack.class);
+        page = new ModelCollection<>(Collections.singletonList(ApiPlayableSource.create(apiTrack, null)), NEXT_HREF);
         operations = new UserProfileOperations(
                 profileApi,
                 Schedulers.immediate(),
@@ -77,30 +77,30 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
 
         operations.userTracks(USER_URN).subscribe(observer);
 
-        verify(writeMixedRecordsCommand).call(page);
+        verify(writeMixedRecordsCommand).call(TO_RECORD_HOLDERS(page));
     }
 
     @Test
     public void userTracksPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
-                                                                      NEXT_HREF);
+        final PagedRemoteCollection<ApiPlayableSource> page1 = new PagedRemoteCollection<>(Collections.<ApiPlayableSource>emptyList(),
+                                                                                           NEXT_HREF);
         when(profileApi.userTracks(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.userTracksPagingFunction().call(page1).subscribe(observer);
+        operations.userTracksPagingFunction().call(page1.transform(PlayableItem::from)).subscribe(observer);
 
-        verify(writeMixedRecordsCommand).call(page);
+        verify(writeMixedRecordsCommand).call(TO_RECORD_HOLDERS(page));
     }
 
     private void assertAllItemsEmitted() {
         assertAllItemsEmitted(
-                apiTrack.toPropertySet()
+                TrackItem.from(apiTrack, false)
         );
     }
 
-    private void assertAllItemsEmitted(PropertySet... propertySets) {
-        final List<PagedRemoteCollection> onNextEvents = observer.getOnNextEvents();
+    private void assertAllItemsEmitted(PlayableItem... playableItems) {
+        final List<PagedRemoteCollection<PlayableItem>> onNextEvents = observer.getOnNextEvents();
         assertThat(onNextEvents).hasSize(1);
         assertThat(onNextEvents.get(0).nextPageLink().get()).isEqualTo(NEXT_HREF);
-        assertThat(onNextEvents.get(0)).containsExactly(propertySets);
+        assertThat(onNextEvents.get(0)).containsExactly(playableItems);
     }
 }

@@ -55,8 +55,8 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> playlistAssociations = newArrayList(
-                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
-                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist2, LIKED_DATE_2),
+                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
 
         assertThat(testListSubscriber.getOnNextEvents()).containsExactly(playlistAssociations);
     }
@@ -66,7 +66,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> playlistAssociations = Arrays.asList(
-                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2));
+                expectedLikedPlaylistFor(playlist2, LIKED_DATE_2));
 
         testListSubscriber.assertValue(playlistAssociations);
     }
@@ -76,7 +76,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, LIKED_DATE_2.getTime(), Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -86,7 +86,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, playlist1.getTitle()).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -101,7 +101,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, playlist.getTitle()).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist, LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -111,7 +111,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, playlist1.getUsername()).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -123,7 +123,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, apiTrack.getTitle()).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -137,7 +137,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, apiTrack.getTitle()).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -149,7 +149,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE, apiTrack.getUserName()).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -163,7 +163,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = newArrayList(
-                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
+                expectedLikedPlaylistFor(playlist2, LIKED_DATE_2),
                 expectedLikedPlaylistWithOfflineState(playlist1, LIKED_DATE_1, OfflineState.REQUESTED));
 
         testListSubscriber.assertValue(propertySets);
@@ -178,35 +178,34 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE, Strings.EMPTY).subscribe(testListSubscriber);
 
         final List<PlaylistAssociation> propertySets = newArrayList(
-                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
+                expectedLikedPlaylistFor(playlist2, LIKED_DATE_2),
                 expectedLikedPlaylistWithOfflineState(playlist1, LIKED_DATE_1, OfflineState.DOWNLOADED));
 
         testListSubscriber.assertValue(propertySets);
     }
 
-    static PlaylistAssociation expectedLikedPlaylistFor(PropertySet playlist, Date likedAt) {
+    static PlaylistAssociation expectedLikedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
         return PlaylistAssociation.create(PlaylistItem.from(PropertySet.from(
-                PlaylistProperty.URN.bind(playlist.get(PlaylistProperty.URN)),
-                PlaylistProperty.TITLE.bind(playlist.get(PlaylistProperty.TITLE)),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(playlist.get(EntityProperty.IMAGE_URL_TEMPLATE)),
-                PlaylistProperty.CREATED_AT.bind(playlist.get(PlaylistProperty.CREATED_AT)),
-                PlaylistProperty.CREATOR_URN.bind(playlist.get(PlaylistProperty.CREATOR_URN)),
-                PlaylistProperty.CREATOR_NAME.bind(playlist.get(PlaylistProperty.CREATOR_NAME)),
-                PlaylistProperty.TRACK_COUNT.bind(playlist.get(PlaylistProperty.TRACK_COUNT)),
-                PlaylistProperty.LIKES_COUNT.bind(playlist.get(PlaylistProperty.LIKES_COUNT)),
-                PlaylistProperty.IS_ALBUM.bind(playlist.get(PlaylistProperty.IS_ALBUM)),
-                PlaylistProperty.REPOSTS_COUNT.bind(playlist.get(PlaylistProperty.REPOSTS_COUNT)),
-                PlaylistProperty.PLAYLIST_DURATION.bind(playlist.get(PlaylistProperty.PLAYLIST_DURATION)),
-                PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)),
+                PlaylistProperty.URN.bind(playlist.getUrn()),
+                PlaylistProperty.TITLE.bind(playlist.getTitle()),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(playlist.getImageUrlTemplate()),
+                PlaylistProperty.CREATED_AT.bind(playlist.getCreatedAt()),
+                PlaylistProperty.CREATOR_URN.bind(playlist.getUser().getUrn()),
+                PlaylistProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
+                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()),
+                PlaylistProperty.LIKES_COUNT.bind(playlist.getLikesCount()),
+                PlaylistProperty.IS_ALBUM.bind(playlist.isAlbum()),
+                PlaylistProperty.REPOSTS_COUNT.bind(playlist.getRepostsCount()),
+                PlaylistProperty.PLAYLIST_DURATION.bind(playlist.getDuration()),
+                PlaylistProperty.IS_PRIVATE.bind(!playlist.isPublic()),
                 PlaylistProperty.IS_USER_LIKE.bind(true),
                 OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(false))), likedAt);
     }
 
     private PlaylistAssociation expectedLikedPlaylistWithOfflineState(ApiPlaylist playlist, Date likedAt, OfflineState state) {
-        final PlaylistAssociation playlistAssociation = expectedLikedPlaylistFor(playlist.toPropertySet(), likedAt);
-        playlistAssociation.getPlaylistItem().getSource()
-                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
-                .put(OfflineProperty.OFFLINE_STATE, state);
+        final PlaylistAssociation playlistAssociation = expectedLikedPlaylistFor(playlist, likedAt);
+        playlistAssociation.getPlaylistItem().setMarkedForOffline(true);
+        playlistAssociation.getPlaylistItem().setOfflineState(state);
         return playlistAssociation;
     }
 }

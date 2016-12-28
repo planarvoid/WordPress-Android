@@ -4,13 +4,11 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TieredTracks;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
@@ -128,9 +126,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
 
     private static ImageResource getImageResource(TrackItem trackItem) {
         Urn urn = trackItem.getUrn();
-        PropertySet propertySet = trackItem.getSource();
-        Optional<String> templateUrl = propertySet.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE,
-                                                             Optional.<String>absent());
+        Optional<String> templateUrl = trackItem.getImageUrlTemplate();
         return SimpleImageResource.create(urn, templateUrl);
     }
 

@@ -4,17 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Test;
 
 public class WidgetItemTest extends AndroidUnitTest {
 
-    private PropertySet source = TestPropertySets.expectedTrackForWidget();
-    private TrackItem trackItem = ModelFixtures.trackItem().updated(source);
+    private TrackItem trackItem = TestPropertySets.expectedTrackForWidget();
 
     private WidgetItem viewModel;
 

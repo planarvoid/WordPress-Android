@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
-import com.soundcloud.android.events.Module;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -51,8 +50,7 @@ public class ChartTracksRendererTest extends AndroidUnitTest {
 
         ChartTracksRenderer chartTracksRenderer = new ChartTracksRenderer(trackItemRenderer, screenProvider);
         chartTracksRenderer.bindItemView(POSITION, itemView, ITEMS);
-        verify(trackItemRenderer).bindTrackView(ITEM_2.chartTrackItem, itemView, POSITION, Optional.of(TRACK_SOURCE_INFO),
-                                                Optional.<Module>absent());
+        verify(trackItemRenderer).bindChartTrackView(ITEM_2.chartTrackItem, itemView, POSITION, Optional.of(TRACK_SOURCE_INFO));
     }
 
     private static ChartTrackListItem.Track createChartTrackListItem() {

@@ -11,7 +11,7 @@ public class PlaylistItemBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class).toPropertySet());
+            return PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
         }
     };
 

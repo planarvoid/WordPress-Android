@@ -9,8 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationTrack;
-import com.soundcloud.android.utils.PropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -56,9 +55,9 @@ public class PlaybackInitiator {
         return playTracksList(playQueue, initialTrack, position, playSessionSource);
     }
 
-    public Observable<PlaybackResult> playPosts(Observable<List<PropertySet>> playables, Urn initialTrack, int position,
+    public Observable<PlaybackResult> playPosts(Observable<List<PlayableWithReposter>> playablesWithReposters, Urn initialTrack, int position,
                                                 PlaySessionSource playSessionSource) {
-        final Observable<PlayQueue> playQueue = playables.flatMap(playablesToPlayQueue(playSessionSource));
+        final Observable<PlayQueue> playQueue = playablesWithReposters.flatMap(playablesToPlayQueue(playSessionSource));
         return playTracksList(playQueue, initialTrack, position, playSessionSource);
     }
 
@@ -148,18 +147,18 @@ public class PlaybackInitiator {
         };
     }
 
-    private Func1<List<PropertySet>, Observable<PlayQueue>> playablesToPlayQueue(final PlaySessionSource playSessionSource) {
-        return new Func1<List<PropertySet>, Observable<PlayQueue>>() {
+    private Func1<List<PlayableWithReposter>, Observable<PlayQueue>> playablesToPlayQueue(final PlaySessionSource playSessionSource) {
+        return new Func1<List<PlayableWithReposter>, Observable<PlayQueue>>() {
             @Override
-            public Observable<PlayQueue> call(final List<PropertySet> propertySets) {
-                if (propertySets.isEmpty()) {
+            public Observable<PlayQueue> call(final List<PlayableWithReposter> playablesWithReposters) {
+                if (playablesWithReposters.isEmpty()) {
                     return Observable.just(PlayQueue.empty());
                 } else {
-                    return policyOperations.blockedStatuses(PropertySets.extractUrns(propertySets))
+                    return policyOperations.blockedStatuses(Lists.transform(playablesWithReposters, PlayableWithReposter::getUrn))
                                            .flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
                                                @Override
                                                public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
-                                                   return Observable.just(PlayQueue.fromPlayableList(propertySets,
+                                                   return Observable.just(PlayQueue.fromPlayableList(playablesWithReposters,
                                                                                                      playSessionSource,
                                                                                                      blockedTracksMap));
                                                }

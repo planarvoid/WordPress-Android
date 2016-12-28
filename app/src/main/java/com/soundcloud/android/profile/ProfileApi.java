@@ -4,7 +4,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
 
@@ -15,17 +14,17 @@ interface ProfileApi {
 
     @VisibleForTesting int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
-    Observable<ModelCollection<ApiEntityHolder>> userPosts(Urn user);
+    Observable<ModelCollection<ApiPostSource>> userPosts(Urn user);
 
-    Observable<ModelCollection<ApiEntityHolder>> userPosts(String nextPageLink);
+    Observable<ModelCollection<ApiPostSource>> userPosts(String nextPageLink);
 
     Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(Urn user);
 
     Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(String nextPageLink);
 
-    Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user);
+    Observable<ModelCollection<ApiPlayableSource>> userLikes(Urn user);
 
-    Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink);
+    Observable<ModelCollection<ApiPlayableSource>> userLikes(String nextPageLink);
 
     Observable<ModelCollection<ApiUser>> userFollowings(Urn user);
 
@@ -37,13 +36,13 @@ interface ProfileApi {
 
     Observable<ApiUserProfile> userProfile(Urn user);
 
-    Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user);
+    Observable<ModelCollection<ApiPlayableSource>> userReposts(Urn user);
 
-    Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink);
+    Observable<ModelCollection<ApiPlayableSource>> userReposts(String nextPageLink);
 
-    Observable<ModelCollection<ApiEntityHolder>> userTracks(Urn user);
+    Observable<ModelCollection<ApiPlayableSource>> userTracks(Urn user);
 
-    Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink);
+    Observable<ModelCollection<ApiPlayableSource>> userTracks(String nextPageLink);
 
     Observable<ModelCollection<ApiPlaylistPost>> userAlbums(Urn user);
 

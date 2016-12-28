@@ -17,6 +17,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -38,8 +39,8 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     private final TestEventBus eventBus = new TestEventBus();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
-    private final PropertySet track = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
-                                                       TrackProperty.SNIPPED.bind(true));
+    private final TrackItem track = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                                    TrackProperty.SNIPPED.bind(true)));
     private final PreloadItem preloadItem = new AutoParcel_PreloadItem(nextTrackUrn, PlaybackType.AUDIO_SNIPPET);
 
     @Before

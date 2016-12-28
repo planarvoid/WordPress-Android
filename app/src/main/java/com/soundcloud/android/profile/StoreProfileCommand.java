@@ -42,7 +42,7 @@ public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
         return writeMixedRecordsCommand.call(entities);
     }
 
-    private static List<RecordHolder> TO_RECORD_HOLDERS(ModelCollection<? extends ApiEntityHolderSource> entityHolderSources) {
+    public static List<RecordHolder> TO_RECORD_HOLDERS(ModelCollection<? extends ApiEntityHolderSource> entityHolderSources) {
         List<RecordHolder> recordHolders = new ArrayList<>();
 
         for (ApiEntityHolderSource entityHolderSource : entityHolderSources) {

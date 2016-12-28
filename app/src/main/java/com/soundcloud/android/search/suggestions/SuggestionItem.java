@@ -2,7 +2,6 @@ package com.soundcloud.android.search.suggestions;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 public abstract class SuggestionItem {
@@ -15,37 +14,24 @@ public abstract class SuggestionItem {
 
     public abstract String userQuery();
 
-    Urn getUrn() {
-        return Urn.NOT_SET;
-    }
-
     static SuggestionItem forLegacySearch(String query) {
         return new AutoValue_SuggestionItem_Default(Kind.SearchItem, query);
     }
 
-    static SuggestionItem fromPropertySet(PropertySet source, String query) {
-        final Urn urn = source.get(SearchSuggestionProperty.URN);
+    static SuggestionItem fromSearchSuggestion(SearchSuggestion searchSuggestion, String query) {
+        final Optional<String> imageUrlTemplate = searchSuggestion.getImageUrlTemplate();
+        final String displayText = searchSuggestion.getQuery();
+        final Optional<SuggestionHighlight> suggestionHighlightOptional = searchSuggestion.getHighlights();
+        final Urn urn = searchSuggestion.getUrn();
         if (urn.isTrack()) {
-            return SuggestionItem.forTrack(source, query);
+            return SearchSuggestionItem.forTrack(urn, imageUrlTemplate, query, suggestionHighlightOptional, displayText);
         } else if (urn.isUser()) {
-            return SuggestionItem.forUser(source, query);
+            return SearchSuggestionItem.forUser(urn, imageUrlTemplate, query, suggestionHighlightOptional, displayText);
         } else if (urn.isPlaylist()) {
-            return SuggestionItem.forPlaylist(source, query);
+            return SearchSuggestionItem.forPlaylist(urn, imageUrlTemplate, query, suggestionHighlightOptional, displayText);
         } else {
             throw new IllegalStateException("Unexpected suggestion item type.");
         }
-    }
-
-    public static SuggestionItem forUser(PropertySet source, String query) {
-        return new AutoValue_SearchSuggestionItem(Kind.UserItem, query, source);
-    }
-
-    public static SuggestionItem forTrack(PropertySet source, String query) {
-        return new AutoValue_SearchSuggestionItem(Kind.TrackItem, query, source);
-    }
-
-    static SearchSuggestionItem forPlaylist(PropertySet source, String query) {
-        return new AutoValue_SearchSuggestionItem(Kind.PlaylistItem, query, source);
     }
 
     static SuggestionItem forAutocompletion(Autocompletion autocompletion, String userQuery, Optional<Urn> queryUrn) {

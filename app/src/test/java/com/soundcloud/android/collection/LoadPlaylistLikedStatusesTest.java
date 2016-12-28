@@ -2,13 +2,12 @@ package com.soundcloud.android.collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,25 +32,24 @@ public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
 
     @Test
     public void shouldReturnPlaylistLikeStatuses() {
-        final List<PropertySet> input = Arrays.asList(likedPlaylist.toPropertySet(), playlist.toPropertySet());
+        final List<ApiPlaylist> input = Arrays.asList(likedPlaylist, playlist);
 
-        final Map<Urn, PropertySet> likedStatuses = command.call(input);
+        final Map<Urn, Boolean> likedStatuses = command.call(Lists.transform(input, ApiPlaylist::getUrn));
 
         assertThat(likedStatuses).hasSize(2);
-        assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isTrue();
-        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isFalse();
+        assertThat(likedStatuses.get(likedPlaylist.getUrn())).isTrue();
+        assertThat(likedStatuses.get(playlist.getUrn())).isFalse();
     }
 
     @Test
     public void shouldOnlyReturnLikedStatusForPlaylists() {
         final ApiTrack track = testFixtures().insertTrack();
-        final List<PropertySet> input = Arrays.asList(
-                likedPlaylist.toPropertySet(), playlist.toPropertySet(), track.toPropertySet());
+        final List<ApiSyncable> input = Arrays.asList(likedPlaylist, playlist, track);
 
-        final Map<Urn, PropertySet> likedStatuses = command.call(input);
+        final Map<Urn, Boolean> likedStatuses = command.call(Lists.transform(input, ApiSyncable::getUrn));
 
-        assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isTrue();
-        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isFalse();
+        assertThat(likedStatuses.get(likedPlaylist.getUrn())).isTrue();
+        assertThat(likedStatuses.get(playlist.getUrn())).isFalse();
         assertThat(likedStatuses.containsKey(track.getUrn())).isFalse();
     }
 

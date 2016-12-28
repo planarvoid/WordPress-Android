@@ -1,6 +1,6 @@
 package com.soundcloud.android.search.suggestions;
 
-import static com.soundcloud.android.search.suggestions.SuggestionItem.fromPropertySet;
+import static com.soundcloud.android.search.suggestions.SuggestionItem.fromSearchSuggestion;
 import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
@@ -79,7 +79,7 @@ class SearchSuggestionOperations {
     private Observable<List<SuggestionItem>> localCollectionSuggestions(final String query) {
         return suggestionStorage.getSuggestions(query, MAX_SUGGESTIONS_NUMBER)
                                 .flatMap(Observable::from)
-                                .map(propertySet -> fromPropertySet(propertySet, query))
+                                .map(propertySet -> fromSearchSuggestion(propertySet, query))
                                 .toList()
                                 .map(searchSuggestionFiltering::filtered)
                                 .filter(list -> !list.isEmpty())
@@ -98,7 +98,7 @@ class SearchSuggestionOperations {
         return apiClientRx.mappedResponse(request, ApiSearchSuggestions.class)
                           .doOnNext(this::writeDependencies)
                           .flatMap(searchSuggestions -> Observable.from(searchSuggestions.getCollection()))
-                          .map(searchSuggestion -> fromPropertySet(searchSuggestion.toPropertySet(), query))
+                          .map(searchSuggestion -> fromSearchSuggestion(searchSuggestion, query))
                           .toList()
                           .filter(list -> !list.isEmpty())
                           .onErrorResumeNext(Observable.empty())

@@ -16,6 +16,7 @@ import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
@@ -27,6 +28,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -35,8 +37,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -56,7 +56,6 @@ import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -225,7 +224,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackLikeEventsWithV1() {
-        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedListItem promotedTrack = TestPropertySets.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(true,
@@ -244,7 +243,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnlikeEventsWithV1() {
-        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedListItem promotedTrack = TestPropertySets.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(false,
@@ -281,11 +280,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnFollowEventsV1() {
-        PropertySet userProperties = TestPropertySets.user();
+        ApiUser userItem = TestPropertySets.user();
         EventContextMetadata eventContext = eventContextBuilder().build();
 
         UIEvent event = UIEvent.fromToggleFollow(false,
-                                                 EntityMetadata.fromUser(userProperties),
+                                                 EntityMetadata.fromUser(userItem),
                                                  eventContext);
 
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnFollowEvent");
@@ -299,15 +298,14 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEventsWithV1() {
-        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
-        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
+        PromotedTrackItem promotedTrack = TestPropertySets.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(true,
                                                  Urn.forTrack(123),
                                                  eventContext,
                                                  promotedSourceInfo,
-                                                 EntityMetadata.from(trackProperties));
+                                                 EntityMetadata.from(promotedTrack));
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForRepostEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -319,15 +317,14 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnRepostEventsV1() {
-        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
-        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
+        PromotedTrackItem promotedTrack = TestPropertySets.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(false,
                                                  Urn.forTrack(123),
                                                  eventContext,
                                                  promotedSourceInfo,
-                                                 EntityMetadata.from(trackProperties));
+                                                 EntityMetadata.from(promotedTrack));
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnRepostEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -382,7 +379,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPromotedTrackEvents() {
-        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackItem promotedTrack = TestPropertySets.expectedPromotedTrack();
         PromotedTrackingEvent event = PromotedTrackingEvent.forPromoterClick(promotedTrack, "stream");
         when(dataBuilderv0.build(event)).thenReturn("ForPromotedEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);

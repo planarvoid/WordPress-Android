@@ -24,8 +24,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -137,7 +135,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playPostsPlaysNewQueueFromInitialTrack() {
-        final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
+        final PlayableWithReposter track = PlayableWithReposter.from(TRACK1);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN))
                          .subscribe(observer);
 
@@ -151,7 +149,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         when(policyOperations.blockedStatuses(singletonList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(
                 TRACK1,
                 true)));
-        final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
+        final PlayableWithReposter track = PlayableWithReposter.from(TRACK1);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN))
                          .subscribe(observer);
 
@@ -166,7 +164,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playPostsShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOriginAndCollectionUrn() {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
-        final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
+        final PlayableWithReposter track = PlayableWithReposter.from(TRACK1);
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
         when(playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn())).thenReturn(true);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, playSessionSource).subscribe(observer);
@@ -180,7 +178,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playTrackCallsPlayCurrentIfTrackAlreadyPlayingWithSameOriginAndSameCollectionUrn() {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
-        final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
+        final PlayableWithReposter track = PlayableWithReposter.from(TRACK1);
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
         when(playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn())).thenReturn(true);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, playSessionSource).subscribe(observer);
@@ -194,7 +192,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
 
         PlaySessionSource newPlaySessionSource = new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO);
-        final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
+        final PlayableWithReposter track = PlayableWithReposter.from(TRACK1);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, newPlaySessionSource)
                          .subscribe(observer);
 

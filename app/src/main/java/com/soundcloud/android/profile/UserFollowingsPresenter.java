@@ -19,37 +19,22 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.FollowEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
-import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
-class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollection, UserItem> {
+class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollection<UserItem>, UserItem> {
 
     private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
     private final Navigator navigator;
     private final EventBus eventBus;
-
-    private final Func1<PagedRemoteCollection, List<UserItem>> pageTransformer = new Func1<PagedRemoteCollection, List<UserItem>>() {
-        @Override
-        public List<UserItem> call(PagedRemoteCollection collection) {
-            final List<UserItem> items = new ArrayList<>();
-            for (PropertySet source : collection) {
-                items.add(UserItem.from(source));
-            }
-            return items;
-        }
-    };
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private Screen screen;
     private Subscription subscription;
@@ -70,9 +55,9 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
     }
 
     @Override
-    protected CollectionBinding<PagedRemoteCollection, UserItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection<UserItem>, UserItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(UserFollowingsFragment.USER_URN_KEY);
-        return CollectionBinding.from(profileOperations.pagedFollowings(userUrn), pageTransformer)
+        return CollectionBinding.from(profileOperations.pagedFollowings(userUrn))
                                 .withAdapter(adapter)
                                 .withPager(profileOperations.followingsPagingFunction())
                                 .build();

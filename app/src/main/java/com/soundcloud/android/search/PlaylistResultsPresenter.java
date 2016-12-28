@@ -17,7 +17,6 @@ import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -35,10 +34,12 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
 
     private static final Func1<SearchResult, List<PlaylistItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<PlaylistItem>>() {
         @Override
-        public List<PlaylistItem> call(SearchResult propertySets) {
-            final List<PlaylistItem> result = new ArrayList<>(propertySets.getItems().size());
-            for (PropertySet source : propertySets) {
-                result.add(PlaylistItem.from(source));
+        public List<PlaylistItem> call(SearchResult searchResult) {
+            final List<PlaylistItem> result = new ArrayList<>(searchResult.getItems().size());
+            for (SearchableItem source : searchResult) {
+                if (source instanceof PlaylistItem) {
+                    result.add((PlaylistItem) source);
+                }
             }
             return result;
         }

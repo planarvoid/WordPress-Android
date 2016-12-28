@@ -18,9 +18,8 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123);
     private static final Urn VIDEO_URN = Urn.forAd("dfp", "video");
-    private static final PropertySet TRACK = TestPropertySets.expectedTrackForPlayer();
+    private static final TrackItem TRACK = TestPropertySets.expectedTrackForPlayer();
     private static final Optional<MediaMetadataCompat> EMPTY_METADATA = Optional.absent();
     private static final String ADVERTISING_TITLE = "Advertisement";
     private static final String OLD_TITLE = "old title";
@@ -115,7 +114,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
         operations.metadata(TRACK_URN, false, Optional.of(previousMetadata())).subscribe(subscriber);
 
         assertThat(getBitmap(1)).isEqualTo(bitmap);
-        assertThat(getTitle(1)).isEqualTo(TRACK.get(TrackProperty.TITLE));
+        assertThat(getTitle(1)).isEqualTo(TRACK.getTitle());
     }
 
     @Test
@@ -174,7 +173,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
                                                  any(ApiImageSize.class), anyInt(), anyInt());
     }
 
-    private void setCachedBitmap(PropertySet track, Bitmap bitmap) {
+    private void setCachedBitmap(TrackItem track, Bitmap bitmap) {
         when(imageOperations.getCachedBitmap(eq(SimpleImageResource.create(track)),
                                              any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
     }

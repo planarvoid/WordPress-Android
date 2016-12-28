@@ -5,12 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import org.junit.Test;
 
 public class PromotedTrackingEventTest extends AndroidUnitTest {
 
-    private PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+    private PromotedListItem promotedTrack = TestPropertySets.expectedPromotedTrack();
 
     @Test
     public void createsEventForPromoterClick() {
@@ -53,7 +52,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
     @Test
     public void omitsPromoterUrnPropertyIfPromoterIsAbsent() {
-        PromotedListItem noPromoter = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
+        PromotedListItem noPromoter = TestPropertySets.expectedPromotedTrackWithoutPromoter();
         PromotedTrackingEvent click = PromotedTrackingEvent.forItemClick(noPromoter, "stream");
 
         assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isNull();

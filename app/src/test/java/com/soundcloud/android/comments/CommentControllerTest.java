@@ -9,12 +9,11 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.feedback.Feedback;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<Feedback> feedbackArgumentCaptor;
 
     private final TestEventBus eventBus = new TestEventBus();
-    private PropertySet track;
+    private TrackItem track;
 
     private CommentController controller;
 
@@ -58,7 +57,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Test
     public void showsSuccessFeedbackAfterPost() {
-        when(commentOperations.addComment(track.get(EntityProperty.URN), COMMENT, POSITION))
+        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(Observable.just(mock(PublicApiComment.class)));
 
         controller.addComment(AddCommentArguments.create(track, POSITION, COMMENT, ORIGIN));
@@ -69,7 +68,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Test
     public void showsFailureFeedbackAfterPost() {
-        when(commentOperations.addComment(track.get(EntityProperty.URN), COMMENT, POSITION))
+        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(Observable.<PublicApiComment>error(new IOException()));
 
         controller.addComment(AddCommentArguments.create(track, POSITION, COMMENT, ORIGIN));
@@ -81,7 +80,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Test
     public void unsubscribesInOnDestroy() {
         final PublishSubject<PublicApiComment> subject = PublishSubject.create();
-        when(commentOperations.addComment(track.get(EntityProperty.URN), COMMENT, POSITION))
+        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(subject);
 
         controller.addComment(AddCommentArguments.create(track, POSITION, COMMENT, ORIGIN));

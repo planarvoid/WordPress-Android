@@ -9,10 +9,12 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -29,12 +31,11 @@ public class ShareOperationsTest extends AndroidUnitTest {
     private static final String SCREEN_TAG = "screen_tag";
     private static final String PAGE_NAME = "page_name";
     private static final Urn PAGE_URN = Urn.forPlaylist(234L);
-    private static final PropertySet TRACK = TestPropertySets.expectedTrackForPlayer();
-    private static final PropertySet PRIVATE_TRACK = TestPropertySets.expectedPrivateTrackForPlayer();
-    private static final PropertySet PLAYLIST = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
-    private static final PropertySet PROMOTED_TRACK = TestPropertySets.expectedPromotedTrack();
-    private static final PromotedSourceInfo PROMOTED_SOURCE_INFO = PromotedSourceInfo.fromItem(PromotedTrackItem.from(
-            PROMOTED_TRACK));
+    private static final TrackItem TRACK = TestPropertySets.expectedTrackForPlayer();
+    private static final TrackItem PRIVATE_TRACK = TestPropertySets.expectedPrivateTrackForPlayer();
+    private static final PlaylistItem PLAYLIST = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
+    private static final PromotedTrackItem PROMOTED_TRACK = TestPropertySets.expectedPromotedTrack();
+    private static final PromotedSourceInfo PROMOTED_SOURCE_INFO = PromotedSourceInfo.fromItem(PROMOTED_TRACK);
 
     private ShareOperations operations;
     private Activity activityContext;

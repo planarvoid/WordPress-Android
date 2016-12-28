@@ -3,15 +3,13 @@ package com.soundcloud.android.peripherals;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -48,12 +46,12 @@ public class PeripheralsController {
         context.sendBroadcast(intent);
     }
 
-    private void notifyPlayQueueChanged(PropertySet track) {
+    private void notifyPlayQueueChanged(TrackItem track) {
         Intent intent = new Intent(AVRCP_META_CHANGED);
-        intent.putExtra("id", track.get(TrackProperty.URN).getNumericId());
-        intent.putExtra("track", ScTextUtils.getClippedString(track.get(PlayableProperty.TITLE), 40));
+        intent.putExtra("id", track.getUrn().getNumericId());
+        intent.putExtra("track", ScTextUtils.getClippedString(track.getTitle(), 40));
         intent.putExtra("duration", Durations.getTrackPlayDuration(track));
-        intent.putExtra("artist", getSafeClippedString(track.get(PlayableProperty.CREATOR_NAME), 30));
+        intent.putExtra("artist", getSafeClippedString(track.getCreatorName(), 30));
         context.sendBroadcast(intent);
     }
 
@@ -101,9 +99,9 @@ public class PeripheralsController {
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<TrackItem> {
         @Override
-        public void onNext(PropertySet track) {
+        public void onNext(TrackItem track) {
             notifyPlayQueueChanged(track);
         }
     }

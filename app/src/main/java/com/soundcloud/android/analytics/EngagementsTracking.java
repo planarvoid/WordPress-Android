@@ -4,9 +4,10 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -17,12 +18,12 @@ public class EngagementsTracking {
     private final UserRepository userRepository;
     private final EventTracker eventTracker;
 
-    private static Func1<PropertySet, UIEvent> LIKE_EVENT_FROM_TRACK(final Urn trackUrn, final boolean addLike,
+    private static Func1<TrackItem, UIEvent> LIKE_EVENT_FROM_TRACK(final Urn trackUrn, final boolean addLike,
                                                                      final EventContextMetadata eventMetadata,
                                                                      final PromotedSourceInfo promotedSourceInfo) {
-        return new Func1<PropertySet, UIEvent>() {
+        return new Func1<TrackItem, UIEvent>() {
             @Override
-            public UIEvent call(PropertySet track) {
+            public UIEvent call(TrackItem track) {
                 return UIEvent.fromToggleLike(addLike,
                                               trackUrn,
                                               eventMetadata,
@@ -32,11 +33,11 @@ public class EngagementsTracking {
         };
     }
 
-    private static Func1<PropertySet, UIEvent> FOLLOW_EVENT_FROM_USER(final boolean isFollow,
-                                                                      final EventContextMetadata eventContextMetadata) {
-        return new Func1<PropertySet, UIEvent>() {
+    private static Func1<UserItem, UIEvent> FOLLOW_EVENT_FROM_USER(final boolean isFollow,
+                                                                   final EventContextMetadata eventContextMetadata) {
+        return new Func1<UserItem, UIEvent>() {
             @Override
-            public UIEvent call(PropertySet user) {
+            public UIEvent call(UserItem user) {
                 return UIEvent.fromToggleFollow(isFollow,
                                                 EntityMetadata.fromUser(user),
                                                 eventContextMetadata);

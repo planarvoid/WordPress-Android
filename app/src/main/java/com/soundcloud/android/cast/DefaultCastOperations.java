@@ -70,7 +70,7 @@ public class DefaultCastOperations implements CastOperations {
     }
 
     Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn, List<Urn> filteredLocalPlayQueueTracks) {
-        return Observable.zip(trackRepository.fromUrn(currentTrackUrn),
+        return Observable.zip(trackRepository.track(currentTrackUrn),
                               Observable.from(filteredLocalPlayQueueTracks).toList(),
                               (track, filteredLocalPlayQueueTracks1) -> new LocalPlayQueue(
                                       castProtocol.createPlayQueueJSON(filteredLocalPlayQueueTracks1),
@@ -82,7 +82,7 @@ public class DefaultCastOperations implements CastOperations {
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
                                .flatMap(RxUtils.iterableToObservable())
-                               .flatMap(trackRepository::fromUrn)
+                               .flatMap(trackRepository::track)
                                .filter(track -> !track.isPrivate())
                                .map(PlayableItem::getUrn);
     }

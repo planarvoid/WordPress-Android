@@ -20,13 +20,12 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreGenre;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,18 +38,17 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Mock private AppboyWrapper appboy;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
 
-    private static final PropertySet TRACK_PROPERTY_SET = TestPropertySets.expectedTrackForPlayer();
-    private static final TrackItem TRACK = TrackItem.from(TRACK_PROPERTY_SET);
+    private static final TrackItem TRACK = TestPropertySets.expectedTrackForPlayer();
     private static final TrackSourceInfo TRACK_SOURCE_INFO = new TrackSourceInfo("origin", true);
     private static final String UUID = "uuid";
     private static final String PLAY_ID = "play_id";
 
     private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
-            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0L, "https",
+            PlaybackSessionEventArgs.create(TRACK, TRACK_SOURCE_INFO, 0L, "https",
                                             "player", false, true, UUID, PLAY_ID));
 
     private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
-            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0L, "https",
+            PlaybackSessionEventArgs.create(TRACK, TRACK_SOURCE_INFO, 0L, "https",
                                             "player", false, false, UUID, PLAY_ID));
 
     private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = basePlayableProperties();
@@ -58,7 +56,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     private static final AppboyProperties PLAYBACK_PROPERTIES = basePlayableProperties()
             .addProperty("monetization_model", "monetization-model");
 
-    private static final EntityMetadata METADATA = EntityMetadata.from(TRACK_PROPERTY_SET);
+    private static final EntityMetadata METADATA = EntityMetadata.from(TRACK);
 
     private AppboyEventHandler eventHandler;
 
@@ -128,7 +126,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackPauseEvents() {
-        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET,
+        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK,
                                                                               TRACK_SOURCE_INFO,
                                                                               0L,
                                                                               "https",
@@ -234,11 +232,11 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaylistCreation() {
-        PropertySet playlist = TestPropertySets.expectedPostedPlaylistForPostsScreen();
+        PlaylistItem playlist = TestPropertySets.expectedPostedPlaylistForPostsScreen();
         UIEvent event = UIEvent.fromCreatePlaylist(EntityMetadata.from(playlist));
         AppboyProperties expectedProperties = new AppboyProperties()
-                .addProperty("playlist_title", playlist.get(PlayableProperty.TITLE))
-                .addProperty("playlist_urn", playlist.get(PlayableProperty.URN).toString());
+                .addProperty("playlist_title", playlist.getTitle())
+                .addProperty("playlist_urn", playlist.getUrn().toString());
 
         eventHandler.handleEvent(event);
 

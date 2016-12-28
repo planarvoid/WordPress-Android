@@ -191,8 +191,8 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
     }
 
     private void assertSameTrackItem(TrackItem expected, TrackItem actual) {
-        assertThat(expected.getSource().slice(EXPECTED_PROPERTIES))
-                .isEqualTo(actual.getSource().slice(EXPECTED_PROPERTIES));
+        assertThat(expected.slice(EXPECTED_PROPERTIES))
+                .isEqualTo(actual.slice(EXPECTED_PROPERTIES));
     }
 
     private TrackItem insertTrackWithPlayHistory(long timestamp) {

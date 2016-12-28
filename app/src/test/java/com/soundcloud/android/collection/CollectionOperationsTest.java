@@ -27,7 +27,6 @@ import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -166,9 +165,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistPushedEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), playlist));
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, playlist.toPushedEvent(Urn.forPlaylist(4)));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }

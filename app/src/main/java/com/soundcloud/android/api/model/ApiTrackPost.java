@@ -3,10 +3,8 @@ package com.soundcloud.android.api.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
-import com.soundcloud.java.collections.PropertySet;
 
 public class ApiTrackPost implements ApiEntityHolder, TrackRecordHolder {
 
@@ -18,14 +16,11 @@ public class ApiTrackPost implements ApiEntityHolder, TrackRecordHolder {
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        return apiTrack.toPropertySet()
-                       .put(PostProperty.IS_REPOST, false)
-                       .put(PostProperty.CREATED_AT, apiTrack.getCreatedAt());
+    public TrackRecord getTrackRecord() {
+        return apiTrack;
     }
 
-    @Override
-    public TrackRecord getTrackRecord() {
+    public ApiTrack getApiTrack() {
         return apiTrack;
     }
 

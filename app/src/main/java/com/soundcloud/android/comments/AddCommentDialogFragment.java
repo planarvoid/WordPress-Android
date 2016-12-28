@@ -4,9 +4,8 @@ package com.soundcloud.android.comments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 
 import android.app.Dialog;
@@ -26,7 +25,7 @@ public class AddCommentDialogFragment extends DialogFragment {
     private static final String EXTRA_POSITION = "position";
     private static final String EXTRA_ORIGIN_SCREEN = "origin";
 
-    public static AddCommentDialogFragment create(PropertySet track, long position, String originScreen) {
+    public static AddCommentDialogFragment create(TrackItem track, long position, String originScreen) {
         Bundle b = new Bundle();
         b.putParcelable(EXTRA_TRACK, track);
         b.putLong(EXTRA_POSITION, position);
@@ -42,7 +41,7 @@ public class AddCommentDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
+        final TrackItem track = getArguments().getParcelable(EXTRA_TRACK);
         final long position = getArguments().getLong(EXTRA_POSITION);
         final String timeFormatted = ScTextUtils.formatTimestamp(position, TimeUnit.MILLISECONDS);
 
@@ -50,7 +49,7 @@ public class AddCommentDialogFragment extends DialogFragment {
         final TextView title = (TextView) dialogView.findViewById(R.id.custom_dialog_title);
         final EditText input = (EditText) dialogView.findViewById(R.id.comment_input);
 
-        title.setText(getString(R.string.comment_on_tracktitle, track.get(TrackProperty.TITLE)));
+        title.setText(getString(R.string.comment_on_tracktitle, track.getTitle()));
         input.setHint(getString(R.string.comment_at_time, timeFormatted));
 
         return new AlertDialog.Builder(getActivity())
@@ -69,7 +68,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                 .create();
     }
 
-    public void addComment(String commentText, PropertySet track, long position) {
+    public void addComment(String commentText, TrackItem track, long position) {
         final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
         final PlayerActivity activity = (PlayerActivity) getActivity();
         activity.addComment(AddCommentArguments.create(track, position, commentText, originScreen));

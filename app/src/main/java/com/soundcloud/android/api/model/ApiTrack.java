@@ -2,21 +2,21 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
 import com.soundcloud.android.users.UserRecord;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 import java.util.List;
 
-public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecordHolder {
+public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecordHolder, ApiSyncable {
 
     private Urn urn;
     private String title;
@@ -343,49 +343,13 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        final Optional<Boolean> subHighTier = isSubHighTier();
-        final PropertySet propertySet = PropertySet.from(
-                TrackProperty.URN.bind(getUrn()),
-                TrackProperty.TITLE.bind(getTitle()),
-                TrackProperty.CREATED_AT.bind(getCreatedAt()),
-                TrackProperty.SNIPPET_DURATION.bind(getSnippetDuration()),
-                TrackProperty.FULL_DURATION.bind(getFullDuration()),
-                TrackProperty.IS_PRIVATE.bind(isPrivate()),
-                TrackProperty.WAVEFORM_URL.bind(getWaveformUrl()),
-                TrackProperty.PERMALINK_URL.bind(getPermalinkUrl()),
-                TrackProperty.MONETIZABLE.bind(isMonetizable()),
-                TrackProperty.BLOCKED.bind(isBlocked()),
-                TrackProperty.SNIPPED.bind(isSnipped()),
-                TrackProperty.SYNCABLE.bind(isSyncable()),
-                TrackProperty.POLICY.bind(getPolicy()),
-                TrackProperty.SUB_HIGH_TIER.bind(subHighTier.isPresent() ? subHighTier.get() : false),
-                TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),
-                TrackProperty.COMMENTS_COUNT.bind(getStats().getCommentsCount()),
-                TrackProperty.LIKES_COUNT.bind(getStats().getLikesCount()),
-                TrackProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
-                TrackProperty.CREATOR_NAME.bind(getUserName()),
-                TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate)
-        );
-
-        if (genre != null) {
-            propertySet.put(TrackProperty.GENRE, genre);
-        }
-
-        if (isSubMidTier().isPresent()) {
-            propertySet.put(TrackProperty.SUB_MID_TIER, isSubMidTier().get());
-        }
-        if (getMonetizationModel().isPresent()) {
-            propertySet.put(TrackProperty.MONETIZATION_MODEL, getMonetizationModel().get());
-        }
-
-        return propertySet;
+    public TrackRecord getTrackRecord() {
+        return this;
     }
 
     @Override
-    public TrackRecord getTrackRecord() {
-        return this;
+    public EntityStateChangedEvent toUpdateEvent() {
+        return TrackItem.from(this).toUpdateEvent();
     }
 
     private static class RelatedResources {

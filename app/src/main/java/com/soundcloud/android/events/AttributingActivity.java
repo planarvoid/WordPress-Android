@@ -38,7 +38,7 @@ public abstract class AttributingActivity {
         if (playableItem instanceof PromotedListItem) {
             return AttributingActivity.create(PROMOTED, ((PromotedListItem) playableItem).getPromoterUrn());
         } else if (playableItem.getReposter().isPresent()) {
-            return AttributingActivity.create(REPOSTED, Optional.fromNullable(playableItem.getReposterUrn()));
+            return AttributingActivity.create(REPOSTED, playableItem.getReposterUrn());
         } else {
             return AttributingActivity.create(AttributingActivity.POSTED, Optional.of(playableItem.getCreatorUrn()));
         }

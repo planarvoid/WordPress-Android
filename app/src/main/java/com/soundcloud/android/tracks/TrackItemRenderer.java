@@ -120,6 +120,24 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               final int position,
                               Optional<TrackSourceInfo> trackSourceInfo,
                               Optional<Module> module) {
+        bindTrackView(track, itemView, position, trackSourceInfo, module, false);
+    }
+
+    public void bindChartTrackView(final ChartTrackItem chartTrackItem,
+                              View itemView,
+                              final int position,
+                              Optional<TrackSourceInfo> trackSourceInfo) {
+        bindTrackView(chartTrackItem.getTrackItem(), itemView, position, trackSourceInfo, Optional.absent(),
+                      chartTrackItem.chartType() == ChartType.TRENDING);
+        showChartPosition(itemView, position);
+    }
+
+    private void bindTrackView(final TrackItem track,
+                              View itemView,
+                              final int position,
+                              Optional<TrackSourceInfo> trackSourceInfo,
+                              Optional<Module> module,
+                              boolean showPostedTime) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
         trackItemView.setTitle(track.getTitle(), track.isBlocked()
@@ -133,7 +151,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
 
         bindExtraInfoRight(track, trackItemView);
-        bindExtraInfoBottom(trackItemView, track, position);
+        bindExtraInfoBottom(trackItemView, track, showPostedTime);
 
         bindArtwork(trackItemView, track);
         setupOverFlow(trackItemView, track, position, trackSourceInfo, module);
@@ -209,30 +227,26 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track, int position) {
+    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track, boolean showPostedTime) {
         itemView.hideInfosViewsBottom();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
-        } else if (track instanceof ChartTrackItem) {
-            showChartTrackItem(itemView, (ChartTrackItem) track, position);
         } else if (track.isBlocked()) {
             itemView.showGeoBlocked();
         } else if (track.isPlaying() || track.getUrn().equals(playingTrack)) {
             itemView.showNowPlaying();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();
+        } else if (showPostedTime) {
+            itemView.showPostedTime(track.getCreatedAt());
         } else {
             showPlayCount(itemView, track);
         }
     }
 
-    private void showChartTrackItem(TrackItemView itemView, ChartTrackItem chartTrackItem, int position) {
-        itemView.showPosition(position);
-        if (chartTrackItem.chartType() == ChartType.TRENDING) {
-            itemView.showPostedTime(chartTrackItem.getCreatedAt());
-        } else {
-            showPlayCount(itemView, chartTrackItem);
-        }
+    private void showChartPosition(View itemView, int position) {
+        final TrackItemView trackItemView = (TrackItemView) itemView.getTag();
+        trackItemView.showPosition(position);
     }
 
     private void showPromoted(TrackItemView itemView, final PromotedTrackItem track) {

@@ -7,13 +7,11 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +51,7 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
 
         subscriber = new TestSubscriber<>();
         profile = new UserProfileRecordFixtures.Builder().build();
-        userUrn = profile.getUser().toPropertySet().get(UserProperty.URN);
+        userUrn = profile.getUser().getUrn();
         when(profileApi.userProfile(userUrn)).thenReturn(Observable.just(profile));
     }
 
@@ -92,11 +90,11 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishEntityChangedEvent() {
-        PropertySet user = profile.getUser().toPropertySet();
+        UserItem user = UserItem.from(profile.getUser());
 
         operations.userProfile(userUrn).subscribe(subscriber);
 
         verify(eventBus).publish(EventQueue.ENTITY_STATE_CHANGED,
-                                 EntityStateChangedEvent.forUpdate(user));
+                                 user.toUpdateEvent());
     }
 }

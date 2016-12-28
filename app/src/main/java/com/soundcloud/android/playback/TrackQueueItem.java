@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
@@ -60,8 +59,8 @@ public class TrackQueueItem extends PlayableQueueItem {
             super(track);
         }
 
-        public Builder(PropertySet track) {
-            super(track);
+        public Builder(PlayableWithReposter playableAndReposter) {
+            super(playableAndReposter);
         }
 
         public Builder(Urn playable, Urn reposter) {

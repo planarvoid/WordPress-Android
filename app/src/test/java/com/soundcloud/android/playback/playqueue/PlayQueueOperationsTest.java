@@ -18,9 +18,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,14 +45,12 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     private TestSubscriber<List<TrackAndPlayQueueItem>> subscriber = new TestSubscriber<>();
 
-    private final PropertySet track1 = TestPropertySets.fromApiTrack();
-    private final PropertySet track2 = TestPropertySets.fromApiTrack();
-    private final Urn track1Urn = track1.get(TrackProperty.URN);
-    private final Urn track2Urn = track2.get(TrackProperty.URN);
+    private final TrackItem trackItem1 = TestPropertySets.fromApiTrack();
+    private final TrackItem trackItem2 = TestPropertySets.fromApiTrack();
+    private final Urn track1Urn = trackItem1.getUrn();
+    private final Urn track2Urn = trackItem2.getUrn();
     private final TrackQueueItem trackQueueItem1 = trackQueueItem(track1Urn);
     private final TrackQueueItem trackQueueItem2 = trackQueueItem(track2Urn);
-    private final TrackItem trackItem1 = TrackItem.from(track1);
-    private final TrackItem trackItem2 = TrackItem.from(track2);
     private final TrackAndPlayQueueItem trackAndPlayQueueItem1 = new TrackAndPlayQueueItem(trackItem1, trackQueueItem1);
     private final TrackAndPlayQueueItem trackAndPlayQueueItem2 = new TrackAndPlayQueueItem(trackItem2, trackQueueItem2);
 
@@ -68,7 +64,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getTrackItemsReturnsTrackItemsFromPlayQueue() {
-        final List<TrackQueueItem> playQueue = asList(trackQueueItem1, trackQueueItem2);
+        final List<PlayQueueItem> playQueue = asList(trackQueueItem1, trackQueueItem2);
         final Map<Urn, TrackItem> tracksFromStorage = new HashMap<>();
         tracksFromStorage.put(track1Urn, trackItem1);
         tracksFromStorage.put(track2Urn, trackItem2);
@@ -120,7 +116,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getTrackItemsFiltersUnknownTracks() {
         final List<Urn> requestedTracks = asList(track1Urn, track2Urn);
-        final List<TrackQueueItem> playQueueItems = asList(trackQueueItem1, trackQueueItem2);
+        final List<PlayQueueItem> playQueueItems = asList(trackQueueItem1, trackQueueItem2);
         final Map<Urn, TrackItem> knownTrack = singletonMap(track1Urn, trackItem1);
         final List<TrackAndPlayQueueItem> expectedTrackItems = singletonList(trackAndPlayQueueItem1);
 

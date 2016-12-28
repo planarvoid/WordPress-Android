@@ -13,7 +13,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.collections.PropertySet;
@@ -120,7 +120,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToTrackCommentsWhenClickingTrackComment() {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
         final PropertySet activity = TestPropertySets.activityTrackComment();
         when(trackRepository.track(activity.get(ActivityProperty.COMMENTED_TRACK_URN)))
                 .thenReturn(Observable.just(track));
@@ -128,7 +128,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openTrackComments(context(), track.get(TrackProperty.URN));
+        verify(navigator).openTrackComments(context(), track.getUrn());
     }
 
     @Test

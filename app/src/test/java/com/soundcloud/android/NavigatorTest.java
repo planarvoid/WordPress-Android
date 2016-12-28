@@ -50,12 +50,12 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
+import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -466,7 +466,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensSearchPremiumContentResults() {
-        final List<PropertySet> propertySets = Collections.emptyList();
+        final List<SearchableItem> propertySets = Collections.emptyList();
         final String searchQuery = "query";
         final SearchType searchType = SearchType.ALL;
         final Optional<Link> nextHref = Optional.absent();

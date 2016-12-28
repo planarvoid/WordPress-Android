@@ -161,7 +161,7 @@ public class CastOperationsTest extends AndroidUnitTest {
                 TrackProperty.TITLE.bind("Title " + urn),
                 TrackProperty.CREATOR_NAME.bind("Creator " + urn),
                 TrackProperty.IS_PRIVATE.bind(isPrivate)));
-        when(trackRepository.fromUrn(urn)).thenReturn(Observable.just(track));
+        when(trackRepository.track(urn)).thenReturn(Observable.just(track));
         return track;
     }
 

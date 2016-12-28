@@ -17,9 +17,9 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
@@ -71,8 +71,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     private TestEventBus eventBus = new TestEventBus();
 
-    private final StreamPlayable promotedStreamTrack = StreamPlayable.createFromPropertySet(new Date(), TestPropertySets.expectedPromotedTrack());
-    private final StreamPlayable upsellableStreamTrack = StreamPlayable.createFromPropertySet(new Date(), TestPropertySets.upsellableTrack());
+    private final StreamPlayable promotedStreamTrack = StreamPlayable.createFromPlayable(new Date(), TestPropertySets.expectedPromotedTrack());
+    private final StreamPlayable upsellableStreamTrack = StreamPlayable.createFromPlayable(new Date(), TestPropertySets.upsellableTrack());
 
     @Before
     public void setUp() throws Exception {
@@ -392,13 +392,13 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Test
     public void urnsForPlaybackReturnsUrnsFromStorage() {
-        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
-        final PropertySet propertySet = PropertySet.from(EntityProperty.URN.bind(Urn.forTrack(123)));
-        when(streamStorage.playbackItems()).thenReturn(Observable.just(propertySet));
+        final TestSubscriber<List<PlayableWithReposter>> subscriber = new TestSubscriber<>();
+        final PlayableWithReposter playableWithReposter = PlayableWithReposter.from(Urn.forTrack(123L));
+        when(streamStorage.playbackItems()).thenReturn(Observable.just(playableWithReposter));
 
         operations.urnsForPlayback().subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(singletonList(singletonList(propertySet)));
+        subscriber.assertReceivedOnNext(singletonList(singletonList(playableWithReposter)));
     }
 
     @Test

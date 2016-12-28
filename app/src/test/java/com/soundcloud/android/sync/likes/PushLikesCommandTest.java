@@ -9,10 +9,8 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +27,6 @@ public class PushLikesCommandTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
 
     private ApiLike apiLike = ModelFixtures.apiTrackLike();
-    private PropertySet input = PropertySet.from(LikeProperty.TARGET_URN.bind(apiLike.getTargetUrn()));
 
     @Before
     public void setup() {
@@ -50,10 +47,7 @@ public class PushLikesCommandTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CREATE_TRACK_LIKES.path())
                                                                            .withContent(expectedBody)), isA(TypeToken.class))).thenReturn(addedLikes);
 
-        Collection<PropertySet> result = pushLikesCommand.with(Collections.singleton(input)).call();
-        assertThat(result).containsExactly(PropertySet.from(
-                LikeProperty.TARGET_URN.bind(apiLike.getTargetUrn()),
-                LikeProperty.CREATED_AT.bind(apiLike.getCreatedAt())
-        ));
+        Collection<ApiLike> result = pushLikesCommand.with(Collections.singleton(apiLike)).call();
+        assertThat(result).containsExactly(ApiLike.create(apiLike.getTargetUrn(), apiLike.getCreatedAt()));
     }
 }

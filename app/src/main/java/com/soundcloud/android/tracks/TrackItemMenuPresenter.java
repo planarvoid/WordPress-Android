@@ -273,7 +273,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleShare(Context context) {
-        shareOperations.share(context, track.getSource(), eventContextMetadata, getPromotedSource());
+        shareOperations.share(context, track, eventContextMetadata, getPromotedSource());
     }
 
     private void showAddToPlaylistDialog() {
@@ -318,7 +318,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         trackRepost(repost);
     }
 
-    private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {
+    private static class TrackSubscriber extends DefaultSubscriber<TrackItem> {
         private TrackItem track;
         private final PopupMenuWrapper menu;
 
@@ -328,8 +328,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         }
 
         @Override
-        public void onNext(PropertySet details) {
-            track = track.updated(details);
+        public void onNext(TrackItem details) {
+            track = details;
             updateLikeActionTitle(track.isLikedByCurrentUser());
             updateRepostActionTitle(track.isRepostedByCurrentUser());
         }

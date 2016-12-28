@@ -25,14 +25,6 @@ import java.util.Map;
 
 public class TrackRepository {
 
-    private static final Func1<Map<Urn, TrackItem>, PropertySet> TO_PROPERTY_MAP_VALUE_OR_EMPTY = track -> {
-        if (track.isEmpty()) {
-            return PropertySet.create();
-        } else {
-            return track.values().iterator().next().getSource();
-        }
-    };
-
     private static final Func1<Map<Urn, TrackItem>, TrackItem> TO_MAP_VALUE_OR_EMPTY = track -> {
         if (track.isEmpty()) {
             return null;
@@ -57,12 +49,7 @@ public class TrackRepository {
         this.scheduler = scheduler;
     }
 
-    @Deprecated // use fromUrn
-    public Observable<PropertySet> track(final Urn trackUrn) {
-        return fromUrns(singletonList(trackUrn)).map(TO_PROPERTY_MAP_VALUE_OR_EMPTY);
-    }
-
-    public Observable<TrackItem> fromUrn(final Urn trackUrn) {
+    public Observable<TrackItem> track(final Urn trackUrn) {
         return fromUrns(singletonList(trackUrn)).map(TO_MAP_VALUE_OR_EMPTY);
     }
 

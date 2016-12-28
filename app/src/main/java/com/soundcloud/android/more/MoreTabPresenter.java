@@ -19,9 +19,9 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -163,9 +163,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                                                        headerView.getProfileImageView());
     }
 
-    private class MoreSubscriber extends DefaultSubscriber<PropertySet> {
+    private class MoreSubscriber extends DefaultSubscriber<UserItem> {
         @Override
-        public void onNext(PropertySet user) {
+        public void onNext(UserItem user) {
             moreOpt = Optional.of(new More(user));
             bindUserIfPresent();
         }

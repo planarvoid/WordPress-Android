@@ -87,7 +87,7 @@ public class PlayerWidgetController {
         } else if (item.isVideoAd()) {
             presenter.updateForVideoAd(context);
         } else if (item.isTrack()) {
-            trackRepository.fromUrn(item.getUrn())
+            trackRepository.track(item.getUrn())
                            .map(updateFunction)
                            .subscribe(new CurrentTrackSubscriber());
         } else {

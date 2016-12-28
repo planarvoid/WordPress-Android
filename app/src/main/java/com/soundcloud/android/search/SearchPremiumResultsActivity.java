@@ -49,7 +49,7 @@ public class SearchPremiumResultsActivity extends PlayerActivity {
     }
 
     private void checkIntentArguments(Intent intent) {
-        final ArrayList<PropertySet> premiumContentList = intent.getParcelableArrayListExtra(
+        final ArrayList<SearchableItem> premiumContentList = intent.getParcelableArrayListExtra(
                 EXTRA_PREMIUM_CONTENT_RESULTS);
         Preconditions.checkState(premiumContentList != null && !premiumContentList.isEmpty(),
                                  "Invalid search premium content list");

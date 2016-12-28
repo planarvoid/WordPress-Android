@@ -100,7 +100,6 @@ import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.CommentRecord;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.policies.ApiPolicyInfo;
@@ -138,7 +137,6 @@ import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformSerializer;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.query.Query;
@@ -467,11 +465,7 @@ public class DatabaseAssertions {
     }
 
     public void assertLikeInserted(ApiLike like) {
-        assertLikeInserted(like.toPropertySet());
-    }
-
-    public void assertLikeInserted(PropertySet like) {
-        assertLikeInserted(like.get(LikeProperty.TARGET_URN), like.get(LikeProperty.CREATED_AT));
+        assertLikeInserted(like.getTargetUrn(), like.getCreatedAt());
     }
 
     public void assertLikeInserted(Urn targetUrn, Date createdAt) {

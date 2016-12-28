@@ -3,11 +3,8 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -127,9 +124,9 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
             this(entityUrn, Urn.NOT_SET);
         }
 
-        public Builder(PropertySet entity) {
-            this(entity.get(EntityProperty.URN),
-                 entity.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
+        public Builder(PlayableWithReposter playableAndReposter) {
+            this(playableAndReposter.getUrn(),
+                 playableAndReposter.getReposterUrn().or(Urn.NOT_SET));
         }
 
         public Builder(Urn playable, Urn reposter) {

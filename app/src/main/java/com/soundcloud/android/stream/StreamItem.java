@@ -145,7 +145,7 @@ public abstract class StreamItem {
         public static StreamHighlights create(List<ApiTrack> suggestedTracks) {
             final List<TrackItem> suggestedTrackItems = new ArrayList<>(suggestedTracks.size());
             for (ApiTrack apiTrack : suggestedTracks) {
-                suggestedTrackItems.add(TrackItem.from(apiTrack.toPropertySet()));
+                suggestedTrackItems.add(TrackItem.from(apiTrack));
             }
             return new AutoValue_StreamItem_StreamHighlights(Kind.STREAM_HIGHLIGHTS, suggestedTrackItems);
         }

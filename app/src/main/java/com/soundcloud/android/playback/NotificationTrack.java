@@ -1,9 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
@@ -11,9 +9,9 @@ import android.content.res.Resources;
 public class NotificationTrack {
 
     private final Resources resources;
-    private final PropertySet source;
+    private final TrackItem source;
 
-    public NotificationTrack(Resources resources, PropertySet source) {
+    public NotificationTrack(Resources resources, TrackItem source) {
         this.resources = resources;
         this.source = source;
     }
@@ -21,17 +19,17 @@ public class NotificationTrack {
     public String getTitle() {
         return isAudioAd()
                ? resources.getString(R.string.ads_advertisement)
-               : source.get(PlayableProperty.TITLE);
+               : source.getTitle();
     }
 
     public String getCreatorName() {
         return isAudioAd()
                ? Strings.EMPTY
-               : source.get(PlayableProperty.CREATOR_NAME);
+               : source.getCreatorName();
     }
 
     public boolean isAudioAd() {
-        return source.get(AdProperty.IS_AUDIO_AD);
+        return source.isAd();
     }
 
     public long getDuration() {

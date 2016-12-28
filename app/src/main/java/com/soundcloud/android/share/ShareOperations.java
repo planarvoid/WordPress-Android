@@ -6,9 +6,8 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
@@ -27,11 +26,11 @@ public class ShareOperations {
         this.eventTracker = eventTracker;
     }
 
-    public void share(Context context, PropertySet playable, EventContextMetadata contextMetadata,
+    public void share(Context context, PlayableItem playable, EventContextMetadata contextMetadata,
                       PromotedSourceInfo promotedSourceInfo) {
-        if (!playable.getOrElse(PlayableProperty.IS_PRIVATE, true)) {
+        if (!playable.isPrivate()) {
             share(context,
-                  playable.get(PlayableProperty.PERMALINK_URL),
+                  playable.getPermalinkUrl(),
                   contextMetadata, promotedSourceInfo,
                   EntityMetadata.from(playable));
         }

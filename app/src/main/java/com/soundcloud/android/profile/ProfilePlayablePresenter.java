@@ -2,68 +2,38 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
 import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
-import static com.soundcloud.java.collections.Iterables.transform;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.List;
 
-abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>>
+abstract class ProfilePlayablePresenter<DataT extends Iterable<PlayableItem>>
         extends RecyclerViewPresenter<DataT, PlayableItem> {
-
-    private static final Function<PlayableItem, PropertySet> PLAYABLE_ITEM_TO_PROPERTY_SET = new Function<PlayableItem, PropertySet>() {
-        @Override
-        public PropertySet apply(PlayableItem input) {
-            return input.getSource();
-        }
-    };
 
     final MixedPlayableRecyclerItemAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     protected MixedItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
-
-    protected final Func1<DataT, List<PlayableItem>> pageTransformer = new Func1<DataT, List<PlayableItem>>() {
-        @Override
-        public List<PlayableItem> call(DataT collection) {
-            final List<PlayableItem> items = new ArrayList<>();
-            for (PropertySet source : collection) {
-                final Urn urn = source.get(EntityProperty.URN);
-                if (urn.isTrack()) {
-                    items.add(TrackItem.from(source));
-                } else if (urn.isPlaylist()) {
-                    items.add(PlaylistItem.from(source));
-                }
-            }
-            return items;
-        }
-    };
 
     protected ProfilePlayablePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                        ImagePauseOnScrollListener imagePauseOnScrollListener,
@@ -105,7 +75,9 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>>
         if (item.getUrn().isTrack()) {
             clickListener.onProfilePostClick(getPlayables(adapter), view, position, item, item.getUserUrn());
         } else {
-            clickListener.legacyOnPostClick(getPlayables(adapter), view, position, item);
+            final Observable<List<PlayableWithReposter>> playablesWithReposters = getPlayables(adapter)
+                    .map(playables -> Lists.transform(playables, PlayableWithReposter::from));
+            clickListener.legacyOnPostClick(playablesWithReposters, view, position, item);
         }
     }
 
@@ -120,7 +92,8 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>>
         return clickListenerFactory.create(screen, searchQuerySourceInfo);
     }
 
-    private Observable<List<PropertySet>> getPlayables(final MixedPlayableRecyclerItemAdapter adapter) {
-        return Observable.from(transform(adapter.getItems(), PLAYABLE_ITEM_TO_PROPERTY_SET)).toList();
+    private Observable<List<PlayableItem>> getPlayables(final MixedPlayableRecyclerItemAdapter adapter) {
+        final List<PlayableItem> items = adapter.getItems();
+        return Observable.from(items).toList();
     }
 }

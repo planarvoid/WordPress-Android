@@ -23,7 +23,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -84,7 +84,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersTrackClickEventOnTrackItemClicked() {
-        final SuggestionItem suggestionItem = SuggestionItem.forTrack(PropertySet.create().put(SearchSuggestionProperty.URN, Urn.forTrack(123)), SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forTrack(Urn.forTrack(123), Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);
@@ -94,7 +94,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersUserClickEventOnUserItemClicked() {
-        final SuggestionItem suggestionItem = SuggestionItem.forUser(PropertySet.create().put(SearchSuggestionProperty.URN, Urn.forUser(456)), SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forUser(Urn.forUser(456), Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);
@@ -105,7 +105,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersPlaylistClickEventOnUserItemClicked() {
-        final SuggestionItem suggestionItem = SuggestionItem.forPlaylist(PropertySet.create().put(SearchSuggestionProperty.URN, Urn.forPlaylist(789)), SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(789), Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);
@@ -140,7 +140,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     @Test
     public void performsSuggestionAction() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(789);
-        final SearchSuggestionItem suggestionItem = SuggestionItem.forPlaylist(PropertySet.create().put(SearchSuggestionProperty.URN, playlistUrn), SEARCH_QUERY);
+        final SearchSuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(playlistUrn, Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);

@@ -7,7 +7,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 
 import android.support.annotation.Nullable;
@@ -31,7 +30,7 @@ class UserSoundsItemClickListener {
         this.mixedItemClickListener = mixedItemClickListener;
     }
 
-    public void onItemClick(Observable<List<PropertySet>> playables,
+    public void onItemClick(Observable<List<PlayableItem>> playables,
                             View view,
                             int position,
                             UserSoundsItem item,

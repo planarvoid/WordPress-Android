@@ -1,9 +1,8 @@
 package com.soundcloud.android.testsupport.matchers;
 
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -37,8 +36,8 @@ public class ImageResourceMatcher extends BaseMatcher<ImageResource> {
         return new ImageResourceMatcher(urn, imageUrlTemplate);
     }
 
-    public static ImageResourceMatcher isImageResourceFor(PropertySet entityProperties) {
-        return new ImageResourceMatcher(entityProperties.get(EntityProperty.URN),
-                                        entityProperties.get(EntityProperty.IMAGE_URL_TEMPLATE));
+    public static ImageResourceMatcher isImageResourceFor(TrackItem trackItem) {
+        return new ImageResourceMatcher(trackItem.getUrn(),
+                                        trackItem.getImageUrlTemplate());
     }
 }

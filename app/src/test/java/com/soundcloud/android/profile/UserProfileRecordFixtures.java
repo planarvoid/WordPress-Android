@@ -82,7 +82,7 @@ class UserProfileRecordFixtures {
         }
 
         ApiUserProfile build() {
-            return ApiUserProfile.create(
+            return new ApiUserProfile(
                     user,
                     spotlight,
                     tracks,

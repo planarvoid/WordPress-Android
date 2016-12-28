@@ -20,7 +20,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
@@ -28,7 +27,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -227,14 +225,13 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     public void handleShare(Context context, PlaylistItem playlist) {
-        final PropertySet playable = playlist.getSource();
-        final boolean isPublic = !playable.get(PlayableProperty.IS_PRIVATE);
+        final boolean isPublic = !playlist.isPrivate();
 
         if (isPublic) {
             shareOperations.share(context,
-                                  playable.get(PlayableProperty.PERMALINK_URL),
+                                  playlist.getPermalinkUrl(),
                                   getEventContextMetadata(), promotedSourceInfo.orNull(),
-                                  EntityMetadata.from(playable));
+                                  EntityMetadata.from(playlist));
         }
     }
 

@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
@@ -13,7 +13,7 @@ public class AudioPlayerAd extends PlayerAd {
     private final AudioAd audioData;
 
     AudioPlayerAd(AudioAd audioAd) {
-        super(audioAd, PropertySet.create());
+        super(audioAd, TrackItem.EMPTY);
         this.audioData = audioAd;
     }
 

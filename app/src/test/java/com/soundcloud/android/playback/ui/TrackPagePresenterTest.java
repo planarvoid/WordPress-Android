@@ -45,10 +45,9 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -680,11 +679,11 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void bindingUpsellableHighTierTrackWhileAllowingUpsellFeatureShowsUpsell() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
-        final PropertySet track = bindUpsellableHighTierTrack();
+        final TrackItem track = bindUpsellableHighTierTrack();
 
         final TrackPageHolder holder = getHolder(trackView);
         assertThat(holder.upsellView.getUpsellButton()).isVisible();
-        assertThat(holder.upsellView.getUpsellButton().getTag()).isEqualTo(track.get(TrackProperty.URN));
+        assertThat(holder.upsellView.getUpsellButton().getTag()).isEqualTo(track.getUrn());
     }
 
     @Test
@@ -782,18 +781,18 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private void populateTrackPage() {
-        final PropertySet source = TestPropertySets.expectedTrackForPlayer();
-        source.put(TrackProperty.SNIPPED, true);
+        final TrackItem source = TestPropertySets.expectedTrackForPlayer();
+        source.setSnipped(true);
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
     }
 
     private void bindSnippedTrack() {
-        final PropertySet snippedTrack = TestPropertySets.upsellableTrack();
+        final TrackItem snippedTrack = TestPropertySets.upsellableTrack();
         presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider));
     }
 
-    private PropertySet bindUpsellableHighTierTrack() {
-        final PropertySet source = TestPropertySets.upsellableTrackForPlayer();
+    private TrackItem bindUpsellableHighTierTrack() {
+        final TrackItem source = TestPropertySets.upsellableTrackForPlayer();
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
         return source;
     }

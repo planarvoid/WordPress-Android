@@ -1,6 +1,8 @@
 package com.soundcloud.android.playlists;
 
-public interface PlaylistRecordHolder {
+import com.soundcloud.android.model.RecordHolder;
+
+public interface PlaylistRecordHolder extends RecordHolder {
 
     PlaylistRecord getPlaylistRecord();
 

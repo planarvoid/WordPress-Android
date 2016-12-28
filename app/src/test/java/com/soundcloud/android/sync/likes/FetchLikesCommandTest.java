@@ -36,6 +36,6 @@ public class FetchLikesCommandTest extends AndroidUnitTest {
                 argThat(isApiRequestTo("GET", ApiEndpoints.LIKED_TRACKS.path())), isA(TypeToken.class)))
                 .thenReturn(response);
 
-        assertThat(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS).call()).containsExactly(apiLike.toPropertySet());
+        assertThat(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS).call()).containsExactly(apiLike);
     }
 }

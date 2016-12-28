@@ -24,7 +24,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.java.collections.PropertySet;
@@ -43,8 +43,8 @@ import java.util.List;
 
 public class MoreTabPresenterTest extends AndroidUnitTest {
 
-    private static final PropertySet USER = TestPropertySets.user();
-    private static final Urn USER_URN = USER.get(UserProperty.URN);
+    private static final UserItem USER = UserItem.from(TestPropertySets.user());
+    private static final Urn USER_URN = USER.getUrn();
 
     private MoreTabPresenter presenter;
 
@@ -109,8 +109,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedBindsUserToViewWhenLoadedAfterViewCreated() {
-        final PublishSubject<PropertySet> subject = PublishSubject.create();
-        when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(subject);
+        final PublishSubject<UserItem> subject = PublishSubject.create();
 
         setupForegroundFragment();
 
@@ -378,6 +377,6 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     }
 
     private void verifyUserBound() {
-        verify(moreView).setUsername(USER.get(UserProperty.USERNAME));
+        verify(moreView).setUsername(USER.getName());
     }
 }

@@ -30,7 +30,6 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -174,7 +173,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void tracksPromotedTrackUrls() {
-        PromotedListItem track = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedListItem track = TestPropertySets.expectedPromotedTrack();
         PromotedTrackingEvent event = PromotedTrackingEvent.forItemClick(track, "stream");
 
         analyticsProvider.handleTrackingEvent(event);

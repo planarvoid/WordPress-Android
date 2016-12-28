@@ -1,6 +1,7 @@
 package com.soundcloud.android.presentation;
 
 import static com.soundcloud.android.presentation.TypedListItem.Kind.PLAYABLE;
+import static java.lang.String.format;
 
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -12,18 +13,25 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.profile.ApiPlayableSource;
+import com.soundcloud.android.profile.ApiPostSource;
+import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.android.stream.SoundStreamProperty;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.Property;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
+import android.support.annotation.VisibleForTesting;
+
 import java.util.Date;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem, LikeableItem, RepostableItem {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem, LikeableItem, SearchableItem, RepostableItem  {
 
     protected final PropertySet source;
 
@@ -33,6 +41,38 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
             return item.getUrn();
         }
     };
+
+    public static PlayableItem from(ApiPlayableSource apiPlayableSource) {
+        if (apiPlayableSource.getTrack().isPresent()) {
+            return TrackItem.from(apiPlayableSource.getTrack().get());
+        } else {
+            return PlaylistItem.from(apiPlayableSource.getPlaylist().get());
+        }
+    }
+
+    public static PlayableItem from(ApiPlayableSource source, boolean repost) {
+        if (source.getTrack().isPresent()) {
+            return TrackItem.from(source.getTrack().get(), repost);
+        } else if (source.getPlaylist().isPresent()) {
+            return PlaylistItem.from(source.getPlaylist().get(), repost);
+        } else {
+            throw new RuntimeException(format("Empty ApiPlayableSource: %s", source));
+        }
+    }
+
+    public static PlayableItem from(ApiPostSource source) {
+        if (source.getTrackPost().isPresent()) {
+            return TrackItem.from(source.getTrackPost().get().getApiTrack(), false);
+        } else if (source.getTrackRepost().isPresent()) {
+            return TrackItem.from(source.getTrackRepost().get().getApiTrack(), true);
+        } else if (source.getPlaylistPost().isPresent()) {
+            return PlaylistItem.from(source.getPlaylistPost().get().getApiPlaylist(), false);
+        } else if (source.getPlaylistRepost().isPresent()) {
+            return PlaylistItem.from(source.getPlaylistRepost().get().getApiPlaylist(), true);
+        } else {
+            throw new RuntimeException(format("Empty ApiPostSource: %s", source));
+        }
+    }
 
     public static PlayableItem from(PropertySet source) {
         final Urn urn = source.get(EntityProperty.URN);
@@ -64,8 +104,12 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
         return source.get(PlayableProperty.URN);
     }
 
+    public void setUrn(Urn urn) {
+        source.put(PlayableProperty.URN, urn);
+    }
+
     public Urn getUserUrn() {
-        return getReposter().isPresent() ? getReposterUrn() : getCreatorUrn();
+        return getReposter().isPresent() && getReposterUrn().isPresent() ? getReposterUrn().get() : getCreatorUrn();
     }
 
     @Override
@@ -122,6 +166,10 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
         return source.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY);
     }
 
+    public void setCreatorName(String creatorName) {
+        source.put(PlayableProperty.CREATOR_NAME, creatorName);
+    }
+
     public Optional<String> getReposter() {
         return Optional.fromNullable(source.getOrElseNull(PostProperty.REPOSTER));
     }
@@ -130,20 +178,32 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
         return source.getOrElse(PlayableProperty.IS_PRIVATE, false);
     }
 
+    public void setPrivate(boolean isPrivate) {
+        source.put(PlayableProperty.IS_PRIVATE, isPrivate);
+    }
+
     public boolean isLikedByCurrentUser() {
         return source.getOrElse(PlayableProperty.IS_USER_LIKE, false);
     }
 
-    public boolean isRepostedByCurrentUser() {
-        return source.getOrElse(PlayableProperty.IS_USER_REPOST, false);
+    public void setLikedByCurrentUser(boolean liked) {
+        source.put(PlayableProperty.IS_USER_LIKE, liked);
     }
 
     public boolean isRepost() {
         return source.getOrElse(PostProperty.IS_REPOST, false);
     }
 
-    public Urn getReposterUrn() {
-        return source.get(PostProperty.REPOSTER_URN);
+    public boolean isRepostedByCurrentUser() {
+        return source.getOrElse(PlaylistProperty.IS_USER_REPOST, false);
+    }
+
+    public void setRepostedByCurrentUser(boolean isRepostedByUser) {
+        source.put(PlaylistProperty.IS_USER_REPOST, isRepostedByUser);
+    }
+
+    public Optional<Urn> getReposterUrn() {
+        return Optional.fromNullable(source.getOrElseNull(PostProperty.REPOSTER_URN));
     }
 
     @Override
@@ -151,12 +211,24 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
         return source.get(PlayableProperty.CREATED_AT);
     }
 
+    public void setCreatedAt(Date createdAt) {
+        source.put(PlayableProperty.CREATED_AT, createdAt);
+    }
+
     public int getLikesCount() {
         return source.getOrElse(PlayableProperty.LIKES_COUNT, 0);
     }
 
+    public void setLikesCount(int likesCount) {
+        source.put(PlayableProperty.LIKES_COUNT, likesCount);
+    }
+
     public int getRepostCount() {
         return source.getOrElse(PlayableProperty.REPOSTS_COUNT, 0);
+    }
+
+    public void setRepostsCount(int repostsCount) {
+        source.put(PlayableProperty.REPOSTS_COUNT, repostsCount);
     }
 
     @Override
@@ -168,7 +240,24 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
         return source.getOrElse(SoundStreamProperty.AVATAR_URL_TEMPLATE, Optional.<String>absent());
     }
 
-    public PropertySet getSource() {
-        return source;
+    public void setRepost(boolean repost) {
+        source.put(PostProperty.IS_REPOST, repost);
+    }
+
+    public void setReposter(String reposter) {
+        source.put(PostProperty.REPOSTER, reposter);
+    }
+
+    public void setReposterUrn(Urn reposterUrn) {
+        source.put(PostProperty.REPOSTER_URN, reposterUrn);
+    }
+
+    public String getPermalinkUrl() {
+        return source.get(PlayableProperty.PERMALINK_URL);
+    }
+
+    @VisibleForTesting
+    public PropertySet slice(Property... properties) {
+        return source.slice(properties);
     }
 }

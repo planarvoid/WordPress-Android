@@ -10,20 +10,19 @@ import static com.soundcloud.propeller.query.Query.Order.ASC;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
+class LoadFollowingCommand extends Command<Iterable<Urn>, Map<Urn, Boolean>> {
     private final PropellerDatabase propeller;
 
     @Inject
@@ -32,12 +31,12 @@ class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, Prope
     }
 
     @Override
-    public Map<Urn, PropertySet> call(Iterable<PropertySet> input) {
+    public Map<Urn, Boolean> call(Iterable<Urn> input) {
         final QueryResult query = propeller.query(forFollowings(input));
         return toFollowingSet(query);
     }
 
-    private Query forFollowings(Iterable<PropertySet> input) {
+    private Query forFollowings(Iterable<Urn> input) {
         return Query.from(TABLE)
                     .whereEq(ASSOCIATION_TYPE,
                              TYPE_FOLLOWING)
@@ -46,22 +45,15 @@ class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, Prope
                     .order(POSITION, ASC);
     }
 
-    private List<Long> getUserIds(Iterable<PropertySet> propertySets) {
-        final List<Long> userIds = new ArrayList<>();
-        for (PropertySet set : propertySets) {
-            final Urn urn = set.getOrElse(UserProperty.URN, Urn.NOT_SET);
-            if (urn.isUser()) {
-                userIds.add(urn.getNumericId());
-            }
-        }
-        return userIds;
+    private Collection<Long> getUserIds(Iterable<Urn> urns) {
+        return Lists.newArrayList(Iterables.transform(Iterables.filter(urns, Urn::isUser), Urn::getNumericId));
     }
 
-    private Map<Urn, PropertySet> toFollowingSet(QueryResult result) {
-        Map<Urn, PropertySet> followingsMap = new HashMap<>();
+    private Map<Urn, Boolean> toFollowingSet(QueryResult result) {
+        Map<Urn, Boolean> followingsMap = new HashMap<>();
         for (CursorReader reader : result) {
             final Urn userUrn = Urn.forUser(reader.getLong(TARGET_ID));
-            followingsMap.put(userUrn, PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
+            followingsMap.put(userUrn, true);
         }
         return followingsMap;
     }

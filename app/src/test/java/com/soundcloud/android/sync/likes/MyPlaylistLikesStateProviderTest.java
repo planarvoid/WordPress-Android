@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +38,7 @@ public class MyPlaylistLikesStateProviderTest {
 
     @Test
     public void hasLocalChangesIsTrueIfPlaylistRemovalsIsNotEmpty() throws Exception {
-        when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
+        when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.emptyList());
         when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(buildPlaylist());
 
         assertThat(myPlaylistLikesStateProvider.hasLocalChanges()).isTrue();
@@ -48,14 +46,14 @@ public class MyPlaylistLikesStateProviderTest {
 
     @Test
     public void hasLocalChangesIsFalseIfNoPendingAdditionsOrRemovals() throws Exception {
-        when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(Collections.<PropertySet>emptyList());
+        when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.emptyList());
+        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(Collections.emptyList());
 
         assertThat(myPlaylistLikesStateProvider.hasLocalChanges()).isFalse();
     }
 
-    private List<PropertySet> buildPlaylist() {
+    private List<LikeRecord> buildPlaylist() {
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        return singletonList(TestPropertySets.fromApiPlaylist(playlist, true, false, false, false));
+        return singletonList(DatabaseLikeRecord.create(playlist.getUrn(), playlist.getCreatedAt()));
     }
 }

@@ -9,10 +9,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -55,9 +54,9 @@ public class StreamPreloader {
         }
     };
 
-    private final Func1<PropertySet, Boolean> isNotOfflineTrack = new Func1<PropertySet, Boolean>() {
+    private final Func1<TrackItem, Boolean> isNotOfflineTrack = new Func1<TrackItem, Boolean>() {
         @Override
-        public Boolean call(PropertySet track) {
+        public Boolean call(TrackItem track) {
             return !offlinePlaybackOperations.shouldPlayOffline(track);
         }
     };
@@ -92,9 +91,9 @@ public class StreamPreloader {
         }
     };
 
-    private final Func1<PropertySet, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<PropertySet, Observable<PreloadItem>>() {
+    private final Func1<TrackItem, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<TrackItem, Observable<PreloadItem>>() {
         @Override
-        public Observable<PreloadItem> call(final PropertySet nextItem) {
+        public Observable<PreloadItem> call(final TrackItem nextItem) {
             return Observable.combineLatest(
                     eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
                     eventBus.queue(EventQueue.NETWORK_CONNECTION_CHANGED),
@@ -108,14 +107,14 @@ public class StreamPreloader {
     };
 
     @NonNull
-    private Func1<Object, PreloadItem> toPreloadItem(final PropertySet propertyBindings) {
+    private Func1<Object, PreloadItem> toPreloadItem(final TrackItem propertyBindings) {
         return new Func1<Object, PreloadItem>() {
             @Override
             public PreloadItem call(Object ignored) {
-                final PlaybackType playbackType = propertyBindings.get(TrackProperty.SNIPPED) ?
+                final PlaybackType playbackType = propertyBindings.isSnipped() ?
                                                   PlaybackType.AUDIO_SNIPPET :
                                                   PlaybackType.AUDIO_DEFAULT;
-                return new AutoParcel_PreloadItem(propertyBindings.get(TrackProperty.URN), playbackType);
+                return new AutoParcel_PreloadItem(propertyBindings.getUrn(), playbackType);
             }
         };
     }

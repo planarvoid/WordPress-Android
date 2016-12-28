@@ -46,6 +46,10 @@ public class PlaylistWithTracks implements ImageResource {
         return playlistItem.getDownloadState();
     }
 
+    public void setOfflineState(OfflineState offlineState) {
+        playlistItem.setOfflineState(offlineState);
+    }
+
     public boolean isRepostedByUser() {
         return playlistItem.isRepostedByCurrentUser();
     }
@@ -144,11 +148,6 @@ public class PlaylistWithTracks implements ImageResource {
 
     public PlaylistWithTracks updatedWithRepostStatus(RepostsStatusEvent.RepostStatus repostStatus) {
         return new PlaylistWithTracks(this.playlistItem.updatedWithRepost(repostStatus), tracks);
-    }
-
-    @Deprecated // we should avoid this, but apparently we need it to like something currently
-    public PropertySet getSourceSet() {
-        return playlistItem.getSource();
     }
 
     @Override

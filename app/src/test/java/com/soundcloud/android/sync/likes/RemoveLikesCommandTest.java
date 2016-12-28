@@ -4,10 +4,10 @@ import static com.soundcloud.android.model.Urn.forPlaylist;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiPlaylistLike;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackLike;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
-import static com.soundcloud.android.utils.PropertySets.toPropertySets;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -32,7 +32,7 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
         final ApiLike trackLike = testFixtures().insertTrackLike();
         final ApiLike trackLike2 = testFixtures().insertTrackLike();
 
-        command.call(toPropertySets(asList(trackLike, trackLike2)));
+        command.call(asList(trackLike, trackLike2));
 
         assertThat(select(from(Likes.TABLE))).isEmpty();
     }
@@ -49,7 +49,7 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
         final ApiLike playlistLike = apiPlaylistLike(apiPlaylist);
         testFixtures().insertLike(playlistLike);
 
-        command.call(toPropertySets(asList(trackLike)));
+        command.call(singletonList(trackLike));
 
         assertThat(select(from(Likes.TABLE))).counts(1);
     }

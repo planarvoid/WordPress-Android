@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -77,7 +78,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet createTrackPostForLastPostedPropertySet(ApiTrack track) {
-        return track.toPropertySet().slice(
+        return TrackItem.from(track).slice(
                 TrackProperty.URN,
                 TrackProperty.PERMALINK_URL
         ).put(PostProperty.CREATED_AT, track.getCreatedAt());

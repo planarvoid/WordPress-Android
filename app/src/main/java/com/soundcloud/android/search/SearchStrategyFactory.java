@@ -13,12 +13,12 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.search.SearchOperations.ContentType;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserItem;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
@@ -33,39 +33,39 @@ import java.util.Map;
 
 class SearchStrategyFactory {
 
-    private static final Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
-            new Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult>() {
+    private static final Func1<SearchModelCollection<? extends SearchableItem>, SearchResult> TO_SEARCH_RESULT =
+            new Func1<SearchModelCollection<? extends SearchableItem>, SearchResult>() {
                 @Override
-                public SearchResult call(SearchModelCollection<? extends PropertySetSource> searchCollection) {
-                    return SearchResult.fromPropertySetSource(
+                public SearchResult call(SearchModelCollection<? extends SearchableItem> searchCollection) {
+                    return SearchResult.fromSearchableItems(
                             searchCollection.getCollection(),
                             searchCollection.getNextLink(),
                             searchCollection.getQueryUrn());
                 }
             };
 
-    private static final Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT =
-            new Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult>() {
+    private static final Func1<SearchModelCollection<SearchableItem>, SearchResult> TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT =
+            new Func1<SearchModelCollection<SearchableItem>, SearchResult>() {
                 @Override
-                public SearchResult call(SearchModelCollection<? extends PropertySetSource> searchCollection) {
-                    final List<? extends PropertySetSource> collection = searchCollection.getCollection();
+                public SearchResult call(SearchModelCollection<SearchableItem> searchCollection) {
+                    final List<SearchableItem> collection = searchCollection.getCollection();
                     final Optional<Link> nextLink = searchCollection.getNextLink();
                     final Optional<Urn> queryUrn = searchCollection.getQueryUrn();
-                    final Optional<? extends SearchModelCollection<? extends PropertySetSource>> premiumContent =
+                    final Optional<? extends SearchModelCollection<SearchableItem>> premiumContent =
                             searchCollection.premiumContent();
                     if (premiumContent.isPresent()) {
-                        final SearchModelCollection<? extends PropertySetSource> premiumItems = premiumContent.get();
-                        final SearchResult premiumSearchResult = SearchResult.fromPropertySetSource(premiumItems.getCollection(),
-                                                                                                    premiumItems.getNextLink(),
-                                                                                                    premiumItems.getQueryUrn(),
-                                                                                                    premiumItems.resultsCount());
-                        return SearchResult.fromPropertySetSource(collection,
-                                                                  nextLink,
-                                                                  queryUrn,
-                                                                  Optional.of(premiumSearchResult),
-                                                                  searchCollection.resultsCount());
+                        final SearchModelCollection<SearchableItem> premiumItems = premiumContent.get();
+                        final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(premiumItems.getCollection(),
+                                                                                                  premiumItems.getNextLink(),
+                                                                                                  premiumItems.getQueryUrn(),
+                                                                                                  premiumItems.resultsCount());
+                        return SearchResult.fromSearchableItems(collection,
+                                                                nextLink,
+                                                                queryUrn,
+                                                                Optional.of(premiumSearchResult),
+                                                                searchCollection.resultsCount());
                     }
-                    return SearchResult.fromPropertySetSource(collection, nextLink, queryUrn);
+                    return SearchResult.fromSearchableItems(collection, nextLink, queryUrn);
                 }
             };
 
@@ -81,11 +81,11 @@ class SearchStrategyFactory {
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult input) {
-            final Map<Urn, PropertySet> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(input);
-            for (final PropertySet resultItem : input) {
-                final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
+            final Map<Urn, Boolean> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(Lists.transform(input.getItems(), SearchableItem::getUrn));
+            for (final SearchableItem resultItem : input) {
+                final Urn itemUrn = resultItem.getUrn();
                 if (playlistsIsLikedStatus.containsKey(itemUrn)) {
-                    resultItem.update(playlistsIsLikedStatus.get(itemUrn));
+                    ((PlaylistItem) resultItem).setLikedByCurrentUser(playlistsIsLikedStatus.get(itemUrn));
                 }
             }
             return input;
@@ -95,11 +95,11 @@ class SearchStrategyFactory {
     private final Func1<SearchResult, SearchResult> mergeFollowings = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult input) {
-            final Map<Urn, PropertySet> userIsFollowing = loadFollowingCommand.call(input);
-            for (final PropertySet resultItem : input) {
-                final Urn itemUrn = resultItem.getOrElse(UserProperty.URN, Urn.NOT_SET);
+            final Map<Urn, Boolean> userIsFollowing = loadFollowingCommand.call(Lists.transform(input.getItems(), SearchableItem::getUrn));
+            for (final SearchableItem resultItem : input) {
+                final Urn itemUrn = resultItem.getUrn();
                 if (userIsFollowing.containsKey(itemUrn)) {
-                    resultItem.update(userIsFollowing.get(itemUrn));
+                    ((UserItem) resultItem).setFollowing(userIsFollowing.get(itemUrn));
                 }
             }
             return input;
@@ -232,6 +232,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storeTracksCommand.toAction1())
                               .doOnNext(cachePremiumTracks)
+                              .map(searchResult -> searchResult.transform(TrackItem::from))
                               .map(TO_SEARCH_RESULT);
         }
     }
@@ -252,6 +253,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storePlaylistsCommand.toAction1())
                               .doOnNext(cachePremiumPlaylists)
+                              .map(searchResult -> searchResult.transform(PlaylistItem::from))
                               .map(TO_SEARCH_RESULT)
                               .map(mergePlaylistLikeStatus);
         }
@@ -273,6 +275,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storeUsersCommand.toAction1())
                               .doOnNext(cachePremiumUsers)
+                              .map(searchResult -> searchResult.transform(UserItem::from))
                               .map(TO_SEARCH_RESULT)
                               .map(mergeFollowings);
         }
@@ -294,6 +297,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(cacheUniversalSearchCommand.toAction())
                               .doOnNext(cachePremiumContent)
+                              .map(item -> item.transform(ApiUniversalSearchItem::toSearchableItem))
                               .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
                               .map(mergePlaylistLikeStatus)
                               .map(mergeFollowings);

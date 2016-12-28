@@ -4,14 +4,14 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 
 import android.webkit.URLUtil;
 
 @AutoValue
 public abstract class PlaybackSessionEventArgs {
 
-    public static PlaybackSessionEventArgs create(PropertySet trackData,
+    public static PlaybackSessionEventArgs create(TrackItem trackData,
                                                   TrackSourceInfo trackSourceInfo,
                                                   long progress,
                                                   String protocol,
@@ -25,7 +25,7 @@ public abstract class PlaybackSessionEventArgs {
                                                       marketablePlay, clientId, playId);
     }
 
-    public static PlaybackSessionEventArgs createWithProgress(PropertySet trackData,
+    public static PlaybackSessionEventArgs createWithProgress(TrackItem trackData,
                                                               TrackSourceInfo trackSourceInfo,
                                                               PlaybackProgress progress,
                                                               PlaybackStateTransition transition,
@@ -37,7 +37,7 @@ public abstract class PlaybackSessionEventArgs {
                                                isLocalStoragePlayback(transition), marketablePlay, clientId, playId);
     }
 
-    public abstract PropertySet getTrackData();
+    public abstract TrackItem getTrackData();
 
     public abstract TrackSourceInfo getTrackSourceInfo();
 

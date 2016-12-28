@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
@@ -25,12 +25,14 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
     private final Urn userUrn = Urn.forUser(123L);
     private final PropertySet user = PropertySet.from(UserProperty.URN.bind(Urn.forUser(123L)));
+    private final UserItem userItem = UserItem.from(user);
     private final PropertySet updatedUser = PropertySet.create()
                                                        .put(UserProperty.URN, Urn.forUser(123L))
                                                        .put(UserProperty.USERNAME, "name");
 
 
-    private TestObserver<PropertySet> observer = new TestObserver<>();
+    private TestSubscriber<PropertySet> observer = new TestSubscriber<>();
+    private TestSubscriber<UserItem> userObserver = new TestSubscriber<>();
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private UserStorage userStorage;
@@ -56,9 +58,9 @@ public class UserRepositoryTest extends AndroidUnitTest {
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user));
         when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.<SyncJobResult>never());
 
-        userRepository.userInfo(userUrn).subscribe(observer);
+        userRepository.userInfo(userUrn).subscribe(userObserver);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(user);
+        assertThat(userObserver.getOnNextEvents()).containsExactly(userItem);
     }
 
     @Test
@@ -68,13 +70,13 @@ public class UserRepositoryTest extends AndroidUnitTest {
                                                        Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
-        userRepository.userInfo(userUrn).subscribe(observer);
+        userRepository.userInfo(userUrn).subscribe(userObserver);
 
-        assertThat(observer.getOnNextEvents()).isEmpty();
+        assertThat(userObserver.getOnNextEvents()).isEmpty();
 
         subject.onNext(SyncJobResult.success(Syncable.USERS.name(), true));
 
-        assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
+        assertThat(userObserver.getOnNextEvents()).containsExactly(UserItem.from(updatedUser));
     }
 
     @Test

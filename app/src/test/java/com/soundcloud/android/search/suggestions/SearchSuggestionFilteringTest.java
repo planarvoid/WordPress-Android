@@ -6,7 +6,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,9 +19,9 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class SearchSuggestionFilteringTest {
     private static final String QUERY = "query";
-    private static final SuggestionItem P = SuggestionItem.forPlaylist(PropertySet.create(), QUERY);
-    private static final SuggestionItem U = SuggestionItem.forUser(PropertySet.create(), QUERY);
-    private static final SuggestionItem T = SuggestionItem.forTrack(PropertySet.create(), QUERY);
+    private static final SuggestionItem P = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
+    private static final SuggestionItem U = SearchSuggestionItem.forUser(Urn.forUser(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
+    private static final SuggestionItem T = SearchSuggestionItem.forTrack(Urn.forTrack(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
 
     @Mock private AutocompleteConfig autocompleteConfig;
     private SearchSuggestionFiltering searchSuggestionFiltering;

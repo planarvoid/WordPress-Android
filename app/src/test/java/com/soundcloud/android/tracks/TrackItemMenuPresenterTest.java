@@ -86,7 +86,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(view.getContext()).thenReturn(context());
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         when(playQueueConfiguration.isEnabled()).thenReturn(true);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
@@ -149,7 +149,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                     .pageUrn(Urn.NOT_SET)
                                     .isFromOverflow(true)
                                     .build();
-        verify(shareOperations).share(context, trackItem.getSource(), eventContextMetadata, null);
+        verify(shareOperations).share(context, trackItem, eventContextMetadata, null);
     }
 
     @Test

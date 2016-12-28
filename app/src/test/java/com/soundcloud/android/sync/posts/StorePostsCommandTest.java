@@ -1,18 +1,14 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.model.PostProperty.IS_REPOST;
-import static com.soundcloud.android.model.PostProperty.TARGET_URN;
 import static com.soundcloud.android.storage.Tables.Posts.TYPE_POST;
 import static com.soundcloud.android.storage.Tables.Posts.TYPE_REPOST;
 import static com.soundcloud.android.storage.Tables.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,9 +27,9 @@ public class StorePostsCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldPersistPlaylistPostsInDatabase() throws Exception {
-        final PropertySet playlistPost1 = createPlaylistPost(Urn.forPlaylist(123L), new Date(100L), true);
-        final PropertySet playlistPost2 = createPlaylistPost(Urn.forPlaylist(456L), new Date(200L), false);
-        final List<PropertySet> playlists = Arrays.asList(playlistPost1, playlistPost2);
+        final PostRecord playlistPost2 = ApiPost.create(Urn.forPlaylist(456L), new Date(200L));
+        final PostRecord playlistPost1 = ApiRepost.create(Urn.forPlaylist(123L), new Date(100L));
+        final List<PostRecord> playlists = Arrays.asList(playlistPost1, playlistPost2);
 
         command.call(playlists);
 
@@ -41,19 +37,11 @@ public class StorePostsCommandTest extends StorageIntegrationTest {
         assertPlaylistPostInserted(playlistPost2);
     }
 
-    private PropertySet createPlaylistPost(Urn urn, Date date, boolean isRepost) {
-        return PropertySet.from(
-                PostProperty.TARGET_URN.bind(urn),
-                PostProperty.CREATED_AT.bind(date),
-                PostProperty.IS_REPOST.bind(isRepost)
-        );
-    }
-
-    private void assertPlaylistPostInserted(PropertySet playlistPost) {
+    private void assertPlaylistPostInserted(PostRecord postRecord) {
         assertThat(select(from(Posts.TABLE)
-                               .whereEq(Posts.TARGET_ID, playlistPost.get(TARGET_URN).getNumericId())
+                               .whereEq(Posts.TARGET_ID, postRecord.getTargetUrn().getNumericId())
                                .whereEq(Posts.TARGET_TYPE, TYPE_PLAYLIST)
-                               .whereEq(Posts.TYPE, playlistPost.get(IS_REPOST) ? TYPE_REPOST : TYPE_POST)
-                               .whereEq(Posts.CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime()))).counts(1);
+                               .whereEq(Posts.TYPE, postRecord.isRepost() ? TYPE_REPOST : TYPE_POST)
+                               .whereEq(Posts.CREATED_AT, postRecord.getCreatedAt().getTime()))).counts(1);
     }
 }

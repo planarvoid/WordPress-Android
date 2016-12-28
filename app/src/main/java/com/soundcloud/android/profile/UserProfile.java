@@ -1,34 +1,28 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.MoreCollections.filter;
-import static com.soundcloud.java.collections.MoreCollections.transform;
-
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
-
-import java.util.ArrayList;
-import java.util.Collection;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserItem;
 
 public class UserProfile {
-    private final PropertySet user;
-    private final ModelCollection<PropertySet> spotlight;
-    private final ModelCollection<PropertySet> tracks;
-    private final ModelCollection<PropertySet> albums;
-    private final ModelCollection<PropertySet> playlists;
-    private final ModelCollection<PropertySet> reposts;
-    private final ModelCollection<PropertySet> likes;
+    private final UserItem user;
+    private final ModelCollection<PlayableItem> spotlight;
+    private final ModelCollection<TrackItem> tracks;
+    private final ModelCollection<PlaylistItem> albums;
+    private final ModelCollection<PlaylistItem> playlists;
+    private final ModelCollection<PlayableItem> reposts;
+    private final ModelCollection<PlayableItem> likes;
 
-    public UserProfile(PropertySet user,
-                       ModelCollection<PropertySet> spotlight,
-                       ModelCollection<PropertySet> tracks,
-                       ModelCollection<PropertySet> albums,
-                       ModelCollection<PropertySet> playlists,
-                       ModelCollection<PropertySet> reposts,
-                       ModelCollection<PropertySet> likes) {
+    public UserProfile(UserItem user,
+                       ModelCollection<PlayableItem> spotlight,
+                       ModelCollection<TrackItem> tracks,
+                       ModelCollection<PlaylistItem> albums,
+                       ModelCollection<PlaylistItem> playlists,
+                       ModelCollection<PlayableItem> reposts,
+                       ModelCollection<PlayableItem> likes) {
+
         this.user = user;
         this.spotlight = spotlight;
         this.tracks = tracks;
@@ -38,87 +32,44 @@ public class UserProfile {
         this.likes = likes;
     }
 
-    public PropertySet getUser() {
+    public UserItem getUser() {
         return user;
     }
 
-    public ModelCollection<PropertySet> getSpotlight() {
+    public ModelCollection<PlayableItem> getSpotlight() {
         return spotlight;
     }
 
-    public ModelCollection<PropertySet> getTracks() {
+    public ModelCollection<TrackItem> getTracks() {
         return tracks;
     }
 
-    public ModelCollection<PropertySet> getAlbums() {
+    public ModelCollection<PlaylistItem> getAlbums() {
         return albums;
     }
 
-    public ModelCollection<PropertySet> getPlaylists() {
+    public ModelCollection<PlaylistItem> getPlaylists() {
         return playlists;
     }
 
-    public ModelCollection<PropertySet> getReposts() {
+    public ModelCollection<PlayableItem> getReposts() {
         return reposts;
     }
 
-    public ModelCollection<PropertySet> getLikes() {
+    public ModelCollection<PlayableItem> getLikes() {
         return likes;
     }
 
-    public static UserProfile fromUserProfileRecord(UserProfileRecord userProfileRecord) {
-        PropertySet user = userProfileRecord.getUser().toPropertySet();
-
-        ModelCollection<PropertySet> spotlight = fromApiEntitySourceModelCollection(userProfileRecord.getSpotlight());
-        ModelCollection<PropertySet> tracks = fromApiEntityModelCollection(userProfileRecord.getTracks());
-        ModelCollection<PropertySet> albums = fromApiEntityModelCollection(userProfileRecord.getAlbums());
-        ModelCollection<PropertySet> playlists = fromApiEntityModelCollection(userProfileRecord.getPlaylists());
-        ModelCollection<PropertySet> reposts = fromApiEntitySourceModelCollection(userProfileRecord.getReposts());
-        ModelCollection<PropertySet> likes = fromApiEntitySourceModelCollection(userProfileRecord.getLikes());
+    public static UserProfile fromUserProfileRecord(ApiUserProfile userProfileRecord) {
+        UserItem user = UserItem.from(userProfileRecord.getUser());
+        ModelCollection<PlayableItem> spotlight = userProfileRecord.getSpotlight().transform(PlayableItem::from);
+        ModelCollection<TrackItem> tracks = userProfileRecord.getTracks().transform(post -> TrackItem.from(post.getApiTrack()));
+        ModelCollection<PlaylistItem> albums = userProfileRecord.getAlbums().transform(post -> PlaylistItem.from(post.getApiPlaylist()));
+        ModelCollection<PlaylistItem> playlists = userProfileRecord.getPlaylists().transform(post -> PlaylistItem.from(post.getApiPlaylist()));
+        ModelCollection<PlayableItem> reposts = userProfileRecord.getReposts().transform(PlayableItem::from);
+        ModelCollection<PlayableItem> likes = userProfileRecord.getLikes().transform(PlayableItem::from);
 
         return new UserProfile(user, spotlight, tracks, albums, playlists, reposts, likes);
-    }
-
-    private static ModelCollection<PropertySet> fromApiEntitySourceModelCollection(
-            ModelCollection<? extends ApiEntityHolderSource> originalModelCollection) {
-        Collection<? extends ApiEntityHolderSource> filteredSources = filter(originalModelCollection.getCollection(),
-                                                                             new Predicate<ApiEntityHolderSource>() {
-                                                                                 @Override
-                                                                                 public boolean apply(
-                                                                                         ApiEntityHolderSource input) {
-                                                                                     return input.getEntityHolder()
-                                                                                                 .isPresent();
-                                                                                 }
-                                                                             });
-
-        Collection<ApiEntityHolder> apiEntityHolders = transform(filteredSources,
-                                                                 new Function<ApiEntityHolderSource, ApiEntityHolder>() {
-                                                                     @Override
-                                                                     public ApiEntityHolder apply(ApiEntityHolderSource input) {
-                                                                         return input.getEntityHolder().get();
-                                                                     }
-                                                                 });
-
-        return new ModelCollection<>(
-                propertySetsFromApiEntityHolders(apiEntityHolders),
-                originalModelCollection.getLinks());
-    }
-
-    private static ModelCollection<PropertySet> fromApiEntityModelCollection(
-            ModelCollection<? extends ApiEntityHolder> originalModelCollection) {
-        return new ModelCollection<>(
-                propertySetsFromApiEntityHolders(originalModelCollection.getCollection()),
-                originalModelCollection.getLinks());
-    }
-
-    private static ArrayList<PropertySet> propertySetsFromApiEntityHolders(
-            Collection<? extends ApiEntityHolder> apiEntityHolders) {
-        return newArrayList(transform(apiEntityHolders, new Function<ApiEntityHolder, PropertySet>() {
-            @Override
-            public PropertySet apply(ApiEntityHolder input) {
-                return input.toPropertySet();
-            }
-        }));
     }
 
 }

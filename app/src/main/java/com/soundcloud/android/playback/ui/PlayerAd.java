@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -12,8 +12,8 @@ abstract class PlayerAd extends PlayerItem {
 
     private final PlayerAdData adData;
 
-    PlayerAd(PlayerAdData adData, PropertySet source) {
-        super(source);
+    PlayerAd(PlayerAdData adData, TrackItem trackItem) {
+        super(trackItem);
         this.adData = adData;
     }
 

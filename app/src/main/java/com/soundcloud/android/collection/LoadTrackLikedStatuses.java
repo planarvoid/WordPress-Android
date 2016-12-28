@@ -5,12 +5,10 @@ import static com.soundcloud.android.utils.Urns.trackPredicate;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -21,7 +19,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoadTrackLikedStatuses extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
+public class LoadTrackLikedStatuses extends Command<Iterable<Urn>, Map<Urn, Boolean>> {
 
     private static final String COLUMN_IS_LIKED = "is_liked";
 
@@ -33,12 +31,12 @@ public class LoadTrackLikedStatuses extends Command<Iterable<PropertySet>, Map<U
     }
 
     @Override
-    public Map<Urn, PropertySet> call(Iterable<PropertySet> input) {
+    public Map<Urn, Boolean> call(Iterable<Urn> input) {
         final QueryResult query = propeller.query(forLikes(input));
         return toLikedSet(query);
     }
 
-    private Query forLikes(Iterable<PropertySet> input) {
+    private Query forLikes(Iterable<Urn> input) {
         final Query isLiked = Query.from(Tables.Likes.TABLE)
                                    .joinOn(Table.SoundView.field(TableColumns.SoundView._ID),
                                            Tables.Likes._ID.qualifiedName())
@@ -52,12 +50,11 @@ public class LoadTrackLikedStatuses extends Command<Iterable<PropertySet>, Map<U
                     .whereEq(TableColumns.SoundView._TYPE, Tables.Sounds.TYPE_TRACK);
     }
 
-    private Map<Urn, PropertySet> toLikedSet(QueryResult result) {
-        Map<Urn, PropertySet> likedMap = new HashMap<>();
+    private Map<Urn, Boolean> toLikedSet(QueryResult result) {
+        Map<Urn, Boolean> likedMap = new HashMap<>();
         for (CursorReader reader : result) {
             final Urn trackUrn = Urn.forTrack(reader.getLong(TableColumns.SoundView._ID));
-            likedMap.put(trackUrn,
-                         PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(reader.getBoolean(COLUMN_IS_LIKED))));
+            likedMap.put(trackUrn, reader.getBoolean(COLUMN_IS_LIKED));
         }
         return likedMap;
     }

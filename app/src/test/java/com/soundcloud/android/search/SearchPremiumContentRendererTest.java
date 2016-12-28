@@ -14,8 +14,11 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.java.collections.PropertySet;
@@ -164,9 +167,15 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     }
 
     private List<SearchPremiumItem> buildSearchPremiumItem(Urn... urns) {
-        final List<PropertySet> propertySets = new ArrayList<>(urns.length);
+        final List<SearchableItem> propertySets = new ArrayList<>(urns.length);
         for (Urn urn : urns) {
-            propertySets.add(PropertySet.create().put(EntityProperty.URN, urn));
+            if (urn.isTrack()) {
+                propertySets.add(TrackItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
+            } else if (urn.isPlaylist()) {
+                propertySets.add(PlaylistItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
+            } else if (urn.isUser()) {
+                propertySets.add(UserItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
+            }
         }
         return Collections.singletonList(new SearchPremiumItem(propertySets, Optional.<Link>absent(), urns.length));
     }

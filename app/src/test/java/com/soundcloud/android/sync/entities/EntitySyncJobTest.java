@@ -50,8 +50,8 @@ public class EntitySyncJobTest extends AndroidUnitTest {
         entitySyncJob.run();
 
         assertThat(entitySyncJob.getUpdatedEntities()).containsExactly(
-                tracks.get(0).toPropertySet(),
-                tracks.get(1).toPropertySet());
+                tracks.get(0).toUpdateEvent(),
+                tracks.get(1).toUpdateEvent());
     }
 
     @Test

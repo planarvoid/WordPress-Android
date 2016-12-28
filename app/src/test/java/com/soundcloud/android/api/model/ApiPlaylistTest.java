@@ -2,11 +2,9 @@ package com.soundcloud.android.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
 public class ApiPlaylistTest extends AndroidUnitTest {
@@ -30,26 +28,26 @@ public class ApiPlaylistTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldConvertToPropertySet() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+    public void shouldConvertToPlaylistItem() {
+        ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
-        PropertySet propertySet = playlist.toPropertySet();
+        PlaylistItem playlistItem = PlaylistItem.from(apiPlaylist);
 
-        assertThat(propertySet.get(PlaylistProperty.URN)).isEqualTo(playlist.getUrn());
-        assertThat(propertySet.get(PlaylistProperty.TITLE)).isEqualTo(playlist.getTitle());
-        assertThat(propertySet.get(PlaylistProperty.CREATED_AT)).isEqualTo(playlist.getCreatedAt());
-        assertThat(propertySet.get(PlaylistProperty.PLAYLIST_DURATION)).isEqualTo(playlist.getDuration());
-        assertThat(propertySet.get(PlaylistProperty.PERMALINK_URL)).isEqualTo(playlist.getPermalinkUrl());
-        assertThat(propertySet.get(PlaylistProperty.IS_PRIVATE)).isEqualTo(!playlist.isPublic());
-        assertThat(propertySet.get(PlaylistProperty.TRACK_COUNT)).isEqualTo(playlist.getTrackCount());
-        assertThat(propertySet.get(PlaylistProperty.LIKES_COUNT)).isEqualTo(playlist.getStats().getLikesCount());
-        assertThat(propertySet.get(PlaylistProperty.REPOSTS_COUNT)).isEqualTo(playlist.getStats().getRepostsCount());
-        assertThat(propertySet.get(PlaylistProperty.CREATOR_NAME)).isEqualTo(playlist.getUsername());
-        assertThat(propertySet.get(PlaylistProperty.CREATOR_URN)).isEqualTo(playlist.getUser().getUrn());
-        assertThat(propertySet.get(PlaylistProperty.IS_ALBUM)).isEqualTo(playlist.isAlbum());
-        assertThat(propertySet.get(PlaylistProperty.SET_TYPE)).isEqualTo(playlist.getSetType());
-        assertThat(propertySet.get(PlaylistProperty.RELEASE_DATE)).isEqualTo(playlist.getReleaseDate());
-        assertThat(propertySet.get(PlaylistProperty.TAGS)).isEqualTo(Optional.of(playlist.getTags()));
-        assertThat(propertySet.get(PlaylistProperty.GENRE)).isEqualTo(playlist.getGenre());
+        assertThat(playlistItem.getUrn()).isEqualTo(apiPlaylist.getUrn());
+        assertThat(playlistItem.getTitle()).isEqualTo(apiPlaylist.getTitle());
+        assertThat(playlistItem.getCreatedAt()).isEqualTo(apiPlaylist.getCreatedAt());
+        assertThat(playlistItem.getDuration()).isEqualTo(apiPlaylist.getDuration());
+        assertThat(playlistItem.getPermalinkUrl()).isEqualTo(apiPlaylist.getPermalinkUrl());
+        assertThat(playlistItem.isPrivate()).isEqualTo(!apiPlaylist.isPublic());
+        assertThat(playlistItem.getTrackCount()).isEqualTo(apiPlaylist.getTrackCount());
+        assertThat(playlistItem.getLikesCount()).isEqualTo(apiPlaylist.getStats().getLikesCount());
+        assertThat(playlistItem.getRepostCount()).isEqualTo(apiPlaylist.getStats().getRepostsCount());
+        assertThat(playlistItem.getCreatorName()).isEqualTo(apiPlaylist.getUsername());
+        assertThat(playlistItem.getCreatorUrn()).isEqualTo(apiPlaylist.getUser().getUrn());
+        assertThat(playlistItem.isAlbum()).isEqualTo(apiPlaylist.isAlbum());
+        assertThat(playlistItem.getSetType()).isEqualTo(apiPlaylist.getSetType());
+        assertThat(playlistItem.getReleaseDate()).isEqualTo(apiPlaylist.getReleaseDate());
+        assertThat(playlistItem.getTags()).isEqualTo(apiPlaylist.getTags());
+        assertThat(playlistItem.getGenre()).isEqualTo(apiPlaylist.getGenre());
     }
 }

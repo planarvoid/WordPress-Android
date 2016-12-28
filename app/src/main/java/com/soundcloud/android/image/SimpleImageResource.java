@@ -2,8 +2,7 @@ package com.soundcloud.android.image;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
@@ -13,9 +12,9 @@ public abstract class SimpleImageResource implements ImageResource {
         return new AutoValue_SimpleImageResource(urn, avatarUrlTemplate);
     }
 
-    public static SimpleImageResource create(PropertySet trackProperties) {
-        return new AutoValue_SimpleImageResource(trackProperties.get(TrackProperty.URN),
-                                                 trackProperties.get(TrackProperty.IMAGE_URL_TEMPLATE));
+    public static SimpleImageResource create(TrackItem trackItem) {
+        return new AutoValue_SimpleImageResource(trackItem.getUrn(),
+                                                 trackItem.getImageUrlTemplate());
     }
 
     @Override

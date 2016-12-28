@@ -17,7 +17,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class UserRepostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
+class UserRepostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<PlayableItem>> {
 
     private final UserProfileOperations operations;
 
@@ -34,9 +34,9 @@ class UserRepostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollectio
     }
 
     @Override
-    protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection<PlayableItem>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
-        return CollectionBinding.from(operations.userReposts(userUrn), pageTransformer)
+        return CollectionBinding.from(operations.userReposts(userUrn))
                                 .withAdapter(adapter)
                                 .withPager(operations.repostsPagingFunction())
                                 .build();

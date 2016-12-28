@@ -21,7 +21,6 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -35,9 +34,8 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -106,7 +104,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private final FeatureFlags featureFlags;
 
-    private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
+    private final LruCache<Urn, ReplaySubject<TrackItem>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentPlayQueueItemFilter = new Func1<PlaybackProgressEvent, Boolean>() {
@@ -495,18 +493,18 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         );
     }
 
-    private Func1<PropertySet, PlayerTrackState> toPlayerTrackState(final PlayQueueItem playQueueItem) {
-        return propertySet -> new PlayerTrackState(propertySet,
+    private Func1<TrackItem, PlayerTrackState> toPlayerTrackState(final PlayQueueItem playQueueItem) {
+        return trackItem -> new PlayerTrackState(trackItem,
                                                    playQueueManager.isCurrentItem(playQueueItem),
                                                    isForeground, viewVisibilityProvider
         );
     }
 
-    private Observable<PropertySet> getTrackObservable(Urn urn, final Optional<AdData> adOverlayData) {
+    private Observable<TrackItem> getTrackObservable(Urn urn, final Optional<AdData> adOverlayData) {
         return getTrackObservable(urn).doOnNext(track -> {
             if (adOverlayData.isPresent() && adOverlayData.get() instanceof OverlayAdData) {
-                adOverlayData.get().setMonetizableTitle(track.get(TrackProperty.TITLE));
-                adOverlayData.get().setMonetizableCreator(track.get(TrackProperty.CREATOR_NAME));
+                adOverlayData.get().setMonetizableTitle(track.getTitle());
+                adOverlayData.get().setMonetizableCreator(track.getCreatorName());
             }
         });
     }
@@ -514,8 +512,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private Observable<PlayerItem> getAdObservable(final AdData adData) {
         return getTrackObservable(adData.getMonetizableTrackUrn()).map(
                 monetizableTrack -> {
-                    adData.setMonetizableTitle(monetizableTrack.get(PlayableProperty.TITLE));
-                    adData.setMonetizableCreator(monetizableTrack.get(PlayableProperty.CREATOR_NAME));
+                    adData.setMonetizableTitle(monetizableTrack.getTitle());
+                    adData.setMonetizableCreator(monetizableTrack.getCreatorName());
                     return adData;
                 }).map(adData1 -> adData1 instanceof VideoAd ? new VideoPlayerAd((VideoAd) adData1) : new AudioPlayerAd((AudioAd) adData1));
     }
@@ -544,8 +542,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    private Observable<PropertySet> getTrackObservable(Urn urn) {
-        ReplaySubject<PropertySet> trackSubject = trackObservableCache.get(urn);
+    private Observable<TrackItem> getTrackObservable(Urn urn) {
+        ReplaySubject<TrackItem> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
             trackRepository

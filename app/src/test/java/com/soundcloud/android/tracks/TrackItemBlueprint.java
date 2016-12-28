@@ -11,7 +11,7 @@ public class TrackItemBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return TrackItem.from(ModelFixtures.create(ApiTrack.class).toPropertySet());
+            return TrackItem.from(ModelFixtures.create(ApiTrack.class));
         }
     };
 

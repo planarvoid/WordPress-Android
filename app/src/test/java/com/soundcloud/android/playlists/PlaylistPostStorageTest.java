@@ -10,9 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -171,8 +169,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldIncludeLikedStatus() throws Exception {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        testFixtures().insertLike(new ApiLike(playlist1.getPlaylistItem().getUrn(), new Date()));
-        playlist1.getPlaylistItem().getSource().put(PlayableProperty.IS_USER_LIKE, true);
+        testFixtures().insertLike(ApiLike.create(playlist1.getPlaylistItem().getUrn(), new Date()));
+        playlist1.getPlaylistItem().setLikedByCurrentUser(true);
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE, Strings.EMPTY).subscribe(subscriber);
 
@@ -183,7 +181,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldIncludeUnlikedStatus() throws Exception {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        playlist1.getPlaylistItem().getSource().put(PlayableProperty.IS_USER_LIKE, false);
+        playlist1.getPlaylistItem().setLikedByCurrentUser(false);
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE, Strings.EMPTY).subscribe(subscriber);
 
@@ -309,9 +307,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     private PlaylistAssociation createPostedPlaylist(ApiPlaylist apiPlaylist, OfflineState offlineState) {
         final PlaylistAssociation postedPlaylist = createPostedPlaylist(apiPlaylist);
-        postedPlaylist.getPlaylistItem().getSource()
-                      .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
-                      .put(OfflineProperty.OFFLINE_STATE, offlineState);
+        final PlaylistItem playlistItem = postedPlaylist.getPlaylistItem();
+        playlistItem.setMarkedForOffline(true);
+        playlistItem.setOfflineState(offlineState);
         return postedPlaylist;
     }
 
@@ -354,27 +352,27 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         ApiPlaylist playlist = createPlaylistAt(createdAt);
         createPlaylistCollectionWithId(playlist.getUrn().getNumericId(), postedAt);
         final PlaylistAssociation playlistAssociation = createPostedPlaylist(playlist);
-        playlistAssociation.getPlaylistItem().getSource().put(OfflineProperty.IS_MARKED_FOR_OFFLINE, false);
+        playlistAssociation.getPlaylistItem().setMarkedForOffline(false);
         return playlistAssociation;
     }
 
     private PlaylistAssociation createPostedPlaylist(ApiPlaylist playlist) {
-        return PlaylistAssociation.create(
-                PlaylistItem.from(playlist.toPropertySet().slice(
-                        PlaylistProperty.URN,
-                        PlaylistProperty.TITLE,
-                        EntityProperty.IMAGE_URL_TEMPLATE,
-                        PlaylistProperty.CREATOR_URN,
-                        PlaylistProperty.CREATOR_NAME,
-                        PlaylistProperty.TRACK_COUNT,
-                        PlaylistProperty.CREATED_AT,
-                        PlaylistProperty.REPOSTS_COUNT,
-                        PlaylistProperty.PLAYLIST_DURATION,
-                        PlaylistProperty.IS_ALBUM,
-                        PlaylistProperty.LIKES_COUNT,
-                        PlaylistProperty.IS_PRIVATE
-                ).put(PlayableProperty.IS_USER_LIKE, false)),
-                playlist.getCreatedAt());
+        final PlaylistItem slice = PlaylistItem.from(PlaylistItem.from(playlist).slice(
+                PlaylistProperty.URN,
+                PlaylistProperty.TITLE,
+                EntityProperty.IMAGE_URL_TEMPLATE,
+                PlaylistProperty.CREATOR_URN,
+                PlaylistProperty.CREATOR_NAME,
+                PlaylistProperty.TRACK_COUNT,
+                PlaylistProperty.CREATED_AT,
+                PlaylistProperty.REPOSTS_COUNT,
+                PlaylistProperty.PLAYLIST_DURATION,
+                PlaylistProperty.IS_ALBUM,
+                PlaylistProperty.LIKES_COUNT,
+                PlaylistProperty.IS_PRIVATE
+        ));
+        slice.setLikedByCurrentUser(false);
+        return PlaylistAssociation.create(slice, playlist.getCreatedAt());
     }
 
     private ApiPlaylist createPlaylistAt(Date creationDate) {

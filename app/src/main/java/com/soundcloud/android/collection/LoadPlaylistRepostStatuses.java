@@ -7,11 +7,9 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Posts;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -23,7 +21,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
+public class LoadPlaylistRepostStatuses extends Command<Iterable<Urn>, Map<Urn, Boolean>> {
 
     private final PropellerDatabase propeller;
 
@@ -33,11 +31,11 @@ public class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, M
     }
 
     @Override
-    public Map<Urn, PropertySet> call(Iterable<PropertySet> input) {
+    public Map<Urn, Boolean> call(Iterable<Urn> input) {
         return toRepostedSet(propeller.query(forReposts(input)));
     }
 
-    private Query forReposts(Iterable<PropertySet> input) {
+    private Query forReposts(Iterable<Urn> input) {
         return Query.from(Table.SoundView.name())
                     .select(SoundView._ID, Posts.TYPE)
                     .leftJoin(Posts.TABLE, joinCondition())
@@ -50,11 +48,11 @@ public class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, M
                        .whereNull(Posts.REMOVED_AT);
     }
 
-    private Map<Urn, PropertySet> toRepostedSet(QueryResult queryResult) {
-        Map<Urn, PropertySet> result = new HashMap<>();
+    private Map<Urn, Boolean> toRepostedSet(QueryResult queryResult) {
+        Map<Urn, Boolean> result = new HashMap<>();
         for (CursorReader reader : queryResult) {
             final Urn playlistUrn = Urn.forPlaylist(reader.getLong(SoundView._ID));
-            result.put(playlistUrn, PropertySet.from(PlaylistProperty.IS_USER_REPOST.bind(isReposted(reader))));
+            result.put(playlistUrn, isReposted(reader));
         }
         return result;
     }

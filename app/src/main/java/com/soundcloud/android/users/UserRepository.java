@@ -38,12 +38,13 @@ public class UserRepository {
     /***
      * Returns a user from local storage if it exists, and backfills from the api if the user is not found locally
      */
-    public Observable<PropertySet> userInfo(Urn userUrn) {
+    public Observable<UserItem> userInfo(Urn userUrn) {
         return Observable
                 .concat(
                         userStorage.loadUser(userUrn).filter(IS_NOT_EMPTY),
                         syncedUserInfo(userUrn)
                 )
+                .map(UserItem::from)
                 .first()
                 .subscribeOn(scheduler);
     }

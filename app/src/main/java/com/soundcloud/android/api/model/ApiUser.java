@@ -1,19 +1,20 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.ApiEntityHolder;
+import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserRecordHolder;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
+public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, ApiSyncable {
 
     private Urn urn;
     @Nullable private String country;
@@ -73,6 +74,10 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Optional<String> getAvatarUrlTemplate() {
+        return avatarUrlTemplate;
     }
 
     @JsonProperty("avatar_url_template")
@@ -190,23 +195,12 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        final PropertySet bindings = PropertySet.from(
-                UserProperty.URN.bind(urn),
-                UserProperty.USERNAME.bind(username),
-                UserProperty.FOLLOWERS_COUNT.bind(followersCount),
-                UserProperty.IMAGE_URL_TEMPLATE.bind(avatarUrlTemplate)
-        );
-        // this should be modeled with an Option type instead:
-        // https://github.com/soundcloud/propeller/issues/32
-        if (country != null) {
-            bindings.put(UserProperty.COUNTRY, country);
-        }
-        return bindings;
+    public UserRecord getUserRecord() {
+        return this;
     }
 
     @Override
-    public UserRecord getUserRecord() {
-        return this;
+    public EntityStateChangedEvent toUpdateEvent() {
+        return UserItem.from(this).toUpdateEvent();
     }
 }

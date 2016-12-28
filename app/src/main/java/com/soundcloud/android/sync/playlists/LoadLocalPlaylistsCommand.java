@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.playlists;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.PropertySet;
@@ -15,7 +16,7 @@ import com.soundcloud.propeller.query.Query;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PropertySet>, LoadLocalPlaylistsCommand> {
+class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PlaylistItem>, LoadLocalPlaylistsCommand> {
 
     private final PropellerDatabase database;
 
@@ -25,7 +26,7 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PropertySet>,
     }
 
     @Override
-    public List<PropertySet> call() throws Exception {
+    public List<PlaylistItem> call() throws Exception {
         final QueryResult queryResult = database.query(Query.from(Tables.Sounds.TABLE)
                                                             .select(
                                                                     Tables.Sounds._ID,
@@ -38,15 +39,15 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PropertySet>,
         return queryResult.toList(new LocalPlaylistsMapper());
     }
 
-    private static final class LocalPlaylistsMapper implements ResultMapper<PropertySet> {
+    private static final class LocalPlaylistsMapper implements ResultMapper<PlaylistItem> {
         @Override
-        public PropertySet map(CursorReader reader) {
-            return PropertySet.from(
+        public PlaylistItem map(CursorReader reader) {
+            return PlaylistItem.from(PropertySet.from(
                     PlaylistProperty.URN.bind(Urn.forPlaylist(reader.getLong(Tables.Sounds._ID))),
                     PlaylistProperty.TITLE.bind(reader.getString(Tables.Sounds.TITLE)),
                     PlaylistProperty.IS_PRIVATE.bind(Sharing.PRIVATE.value().equals(
                             reader.getString(Tables.Sounds.SHARING)))
-            );
+            ));
         }
     }
 }

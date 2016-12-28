@@ -7,7 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,12 +23,12 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn CREATOR_URN = Urn.forUser(2L);
     private static final String PROTOCOL = "hls";
-    private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(TRACK_URN,
-                                                                                             CREATOR_URN,
-                                                                                             "allow",
-                                                                                             DURATION);
+    private static final TrackItem TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(TRACK_URN,
+                                                                                           CREATOR_URN,
+                                                                                           "allow",
+                                                                                           DURATION);
 
-    private static final PropertySet PROMOTED_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
+    private static final TrackItem PROMOTED_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String UUID = "uuid";
     private static final String PLAY_ID = "play-id";
@@ -134,7 +134,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private PlaybackSessionEventArgs createArgs(long progress, PropertySet trackData) {
+    private PlaybackSessionEventArgs createArgs(long progress, TrackItem trackData) {
         return PlaybackSessionEventArgs.create(trackData,
                                                trackSourceInfo,
                                                progress,

@@ -12,10 +12,13 @@ import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -26,7 +29,6 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -68,7 +70,8 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private Drawable divider;
     @Mock private EmptyViewBuilder emptyViewBuilder;
-    @Captor private ArgumentCaptor<Observable<List<PropertySet>>> argumentCaptor;
+    @Captor private ArgumentCaptor<Observable<List<PlayableItem>>> playableItemArgumentCaptor;
+    @Captor private ArgumentCaptor<Observable<List<PlayableWithReposter>>> playableWithReposterArgumentCaptor;
 
     private final Bundle arguments = new Bundle();
     private final Screen screen = Screen.USER_POSTS;
@@ -97,23 +100,23 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
     @Test
     public void presenterUsesMixedPlayableClickListenerForProfilePost() throws Exception {
-        TrackItem trackItem = TrackItem.from(TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L)));
+        TrackItem trackItem = TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L));
         when(adapter.getItem(1)).thenReturn(trackItem);
 
         presenter.onItemClicked(itemView, 1);
 
-        verify(itemClickListener).onProfilePostClick(argumentCaptor.capture(), same(itemView), eq(1),
+        verify(itemClickListener).onProfilePostClick(playableItemArgumentCaptor.capture(), same(itemView), eq(1),
                                                      same((ListItem) trackItem), same(trackItem.getCreatorUrn()));
     }
 
     @Test
     public void presenterUsesMixedPlayableClickListenerForPlaylistPost() throws Exception {
-        PlaylistItem playlistItem = PlaylistItem.from(TestPropertySets.expectedPostedPlaylistForPostsScreen());
+        PlaylistItem playlistItem = TestPropertySets.expectedPostedPlaylistForPostsScreen();
         when(adapter.getItem(1)).thenReturn(playlistItem);
 
         presenter.onItemClicked(itemView, 1);
 
-        verify(itemClickListener).legacyOnPostClick(argumentCaptor.capture(), same(itemView), eq(1),
+        verify(itemClickListener).legacyOnPostClick(playableWithReposterArgumentCaptor.capture(), same(itemView), eq(1),
                                                     same((ListItem) playlistItem));
     }
 
@@ -127,6 +130,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
     private void createPresenter() {
         presenter = new ProfilePlayablePresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
                                                  adapter, mixedClickListenerFactory, playableListUpdaterFactory) {
+
             @Override
             public void bind(Object o) {
 
@@ -139,8 +143,8 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
             @Override
             protected CollectionBinding onBuildBinding(Bundle bundle) {
-                return CollectionBinding.from(Observable.empty(), pageTransformer)
-                                        .withAdapter(adapter).build();
+                return CollectionBinding.from(Observable.empty())
+                                        .withAdapter((ItemAdapter) adapter).build();
             }
 
             @Override

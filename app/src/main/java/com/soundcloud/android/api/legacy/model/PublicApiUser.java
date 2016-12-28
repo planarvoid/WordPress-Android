@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRecord;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ import android.os.Parcelable;
 
 @Deprecated
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource, UserRecord {
+public class PublicApiUser extends PublicApiResource implements UserHolder, UserRecord, ApiSyncable {
     public static final int TYPE = 0;
     public static final String EXTRA = "user";
     public static final Parcelable.Creator<PublicApiUser> CREATOR = new Parcelable.Creator<PublicApiUser>() {
@@ -240,21 +240,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        final PropertySet propertySet = PropertySet.from(
-                UserProperty.URN.bind(getUrn()),
-                UserProperty.USERNAME.bind(username),
-                UserProperty.FOLLOWERS_COUNT.bind(followers_count),
-                UserProperty.ID.bind(getId()),
-                UserProperty.IMAGE_URL_TEMPLATE.bind(getImageUrlTemplate())
-        );
-        if (country != null) {
-            propertySet.put(UserProperty.COUNTRY, country);
-        }
-        return propertySet;
-    }
-
-    @Override
     public int describeContents() {
         return 0;
     }
@@ -323,5 +308,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Override
     public Optional<String> getImageUrlTemplate() {
         return imageUrlToTemplate(avatar_url);
+    }
+
+    @Override
+    public EntityStateChangedEvent toUpdateEvent() {
+        return UserItem.from(this).toUpdateEvent();
     }
 }

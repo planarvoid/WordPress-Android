@@ -9,6 +9,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
@@ -19,7 +21,7 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -145,7 +147,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
                                           .switchIfEmpty(Observable.just(Optional.absent()));
     }
 
-    Observable<List<PropertySet>> urnsForPlayback() {
+    Observable<List<PlayableWithReposter>> urnsForPlayback() {
         return streamStorage.playbackItems().subscribeOn(scheduler).toList();
     }
 

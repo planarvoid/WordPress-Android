@@ -40,6 +40,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -107,7 +108,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus;
     private PlayerPagerPresenter presenter;
-    private PropertySet track;
+    private TrackItem track;
     private PagerAdapter adapter;
 
     private List<PlayQueueItem> playQueue = Arrays.asList(
@@ -157,25 +158,25 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.setCurrentPlayQueue(playQueue, 0);
 
-        track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
+        track = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
                                  PlayableProperty.TITLE.bind("title"),
                                  PlayableProperty.CREATOR_NAME.bind("artist"),
-                                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L)));
+                                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))));
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
-                PropertySet.from(
+                TrackItem.from(PropertySet.from(
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
                         PlayableProperty.CREATOR_NAME.bind("artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L)))
+                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))))
         ));
 
         when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
-                PropertySet.from(
+                TrackItem.from(PropertySet.from(
                         TrackProperty.URN.bind(TRACK2_RELATED_URN),
                         PlayableProperty.TITLE.bind("related title"),
                         PlayableProperty.CREATOR_NAME.bind("related artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(234L)))
+                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(234L))))
         ));
     }
 

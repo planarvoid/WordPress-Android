@@ -1,23 +1,23 @@
 package com.soundcloud.android.api.model;
 
-import com.soundcloud.android.commands.Command;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Func1;
 
 import java.util.Iterator;
 
 public abstract class PagedCollection<T> implements Iterable<T> {
-    private final ModelCollection<T> items;
+    final ModelCollection<T> items;
 
     protected PagedCollection(ModelCollection<T> items) {
         this.items = items;
     }
 
     public static <T extends PagedCollection> Pager.PagingFunction<T> pagingFunction(
-            final Command<String, Observable<T>> nextPage,
+            final Func1<String, Observable<T>> nextPage,
             final Scheduler scheduler) {
         return new Pager.PagingFunction<T>() {
             @Override

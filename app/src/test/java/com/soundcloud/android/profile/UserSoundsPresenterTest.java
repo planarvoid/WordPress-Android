@@ -27,13 +27,13 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -79,13 +79,13 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private RecyclerView recyclerView;
     @Mock private SimpleItemAnimator itemAnimator;
 
-    @Captor private ArgumentCaptor<Observable<List<PropertySet>>> argumentCaptor;
+    @Captor private ArgumentCaptor<Observable<List<PlayableItem>>> argumentCaptor;
 
     @Before
     public void setUp() throws Exception {
         userProfileResponse = new UserProfileFixtures.Builder().build();
         fragmentArgs = new Bundle();
-        profileUser = new ProfileUser(ModelFixtures.create(ApiUser.class).toPropertySet());
+        profileUser = ProfileUser.from(ModelFixtures.create(ApiUser.class));
 
         fragmentArgs.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
         fragmentArgs.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, SEARCH_QUERY_SOURCE_INFO);
@@ -175,9 +175,9 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
                                           same(SEARCH_QUERY_SOURCE_INFO),
                                           eq(fromModule(TRACKS, 0)));
 
-        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<List<PlayableItem>> subscriber = new TestSubscriber<>();
         argumentCaptor.getValue().subscribe(subscriber);
-        subscriber.assertValue(singletonList(trackItem.getSource()));
+        subscriber.assertValue(singletonList(trackItem));
     }
 
     @Test

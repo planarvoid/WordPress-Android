@@ -8,14 +8,12 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
-import com.soundcloud.java.collections.PropertySet;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -74,8 +72,8 @@ public class TrackCommentsActivity extends PlayerActivity {
         getSupportFragmentManager().beginTransaction().add(R.id.comments_fragment, fragment).commit();
     }
 
-    public void setCount(PropertySet commentedTrack) {
-        final int numberOfComments = commentedTrack.get(TrackProperty.COMMENTS_COUNT);
+    public void setCount(TrackItem commentedTrack) {
+        final int numberOfComments = commentedTrack.getCommentsCount();
         if (numberOfComments > 0) {
             count.setVisibility(View.VISIBLE);
             count.setText(String.valueOf(numberOfComments));
@@ -84,14 +82,14 @@ public class TrackCommentsActivity extends PlayerActivity {
         }
     }
 
-    private void setDate(PropertySet commentedTrack) {
-        final long timestamp = commentedTrack.get(PlayableProperty.CREATED_AT).getTime();
+    private void setDate(TrackItem commentedTrack) {
+        final long timestamp = commentedTrack.getCreatedAt().getTime();
         date.setText(ScTextUtils.formatTimeElapsedSince(getResources(), timestamp, true));
     }
 
-    private void setIcon(PropertySet commentedTrack) {
+    private void setIcon(TrackItem commentedTrack) {
         imageOperations.displayWithPlaceholder(
-                commentedTrack.get(TrackProperty.URN),
+                commentedTrack.getUrn(),
                 ApiImageSize.getListItemImageSize(getResources()),
                 artwork);
     }
@@ -106,11 +104,11 @@ public class TrackCommentsActivity extends PlayerActivity {
         return Screen.PLAYER_COMMENTS;
     }
 
-    private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
+    private class TrackSubscriber extends DefaultSubscriber<TrackItem> {
         @Override
-        public void onNext(PropertySet track) {
-            title.setText(track.get(PlayableProperty.TITLE));
-            username.setText(track.get(PlayableProperty.CREATOR_NAME));
+        public void onNext(TrackItem track) {
+            title.setText(track.getTitle());
+            username.setText(track.getCreatorName());
             setCount(track);
             setDate(track);
             setIcon(track);

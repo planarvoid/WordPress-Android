@@ -1,10 +1,8 @@
 package com.soundcloud.android.api.model;
 
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
-import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
@@ -19,13 +17,12 @@ public class ApiPlaylistLike implements ApiEntityHolder, PlaylistRecordHolder {
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        return apiPlaylist.toPropertySet().put(LikeProperty.CREATED_AT, createdAt);
-    }
-
-    @Override
     public PlaylistRecord getPlaylistRecord() {
         return apiPlaylist;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
     @Override
@@ -43,4 +40,5 @@ public class ApiPlaylistLike implements ApiEntityHolder, PlaylistRecordHolder {
     public int hashCode() {
         return apiPlaylist.hashCode();
     }
+
 }

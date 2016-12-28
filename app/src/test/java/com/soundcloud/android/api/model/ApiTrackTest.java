@@ -2,11 +2,9 @@ package com.soundcloud.android.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
 
 public class ApiTrackTest extends AndroidUnitTest {
@@ -30,31 +28,31 @@ public class ApiTrackTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldConvertToPropertySet() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+    public void shouldConvertToTrackItem() {
+        ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
 
-        PropertySet propertySet = track.toPropertySet();
+        TrackItem trackItem = TrackItem.from(apiTrack);
 
-        assertThat(propertySet.get(TrackProperty.URN)).isEqualTo(track.getUrn());
-        assertThat(propertySet.get(TrackProperty.TITLE)).isEqualTo(track.getTitle());
-        assertThat(propertySet.get(TrackProperty.CREATED_AT)).isEqualTo(track.getCreatedAt());
-        assertThat(propertySet.get(TrackProperty.SNIPPET_DURATION)).isEqualTo(track.getSnippetDuration());
-        assertThat(propertySet.get(TrackProperty.FULL_DURATION)).isEqualTo(track.getFullDuration());
-        assertThat(propertySet.get(TrackProperty.IS_PRIVATE)).isEqualTo(track.isPrivate());
-        assertThat(propertySet.get(TrackProperty.WAVEFORM_URL)).isEqualTo(track.getWaveformUrl());
-        assertThat(propertySet.get(TrackProperty.PERMALINK_URL)).isEqualTo(track.getPermalinkUrl());
-        assertThat(propertySet.get(TrackProperty.MONETIZABLE)).isEqualTo(track.isMonetizable());
-        assertThat(propertySet.get(TrackProperty.POLICY)).isEqualTo(track.getPolicy());
-        assertThat(propertySet.get(TrackProperty.PLAY_COUNT)).isEqualTo(track.getStats().getPlaybackCount());
-        assertThat(propertySet.get(TrackProperty.COMMENTS_COUNT)).isEqualTo(track.getStats().getCommentsCount());
-        assertThat(propertySet.get(TrackProperty.LIKES_COUNT)).isEqualTo(track.getStats().getLikesCount());
-        assertThat(propertySet.get(TrackProperty.REPOSTS_COUNT)).isEqualTo(track.getStats().getRepostsCount());
-        assertThat(propertySet.get(TrackProperty.SUB_MID_TIER)).isEqualTo(track.isSubMidTier().get());
-        assertThat(propertySet.get(TrackProperty.MONETIZATION_MODEL)).isEqualTo(track.getMonetizationModel().get());
-        assertThat(propertySet.get(EntityProperty.IMAGE_URL_TEMPLATE)).isEqualTo(track.getImageUrlTemplate());
-
-        assertThat(propertySet.get(TrackProperty.CREATOR_NAME)).isEqualTo(track.getUserName());
-        assertThat(propertySet.get(TrackProperty.CREATOR_URN)).isEqualTo(track.getUser().getUrn());
+        assertThat(trackItem.getUrn()).isEqualTo(apiTrack.getUrn());
+        assertThat(trackItem.getTitle()).isEqualTo(apiTrack.getTitle());
+        assertThat(trackItem.getCreatedAt()).isEqualTo(apiTrack.getCreatedAt());
+        assertThat(trackItem.getSnippetDuration()).isEqualTo(apiTrack.getSnippetDuration());
+        assertThat(trackItem.getFullDuration()).isEqualTo(apiTrack.getFullDuration());
+        assertThat(trackItem.isPrivate()).isEqualTo(apiTrack.isPrivate());
+        assertThat(trackItem.getWaveformUrl()).isEqualTo(apiTrack.getWaveformUrl());
+        assertThat(trackItem.getPermalinkUrl()).isEqualTo(apiTrack.getPermalinkUrl());
+        assertThat(trackItem.isMonetizable()).isEqualTo(apiTrack.isMonetizable());
+        assertThat(trackItem.getPolicy()).isEqualTo(apiTrack.getPolicy());
+        assertThat(trackItem.getPlayCount()).isEqualTo(apiTrack.getStats().getPlaybackCount());
+        assertThat(trackItem.getCommentsCount()).isEqualTo(apiTrack.getStats().getCommentsCount());
+        assertThat(trackItem.getLikesCount()).isEqualTo(apiTrack.getStats().getLikesCount());
+        assertThat(trackItem.getRepostCount()).isEqualTo(apiTrack.getStats().getRepostsCount());
+        assertThat(trackItem.isSubMidTier()).isEqualTo(apiTrack.isSubMidTier().get());
+        assertThat(trackItem.isSubHighTier()).isEqualTo(apiTrack.isSubHighTier().get());
+        assertThat(trackItem.getMonetizationModel()).isEqualTo(apiTrack.getMonetizationModel().get());
+        assertThat(trackItem.getImageUrlTemplate()).isEqualTo(apiTrack.getImageUrlTemplate());
+        assertThat(trackItem.getCreatorName()).isEqualTo(apiTrack.getUserName());
+        assertThat(trackItem.getCreatorUrn()).isEqualTo(apiTrack.getUser().getUrn());
     }
 
 }

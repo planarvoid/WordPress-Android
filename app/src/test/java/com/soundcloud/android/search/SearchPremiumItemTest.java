@@ -3,10 +3,10 @@ package com.soundcloud.android.search;
 import static com.soundcloud.android.search.SearchPremiumItem.PREMIUM_URN;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -28,8 +28,8 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, TRACK_URN);
-        searchPremiumItem = buildWithPropertySet(propertySet);
+        final PlayableItem playableItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        searchPremiumItem = buildWithTrackItem(playableItem);
     }
 
     @Test
@@ -39,8 +39,8 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildTrackAsFirstItem() {
-        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, TRACK_URN);
-        searchPremiumItem = buildWithPropertySet(propertySet);
+        final PlayableItem playableItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        searchPremiumItem = buildWithTrackItem(playableItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(TrackItem.class);
         assertThat(searchPremiumItem.getFirstItem().getUrn()).isEqualTo(TRACK_URN);
@@ -48,8 +48,8 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildPlaylistAsFirstItem() {
-        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, PLAYLIST_URN);
-        searchPremiumItem = buildWithPropertySet(propertySet);
+        final PlayableItem playableItem = PlayableItem.from(PropertySet.create().put(EntityProperty.URN, PLAYLIST_URN));
+        searchPremiumItem = buildWithTrackItem(playableItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(PlaylistItem.class);
         assertThat(searchPremiumItem.getFirstItem().getUrn()).isEqualTo(PLAYLIST_URN);
@@ -57,8 +57,8 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildUserAsFirstItem() {
-        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, USER_URN);
-        searchPremiumItem = buildWithPropertySet(propertySet);
+        final UserItem userItem = UserItem.from(PropertySet.create().put(EntityProperty.URN, USER_URN));
+        searchPremiumItem = buildWithTrackItem(userItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(UserItem.class);
         assertThat(searchPremiumItem.getFirstItem().getUrn()).isEqualTo(USER_URN);
@@ -66,8 +66,8 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetTrackPlayingIfFirstItemIsTrack() {
-        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, TRACK_URN);
-        searchPremiumItem = buildWithPropertySet(propertySet);
+        final PlayableItem playableItem = PlayableItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        searchPremiumItem = buildWithTrackItem(playableItem);
 
         final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();
         assertThat(trackItem.isPlaying()).isFalse();
@@ -78,8 +78,8 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetTrackPlayingWithIncorrectUrn() {
-        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, TRACK_URN);
-        searchPremiumItem = buildWithPropertySet(propertySet);
+        final PlayableItem playableItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        searchPremiumItem = buildWithTrackItem(playableItem);
 
         final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();
         assertThat(trackItem.isPlaying()).isFalse();
@@ -88,7 +88,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
         assertThat(trackItem.isPlaying()).isFalse();
     }
 
-    private SearchPremiumItem buildWithPropertySet(PropertySet propertySet) {
-        return new SearchPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), RESULTS_COUNT);
+    private SearchPremiumItem buildWithTrackItem(SearchableItem searchableItem) {
+        return new SearchPremiumItem(Collections.singletonList(searchableItem), Optional.absent(), RESULTS_COUNT);
     }
 }

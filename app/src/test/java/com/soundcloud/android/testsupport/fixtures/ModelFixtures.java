@@ -22,11 +22,9 @@ import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -47,10 +45,8 @@ import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserBlueprint;
 import com.soundcloud.android.users.UserItemBlueprint;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -112,7 +108,7 @@ public class ModelFixtures {
     }
 
     public static ApiLike apiTrackLike(ApiTrack apiTrack) {
-        return new ApiLike(apiTrack.getUrn(), new Date());
+        return ApiLike.create(apiTrack.getUrn(), new Date());
     }
 
     public static ApiLike apiPlaylistLike() {
@@ -120,15 +116,15 @@ public class ModelFixtures {
     }
 
     public static ApiLike apiPlaylistLike(ApiPlaylist apiPlaylist) {
-        return new ApiLike(apiPlaylist.getUrn(), new Date());
+        return ApiLike.create(apiPlaylist.getUrn(), new Date());
     }
 
     public static ApiPlayableSource apiTrackHolder() {
-        return new ApiPlayableSource(ModelFixtures.create(ApiTrack.class), null);
+        return ApiPlayableSource.create(ModelFixtures.create(ApiTrack.class), null);
     }
 
     public static ApiPlayableSource apiPlaylistHolder() {
-        return new ApiPlayableSource(null, ModelFixtures.create(ApiPlaylist.class));
+        return ApiPlayableSource.create(null, ModelFixtures.create(ApiPlaylist.class));
     }
 
     public static ApiPlaylistWithTracks apiPlaylistWithNoTracks() {
@@ -150,7 +146,7 @@ public class ModelFixtures {
     }
 
     public static ApiPost apiTrackPost(ApiTrack apiTrack) {
-        return new ApiPost(apiTrack.getUrn(), new Date());
+        return ApiPost.create(apiTrack.getUrn(), new Date());
     }
 
     public static TrackItem trackItem() {
@@ -166,10 +162,9 @@ public class ModelFixtures {
     }
 
     public static PlaylistItem playlistItem(Urn urn) {
-        final PropertySet properties = ModelFixtures.create(ApiPlaylist.class)
-                                             .toPropertySet()
-                                             .put(EntityProperty.URN, urn);
-        return PlaylistItem.from(properties);
+        final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        playlistItem.setUrn(urn);
+        return playlistItem;
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {
@@ -327,34 +322,36 @@ public class ModelFixtures {
     }
 
     public static ProfileUser profileUser() {
-        return new ProfileUser(ModelFixtures.create(ApiUser.class).toPropertySet());
+        return ProfileUser.from(ModelFixtures.create(ApiUser.class));
     }
 
     public static ProfileUser profileUser(Urn urn) {
-        ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        apiUser.setUrn(urn);
-
-        return new ProfileUser(apiUser.toPropertySet());
+        ProfileUser profileUser = profileUser();
+        profileUser.setUrn(urn);
+        return profileUser;
     }
 
     public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
-        final PropertySet trackProperties = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        trackProperties.put(TrackProperty.URN, trackUrn);
-        trackProperties.put(OfflineProperty.OFFLINE_STATE, state);
-        return TrackItem.from(trackProperties);
+        final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        trackItem.setUrn(trackUrn);
+        trackItem.setOfflineState(state);
+        return trackItem;
     }
 
     public static TrackItem trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
-        return TrackItem.from(TestPropertySets.fromApiTrack(apiTrack).put(OfflineProperty.OFFLINE_STATE, state));
+        final TrackItem trackItem = TestPropertySets.fromApiTrack(apiTrack);
+        trackItem.setOfflineState(state);
+        return trackItem;
     }
 
     public static TrackItem trackItem(ApiTrack apiTrack) {
-        return TrackItem.from(TestPropertySets.fromApiTrack(apiTrack));
+        return TestPropertySets.fromApiTrack(apiTrack);
     }
 
     public static TrackItem highTierMonetizableTrack(ApiTrack track) {
-        return TrackItem.from(TestPropertySets.fromApiTrack(track)
-                                   .put(TrackProperty.SUB_MID_TIER, false)
-                                   .put(TrackProperty.SUB_HIGH_TIER, true));
+        final TrackItem trackItem = TestPropertySets.fromApiTrack(track);
+        trackItem.setSubMidTier(false);
+        trackItem.setSubHighTier(true);
+        return trackItem;
     }
 }

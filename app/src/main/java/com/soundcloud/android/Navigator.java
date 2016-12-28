@@ -47,6 +47,7 @@ import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
+import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -55,7 +56,6 @@ import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.stream.StreamHighlightsActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import android.Manifest;
@@ -193,7 +193,7 @@ public class Navigator {
     public void openSearchPremiumContentResults(Context context,
                                                 String searchQuery,
                                                 SearchType searchType,
-                                                List<PropertySet> premiumContentList,
+                                                List<SearchableItem> premiumContentList,
                                                 Optional<Link> nextHref,
                                                 Urn queryUrn) {
         final ArrayList<? extends Parcelable> sourceSetList = new ArrayList<>(premiumContentList);

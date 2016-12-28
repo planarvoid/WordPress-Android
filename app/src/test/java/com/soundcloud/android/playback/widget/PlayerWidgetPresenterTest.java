@@ -21,7 +21,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -48,7 +47,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     @Test
     public void updatesWidgetStateWhenPlayStateChanges() {
-        final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
+        final TrackItem trackProperties = TestPropertySets.expectedTrackForWidget();
         setupArtworkLoad(trackProperties, Observable.empty());
         final TrackItem trackItem = ModelFixtures.trackItem();
         trackItem.updated(trackProperties);
@@ -61,7 +60,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     @Test
     public void updatesTrackWhenPlayableChanges() {
-        final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
+        final TrackItem trackProperties = TestPropertySets.expectedTrackForWidget();
         setupArtworkLoad(trackProperties, Observable.empty());
         final TrackItem trackItem = ModelFixtures.trackItem();
         trackItem.updated(trackProperties);
@@ -79,7 +78,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribesFromArtworkLoadingWhenResetting() {
-        final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
+        final TrackItem trackProperties = TestPropertySets.expectedTrackForWidget();
         final PublishSubject<Bitmap> subject = PublishSubject.create();
         setupArtworkLoad(trackProperties, subject);
         final TrackItem trackItem = ModelFixtures.trackItem();
@@ -105,8 +104,8 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
         verify(appWidgetManager).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
     }
 
-    private void setupArtworkLoad(PropertySet trackProperties, Observable<Bitmap> bitmapObservable) {
-        when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
+    private void setupArtworkLoad(TrackItem trackItem, Observable<Bitmap> bitmapObservable) {
+        when(imageOperations.artwork(argThat(isImageResourceFor(trackItem)),
                                      same(ApiImageSize.getNotificationLargeIconImageSize(resources())),
                                      eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_width)),
                                      eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))))

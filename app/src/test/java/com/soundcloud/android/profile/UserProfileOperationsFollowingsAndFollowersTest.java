@@ -9,11 +9,10 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +48,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
     private final ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
-    final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
+    private final TestObserver<PagedRemoteCollection<UserItem>> observer = new TestObserver<>();
 
     final ModelCollection<ApiUser> page = new ModelCollection<>(
             Arrays.asList(
@@ -92,8 +91,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowersPagerReturnsNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
-                                                                      NEXT_HREF);
+        final PagedRemoteCollection<UserItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
+                                                                                  NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
@@ -103,7 +102,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowersPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+        final PagedRemoteCollection<UserItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
                                                                       NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
@@ -134,7 +133,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowingsPagerReturnsNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+        final PagedRemoteCollection<UserItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
                                                                       NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
@@ -145,7 +144,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowingsPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+        final PagedRemoteCollection<UserItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
                                                                       NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
@@ -156,16 +155,13 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     }
 
     private void assertAllItemsEmitted() {
-        assertAllItemsEmitted(
-                apiUser1.toPropertySet(),
-                apiUser2.toPropertySet()
-        );
+        assertAllItemsEmitted(UserItem.from(apiUser1), UserItem.from(apiUser2));
     }
 
-    private void assertAllItemsEmitted(PropertySet... propertySets) {
-        final List<PagedRemoteCollection> onNextEvents = observer.getOnNextEvents();
+    private void assertAllItemsEmitted(UserItem... userItems) {
+        final List<PagedRemoteCollection<UserItem>> onNextEvents = observer.getOnNextEvents();
         assertThat(onNextEvents).hasSize(1);
         assertThat(onNextEvents.get(0).nextPageLink().get()).isEqualTo(NEXT_HREF);
-        assertThat(onNextEvents.get(0)).containsExactly(propertySets);
+        assertThat(onNextEvents.get(0)).containsExactly(userItems);
     }
 }

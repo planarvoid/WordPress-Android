@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.users.UserItem;
 import org.junit.Test;
 
 public class ApiUserTest extends AndroidUnitTest {
@@ -29,13 +28,13 @@ public class ApiUserTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTurnToPropertySet() {
-        ApiUser user = ModelFixtures.create(ApiUser.class);
+    public void shouldConvertToUserItem() {
+        ApiUser apiUser = ModelFixtures.create(ApiUser.class);
 
-        PropertySet propertySet = user.toPropertySet();
-        assertThat(propertySet.get(UserProperty.URN)).isEqualTo(user.getUrn());
-        assertThat(propertySet.get(UserProperty.USERNAME)).isEqualTo(user.getUsername());
-        assertThat(propertySet.get(UserProperty.COUNTRY)).isEqualTo(user.getCountry());
-        assertThat(propertySet.get(UserProperty.FOLLOWERS_COUNT)).isEqualTo(user.getFollowersCount());
+        UserItem userItem = UserItem.from(apiUser);
+        assertThat(userItem.getUrn()).isEqualTo(apiUser.getUrn());
+        assertThat(userItem.getName()).isEqualTo(apiUser.getUsername());
+        assertThat(userItem.getCountry().get()).isEqualTo(apiUser.getCountry());
+        assertThat(userItem.getFollowersCount()).isEqualTo(apiUser.getFollowersCount());
     }
 }

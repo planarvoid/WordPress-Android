@@ -22,9 +22,8 @@ import com.soundcloud.android.playback.mediasession.MediaSessionControllerFactor
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     private static final long START_POSITION = 123L;
     private static final long NORMAL_FADE_DURATION = 600;
     private static final long PREVIEW_FADE_DURATION = 2000;
-    public static final PropertySet UPSELLABLE_TRACK = TestPropertySets.upsellableTrack();
+    public static final TrackItem UPSELLABLE_TRACK = TestPropertySets.upsellableTrack();
 
     private PlaybackService playbackService;
     private PlaybackItem playbackItem = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), START_POSITION);
@@ -495,7 +494,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void onPlayNewTrackWithPositionFadesIfStartsInTheMiddleOfTheFade() {
-        long startPosition = UPSELLABLE_TRACK.get(TrackProperty.SNIPPET_DURATION) - 1000;
+        long startPosition = UPSELLABLE_TRACK.getSnippetDuration() - 1000;
         PlaybackItem onFadeOffset = AudioPlaybackItem.forSnippet(UPSELLABLE_TRACK, startPosition);
         when(mediaSessionController.onPlay(onFadeOffset)).thenReturn(true);
         playbackService.onCreate();

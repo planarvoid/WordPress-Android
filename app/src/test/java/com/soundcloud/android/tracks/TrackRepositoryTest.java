@@ -46,6 +46,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     private Urn trackUrn = Urn.forTrack(123L);
     private Urn userUrn = Urn.forUser(123L);
     private PropertySet track;
+    private TrackItem trackItem;
     private PropertySet trackDescription;
 
     private TrackItem trackItem1 = ModelFixtures.trackItem();
@@ -57,6 +58,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncInitiator;
 
     private TestSubscriber<PropertySet> propSubscriber = new TestSubscriber<>();
+    private TestSubscriber<TrackItem> trackItemSubscriber = new TestSubscriber<>();
     private TestSubscriber<Map<Urn,TrackItem>> mapSubscriber = new TestSubscriber<>();
     private PublishSubject<SyncJobResult> syncTracksSubject = PublishSubject.create();
 
@@ -68,7 +70,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         track = PropertySet.from(TrackProperty.URN.bind(trackUrn),
                                  PlayableProperty.TITLE.bind(TITLE),
                                  PlayableProperty.CREATOR_NAME.bind(CREATOR));
-
+        trackItem = TrackItem.from(track);
         trackDescription = PropertySet.from(TrackProperty.DESCRIPTION.bind(DESCRIPTION));
     }
 
@@ -76,14 +78,14 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void tracksLoadAvailableTracksFromStorage() {
         final List<Urn> requestedTracks = singletonList(trackUrn);
         final List<Urn> availableTracks = singletonList(trackUrn);
-        final Map<Urn, TrackItem> syncedTrackProperties = singletonMap(trackUrn, TrackItem.from(track));
+        final Map<Urn, TrackItem> syncedTrackProperties = singletonMap(trackUrn, trackItem);
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(syncedTrackProperties));
 
-        trackRepository.track(trackUrn).subscribe(propSubscriber);
+        trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
 
-        propSubscriber.assertValue(track);
+        trackItemSubscriber.assertValue(trackItem);
         verifyNoMoreInteractions(syncInitiator);
     }
 
@@ -91,16 +93,16 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void tracksSyncsMissingTracks() {
         final List<Urn> requestedTracks = singletonList(trackUrn);
         final List<Urn> availableTracks = emptyList();
-        final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
-        final Map<Urn, TrackItem> actualTrackProperties = singletonMap(trackUrn, TrackItem.from(syncedTrack));
+        final TrackItem syncedTrack = TestPropertySets.expectedTrackForPlayer();
+        final Map<Urn, TrackItem> actualTrackProperties = singletonMap(trackUrn, syncedTrack);
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(actualTrackProperties));
 
-        trackRepository.track(trackUrn).subscribe(propSubscriber);
+        trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
 
-        propSubscriber.assertValue(syncedTrack);
+        trackItemSubscriber.assertValue(syncedTrack);
     }
 
     @Test
@@ -113,23 +115,23 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(syncedTracks));
 
-        trackRepository.track(trackUrn).subscribe(propSubscriber);
+        trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
 
-        propSubscriber.assertValue(PropertySet.create());
+        trackItemSubscriber.assertValue(null);
     }
 
     @Test
     public void fullTrackWithUpdateReturnsTrackDetailsFromStorage() {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.<SyncJobResult>empty());
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.empty());
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
 
         trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
 
-        final PropertySet first = propSubscriber.getOnNextEvents().get(0);
-        assertThat(first.get(PlayableProperty.TITLE)).isEqualTo(TITLE);
-        assertThat(first.get(PlayableProperty.CREATOR_NAME)).isEqualTo(CREATOR);
-        assertThat(first.get(TrackProperty.DESCRIPTION)).isEqualTo(DESCRIPTION);
+        final TrackItem first = TrackItem.from(propSubscriber.getOnNextEvents().get(0));
+        assertThat(first.getTitle()).isEqualTo(trackItem.getTitle());
+        assertThat(first.getCreatorName()).isEqualTo(trackItem.getCreatorName());
+        assertThat(first.getDescription()).isEqualTo(DESCRIPTION);
     }
 
     @Test

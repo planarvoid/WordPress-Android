@@ -24,7 +24,6 @@ import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
@@ -183,9 +182,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                                         .build();
 
         verify(shareOperations).share(context,
-                                      playlist.getSource().get(PlayableProperty.PERMALINK_URL),
+                                      playlist.getPermalinkUrl(),
                                       eventContextMetadata, null,
-                                      EntityMetadata.from(playlist.getSource()));
+                                      EntityMetadata.from(playlist));
     }
 
     @Test
@@ -260,9 +259,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PropertySet likedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, false);
+        PlaylistItem likedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, false);
 
-        playlist = PlaylistItem.from(likedPlaylist);
+        playlist = likedPlaylist;
         presenter.show(button, playlist, menuOptions);
 
         presenter.handleLike(playlist);
@@ -276,8 +275,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PropertySet likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, true);
-        playlist = PlaylistItem.from(likedAndPostedPlaylist);
+        PlaylistItem likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, true);
+        playlist = likedAndPostedPlaylist;
 
         when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);
 

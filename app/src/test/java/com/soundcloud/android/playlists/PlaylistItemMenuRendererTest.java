@@ -11,7 +11,6 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
@@ -142,8 +141,8 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     private PlaylistItem buildPlaylist(boolean markedForDownload, boolean liked) {
         PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        playlist.getSource().put(OfflineProperty.IS_MARKED_FOR_OFFLINE, markedForDownload);
-        playlist.getSource().put(PlaylistProperty.IS_USER_LIKE, liked);
+        playlist.setMarkedForOffline(markedForDownload);
+        playlist.setLikedByCurrentUser(liked);
         return playlist;
     }
 

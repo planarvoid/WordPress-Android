@@ -11,7 +11,7 @@ public class UserItemBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return UserItem.from(ModelFixtures.create(ApiUser.class).toPropertySet());
+            return UserItem.from(ModelFixtures.create(ApiUser.class));
         }
     };
 

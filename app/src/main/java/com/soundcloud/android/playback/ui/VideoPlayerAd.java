@@ -1,18 +1,18 @@
 package com.soundcloud.android.playback.ui;
 
-import android.content.res.Resources;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
+
+import android.content.res.Resources;
 
 public class VideoPlayerAd extends PlayerAd {
 
     private final VideoAd videoData;
 
     VideoPlayerAd(VideoAd videoAd) {
-        super(videoAd, PropertySet.create());
+        super(videoAd, TrackItem.EMPTY);
         this.videoData = videoAd;
     }
 

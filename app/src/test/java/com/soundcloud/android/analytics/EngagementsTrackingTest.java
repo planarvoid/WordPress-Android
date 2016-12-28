@@ -13,9 +13,10 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,10 +28,10 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn USER_URN = Urn.forUser(33L);
-    private static final PropertySet PROMOTED_TRACK = expectedPromotedTrack();
-    private static final PropertySet PLAYER_TRACK = expectedTrackForPlayer();
-    private static final PropertySet WIDGET_TRACK = expectedTrackForWidget();
-    private static final PropertySet FOLLOWED_USER = expectedFollowingForFollowingsScreen(0);
+    private static final PromotedTrackItem PROMOTED_TRACK = expectedPromotedTrack();
+    private static final TrackItem PLAYER_TRACK = expectedTrackForPlayer();
+    private static final TrackItem WIDGET_TRACK = expectedTrackForWidget();
+    private static final UserItem FOLLOWED_USER = UserItem.from(expectedFollowingForFollowingsScreen(0));
 
     private final TestEventBus eventBus = new TestEventBus();
 
@@ -52,8 +53,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
 
     @Test
     public void testLikeTrackUrnForPromotedTrack() {
-        final PromotedTrackItem trackItem = PromotedTrackItem.from(PROMOTED_TRACK);
-        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(trackItem);
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(PROMOTED_TRACK);
         final EntityMetadata entityMetadata = EntityMetadata.from(PROMOTED_TRACK);
         final EventContextMetadata eventContextMetadata = getEventContextMetadata();
 

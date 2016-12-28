@@ -16,11 +16,10 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.sync.posts.DatabasePostRecord;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
@@ -208,12 +207,8 @@ public class Uploader implements Runnable {
 
     private void createNewTrackPost(PublicApiTrack track) {
         storePostsCommand.call(singletonList(
-                PropertySet.from(
-                        PostProperty.TARGET_URN.bind(track.getUrn()),
-                        PostProperty.CREATED_AT.bind(track.getCreatedAt()),
-                        PostProperty.IS_REPOST.bind(false)
-                )
-        ));
+                DatabasePostRecord.createPost(track.getUrn(), track.getCreatedAt()))
+        );
     }
 
     private final class EventSubscriber extends DefaultSubscriber<UploadEvent> {

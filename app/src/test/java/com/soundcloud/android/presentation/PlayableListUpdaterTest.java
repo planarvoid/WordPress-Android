@@ -135,11 +135,11 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
         TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
-        PropertySet changeSet = ModelFixtures.create(ApiTrack.class).toPropertySet();
+        TrackItem changeSet = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.forUpdate(Collections.singletonList(changeSet));
+        final EntityStateChangedEvent event = changeSet.toUpdateEvent();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         verify(adapter, never()).notifyItemChanged(anyInt());
@@ -201,8 +201,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     private TrackItem initTrackForLike() {
         final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        trackItem.getSource().put(PlayableProperty.LIKES_COUNT, 0);
-        trackItem.getSource().put(PlayableProperty.IS_USER_LIKE, false);
+        trackItem.setLikesCount(0);
+        trackItem.setLikedByCurrentUser(false);
         return trackItem;
     }
 

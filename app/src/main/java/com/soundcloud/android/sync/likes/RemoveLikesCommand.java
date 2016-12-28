@@ -3,9 +3,7 @@ package com.soundcloud.android.sync.likes;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 
@@ -14,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-class RemoveLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySet>, ChangeResult> {
+class RemoveLikesCommand extends DefaultWriteStorageCommand<Collection<LikeRecord>, ChangeResult> {
 
     private final int type;
 
@@ -25,10 +23,10 @@ class RemoveLikesCommand extends DefaultWriteStorageCommand<Collection<PropertyS
     }
 
     @Override
-    protected ChangeResult write(PropellerDatabase propeller, Collection<PropertySet> input) {
+    protected ChangeResult write(PropellerDatabase propeller, Collection<LikeRecord> input) {
         List<Long> ids = new ArrayList<>(input.size());
-        for (PropertySet like : input) {
-            ids.add(like.get(LikeProperty.TARGET_URN).getNumericId());
+        for (LikeRecord like : input) {
+            ids.add(like.getTargetUrn().getNumericId());
         }
         return propeller.delete(Tables.Likes.TABLE, filter()
                 .whereIn(Tables.Likes._ID, ids)

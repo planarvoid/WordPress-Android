@@ -17,7 +17,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
+class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<PlayableItem>> {
 
     private final UserProfileOperations operations;
 
@@ -33,9 +33,9 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     }
 
     @Override
-    protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection<PlayableItem>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
-        return CollectionBinding.from(operations.userLikes(userUrn), pageTransformer)
+        return CollectionBinding.from(operations.userLikes(userUrn))
                                 .withAdapter(adapter)
                                 .withPager(operations.likesPagingFunction())
                                 .build();

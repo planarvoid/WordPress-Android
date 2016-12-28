@@ -185,6 +185,6 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     }
 
     private ProfileUser createProfileUser() {
-        return new ProfileUser(ModelFixtures.create(ApiUser.class).toPropertySet());
+        return ProfileUser.from(ModelFixtures.create(ApiUser.class));
     }
 }

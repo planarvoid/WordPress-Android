@@ -27,7 +27,6 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationTrack;
@@ -36,7 +35,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -272,7 +270,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnTrackSourceInfoWithoutReposterSetIfNotSet() {
-        playQueueManager.setNewPlayQueue(TestPlayQueue.fromTracks(asList(Urn.forTrack(1L).toPropertySet()),
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromTracks(asList(PlayableWithReposter.from(Urn.forTrack(1L))),
                                                                   playlistSessionSource), playlistSessionSource, 0);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
@@ -281,8 +279,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnTrackSourceInfoWithReposterSetIfSet() {
-        final PropertySet track = Urn.forTrack(1L).toPropertySet();
-        track.put(PostProperty.REPOSTER_URN, Urn.forUser(2L));
+        final PlayableWithReposter track = PlayableWithReposter.create(Urn.forTrack(1L), Optional.of(Urn.forUser(2L)));
         playQueueManager.setNewPlayQueue(TestPlayQueue.fromTracks(asList(track), playlistSessionSource),
                                          playlistSessionSource,
                                          0);

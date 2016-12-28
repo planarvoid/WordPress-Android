@@ -13,11 +13,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
@@ -68,9 +69,14 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void fromPlayableListShouldApplyPlaybackContext() {
-        final PropertySet track = TestPropertySets.fromApiTrack();
-        final PropertySet playlist = TestPropertySets.fromApiPlaylist();
-        final List<PropertySet> playables = asList(track, playlist);
+        final Urn reposterUrn = Urn.forUser(123L);
+        final TrackItem trackItem = TestPropertySets.fromApiTrack();
+        final PlaylistItem playlistItem = TestPropertySets.fromApiPlaylist();
+        trackItem.setReposterUrn(reposterUrn);
+        playlistItem.setReposterUrn(reposterUrn);
+        final PlayableWithReposter track = PlayableWithReposter.from(trackItem);
+        final PlayableWithReposter playlist = PlayableWithReposter.from(playlistItem);
+        final List<PlayableWithReposter> playables = asList(track, playlist);
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.STREAM);
 
         final PlayQueue playQueue = fromPlayableList(playables,

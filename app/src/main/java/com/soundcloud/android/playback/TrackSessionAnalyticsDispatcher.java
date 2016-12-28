@@ -7,9 +7,9 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.UuidProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
@@ -35,7 +35,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private Optional<PlaybackSessionEvent> lastPlaySessionEvent = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
-    private ReplaySubject<PropertySet> trackObservable;
+    private ReplaySubject<TrackItem> trackObservable;
 
     @Inject
     public TrackSessionAnalyticsDispatcher(EventBus eventBus,
@@ -79,9 +79,9 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent,
                                      final PlaybackProgressEvent progressEvent) {
         trackObservable
-                .filter(new Func1<PropertySet, Boolean>() {
+                .filter(new Func1<TrackItem, Boolean>() {
                     @Override
-                    public Boolean call(PropertySet trackPropertySet) {
+                    public Boolean call(TrackItem trackItem) {
                         return isForPlayingTrack(progressEvent);
                     }
                 })
@@ -92,7 +92,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private void loadTrackIfChanged(PlayStateEvent playStateEvent, boolean isNewItem) {
         if (isNewItem) {
             trackObservable = ReplaySubject.createWithSize(1);
-            trackRepository.track(playStateEvent.getPlayingItemUrn()).subscribe(trackObservable);
+            trackRepository.track(playStateEvent.getPlayingItemUrn()).filter(track -> track != null).subscribe(trackObservable);
         }
     }
 
@@ -109,10 +109,10 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         return !(lastPlaySessionEvent.isPresent() && lastPlaySessionEvent.get().isPlayOrPlayStartEvent());
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> playStateToSessionPlayEvent(final PlayStateEvent playStateEvent) {
-        return new Func1<PropertySet, PlaybackSessionEvent>() {
+    private Func1<TrackItem, PlaybackSessionEvent> playStateToSessionPlayEvent(final PlayStateEvent playStateEvent) {
+        return new Func1<TrackItem, PlaybackSessionEvent>() {
             @Override
-            public PlaybackSessionEvent call(PropertySet track) {
+            public PlaybackSessionEvent call(TrackItem track) {
                 final String playId = playStateEvent.getPlayId();
                 PlaybackSessionEvent playSessionEvent = playStateEvent.isFirstPlay() ?
                                                         PlaybackSessionEvent.forPlayStart(buildEventArgs(track,
@@ -148,9 +148,9 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         if (lastPlaySessionEvent.isPresent() && currentTrackSourceInfo.isPresent()) {
             final PlaybackSessionEvent playEventForStop = lastPlaySessionEvent.get();
             trackObservable
-                    .map(new Func1<PropertySet, PlaybackSessionEvent>() {
+                    .map(new Func1<TrackItem, PlaybackSessionEvent>() {
                         @Override
-                        public PlaybackSessionEvent call(PropertySet track) {
+                        public PlaybackSessionEvent call(TrackItem track) {
                             return PlaybackSessionEvent.forStop(playEventForStop,
                                                                 stopReason,
                                                                 buildEventArgs(track,
@@ -164,11 +164,11 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         }
     }
 
-    private Func1<PropertySet, TrackingEvent> stateTransitionToCheckpointEvent(final PlayStateEvent playStateEvent,
-                                                                               final PlaybackProgressEvent progressEvent) {
-        return new Func1<PropertySet, TrackingEvent>() {
+    private Func1<TrackItem, TrackingEvent> stateTransitionToCheckpointEvent(final PlayStateEvent playStateEvent,
+                                                                             final PlaybackProgressEvent progressEvent) {
+        return new Func1<TrackItem, TrackingEvent>() {
             @Override
-            public TrackingEvent call(PropertySet track) {
+            public TrackingEvent call(TrackItem track) {
                 return PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
                                                                          progressEvent.getPlaybackProgress(),
                                                                          playStateEvent,
@@ -185,11 +185,11 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @NonNull
-    private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlayStateEvent playStateEvent, String clientId, String playId) {
+    private PlaybackSessionEventArgs buildEventArgs(TrackItem track, PlayStateEvent playStateEvent, String clientId, String playId) {
         return buildEventArgs(track, playStateEvent.getProgress(), playStateEvent, clientId, playId);
     }
 
-    private PlaybackSessionEventArgs buildEventArgs(PropertySet track,
+    private PlaybackSessionEventArgs buildEventArgs(TrackItem track,
                                                     PlaybackProgress progress,
                                                     PlayStateEvent playStateEvent,
                                                     String clientId,

@@ -285,7 +285,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackClickJson() throws Exception {
-        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedListItem item = TestPropertySets.expectedPromotedTrack();
         PromotedTrackingEvent click = PromotedTrackingEvent.forPromoterClick(item, "stream");
 
         jsonDataBuilder.build(click);
@@ -303,7 +303,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackImpressionJson() throws Exception {
-        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedListItem item = TestPropertySets.expectedPromotedTrack();
         PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);

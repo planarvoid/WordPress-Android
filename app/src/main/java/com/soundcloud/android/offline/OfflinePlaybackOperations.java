@@ -2,7 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -18,9 +18,9 @@ public class OfflinePlaybackOperations {
         this.trackDownloadsStorage = trackDownloadsStorage;
     }
 
-    public boolean shouldPlayOffline(PropertySet track) {
+    public boolean shouldPlayOffline(TrackItem track) {
         return featureOperations.isOfflineContentEnabled()
-                && track.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE) == OfflineState.DOWNLOADED;
+                && track.getOfflineState() == OfflineState.DOWNLOADED;
     }
 
     public List<Urn> findOfflineAvailableTracks(List<Urn> urns) {

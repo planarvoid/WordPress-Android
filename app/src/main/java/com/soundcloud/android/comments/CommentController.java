@@ -13,7 +13,6 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -65,7 +64,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     public void addComment(AddCommentArguments arguments) {
-        final Urn trackUrn = arguments.getTrack().get(TrackProperty.URN);
+        final Urn trackUrn = arguments.getTrack().getUrn();
 
         subscription = commentsOperationsLazy.get().addComment(trackUrn, arguments.getCommentText(), arguments.getPosition())
                 .observeOn(AndroidSchedulers.mainThread())

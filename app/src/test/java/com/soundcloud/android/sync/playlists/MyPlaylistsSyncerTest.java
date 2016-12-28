@@ -21,17 +21,18 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -105,13 +106,13 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
     @Test
     public void replacesOldPlaylistWithNewPlaylistAfterSuccessfulPush() throws Exception {
-        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
+        final List<PlaylistItem> playlists = ModelFixtures.create(PlaylistItem.class, 2);
         final List<Urn> playlist1Tracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
         final List<Urn> playlist2Tracks = Arrays.asList(Urn.forTrack(3), Urn.forTrack(4));
         final ApiPlaylist newPlaylist1 = ModelFixtures.create(ApiPlaylist.class);
         final ApiPlaylist newPlaylist2 = ModelFixtures.create(ApiPlaylist.class);
 
-        when(loadLocalPlaylists.call()).thenReturn(PropertySets.toPropertySets(playlists));
+        when(loadLocalPlaylists.call()).thenReturn(playlists);
         when(loadPlaylistTrackUrns.call()).thenReturn(playlist1Tracks, playlist2Tracks);
         when(apiClient
                 .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
@@ -155,7 +156,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
         EntityStateChangedEvent event = captor.getValue();
         assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER);
-        assertThat(event.getChangeMap().get(localPlaylistUrn)).isEqualTo(newPlaylist.toPropertySet());
+        assertThat(event.getChangeMap().get(localPlaylistUrn).get(EntityProperty.URN)).isEqualTo(newPlaylist.getUrn());
     }
 
     @Test
@@ -260,12 +261,12 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     }
 
     private ApiPlaylist setupNewPlaylistCreation() throws Exception {
-        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 1);
+        final List<PlaylistItem> playlists = ModelFixtures.create(PlaylistItem.class, 1);
         localPlaylistUrn = playlists.get(0).getUrn();
         final List<Urn> playlistTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
         final ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
-        when(loadLocalPlaylists.call()).thenReturn(PropertySets.toPropertySets(playlists));
+        when(loadLocalPlaylists.call()).thenReturn(playlists);
         when(loadPlaylistTrackUrns.call()).thenReturn(playlistTracks);
         when(apiClient
                 .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
@@ -274,7 +275,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         return newPlaylist;
     }
 
-    private Map<String, Object> createPushRequestBody(ApiPlaylist apiPlaylist, List<Urn> playlistTracks) {
+    private Map<String, Object> createPushRequestBody(PlaylistItem apiPlaylist, List<Urn> playlistTracks) {
         final Map<String, Object> playlistBody = new ArrayMap<>(2);
         playlistBody.put("title", apiPlaylist.getTitle());
         playlistBody.put("public", apiPlaylist.isPublic());

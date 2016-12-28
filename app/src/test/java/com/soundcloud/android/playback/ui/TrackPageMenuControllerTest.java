@@ -24,9 +24,8 @@ import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +56,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
     private PublishSubject<RepostsStatusEvent.RepostStatus> repostSubject = PublishSubject.create();
-    private PropertySet sourceTrack;
+    private TrackItem sourceTrack;
 
     @Before
     public void setUp() {
@@ -91,7 +90,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void clickingStartStationOnBlockedTrackStartsStationWithoutPrependingSeed() {
-        sourceTrack.put(TrackProperty.BLOCKED, true);
+        sourceTrack.setBlocked(true);
         MenuItem stationItem = mockMenuItem(R.id.start_station);
 
         controller.onMenuItemClick(stationItem, activityContext);
@@ -211,8 +210,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void shouldHideCommentOptionWhenTrackIsNotCommentable() {
         verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
 
-        final PropertySet notCommentable = TestPropertySets.expectedTrackForPlayer()
-                                                           .put(TrackProperty.IS_COMMENTABLE, false);
+        final TrackItem notCommentable = TestPropertySets.expectedTrackForPlayer();
+        notCommentable.setCommentable(false);
         track = new PlayerTrackState(notCommentable, false, false, null);
         controller.setTrack(track);
 

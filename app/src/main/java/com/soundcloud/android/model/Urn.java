@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
@@ -148,10 +147,6 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     public String getStringId() {
         return stringId;
-    }
-
-    public PropertySet toPropertySet() {
-        return PropertySet.from(EntityProperty.URN.bind(this));
     }
 
     private boolean isSoundCloud() {

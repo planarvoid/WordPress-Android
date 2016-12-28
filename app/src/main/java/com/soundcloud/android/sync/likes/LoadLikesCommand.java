@@ -11,7 +11,7 @@ import com.soundcloud.propeller.query.Query;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadLikesCommand extends Command<Integer, List<PropertySet>> {
+class LoadLikesCommand extends Command<Integer, List<LikeRecord>> {
 
     private final PropellerDatabase database;
 
@@ -21,7 +21,7 @@ class LoadLikesCommand extends Command<Integer, List<PropertySet>> {
     }
 
     @Override
-    public List<PropertySet> call(Integer soundType) {
+    public List<LikeRecord> call(Integer soundType) {
         return database.query(Query.from(Tables.Likes.TABLE)
                                    .whereEq(Tables.Likes._TYPE, soundType)
                                    .order(Tables.Likes.CREATED_AT, DESC)

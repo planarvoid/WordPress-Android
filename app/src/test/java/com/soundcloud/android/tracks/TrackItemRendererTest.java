@@ -110,7 +110,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowGoLabelIfTrackIsHighTierPreview() {
-        trackItem = TrackItem.from(TestPropertySets.upsellableTrack());
+        trackItem = TestPropertySets.upsellableTrack();
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -121,7 +121,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowGoLabelIfTrackIsFullHighTierTrack() {
-        trackItem = TrackItem.from(TestPropertySets.highTierTrack());
+        trackItem = TestPropertySets.highTierTrack();
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).showGoLabel();
@@ -129,7 +129,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowGoLabelForNowPlayingTrack() {
-        trackItem = TrackItem.from(TestPropertySets.highTierTrack());
+        trackItem = TestPropertySets.highTierTrack();
         trackItem.setIsPlaying(true);
 
         renderer.bindItemView(0, itemView, singletonList(trackItem));
@@ -200,7 +200,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedIndicator() {
-        TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
+        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrackWithoutPromoter();
         renderer.bindItemView(0, itemView, singletonList(promotedTrackItem));
 
         verify(trackItemView).showPromotedTrack("Promoted");
@@ -208,7 +208,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedIndicatorWithPromoter() {
-        TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrack();
         renderer.bindItemView(0, itemView, singletonList(promotedTrackItem));
 
         verify(trackItemView).showPromotedTrack("Promoted by SoundCloud");
@@ -218,7 +218,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
         when(itemView.getContext()).thenReturn(context());
-        PromotedListItem promotedListItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedListItem promotedListItem = TestPropertySets.expectedPromotedTrack();
         renderer.bindItemView(0, itemView, singletonList((TrackItem) promotedListItem));
 
         ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
@@ -241,9 +241,9 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
-        final TrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack.toPropertySet(), CATEGORY,
+        final ChartTrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack, CATEGORY,
                                                             GENRE_URN, QUERY_URN);
-        renderer.bindItemView(position, itemView, singletonList(chartTrackItem));
+        renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
 
         verify(trackItemView).showPosition(position);
         verify(trackItemView).showPostedTime(apiTrack.getCreatedAt());
@@ -253,9 +253,9 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldShowTrackPositionButNotPostedTimeForTopChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
-        final TrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack.toPropertySet(), CATEGORY,
+        final ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack, CATEGORY,
                                                             GENRE_URN, QUERY_URN);
-        renderer.bindItemView(position, itemView, singletonList(chartTrackItem));
+        renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
 
         verify(trackItemView).showPosition(position);
         verify(trackItemView, never()).showPostedTime(apiTrack.getCreatedAt());

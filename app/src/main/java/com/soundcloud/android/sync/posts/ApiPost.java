@@ -1,38 +1,18 @@
 package com.soundcloud.android.sync.posts;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.PostProperty;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
-public class ApiPost implements ApiEntityHolder {
+@AutoValue
+public abstract class ApiPost implements PostRecord {
 
-    private final Urn targetUrn;
-    private final Date createdAt;
-
-    public ApiPost(@JsonProperty("target_urn") Urn targetUrn,
-                   @JsonProperty("created_at") Date createdAt) {
-        this.targetUrn = targetUrn;
-        this.createdAt = createdAt;
-    }
-
-    public Urn getTargetUrn() {
-        return targetUrn;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    @Override
-    public PropertySet toPropertySet() {
-        return PropertySet.from(
-                PostProperty.TARGET_URN.bind(targetUrn),
-                PostProperty.CREATED_AT.bind(createdAt),
-                PostProperty.IS_REPOST.bind(false)
-        );
+    @JsonCreator
+    public static ApiPost create(@JsonProperty("target_urn") Urn targetUrn,
+                                 @JsonProperty("created_at") Date createdAt) {
+        return new AutoValue_ApiPost(targetUrn, createdAt, false);
     }
 }

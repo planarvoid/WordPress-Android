@@ -7,16 +7,17 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.discovery.EmptyViewItem;
 import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -117,9 +118,9 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     private static Recommendation createRecommendation(Urn seedUrn, Urn recommendationUrn, int queryPosition) {
-        PropertySet track = PropertySet.create();
-        track.put(PlayableProperty.URN, recommendationUrn);
-        return new Recommendation(new TrackItem(track), seedUrn, false, queryPosition, QUERY_URN);
+        TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        trackItem.setUrn(recommendationUrn);
+        return new Recommendation(trackItem, seedUrn, false, queryPosition, QUERY_URN);
     }
 
 }

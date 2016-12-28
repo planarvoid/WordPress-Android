@@ -29,7 +29,7 @@ class SearchSuggestionStorage {
         this.propellerRx = new PropellerRx(propeller);
     }
 
-    public Observable<List<PropertySet>> getSuggestions(String searchQuery, int limit) {
+    public Observable<List<SearchSuggestion>> getSuggestions(String searchQuery, int limit) {
         return propellerRx.query(getQuery(searchQuery, limit)).map(new SearchSuggestionMapper()).toList();
     }
 
@@ -58,9 +58,9 @@ class SearchSuggestionStorage {
         }
     }
 
-    private static class SearchSuggestionMapper extends RxResultMapper<PropertySet> {
+    private static class SearchSuggestionMapper extends RxResultMapper<SearchSuggestion> {
         @Override
-        public PropertySet map(CursorReader cursorReader) {
+        public SearchSuggestion map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
             propertySet.put(SearchSuggestionProperty.URN, getUrn(cursorReader));
             propertySet.put(SearchSuggestionProperty.DISPLAY_TEXT,
@@ -68,7 +68,9 @@ class SearchSuggestionStorage {
             propertySet.put(SearchSuggestionProperty.HIGHLIGHT, Optional.<SuggestionHighlight>absent());
             propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE,
                             Optional.fromNullable(cursorReader.getString(SearchSuggestions.IMAGE_URL)));
-            return propertySet;
+
+
+            return DatabaseSearchSuggestion.create(getUrn(cursorReader), cursorReader.getString(SearchSuggestions.DISPLAY_TEXT), Optional.fromNullable(cursorReader.getString(SearchSuggestions.IMAGE_URL)));
         }
     }
 }

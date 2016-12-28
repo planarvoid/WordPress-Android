@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,16 +65,15 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
         verify(trackDownloadsStorage).onlyOfflineTracks(tracks);
     }
 
-    private PropertySet downloadedTrack() {
-        return PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.DOWNLOADED));
+    private TrackItem downloadedTrack() {
+        return TrackItem.from(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.DOWNLOADED)));
     }
 
-    private PropertySet removedTrack() {
-        return PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
+    private TrackItem removedTrack() {
+        return TrackItem.from(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)));
     }
 
-    private PropertySet notDownloadedTrack() {
-        return PropertySet.create();
+    private TrackItem notDownloadedTrack() {
+        return TrackItem.EMPTY;
     }
-
 }

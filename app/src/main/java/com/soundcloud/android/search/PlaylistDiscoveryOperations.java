@@ -15,9 +15,9 @@ import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicates;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -63,9 +63,9 @@ public class PlaylistDiscoveryOperations {
     private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = new Func1<ApiPlaylistCollection, SearchResult>() {
         @Override
         public SearchResult call(ApiPlaylistCollection collection) {
-            final SearchResult result = SearchResult.fromPropertySetSource(collection.getCollection(),
-                                                                           collection.getNextLink(),
-                                                                           collection.getQueryUrn());
+            final SearchResult result = SearchResult.fromSearchableItems(collection.transform(PlaylistItem::from).getCollection(),
+                                                                         collection.getNextLink(),
+                                                                         collection.getQueryUrn());
             return backfillSearchResult(result);
         }
     };
@@ -206,18 +206,19 @@ public class PlaylistDiscoveryOperations {
     }
 
     private SearchResult backfillSearchResult(SearchResult result) {
-        final Map<Urn, PropertySet> playlistRepostStatus = loadPlaylistRepostStatuses.call(result);
-        final Map<Urn, PropertySet> playlistLikedStatus = loadPlaylistLikedStatuses.call(result);
+        final List<Urn> urns = Lists.transform(result.getItems(), SearchableItem::getUrn);
+        final Map<Urn, Boolean> playlistRepostStatus = loadPlaylistRepostStatuses.call(urns);
+        final Map<Urn, Boolean> playlistLikedStatus = loadPlaylistLikedStatuses.call(urns);
 
-        for (final PropertySet resultItem : result) {
-            final Urn itemUrn = resultItem.getOrElse(UserProperty.URN, Urn.NOT_SET);
+        for (final SearchableItem resultItem : result) {
+            final Urn itemUrn = resultItem.getUrn();
 
             if (playlistRepostStatus.containsKey(itemUrn)) {
-                resultItem.update(playlistRepostStatus.get(itemUrn));
+                ((PlaylistItem) resultItem).setRepostedByCurrentUser(playlistRepostStatus.get(itemUrn));
             }
 
             if (playlistLikedStatus.containsKey(itemUrn)) {
-                resultItem.update(playlistLikedStatus.get(itemUrn));
+                ((PlaylistItem) resultItem).setLikedByCurrentUser(playlistLikedStatus.get(itemUrn));
             }
         }
         return result;

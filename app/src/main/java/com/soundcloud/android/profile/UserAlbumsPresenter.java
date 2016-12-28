@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
@@ -12,13 +13,14 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
+import rx.functions.Func1;
 
 import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class UserAlbumsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
-
+class UserAlbumsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<PlayableItem>> {
+    private static final Func1<PagedRemoteCollection<PlaylistItem>, PagedRemoteCollection<PlayableItem>> CAST_AS_PLAYABLE = playlists -> playlists.transform(playlist -> (PlayableItem) playlist);
     private final UserProfileOperations operations;
 
     @Inject
@@ -34,11 +36,11 @@ class UserAlbumsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection
     }
 
     @Override
-    protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection<PlayableItem>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
-        return CollectionBinding.from(operations.userAlbums(userUrn), pageTransformer)
+        return CollectionBinding.from(operations.userAlbums(userUrn).map(CAST_AS_PLAYABLE))
                                 .withAdapter(adapter)
-                                .withPager(operations.userAlbumsPagingFunction())
+                                .withPager(operations.pagingFunction(nextPage -> operations.userAlbums(nextPage).map(CAST_AS_PLAYABLE)))
                                 .build();
     }
 

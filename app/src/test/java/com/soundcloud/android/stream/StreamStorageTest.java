@@ -14,10 +14,12 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -306,16 +308,18 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(trackOne.getId(), TIMESTAMP);
         final ApiTrack trackTwo = testFixtures().insertTrack();
         final ApiUser reposter = testFixtures().insertUser();
+        final TrackItem trackItem = TrackItem.from(trackTwo);
+        trackItem.setReposterUrn(reposter.getUrn());
         testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, reposter.getId());
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         testFixtures().insertStreamPlaylistPost(apiPlaylist.getId(), TIMESTAMP - 2);
 
-        TestObserver<PropertySet> observer = new TestObserver<>();
+        TestSubscriber<PlayableWithReposter> observer = new TestSubscriber<>();
         storage.playbackItems().subscribe(observer);
         assertThat(observer.getOnNextEvents()).containsExactly(
-                trackOne.getUrn().toPropertySet(),
-                trackTwo.getUrn().toPropertySet().put(PostProperty.REPOSTER_URN, reposter.getUrn()),
-                apiPlaylist.getUrn().toPropertySet());
+                PlayableWithReposter.from(trackOne.getUrn()),
+                PlayableWithReposter.from(trackItem),
+                PlayableWithReposter.from(apiPlaylist.getUrn()));
     }
 
     private StreamPlayable createTrackDataItem(final ApiTrack track) {

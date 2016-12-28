@@ -10,9 +10,7 @@ import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -282,26 +280,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
      */
     public void setWaveformUrl(String waveformUrl) {
         waveform_url = fixWaveform(waveformUrl);
-    }
-
-    public PropertySet toPropertySet() {
-        final PropertySet track = super.toPropertySet()
-                                       .put(TrackProperty.URN, Urn.forTrack(getId()))
-                                       .put(TrackProperty.PLAY_COUNT, playback_count)
-                                       .put(TrackProperty.COMMENTS_COUNT, comment_count)
-                                       .put(TrackProperty.SNIPPET_DURATION, duration)
-                                       .put(TrackProperty.FULL_DURATION, duration)
-                                       .put(TrackProperty.DESCRIPTION,
-                                            description == null ? Strings.EMPTY : description);
-
-        // we may not have policy in the db yet, as it was not always part of the public API
-        if (policy != null) {
-            track.put(TrackProperty.POLICY, policy);
-            track.put(TrackProperty.MONETIZABLE, isMonetizable());
-        } else {
-            track.put(TrackProperty.MONETIZABLE, false);
-        }
-        return track;
     }
 
     public boolean isMonetizable() {

@@ -5,18 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 import java.util.Map;
 
 @AutoValue
-abstract class ApiSearchSuggestion extends SearchSuggestion implements PropertySetSource {
+abstract class ApiSearchSuggestion extends SearchSuggestion {
 
     @JsonCreator
     public static ApiSearchSuggestion create(
@@ -27,22 +24,16 @@ abstract class ApiSearchSuggestion extends SearchSuggestion implements PropertyS
 
         return new AutoValue_ApiSearchSuggestion(
                 query,
-                highlights,
+                toSuggestionHighlight(highlights),
+                true,
                 Optional.fromNullable(track),
-                Optional.fromNullable(user),
-                true
+                Optional.fromNullable(user)
         );
     }
-
-    public abstract String getQuery();
-
-    public abstract List<Map<String, Integer>> getHighlights();
 
     public abstract Optional<ApiTrack> getTrack();
 
     public abstract Optional<ApiUser> getUser();
-
-    public abstract boolean isRemote();
 
     public Urn getUrn() {
         final Optional<ApiTrack> track = getTrack();
@@ -72,32 +63,17 @@ abstract class ApiSearchSuggestion extends SearchSuggestion implements PropertyS
         }
     }
 
-    @Override
-    public PropertySet toPropertySet() {
-        final PropertySet propertySet = PropertySet.create();
-        propertySet.put(SearchSuggestionProperty.URN, getUrn());
-        propertySet.put(SearchSuggestionProperty.DISPLAY_TEXT, getDisplayedText());
-        propertySet.put(SearchSuggestionProperty.HIGHLIGHT, Optional.fromNullable(getSuggestionHighlight()));
-        propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, getImageUrlTemplate());
-        return propertySet;
-    }
-
-    private SuggestionHighlight getSuggestionHighlight() {
-        final List<Map<String, Integer>> highlights = getHighlights();
+    private static Optional<SuggestionHighlight> toSuggestionHighlight(List<Map<String, Integer>> highlights) {
         if (highlights == null || highlights.isEmpty()) {
-            return null;
+            return Optional.absent();
         }
         final Map<String, Integer> firstHighlight = highlights.get(0);
-        return new SuggestionHighlight(firstHighlight.get("pre"), firstHighlight.get("post"));
+        return Optional.of(new SuggestionHighlight(firstHighlight.get("pre"), firstHighlight.get("post")));
     }
 
-    private Optional<String> getImageUrlTemplate() {
+    Optional<String> getImageUrlTemplate() {
         return getUser().isPresent()
                ? getUser().get().getImageUrlTemplate()
                : getTrack().get().getImageUrlTemplate();
-    }
-
-    private String getDisplayedText() {
-        return getQuery();
     }
 }

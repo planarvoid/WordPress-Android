@@ -6,10 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,9 +28,9 @@ public class LoadLikesCommandTest extends StorageIntegrationTest {
         ApiTrack track = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().insertLikedTrackPendingRemoval(new Date(200)); // must not be returned
 
-        List<PropertySet> trackLikes = command.call(TYPE_TRACK);
+        List<LikeRecord> trackLikes = command.call(TYPE_TRACK);
 
-        assertThat(trackLikes).containsExactly(expectedLikeFor(track.getUrn(), new Date(100)));
+        assertThat(trackLikes).containsExactly(expectedDatabaseLikeFor(track.getUrn(), new Date(100)));
     }
 
     @Test
@@ -40,14 +38,12 @@ public class LoadLikesCommandTest extends StorageIntegrationTest {
         ApiPlaylist playlist = testFixtures().insertLikedPlaylist(new Date(100));
         testFixtures().insertLikedPlaylistPendingRemoval(new Date(200)); // must not be returned
 
-        List<PropertySet> playlistLikes = command.call(TYPE_PLAYLIST);
+        List<LikeRecord> playlistLikes = command.call(TYPE_PLAYLIST);
 
-        assertThat(playlistLikes).containsExactly(expectedLikeFor(playlist.getUrn(), new Date(100)));
+        assertThat(playlistLikes).containsExactly(expectedDatabaseLikeFor(playlist.getUrn(), new Date(100)));
     }
 
-    private PropertySet expectedLikeFor(Urn urn, Date createdAt) {
-        return PropertySet.from(
-                LikeProperty.TARGET_URN.bind(urn),
-                LikeProperty.CREATED_AT.bind(createdAt));
+    private LikeRecord expectedDatabaseLikeFor(Urn urn, Date createdAt) {
+        return DatabaseLikeRecord.create(urn, createdAt);
     }
 }

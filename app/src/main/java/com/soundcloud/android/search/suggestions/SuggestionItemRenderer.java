@@ -48,9 +48,9 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
 
     private Spanned highlight(SearchSuggestionItem suggestionItem) {
         final SuggestionHighlight suggestionHighlight =
-                suggestionItem.getSuggestionHighlight().or(findHighlight(
-                        suggestionItem.userQuery(), suggestionItem.getDisplayedText()));
-        final SpannableString spanned = new SpannableString(suggestionItem.getDisplayedText());
+                suggestionItem.suggestionHighlight().or(findHighlight(
+                        suggestionItem.userQuery(), suggestionItem.displayedText()));
+        final SpannableString spanned = new SpannableString(suggestionItem.displayedText());
         setHighlightSpans(titleText.getContext(), spanned, suggestionHighlight);
         return spanned;
     }

@@ -1,7 +1,5 @@
 package com.soundcloud.android.sync.playlists;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistPushedToServer;
-
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.api.ApiClient;
@@ -17,7 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
@@ -26,7 +24,6 @@ import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.http.HttpStatus;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.v4.util.ArrayMap;
@@ -127,12 +124,12 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
     }
 
     private List<Urn> pushLocalPlaylists() throws Exception {
-        final List<PropertySet> localPlaylists = loadLocalPlaylists.call();
+        final List<PlaylistItem> localPlaylists = loadLocalPlaylists.call();
         final List<Urn> postedPlaylistUrns = new ArrayList<>(localPlaylists.size());
 
         Log.d(TAG, "Local Playlist count : " + localPlaylists.size());
-        for (PropertySet localPlaylist : localPlaylists) {
-            final Urn playlistUrn = localPlaylist.get(PlaylistProperty.URN);
+        for (PlaylistItem localPlaylist : localPlaylists) {
+            final Urn playlistUrn = localPlaylist.getUrn();
             final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.with(playlistUrn).call();
 
             final ApiRequest request = ApiRequest.post(ApiEndpoints.PLAYLISTS_CREATE.path())
@@ -153,14 +150,14 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
     private void publishPlaylistCreated(Urn localPlaylistUrn, ApiPlaylist newPlaylist) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromCreatePlaylist(EntityMetadata.from(newPlaylist)));
 
-        final EntityStateChangedEvent event = fromPlaylistPushedToServer(localPlaylistUrn, newPlaylist.toPropertySet());
+        final EntityStateChangedEvent event = newPlaylist.toPushedEvent(localPlaylistUrn);
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
     }
 
-    private Map<String, Object> createPlaylistBody(PropertySet localPlaylist, List<Urn> trackUrns) {
+    private Map<String, Object> createPlaylistBody(PlaylistItem localPlaylist, List<Urn> trackUrns) {
         final Map<String, Object> playlistBody = new ArrayMap<>(2);
-        playlistBody.put("title", localPlaylist.get(PlaylistProperty.TITLE));
-        playlistBody.put("public", !localPlaylist.get(PlaylistProperty.IS_PRIVATE));
+        playlistBody.put("title", localPlaylist.getTitle());
+        playlistBody.put("public", !localPlaylist.isPrivate());
 
         final Map<String, Object> requestBody = new ArrayMap<>(2);
         requestBody.put("playlist", playlistBody);

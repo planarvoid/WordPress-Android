@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -45,7 +44,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(track).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(TrackItem.from(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
     }
 
     @Test
@@ -55,9 +54,9 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
-        assertThat(track).isEqualTo(expected);
+        final TrackItem expected = TestPropertySets.fromApiTrack(apiTrack);
+        expected.setOfflineState(OfflineState.DOWNLOADED);
+        assertThat(TrackItem.from(track)).isEqualTo(expected);
     }
 
     @Test
@@ -67,9 +66,9 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
-        assertThat(track).isEqualTo(expected);
+        final TrackItem expected = TestPropertySets.fromApiTrack(apiTrack);
+        expected.setOfflineState(OfflineState.NOT_OFFLINE);
+        assertThat(TrackItem.from(track)).isEqualTo(expected);
     }
 
     @Test
@@ -80,7 +79,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(track).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(TrackItem.from(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
     }
 
     @Test
@@ -91,7 +90,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(track).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(TrackItem.from(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
     }
 
     @Test

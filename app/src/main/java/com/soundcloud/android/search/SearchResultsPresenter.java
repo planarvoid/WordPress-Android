@@ -27,7 +27,6 @@ import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -53,20 +52,18 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final Func1<SearchResult, List<ListItem>> toPresentationModels = new Func1<SearchResult, List<ListItem>>() {
         @Override
         public List<ListItem> call(SearchResult searchResult) {
-            final List<PropertySet> sourceSetsItems = searchResult.getItems();
+            final List<SearchableItem> searchableItems = searchResult.getItems();
             final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
-            final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + PREMIUM_ITEMS_DISPLAYED);
+            final List<ListItem> searchItems = new ArrayList<>(searchableItems.size() + PREMIUM_ITEMS_DISPLAYED);
             if (premiumContent.isPresent()) {
                 final SearchResult premiumSearchResult = premiumContent.get();
-                final List<PropertySet> premiumSearchResultItems = premiumSearchResult.getItems();
+                final List<SearchableItem> premiumSearchResultItems = premiumSearchResult.getItems();
                 premiumItems = buildPremiumItemsList(premiumSearchResultItems);
                 searchItems.add(new SearchPremiumItem(premiumSearchResultItems,
                                                       premiumSearchResult.nextHref,
                                                       premiumSearchResult.getResultsCount()));
             }
-            for (PropertySet source : sourceSetsItems) {
-                searchItems.add(SearchResultItem.fromPropertySet(source).build());
-            }
+            searchItems.addAll(searchableItems);
             return searchItems;
         }
     };
@@ -208,10 +205,10 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         return playables;
     }
 
-    private Optional<List<ListItem>> buildPremiumItemsList(List<PropertySet> premiumSearchResultItems) {
+    private Optional<List<ListItem>> buildPremiumItemsList(List<SearchableItem> premiumSearchResultItems) {
         List<ListItem> listItems = new ArrayList<>(premiumSearchResultItems.size());
-        for (PropertySet source : premiumSearchResultItems) {
-            listItems.add(SearchResultItem.fromPropertySet(source).build());
+        for (SearchableItem source : premiumSearchResultItems) {
+            listItems.add(source);
         }
         return Optional.of(listItems);
     }
@@ -253,7 +250,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     }
 
     @Override
-    public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource,
+    public void onPremiumContentViewAllClicked(Context context, List<SearchableItem> premiumItemsSource,
                                                Optional<Link> nextHref) {
         searchTracker.trackPremiumResultsScreenEvent(queryUrn, searchQuery);
         navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource,

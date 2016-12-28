@@ -3,7 +3,7 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.ListItem;
@@ -13,7 +13,6 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.java.checks.Preconditions;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
@@ -38,7 +37,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         void onPremiumItemClicked(View view, List<ListItem> premiumItems);
 
         void onPremiumContentViewAllClicked(Context context,
-                                            List<PropertySet> premiumItemsSource,
+                                            List<SearchableItem> premiumItemsSource,
                                             Optional<Link> nextHref);
     }
 
@@ -78,8 +77,8 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     @Override
     public void bindItemView(int position, View itemView, List<SearchPremiumItem> premiumItems) {
         final SearchPremiumItem premiumItem = premiumItems.get(0);
-        final PropertySet premiumItemSource = premiumItem.getSourceSet().get(0);
-        final SearchResultItem item = SearchResultItem.fromUrn(premiumItemSource.get(EntityProperty.URN));
+        final SearchableItem premiumItemSource = premiumItem.getSourceSet().get(0);
+        final Urn item = premiumItemSource.getUrn();
 
         if (item.isTrack()) {
             trackItemView.setVisibility(View.VISIBLE);
@@ -194,10 +193,10 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         @Override
         public void onClick(View view) {
             if (listener != null) {
-                final List<PropertySet> propertySets = premiumItems.get(0).getSourceSet();
-                final List<ListItem> premiumItemList = new ArrayList<>(propertySets.size());
-                for (PropertySet source : propertySets) {
-                    premiumItemList.add(SearchResultItem.fromPropertySet(source).build());
+                final List<SearchableItem> searchableItems = premiumItems.get(0).getSourceSet();
+                final List<ListItem> premiumItemList = new ArrayList<>(searchableItems.size());
+                for (SearchableItem source : searchableItems) {
+                    premiumItemList.add(source);
                 }
                 listener.onPremiumItemClicked(view, premiumItemList);
             }

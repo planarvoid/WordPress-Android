@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
@@ -16,9 +17,29 @@ public class ProfileUser implements ImageResource {
         this.source = source;
     }
 
+    public static ProfileUser from(ApiUser apiUser) {
+        final PropertySet bindings = PropertySet.from(
+                UserProperty.URN.bind(apiUser.getUrn()),
+                UserProperty.USERNAME.bind(apiUser.getUsername()),
+                UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
+                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getAvatarUrlTemplate())
+        );
+        // this should be modeled with an Option type instead:
+        // https://github.com/soundcloud/propeller/issues/32
+        if (apiUser.getCountry() != null) {
+            bindings.put(UserProperty.COUNTRY, apiUser.getCountry());
+        }
+
+        return new ProfileUser(bindings);
+    }
+
     @Override
     public Urn getUrn() {
         return source.get(UserProperty.URN);
+    }
+
+    public void setUrn(Urn urn) {
+        source.put(UserProperty.URN, urn);
     }
 
     @Override

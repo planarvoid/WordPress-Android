@@ -1,8 +1,12 @@
 package com.soundcloud.android.api.model;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -21,9 +25,9 @@ public class ModelCollection<T> implements Iterable<T> {
     @VisibleForTesting
     public static final String NEXT_LINK_REL = "next";
 
-    private final List<T> collection;
-    private final Map<String, Link> links;
-    private Urn queryUrn;
+    protected final List<T> collection;
+    protected final Map<String, Link> links;
+    protected Urn queryUrn;
 
     public ModelCollection() {
         this(Collections.<T>emptyList());
@@ -55,6 +59,13 @@ public class ModelCollection<T> implements Iterable<T> {
         this(collection, links);
         if (queryUrn != null) {
             this.queryUrn = new Urn(queryUrn);
+        }
+    }
+
+    public ModelCollection(List<T> collection, Map<String, Link> links, Urn queryUrn) {
+        this(collection, links);
+        if (queryUrn != null) {
+            this.queryUrn = queryUrn;
         }
     }
 
@@ -98,5 +109,9 @@ public class ModelCollection<T> implements Iterable<T> {
     @Override
     public final int hashCode() {
         return MoreObjects.hashCode(collection, links, queryUrn);
+    }
+
+    public <S> ModelCollection<S> transform(Function<T, S> function) {
+        return new ModelCollection<>(newArrayList(Iterables.transform(collection, function)), links, queryUrn);
     }
 }

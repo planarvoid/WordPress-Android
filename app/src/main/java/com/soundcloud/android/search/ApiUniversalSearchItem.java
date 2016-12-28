@@ -1,21 +1,23 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.java.optional.Optional.fromNullable;
+import static java.lang.String.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Has either a user XOR a playlist XOR a track set, as it represents a result item from a universal search.
  */
-class ApiUniversalSearchItem implements PropertySetSource {
+class ApiUniversalSearchItem {
 
     private final Optional<ApiUser> user;
     private final Optional<ApiPlaylist> playlist;
@@ -30,20 +32,6 @@ class ApiUniversalSearchItem implements PropertySetSource {
         this.track = fromNullable(track);
     }
 
-    @Override
-    public PropertySet toPropertySet() {
-        if (user.isPresent()) {
-            return user.get().toPropertySet();
-        }
-        if (playlist.isPresent()) {
-            return playlist.get().toPropertySet();
-        }
-        if (track.isPresent()) {
-            return track.get().toPropertySet();
-        }
-        throw new IllegalStateException("missing wrapped search result entity");
-    }
-
     public Optional<ApiUser> user() {
         return user;
     }
@@ -54,5 +42,18 @@ class ApiUniversalSearchItem implements PropertySetSource {
 
     public Optional<ApiTrack> track() {
         return track;
+    }
+
+
+    public SearchableItem toSearchableItem() {
+        if (this.track().isPresent()) {
+            return TrackItem.from(this.track().get());
+        } else if (this.playlist().isPresent()) {
+            return PlaylistItem.from(this.playlist().get());
+        } else if (this.user().isPresent()) {
+            return UserItem.from(this.user().get());
+        } else {
+            throw new RuntimeException(format("Empty ApiUniversalSearchItem: %s", this));
+        }
     }
 }

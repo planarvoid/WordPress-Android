@@ -4,7 +4,6 @@ import static android.text.Html.fromHtml;
 import static java.lang.System.getProperty;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -39,14 +38,17 @@ public class TrackInfoPresenter {
     }
 
     public void bind(View view, final PropertySet propertySet, CommentClickListener commentClickListener) {
-        setTextAndShow(view, R.id.track_info_title, propertySet.get(PlayableProperty.TITLE));
-        setTextAndShow(view, R.id.creator, propertySet.get(PlayableProperty.CREATOR_NAME));
+        bind(view, TrackItem.from(propertySet), commentClickListener);
+    }
+    public void bind(View view, final TrackItem trackItem, CommentClickListener commentClickListener) {
+        setTextAndShow(view, R.id.track_info_title, trackItem.getTitle());
+        setTextAndShow(view, R.id.creator, trackItem.getCreatorName());
 
         showView(view, R.id.description_holder);
 
-        bindUploadedSinceText(view, propertySet);
-        bindComments(view, propertySet, commentClickListener);
-        bindPrivateOrStats(view, propertySet);
+        bindUploadedSinceText(view, trackItem);
+        bindComments(view, trackItem, commentClickListener);
+        bindPrivateOrStats(view, trackItem);
     }
 
     public void showSpinner(View view) {
@@ -55,7 +57,11 @@ public class TrackInfoPresenter {
     }
 
     public void bindDescription(View view, PropertySet propertySet) {
-        final String source = propertySet.get(TrackProperty.DESCRIPTION);
+        bindDescription(view, TrackItem.from(propertySet));
+    }
+
+    public void bindDescription(View view, TrackItem trackItem) {
+        final String source = trackItem.getDescription();
         if (source.isEmpty()) {
             bindNoDescription(view);
         } else {
@@ -71,20 +77,20 @@ public class TrackInfoPresenter {
         hideView(view, R.id.description);
     }
 
-    private void bindPrivateOrStats(View view, PropertySet propertySet) {
-        if (propertySet.get(PlayableProperty.IS_PRIVATE)) {
+    private void bindPrivateOrStats(View view, TrackItem trackItem) {
+        if (trackItem.isPrivate()) {
             hideView(view, R.id.stats_holder);
             showView(view, R.id.private_indicator);
         } else {
             showView(view, R.id.stats_holder);
             hideView(view, R.id.private_indicator);
-            configureStats(view, propertySet);
+            configureStats(view, trackItem);
         }
     }
 
-    private void bindComments(View view, final PropertySet track, final CommentClickListener commentClickListener) {
-        final boolean isCommentable = track.getOrElse(TrackProperty.IS_COMMENTABLE, false);
-        final int commentsCount = track.get(TrackProperty.COMMENTS_COUNT);
+    private void bindComments(View view, final TrackItem track, final CommentClickListener commentClickListener) {
+        final boolean isCommentable = track.isCommentable();
+        final int commentsCount = track.getCommentsCount();
         if (isCommentable && commentsCount > 0) {
             String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
             setTextAndShow(view, R.id.comments, comments);
@@ -102,18 +108,18 @@ public class TrackInfoPresenter {
         });
     }
 
-    private void bindUploadedSinceText(View view, PropertySet propertySet) {
-        long createdAt = propertySet.get(PlayableProperty.CREATED_AT).getTime();
+    private void bindUploadedSinceText(View view, TrackItem trackItem) {
+        long createdAt = trackItem.getCreatedAt().getTime();
         final String timeElapsed = ScTextUtils
                 .formatTimeElapsedSince(resources, createdAt, true)
                 .toLowerCase(Locale.getDefault());
         setTextAndShow(view, R.id.uploaded_at, resources.getString(R.string.uploaded_xtimeago, timeElapsed));
     }
 
-    private void configureStats(View view, PropertySet propertySet) {
-        setStat(view, R.id.plays, propertySet.get(TrackProperty.PLAY_COUNT));
-        setStat(view, R.id.likes, propertySet.get(PlayableProperty.LIKES_COUNT));
-        setStat(view, R.id.reposts, propertySet.get(PlayableProperty.REPOSTS_COUNT));
+    private void configureStats(View view, TrackItem trackItem) {
+        setStat(view, R.id.plays, trackItem.getPlayCount());
+        setStat(view, R.id.likes, trackItem.getLikesCount());
+        setStat(view, R.id.reposts, trackItem.getRepostCount());
 
         toggleDividers(view);
     }

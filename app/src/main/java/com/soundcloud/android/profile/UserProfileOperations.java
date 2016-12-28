@@ -1,21 +1,20 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.api.model.PagedRemoteCollection.TO_PAGED_REMOTE_COLLECTION;
+import static com.soundcloud.android.profile.StoreProfileCommand.TO_RECORD_HOLDERS;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.PagedCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
-import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager.PagingFunction;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -43,41 +42,30 @@ public class UserProfileOperations {
     private final SpotlightItemStatusLoader spotlightItemStatusLoader;
     private final EventBus eventBus;
 
-    private final Func1<PagedRemoteCollection, PagedRemoteCollection> mergePlayableInfo =
-            new Func1<PagedRemoteCollection, PagedRemoteCollection>() {
-                @Override
-                public PagedRemoteCollection call(PagedRemoteCollection input) {
-                    final Map<Urn, PropertySet> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(input);
-                    for (final PropertySet resultItem : input) {
-                        final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
-                        if (playlistsIsLikedStatus.containsKey(itemUrn)) {
-                            resultItem.update(playlistsIsLikedStatus.get(itemUrn));
-                        }
-                    }
-                    return input;
-                }
-            };
+    private <T extends PlayableItem> PagedRemoteCollection<T> mergePlayableInfo(PagedRemoteCollection<T> input) {
+        final Map<Urn, Boolean> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(Lists.transform(input.items().getCollection(), PlayableItem::getUrn));
+        for (final PlayableItem resultItem : input) {
+            final Urn itemUrn = resultItem.getUrn();
+            if (playlistsIsLikedStatus.containsKey(itemUrn)) {
+                resultItem.setLikedByCurrentUser(playlistsIsLikedStatus.get(itemUrn));
+            }
+        }
+        return input;
+    }
 
-    private static final Func2<PagedRemoteCollection, PropertySet, PagedRemoteCollection> MERGE_REPOSTER =
-            new Func2<PagedRemoteCollection, PropertySet, PagedRemoteCollection>() {
+    private static final Func2<PagedRemoteCollection<PlayableItem>, UserItem, PagedRemoteCollection<PlayableItem>> MERGE_REPOSTER =
+            new Func2<PagedRemoteCollection<PlayableItem>, UserItem, PagedRemoteCollection<PlayableItem>>() {
                 @Override
-                public PagedRemoteCollection call(PagedRemoteCollection remoteCollection, PropertySet propertySet) {
-                    for (PropertySet post : remoteCollection) {
-                        if (post.getOrElse(PostProperty.IS_REPOST, false)) {
-                            post.put(PostProperty.REPOSTER, propertySet.get(UserProperty.USERNAME));
-                            post.put(PostProperty.REPOSTER_URN, propertySet.get(UserProperty.URN));
+                public PagedRemoteCollection<PlayableItem> call(PagedRemoteCollection<PlayableItem> remoteCollection, UserItem userItem) {
+                    for (PlayableItem post : remoteCollection) {
+                        if (post.isRepost()) {
+                            post.setReposter(userItem.getName());
+                            post.setReposterUrn(userItem.getUrn());
                         }
                     }
                     return remoteCollection;
                 }
             };
-
-    private Func1<UserProfileRecord, UserProfile> TO_USER_PROFILE = new Func1<UserProfileRecord, UserProfile>() {
-        @Override
-        public UserProfile call(UserProfileRecord userProfileRecord) {
-            return UserProfile.fromUserProfileRecord(userProfileRecord);
-        }
-    };
 
     @Inject
     UserProfileOperations(ProfileApi profileApi,
@@ -110,28 +98,26 @@ public class UserProfileOperations {
         return userRepository.syncedUserInfo(user).map(ProfileUser::new);
     }
 
-    public Observable<PagedRemoteCollection> pagedPostItems(Urn user) {
+    public Observable<PagedRemoteCollection<PlayableItem>> pagedPostItems(Urn user) {
         return profileApi
                 .userPosts(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .map(mergePlayableInfo)
+                .doOnNext(posts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
+                .map(posts -> posts.transform(PlayableItem::from))
+                .map(PagedRemoteCollection::new)
+                .map(UserProfileOperations.this::mergePlayableInfo)
                 .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
                 .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> postsPagingFunction(final Urn user) {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userPosts(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .map(mergePlayableInfo)
-                                 .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
-                                 .subscribeOn(scheduler);
-            }
-        });
+    PagingFunction<PagedRemoteCollection<PlayableItem>> postsPagingFunction(final Urn user) {
+        return pagingFunction(nextPageLink ->
+                                      profileApi.userPosts(nextPageLink)
+                                                .doOnNext(posts -> writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
+                                                .map(posts -> posts.transform(PlayableItem::from))
+                                                .map(PagedRemoteCollection::new)
+                                                .map(UserProfileOperations.this::mergePlayableInfo)
+                                                .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
+                                                .subscribeOn(scheduler));
     }
 
     Observable<List<PropertySet>> postsForPlayback(final List<? extends PlayableItem> playableItems) {
@@ -151,167 +137,154 @@ public class UserProfileOperations {
         final PropertySet postForPlayback = PropertySet.from(
                 EntityProperty.URN.bind(playableItem.getUrn())
         );
-        if (playableItem.isRepost()) {
-            postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.getReposterUrn());
+        if (playableItem.getReposterUrn().isPresent()) {
+            postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.getReposterUrn().get());
         }
         return postForPlayback;
     }
 
-    Observable<PagedRemoteCollection> userPlaylists(Urn user) {
+    Observable<PagedRemoteCollection<PlaylistItem>> userPlaylists(Urn user) {
         return profileApi.userPlaylists(user)
                          .doOnNext(writeMixedRecordsCommand.toAction1())
-                         .map(TO_PAGED_REMOTE_COLLECTION)
-                         .map(mergePlayableInfo)
+                         .map(posts -> posts.transform(post -> PlaylistItem.from(post.getApiPlaylist(), false)))
+                         .map(PagedRemoteCollection::new)
+                         .map(UserProfileOperations.this::mergePlayableInfo)
                          .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> userPlaylistsPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userPlaylists(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .map(mergePlayableInfo)
-                                 .subscribeOn(scheduler);
-            }
-        });
+    Observable<PagedRemoteCollection<PlaylistItem>> userPlaylists(String nextPageLink) {
+        return profileApi.userPlaylists(nextPageLink)
+                         .doOnNext(writeMixedRecordsCommand.toAction1())
+                         .map(playlists -> playlists.transform(playlist -> PlaylistItem.from(playlist.getApiPlaylist())))
+                         .map(PagedRemoteCollection::new)
+                         .map(UserProfileOperations.this::mergePlayableInfo)
+                         .subscribeOn(scheduler);
     }
 
-    Observable<PagedRemoteCollection> pagedFollowings(Urn user) {
+    Observable<PagedRemoteCollection<UserItem>> pagedFollowings(Urn user) {
         return profileApi
                 .userFollowings(user)
                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
+                .map(users -> users.transform(UserItem::from))
+                .map(PagedRemoteCollection::new)
                 .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> followingsPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userFollowings(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .subscribeOn(scheduler);
-            }
-        });
+    PagingFunction<PagedRemoteCollection<UserItem>> followingsPagingFunction() {
+        return pagingFunction(nextPageLink ->
+                                      profileApi.userFollowings(nextPageLink)
+                                                .doOnNext(writeMixedRecordsCommand.toAction1())
+                                                .map(users -> users.transform(UserItem::from))
+                                                .map(PagedRemoteCollection::new)
+                                                .subscribeOn(scheduler));
     }
 
     public Observable<UserProfile> userProfile(final Urn user) {
         return profileApi.userProfile(user)
-                         .cast(UserProfileRecord.class)
                          .doOnNext(storeProfileCommand.toAction1())
-                         .map(TO_USER_PROFILE)
+                         .map(UserProfile::fromUserProfileRecord)
                          .doOnNext(spotlightItemStatusLoader.toAction1())
                          .doOnNext(publishEntityChanged())
                          .subscribeOn(scheduler);
     }
 
-    Observable<PagedRemoteCollection> userReposts(Urn user) {
+    Observable<PagedRemoteCollection<PlayableItem>> userReposts(Urn user) {
         return profileApi.userReposts(user)
-                         .doOnNext(writeMixedRecordsCommand.toAction1())
-                         .map(TO_PAGED_REMOTE_COLLECTION)
-                         .map(mergePlayableInfo)
+                         .doOnNext(reposts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(reposts)))
+                         .map(reposts -> reposts.transform(repost -> PlayableItem.from(repost, true)))
+                         .map(PagedRemoteCollection::new)
+                         .map(UserProfileOperations.this::mergePlayableInfo)
                          .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> repostsPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userReposts(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .map(mergePlayableInfo)
-                                 .subscribeOn(scheduler);
-            }
-        });
+    PagingFunction<PagedRemoteCollection<PlayableItem>> repostsPagingFunction() {
+        return pagingFunction(nextPageLink -> profileApi.userReposts(nextPageLink)
+                                                        .doOnNext(reposts -> writeMixedRecordsCommand.call(
+                                                                TO_RECORD_HOLDERS(reposts)))
+                                                        .map(reposts -> reposts.transform(repost -> PlayableItem.from(
+                                                                repost,
+                                                                true)))
+                                                        .map(PagedRemoteCollection::new)
+                                                        .map(UserProfileOperations.this::mergePlayableInfo)
+                                                        .subscribeOn(scheduler));
     }
 
-    Observable<PagedRemoteCollection> userTracks(Urn user) {
+    Observable<PagedRemoteCollection<PlayableItem>> userTracks(Urn user) {
         return profileApi.userTracks(user)
-                         .doOnNext(writeMixedRecordsCommand.toAction1())
-                         .map(TO_PAGED_REMOTE_COLLECTION)
+                         .doOnNext(posts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
+                         .map(posts -> posts.transform(post -> PlayableItem.from(post, false)))
+                         .map(PagedRemoteCollection::new)
+                         .map(UserProfileOperations.this::mergePlayableInfo)
                          .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> userTracksPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userTracks(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .subscribeOn(scheduler);
-            }
-        });
+    PagingFunction<PagedRemoteCollection<PlayableItem>> userTracksPagingFunction() {
+        return pagingFunction(nextPageLink ->
+                                      profileApi.userTracks(nextPageLink)
+                                                .doOnNext(posts -> writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
+                                                .map(posts -> posts.transform(post -> PlayableItem.from(post, false)))
+                                                .map(PagedRemoteCollection::new)
+                                                .map(UserProfileOperations.this::mergePlayableInfo)
+                                                .subscribeOn(scheduler));
     }
 
-    Observable<PagedRemoteCollection> userAlbums(Urn user) {
+    Observable<PagedRemoteCollection<PlaylistItem>> userAlbums(Urn user) {
         return profileApi.userAlbums(user)
                          .doOnNext(writeMixedRecordsCommand.toAction1())
-                         .map(TO_PAGED_REMOTE_COLLECTION)
-                         .map(mergePlayableInfo)
+                         .map(playlists -> playlists.transform(playlist -> PlaylistItem.from(playlist.getApiPlaylist())))
+                         .map(PagedRemoteCollection::new)
+                         .map(UserProfileOperations.this::mergePlayableInfo)
                          .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> userAlbumsPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userAlbums(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .map(mergePlayableInfo)
-                                 .subscribeOn(scheduler);
-            }
-        });
+    Observable<PagedRemoteCollection<PlaylistItem>> userAlbums(String nextPageLink) {
+        return profileApi.userAlbums(nextPageLink)
+                  .doOnNext(writeMixedRecordsCommand.toAction1())
+                  .map(playlists -> playlists.transform(playlist -> PlaylistItem.from(playlist.getApiPlaylist())))
+                  .map(PagedRemoteCollection::new)
+                  .map(UserProfileOperations.this::mergePlayableInfo)
+                  .subscribeOn(scheduler);
     }
 
-    Observable<PagedRemoteCollection> userLikes(Urn user) {
+    Observable<PagedRemoteCollection<PlayableItem>> userLikes(Urn user) {
         return profileApi.userLikes(user)
-                         .doOnNext(writeMixedRecordsCommand.toAction1())
-                         .map(TO_PAGED_REMOTE_COLLECTION)
-                         .map(mergePlayableInfo)
+                         .doOnNext(posts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
+                         .map(posts -> posts.transform(PlayableItem::from))
+                         .map(PagedRemoteCollection::new)
+                         .map(UserProfileOperations.this::mergePlayableInfo)
                          .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> likesPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userLikes(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .map(mergePlayableInfo)
-                                 .subscribeOn(scheduler);
-            }
-        });
+    PagingFunction<PagedRemoteCollection<PlayableItem>> likesPagingFunction() {
+        return pagingFunction(nextPageLink ->
+                                      profileApi.userLikes(nextPageLink)
+                                                .doOnNext(likes -> writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(likes)))
+                                                .map(posts -> posts.transform(PlayableItem::from))
+                                                .map(PagedRemoteCollection::new)
+                                                .map(UserProfileOperations.this::mergePlayableInfo)
+                                                .subscribeOn(scheduler));
     }
 
-    Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
+    Observable<PagedRemoteCollection<UserItem>> pagedFollowers(Urn user) {
         return profileApi
                 .userFollowers(user)
                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
+                .map(users -> users.transform(UserItem::from))
+                .map(PagedRemoteCollection::new)
                 .subscribeOn(scheduler);
     }
 
-    PagingFunction<PagedRemoteCollection> followersPagingFunction() {
-        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userFollowers(nextPageLink)
+    PagingFunction<PagedRemoteCollection<UserItem>> followersPagingFunction() {
+        return pagingFunction(nextPageLink ->
+                 profileApi.userFollowers(nextPageLink)
                                  .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(TO_PAGED_REMOTE_COLLECTION)
-                                 .subscribeOn(scheduler);
-            }
-        });
+                                 .map(users -> users.transform(UserItem::from))
+                                 .map(PagedRemoteCollection::new)
+                                 .subscribeOn(scheduler));
     }
 
-    private PagingFunction<PagedRemoteCollection> pagingFunction(final Command<String,
-            Observable<PagedRemoteCollection>> nextPage) {
+    public <T> PagingFunction<PagedRemoteCollection<T>> pagingFunction(final Func1<String,
+                Observable<PagedRemoteCollection<T>>> nextPage) {
         return PagedCollection.pagingFunction(nextPage, scheduler);
     }
 
@@ -319,8 +292,7 @@ public class UserProfileOperations {
         return new Action1<UserProfile>() {
             @Override
             public void call(UserProfile userProfile) {
-                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                                 EntityStateChangedEvent.forUpdate(userProfile.getUser()));
+                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, userProfile.getUser().toEntityStateChangedEvent());
             }
         };
     }

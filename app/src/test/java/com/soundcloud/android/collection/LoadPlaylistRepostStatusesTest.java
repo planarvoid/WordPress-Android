@@ -3,13 +3,11 @@ package com.soundcloud.android.collection;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,21 +30,21 @@ public class LoadPlaylistRepostStatusesTest extends StorageIntegrationTest {
         final ApiPlaylist repostedPlaylist = insertRepostedPlaylist();
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
 
-        List<PropertySet> input = Arrays.asList(repostedPlaylist.toPropertySet(), playlist.toPropertySet());
+        List<ApiPlaylist> input = Arrays.asList(repostedPlaylist, playlist);
 
-        Map<Urn, PropertySet> repostStatuses = command.call(input);
+        Map<Urn, Boolean> repostStatuses = command.call(Lists.transform(input, ApiPlaylist::getUrn));
 
         assertThat(repostStatuses).hasSize(2);
-        assertThat(repostStatuses.get(repostedPlaylist.getUrn()).get(PlaylistProperty.IS_USER_REPOST)).isTrue();
-        assertThat(repostStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_USER_REPOST)).isFalse();
+        assertThat(repostStatuses.get(repostedPlaylist.getUrn())).isTrue();
+        assertThat(repostStatuses.get(playlist.getUrn())).isFalse();
     }
 
     @Test
     public void shouldOnlyReturnLikedStatusForPlaylists() {
         final ApiTrack track = testFixtures().insertTrack();
-        final List<PropertySet> input = singletonList(track.toPropertySet());
+        final List<ApiTrack> input = singletonList(track);
 
-        Map<Urn, PropertySet> repostStatuses = command.call(input);
+        Map<Urn, Boolean> repostStatuses = command.call(Lists.transform(input, ApiTrack::getUrn));
 
         assertThat(repostStatuses.containsKey(track.getUrn())).isFalse();
     }

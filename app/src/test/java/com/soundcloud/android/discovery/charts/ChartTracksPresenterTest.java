@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -22,7 +21,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.assertj.core.util.Lists;
@@ -163,8 +162,9 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     }
 
     private static ChartTrackListItem.Track createChartTrackListItem(int position, Optional<Urn> queryUrn) {
-        PropertySet track = PropertySet.create().put(PlayableProperty.URN, Urn.forTrack(position));
-        return ChartTrackListItem.forTrack(new ChartTrackItem(TOP, track, MUSIC, GENRE_URN, queryUrn));
+        ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setUrn(Urn.forTrack(position));
+        return ChartTrackListItem.forTrack(new ChartTrackItem(TOP, apiTrack, MUSIC, GENRE_URN, queryUrn));
     }
 
 

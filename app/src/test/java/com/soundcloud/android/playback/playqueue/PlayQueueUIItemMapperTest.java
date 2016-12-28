@@ -187,6 +187,6 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
     }
 
     private static TrackItem trackItem(Urn track) {
-        return new TrackItem(TestPropertySets.expectedTrackForListItem(track));
+        return TestPropertySets.expectedTrackForListItem(track);
     }
 }

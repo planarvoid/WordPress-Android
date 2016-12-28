@@ -6,18 +6,17 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.rx.PropertySetFunctions.mergeWith;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.NotificationTrack;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -53,7 +52,8 @@ class MetadataOperations {
         if (urn.isTrack()) {
             return trackRepository
                     .track(urn)
-                    .map(mergeWith(PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAd))))
+                    .filter(track -> track != null)
+                    .doOnNext(trackItem -> trackItem.setAd(isAd))
                     .flatMap(toTrackWithBitmap(existingMetadata))
                     .map(toMediaMetadata())
                     .subscribeOn(scheduler);
@@ -69,9 +69,10 @@ class MetadataOperations {
     }
 
     private Observable<MediaMetadataCompat> adMediaMetadata() {
-        PropertySet adPropertySet = PropertySet.from(AdProperty.IS_AUDIO_AD.bind(true));
-        TrackAndBitmap trackAndBitmap = new TrackAndBitmap(adPropertySet, Optional.<Bitmap>absent());
-        return Observable.just(trackAndBitmap).map(toMediaMetadata());
+        return Observable.just(new MediaMetadataCompat.Builder()
+                                       .putString(METADATA_KEY_TITLE, resources.getString(R.string.ads_advertisement))
+                                       .putString(METADATA_KEY_ARTIST, Strings.EMPTY)
+                                       .putBitmap(METADATA_KEY_ART, getAdArtwork()).build());
     }
 
     @Nullable
@@ -79,10 +80,10 @@ class MetadataOperations {
         return imageOperations.decodeResource(resources, R.drawable.notification_loading);
     }
 
-    private Func1<PropertySet, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
-        return new Func1<PropertySet, Observable<TrackAndBitmap>>() {
+    private Func1<TrackItem, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
+        return new Func1<TrackItem, Observable<TrackAndBitmap>>() {
             @Override
-            public Observable<TrackAndBitmap> call(final PropertySet track) {
+            public Observable<TrackAndBitmap> call(final TrackItem track) {
                 final SimpleImageResource imageResource = SimpleImageResource.create(track);
                 final Bitmap cachedBitmap = getCachedBitmap(imageResource);
 
@@ -103,7 +104,7 @@ class MetadataOperations {
         return imageOperations.getCachedBitmap(imageResource, getImageSize(), targetSize, targetSize);
     }
 
-    private Observable<TrackAndBitmap> loadArtwork(final PropertySet track, final SimpleImageResource imageResource) {
+    private Observable<TrackAndBitmap> loadArtwork(final TrackItem track, final SimpleImageResource imageResource) {
         final int targetSize = getTargetImageSize();
 
         return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
@@ -160,10 +161,10 @@ class MetadataOperations {
     }
 
     private final class TrackAndBitmap {
-        private final PropertySet track;
+        private final TrackItem track;
         private final Optional<Bitmap> bitmap;
 
-        private TrackAndBitmap(PropertySet track, Optional<Bitmap> bitmap) {
+        private TrackAndBitmap(TrackItem track, Optional<Bitmap> bitmap) {
             this.track = track;
             this.bitmap = bitmap;
         }

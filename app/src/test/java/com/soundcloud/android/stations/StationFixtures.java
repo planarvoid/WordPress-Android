@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
@@ -24,7 +23,7 @@ public class StationFixtures {
     private static Function<TrackRecord, StationInfoTrack> toStationInfoTrack = new Function<TrackRecord, StationInfoTrack>() {
         @Override
         public StationInfoTrack apply(TrackRecord input) {
-            return StationInfoTrack.from(((ApiTrack) input).toPropertySet());
+            return StationInfoTrack.from((ApiTrack) input);
         }
     };
 
@@ -150,10 +149,10 @@ public class StationFixtures {
     }
 
     static StationInfoTrack createStationInfoTrack(int playCount, String artistName) {
-        final PropertySet trackState = TestPropertySets.fromApiTrack()
-                                                       .put(TrackProperty.PLAY_COUNT, playCount)
-                                                       .put(TrackProperty.CREATOR_NAME, artistName);
-        return StationInfoTrack.from(TrackItem.from(trackState));
+        final TrackItem trackItem = TestPropertySets.fromApiTrack();
+        trackItem.setPlayCount(playCount);
+        trackItem.setCreatorName(artistName);
+        return StationInfoTrack.from(trackItem);
     }
 
     static ModelCollection<ApiStationMetadata> createStationsCollection(List<Urn> stations) {

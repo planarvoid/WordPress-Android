@@ -19,6 +19,7 @@ import android.support.v4.util.ArrayMap;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +71,14 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
+    public static EntityStateChangedEvent mergeUpdates(Collection<EntityStateChangedEvent> entityStateChangedEvents) {
+        final Map<Urn, PropertySet> merged = new HashMap<>();
+        for (EntityStateChangedEvent event : entityStateChangedEvents) {
+            merged.putAll(event.getChangeMap());
+        }
+        return new AutoValue_EntityStateChangedEvent(UPDATED, merged);
+    }
+
     public static EntityStateChangedEvent forUpdate(Collection<PropertySet> propertiesSet) {
         return create(UPDATED, propertiesSet);
     }
@@ -97,6 +106,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static EntityStateChangedEvent fromPlaylistPushedToServer(Urn localUrn, PropertySet playlist) {
         Map<Urn, PropertySet> changeMap = Collections.singletonMap(localUrn, playlist);
         return new AutoValue_EntityStateChangedEvent(PLAYLIST_PUSHED_TO_SERVER, changeMap);
+    }
+
+    public static EntityStateChangedEvent forChangeMap(int kind, Map<Urn, PropertySet>  changeMap) {
+        return new AutoValue_EntityStateChangedEvent(kind, changeMap);
     }
 
     public static EntityStateChangedEvent fromStationsUpdated(Urn station) {

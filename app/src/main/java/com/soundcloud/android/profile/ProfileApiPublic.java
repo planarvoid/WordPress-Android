@@ -9,7 +9,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -41,12 +40,12 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userPosts(Urn user) {
+    public Observable<ModelCollection<ApiPostSource>> userPosts(Urn user) {
         throw new UnsupportedOperationException("User posts are no longer supported via Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userPosts(String pageLink) {
+    public Observable<ModelCollection<ApiPostSource>> userPosts(String pageLink) {
         throw new UnsupportedOperationException("User posts are no longer supported via Public API");
     }
 
@@ -86,22 +85,22 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user) {
+    public Observable<ModelCollection<ApiPlayableSource>> userReposts(Urn user) {
         throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlayableSource>> userReposts(String nextPageLink) {
         throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userTracks(Urn user) {
+    public Observable<ModelCollection<ApiPlayableSource>> userTracks(Urn user) {
         throw new UnsupportedOperationException("User Tracks will not be supported by Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlayableSource>> userTracks(String nextPageLink) {
         throw new UnsupportedOperationException("User Tracks will not be supported by Public API");
     }
 
@@ -116,12 +115,12 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiPlayableSource>> userLikes(Urn user) {
         throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlayableSource>> userLikes(String nextPageLink) {
         throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
     }
 

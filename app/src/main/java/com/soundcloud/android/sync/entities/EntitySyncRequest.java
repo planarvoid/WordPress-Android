@@ -7,7 +7,6 @@ import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncRequest;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,9 +72,9 @@ class EntitySyncRequest implements SyncRequest {
             resultReceiver.send(0, getResultBundle());
         }
 
-        final Collection<PropertySet> updatedEntities = entitySyncJob.getUpdatedEntities();
+        final Collection<EntityStateChangedEvent> updatedEntities = entitySyncJob.getUpdatedEntities();
         if (!updatedEntities.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.forUpdate(updatedEntities));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.mergeUpdates(updatedEntities));
         }
     }
 

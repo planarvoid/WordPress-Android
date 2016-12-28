@@ -36,6 +36,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -69,12 +70,12 @@ public class AdsControllerTest extends AndroidUnitTest {
     private final Urn nextTrackUrn = Urn.forTrack(456L);
     private final TrackQueueItem nextPlayQueueItem = TestPlayQueueItem.createTrack(nextTrackUrn);
 
-    private final PropertySet currentMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(currentTrackUrn),
-                                                                               TrackProperty.MONETIZABLE.bind(true));
-    private final PropertySet nextMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
-                                                                            TrackProperty.MONETIZABLE.bind(true));
-    private final PropertySet nextNonMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
-                                                                               TrackProperty.MONETIZABLE.bind(false));
+    private final TrackItem currentMonetizablePropertySet = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(currentTrackUrn),
+                                                                               TrackProperty.MONETIZABLE.bind(true)));
+    private final TrackItem nextMonetizablePropertySet = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                                            TrackProperty.MONETIZABLE.bind(true)));
+    private final TrackItem nextNonMonetizablePropertySet = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                                             TrackProperty.MONETIZABLE.bind(false)));
 
     @Mock private AdViewabilityController adViewabilityController;
     @Mock private PlayQueueManager playQueueManager;
@@ -164,7 +165,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void trackChangeEventDoesNotFetchAdForPlaylistQueueItem() throws CreateModelException {
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createPlaylist(Urn.forTrack(123)));
-        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.empty());
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -200,7 +201,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void trackChangeEventDoesNotFetchTrackFromStorageIfAlreadyTryingToFetchAd() throws CreateModelException {
         when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
-        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.empty());
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,

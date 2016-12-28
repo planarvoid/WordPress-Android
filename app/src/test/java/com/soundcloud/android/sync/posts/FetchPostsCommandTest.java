@@ -36,7 +36,6 @@ public class FetchPostsCommandTest extends AndroidUnitTest {
                 argThat(isApiRequestTo("GET", ApiEndpoints.MY_PLAYLIST_POSTS.path())), isA(TypeToken.class)))
                 .thenReturn(response);
 
-        assertThat(command.with(ApiEndpoints.MY_PLAYLIST_POSTS)
-                          .call()).containsExactly(apiTrackPostItem.toPropertySet());
+        assertThat(command.with(ApiEndpoints.MY_PLAYLIST_POSTS).call()).containsExactly(apiTrackPostItem.getPostRecord());
     }
 }

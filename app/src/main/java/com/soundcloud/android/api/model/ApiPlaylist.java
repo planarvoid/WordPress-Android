@@ -2,21 +2,21 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 import java.util.List;
 
-public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistRecord, PlaylistRecordHolder {
+public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistRecord, PlaylistRecordHolder, ApiSyncable {
 
     private Urn urn;
     private String title;
@@ -222,29 +222,6 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        return PropertySet.from(
-                PlaylistProperty.URN.bind(urn),
-                PlaylistProperty.TITLE.bind(title),
-                PlaylistProperty.CREATED_AT.bind(createdAt),
-                PlaylistProperty.PLAYLIST_DURATION.bind(duration),
-                PlaylistProperty.PERMALINK_URL.bind(permalinkUrl),
-                PlaylistProperty.IS_PRIVATE.bind(!isPublic()),
-                PlaylistProperty.TRACK_COUNT.bind(trackCount),
-                PlaylistProperty.LIKES_COUNT.bind(getStats().getLikesCount()),
-                PlaylistProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
-                PlaylistProperty.CREATOR_NAME.bind(getUsername()),
-                PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
-                PlaylistProperty.TAGS.bind(Optional.fromNullable(tags)),
-                PlaylistProperty.GENRE.bind(Optional.fromNullable(genre).or("")),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate),
-                PlaylistProperty.IS_ALBUM.bind(isAlbum()),
-                PlaylistProperty.SET_TYPE.bind(getSetType()),
-                PlaylistProperty.RELEASE_DATE.bind(getReleaseDate())
-        );
-    }
-
-    @Override
     public PlaylistRecord getPlaylistRecord() {
         return this;
     }
@@ -261,4 +238,14 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
             this.stats = stats;
         }
     }
+
+    @Override
+    public EntityStateChangedEvent toUpdateEvent() {
+        return PlaylistItem.from(this).toUpdateEvent();
+    }
+
+    public EntityStateChangedEvent toPushedEvent(Urn localPlaylistUrn) {
+        return PlaylistItem.from(this).toPushedEvent(localPlaylistUrn);
+    }
+
 }

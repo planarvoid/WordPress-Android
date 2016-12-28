@@ -26,9 +26,9 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
 
     private PlaylistUpsellOperations operations;
 
-    private final TrackItem track1 = TrackItem.from(TestPropertySets.expectedTrackForListItem(Urn.forTrack(987L)));
-    private final TrackItem track2 = TrackItem.from(TestPropertySets.upsellableTrack());
-    private final TrackItem track3 = TrackItem.from(TestPropertySets.upsellableTrack());
+    private final TrackItem track1 = TestPropertySets.expectedTrackForListItem(Urn.forTrack(987L));
+    private final TrackItem track2 = TestPropertySets.upsellableTrack();
+    private final TrackItem track3 = TestPropertySets.upsellableTrack();
 
     @Before
     public void setUp() {
@@ -84,8 +84,8 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
 
     private PlaylistWithTracks defaultPlaylist() {
         return new PlaylistWithTracks(ModelFixtures.playlistItem(), Arrays.asList(
-                TrackItem.from(TestPropertySets.expectedTrackForListItem(Urn.forTrack(425L))),
-                TrackItem.from(TestPropertySets.expectedTrackForListItem(Urn.forTrack(752L)))));
+                TestPropertySets.expectedTrackForListItem(Urn.forTrack(425L)),
+                TestPropertySets.expectedTrackForListItem(Urn.forTrack(752L))));
     }
 
     private PlaylistWithTracks upsellablePlaylist() {

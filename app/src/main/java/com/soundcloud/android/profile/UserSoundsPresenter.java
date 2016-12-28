@@ -24,7 +24,6 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -44,19 +43,10 @@ import java.util.List;
 
 class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsItem> {
 
-    private static final Function<UserSoundsItem, PropertySet> USER_SOUNDS_ITEM_TO_PROPERTY_SET = new Function<UserSoundsItem, PropertySet>() {
+    private static final Function<UserSoundsItem, PlayableItem> USER_SOUNDS_ITEM_TO_PLAYABLE_ITEM = new Function<UserSoundsItem, PlayableItem>() {
         @Override
-        public PropertySet apply(final UserSoundsItem userSoundsItem) {
-            return userSoundsItem.getPlayableItem()
-                                 .transform(PLAYABLE_ITEM_TO_PROPERTY_SET)
-                                 .orNull();
-        }
-    };
-
-    private static final Function<PlayableItem, PropertySet> PLAYABLE_ITEM_TO_PROPERTY_SET = new Function<PlayableItem, PropertySet>() {
-        @Override
-        public PropertySet apply(PlayableItem input) {
-            return input.getSource();
+        public PlayableItem apply(final UserSoundsItem userSoundsItem) {
+            return userSoundsItem.getPlayableItem().orNull();
         }
     };
 
@@ -167,7 +157,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         final UserSoundsItem clickedItem = adapter.getItem(position);
 
         if (!clickedItem.isDivider()) {
-            final List<PropertySet> playables = filterPlayableItems(userSoundsItems);
+            final List<PlayableItem> playables = filterPlayableItems(userSoundsItems);
             final int playablePosition = filterPlayableItems(userSoundsItems.subList(0, position)).size();
 
             clickListener.onItemClick(Observable.just(playables),
@@ -210,8 +200,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         }
     }
 
-    private List<PropertySet> filterPlayableItems(final List<UserSoundsItem> userSoundsItems) {
+    private List<PlayableItem> filterPlayableItems(final List<UserSoundsItem> userSoundsItems) {
         return transform(newArrayList(filter(userSoundsItems, FILTER_PLAYABLE_USER_SOUNDS_ITEMS)),
-                         USER_SOUNDS_ITEM_TO_PROPERTY_SET);
+                         USER_SOUNDS_ITEM_TO_PLAYABLE_ITEM);
     }
 }

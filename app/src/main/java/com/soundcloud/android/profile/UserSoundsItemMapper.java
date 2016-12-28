@@ -5,10 +5,9 @@ import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import rx.functions.Func1;
 
@@ -61,7 +60,7 @@ public class UserSoundsItemMapper implements Func1<UserProfile, Iterable<UserSou
 
         public List<UserSoundsItem> map(
                 int collectionType,
-                ModelCollection<PropertySet> itemsToMap) {
+                ModelCollection<? extends PlayableItem> itemsToMap) {
             final List<UserSoundsItem> items = new ArrayList<>(3 + itemsToMap.getCollection().size());
 
             if (!itemsToMap.getCollection().isEmpty()) {
@@ -80,16 +79,13 @@ public class UserSoundsItemMapper implements Func1<UserProfile, Iterable<UserSou
             return items;
         }
 
-        private Function<PropertySet, UserSoundsItem> toUserSoundsItem(
+        private Function<PlayableItem, UserSoundsItem> toUserSoundsItem(
                 final int collectionType) {
-            return new Function<PropertySet, UserSoundsItem>() {
-                @Override
-                public UserSoundsItem apply(PropertySet properties) {
-                    if (properties.get(EntityProperty.URN).isTrack()) {
-                        return fromTrackItem(TrackItem.from(properties), collectionType);
-                    } else {
-                        return fromPlaylistItem(PlaylistItem.from(properties), collectionType);
-                    }
+            return playableItem -> {
+                if (playableItem.getUrn().isTrack()) {
+                    return fromTrackItem((TrackItem) playableItem, collectionType);
+                } else {
+                    return fromPlaylistItem((PlaylistItem) playableItem, collectionType);
                 }
             };
         }

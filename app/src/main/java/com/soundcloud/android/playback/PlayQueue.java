@@ -5,13 +5,10 @@ import static com.soundcloud.java.optional.Optional.fromNullable;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
 import com.soundcloud.android.stations.StationTrack;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
@@ -69,36 +66,36 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
 
-    public static PlayQueue fromPlayableList(List<PropertySet> playables, PlaySessionSource playSessionSource,
+    public static PlayQueue fromPlayableList(List<PlayableWithReposter> playablesWithReposters, PlaySessionSource playSessionSource,
                                              Map<Urn, Boolean> blockedTracks) {
-        return new SimplePlayQueue(playQueueItemsFromPlayables(playables,
+        return new SimplePlayQueue(playQueueItemsFromPlayables(playablesWithReposters,
                                                                playSessionSource,
                                                                blockedTracks));
     }
 
-    private static List<PlayQueueItem> playQueueItemsFromPlayables(List<PropertySet> playables,
+    private static List<PlayQueueItem> playQueueItemsFromPlayables(List<PlayableWithReposter> playablesWithReposters,
                                                                    final PlaySessionSource playSessionSource,
                                                                    final Map<Urn, Boolean> blockedTracks) {
-        return newArrayList(Lists.transform(playables, new Function<PropertySet, PlayQueueItem>() {
+        return newArrayList(Lists.transform(playablesWithReposters, new Function<PlayableWithReposter, PlayQueueItem>() {
             @Override
-            public PlayQueueItem apply(PropertySet playable) {
+            public PlayQueueItem apply(PlayableWithReposter playableAndReposter) {
 
-                if (playable.get(EntityProperty.URN).isTrack()) {
-                    return new TrackQueueItem.Builder(playable)
+                if (playableAndReposter.getUrn().isTrack()) {
+                    return new TrackQueueItem.Builder(playableAndReposter)
                             .fromSource(playSessionSource.getInitialSource(),
                                         playSessionSource.getInitialSourceVersion())
                             .withPlaybackContext(PlaybackContext.create(playSessionSource))
-                            .blocked(Boolean.TRUE.equals(blockedTracks.get(playable.get(TrackProperty.URN))))
+                            .blocked(Boolean.TRUE.equals(blockedTracks.get(playableAndReposter.getUrn())))
                             .build();
 
-                } else if (playable.get(EntityProperty.URN).isPlaylist()) {
-                    return new PlaylistQueueItem.Builder(playable)
+                } else if (playableAndReposter.getUrn().isPlaylist()) {
+                    return new PlaylistQueueItem.Builder(playableAndReposter)
                             .fromSource(playSessionSource.getInitialSource(),
                                         playSessionSource.getInitialSourceVersion())
                             .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .build();
                 } else {
-                    throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
+                    throw new IllegalArgumentException("Unrecognized playable sent for playback " + playableAndReposter);
                 }
 
             }

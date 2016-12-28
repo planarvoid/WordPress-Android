@@ -4,12 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Sharing;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 public class LoadLocalPlaylistsCommandTest extends StorageIntegrationTest {
 
@@ -29,17 +30,14 @@ public class LoadLocalPlaylistsCommandTest extends StorageIntegrationTest {
         testFixtures().insertPlaylist();
         testFixtures().insertTrack();
 
-        assertThat(command.call()).contains(
-                expectedPropertySetFor(playlist),
-                expectedPropertySetFor(privatePlaylist)
-        );
+        final List<PlaylistItem> call = command.call();
+        assertPlaylistContainsLocalFields(call.get(0), PlaylistItem.from(privatePlaylist));
+        assertPlaylistContainsLocalFields(call.get(1), PlaylistItem.from(playlist));
     }
 
-    private PropertySet expectedPropertySetFor(ApiPlaylist playlist) {
-        return PropertySet.from(
-                PlaylistProperty.URN.bind(playlist.getUrn()),
-                PlaylistProperty.TITLE.bind(playlist.getTitle()),
-                PlaylistProperty.IS_PRIVATE.bind(!playlist.isPublic())
-        );
+    private void assertPlaylistContainsLocalFields(PlaylistItem local, PlaylistItem expected) {
+        assertThat(local.getUrn()).isEqualTo(expected.getUrn());
+        assertThat(local.getTitle()).isEqualTo(expected.getTitle());
+        assertThat(local.isPrivate()).isEqualTo(expected.isPrivate());
     }
 }

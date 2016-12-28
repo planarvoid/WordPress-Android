@@ -442,7 +442,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         final Urn track = Urn.forTrack(123);
         final TrackPlayQueueUIItem playQueueUIItem = TrackPlayQueueUIItem
                 .from(TestPlayQueueItem.createTrack(track),
-                      new TrackItem(TestPropertySets.expectedTrackForListItem(track)),
+                      TestPropertySets.expectedTrackForListItem(track),
                       context(),
                       contextTitle,
                       RepeatMode.REPEAT_ONE);
@@ -457,7 +457,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     private static TrackItem trackItem(Urn track) {
-        return new TrackItem(TestPropertySets.expectedTrackForListItem(track));
+        return TestPropertySets.expectedTrackForListItem(track);
     }
 
     private void setCachedObservables() {

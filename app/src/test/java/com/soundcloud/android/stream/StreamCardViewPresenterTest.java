@@ -20,7 +20,6 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -29,7 +28,6 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -82,7 +80,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldShowPromotedIndicator() {
         SpannableString promotedSpannedString = new SpannableString("Promoted");
-        TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
+        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrackWithoutPromoter();
         when(headerSpannableBuilder.promotedSpannedString(promotedTrackItem.getPlayableType())).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
         presenter.bind(itemView, promotedTrackItem, EventContextMetadata.builder());
@@ -94,7 +92,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldShowPromotedIndicatorWithPromoter() {
         SpannableString promotedSpannedString = new SpannableString("Promoted");
-        TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrack();
         when(headerSpannableBuilder.promotedSpannedString(promotedTrackItem.getPlayableType())).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
         presenter.bind(itemView, promotedTrackItem, EventContextMetadata.builder());
@@ -108,7 +106,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
         when(view.getContext()).thenReturn(context());
 
-        PlayableItem promotedListItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PlayableItem promotedListItem = TestPropertySets.expectedPromotedTrack();
         presenter.bind(itemView, promotedListItem, EventContextMetadata.builder());
 
         ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
@@ -183,7 +181,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(playlistItem.getReposterUrn(), playlistItem.getAvatarUrlTemplate())),
+                        argThat(isImageResourceFor(playlistItem.getReposterUrn().get(), playlistItem.getAvatarUrlTemplate())),
                         any(ApiImageSize.class),
                         eq(imageView));
     }
@@ -273,8 +271,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistItem postedPlaylist() {
-        final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        playlist.put(PlayableProperty.CREATED_AT, createdAtStream);
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setCreatedAt(createdAtStream);
 
         return PlaylistItem.from(playlist);
     }
@@ -289,8 +287,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem postedTrack() {
-        final PropertySet track = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        track.put(PlayableProperty.CREATED_AT, createdAtStream);
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setCreatedAt(createdAtStream);
 
         return TrackItem.from(track);
     }
@@ -305,17 +303,17 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem upsellableTrack() {
-        final PropertySet track = TestPropertySets.upsellableTrack();
-        track.put(PlayableProperty.CREATED_AT, createdAtStream);
+        final TrackItem track = TestPropertySets.upsellableTrack();
+        track.setCreatedAt(createdAtStream);
 
-        return TrackItem.from(track);
+        return track;
     }
 
     private TrackItem highTierTrack() {
-        final PropertySet track = TestPropertySets.highTierTrack();
-        track.put(PlayableProperty.CREATED_AT, createdAtStream);
+        final TrackItem track = TestPropertySets.highTierTrack();
+        track.setCreatedAt(createdAtStream);
 
-        return TrackItem.from(track);
+        return track;
     }
 
     private String repostedString() {

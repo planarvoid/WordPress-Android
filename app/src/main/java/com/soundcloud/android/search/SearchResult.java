@@ -1,11 +1,8 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
@@ -14,14 +11,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-class SearchResult implements Iterable<PropertySet> {
-    private final List<PropertySet> items;
+class SearchResult implements Iterable<SearchableItem> {
+    private final List<SearchableItem> items;
     private final int resultsCount;
     final Optional<Link> nextHref;
     final Optional<Urn> queryUrn;
     private final Optional<SearchResult> premiumContent;
 
-    private SearchResult(List<PropertySet> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
+    private SearchResult(List<SearchableItem> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
                          Optional<SearchResult> premiumContent, int resultsCount) {
         this.items = items;
         this.resultsCount = resultsCount;
@@ -30,40 +27,40 @@ class SearchResult implements Iterable<PropertySet> {
         this.premiumContent = premiumContent;
     }
 
-    static SearchResult fromPropertySets(List<PropertySet> items, Optional<Link> nextHref, Urn queryUrn) {
+    static SearchResult fromSearchableItems(List<SearchableItem> items, Optional<Link> nextHref, Urn queryUrn) {
         return new SearchResult(items, nextHref, Optional.of(queryUrn), Optional.<SearchResult>absent(), 0);
     }
 
-    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items,
-                                              Optional<Link> nextHref,
-                                              Optional<Urn> queryUrn) {
-        return fromPropertySetSource(items, nextHref, queryUrn, 0);
+    static SearchResult fromSearchableItems(List<? extends SearchableItem> items,
+                                            Optional<Link> nextHref,
+                                            Optional<Urn> queryUrn) {
+        return fromSearchableItems(items, nextHref, queryUrn, 0);
     }
 
-    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Link> nextHref,
-                                              Optional<Urn> queryUrn, int resultsCount) {
-        return fromPropertySetSource(items, nextHref, queryUrn, Optional.<SearchResult>absent(), resultsCount);
+    static SearchResult fromSearchableItems(List<? extends SearchableItem> items, Optional<Link> nextHref,
+                                            Optional<Urn> queryUrn, int resultsCount) {
+        return fromSearchableItems(items, nextHref, queryUrn, Optional.<SearchResult>absent(), resultsCount);
     }
 
-    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Link> nextHref,
-                                              Optional<Urn> queryUrn, Optional<SearchResult> premiumContent,
-                                              int resultsCount) {
+    static SearchResult fromSearchableItems(List<? extends SearchableItem> items, Optional<Link> nextHref,
+                                            Optional<Urn> queryUrn, Optional<SearchResult> premiumContent,
+                                            int resultsCount) {
         int emptyItems = 0;
-        List<PropertySet> propertySets = new ArrayList<>(items.size());
-        for (PropertySetSource source : items) {
+        List<SearchableItem> nonNullItems = new ArrayList<>(items.size());
+        for (SearchableItem source : items) {
             if (source == null) {
                 emptyItems++;
             } else {
-                propertySets.add(source.toPropertySet());
+                nonNullItems.add(source);
             }
         }
         if (emptyItems > 0) {
             ErrorUtils.handleSilentException(getMissingItemException(items, nextHref, emptyItems));
         }
-        return new SearchResult(propertySets, nextHref, queryUrn, premiumContent, resultsCount);
+        return new SearchResult(nonNullItems, nextHref, queryUrn, premiumContent, resultsCount);
     }
 
-    private static IllegalStateException getMissingItemException(List<? extends PropertySetSource> items,
+    private static IllegalStateException getMissingItemException(List<? extends SearchableItem> items,
                                                                  Optional<Link> nextHref, int emptyItems) {
         return new IllegalStateException(
                 String.format(
@@ -75,16 +72,16 @@ class SearchResult implements Iterable<PropertySet> {
     }
 
     @Override
-    public Iterator<PropertySet> iterator() {
+    public Iterator<SearchableItem> iterator() {
         return items.iterator();
     }
 
-    List<PropertySet> getItems() {
+    List<SearchableItem> getItems() {
         return items;
     }
 
-    SearchResult addItem(int location, PropertySet propertySet) {
-        items.add(location, propertySet);
+    SearchResult addItem(int location, SearchableItem searchableItem) {
+        items.add(location, searchableItem);
         return this;
     }
 
@@ -97,7 +94,7 @@ class SearchResult implements Iterable<PropertySet> {
     }
 
     Urn getFirstItemUrn() {
-        return (getItems().isEmpty()) ? Urn.NOT_SET : getItems().get(0).get(EntityProperty.URN);
+        return (getItems().isEmpty()) ? Urn.NOT_SET : getItems().get(0).getUrn();
     }
 
     @Override

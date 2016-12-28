@@ -9,10 +9,9 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscriber;
@@ -54,16 +53,16 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         }
     };
 
-    private final Func1<PropertySet, Observable<Void>> playPlayableTrack = new Func1<PropertySet, Observable<Void>>() {
+    private final Func1<TrackItem, Observable<Void>> playPlayableTrack = new Func1<TrackItem, Observable<Void>>() {
         @Override
-        public Observable<Void> call(PropertySet track) {
-            final Urn trackUrn = track.get(TrackProperty.URN);
-            if (track.getOrElse(TrackProperty.BLOCKED, false)) {
+        public Observable<Void> call(TrackItem track) {
+            final Urn trackUrn = track.getUrn();
+            if (track.isBlocked()) {
                 return Observable.error(new BlockedTrackException(trackUrn));
             } else {
                 if (offlinePlaybackOperations.shouldPlayOffline(track)) {
                     serviceController.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
-                } else if (track.get(TrackProperty.SNIPPED)) {
+                } else if (track.isSnipped()) {
                     serviceController.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
                 } else {
                     serviceController.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));

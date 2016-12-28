@@ -1,10 +1,8 @@
 package com.soundcloud.android.api.model;
 
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
-import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
@@ -19,13 +17,16 @@ public class ApiTrackLike implements ApiEntityHolder, TrackRecordHolder {
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        return apiTrack.toPropertySet().put(LikeProperty.CREATED_AT, createdAt);
-    }
-
-    @Override
     public TrackRecord getTrackRecord() {
         return apiTrack;
+    }
+
+    public ApiTrack getApiTrack() {
+        return apiTrack;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
     @Override

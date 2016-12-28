@@ -3,7 +3,6 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import dagger.Lazy;
 import rx.Observable;
@@ -23,12 +22,12 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userPosts(Urn user) {
+    public Observable<ModelCollection<ApiPostSource>> userPosts(Urn user) {
         return profileApiMobile.get().userPosts(user);
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userPosts(String nextPageLink) {
+    public Observable<ModelCollection<ApiPostSource>> userPosts(String nextPageLink) {
         return profileApiMobile.get().userPosts(nextPageLink);
     }
 
@@ -68,21 +67,21 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user) {
+    public Observable<ModelCollection<ApiPlayableSource>> userReposts(Urn user) {
         return profileApiMobile.get().userReposts(user);
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlayableSource>> userReposts(String nextPageLink) {
         return profileApiMobile.get().userReposts(nextPageLink);
     }
 
-    public Observable<ModelCollection<ApiEntityHolder>> userTracks(Urn user) {
+    public Observable<ModelCollection<ApiPlayableSource>> userTracks(Urn user) {
         return profileApiMobile.get().userTracks(user);
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlayableSource>> userTracks(String nextPageLink) {
         return profileApiMobile.get().userTracks(nextPageLink);
     }
 
@@ -97,12 +96,12 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiPlayableSource>> userLikes(Urn user) {
         return profileApiMobile.get().userLikes(user);
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlayableSource>> userLikes(String nextPageLink) {
         return profileApiMobile.get().userLikes(nextPageLink);
     }
 }

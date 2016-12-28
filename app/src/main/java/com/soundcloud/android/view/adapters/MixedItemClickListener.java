@@ -13,13 +13,14 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 
@@ -65,8 +66,8 @@ public class MixedItemClickListener {
         }
     }
 
-    public void legacyOnPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem) {
-        onPostClick(playables,
+    public void legacyOnPostClick(Observable<List<PlayableWithReposter>> playablesWithReposters, View view, int position, ListItem clickedItem) {
+        onPostClick(playablesWithReposters,
                     view,
                     position,
                     clickedItem,
@@ -74,28 +75,33 @@ public class MixedItemClickListener {
                     Optional.<Module>absent());
     }
 
-    public void onPostClick(Observable<List<PropertySet>> playables,
+    public void onPostClick(Observable<List<PlayableItem>> playables,
                             View view,
                             int position,
                             ListItem clickedItem,
                             Module module) {
-        onPostClick(playables, view, position, clickedItem, new PlaySessionSource(screen), Optional.of(module));
+        onPostClick(playables.map(items -> Lists.transform(items, PlayableWithReposter::from)),
+                    view,
+                    position,
+                    clickedItem,
+                    new PlaySessionSource(screen),
+                    Optional.of(module));
     }
 
-    public void onProfilePostClick(Observable<List<PropertySet>> playables,
+    public void onProfilePostClick(Observable<List<PlayableItem>> playables,
                                    View view,
                                    int position,
                                    ListItem clickedItem,
                                    Urn userUrn) {
-        onPostClick(playables,
+        onPostClick(playables.map(items -> Lists.transform(items, PlayableWithReposter::from)),
                     view,
                     position,
                     clickedItem,
                     PlaySessionSource.forArtist(screen, userUrn),
-                    Optional.<Module>absent());
+                    Optional.absent());
     }
 
-    private void onPostClick(Observable<List<PropertySet>> playables,
+    private void onPostClick(Observable<List<PlayableWithReposter>> playablesWithReposters,
                              View view,
                              int position,
                              ListItem clickedItem,
@@ -108,7 +114,7 @@ public class MixedItemClickListener {
                 playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((PromotedTrackItem) clickedItem));
             }
             playbackInitiator
-                    .playPosts(playables, item.getUrn(), position, playSessionSource)
+                    .playPosts(playablesWithReposters, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
             handleNonTrackItemClick(view.getContext(), clickedItem, module);

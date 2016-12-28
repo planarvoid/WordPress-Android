@@ -65,14 +65,14 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     }
 
     public Boolean call(List<Urn> recentlyPostedUrns) throws Exception {
-        final NavigableSet<PropertySet> remotePosts = fetchRemotePosts.call();
-        final Set<PropertySet> localPosts = new TreeSet<>(PostProperty.COMPARATOR);
+        final NavigableSet<PostRecord> remotePosts = fetchRemotePosts.call();
+        final Set<PostRecord> localPosts = new TreeSet<>(PostProperty.COMPARATOR);
         localPosts.addAll(loadLocalPosts.call());
 
         Log.d(TAG, "Syncing Posts : Local Count = " + localPosts.size() + " , Remote Count = " + remotePosts.size());
 
-        final Set<PropertySet> additions = getSetDifference(remotePosts, localPosts);
-        final Set<PropertySet> removals = getSetDifference(localPosts, remotePosts);
+        final Set<PostRecord> additions = getSetDifference(remotePosts, localPosts);
+        final Set<PostRecord> removals = getSetDifference(localPosts, remotePosts);
 
         // A race condition occurs when a recently posted playlist is not returned
         // by the server immediately, leading to remove the recently created local
@@ -101,26 +101,26 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         }
     }
 
-    private void removeRecentPosts(Set<PropertySet> posts, List<Urn> recentlyPostedUrns) {
-        Iterator<PropertySet> iterator = posts.iterator();
+    private void removeRecentPosts(Set<PostRecord> posts, List<Urn> recentlyPostedUrns) {
+        Iterator<PostRecord> iterator = posts.iterator();
         while (iterator.hasNext()) {
-            PropertySet post = iterator.next();
-            if (recentlyPostedUrns.contains(post.get(PostProperty.TARGET_URN))) {
+            PostRecord post = iterator.next();
+            if (recentlyPostedUrns.contains(post.getTargetUrn())) {
                 iterator.remove();
             }
         }
     }
 
-    private void publishStateChanges(Set<PropertySet> changes, boolean isAddition) {
+    private void publishStateChanges(Set<PostRecord> changes, boolean isAddition) {
         final Map<Urn, RepostsStatusEvent.RepostStatus> updatedEntities = new HashMap<>(changes.size());
         final Set<PropertySet> newEntities = new HashSet<>(changes.size());
 
-        for (PropertySet post : changes) {
-            if (post.get(PostProperty.IS_REPOST)) {
-                final Urn urn = post.get(PlayableProperty.URN);
+        for (PostRecord post : changes) {
+            if (post.isRepost()) {
+                final Urn urn = post.getTargetUrn();
                 updatedEntities.put(urn, isAddition ? createReposted(urn) : createUnposted(urn));
             } else {
-                newEntities.add(PropertySet.from(PlayableProperty.URN.bind(post.get(PlayableProperty.URN))));
+                newEntities.add(PropertySet.from(PlayableProperty.URN.bind(post.getTargetUrn())));
             }
         }
 
@@ -135,21 +135,19 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         }
     }
 
-    private void fetchResourcesForAdditions(Set<PropertySet> additions) throws Exception {
+    private void fetchResourcesForAdditions(Set<PostRecord> additions) throws Exception {
         final ArrayList<Urn> urns = new ArrayList<>(additions.size());
-        for (PropertySet like : additions) {
-            urns.add(like.get(LikeProperty.TARGET_URN));
+        for (PostRecord like : additions) {
+            urns.add(like.getTargetUrn());
         }
         final Collection<ApiModel> apiResources = fetchPostResources.with(urns).call();
         storePostResources.call(apiResources);
     }
 
-    private Set<PropertySet> getSetDifference(Set<PropertySet> set, Set<PropertySet>... without) {
-        final Set<PropertySet> difference = new TreeSet<>(PostProperty.COMPARATOR);
+    private Set<PostRecord> getSetDifference(Set<PostRecord> set, Set<PostRecord> without) {
+        final Set<PostRecord> difference = new TreeSet<>(PostProperty.COMPARATOR);
         difference.addAll(set);
-        for (Set<PropertySet> s : without) {
-            difference.removeAll(s);
-        }
+        difference.removeAll(without);
         return difference;
     }
 }

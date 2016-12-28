@@ -28,7 +28,7 @@ public class RemovePostsCommandTest extends StorageIntegrationTest {
         testFixtures().insertTrackPost(apiTrackPost);
         testFixtures().insertPlaylistPost(2000L, 100L, false); // should not be removed
 
-        command.call(singleton(apiTrackPost.toPropertySet()));
+        command.call(singleton(apiTrackPost));
 
         assertThat(select(from(Tables.Posts.TABLE))).counts(1);
     }

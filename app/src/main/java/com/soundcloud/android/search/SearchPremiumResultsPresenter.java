@@ -15,7 +15,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -29,7 +28,6 @@ import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -52,10 +50,10 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<ListItem>>() {
         @Override
         public List<ListItem> call(SearchResult searchResult) {
-            final List<PropertySet> sourceSetsItems = searchResult.getItems();
+            final List<SearchableItem> sourceSetsItems = searchResult.getItems();
             final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
-            for (PropertySet source : sourceSetsItems) {
-                searchItems.add(SearchResultItem.fromPropertySet(source).build());
+            for (SearchableItem source : sourceSetsItems) {
+                searchItems.add(source);
             }
             return searchItems;
         }
@@ -66,8 +64,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         public SearchResult call(SearchResult searchResult) {
             if (featureOperations.upsellHighTier()) {
                 searchTracker.trackPremiumResultsUpsellImpression();
-                final PropertySet upsellItem = PropertySet.create()
-                                                          .put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
+                final UpsellSearchableItem upsellItem = UpsellSearchableItem.forUpsell();
                 searchResult.addItem(0, upsellItem);
             }
             return searchResult;
@@ -150,7 +147,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchQuery = bundle.getString(EXTRA_SEARCH_QUERY);
         searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_SEARCH_TYPE)).or(SearchType.ALL);
-        final List<PropertySet> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
+        final List<SearchableItem> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
         final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(
                 EXTRA_PREMIUM_CONTENT_NEXT_HREF));
         final Urn queryUrn = bundle.getParcelable(EXTRA_SEARCH_QUERY_URN);

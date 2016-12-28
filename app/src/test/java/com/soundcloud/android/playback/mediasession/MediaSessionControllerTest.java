@@ -25,7 +25,7 @@ import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -46,7 +46,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 public class MediaSessionControllerTest extends AndroidUnitTest {
 
     private static final long START_POSITION = 2500L;
-    private static final PropertySet TRACK = TestPropertySets.fromApiTrack();
+    private static final TrackItem TRACK = TestPropertySets.fromApiTrack();
     private static final PlaybackItem PLAYBACK_ITEM = AudioPlaybackItem.create(TRACK, START_POSITION);
     private static final Urn URN = PLAYBACK_ITEM.getUrn();
     private static final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(URN);

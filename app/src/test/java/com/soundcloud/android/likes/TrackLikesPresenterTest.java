@@ -128,7 +128,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSendUpsellEventOnMidTierItemClickWhenUserCannotUpgrade() {
-        final TrackLikesTrackItem clickedTrack = new TrackLikesTrackItem(TrackItem.from(TestPropertySets.highTierTrack()));
+        final TrackLikesTrackItem clickedTrack = new TrackLikesTrackItem(TestPropertySets.highTierTrack());
         setupPlaybackConditions(clickedTrack);
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);

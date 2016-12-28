@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.FollowingStatusEvent;
@@ -25,9 +26,10 @@ import rx.subjects.PublishSubject;
 import android.view.View;
 
 public class UserMenuPresenterTest extends AndroidUnitTest {
-    private static final PropertySet USER_PROPERTY_SET = TestPropertySets.user();
+    private static final ApiUser USER_PROPERTY_SET = TestPropertySets.user();
     private static final UserItem USER = UserItem.from(USER_PROPERTY_SET);
     private static final EventContextMetadata EVENT_CONTEXT_METADATA = EventContextMetadata.builder().build();
+    private static final PropertySet localUserInfo = PropertySet.create();
 
     @Mock private UserRepository userRepository;
     @Mock private FollowingOperations followingOperations;
@@ -42,7 +44,7 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Observable.just(USER_PROPERTY_SET));
+        when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Observable.just(localUserInfo));
         when(followingOperations.toggleFollowing(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         presenter = new UserMenuPresenter(userMenuRenderFactory,

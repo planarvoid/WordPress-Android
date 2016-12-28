@@ -1,10 +1,8 @@
 package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.schema.BulkInsertValues;
@@ -14,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySet>, TxnResult> {
+class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<LikeRecord>, TxnResult> {
 
     @Inject
     StoreLikesCommand(PropellerDatabase database) {
@@ -22,7 +20,7 @@ class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySe
     }
 
     @Override
-    protected TxnResult write(PropellerDatabase propeller, Collection<PropertySet> input) {
+    protected TxnResult write(PropellerDatabase propeller, Collection<LikeRecord> input) {
         BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
                 Arrays.asList(
                         Tables.Likes._ID,
@@ -30,20 +28,20 @@ class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySe
                         Tables.Likes.CREATED_AT
                 )
         );
-        for (PropertySet like : input) {
+        for (LikeRecord like : input) {
             builder.addRow(buildContentValuesForLike(like));
         }
         return propeller.bulkInsert(Tables.Likes.TABLE, builder.build());
     }
 
-    private List<Object> buildContentValuesForLike(PropertySet like) {
-        final Urn targetUrn = like.get(LikeProperty.TARGET_URN);
+    private List<Object> buildContentValuesForLike(LikeRecord like) {
+        final Urn targetUrn = like.getTargetUrn();
         return Arrays.<Object>asList(
                 targetUrn.getNumericId(),
                 targetUrn.isTrack()
                 ? Tables.Sounds.TYPE_TRACK
                 : Tables.Sounds.TYPE_PLAYLIST,
-                like.get(LikeProperty.CREATED_AT).getTime()
+                like.getCreatedAt().getTime()
         );
 
     }

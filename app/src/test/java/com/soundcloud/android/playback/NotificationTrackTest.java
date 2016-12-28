@@ -3,11 +3,9 @@ package com.soundcloud.android.playback;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,12 +14,12 @@ import android.support.annotation.NonNull;
 
 public class NotificationTrackTest extends AndroidUnitTest {
 
-    private PropertySet trackProperties;
+    private TrackItem trackItem;
 
     @Before
     public void setUp() throws Exception {
-        trackProperties = TestPropertySets.expectedTrackForPlayer()
-                                          .put(AdProperty.IS_AUDIO_AD, false);
+        trackItem = TestPropertySets.expectedTrackForPlayer();
+        trackItem.setAd(true);
     }
 
     @Test
@@ -35,7 +33,7 @@ public class NotificationTrackTest extends AndroidUnitTest {
     public void creatorIsPopulatedForNormalTrack() {
         NotificationTrack viewModel = setupNormalTrack();
 
-        assertThat(viewModel.getCreatorName()).isEqualTo(trackProperties.get(PlayableProperty.CREATOR_NAME));
+        assertThat(viewModel.getCreatorName()).isEqualTo(trackItem.getCreatorName());
     }
 
     @Test
@@ -49,19 +47,19 @@ public class NotificationTrackTest extends AndroidUnitTest {
     public void titleIsTrackTitleForNormalTrack() {
         NotificationTrack viewModel = setupNormalTrack();
 
-        assertThat(viewModel.getTitle()).isEqualTo(trackProperties.get(PlayableProperty.TITLE));
+        assertThat(viewModel.getTitle()).isEqualTo(trackItem.getTitle());
     }
 
     @NonNull
     private NotificationTrack setupAudioAd() {
-        trackProperties.put(AdProperty.IS_AUDIO_AD, true);
-        return new NotificationTrack(resources(), trackProperties);
+        trackItem.setAd(true);
+        return new NotificationTrack(resources(), trackItem);
     }
 
     @NonNull
     private NotificationTrack setupNormalTrack() {
-        trackProperties.put(AdProperty.IS_AUDIO_AD, false);
-        return new NotificationTrack(resources(), trackProperties);
+        trackItem.setAd(false);
+        return new NotificationTrack(resources(), trackItem);
     }
 
 }
