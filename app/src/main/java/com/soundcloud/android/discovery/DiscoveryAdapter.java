@@ -37,6 +37,10 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     private final WelcomeUserItemRenderer welcomeUserItemRenderer;
     private final RecommendedStationsBucketRenderer stationsBucketRenderer;
 
+    public void detach() {
+        stationsBucketRenderer.detach();
+    }
+
     public interface DiscoveryItemListenerBucket extends
             PlaylistTagsPresenter.Listener,
             SearchItemRenderer.SearchListener,

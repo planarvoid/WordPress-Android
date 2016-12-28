@@ -15,12 +15,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayedBucketItem> {
 
     private final RecentlyPlayedAdapter adapter;
     private final Navigator navigator;
+
+    private WeakReference<RecyclerView> recyclerViewRef;
 
     @Inject
     RecentlyPlayedBucketRenderer(RecentlyPlayedAdapterFactory recentlyPlayedAdapterFactory,
@@ -34,7 +37,9 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
         final View view = LayoutInflater.from(viewGroup.getContext())
                                         .inflate(R.layout.recently_played_bucket, viewGroup, false);
         ButterKnife.bind(this, view);
-        initCarousel(ButterKnife.<RecyclerView>findById(view, R.id.recently_played_carousel));
+        RecyclerView recyclerView = ButterKnife.findById(view, R.id.recently_played_carousel);
+        initCarousel(recyclerView);
+        recyclerViewRef = new WeakReference<>(recyclerView);
         return view;
     }
 
@@ -42,7 +47,19 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
         adapter.updateOfflineState(event);
     }
 
-    private void initCarousel(final RecyclerView recyclerView) {
+    public void detach() {
+        adapter.clear();
+        if (recyclerViewRef != null) {
+            RecyclerView recyclerView = recyclerViewRef.get();
+            if (recyclerView != null) {
+                recyclerView.setAdapter(null);
+                recyclerView.setLayoutManager(null);
+            }
+            recyclerViewRef = null;
+        }
+    }
+
+    private void initCarousel(RecyclerView recyclerView) {
         final Context context = recyclerView.getContext();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
@@ -71,7 +88,7 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
     }
 
     @OnClick(R.id.recently_played_view_all)
-    public void onViewAllClicked(View v) {
+    void onViewAllClicked(View v) {
         navigator.openRecentlyPlayed(v.getContext());
     }
 }

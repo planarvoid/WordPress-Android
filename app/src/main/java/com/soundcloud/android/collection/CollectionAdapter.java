@@ -42,6 +42,10 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
         notifyItemChanged(position);
     }
 
+    void detach() {
+        recentlyPlayedBuckerRenderer.detach();
+        playHistoryBucketRenderer.detach();
+    }
 
     @Override
     protected ViewHolder createViewHolder(View view) {
