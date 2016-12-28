@@ -663,6 +663,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private void setPlaylistInfo(PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
+        presenter.onAttach(fragmentRule.getFragment(), fragmentRule.getActivity());
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onResume(fragmentRule.getFragment());
         presenter.setScreen(SCREEN.get());
