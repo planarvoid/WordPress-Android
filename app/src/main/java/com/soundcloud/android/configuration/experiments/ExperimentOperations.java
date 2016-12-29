@@ -28,11 +28,12 @@ public class ExperimentOperations {
         return activeExperiments.getRequestLayers();
     }
 
-    public void update(Assignment assignment) {
-        experimentStorage.storeAssignment(assignment);
+    public void update(Assignment updatedAssignment) {
+        assignment = updatedAssignment;
+        experimentStorage.storeAssignment(updatedAssignment);
     }
 
-    public void loadAssignment() {
+    void loadAssignment() {
         this.assignment = experimentStorage.readAssignment();
     }
 
@@ -49,7 +50,7 @@ public class ExperimentOperations {
         }
     }
 
-    public Optional<Layer> findLayer(ExperimentConfiguration experiment) {
+    Optional<Layer> findLayer(ExperimentConfiguration experiment) {
         for (Layer layer : assignment.getLayers()) {
             if (experiment.matches(layer)) {
                 return Optional.of(layer);

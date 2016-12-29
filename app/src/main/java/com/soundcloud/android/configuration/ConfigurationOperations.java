@@ -98,12 +98,9 @@ public class ConfigurationOperations {
     }
 
     Observable<Configuration> update() {
-        return Observable.defer(() -> {
-            experimentOperations.loadAssignment();
-            return fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
-                    .subscribeOn(scheduler)
-                    .toObservable();
-        });
+        return Observable.defer(() -> fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
+                .subscribeOn(scheduler)
+                .toObservable());
     }
 
     @NonNull

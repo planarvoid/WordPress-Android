@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
@@ -45,13 +45,13 @@ public class ExperimentOperationsTest {
     }
 
     @Test
-    public void shouldGetAssignmentIfAssigmentIsStored() {
-        Assignment reloadedAsignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.readAssignment()).thenReturn(reloadedAsignment);
+    public void shouldGetAssignmentIfAssignmentIsStored() {
+        Assignment reloadedAssignment = ModelFixtures.create(Assignment.class);
+        when(experimentStorage.readAssignment()).thenReturn(reloadedAssignment);
 
         operations.loadAssignment();
 
-        assertThat(operations.getAssignment()).isSameAs(reloadedAsignment);
+        assertThat(operations.getAssignment()).isSameAs(reloadedAssignment);
     }
 
     @Test
@@ -64,12 +64,19 @@ public class ExperimentOperationsTest {
     }
 
     @Test
+    public void shouldReturnUpdatedAssignmentAfterUpdate() {
+        Assignment assignment = ModelFixtures.create(Assignment.class);
+
+        operations.update(assignment);
+
+        assertThat(operations.getAssignment()).isSameAs(assignment);
+    }
+
+    @Test
     public void shouldReturnLayerWhenAssigned() {
         final Layer layer = new Layer("layer", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer",
-                                                                                       "experiment",
-                                                                                       Collections.<String>emptyList());
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layer.getLayerName(), layer.getExperimentName(), Collections.emptyList());
         when(experimentStorage.readAssignment()).thenReturn(assignment);
 
         operations.loadAssignment();
@@ -77,16 +84,31 @@ public class ExperimentOperationsTest {
     }
 
     @Test
-    public void shouldReturnAbsentWhenNotAssigned() {
+    public void shouldFindUpdatedLayer() {
         final Layer layer = new Layer("layer", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer",
-                                                                                       "unknown",
-                                                                                       Collections.<String>emptyList());
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layer.getLayerName(), layer.getExperimentName(), Collections.emptyList());
+
+        operations.update(assignment);
+
+        assertThat(operations.findLayer(configuration).get()).isEqualTo(layer);
+    }
+
+    @Test
+    public void shouldReturnAbsentWhenNotAssigned() {
+        final String layerName = "layer";
+        final Assignment assignment = createAssignment(layerName);
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layerName, "unknown", Collections.emptyList());
+
         when(experimentStorage.readAssignment()).thenReturn(assignment);
 
         operations.loadAssignment();
         assertThat(operations.findLayer(configuration).isPresent()).isFalse();
+    }
+
+    private Assignment createAssignment(String layerName) {
+        final Layer layer = new Layer(layerName, 1, "experiment", 1, "variant");
+        return new Assignment(Collections.singletonList(layer));
     }
 
 }
