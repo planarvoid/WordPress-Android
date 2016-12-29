@@ -35,7 +35,7 @@ expected_events:
     player_type: Skippy
     consumer_subs_plan: (\w|-)+
     page_name: stations:main
-    source_urn: soundcloud:artist-stations:[0-9]+
+    source_urn: soundcloud:(artist|track)-stations:[0-9]+
     monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
     user: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
@@ -46,7 +46,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:artist-radio:(\w|-)+
+    query_urn: soundcloud:(\w|-)*radio:(\w|-)+
     local_storage_playback: false
     client_event_id: (\w|-)+
   version: '1'
@@ -64,7 +64,7 @@ expected_events:
     player_type: Skippy
     consumer_subs_plan: (\w|-)+
     page_name: stations:main
-    source_urn: soundcloud:artist-stations:[0-9]+
+    source_urn: soundcloud:(artist|track)-stations:[0-9]+
     monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
     user: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
@@ -76,7 +76,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:artist-radio:(\w|-)+
+    query_urn: soundcloud:(\w|-)*radio:(\w|-)+
     local_storage_playback: false
     client_event_id: (\w|-)+
   version: '1'
