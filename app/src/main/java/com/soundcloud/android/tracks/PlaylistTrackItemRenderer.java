@@ -3,6 +3,8 @@ package com.soundcloud.android.tracks;
 import static com.soundcloud.android.tracks.TrackItemMenuPresenter.RemoveTrackListener;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -19,9 +21,9 @@ import com.soundcloud.rx.eventbus.EventBus;
 
 import android.view.View;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory(allowSubclasses = true)
 public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
 
     private RemoveTrackListener removeTrackListener;
@@ -29,11 +31,15 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     private Urn playlistUrn = Urn.NOT_SET;
     private Urn ownerUrn = Urn.NOT_SET;
 
-    @Inject
-    public PlaylistTrackItemRenderer(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter,
-                                     TrackItemMenuPresenter trackItemMenuPresenter, EventBus eventBus,
-                                     FeatureOperations featureOperations, ScreenProvider screenProvider,
-                                     Navigator navigator, TrackItemView.Factory trackItemViewFactory) {
+    public PlaylistTrackItemRenderer(RemoveTrackListener removeTrackListener,
+                                     @Provided ImageOperations imageOperations,
+                                     @Provided CondensedNumberFormatter numberFormatter,
+                                     @Provided TrackItemMenuPresenter trackItemMenuPresenter,
+                                     @Provided EventBus eventBus,
+                                     @Provided FeatureOperations featureOperations,
+                                     @Provided ScreenProvider screenProvider,
+                                     @Provided Navigator navigator,
+                                     @Provided TrackItemView.Factory trackItemViewFactory) {
         super(Optional.of(Module.PLAYLIST),
               imageOperations,
               numberFormatter,
@@ -43,9 +49,6 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
               screenProvider,
               navigator,
               trackItemViewFactory);
-    }
-
-    public void setRemoveTrackListener(RemoveTrackListener removeTrackListener) {
         this.removeTrackListener = removeTrackListener;
     }
 

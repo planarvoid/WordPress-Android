@@ -46,6 +46,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -83,7 +84,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private Subscription offlineStateSubscription = RxUtils.invalidSubscription();
     private FragmentManager fragmentManager;
-    private Context context;
+    private Activity activity;
     private PlaylistPresenter playlistPresenter;
     private boolean isEditMode = false;
     private PlaylistWithTracks headerItem;
@@ -134,11 +135,22 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
 
-        context = fragment.getContext();
         if (featureOperations.upsellOfflineContent()) {
             Urn playlistUrn = fragment.getArguments().getParcelable(PlaylistDetailFragment.EXTRA_URN);
             eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageImpression(playlistUrn));
         }
+    }
+
+    @Override
+    public void onAttach(Fragment fragment, Activity activity) {
+        super.onAttach(fragment, activity);
+        this.activity = activity;
+    }
+
+    @Override
+    public void onDetach(Fragment fragment) {
+        this.activity = null;
+        super.onDetach(fragment);
     }
 
     @Override
@@ -403,7 +415,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             if (showResultToast) {
                 repostOperations.toggleRepost(headerItem.getUrn(), isReposted)
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new RepostResultSubscriber(context, isReposted));
+                                .subscribe(new RepostResultSubscriber(activity, isReposted));
             } else {
                 fireAndForget(repostOperations.toggleRepost(headerItem.getUrn(), isReposted));
             }
@@ -422,7 +434,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onShare() {
         if (headerItem != null && !headerItem.isPrivate()) {
-            shareOperations.share(context,
+            shareOperations.share(activity,
                                   headerItem.getPermalinkUrl(),
                                   getEventContext(),
                                   playSessionSource.getPromotedSourceInfo(),

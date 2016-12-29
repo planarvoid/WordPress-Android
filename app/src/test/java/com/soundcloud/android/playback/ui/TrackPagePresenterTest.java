@@ -514,6 +514,24 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onForegroundSubscribesCastController() throws Exception {
+        populateTrackPage();
+
+        presenter.onForeground(trackView);
+
+        verify(castPlayerStripController).subscribeToEvents();
+    }
+
+    @Test
+    public void onBackgroundUnsubscribesCastController() throws Exception {
+        populateTrackPage();
+
+        presenter.onBackground(trackView);
+
+        verify(castPlayerStripController).unsubscribeFromEvents();
+    }
+
+    @Test
     public void onPageChangeCallsDismissOnMenuController() throws Exception {
         populateTrackPage();
 

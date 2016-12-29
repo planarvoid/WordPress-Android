@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRendererBinding;
+import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.view.dragdrop.OnStartDragListener;
@@ -23,11 +24,12 @@ public class PlaylistAdapter
 
     PlaylistAdapter(OnStartDragListener dragListener,
                     PlaylistHeaderPresenter playlistHeaderPresenter,
-                    @Provided PlaylistDetailTrackItemRenderer trackItemRenderer,
+                    PlaylistTrackItemRenderer playlistTrackItemRenderer,
+                    @Provided PlaylistDetailTrackItemRendererFactory trackItemRenderer,
                     @Provided TrackEditItemRenderer editTrackItemRenderer,
                     @Provided PlaylistUpsellItemRenderer upsellItemRenderer) {
         super(dragListener,
-              new CellRendererBinding<>(PlaylistDetailItem.Kind.TrackItem.ordinal(), trackItemRenderer),
+              new CellRendererBinding<>(PlaylistDetailItem.Kind.TrackItem.ordinal(), trackItemRenderer.create(playlistTrackItemRenderer)),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.EditItem.ordinal(), editTrackItemRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.UpsellItem.ordinal(), upsellItemRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistHeaderPresenter));

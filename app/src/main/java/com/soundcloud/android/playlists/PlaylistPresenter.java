@@ -9,6 +9,7 @@ import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROM
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Navigator;
@@ -27,7 +28,10 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
+import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -53,6 +57,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.ActionMode;
@@ -67,7 +72,7 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, PlaylistDetailItem> implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener {
+class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, PlaylistDetailItem> implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener {
 
     private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistDeleted = event -> event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
             && event.getFirstUrn().equals(getPlaylistUrn());
@@ -104,6 +109,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     private final EventBus eventBus;
     private final PlaylistAdapter adapter;
     private final boolean addInlineHeader;
+    private final PlaylistTrackItemRenderer trackRenderer;
 
     private PlaySessionSource playSessionSource;
     private Fragment fragment;
@@ -123,7 +129,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                              Navigator navigator,
                              EventBus eventBus,
-                             Resources resources) {
+                             Resources resources,
+                             PlaylistTrackItemRendererFactory trackRendererFactory) {
         super(swipeRefreshAttacher);
         this.playlistOperations = playlistOperations;
         this.upsellOperations = upsellOperations;
@@ -133,7 +140,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
         this.headerPresenter = headerPresenter;
         this.playlistContentPresenter = playlistContentPresenter;
         this.navigator = navigator;
-        this.adapter = adapterFactory.create(this, headerPresenter);
+        this.trackRenderer = trackRendererFactory.create(this);
+        this.adapter = adapterFactory.create(this, headerPresenter, trackRenderer);
         headerPresenter.setPlaylistPresenter(this);
         addInlineHeader = !resources.getBoolean(R.bool.split_screen_details_pages);
 
@@ -147,6 +155,12 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
+    }
+
+    @Override
+    public void onPlaylistTrackRemoved(int position) {
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
     }
 
     @Override
@@ -284,7 +298,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     @Override
     protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, PlaylistDetailItem> collectionBinding,
                                       CompositeSubscription viewLifeCycle) {
-        collectionBinding.source().subscribe(new PlaylistSubscriber());
+        viewLifeCycle.add(collectionBinding.source().subscribe(new PlaylistSubscriber()));
     }
 
     @Override
@@ -322,14 +336,18 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
         }
     }
 
-    protected class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
-
+    private class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
         @Override
         public void onNext(PlaylistWithTracks playlist) {
+            FragmentActivity activity = fragment.getActivity();
+            // remove when https://github.com/soundcloud/android/issues/6715 is confirmed fixed
+            checkNotNull(activity, "Unexpected null activity in playlist details");
+
             playlistWithTracks = Optional.of(playlist);
             playSessionSource = createPlaySessionSource(playlist);
             headerPresenter.setPlaylist(playlist, playSessionSource);
-            fragment.getActivity().setTitle(playlist.getPlaylistItem().getLabel(fragment.getContext()));
+            activity.setTitle(playlist.getPlaylistItem().getLabel(activity));
+            trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlist.getUrn(), playlist.getCreatorUrn());
         }
     }
 

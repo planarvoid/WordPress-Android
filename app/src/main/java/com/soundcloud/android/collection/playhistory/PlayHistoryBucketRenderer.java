@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection.playhistory;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
@@ -20,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucketItem> {
@@ -27,7 +27,7 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
     private final PlayHistoryAdapter adapter;
     private final Navigator navigator;
 
-    @BindView(R.id.play_history) RecyclerView recyclerView;
+    private WeakReference<RecyclerView> recyclerViewRef;
 
     @Inject
     PlayHistoryBucketRenderer(PlayHistoryAdapter adapter, Navigator navigator) {
@@ -41,7 +41,9 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
                                         .inflate(R.layout.play_history_bucket, viewGroup, false);
 
         ButterKnife.bind(this, view);
-        initList();
+        RecyclerView recyclerView = ButterKnife.findById(view, R.id.play_history);
+        initList(recyclerView);
+        recyclerViewRef = new WeakReference<>(recyclerView);
         return view;
     }
 
@@ -49,16 +51,29 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
         adapter.setTrackClickListener(listener);
     }
 
-    private void initList() {
+    public void detach() {
+        adapter.clear();
+        if (recyclerViewRef != null) {
+            RecyclerView recyclerView = recyclerViewRef.get();
+
+            if (recyclerView != null) {
+                recyclerView.setAdapter(null);
+                recyclerView.setLayoutManager(null);
+            }
+            recyclerViewRef = null;
+        }
+    }
+
+    private void initList(RecyclerView recyclerView) {
         final Context context = recyclerView.getContext();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
-        addListDividers();
+        addListDividers(recyclerView);
     }
 
-    private void addListDividers() {
+    private void addListDividers(RecyclerView recyclerView) {
         final Resources resources = recyclerView.getResources();
         final Drawable divider = resources.getDrawable(com.soundcloud.androidkit.R.drawable.ak_list_divider_item);
         int dividerHeight = resources.getDimensionPixelSize(com.soundcloud.androidkit.R.dimen.ak_list_divider_horizontal_height);
@@ -83,7 +98,7 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
     }
 
     @OnClick(R.id.play_history_view_all)
-    public void onViewAllClicked(View v) {
+    void onViewAllClicked(View v) {
         navigator.openPlayHistory(v.getContext());
     }
 

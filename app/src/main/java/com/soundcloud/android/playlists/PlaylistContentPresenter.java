@@ -49,6 +49,7 @@ class PlaylistContentPresenter extends DefaultSupportFragmentLightCycle<Fragment
     }
 
     private void switchViewMode(PlaylistContentView newView) {
+        // TODO : what if we have not started yet? Why would we call stop/start then?
         playlistContentView.stop();
         playlistContentView = newView;
         playlistContentView.start();

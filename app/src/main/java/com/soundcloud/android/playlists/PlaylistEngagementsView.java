@@ -128,7 +128,9 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     }
 
     public void onDestroyView() {
-        unbinder.unbind();
+        if (unbinder != null) {
+            unbinder.unbind();
+        }
     }
 
     void showOfflineOptions(final boolean isAvailable) {

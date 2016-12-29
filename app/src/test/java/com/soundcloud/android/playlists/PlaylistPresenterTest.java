@@ -26,7 +26,10 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
+import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.java.collections.PropertySet;
@@ -76,12 +79,15 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
     @Mock private Resources resources;
+    @Mock private PlaylistTrackItemRendererFactory trackRendererFactory;
+    @Mock private PlaylistTrackItemRenderer trackItemRenderer;
     @Captor private ArgumentCaptor<List<PlaylistDetailItem>> trackItemCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
     private PlaylistPresenter presenter;
     private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(PlaylistItem.from(apiPlaylist), Arrays.asList(track1, track2));
+
 
     @Before
     public void setUp() throws Exception {
@@ -90,7 +96,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
         when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(listItems());
-        when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter))).thenReturn(adapter);
+        when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
+        when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
 
         createPresenter();
     }
@@ -106,7 +113,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
                 expandPlayerSubscriberProvider,
                 navigator,
                 eventBus,
-                resources);
+                resources,
+                                          trackRendererFactory);
     }
 
     @Test

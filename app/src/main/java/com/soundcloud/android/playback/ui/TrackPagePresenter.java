@@ -437,6 +437,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onBackground();
         castConnectionHelper.removeMediaRouterButton(viewHolder.mediaRouteButton);
+        viewHolder.castPlayerStripController.unsubscribeFromEvents();
     }
 
     @Override
@@ -444,6 +445,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onForeground();
         castConnectionHelper.addMediaRouterButton(viewHolder.mediaRouteButton);
+        viewHolder.castPlayerStripController.subscribeToEvents();
     }
 
     @Override

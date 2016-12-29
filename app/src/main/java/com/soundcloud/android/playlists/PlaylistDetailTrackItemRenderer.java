@@ -1,19 +1,19 @@
 package com.soundcloud.android.playlists;
 
+import com.google.auto.factory.AutoFactory;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory
 public class PlaylistDetailTrackItemRenderer implements CellRenderer<PlaylistDetailTrackItem> {
 
     private final PlaylistTrackItemRenderer playlistTrackItemRenderer;
 
-    @Inject
     public PlaylistDetailTrackItemRenderer(PlaylistTrackItemRenderer playlistTrackItemRenderer) {
         this.playlistTrackItemRenderer = playlistTrackItemRenderer;
     }

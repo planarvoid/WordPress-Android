@@ -26,6 +26,7 @@ class PlaylistDefaultView implements PlaylistContentPresenter.PlaylistContentVie
 
     @Override
     public void start() {
+        eventSubscription.unsubscribe();
         eventSubscription = eventBus.queue(ENTITY_STATE_CHANGED)
                                     .filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
                                     .observeOn(AndroidSchedulers.mainThread())

@@ -1,5 +1,7 @@
 package com.soundcloud.android.suggestedcreators;
 
+import static butterknife.ButterKnife.findById;
+
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.FollowingStatusEvent;
@@ -15,12 +17,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class SuggestedCreatorsItemRenderer implements CellRenderer<SuggestedCreators> {
 
     private final SuggestedCreatorRenderer suggestedCreatorRenderer;
     private SuggestedCreatorsAdapter adapter;
+    private WeakReference<RecyclerView> recyclerViewRef;
 
     @Inject
     SuggestedCreatorsItemRenderer(SuggestedCreatorRenderer suggestedCreatorRenderer) {
@@ -31,7 +35,9 @@ public class SuggestedCreatorsItemRenderer implements CellRenderer<SuggestedCrea
     public View createItemView(ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext())
                                   .inflate(R.layout.suggested_creators_stream_notification_card, parent, false);
-        initCarousel(ButterKnife.<RecyclerView>findById(view, R.id.suggested_creators_carousel));
+        RecyclerView recyclerView = ButterKnife.findById(view, R.id.suggested_creators_carousel);
+        initCarousel(recyclerView);
+        recyclerViewRef = new WeakReference<>(recyclerView);
         return view;
     }
 
@@ -68,10 +74,19 @@ public class SuggestedCreatorsItemRenderer implements CellRenderer<SuggestedCrea
         if (adapter != null) {
             adapter.unsubscribe();
         }
+
+        if (recyclerViewRef != null) {
+            RecyclerView recyclerView = recyclerViewRef.get();
+            if (recyclerView != null) {
+                recyclerView.setAdapter(null);
+                recyclerView.setLayoutManager(null);
+            }
+            recyclerViewRef = null;
+        }
     }
 
     private void bindCarousel(View itemView, SuggestedCreators suggestedCreatorsNotificationItem) {
-        final RecyclerView recyclerView = ButterKnife.findById(itemView, R.id.suggested_creators_carousel);
+        final RecyclerView recyclerView = findById(itemView, R.id.suggested_creators_carousel);
         final SuggestedCreatorsAdapter adapter = (SuggestedCreatorsAdapter) recyclerView.getAdapter();
         adapter.clear();
         adapter.onNext(suggestedCreatorsNotificationItem.suggestedCreators());
