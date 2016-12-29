@@ -102,6 +102,14 @@ public class DeviceHelperTest extends AndroidUnitTest {
     }
 
     @Test
+    public void getUserAgentSanitizesForAscii() {
+        when(buildHelper.getModel()).thenReturn("öäü");
+        when(buildHelper.getAndroidReleaseVersion()).thenReturn("4.1.1");
+        assertThat(deviceHelper.getUserAgent()).isEqualTo(
+                "SoundCloud-Android/" + BuildConfig.VERSION_NAME + " (Android 4.1.1; oau)");
+    }
+
+    @Test
     public void determineTabletBasedOnResources() {
         final boolean isTablet = false;
 

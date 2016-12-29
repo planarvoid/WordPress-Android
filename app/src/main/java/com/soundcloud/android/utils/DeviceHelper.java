@@ -12,11 +12,13 @@ import android.content.res.Resources;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.VisibleForTesting;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.text.Normalizer;
 
 @Singleton
 public class DeviceHelper {
@@ -56,7 +58,8 @@ public class DeviceHelper {
         return udid;
     }
 
-    public String getDeviceName() {
+    @VisibleForTesting
+    String getDeviceName() {
         final String manufacturer = buildHelper.getManufacturer();
         final String model = buildHelper.getModel();
         if (Strings.isNotBlank(model)) {
@@ -72,6 +75,10 @@ public class DeviceHelper {
         }
     }
 
+    private String sanitizeForAscii(String subjectString) {
+        return Normalizer.normalize(subjectString, Normalizer.Form.NFD).replaceAll("[^\\x00-\\x7F]", "");
+    }
+
     public String getPackageName() {
         return context.getPackageName();
     }
@@ -80,7 +87,7 @@ public class DeviceHelper {
         return String.format("SoundCloud-Android/%s (Android %s; %s)",
                              BuildConfig.VERSION_NAME,
                              String.valueOf(buildHelper.getAndroidReleaseVersion()),
-                             getDeviceName());
+                             sanitizeForAscii(getDeviceName()));
     }
 
     public String getAppVersionName() {
