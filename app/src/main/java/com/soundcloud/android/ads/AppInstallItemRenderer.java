@@ -93,23 +93,17 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
     }
 
     private void bindWhyAdsListener(Holder holder) {
-        holder.whyAds.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (listener != null) {
-                    listener.onWhyAdsClicked(view.getContext());
-                }
+        holder.whyAds.setOnClickListener(view -> {
+            if (listener != null) {
+                listener.onWhyAdsClicked(view.getContext());
             }
         });
     }
 
     private void bindClickthroughListener(Holder holder, final AppInstallAd appInstallAd) {
-        final View.OnClickListener clickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (listener != null) {
-                    listener.onAppInstallItemClicked(view.getContext(), appInstallAd);
-                }
+        final View.OnClickListener clickListener = view -> {
+            if (listener != null) {
+                listener.onAppInstallItemClicked(view.getContext(), appInstallAd);
             }
         };
         holder.callToAction.setOnClickListener(clickListener);

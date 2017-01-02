@@ -55,13 +55,14 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     @Mock StreamAdapter adapter;
     @Mock List<StreamItem> list;
     @Spy TestEventBus eventBus = new TestEventBus();
-    CurrentDateProvider dateProvider = new TestDateProvider(CURRENT_DATE.getTime());
+
+    private CurrentDateProvider dateProvider = new TestDateProvider(CURRENT_DATE.getTime());
 
     private InlayAdHelper inlayAdHelper;
 
     @Before
     public void setUp() {
-        inlayAdHelper = new InlayAdHelper(adapter, dateProvider, eventBus);
+        inlayAdHelper = new InlayAdHelper(layoutManager, adapter, dateProvider, eventBus);
     }
 
     @After
@@ -76,7 +77,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(0);
         setStreamItems(0, TRACK_ITEM);
 
-        assertThat(inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN)).isFalse();
+        assertThat(inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_DOWN)).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
     }
 
@@ -85,7 +86,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(0);
         setStreamItems(0, TRACK_ITEM);
 
-        assertThat(inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP)).isFalse();
+        assertThat(inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_UP)).isFalse();
     }
 
     @Test
@@ -93,7 +94,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(6);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(7, APP_INSTALL_ITEM);
@@ -104,7 +105,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(6);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_UP);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(5, APP_INSTALL_ITEM);
@@ -115,7 +116,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(5);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_UP);
 
         assertThat(inserted).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
@@ -126,7 +127,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(2);
         setStreamItems(10, TRACK_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(5, APP_INSTALL_ITEM);
@@ -140,7 +141,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         when(adapter.getItem(1)).thenReturn(APP_INSTALL_ITEM);
         when(adapter.getItem(10)).thenReturn(APP_INSTALL_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
@@ -154,7 +155,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(APP_INSTALL_ITEM);
         when(adapter.getItem(9)).thenReturn(APP_INSTALL_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isFalse();
         verify(adapter, never()).addItem(anyInt(), any(StreamItem.class));
@@ -166,7 +167,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setItemListSize(Integer.MAX_VALUE);
         when(adapter.getItem(anyInt())).thenReturn(APP_INSTALL_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isFalse();
     }
@@ -177,7 +178,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setStreamItems(10, TRACK_ITEM);
         when(adapter.getItem(6)).thenReturn(GO_UPSELL_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_DOWN);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_DOWN);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(7, APP_INSTALL_ITEM);
@@ -189,7 +190,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setStreamItems(10, TRACK_ITEM);
         when(adapter.getItem(7)).thenReturn(GO_UPSELL_ITEM);
 
-        boolean inserted = inlayAdHelper.insertAd(layoutManager, APP_INSTALL, SCROLLING_UP);
+        boolean inserted = inlayAdHelper.insertAd(APP_INSTALL, SCROLLING_UP);
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(6, APP_INSTALL_ITEM);
@@ -205,7 +206,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(99, 101);
 
         assertThat(visibleRange(inlayAdHelper)).isEqualTo(Pair.of(-1, -1));
-        inlayAdHelper.onScroll(layoutManager);
+        inlayAdHelper.onScroll();
         assertThat(visibleRange(inlayAdHelper)).isEqualTo(Pair.of(99, 101));
     }
 
@@ -224,7 +225,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         when(adapter.getItem(8)).thenReturn(StreamItem.forAppInstall(tracked));
         when(adapter.getItem(10)).thenReturn(StreamItem.forAppInstall(untracked));
 
-        inlayAdHelper.onScroll(layoutManager);
+        inlayAdHelper.onScroll();
 
         verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(10, untracked, CURRENT_DATE));
     }
@@ -232,10 +233,10 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     @Test
     public void isOnScreenUsesLastStoredVisibleIndicesInclusive() {
         setEdgeVisiblePosition(5, 6);
-        inlayAdHelper.onScroll(layoutManager);
+        inlayAdHelper.onScroll();
 
         setEdgeVisiblePosition(7, 10);
-        inlayAdHelper.onScroll(layoutManager);
+        inlayAdHelper.onScroll();
 
         assertThat(inlayAdHelper.isOnScreen(6)).isFalse();
         assertThat(inlayAdHelper.isOnScreen(7)).isTrue();

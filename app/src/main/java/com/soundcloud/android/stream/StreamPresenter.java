@@ -162,6 +162,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+        streamAdsController.onViewCreated(getRecyclerView(), adapter);
 
         configureEmptyView();
         addScrollListeners();
@@ -187,7 +188,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        streamAdsController.clear();
+        streamAdsController.onDestroyView();
         viewLifeCycleSubscription.unsubscribe();
         adapter.unsubscribe();
         newItemsIndicator.destroy();

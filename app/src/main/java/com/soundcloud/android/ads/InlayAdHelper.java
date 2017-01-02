@@ -2,6 +2,8 @@ package com.soundcloud.android.ads;
 
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -16,35 +18,34 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-@Singleton
+@AutoFactory(allowSubclasses = true)
 class InlayAdHelper {
 
     final static int EARLIEST_POSITION_FOR_AD = 4;
     final static int MIN_DISTANCE_BETWEEN_ADS = 4;
     final static int MAX_SEARCH_DISTANCE = 5;
 
+    private final StaggeredGridLayoutManager layoutManager;
     private final StreamAdapter adapter;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
 
-    @VisibleForTesting
-    int minimumVisibleIndex = -1;
-    @VisibleForTesting
-    int maximumVisibleIndex = -1;
+    @VisibleForTesting int minimumVisibleIndex = -1;
+    @VisibleForTesting int maximumVisibleIndex = -1;
 
-    @Inject
-    InlayAdHelper(StreamAdapter adapter, CurrentDateProvider dateProvider, EventBus eventBus) {
+    InlayAdHelper(StaggeredGridLayoutManager layoutManager,
+                  StreamAdapter adapter,
+                  @Provided CurrentDateProvider dateProvider,
+                  @Provided EventBus eventBus) {
+        this.layoutManager = layoutManager;
         this.adapter = adapter;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
     }
 
-    public boolean insertAd(StaggeredGridLayoutManager layoutManager, AppInstallAd ad, boolean wasScrollingUp) {
-        final int position = wasScrollingUp ? findValidAdPosition(firstVisibleItemPosition(layoutManager), -1)
-                                            : findValidAdPosition(lastVisibleItemPosition(layoutManager), 1);
+    boolean insertAd(AppInstallAd ad, boolean wasScrollingUp) {
+        final int position = wasScrollingUp ? findValidAdPosition(firstVisibleItemPosition(), -1)
+                                            : findValidAdPosition(lastVisibleItemPosition(), 1);
         if (position != Consts.NOT_SET) {
             adapter.addItem(position, StreamItem.forAppInstall(ad));
             return true;
@@ -52,13 +53,13 @@ class InlayAdHelper {
         return false;
     }
 
-    public void onScroll(StaggeredGridLayoutManager layoutManager) {
+    public void onScroll() {
         final Date now = dateProvider.getCurrentDate();
 
-        minimumVisibleIndex = firstVisibleItemPosition(layoutManager);
-        maximumVisibleIndex = lastVisibleItemPosition(layoutManager);
+        minimumVisibleIndex = firstVisibleItemPosition();
+        maximumVisibleIndex = lastVisibleItemPosition();
 
-        for (Pair<Integer, AppInstallAd> positionAndAd : adsOnScreenWithPosition(layoutManager)) {
+        for (Pair<Integer, AppInstallAd> positionAndAd : adsOnScreenWithPosition()) {
             final AppInstallAd ad = positionAndAd.second();
 
             if (!ad.hasReportedImpression()) {
@@ -71,12 +72,12 @@ class InlayAdHelper {
         return 0 <= minimumVisibleIndex && minimumVisibleIndex <= position && position <= maximumVisibleIndex;
     }
 
-    private List<Pair<Integer, AppInstallAd>> adsOnScreenWithPosition(StaggeredGridLayoutManager layoutManager) {
-        return adsInRangeWithPosition(firstVisibleItemPosition(layoutManager), lastVisibleItemPosition(layoutManager));
+    private List<Pair<Integer, AppInstallAd>> adsOnScreenWithPosition() {
+        return adsInRangeWithPosition(firstVisibleItemPosition(), lastVisibleItemPosition());
     }
 
     private List<Pair<Integer, AppInstallAd>> adsInRangeWithPosition(int minInclusive, int maxInclusive) {
-        final List<Pair<Integer, AppInstallAd>> result = new ArrayList<>(1); // expect at most one ad on screen
+        final List<Pair<Integer, AppInstallAd>> result = new ArrayList<>(3);
         final int startInclusive = Math.max(minInclusive, 0);
         final int endInclusive = Math.min(maxInclusive, getNumberOfStreamItems() - 1);
 
@@ -89,7 +90,7 @@ class InlayAdHelper {
         return result;
     }
 
-    private int lastVisibleItemPosition(StaggeredGridLayoutManager layoutManager) {
+    private int lastVisibleItemPosition() {
         int lastVisible = Consts.NOT_SET;
         final int[] spansArray = new int[layoutManager.getSpanCount()];
 
@@ -99,7 +100,7 @@ class InlayAdHelper {
         return lastVisible;
     }
 
-    private int firstVisibleItemPosition(StaggeredGridLayoutManager layoutManager) {
+    private int firstVisibleItemPosition() {
         int firstVisible = Consts.NOT_SET;
         final int[] spansArray = new int[layoutManager.getSpanCount()];
 
