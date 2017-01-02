@@ -113,10 +113,9 @@ public class PlayQueueExtender {
         } else {
             final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
             final boolean isAutoplay = sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true);
-            final boolean isFromExplore = currentPlaySessionSource.originatedInExplore();
             final boolean isDeeplink = Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen());
 
-            return !isStation && (isAutoplay || isFromExplore || isDeeplink);
+            return !isStation && (isAutoplay || isDeeplink);
         }
     }
 
@@ -134,8 +133,7 @@ public class PlayQueueExtender {
     // have determined the service can handle the load we give it...
     private boolean fromContinuousPlay() {
         final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
-        return !(currentPlaySessionSource.originatedInExplore() ||
-                currentPlaySessionSource.originatedFromDeeplink() ||
+        return !(currentPlaySessionSource.originatedFromDeeplink() ||
                 currentPlaySessionSource.originatedInSearchSuggestions());
     }
 

@@ -8,7 +8,7 @@
         <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>
 
-    <style name="TabsTheme.Fixed.Explore">
+    <style name="TabsTheme.Fixed.Elevated">
         <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>
 

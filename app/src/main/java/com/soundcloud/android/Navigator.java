@@ -24,7 +24,6 @@ import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
@@ -360,10 +359,6 @@ public class Navigator {
         context.startActivity(createWebViewIntent(context, uri));
     }
 
-    public void openExplore(Context context, Screen screen) {
-        context.startActivity(createExploreIntent(context, screen));
-    }
-
     public void openResolveForUrn(Context context, Urn urn) {
         context.startActivity(createResolveIntent(context, urn));
     }
@@ -463,12 +458,6 @@ public class Navigator {
         Intent intent = new Intent(context, SearchActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
-        screen.addToIntent(intent);
-        return intent;
-    }
-
-    private Intent createExploreIntent(Context context, Screen screen) {
-        Intent intent = new Intent(context, ExploreActivity.class);
         screen.addToIntent(intent);
         return intent;
     }

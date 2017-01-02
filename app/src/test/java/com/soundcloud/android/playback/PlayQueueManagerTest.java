@@ -70,7 +70,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Mock private PolicyOperations policyOperations;
     @Mock private PlayQueueItemVerifier playQueueItemVerifier;
     private PlaySessionSource playlistSessionSource;
-    private PlaySessionSource exploreSessionSource;
 
     @Before
     public void before() throws CreateModelException {
@@ -90,7 +89,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                                               PLAYLIST_URN,
                                                               USER_URN,
                                                               PLAYLIST_TRACK_COUNT);
-        exploreSessionSource = PlaySessionSource.forExplore(Screen.EXPLORE_GENRES, "1.0");
     }
 
     @Test(expected = NullPointerException.class)
@@ -114,8 +112,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(queue1, source1);
         playQueueManager.setNewPlayQueue(queue2, source2, 2);
 
-        final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(1L));
-        final PlayQueueItem playQueueItem2 = TestPlayQueueItem.createTrack(Urn.forTrack(3L));
+        final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(3L));
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
         final List<PlayQueueEvent> playQueueEvents = eventBus.eventsOn(EventQueue.PLAY_QUEUE);
@@ -123,7 +120,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         assertPlayQueueSaved(queue1);
         assertThat(playQueueEvents.get(0)).isEqualTo(PlayQueueEvent.fromNewQueue(source1.getCollectionUrn()));
-        assertCurrentPlayQueueItemEventsEqual(currentPlayQueueItems.get(1), playQueueItem2, Urn.NOT_SET, 2);
+        assertCurrentPlayQueueItemEventsEqual(currentPlayQueueItems.get(1), playQueueItem, Urn.NOT_SET, 2);
     }
 
     @Test
@@ -287,15 +284,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         assertThat(trackSourceInfo.hasReposter()).isTrue();
         assertThat(trackSourceInfo.getReposter()).isEqualTo(Urn.forUser(2L));
-    }
-
-    @Test
-    public void shouldReturnTrackSourceInfoWithExploreTrackingTagIfSet() {
-        playQueueManager.setNewPlayQueue(createPlayQueue(exploreSessionSource), exploreSessionSource, 1);
-
-        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        assertThat(trackSourceInfo.getSource()).isEqualTo("explore");
-        assertThat(trackSourceInfo.getSourceVersion()).isEqualTo("1.0");
     }
 
     @Test

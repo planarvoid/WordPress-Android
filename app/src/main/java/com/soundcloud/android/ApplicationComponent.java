@@ -41,10 +41,6 @@ import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracks
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksFragment;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.downgrade.GoOffboardingFragment;
-import com.soundcloud.android.explore.ExploreActivity;
-import com.soundcloud.android.explore.ExploreGenresFragment;
-import com.soundcloud.android.explore.ExploreTracksCategoryActivity;
-import com.soundcloud.android.explore.ExploreTracksFragment;
 import com.soundcloud.android.gcm.GcmDebugDialogFragment;
 import com.soundcloud.android.gcm.GcmInstanceIDListenerService;
 import com.soundcloud.android.gcm.GcmRegistrationService;
@@ -184,12 +180,6 @@ public interface ApplicationComponent {
     //ActivitiesModule
     void inject(ActivitiesActivity activitiesActivity);
     void inject(ActivitiesFragment activitiesFragment);
-
-    //ExploreModule
-    void inject(ExploreTracksCategoryActivity exploreTracksCategoryActivity);
-    void inject(ExploreTracksFragment exploreTracksFragment);
-    void inject(ExploreGenresFragment exploreGenresFragment);
-    void inject(ExploreActivity exploreActivity);
 
     //MainModule
     void inject(LauncherActivity launcherActivity);

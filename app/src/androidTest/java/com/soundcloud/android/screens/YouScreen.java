@@ -6,7 +6,6 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
 
 public class YouScreen extends Screen {
@@ -29,11 +28,6 @@ public class YouScreen extends Screen {
     public ProfileScreen clickMyProfileLink() {
         headerLayout().click();
         return new ProfileScreen(testDriver);
-    }
-
-    public ExploreScreen clickExploreLink() {
-        exploreLink().click();
-        return new ExploreScreen(testDriver);
     }
 
     public RecordScreen clickRecordLink() {
@@ -67,10 +61,6 @@ public class YouScreen extends Screen {
 
     private ViewElement activityLink() {
         return testDriver.findOnScreenElement(With.id(R.id.more_activity_link));
-    }
-
-    private ViewElement exploreLink() {
-        return testDriver.findOnScreenElement(With.id(R.id.more_explore_link));
     }
 
     private ViewElement recordLink() {

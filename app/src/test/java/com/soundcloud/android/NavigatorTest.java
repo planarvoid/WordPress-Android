@@ -25,7 +25,6 @@ import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracks
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
@@ -400,15 +399,6 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.DISCOVERY)
                                    .containsScreen(Screen.DEEPLINK);
-    }
-
-    @Test
-    public void opensExplore() {
-        navigator.openExplore(activityContext, Screen.MORE);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(ExploreActivity.class)
-                                   .containsScreen(Screen.MORE);
     }
 
     @Test

@@ -119,17 +119,6 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
 
         verifyZeroInteractions(playQueueOperations);
     }
-
-    @Test
-    public void appendsRecommendedTracksWhenAtEndForExplore() {
-        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.EXPLORE_AUDIO_GENRE));
-        setWithinToleranceAtEnd();
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
-
-        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
-    }
-
     @Test
     public void appendsRecommendedTracksWhenAtEndForDeeplinks() {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.DEEPLINK));

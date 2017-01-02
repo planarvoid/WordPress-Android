@@ -108,13 +108,6 @@ public enum Screen {
     ACTIVITIES("activity:main"),
     MORE("more:main"),
 
-    // explore screens
-    EXPLORE_GENRES("explore:genres"),
-    EXPLORE_TRENDING_MUSIC("explore:trending_music"),
-    EXPLORE_TRENDING_AUDIO("explore:trending_audio"),
-    EXPLORE_AUDIO_GENRE("explore:audio"),
-    EXPLORE_MUSIC_GENRE("explore:music"),
-
     // settings
     SETTINGS_MAIN("settings:main"),
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),

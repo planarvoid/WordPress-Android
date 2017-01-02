@@ -12,7 +12,7 @@
     <com.soundcloud.android.view.CustomFontTabLayout
         android:layout_below="@+id/toolbar_id"
         android:id="@+id/tab_indicator"
-        style="@style/TabsTheme.Fixed.Explore"
+        style="@style/TabsTheme.Fixed.Elevated"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

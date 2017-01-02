@@ -39,7 +39,6 @@ public class DeepLinkTest extends AndroidUnitTest {
     @Test
     public void shouldRequireResolve() {
         assertThat(DeepLink.ENTITY.requiresResolve()).isTrue();
-        assertThat(DeepLink.EXPLORE.requiresResolve()).isFalse();
         assertThat(DeepLink.SEARCH.requiresResolve()).isFalse();
         assertThat(DeepLink.RECORD.requiresResolve()).isFalse();
         assertThat(DeepLink.HOME.requiresResolve()).isFalse();
@@ -50,7 +49,6 @@ public class DeepLinkTest extends AndroidUnitTest {
 
     @Test
     public void shouldRequireLoggedIn() {
-        assertThat(DeepLink.EXPLORE.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.ENTITY.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.SEARCH.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.RECORD.requiresLoggedInUser()).isTrue();
@@ -65,7 +63,6 @@ public class DeepLinkTest extends AndroidUnitTest {
     public void shouldHandleSoundcloudScheme() {
         assertDeeplink(DeepLink.HOME, "soundcloud://home");
         assertDeeplink(DeepLink.STREAM, "soundcloud://stream");
-        assertDeeplink(DeepLink.EXPLORE, "soundcloud://explore");
         assertDeeplink(DeepLink.SEARCH, "soundcloud://search");
         assertDeeplink(DeepLink.SEARCH, "soundcloud://search:people");
         assertDeeplink(DeepLink.SEARCH, "soundcloud://search:sounds");
@@ -111,7 +108,6 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.HOME, "https://www.soundcloud.com/home");
         assertDeeplink(DeepLink.HOME, "https://www.soundcloud.com/home");
         assertDeeplink(DeepLink.STREAM, "https://www.soundcloud.com/stream");
-        assertDeeplink(DeepLink.EXPLORE, "https://www.soundcloud.com/explore");
         assertDeeplink(DeepLink.RECORD, "https://www.soundcloud.com/upload");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "https://www.soundcloud.com/discover");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "https://www.soundcloud.com/suggestedtracks_all");

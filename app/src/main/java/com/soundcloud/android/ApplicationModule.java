@@ -19,7 +19,6 @@ import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryModule;
-import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -87,7 +86,6 @@ import java.util.Locale;
                 StorageModule.class,
                 FacebookModule.class,
                 SyncModule.class,
-                ExploreModule.class,
                 PlayerModule.class,
                 PlaylistsModule.class,
                 ProfileModule.class,

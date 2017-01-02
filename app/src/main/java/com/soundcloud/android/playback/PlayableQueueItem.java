@@ -139,6 +139,11 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
             return getThis();
         }
 
+        public T fromSource(String source) {
+            this.source = source;
+            return getThis();
+        }
+
         public T fromSource(String source, String sourceVersion) {
             this.source = source;
             this.sourceVersion = sourceVersion;

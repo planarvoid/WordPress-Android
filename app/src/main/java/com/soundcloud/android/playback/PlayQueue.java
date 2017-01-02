@@ -46,16 +46,14 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
             public PlayQueueItem apply(Urn playable) {
                 if (playable.isTrack()) {
                     return new TrackQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource(),
-                                        playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource())
                             .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playable)))
                             .build();
 
                 } else if (playable.isPlaylist()) {
                     return new PlaylistQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource(),
-                                        playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource())
                             .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .build();
                 } else {
@@ -82,16 +80,14 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
 
                 if (playableAndReposter.getUrn().isTrack()) {
                     return new TrackQueueItem.Builder(playableAndReposter)
-                            .fromSource(playSessionSource.getInitialSource(),
-                                        playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource())
                             .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playableAndReposter.getUrn())))
                             .build();
 
                 } else if (playableAndReposter.getUrn().isPlaylist()) {
                     return new PlaylistQueueItem.Builder(playableAndReposter)
-                            .fromSource(playSessionSource.getInitialSource(),
-                                        playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource())
                             .withPlaybackContext(PlaybackContext.create(playSessionSource))
                             .build();
                 } else {

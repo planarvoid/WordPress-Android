@@ -11,8 +11,7 @@ import java.util.regex.Pattern;
 public enum DeepLink {
     HOME, 
     STREAM, 
-    EXPLORE, 
-    TRACK_RECOMMENDATIONS, 
+    TRACK_RECOMMENDATIONS,
     DISCOVERY, 
     SEARCH,
     RECORD,
@@ -33,8 +32,7 @@ public enum DeepLink {
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
     private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
-            EnumSet.of(EXPLORE,
-                       DISCOVERY,
+            EnumSet.of(DISCOVERY,
                        SEARCH,
                        RECORD,
                        ENTITY,
@@ -108,8 +106,6 @@ public enum DeepLink {
                 return HOME;
             case "stream":
                 return STREAM;
-            case "explore":
-                return EXPLORE;
             case "discover":
             case "suggestedtracks_all":
                 return TRACK_RECOMMENDATIONS;
@@ -188,8 +184,6 @@ public enum DeepLink {
                 return HOME;
             case "/stream":
                 return STREAM;
-            case "/explore":
-                return EXPLORE;
             case "/upload":
                 return RECORD;
             case "/discover":

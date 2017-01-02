@@ -11,7 +11,6 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.YouScreen;
 import com.soundcloud.android.screens.elements.MainTabs;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
 
 public class MainNavigationHelper {
@@ -53,10 +52,6 @@ public class MainNavigationHelper {
         mainTabs.clickDiscovery();
 
         return mainTabs.clickDiscovery();
-    }
-
-    public ExploreScreen goToExplore() {
-        return mainTabs().clickYou().clickExploreLink();
     }
 
     public YouScreen goToYou() {

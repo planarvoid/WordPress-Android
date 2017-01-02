@@ -15,10 +15,8 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.explore.ExploreGenre;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -152,29 +150,6 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         eventHandler.handleEvent(event);
 
         expectCustomEvent("comment", PLAYABLE_ONLY_PROPERTIES);
-    }
-
-    @Test
-    public void shouldTrackExploreGenresScreens() {
-        ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_MUSIC_GENRE.get(), ExploreGenre.POPULAR_AUDIO_CATEGORY);
-        AppboyProperties properties = new AppboyProperties();
-        properties.addProperty("genre", ExploreGenre.POPULAR_AUDIO_CATEGORY.getTitle());
-        properties.addProperty("category", event.screen());
-
-        eventHandler.handleEvent(event);
-
-        expectCustomEvent("explore", properties);
-    }
-
-    @Test
-    public void exploreTrendingAudioOrMusicTrackingShouldOnlyContainCategory() {
-        ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO);
-        AppboyProperties properties = new AppboyProperties();
-        properties.addProperty("category", event.screen());
-
-        eventHandler.handleEvent(event);
-
-        expectCustomEvent("explore", properties);
     }
 
     @Test

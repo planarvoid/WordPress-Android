@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartBucket;
@@ -47,7 +46,6 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     @Mock private RecommendedStationsOperations recommendedStationsOperations;
     @Mock private ChartsOperations chartsOperations;
     @Mock private FeatureFlags featureFlags;
-    @Mock private ChartsExperiment chartsExperiment;
     @Mock private RecommendedPlaylistsOperations recommendedPlaylistsOperations;
     @Mock private WelcomeUserOperations welcomeUserOperations;
     @Mock private DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
@@ -55,7 +53,6 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         discoveryModulesProvider = new DiscoveryModulesProvider(discoveryModulesPositionExperiment,
-                                                                chartsExperiment,
                                                                 playlistDiscoveryConfig,
                                                                 featureFlags,
                                                                 recommendedTracksOperations,
@@ -65,9 +62,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                                                                 playlistDiscoveryOperations,
                                                                 welcomeUserOperations);
 
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
-        when(chartsExperiment.isEnabled()).thenReturn(false);
         when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(false);
         when(playlistDiscoveryConfig.isEnabled()).thenReturn(false);
 
@@ -99,6 +94,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
@@ -116,14 +112,13 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.WelcomeUserItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
     @Test
-    public void loadsAllItemsIncludingChartsWhenExperimentAndFlagIsEnabled() {
-        when(chartsExperiment.isEnabled()).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
+    public void loadsAllItemsIncludingCharts() {
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
@@ -151,6 +146,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
@@ -192,8 +188,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Test
     public void loadAllItemsWithError() {
-        when(chartsExperiment.isEnabled()).thenReturn(false);
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
+        when(chartsOperations.featuredCharts()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));

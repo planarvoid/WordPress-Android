@@ -2,7 +2,6 @@ package com.soundcloud.android.events;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.explore.ExploreGenre;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
@@ -39,10 +38,6 @@ public abstract class ScreenEvent extends NewTrackingEvent {
 
     public static ScreenEvent create(String screen, Urn queryUrn) {
         return builder(screen).queryUrn(Optional.of(queryUrn)).build();
-    }
-
-    public static ScreenEvent create(String screen, ExploreGenre genre) {
-        return builder(screen).genre(Optional.of(genre.getTitle())).build();
     }
 
     public static ScreenEvent create(Screen screen, Urn pageUrn) {

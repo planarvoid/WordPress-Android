@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import java.util.Locale;
+
 class GenresPagerAdapter extends FragmentPagerAdapter {
 
     private final Resources resources;
@@ -34,7 +36,7 @@ class GenresPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return getCategory(position) == ChartCategory.MUSIC ?
-               resources.getString(R.string.explore_genre_header_music) :
-               resources.getString(R.string.explore_genre_header_audio);
+               resources.getString(R.string.charts_music).toUpperCase(Locale.US) :
+               resources.getString(R.string.charts_audio).toUpperCase(Locale.US);
     }
 }

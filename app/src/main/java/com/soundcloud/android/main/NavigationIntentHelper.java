@@ -11,16 +11,12 @@ final class NavigationIntentHelper {
         return link.equals(DeepLink.HOME) || link.equals(DeepLink.STREAM);
     }
 
-    public static boolean shoudGoToExplore(Uri data) {
-        return DeepLink.fromUri(data).equals(DeepLink.EXPLORE);
-    }
-
     public static boolean shouldGoToSearch(Uri data) {
         return DeepLink.fromUri(data).equals(DeepLink.SEARCH);
     }
 
     public static boolean resolvesToNavigationItem(Uri data) {
-        return shouldGoToStream(data) || shoudGoToExplore(data) || shouldGoToSearch(data);
+        return shouldGoToStream(data) || shouldGoToSearch(data);
     }
 
 }

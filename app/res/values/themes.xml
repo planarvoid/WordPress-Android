@@ -77,7 +77,7 @@
         <item name="tabMaxWidth">0dp</item>
     </style>
 
-    <style name="TabsTheme.Fixed.Explore" />
+    <style name="TabsTheme.Fixed.Elevated" />
 
     <style name="TabsTheme.Scrollable">
         <item name="tabPaddingStart">16dp</item>

@@ -14,7 +14,7 @@ public class PlayerHelper {
     public static VisualPlayerElement playPublicTrack(ActivityTest activityTest, MainNavigationHelper mainNavHelper) {
         final Waiter waiter = activityTest.getWaiter();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        VisualPlayerElement playerElement = mainNavHelper.goToExplore().playFirstTrack();
+        VisualPlayerElement playerElement = mainNavHelper.goToDiscovery().trackRecommendationsBucket().clickFirstRecommendedTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.waitForContent();
         return playerElement;

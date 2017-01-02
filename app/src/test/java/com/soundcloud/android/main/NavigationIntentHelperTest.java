@@ -31,27 +31,6 @@ public class NavigationIntentHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doNotGoToStreamForOtherPath() {
-        Uri uri = Uri.parse("https://soundcloud.com/explore");
-
-        assertThat(NavigationIntentHelper.shouldGoToStream(uri)).isFalse();
-    }
-
-    @Test
-    public void goToExploreForWebUrl() {
-        Uri uri = Uri.parse("https://soundcloud.com/explore");
-
-        assertThat(NavigationIntentHelper.shoudGoToExplore(uri)).isTrue();
-    }
-
-    @Test
-    public void doNotGoToExploreForOtherPath() {
-        Uri uri = Uri.parse("https://soundcloud.com/stream");
-
-        assertThat(NavigationIntentHelper.shoudGoToExplore(uri)).isFalse();
-    }
-
-    @Test
     public void goToSearchForWebUrl() {
         Uri uri = Uri.parse("https://soundcloud.com/search");
 

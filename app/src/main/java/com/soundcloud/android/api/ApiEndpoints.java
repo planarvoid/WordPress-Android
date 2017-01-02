@@ -15,10 +15,6 @@ public enum ApiEndpoints {
     GCM_REGISTER("/push/register"),
     GCM_DEREGISTER("/push/deregister"),
 
-    // explore
-    EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/popular/music"),
-    EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/popular/audio"),
-    EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories"),
     RELATED_TRACKS("/tracks/%s/related"),
 
     // search

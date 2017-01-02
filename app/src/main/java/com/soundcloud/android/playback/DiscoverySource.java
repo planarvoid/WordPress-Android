@@ -4,7 +4,6 @@ import static java.util.Locale.US;
 
 public enum DiscoverySource {
     RECOMMENDER("recommender"),
-    EXPLORE("explore"),
     STATIONS("stations"),
     STREAM("stream"),
     STATIONS_SUGGESTIONS("stations:suggestions"),

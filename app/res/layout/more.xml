@@ -55,14 +55,6 @@
         <View style="@style/Divider.Section" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/more_explore_link"
-            style="@style/More.NavItem"
-            android:text="@string/more_explore"
-            android:visibility="gone" />
-
-        <View style="@style/Divider.Item" />
-
-        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/more_activity_link"
             style="@style/More.NavItem"
             android:text="@string/more_activity" />

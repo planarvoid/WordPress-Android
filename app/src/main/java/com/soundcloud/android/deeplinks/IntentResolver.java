@@ -100,9 +100,6 @@ public class IntentResolver {
             case STREAM:
                 showHomeScreen(context, referrer);
                 break;
-            case EXPLORE:
-                showExploreScreen(context, referrer);
-                break;
             case RECORD:
                 showRecordScreen(context, referrer);
                 break;
@@ -218,11 +215,6 @@ public class IntentResolver {
         accountOperations.clearCrawler();
         trackForegroundEvent(referrer);
         navigator.openStream(context, Screen.DEEPLINK);
-    }
-
-    private void showExploreScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openExplore(context, Screen.DEEPLINK);
     }
 
     private void showDiscoveryScreen(Context context, String referrer) {

@@ -13,6 +13,8 @@ import com.soundcloud.android.screens.discovery.ChartsScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
+import java.util.Locale;
+
 @DiscoveryChartsTest
 public class ChartsTest extends TrackingActivityTest<MainActivity> {
     public static final String CHARTS_TRACKING_SCENARIO = "charts-tracking";
@@ -65,7 +67,7 @@ public class ChartsTest extends TrackingActivityTest<MainActivity> {
 
         // Go to Audio
         allGenresScreen.swipeLeft();
-        assertThat(countryScreen.activeTabTitle(), equalTo(solo.getString(R.string.explore_genre_header_audio)));
+        assertThat(countryScreen.activeTabTitle(), equalTo(solo.getString(R.string.charts_audio).toUpperCase(Locale.US)));
 
         // Go to Science section
         final ChartsScreen scienceScreen = allGenresScreen.clickGenre(solo.getString(R.string.charts_business));

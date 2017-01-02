@@ -24,14 +24,14 @@ public class ScreenProviderTest extends AndroidUnitTest {
 
     @Test
     public void returnsScreenFromLastScreenEvent() throws Exception {
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC.get("postfix")));
-        assertThat(screenProvider.getLastScreenTag()).isEqualTo("explore:trending_music:postfix");
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.MUSIC_GENRES.get("postfix")));
+        assertThat(screenProvider.getLastScreenTag()).isEqualTo("charts:music_genres:postfix");
     }
 
     @Test
     public void ignoresNonScreenEvent() throws Exception {
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC.get("postfix")));
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.MUSIC_GENRES.get("postfix")));
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(false));
-        assertThat(screenProvider.getLastScreenTag()).isEqualTo("explore:trending_music:postfix");
+        assertThat(screenProvider.getLastScreenTag()).isEqualTo("charts:music_genres:postfix");
     }
 }

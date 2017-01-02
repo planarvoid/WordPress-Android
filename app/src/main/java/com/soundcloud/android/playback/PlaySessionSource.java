@@ -39,7 +39,6 @@ public class PlaySessionSource implements Parcelable {
     private Urn collectionOwnerUrn = Urn.NOT_SET;
     private int collectionSize = Consts.NOT_SET;
 
-    private String exploreVersion;
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private QuerySourceInfo querySourceInfo;
@@ -72,16 +71,6 @@ public class PlaySessionSource implements Parcelable {
     public static PlaySessionSource forCast() {
         PlaySessionSource source = new PlaySessionSource();
         source.discoverySource = DiscoverySource.CAST;
-        return source;
-    }
-
-    public static PlaySessionSource forExplore(Screen screen, String version) {
-        return forExplore(screen.get(), version);
-    }
-
-    public static PlaySessionSource forExplore(String screen, String version) {
-        final PlaySessionSource source = new PlaySessionSource(screen);
-        source.exploreVersion = version;
         return source;
     }
 
@@ -127,7 +116,6 @@ public class PlaySessionSource implements Parcelable {
 
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
-        exploreVersion = in.readString();
         collectionSize = in.readInt();
         collectionUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
         collectionOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
@@ -185,23 +173,13 @@ public class PlaySessionSource implements Parcelable {
         return collectionSize;
     }
 
-    public boolean originatedInExplore() {
-        return originScreen.startsWith("explore");
-    }
-
     String getInitialSource() {
-        if (Strings.isNotBlank(exploreVersion)) {
-            return DiscoverySource.EXPLORE.value();
-        } else if (isFromStreamTrack()) {
+        if (isFromStreamTrack()) {
             return DiscoverySource.STREAM.value();
         } else if (hasDiscoverySource()) {
             return discoverySource.value();
         }
         return Strings.EMPTY;
-    }
-
-    public String getInitialSourceVersion() {
-        return Strings.isNotBlank(exploreVersion) ? exploreVersion : Strings.EMPTY;
     }
 
     public boolean isFromSearchQuery() {
@@ -252,7 +230,6 @@ public class PlaySessionSource implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(originScreen);
-        dest.writeString(exploreVersion);
         dest.writeInt(collectionSize);
         dest.writeParcelable(collectionUrn, 0);
         dest.writeParcelable(collectionOwnerUrn, 0);
@@ -289,7 +266,6 @@ public class PlaySessionSource implements Parcelable {
         return MoreObjects.equal(collectionUrn, that.collectionUrn)
                 && MoreObjects.equal(collectionOwnerUrn, that.collectionOwnerUrn)
                 && collectionSize == that.collectionSize
-                && MoreObjects.equal(exploreVersion, that.exploreVersion)
                 && MoreObjects.equal(originScreen, that.originScreen)
                 && MoreObjects.equal(promotedSourceInfo, that.promotedSourceInfo)
                 && MoreObjects.equal(querySourceInfo, that.querySourceInfo)
@@ -302,7 +278,6 @@ public class PlaySessionSource implements Parcelable {
         return MoreObjects.hashCode(collectionUrn,
                                     collectionOwnerUrn,
                                     collectionSize,
-                                    exploreVersion,
                                     originScreen,
                                     querySourceInfo,
                                     chartSourceInfo,
@@ -350,7 +325,6 @@ public class PlaySessionSource implements Parcelable {
                           .add("originScreen", originScreen)
                           .add("collectionUrn", collectionUrn)
                           .add("collectionOwnerUrn", collectionOwnerUrn)
-                          .add("exploreVersion", exploreVersion)
                           .add("searchQuerySourceInfo", searchQuerySourceInfo)
                           .add("promotedSourceInfo", promotedSourceInfo)
                           .add("discoverySource", discoverySource)

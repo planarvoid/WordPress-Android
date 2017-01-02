@@ -5,13 +5,6 @@
 
     <!-- ****** Adapter View Base styles ****** -->
 
-    <style name="TextAppearance.ExploreTracksCategory" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:textColor">@color/dark_gray_text</item>
-        <item name="android:textSize">@dimen/explore_suggested_track_category_text_size</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
-    </style>
-
     <style name="TextAppearance.GridItemBottom" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/ak_dark_gray</item>

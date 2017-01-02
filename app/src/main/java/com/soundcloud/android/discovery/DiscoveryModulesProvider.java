@@ -1,6 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
@@ -22,7 +21,6 @@ import java.util.List;
 class DiscoveryModulesProvider {
 
     private final DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
-    private final ChartsExperiment chartsExperiment;
     private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
     private final FeatureFlags featureFlags;
     private final RecommendedTracksOperations recommendedTracksOperations;
@@ -34,7 +32,6 @@ class DiscoveryModulesProvider {
 
     @Inject
     DiscoveryModulesProvider(DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment,
-                             ChartsExperiment chartsExperiment,
                              PlaylistDiscoveryConfig playlistDiscoveryConfig,
                              FeatureFlags featureFlags,
                              RecommendedTracksOperations recommendedTracksOperations,
@@ -44,7 +41,6 @@ class DiscoveryModulesProvider {
                              PlaylistDiscoveryOperations playlistDiscoveryOperations,
                              WelcomeUserOperations welcomeUserOperations) {
         this.discoveryModulesPositionExperiment = discoveryModulesPositionExperiment;
-        this.chartsExperiment = chartsExperiment;
         this.playlistDiscoveryConfig = playlistDiscoveryConfig;
         this.featureFlags = featureFlags;
         this.recommendedTracksOperations = recommendedTracksOperations;
@@ -136,13 +132,10 @@ class DiscoveryModulesProvider {
     }
 
     private Observable<DiscoveryItem> charts(boolean isRefresh) {
-        if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS) || chartsExperiment.isEnabled() || playlistDiscoveryConfig.isEnabled()) {
-            return isRefresh ?
-                   chartsOperations.refreshFeaturedCharts() :
-                   chartsOperations.featuredCharts();
+        return isRefresh ?
+               chartsOperations.refreshFeaturedCharts() :
+               chartsOperations.featuredCharts();
 
-        }
-        return Observable.empty();
     }
 
     private Observable<DiscoveryItem> recommendedPlaylists(boolean isRefresh) {
@@ -160,10 +153,10 @@ class DiscoveryModulesProvider {
 
     private Observable<List<DiscoveryItem>> items(List<Observable<DiscoveryItem>> discoveryItems) {
         return Observable.just(discoveryItems)
-                .compose(RxUtils.concatEagerIgnorePartialErrors())
-                .defaultIfEmpty(EmptyViewItem.fromThrowable(new EmptyThrowable()))
-                .onErrorReturn(EmptyViewItem::fromThrowable)
-                .startWith(DiscoveryItem.forSearchItem())
-                .toList();
+                         .compose(RxUtils.concatEagerIgnorePartialErrors())
+                         .defaultIfEmpty(EmptyViewItem.fromThrowable(new EmptyThrowable()))
+                         .onErrorReturn(EmptyViewItem::fromThrowable)
+                         .startWith(DiscoveryItem.forSearchItem())
+                         .toList();
     }
 }

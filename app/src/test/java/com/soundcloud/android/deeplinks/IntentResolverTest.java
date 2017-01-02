@@ -315,49 +315,6 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchExploreForWebScheme() {
-        setupIntentForUrl("https://soundcloud.com/explore");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openExplore(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldLaunchExploreForSoundCloudScheme() {
-        setupIntentForUrl("soundcloud://explore");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openExplore(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldNotLaunchExploreForLoggedOutUsers() {
-        when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        setupIntentForUrl("soundcloud://explore");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldLaunchExploreForCrawlers() {
-        setupReferrer(Referrer.GOOGLE_CRAWLER);
-        setupIntentForUrl("soundcloud://explore");
-
-        resolver.handleIntent(intent, context);
-
-        verify(accountOperations).loginCrawlerUser();
-        verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
-        verify(navigator).openExplore(context, Screen.DEEPLINK);
-    }
-
-    @Test
     public void shouldLaunchRecordForWebScheme() {
         setupIntentForUrl("https://soundcloud.com/upload");
 

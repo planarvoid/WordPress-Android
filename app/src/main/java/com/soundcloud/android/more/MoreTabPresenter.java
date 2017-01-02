@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.ChartsExperiment;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -16,8 +15,6 @@ import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
@@ -51,8 +48,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
     private final OfflineSettingsStorage settingsStorage;
-    private final FeatureFlags featureFlags;
-    private final ChartsExperiment chartsExperiment;
 
     private Optional<MoreView> moreViewOpt = Optional.absent();
     private Optional<More> moreOpt = Optional.absent();
@@ -69,9 +64,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                             Navigator navigator,
                             BugReporter bugReporter,
                             ApplicationProperties appProperties,
-                            OfflineSettingsStorage settingsStorage,
-                            FeatureFlags featureFlags,
-                            ChartsExperiment chartsExperiment) {
+                            OfflineSettingsStorage settingsStorage) {
         this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -84,8 +77,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
         this.settingsStorage = settingsStorage;
-        this.featureFlags = featureFlags;
-        this.chartsExperiment = chartsExperiment;
     }
 
     @Override
@@ -104,7 +95,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
         setupOfflineSync(moreView);
         setupFeedback(moreView);
-        setupExplore(moreView);
         bindUserIfPresent();
     }
 
@@ -129,14 +119,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private void setupFeedback(MoreView moreView) {
         if (appProperties.shouldAllowFeedback()) {
             moreView.showReportBug();
-        }
-    }
-
-    private void setupExplore(MoreView moreView) {
-        if (featureFlags.isEnabled(Flag.EXPLORE) && !chartsExperiment.isEnabled()) {
-            moreView.showExplore();
-        } else {
-            moreView.hideExplore();
         }
     }
 
@@ -179,11 +161,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     @Override
     public void onProfileClicked(View view) {
         navigator.legacyOpenProfile(view.getContext(), accountOperations.getLoggedInUserUrn());
-    }
-
-    @Override
-    public void onExploreClicked(View view) {
-        navigator.openExplore(view.getContext(), Screen.MORE);
     }
 
     @Override

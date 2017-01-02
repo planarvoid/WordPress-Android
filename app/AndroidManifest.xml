@@ -174,15 +174,6 @@
 
         </activity>
 
-        <activity android:label="@string/side_menu_explore" android:name=".explore.ExploreActivity">
-            <intent-filter>
-                <action android:name="${applicationId}.action.EXPLORE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-        <activity android:name=".explore.ExploreTracksCategoryActivity"/>
-
         <activity android:label="@string/side_menu_notifications" android:name=".activities.ActivitiesActivity">
             <intent-filter>
                 <action android:name="${applicationId}.action.ACTIVITY"/>

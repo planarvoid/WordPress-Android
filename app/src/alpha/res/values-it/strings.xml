@@ -141,53 +141,6 @@
   <string name="follow_age_unknown_title">Verifica la tua età</string>
   <string name="follow_age_unknown_content_username">Immetti l\'età per seguire %s.</string>
   <string name="follow_age_unknown_content_long_username">Per seguire %s, conferma di avere l\'età richiesta.</string>
-  <!--__EXPLORE-->
-  <string name="explore_genres">GENERI</string>
-  <string name="explore_genre_header_music">Musica</string>
-  <string name="explore_genre_header_audio">Audio</string>
-  <string name="explore_category_trending_music">MUSICA</string>
-  <string name="explore_category_trending_audio">AUDIO</string>
-  <string tools:ignore="UnusedResources" name="explore_alternative_rock">Rock Alternativo</string>
-  <string tools:ignore="UnusedResources" name="explore_ambient">Ambient</string>
-  <string tools:ignore="UnusedResources" name="explore_classical">Classica</string>
-  <string tools:ignore="UnusedResources" name="explore_country">Country</string>
-  <string tools:ignore="UnusedResources" name="explore_dance_and_edm">Dance &amp; EDM</string>
-  <string tools:ignore="UnusedResources" name="explore_dancehall">Dancehall</string>
-  <string tools:ignore="UnusedResources" name="explore_deep_house">Deep House</string>
-  <string tools:ignore="UnusedResources" name="explore_disco">Disco</string>
-  <string tools:ignore="UnusedResources" name="explore_drum_and_bass">Drum &amp; Bass</string>
-  <string tools:ignore="UnusedResources" name="explore_dubstep">Dubstep</string>
-  <string tools:ignore="UnusedResources" name="explore_electronic">Elettronica</string>
-  <string tools:ignore="UnusedResources" name="explore_folk_and_singer_songwriter">Folk e cantautori</string>
-  <string tools:ignore="UnusedResources" name="explore_hip_hop_and_rap">Hip Hop &amp; Rap</string>
-  <string tools:ignore="UnusedResources" name="explore_house">House</string>
-  <string tools:ignore="UnusedResources" name="explore_indie">Indie</string>
-  <string tools:ignore="UnusedResources" name="explore_jazz_and_blues">Jazz &amp; Blues</string>
-  <string tools:ignore="UnusedResources" name="explore_latin">Latino</string>
-  <string tools:ignore="UnusedResources" name="explore_metal">Metal</string>
-  <string tools:ignore="UnusedResources" name="explore_piano">Pianoforte</string>
-  <string tools:ignore="UnusedResources" name="explore_pop">Pop</string>
-  <string tools:ignore="UnusedResources" name="explore_randb_and_soul">R&amp;B &amp; Soul</string>
-  <string tools:ignore="UnusedResources" name="explore_reggae">Reggae</string>
-  <string tools:ignore="UnusedResources" name="explore_reggaeton">Reggaeton</string>
-  <string tools:ignore="UnusedResources" name="explore_rock">Rock</string>
-  <string tools:ignore="UnusedResources" name="explore_soundtrack">Colonna sonora</string>
-  <string tools:ignore="UnusedResources" name="explore_techno">Techno</string>
-  <string tools:ignore="UnusedResources" name="explore_trance">Trance</string>
-  <string tools:ignore="UnusedResources" name="explore_trap">Trap</string>
-  <string tools:ignore="UnusedResources" name="explore_trip_hop">Trip Hop</string>
-  <string tools:ignore="UnusedResources" name="explore_world">World</string>
-  <string tools:ignore="UnusedResources" name="explore_audiobooks">Audiolibri</string>
-  <string tools:ignore="UnusedResources" name="explore_business">Business</string>
-  <string tools:ignore="UnusedResources" name="explore_comedy">Commedia</string>
-  <string tools:ignore="UnusedResources" name="explore_learning">Educazione</string>
-  <string tools:ignore="UnusedResources" name="explore_news_and_politics">Notizie e politica</string>
-  <string tools:ignore="UnusedResources" name="explore_religion_and_spirituality">Religione e spiritualità</string>
-  <string tools:ignore="UnusedResources" name="explore_science">Scienza</string>
-  <string tools:ignore="UnusedResources" name="explore_sports">Sport</string>
-  <string tools:ignore="UnusedResources" name="explore_storytelling">Narrativa</string>
-  <string tools:ignore="UnusedResources" name="explore_technology">Tecnologia</string>
-  <string tools:ignore="UnusedResources" name="explore_entertainment">Intrattenimento</string>
   <!--__IMAGES-->
   <string name="add_image">Aggiungi\nimmagine</string>
   <string name="image_load_error">Si è verificato un problema durante il caricamento dell\'immagine</string>
@@ -201,7 +154,6 @@
   <string name="side_menu_record">Registra</string>
   <string name="side_menu_you">Tu</string>
   <string name="side_menu_profile">Profilo</string>
-  <string name="side_menu_explore">Esplora</string>
   <string name="title_settings">Impostazioni</string>
   <string name="title_feedback">Invia report bug</string>
   <!--__ONBOARDING-->
@@ -637,7 +589,6 @@
   <string name="tab_collection">Libreria</string>
   <string name="tab_more">Altro</string>
   <!--__MORE-->
-  <string name="more_explore">Esplora</string>
   <string name="more_activity">Notifiche</string>
   <string name="more_record">Registra</string>
   <string name="more_notification_settings">Impostazioni di notifica</string>

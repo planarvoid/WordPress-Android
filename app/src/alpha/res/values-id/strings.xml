@@ -80,37 +80,6 @@
   <string name="follow_age_restricted_content_long_age_username">Maaf, hanya pengguna berusia %1$s tahun ke atas yang diizinkan mengikuti %2$s.</string>
   <string name="follow_age_unknown_title">Silakan verifikasi umur Anda</string>
   <string name="follow_age_unknown_content_username">Masukkan umur untuk mengikuti %s.</string>
-  <!--__EXPLORE-->
-  <string name="explore_genre_header_music">Musik</string>
-  <string name="explore_genre_header_audio">Audio</string>
-  <string name="explore_category_trending_music">MUSIC</string>
-  <string name="explore_category_trending_audio">AUDIO</string>
-  <string tools:ignore="UnusedResources" name="explore_ambient">Ambient</string>
-  <string tools:ignore="UnusedResources" name="explore_classical">Klasik</string>
-  <string tools:ignore="UnusedResources" name="explore_country">Country</string>
-  <string tools:ignore="UnusedResources" name="explore_dancehall">Dancehall</string>
-  <string tools:ignore="UnusedResources" name="explore_deep_house">Deep House</string>
-  <string tools:ignore="UnusedResources" name="explore_disco">Disko</string>
-  <string tools:ignore="UnusedResources" name="explore_dubstep">Dubstep</string>
-  <string tools:ignore="UnusedResources" name="explore_electronic">Elektronik</string>
-  <string tools:ignore="UnusedResources" name="explore_house">House</string>
-  <string tools:ignore="UnusedResources" name="explore_indie">Indie</string>
-  <string tools:ignore="UnusedResources" name="explore_latin">Latin</string>
-  <string tools:ignore="UnusedResources" name="explore_metal">Metal</string>
-  <string tools:ignore="UnusedResources" name="explore_piano">Piano</string>
-  <string tools:ignore="UnusedResources" name="explore_pop">Pop</string>
-  <string tools:ignore="UnusedResources" name="explore_reggae">Reggae</string>
-  <string tools:ignore="UnusedResources" name="explore_reggaeton">Reggaeton</string>
-  <string tools:ignore="UnusedResources" name="explore_rock">Rock</string>
-  <string tools:ignore="UnusedResources" name="explore_techno">Techno</string>
-  <string tools:ignore="UnusedResources" name="explore_trance">Trance</string>
-  <string tools:ignore="UnusedResources" name="explore_world">World</string>
-  <string tools:ignore="UnusedResources" name="explore_audiobooks">Audiobooks</string>
-  <string tools:ignore="UnusedResources" name="explore_business">Bisnis</string>
-  <string tools:ignore="UnusedResources" name="explore_comedy">Komedi</string>
-  <string tools:ignore="UnusedResources" name="explore_learning">Belajar</string>
-  <string tools:ignore="UnusedResources" name="explore_sports">Olah Raga</string>
-  <string tools:ignore="UnusedResources" name="explore_storytelling">Cerita</string>
   <!--__IMAGES-->
   <string name="image_load_error">Terjadi kesalahan saat memuat gambar</string>
   <string name="image_where">Bagaimana Anda ingin menambahkan gambar?</string>
@@ -123,7 +92,6 @@
   <string name="side_menu_record">Rekam</string>
   <string name="side_menu_you">Anda</string>
   <string name="side_menu_profile">Profil</string>
-  <string name="side_menu_explore">Jelajahi</string>
   <string name="title_settings">Pengaturan</string>
   <string name="title_feedback">Kirim laporan bug</string>
   <!--__ONBOARDING-->
@@ -361,7 +329,6 @@
   <string name="tab_collection">Koleksi</string>
   <string name="tab_more">Lebih banyak</string>
   <!--__MORE-->
-  <string name="more_explore">Jelajahi</string>
   <string name="more_activity">Berbagai notifikasi</string>
   <string name="more_record">Rekam</string>
   <string name="more_basic_settings">Pengaturan dasar</string>

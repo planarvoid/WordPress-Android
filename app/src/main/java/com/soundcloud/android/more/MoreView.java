@@ -26,7 +26,6 @@ public class MoreView implements ScrollContent {
     @BindView(R.id.username) TextView username;
     @BindView(R.id.more_version_text) TextView versionText;
     @BindView(R.id.more_offline_sync_settings_link) View offlineSettingsView;
-    @BindView(R.id.more_explore_link) View exploreView;
     @BindView(R.id.more_report_bug) View reportBug;
     @BindView(R.id.scroll_view) NestedScrollView scrollView;
     @BindView(R.id.more_go_indicator) View goIndicator;
@@ -65,14 +64,6 @@ public class MoreView implements ScrollContent {
         offlineSettingsView.setVisibility(View.GONE);
     }
 
-    public void showExplore() {
-        exploreView.setVisibility(View.VISIBLE);
-    }
-
-    public void hideExplore() {
-        exploreView.setVisibility(View.GONE);
-    }
-
     public void showReportBug() {
         reportBug.setVisibility(View.VISIBLE);
     }
@@ -85,13 +76,6 @@ public class MoreView implements ScrollContent {
     void onHeaderLayoutClicked(View view) {
         if (listener != null) {
             listener.onProfileClicked(view);
-        }
-    }
-
-    @OnClick(R.id.more_explore_link)
-    void onExploreLinkClicked(View view) {
-        if (listener != null) {
-            listener.onExploreClicked(view);
         }
     }
 
@@ -164,8 +148,6 @@ public class MoreView implements ScrollContent {
 
     interface Listener {
         void onProfileClicked(View view);
-
-        void onExploreClicked(View view);
 
         void onActivitiesClicked(View view);
 

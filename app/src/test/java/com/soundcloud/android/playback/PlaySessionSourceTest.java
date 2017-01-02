@@ -39,7 +39,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(Consts.NOT_SET);
         assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
         assertThat(playSessionSource.getSearchQuerySourceInfo()).isNull();
     }
 
@@ -51,7 +50,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(Consts.NOT_SET);
         assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
@@ -66,18 +64,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
         assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
-    }
-
-    @Test
-    public void shouldCreatePlaySessionSourceFromOriginPageAndExploreTag() throws Exception {
-        PlaySessionSource playSessionSource = PlaySessionSource.forExplore(ORIGIN_PAGE, EXPLORE_VERSION);
-        assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
-        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
-        assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
-        assertThat(playSessionSource.getCollectionSize()).isEqualTo(Consts.NOT_SET);
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(DiscoverySource.EXPLORE.value());
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(EXPLORE_VERSION);
     }
 
     @Test
@@ -92,7 +78,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
         assertThat(playSessionSource.getInitialSource()).isEmpty();
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
@@ -139,30 +124,9 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(copy.getCollectionOwnerUrn()).isEqualTo(USER_URN);
         assertThat(copy.getCollectionSize()).isEqualTo(TRACK_COUNT);
         assertThat(copy.getInitialSource()).isEmpty();
-        assertThat(copy.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
         assertThat(copy.getSearchQuerySourceInfo()).isEqualTo(searchQuerySourceInfo);
         assertThat(copy.getPromotedSourceInfo()).isEqualTo(promotedSourceInfo);
     }
-
-    @Test
-    public void explorePlaySessionSourceShouldBeParcelable() {
-        final PlaySessionSource source = PlaySessionSource.forExplore(Screen.EXPLORE_AUDIO_GENRE, EXPLORE_VERSION);
-
-        Parcel parcel = Parcel.obtain();
-        source.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-
-        PlaySessionSource copy = new PlaySessionSource(parcel);
-        assertThat(copy.getOriginScreen()).isEqualTo(Screen.EXPLORE_AUDIO_GENRE.get());
-        assertThat(copy.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
-        assertThat(copy.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
-        assertThat(copy.getCollectionSize()).isEqualTo(Consts.NOT_SET);
-        assertThat(copy.getInitialSource()).isEqualTo(DiscoverySource.EXPLORE.value());
-        assertThat(copy.getInitialSourceVersion()).isEqualTo(EXPLORE_VERSION);
-        assertThat(copy.getSearchQuerySourceInfo()).isNull();
-        assertThat(copy.getPromotedSourceInfo()).isNull();
-    }
-
 
     @Test
     public void discoverySourceShouldBeParcelable() {
@@ -207,21 +171,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOriginateFromExploreWithExploreOrigin() {
-        assertThat(new PlaySessionSource("explore:something").originatedInExplore()).isTrue();
-    }
-
-    @Test
-    public void shouldNotOriginateFromExploreWithNonExploreOrigin() {
-        assertThat(new PlaySessionSource("stream:something").originatedInExplore()).isFalse();
-    }
-
-    @Test
-    public void shouldNotOriginateFromExploreWithEmptyOrigin() {
-        assertThat(new PlaySessionSource(Strings.EMPTY).originatedInExplore()).isFalse();
-    }
-
-    @Test
     public void createsPlaySessionSourceForStation() {
         final Urn station = Urn.forTrackStation(123);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.COLLECTIONS, station);
@@ -254,7 +203,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         final PlaySessionSource playSessionSource = PlaySessionSource.forHistory(Screen.PLAY_HISTORY);
 
         assertThat(playSessionSource.getInitialSource()).isEqualTo(DiscoverySource.HISTORY.value());
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
 
     @Test

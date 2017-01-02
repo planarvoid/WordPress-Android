@@ -59,10 +59,7 @@
 
     <dimen name="collections_playlist_track_size">44dp</dimen>
 
-    <dimen name="explore_suggested_track_category_text_size">16sp</dimen>
     <dimen name="grid_item_bottom_text_size">14sp</dimen>
-
-    <dimen name="explore_category_page_size">1px</dimen>
 
     <dimen name="view_all_height">48dp</dimen>
     <dimen name="view_all_chevron_padding">6dp</dimen>
