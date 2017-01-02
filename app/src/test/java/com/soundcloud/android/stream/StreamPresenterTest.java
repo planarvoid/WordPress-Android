@@ -9,6 +9,7 @@ import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -62,6 +63,7 @@ import rx.Observer;
 import rx.subjects.PublishSubject;
 
 import android.net.Uri;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
@@ -421,13 +423,22 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldSetOnStreamAdsControllerOnViewCreated() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        verify(streamAdsController).onViewCreated(any(RecyclerView.class), eq(adapter));
+    }
+
+    @Test
     public void shouldClearStreamAdControllerOnViewDestroy() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         presenter.onDestroyView(fragmentRule.getFragment());
 
-        verify(streamAdsController).clear();
+        verify(streamAdsController).onDestroyView();
     }
 
     @Test

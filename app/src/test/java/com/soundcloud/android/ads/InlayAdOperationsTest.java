@@ -1,7 +1,5 @@
 package com.soundcloud.android.ads;
 
-import android.support.v7.widget.StaggeredGridLayoutManager;
-
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -23,17 +21,16 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         return AppInstallAd.create(AdFixtures.getApiAppInstall(), 424242);
     }
 
-    InlayAdOperations operations;
-    InlayAdOperations.OnScreenAndImageLoaded filter;
+    private InlayAdOperations operations;
+    private InlayAdOperations.OnScreenAndImageLoaded filter;
 
-    @Mock StaggeredGridLayoutManager layoutManager;
     @Mock InlayAdHelper inlayAdHelper;
     @Spy EventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
-        operations = new InlayAdOperations(eventBus, inlayAdHelper);
-        filter = new InlayAdOperations.OnScreenAndImageLoaded(layoutManager, inlayAdHelper);
+        operations = new InlayAdOperations(eventBus);
+        filter = new InlayAdOperations.OnScreenAndImageLoaded(inlayAdHelper);
     }
 
     @Test

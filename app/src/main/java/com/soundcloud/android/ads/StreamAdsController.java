@@ -8,11 +8,11 @@ import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
@@ -42,7 +42,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
     private final AdsOperations adsOperations;
     private final InlayAdOperations inlayAdOperations;
-    private final InlayAdHelper inlayAdHelper;
+    private final InlayAdHelperFactory inlayAdHelperFactory;
     private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
     private final CurrentDateProvider dateProvider;
@@ -58,90 +58,88 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     };
 
     private Subscription fetchSubscription = RxUtils.invalidSubscription();
-    private Subscription impressionsSubscriptions = RxUtils.invalidSubscription();
+    private Subscription impressionsSubscription = RxUtils.invalidSubscription();
+
     private List<AppInstallAd> inlayAds = Collections.emptyList();
     private Optional<Long> lastEmptyResponseTime = Optional.absent();
-    private String lastRequestId = Strings.EMPTY;
+    private Optional<InlayAdHelper> inlayAdHelper = Optional.absent();
 
+    private String lastRequestId = Strings.EMPTY;
     private boolean wasScrollingUp;
 
     @Inject
     public StreamAdsController(AdsOperations adsOperations,
                                InlayAdOperations inlayAdOperations,
-                               InlayAdHelper inlayAdHelper,
+                               InlayAdHelperFactory inlayAdHelperFactory,
                                FeatureFlags featureFlags,
                                FeatureOperations featureOperations,
                                CurrentDateProvider dateProvider,
                                EventBus eventBus) {
         this.adsOperations = adsOperations;
         this.inlayAdOperations = inlayAdOperations;
-        this.inlayAdHelper = inlayAdHelper;
+        this.inlayAdHelperFactory = inlayAdHelperFactory;
         this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
     }
 
-    public void clear() {
+    public void onViewCreated(RecyclerView recyclerView, StreamAdapter adapter) {
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        final StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) layoutManager;
+        this.inlayAdHelper = Optional.of(inlayAdHelperFactory.create(staggeredGridLayoutManager, adapter));
+    }
+
+    public void onDestroyView() {
         fetchSubscription.unsubscribe();
-        impressionsSubscriptions.unsubscribe();
+        impressionsSubscription.unsubscribe();
     }
 
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (newState == RecyclerView.SCROLL_STATE_SETTLING && layoutManager instanceof StaggeredGridLayoutManager) {
-            insertAds((StaggeredGridLayoutManager) layoutManager);
+        if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+            insertAds();
         }
     }
 
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (featureFlags.isEnabled(Flag.APP_INSTALLS)
-                && featureOperations.shouldRequestAds()
-                && layoutManager instanceof StaggeredGridLayoutManager) {
-            inlayAdHelper.onScroll((StaggeredGridLayoutManager) layoutManager);
-        }
-
         wasScrollingUp = dy < 0;
+        if (shouldInsertStreamAds() && inlayAdHelper.isPresent()) {
+            inlayAdHelper.get().onScroll();
+        }
     }
 
     public void insertAds() {
-        insertAds(Optional.<StaggeredGridLayoutManager>absent());
-    }
-
-    public void insertAds(StaggeredGridLayoutManager layoutManager) {
-        insertAds(Optional.of(layoutManager));
-    }
-
-    protected void insertAds(Optional<StaggeredGridLayoutManager> layoutManager) {
-        if (featureFlags.isEnabled(Flag.APP_INSTALLS) && featureOperations.shouldRequestAds()) {
+        if (shouldInsertStreamAds()) {
             clearExpiredAds();
 
-            if (impressionsSubscriptions.isUnsubscribed() && layoutManager.isPresent()) {
-                impressionsSubscriptions = inlayAdOperations.trackImpressions(layoutManager.get())
-                                                            .subscribe(eventBus.queue(EventQueue.TRACKING));
+            if (impressionsSubscription.isUnsubscribed() && inlayAdHelper.isPresent()) {
+                impressionsSubscription = inlayAdOperations.trackImpressions(inlayAdHelper.get())
+                                                           .subscribe(eventBus.queue(EventQueue.TRACKING));
             }
 
             if (inlayAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldFetchMoreAds()) {
                 fetchSubscription = adsOperations.kruxSegments()
                                                  .flatMap(fetchInlays)
                                                  .observeOn(AndroidSchedulers.mainThread())
-                                                 .subscribe(new FetchAppInstalls(layoutManager));
-            } else if (layoutManager.isPresent()) {
-                attemptToInsertAd(layoutManager.get());
+                                                 .subscribe(new FetchAppInstalls());
+            } else {
+                attemptToInsertAd();
             }
         }
     }
 
+    private boolean shouldInsertStreamAds() {
+        return featureFlags.isEnabled(Flag.APP_INSTALLS) && featureOperations.shouldRequestAds();
+    }
+
     private void clearExpiredAds() {
-        inlayAds = Lists.newArrayList(Iterables.filter(inlayAds, new Predicate<AppInstallAd>() {
-            @Override
-            public boolean apply(AppInstallAd ad) {
-                return ad.getCreatedAt() + TimeUnit.MINUTES.toMillis(ad.getExpiryInMins()) > dateProvider.getCurrentTime();
-            }
-        }));
+        inlayAds = Lists.newArrayList(Iterables.filter(inlayAds, isAdExpired()));
+    }
+
+    private Predicate<AppInstallAd> isAdExpired() {
+        return ad -> ad.getCreatedAt() + TimeUnit.MINUTES.toMillis(ad.getExpiryInMins()) > dateProvider.getCurrentTime();
     }
 
     private boolean shouldFetchMoreAds() {
@@ -149,15 +147,15 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                 && Math.abs(dateProvider.getCurrentTime() - lastEmptyResponseTime.get()) < EMPTY_ADS_RESPONSE_BACKOFF_MS);
     }
 
-    private void attemptToInsertAd(StaggeredGridLayoutManager layoutManager) {
+    private void attemptToInsertAd() {
         checkState(Thread.currentThread() == Looper.getMainLooper().getThread());
-        if (!inlayAds.isEmpty()) {
+        if (!inlayAds.isEmpty() && inlayAdHelper.isPresent()) {
             final AppInstallAd ad = inlayAds.get(0);
-            final boolean inserted = inlayAdHelper.insertAd(layoutManager, ad, wasScrollingUp);
+            final boolean inserted = inlayAdHelper.get().insertAd(ad, wasScrollingUp);
 
             if (inserted) {
                 inlayAds.remove(ad);
-                eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adDelivered(Optional.<Urn>absent(),
+                eventBus.publish(EventQueue.TRACKING,  AdDeliveryEvent.adDelivered(Optional.absent(),
                                                                                   ad.getAdUrn(),
                                                                                   lastRequestId,
                                                                                   false, true));
@@ -166,22 +164,13 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     }
 
     private class FetchAppInstalls extends DefaultSubscriber<List<AppInstallAd>> {
-        final Optional<StaggeredGridLayoutManager> layoutManager;
-
-        private FetchAppInstalls(Optional<StaggeredGridLayoutManager> layoutManager) {
-            this.layoutManager = layoutManager;
-        }
-
         @Override
         public void onNext(List<AppInstallAd> ads) {
             if (ads.isEmpty()) {
                 setLastEmptyResponseTime();
             } else {
                 inlayAds = ads;
-
-                if (layoutManager.isPresent()) {
-                    insertAds(layoutManager);
-                }
+                insertAds();
             }
         }
 
