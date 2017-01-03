@@ -6,7 +6,9 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="32dp">
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/genre"
@@ -26,12 +28,11 @@
             android:visibility="gone"
             tools:text="12:53" />
 
-        <View
-            android:id="@+id/footer_divider"
-            style="@style/Divider.Section"
-            android:layout_gravity="bottom"/>
-
     </FrameLayout>
+
+    <View
+        android:id="@+id/footer_divider"
+        style="@style/Divider.Section" />
 
     <RelativeLayout
         android:layout_width="match_parent"
