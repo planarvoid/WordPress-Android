@@ -860,7 +860,7 @@ Se você sente falta de um acesso offline sem anúncios ao nosso catálogo expan
   <string name="push_notifications_product_updates">Novos recursos da SoundCloud</string>
   <string name="push_notifications_survey">Pesquisas e feedback</string>
   <string name="push_notifications_tips">Dicas e ofertas da SoundCloud</string>
-  <string name="push_notifications_recommendations">Conteúdo recomendado</string>
+  <string name="push_notifications_suggestions">Conteúdo recomendado</string>
   <string name="email_notifications_all_title">Notificações de e-mail</string>
   <string name="email_notifications_all_summary">Ativar todas as notificações de e-mail\nou selecionar qual receber.</string>
   <string name="email_notifications_follower">Novo seguidor</string>
@@ -873,7 +873,7 @@ Se você sente falta de um acesso offline sem anúncios ao nosso catálogo expan
   <string name="email_notifications_product_updates">Novos recursos da SoundCloud</string>
   <string name="email_notifications_survey">Pesquisas e feedback</string>
   <string name="email_notifications_tips">Dicas e ofertas da SoundCloud</string>
-  <string name="email_notifications_recommendations">Conteúdo recomendado</string>
+  <string name="email_notifications_suggestions">Conteúdo recomendado</string>
   <string name="email_notifications_newsletter">Newsletter da SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">

@@ -51,8 +51,8 @@
 
     <CheckBoxPreference
         android:defaultValue="true"
-        android:key="@string/key_push_notifications_recommendations"
-        android:title="@string/push_notifications_recommendations" />
+        android:key="@string/key_push_notifications_suggestions"
+        android:title="@string/push_notifications_suggestions" />
 
     <Preference android:layout="@layout/preferences_separator" />
 
@@ -117,8 +117,8 @@
 
     <CheckBoxPreference
         android:defaultValue="true"
-        android:key="@string/key_email_notifications_recommendations"
-        android:title="@string/email_notifications_recommendations" />
+        android:key="@string/key_email_notifications_suggestions"
+        android:title="@string/email_notifications_suggestions" />
 
     <CheckBoxPreference
         android:defaultValue="true"

@@ -19,7 +19,7 @@
     <string name="key_push_notifications_product_updates">productUpdates_mobile</string>
     <string name="key_push_notifications_surveys">surveys_mobile</string>
     <string name="key_push_notifications_tips">tips_mobile</string>
-    <string name="key_push_notifications_recommendations">recommendations_mobile</string>
+    <string name="key_push_notifications_suggestions">recommendations_mobile</string>
 
     <string name="key_email_notifications_all">all_mail</string>
     <string name="key_email_notifications_follows">follows_mail</string>
@@ -33,7 +33,7 @@
     <string name="key_email_notifications_surveys">surveys_mail</string>
     <string name="key_email_notifications_tips">tips_mail</string>
     <string name="key_email_notifications_newsletters">newsletters_mail</string>
-    <string name="key_email_notifications_recommendations">recommendations_mail</string>
+    <string name="key_email_notifications_suggestions">recommendations_mail</string>
 
     <!-- Subscription settings -->
     <string name="key_subscription_buy">buySubscription</string>

@@ -825,7 +825,7 @@
   <string name="push_notifications_product_updates">Neue SoundCloud-Funktionen</string>
   <string name="push_notifications_survey">Umfragen und Feedback</string>
   <string name="push_notifications_tips">SoundCloud-Tipps</string>
-  <string name="push_notifications_recommendations">Angesagtes</string>
+  <string name="push_notifications_suggestions">Angesagtes</string>
   <string name="email_notifications_all_title">E-Mail-Benachrichtigungen</string>
   <string name="email_notifications_all_summary">Aktiviere alle E-Mail-Benachrichtigungen oder wähle aus, welche du empfangen möchtest.</string>
   <string name="email_notifications_follower">Neuer Follower</string>
@@ -838,7 +838,7 @@
   <string name="email_notifications_product_updates">Neue SoundCloud-Funktionen</string>
   <string name="email_notifications_survey">Umfragen und Feedback</string>
   <string name="email_notifications_tips">SoundCloud-Tipps</string>
-  <string name="email_notifications_recommendations">Angesagtes</string>
+  <string name="email_notifications_suggestions">Angesagtes</string>
   <string name="email_notifications_newsletter">SoundCloud-Newsletter</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">

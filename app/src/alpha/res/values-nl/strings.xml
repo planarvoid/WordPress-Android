@@ -830,7 +830,7 @@
   <string name="push_notifications_product_updates">Nieuwe SoundCloud-functies</string>
   <string name="push_notifications_survey">Enquêtes en feedback</string>
   <string name="push_notifications_tips">SoundCloud-tips</string>
-  <string name="push_notifications_recommendations">Populair</string>
+  <string name="push_notifications_suggestions">Populair</string>
   <string name="email_notifications_all_title">E-mailmeldingen</string>
   <string name="email_notifications_all_summary">Schakel alle e-mailmeldingen in\nof selecteer welke je wilt ontvangen.</string>
   <string name="email_notifications_follower">Nieuwe volger</string>
@@ -843,7 +843,7 @@
   <string name="email_notifications_product_updates">Nieuwe SoundCloud-functies</string>
   <string name="email_notifications_survey">Enquêtes en feedback</string>
   <string name="email_notifications_tips">SoundCloud-tips</string>
-  <string name="email_notifications_recommendations">Populair</string>
+  <string name="email_notifications_suggestions">Populair</string>
   <string name="email_notifications_newsletter">SoundCloud-nieuwsbrief</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">

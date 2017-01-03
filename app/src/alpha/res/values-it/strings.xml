@@ -825,7 +825,7 @@
   <string name="push_notifications_product_updates">Nuove funzionalità SoundCloud</string>
   <string name="push_notifications_survey">Sondaggi e feedback</string>
   <string name="push_notifications_tips">Suggerimenti SoundCloud</string>
-  <string name="push_notifications_recommendations">Di tendenza</string>
+  <string name="push_notifications_suggestions">Di tendenza</string>
   <string name="email_notifications_all_title">Notifiche email</string>
   <string name="email_notifications_all_summary">Attiva tutte le notifiche email\no seleziona quali ricevere.</string>
   <string name="email_notifications_follower">Nuovo follower</string>
@@ -838,7 +838,7 @@
   <string name="email_notifications_product_updates">Nuove funzionalità SoundCloud</string>
   <string name="email_notifications_survey">Sondaggi e feedback</string>
   <string name="email_notifications_tips">Suggerimenti SoundCloud</string>
-  <string name="email_notifications_recommendations">Di tendenza</string>
+  <string name="email_notifications_suggestions">Di tendenza</string>
   <string name="email_notifications_newsletter">Newsletter SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
