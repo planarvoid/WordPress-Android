@@ -12,11 +12,9 @@ public class ActiveExperiments {
 
     public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = asList(OpusExperiment.CONFIGURATION,
                                                                                   SuggestedCreatorsExperiment.CONFIGURATION,
-                                                                                  DiscoveryModulesPositionExperiment.CONFIGURATION,
                                                                                   PlayerSwipeToSkipExperiment.CONFIGURATION,
                                                                                   PlayerUpsellCopyExperiment.CONFIGURATION,
                                                                                   PlaylistDiscoveryConfig.CONFIGURATION,
-                                                                                  DiscoveryModulesPositionExperiment.CONFIGURATION,
                                                                                   AutocompleteConfig.CONFIGURATION,
                                                                                   PlayQueueConfiguration.CONFIGURATION,
                                                                                   SuggestedStationsExperiment.CONFIGURATION);

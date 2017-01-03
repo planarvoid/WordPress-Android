@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
@@ -48,12 +47,10 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private RecommendedPlaylistsOperations recommendedPlaylistsOperations;
     @Mock private WelcomeUserOperations welcomeUserOperations;
-    @Mock private DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
 
     @Before
     public void setUp() throws Exception {
-        discoveryModulesProvider = new DiscoveryModulesProvider(discoveryModulesPositionExperiment,
-                                                                playlistDiscoveryConfig,
+        discoveryModulesProvider = new DiscoveryModulesProvider(playlistDiscoveryConfig,
                                                                 featureFlags,
                                                                 recommendedTracksOperations,
                                                                 recommendedStationsOperations,
@@ -63,7 +60,6 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                                                                 welcomeUserOperations);
 
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
-        when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(false);
         when(playlistDiscoveryConfig.isEnabled()).thenReturn(false);
 
         final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.emptyList(),
@@ -92,8 +88,8 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
@@ -110,8 +106,8 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.WelcomeUserItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
@@ -119,24 +115,6 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Test
     public void loadsAllItemsIncludingCharts() {
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
-        subscriber.assertValueCount(1);
-
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
-
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
-        );
-    }
-
-    @Test
-    public void loadsItemsInCorrectOrderForDiscoveryModulesPositionExperiment() {
-        when(discoveryModulesPositionExperiment.isEnabled()).thenReturn(true);
-
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 

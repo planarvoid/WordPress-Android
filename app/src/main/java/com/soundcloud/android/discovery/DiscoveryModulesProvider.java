@@ -1,6 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.configuration.experiments.DiscoveryModulesPositionExperiment;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
@@ -20,7 +19,6 @@ import java.util.List;
 
 class DiscoveryModulesProvider {
 
-    private final DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment;
     private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
     private final FeatureFlags featureFlags;
     private final RecommendedTracksOperations recommendedTracksOperations;
@@ -31,8 +29,7 @@ class DiscoveryModulesProvider {
     private final WelcomeUserOperations welcomeUserOperations;
 
     @Inject
-    DiscoveryModulesProvider(DiscoveryModulesPositionExperiment discoveryModulesPositionExperiment,
-                             PlaylistDiscoveryConfig playlistDiscoveryConfig,
+    DiscoveryModulesProvider(PlaylistDiscoveryConfig playlistDiscoveryConfig,
                              FeatureFlags featureFlags,
                              RecommendedTracksOperations recommendedTracksOperations,
                              RecommendedStationsOperations recommendedStationsOperations,
@@ -40,7 +37,6 @@ class DiscoveryModulesProvider {
                              ChartsOperations chartsOperations,
                              PlaylistDiscoveryOperations playlistDiscoveryOperations,
                              WelcomeUserOperations welcomeUserOperations) {
-        this.discoveryModulesPositionExperiment = discoveryModulesPositionExperiment;
         this.playlistDiscoveryConfig = playlistDiscoveryConfig;
         this.featureFlags = featureFlags;
         this.recommendedTracksOperations = recommendedTracksOperations;
@@ -62,9 +58,6 @@ class DiscoveryModulesProvider {
     private List<Observable<DiscoveryItem>> getItems(boolean isRefresh) {
         if (playlistDiscoveryConfig.isEnabled()) {
             return itemsForPlaylistDiscoveryExperiment(isRefresh);
-
-        } else if (discoveryModulesPositionExperiment.isEnabled()) {
-            return itemsForDiscoveryModulesSwitchExperiment(isRefresh);
 
         } else {
             return itemsForDefault(isRefresh);
@@ -91,22 +84,11 @@ class DiscoveryModulesProvider {
         );
     }
 
-    private List<Observable<DiscoveryItem>> itemsForDiscoveryModulesSwitchExperiment(boolean isRefresh) {
-        return Arrays.asList(
-                userWelcome(isRefresh),
-                recommendedTracks(isRefresh),
-                recommendedStations(isRefresh),
-                recommendedPlaylists(isRefresh),
-                charts(isRefresh),
-                playlistTags()
-        );
-    }
-
     private List<Observable<DiscoveryItem>> itemsForDefault(boolean isRefresh) {
         return Arrays.asList(
                 userWelcome(isRefresh),
-                recommendedStations(isRefresh),
                 recommendedTracks(isRefresh),
+                recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
                 charts(isRefresh),
                 playlistTags()
