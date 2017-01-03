@@ -88,6 +88,14 @@ public class MainPagerAdapter extends PagerAdapter {
         }
     }
 
+    private void setFocus(Fragment fragment, boolean hasFocus) {
+        if (fragment instanceof FocusListener) {
+            ((FocusListener) fragment).onFocusChange(hasFocus);
+        }
+        fragment.setMenuVisibility(hasFocus);
+        fragment.setUserVisibleHint(hasFocus);
+    }
+
     private String makeFragmentName(int position) {
         return FRAGMENT_NAME + position;
     }
@@ -112,11 +120,9 @@ public class MainPagerAdapter extends PagerAdapter {
     private void setPrimaryItem(Fragment fragment) {
         if (!fragment.equals(currentPrimaryItem)) {
             if (currentPrimaryItem != null) {
-                currentPrimaryItem.setMenuVisibility(false);
-                currentPrimaryItem.setUserVisibleHint(false);
+                setFocus(currentPrimaryItem, false);
             }
-            fragment.setMenuVisibility(true);
-            fragment.setUserVisibleHint(true);
+            setFocus(fragment, true);
             currentPrimaryItem = fragment;
         }
     }
@@ -160,4 +166,9 @@ public class MainPagerAdapter extends PagerAdapter {
 
     }
 
+    public interface FocusListener {
+
+        void onFocusChange(boolean hasFocus);
+
+    }
 }

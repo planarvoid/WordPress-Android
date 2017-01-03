@@ -37,6 +37,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -64,6 +65,7 @@ import org.mockito.Mock;
 
 import android.content.SharedPreferences;
 
+import java.util.Collections;
 import java.util.List;
 
 public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
@@ -433,6 +435,24 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForCollectionEvent");
+    }
+
+    @Test
+    public void shouldTrackScrollDepthEvents() {
+        final ScrollDepthEvent event = ScrollDepthEvent.create(Screen.STREAM,
+                                                               ScrollDepthEvent.Action.START,
+                                                               1,
+                                                               Collections.emptyList(),
+                                                               Collections.emptyList(),
+                                                               Optional.absent());
+
+        when(dataBuilderv1.buildForScrollDepthEvent(event)).thenReturn("ForScrollDepthEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForScrollDepthEvent");
     }
 
     @Test

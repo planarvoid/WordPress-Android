@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -16,7 +17,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class StreamFragment extends LightCycleSupportFragment<StreamFragment>
-        implements RefreshableScreen, ScrollContent {
+        implements RefreshableScreen, ScrollContent, MainPagerAdapter.FocusListener {
 
     @Inject @LightCycle StreamPresenter presenter;
 
@@ -47,5 +48,10 @@ public class StreamFragment extends LightCycleSupportFragment<StreamFragment>
 
     private int getLayoutResource() {
         return R.layout.recyclerview_with_refresh_and_page_bg;
+    }
+
+    @Override
+    public void onFocusChange(boolean hasFocus) {
+        presenter.onFocusChange(hasFocus);
     }
 }

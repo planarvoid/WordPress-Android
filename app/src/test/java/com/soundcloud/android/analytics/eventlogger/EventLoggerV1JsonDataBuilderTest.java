@@ -45,6 +45,9 @@ import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.ScrollDepthEvent;
+import com.soundcloud.android.events.ScrollDepthEvent.Action;
+import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -78,6 +81,8 @@ import org.mockito.Mock;
 import android.support.annotation.NonNull;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
@@ -87,7 +92,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String PLAY_ID = "play-id";
     private static final int APP_VERSION_CODE = 386;
     private static final int CLIENT_ID = 3152;
-    private static final String BOOGALOO_VERSION = "v1.25.0";
+    private static final String BOOGALOO_VERSION = "v1.26.0";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final Urn TRACK_URN = Urn.forTrack(123L);
@@ -470,6 +475,25 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .adUrn("ad:urn:123")
                                                .monetizationType("promoted")
                                                .promotedBy("soundcloud:users:123"));
+    }
+
+    @Test
+    public void createsJsonForScrollDepthEvent() throws ApiMapperException {
+        final ItemDetails details = ItemDetails.create(0, 1, 23.3123f);
+        final List<ItemDetails> itemDetails = Collections.singletonList(details);
+        final Optional<ReferringEvent> referringEvent = Optional.of(ReferringEvent.create("id", "kind"));
+        final ScrollDepthEvent event = ScrollDepthEvent.create(Screen.STREAM, Action.SCROLL_START, 1,
+                                                               itemDetails, itemDetails, referringEvent);
+
+        jsonDataBuilder.buildForScrollDepthEvent(event);
+        verify(jsonTransformer).toJson(getEventData("list_view_interaction", BOOGALOO_VERSION, event.getTimestamp())
+                .pageName("stream:main")
+                .action("scroll_start")
+                .columnCount(1)
+                .itemDetails("earliest_item", details)
+                .itemDetails("latest_item", details)
+                .clientEventId(event.getId())
+                .referringEvent(referringEvent));
     }
 
     @Test

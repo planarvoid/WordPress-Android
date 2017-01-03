@@ -49,7 +49,7 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
-import rx.functions.Func1;
+
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -57,6 +57,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -70,12 +71,11 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         AppInstallItemRenderer.Listener,
         NewItemsIndicator.Listener, StreamHighlightsItemRenderer.Listener {
 
-    private static final Func1<StreamEvent, Boolean> FILTER_STREAM_REFRESH_EVENTS = StreamEvent::isStreamRefreshed;
-
     private final StreamOperations streamOperations;
     private final StreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final StreamAdsController streamAdsController;
+    private final StreamDepthPublisherFactory streamDepthPublisherFactory;
     private final StreamSwipeRefreshAttacher swipeRefreshAttacher;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
@@ -87,8 +87,10 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final NewItemsIndicator newItemsIndicator;
     private final WhyAdsDialogPresenter whyAdsDialogPresenter;
 
+    private Optional<StreamDepthPublisher> streamDepthPublisher = Optional.absent();
     private CompositeSubscription viewLifeCycleSubscription;
     private Fragment fragment;
+    private boolean hasFocus;
 
     @Inject
     StreamPresenter(StreamOperations streamOperations,
@@ -96,9 +98,10 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     StationsOperations stationsOperations,
                     ImagePauseOnScrollListener imagePauseOnScrollListener,
                     StreamAdsController streamAdsController,
-                    StreamSwipeRefreshAttacher swipeRefreshAttacher,
+                    StreamDepthPublisherFactory streamDepthPublisherFactory,
                     EventBus eventBus,
                     MixedItemClickListener.Factory itemClickListenerFactory,
+                    StreamSwipeRefreshAttacher swipeRefreshAttacher,
                     FacebookInvitesDialogPresenter invitesDialogPresenter,
                     Navigator navigator,
                     NewItemsIndicator newItemsIndicator,
@@ -112,6 +115,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.streamAdsController = streamAdsController;
+        this.streamDepthPublisherFactory = streamDepthPublisherFactory;
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
@@ -159,6 +163,9 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         super.onViewCreated(fragment, view, savedInstanceState);
         streamAdsController.onViewCreated(getRecyclerView(), adapter);
 
+        final StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) getRecyclerView().getLayoutManager();
+        streamDepthPublisher = Optional.of(streamDepthPublisherFactory.create(layoutManager, hasFocus));
+
         configureEmptyView();
         addScrollListeners();
 
@@ -169,22 +176,34 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                 eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
-                                      .filter(FILTER_STREAM_REFRESH_EVENTS)
+                                      .filter(StreamEvent::isStreamRefreshed)
                                       .flatMap(continueWith(updateIndicatorFromMostRecent()))),
                 followingOperations.onUserFollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh()),
                 followingOperations.onUserUnfollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh())
         );
     }
 
+    void onFocusChange(boolean hasFocus) {
+        this.hasFocus = hasFocus;
+        if (streamDepthPublisher.isPresent()) {
+            streamDepthPublisher.get().onFocusChange(hasFocus);
+        }
+    }
+
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         getRecyclerView().addOnScrollListener(streamAdsController);
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
+        getRecyclerView().addOnScrollListener(streamDepthPublisher.get());
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         streamAdsController.onDestroyView();
+        if (streamDepthPublisher.isPresent()) {
+            streamDepthPublisher.get().unsubscribe();
+            streamDepthPublisher = Optional.absent();
+        }
         viewLifeCycleSubscription.unsubscribe();
         adapter.unsubscribe();
         newItemsIndicator.destroy();

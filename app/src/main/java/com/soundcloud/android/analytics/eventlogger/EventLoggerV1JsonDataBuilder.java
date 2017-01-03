@@ -34,6 +34,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -63,6 +64,7 @@ class EventLoggerV1JsonDataBuilder {
     private static final String IMPRESSION_EVENT = "impression";
     private static final String INTERACTION_EVENT = "item_interaction";
     private static final String PAGEVIEW_EVENT = "pageview";
+    private static final String LIST_INTERACTION_EVENT = "list_view_interaction";
 
     // Ads specific events
     private static final String RICH_MEDIA_ERROR_EVENT = "rich_media_stream_error";
@@ -70,7 +72,7 @@ class EventLoggerV1JsonDataBuilder {
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
-    private static final String BOOGALOO_VERSION = "v1.25.0";
+    private static final String BOOGALOO_VERSION = "v1.26.0";
 
     static final String FOLLOW_ADD = "follow::add";
     static final String FOLLOW_REMOVE = "follow::remove";
@@ -105,6 +107,25 @@ class EventLoggerV1JsonDataBuilder {
         return transform(buildAudioEvent(event));
     }
 
+    String buildForScrollDepthEvent(ScrollDepthEvent event) {
+        final EventLoggerEventData data = buildBaseEvent(LIST_INTERACTION_EVENT, event)
+                .clientEventId(event.getId())
+                .pageName(event.screen().get())
+                .action(event.action().get())
+                .columnCount(event.columnCount())
+                .referringEvent(event.referringEvent());
+
+        if (!event.earliestItems().isEmpty()) {
+            data.itemDetails(EventLoggerParam.EARLIEST_ITEM, event.earliestItem());
+        }
+
+        if (!event.latestItems().isEmpty()) {
+            data.itemDetails(EventLoggerParam.LATEST_ITEM, event.latestItem());
+        }
+
+        return transform(data);
+    }
+
     String buildForAdRequest(AdRequestEvent event) {
         EventLoggerEventData data = buildBaseEvent("ad_request", event)
                 .clientEventId(event.getId())
@@ -121,7 +142,7 @@ class EventLoggerV1JsonDataBuilder {
         return transform(data);
     }
 
-    public String buildForStreamAd(InlayAdImpressionEvent event) {
+    String buildForStreamAd(InlayAdImpressionEvent event) {
         return transform(buildBaseEvent(IMPRESSION_EVENT, event.getTimestamp())
                                 .clientEventId(event.getId())
                                 .impressionName(event.getImpressionName())
@@ -131,7 +152,7 @@ class EventLoggerV1JsonDataBuilder {
                                 .monetizationType(event.getMonetizationType()));
     }
 
-    public String buildForAdDelivery(AdDeliveryEvent event) {
+    String buildForAdDelivery(AdDeliveryEvent event) {
         final EventLoggerEventData eventData = buildBaseEvent("ad_delivery", event)
                 .clientEventId(event.getId())
                 .adRequestId(event.adRequestId())

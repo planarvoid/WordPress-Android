@@ -52,6 +52,13 @@ class EventLoggerParam {
 
     // list view
     static final String CONTEXT_POSITION = "context_position";
+    static final String COLUMN_COUNT = "num_columns";
+    static final String EARLIEST_ITEM = "earliest_item";
+    static final String LATEST_ITEM = "latest_item";
+    static final String COLUMN = "column";
+    static final String POSITION = "position";
+    static final String VIEWABLE_PERCENT = "percentage_viewable";
+
 
     // performance & error event params
     static final String LATENCY = "latency";

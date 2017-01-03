@@ -15,6 +15,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLIC
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_TARGET;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLIENT_ID;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.COLUMN_COUNT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONNECTION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONTEXT_POSITION;
@@ -77,10 +78,13 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.VisibleForTesting;
@@ -288,6 +292,18 @@ class EventLoggerEventData {
         return this;
     }
 
+    EventLoggerEventData referringEvent(Optional<ReferringEvent> referringEvent) {
+        if (referringEvent.isPresent()) {
+            final HashMap<String, String> referringEventMap = new HashMap<>(2);
+
+            referringEventMap.put(EventLoggerParam.UUID, referringEvent.get().getId());
+            referringEventMap.put(EventLoggerParam.REFERRING_EVENT_KIND, referringEvent.get().getKind());
+
+            addToPayload(REFERRING_EVENT, referringEventMap);
+        }
+        return this;
+    }
+
     EventLoggerEventData referringEvent(String uuid, String kind) {
         final HashMap<String, String> referringEvent = new HashMap<>();
 
@@ -486,6 +502,22 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData columnCount(int columnCount) {
+        addToPayload(COLUMN_COUNT, columnCount);
+        return this;
+    }
+
+    EventLoggerEventData itemDetails(String key, ItemDetails itemDetails) {
+        final HashMap<String, Object> details = new HashMap<>(3);
+
+        details.put(EventLoggerParam.COLUMN, itemDetails.column());
+        details.put(EventLoggerParam.POSITION, itemDetails.position());
+        details.put(EventLoggerParam.VIEWABLE_PERCENT, itemDetails.viewablePercentage());
+
+        addToPayload(key, details);
+        return this;
+    }
+
     @Deprecated // this is added to the base event in v1
     public EventLoggerEventData connectionType(String connectionType) {
         addToPayload(CONNECTION_TYPE, connectionType);
@@ -535,7 +567,7 @@ class EventLoggerEventData {
         addToPayload(key, String.valueOf(value));
     }
 
-    protected void addToPayload(String key, Map<String, String> child) {
+    protected void addToPayload(String key, Map<String, ?> child) {
         if (child.size() > 0) {
             payload.put(key, child);
         }
@@ -587,5 +619,4 @@ class EventLoggerEventData {
                         "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);
         }
     }
-
 }

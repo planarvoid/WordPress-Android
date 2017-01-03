@@ -6,8 +6,9 @@ import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expec
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForListItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -64,6 +65,7 @@ import rx.subjects.PublishSubject;
 
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.TextView;
 
@@ -85,6 +87,8 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private StreamAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private StreamAdsController streamAdsController;
+    @Mock private StreamDepthPublisherFactory streamDepthPublisherFactory;
+    @Mock private StreamDepthPublisher streamDepthPublisher;
     @Mock private StreamSwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DateProvider dateProvider;
     @Mock private Observer<Iterable<StreamItem>> itemObserver;
@@ -116,9 +120,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 stationsOperations,
                 imagePauseOnScrollListener,
                 streamAdsController,
-                swipeRefreshAttacher,
+                streamDepthPublisherFactory,
                 eventBus,
                 itemClickListenerFactory,
+                swipeRefreshAttacher,
                 facebookInvitesDialogPresenter,
                 navigator,
                 newItemsIndicator,
@@ -132,6 +137,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(dateProvider.getCurrentTime()).thenReturn(100L);
         when(followingOperations.onUserFollowed()).thenReturn(followSubject);
         when(followingOperations.onUserUnfollowed()).thenReturn(unfollowSubject);
+        when(streamDepthPublisherFactory.create(any(StaggeredGridLayoutManager.class), anyBoolean())).thenReturn(streamDepthPublisher);
     }
 
     @Test
@@ -439,6 +445,26 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragmentRule.getFragment());
 
         verify(streamAdsController).onDestroyView();
+    }
+
+    @Test
+    public void shouldCreatedStreamDepthPublisherOnViewCreated() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        final StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) presenter.getRecyclerView().getLayoutManager();
+        verify(streamDepthPublisherFactory).create(layoutManager, false);
+    }
+
+    @Test
+    public void shouldClearScrollDepthTrackingControllerOnViewDestroy() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(streamDepthPublisher).unsubscribe();
     }
 
     @Test

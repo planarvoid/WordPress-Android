@@ -8,7 +8,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,7 +18,7 @@ import android.support.v4.app.FragmentManager;
 public class MainPagerAdapterTest extends AndroidUnitTest {
 
     @Mock FragmentManager fragmentManager;
-    @Mock(extraInterfaces = {ScrollContent.class}) Fragment fragment1;
+    @Mock(extraInterfaces = {ScrollContent.class, MainPagerAdapter.FocusListener.class}) Fragment fragment1;
     @Mock Fragment fragment2;
 
     private MainPagerAdapter adapter;
@@ -42,6 +44,18 @@ public class MainPagerAdapterTest extends AndroidUnitTest {
         adapter.resetScroll(1);
 
         verifyNoMoreInteractions(fragment2);
+    }
+
+    @Test
+    public void onFocusUpdatesSentIfFragmentImplementsFocusListener() {
+        when(fragmentManager.findFragmentByTag("soundcloud:main:0")).thenReturn(fragment1);
+
+        adapter.setPrimaryItem(null, 0, fragment1);
+        adapter.setPrimaryItem(null, 0, fragment2);
+
+        InOrder inOrder = Mockito.inOrder(fragment1);
+        inOrder.verify((MainPagerAdapter.FocusListener) fragment1).onFocusChange(true);
+        inOrder.verify((MainPagerAdapter.FocusListener) fragment1).onFocusChange(false);
     }
 
     private NavigationModel buildTestNavigationModel() {

@@ -18,6 +18,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -99,7 +100,13 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleAdPlaybackSessionEvent((AdPlaybackSessionEvent) event);
         } else if (event instanceof AdPlaybackErrorEvent) {
             handleAdPlaybackErrorEvent((AdPlaybackErrorEvent) event);
+        } else if (event instanceof ScrollDepthEvent) {
+            handleScrollDepthEvent((ScrollDepthEvent) event);
         }
+    }
+
+    private void handleScrollDepthEvent(ScrollDepthEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForScrollDepthEvent(event));
     }
 
     private void handleOfflineInteractionEvent(OfflineInteractionEvent event) {
