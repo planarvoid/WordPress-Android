@@ -184,7 +184,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         testListSubscriber.assertValue(propertySets);
     }
 
-    static PlaylistAssociation expectedLikedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
+    private static PlaylistAssociation expectedLikedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
         return PlaylistAssociation.create(PlaylistItem.from(PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.getUrn()),
                 PlaylistProperty.TITLE.bind(playlist.getTitle()),
@@ -199,6 +199,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.PLAYLIST_DURATION.bind(playlist.getDuration()),
                 PlaylistProperty.IS_PRIVATE.bind(!playlist.isPublic()),
                 PlaylistProperty.IS_USER_LIKE.bind(true),
+                PlaylistProperty.PERMALINK_URL.bind(playlist.getPermalinkUrl()),
                 OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(false))), likedAt);
     }
 

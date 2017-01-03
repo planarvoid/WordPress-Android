@@ -369,7 +369,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.PLAYLIST_DURATION,
                 PlaylistProperty.IS_ALBUM,
                 PlaylistProperty.LIKES_COUNT,
-                PlaylistProperty.IS_PRIVATE
+                PlaylistProperty.IS_PRIVATE,
+                PlaylistProperty.PERMALINK_URL
         ));
         slice.setLikedByCurrentUser(false);
         return PlaylistAssociation.create(slice, playlist.getCreatedAt());

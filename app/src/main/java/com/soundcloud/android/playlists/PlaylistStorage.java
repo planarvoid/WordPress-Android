@@ -1,8 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.storage.Table.PlaylistTracks;
-import static com.soundcloud.android.storage.Table.SoundView;
-import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.utils.Urns.toIds;
 import static com.soundcloud.android.utils.Urns.toIdsColl;
@@ -11,14 +8,11 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
 import static com.soundcloud.propeller.query.Query.from;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineFilters;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.propeller.CursorReader;
@@ -42,17 +36,14 @@ public class PlaylistStorage {
 
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
-    private final AccountOperations accountOperations;
     private final NewPlaylistMapper playlistMapper;
 
     @Inject
     public PlaylistStorage(PropellerDatabase propeller,
                            PropellerRx propellerRx,
-                           AccountOperations accountOperations,
                            NewPlaylistMapper playlistMapper) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
-        this.accountOperations = accountOperations;
         this.playlistMapper = playlistMapper;
     }
 
@@ -66,7 +57,7 @@ public class PlaylistStorage {
         return queryResult.first(Boolean.class);
     }
 
-    public Set<Urn> getPlaylistsDueForSync() {
+    Set<Urn> getPlaylistsDueForSync() {
         final QueryResult queryResult = propeller.query(from(Table.PlaylistTracks.name())
                                                                 .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
                                                                 .where(hasLocalTracks())
@@ -138,32 +129,6 @@ public class PlaylistStorage {
         return Query.from(Tables.PlaylistView.TABLE)
                     .select(Tables.PlaylistView.TABLE.name() + ".*"
                     ).whereIn(Tables.PlaylistView.ID, playlistIds);
-    }
-
-    private Query hasOfflineTracks(List<Long> playlistIds) {
-        return getQuery(playlistIds, OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER);
-    }
-
-    private Query hasUnavailableTracks(List<Long> playlistIds) {
-        return getQuery(playlistIds, OfflineFilters.UNAVAILABLE_OFFLINE_TRACK_FILTER);
-    }
-
-    private Query pendingPlaylistTracksUrns(List<Long> playlistIds) {
-        return getQuery(playlistIds, OfflineFilters.REQUESTED_DOWNLOAD_FILTER);
-    }
-
-    private Query getQuery(List<Long> playlistIds, Where offlineFilter) {
-        final Where joinConditions = filter()
-                .whereEq(Table.SoundView.field(TableColumns.SoundView._ID),
-                         Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
-                .whereEq(Table.SoundView.field(_TYPE), Tables.Sounds.TYPE_PLAYLIST);
-        return Query
-                .from(TrackDownloads.TABLE)
-                .select(TrackDownloads._ID.qualifiedName())
-                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
-                .innerJoin(SoundView.name(), joinConditions)
-                .whereIn(SoundView.field(TableColumns.SoundView._ID), playlistIds)
-                .where(offlineFilter);
     }
 
     private static class PlaylistModificationMapper implements ResultMapper<PropertySet> {

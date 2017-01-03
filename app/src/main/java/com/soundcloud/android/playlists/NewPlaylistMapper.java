@@ -36,6 +36,11 @@ public class NewPlaylistMapper extends RxResultMapper<PlaylistItem> {
         propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(Tables.PlaylistView.LIKES_COUNT.name()));
         propertySet.put(PlaylistProperty.IS_PRIVATE, readIsPrivate(cursorReader));
         propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(Tables.PlaylistView.IS_USER_LIKE.name()));
+
+        if (cursorReader.isNotNull(Tables.PlaylistView.PERMALINK_URL.name())) { // local playlists (not synced yet)
+            propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(Tables.PlaylistView.PERMALINK_URL.name()));
+        }
+
         final boolean isMarkedForOffline = cursorReader.getBoolean(Tables.PlaylistView.IS_MARKED_FOR_OFFLINE.name());
         propertySet.put(OfflineProperty.IS_MARKED_FOR_OFFLINE, isMarkedForOffline);
         if (isMarkedForOffline) {
@@ -47,7 +52,7 @@ public class NewPlaylistMapper extends RxResultMapper<PlaylistItem> {
         return new PlaylistItem(propertySet);
     }
 
-    public boolean readIsPrivate(CursorReader cursorReader) {
+    private boolean readIsPrivate(CursorReader cursorReader) {
         return Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(Tables.PlaylistView.SHARING.name()));
     }
 

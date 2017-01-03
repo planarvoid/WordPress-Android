@@ -1,9 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
@@ -15,7 +13,6 @@ import com.soundcloud.java.collections.Sets;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import rx.observers.TestSubscriber;
 
 import java.util.Collections;
@@ -24,16 +21,11 @@ import java.util.List;
 
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
-    private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
-
     private PlaylistStorage storage;
-
-    @Mock AccountOperations accountOperations;
 
     @Before
     public void setUp() {
-        storage = new PlaylistStorage(propeller(), propellerRx(), accountOperations, new NewPlaylistMapper());
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
+        storage = new PlaylistStorage(propeller(), propellerRx(), new NewPlaylistMapper());
     }
 
     @Test
@@ -68,12 +60,11 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrackPendingAddition(playlistWithAddition, 0, new Date());
         testFixtures().insertPlaylistTrackPendingRemoval(playlistWithRemoval, 1, new Date());
 
-        assertThat(storage.getPlaylistsDueForSync()).contains(playlistWithAddition.getUrn(),
-                                                              playlistWithRemoval.getUrn());
+        assertThat(storage.getPlaylistsDueForSync()).contains(playlistWithAddition.getUrn(), playlistWithRemoval.getUrn());
     }
 
     @Test
-    public void availablePlaylistsReturnsUrnsForAvailablePlaylist() throws Exception {
+    public void availablePlaylistsReturnsUrnsForAvailablePlaylist() {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
         TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
@@ -83,7 +74,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadPlaylistEntities() throws Exception {
+    public void loadPlaylistEntities() {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
         TestSubscriber<List<PlaylistItem>> testSubscriber = new TestSubscriber<>();
@@ -110,12 +101,12 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         assertThat(entity.getImageUrlTemplate()).isEqualTo(apiPlaylist.getImageUrlTemplate());
         assertThat(entity.isAlbum()).isEqualTo(apiPlaylist.isAlbum());
         assertThat(entity.isMarkedForOffline()).isEqualTo(Optional.of(false));
+        assertThat(entity.getPermalinkUrl()).isEqualTo(apiPlaylist.getPermalinkUrl());
     }
 
     @Test
     public void loadPlaylistModificationsReturnsEmptySetWhenNoModifications() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
 
         assertThat(storage.loadPlaylistModifications(apiPlaylist.getUrn())).isEmpty();
     }
@@ -123,7 +114,6 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     @Test
     public void loadPlaylistModificationsLoadsNewInfoWithModifications() {
         final ApiPlaylist apiPlaylist = testFixtures().insertModifiedPlaylist(new Date());
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
 
         PropertySet playlist = storage.loadPlaylistModifications(apiPlaylist.getUrn());
 
