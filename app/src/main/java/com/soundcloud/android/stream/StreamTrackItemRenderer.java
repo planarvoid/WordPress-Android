@@ -58,8 +58,8 @@ class StreamTrackItemRenderer implements CellRenderer<TrackStreamItem> {
         engagementsPresenter.bind(trackView, track, getEventContextMetadataBuilder(track, position).build());
 
         showPlayCountOrNowPlaying(trackView, track);
-        trackView.setOverflowListener(view -> menuPresenter.show(getFragmentActivity(view), view, track, position,
-                                                         getEventContextMetadataBuilder(track, position)));
+        trackView.setOverflowListener(view -> menuPresenter.show(getFragmentActivity(view), view, track,
+                                                                 getEventContextMetadataBuilder(track, position)));
     }
 
     @VisibleForTesting

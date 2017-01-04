@@ -42,6 +42,7 @@ import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.android.view.dragdrop.SimpleItemTouchHelperCallback;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -72,7 +73,8 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, PlaylistDetailItem> implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener {
+class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, PlaylistDetailItem>
+        implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener {
 
     private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistDeleted = event -> event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
             && event.getFirstUrn().equals(getPlaylistUrn());
@@ -158,9 +160,15 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     }
 
     @Override
-    public void onPlaylistTrackRemoved(int position) {
+    public void onPlaylistTrackRemoved(Urn track) {
+        final int position = findTrackPosition(track);
+        checkState(position >= 0, "Track could not be found in adapter.");
         adapter.removeItem(position);
         adapter.notifyItemRemoved(position);
+    }
+
+    private int findTrackPosition(Urn track) {
+        return Iterables.indexOf(adapter.getItems(), item -> item instanceof PlaylistDetailTrackItem && ((PlaylistDetailTrackItem) item).getUrn().equals(track));
     }
 
     @Override
@@ -389,7 +397,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
         navigator.openUpgrade(context);
         if (playlistWithTracks.isPresent()) {
             eventBus.publish(EventQueue.TRACKING,
-                    UpgradeFunnelEvent.forPlaylistTracksClick(playlistWithTracks.get().getUrn()));
+                             UpgradeFunnelEvent.forPlaylistTracksClick(playlistWithTracks.get().getUrn()));
         }
     }
 
@@ -397,7 +405,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     public void onUpsellItemCreated() {
         if (playlistWithTracks.isPresent()) {
             eventBus.publish(EventQueue.TRACKING,
-                    UpgradeFunnelEvent.forPlaylistTracksImpression(playlistWithTracks.get().getUrn()));
+                             UpgradeFunnelEvent.forPlaylistTracksImpression(playlistWithTracks.get().getUrn()));
         }
     }
 

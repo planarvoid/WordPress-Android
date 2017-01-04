@@ -1,8 +1,6 @@
 package com.soundcloud.android.ads;
 
-import android.os.Looper;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -20,20 +18,20 @@ import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
+import android.os.Looper;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class StreamAdsController extends RecyclerView.OnScrollListener {
@@ -93,6 +91,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     public void onDestroyView() {
         fetchSubscription.unsubscribe();
         impressionsSubscription.unsubscribe();
+        this.inlayAdHelper = Optional.absent();
     }
 
     @Override
@@ -155,7 +154,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
             if (inserted) {
                 inlayAds.remove(ad);
-                eventBus.publish(EventQueue.TRACKING,  AdDeliveryEvent.adDelivered(Optional.absent(),
+                eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adDelivered(Optional.absent(),
                                                                                   ad.getAdUrn(),
                                                                                   lastRequestId,
                                                                                   false, true));

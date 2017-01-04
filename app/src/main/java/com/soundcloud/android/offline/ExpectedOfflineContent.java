@@ -32,4 +32,14 @@ class ExpectedOfflineContent {
     public boolean isEmpty() {
         return requests.isEmpty();
     }
+
+    @Override
+    public String toString() {
+        return "ExpectedOfflineContent{" +
+                "emptyPlaylists=" + emptyPlaylists +
+                ", requests=" + requests +
+                ", isLikedTracksExpected=" + isLikedTracksExpected +
+                ", likedTracks=" + likedTracks +
+                '}';
+    }
 }

@@ -145,6 +145,7 @@ public final class TableColumns {
         public static final String REPOSTER_PERMALINK = "reposter_permalink";
         public static final String REPOSTER_AVATAR_URL = "reposter_avatar_url";
         public static final String PROMOTER_AVATAR_URL = "promoter_avatar_url";
+        public static final String SOUND_PERMALINK_URL = "sound_permalink_url";
     }
 
     public final static class ActivityView extends Activities {

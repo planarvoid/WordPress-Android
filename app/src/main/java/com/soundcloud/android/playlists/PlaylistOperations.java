@@ -8,11 +8,11 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -20,7 +20,6 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -70,10 +69,8 @@ public class PlaylistOperations {
     private final EditPlaylistCommand editPlaylistCommand;
     private final SyncInitiator syncInitiator;
     private final SyncInitiatorBridge syncInitiatorBridge;
+    private final OfflineContentOperations offlineContentOperations;
     private final EventBus eventBus;
-
-    private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
-            (playlist, tracks) -> new PlaylistWithTracks(PlaylistItem.from(playlist), tracks);
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
@@ -86,6 +83,7 @@ public class PlaylistOperations {
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
                        EditPlaylistCommand editPlaylistCommand,
                        SyncInitiatorBridge syncInitiatorBridge,
+                       OfflineContentOperations offlineContentOperations,
                        EventBus eventBus) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
@@ -97,6 +95,7 @@ public class PlaylistOperations {
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.editPlaylistCommand = editPlaylistCommand;
         this.syncInitiatorBridge = syncInitiatorBridge;
+        this.offlineContentOperations = offlineContentOperations;
         this.eventBus = eventBus;
     }
 
@@ -106,11 +105,14 @@ public class PlaylistOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
+    Observable<Urn> createNewPlaylist(String title, boolean isPrivate, boolean isOffline, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
-                                                       .doOnNext(publishPlaylistCreatedEvent)
-                                                       .subscribeOn(scheduler)
-                                                       .doOnCompleted(syncInitiator.requestSystemSyncAction());
+                                    .flatMap(urn -> isOffline ?
+                                                    offlineContentOperations.makePlaylistAvailableOffline(urn).map(aVoid -> urn) :
+                                                    Observable.just(urn))
+                                    .doOnNext(publishPlaylistCreatedEvent)
+                                    .subscribeOn(scheduler)
+                                    .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
     Observable<PropertySet> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {

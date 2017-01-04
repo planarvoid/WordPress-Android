@@ -243,7 +243,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private void setElevation(int searchViewIndex) {
         if (searchViewIndex == RESULTS_VIEW_INDEX) {
-            ViewCompat.setElevation(searchViewFlipper, (int) resources.getDimension(R.dimen.toolbar_elevation));
+            ViewCompat.setElevation(searchViewFlipper, resources.getDimension(R.dimen.toolbar_elevation));
             toolbarElevation.setVisibility(View.INVISIBLE);
         } else {
             ViewCompat.setElevation(searchViewFlipper, 0);

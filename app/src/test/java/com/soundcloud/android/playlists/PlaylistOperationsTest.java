@@ -62,6 +62,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Mock private AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     @Mock private RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     @Mock private EditPlaylistCommand editPlaylistCommand;
+    @Mock private OfflineContentOperations offlineContentOperations;
     @Captor private ArgumentCaptor<AddTrackToPlaylistParams> addTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<EditPlaylistCommandParams> editPlaylistCommandParamsCaptor;
@@ -87,6 +88,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             removeTrackFromPlaylistCommand,
                                             editPlaylistCommand,
                                             syncInitiatorBridge,
+                                            offlineContentOperations,
                                             eventBus);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiator.syncPlaylist(any(Urn.class))).thenReturn(playlistSyncSubject);
@@ -217,9 +219,21 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         TestSubscriber<Urn> observer = new TestSubscriber<>();
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(Urn.forPlaylist(1L)));
 
-        operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
+        operations.createNewPlaylist("title", true, false, Urn.forTrack(123)).subscribe(observer);
 
-        observer.assertReceivedOnNext(asList(Urn.forPlaylist(1L)));
+        observer.assertReceivedOnNext(singletonList(Urn.forPlaylist(1L)));
+    }
+
+    @Test
+    public void shouldMarkPlaylistForOfflineAfterCreatingPlaylist() throws Exception {
+        TestSubscriber<Urn> observer = new TestSubscriber<>();
+        Urn playlistUrn = Urn.forPlaylist(123);
+        when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(playlistUrn));
+        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(Observable.just(null));
+
+        operations.createNewPlaylist("title", true, true, Urn.forTrack(123)).subscribe(observer);
+
+        observer.assertReceivedOnNext(singletonList(playlistUrn));
     }
 
     @Test
@@ -228,7 +242,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         final Urn localPlaylist = Urn.newLocalPlaylist();
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(localPlaylist));
 
-        operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
+        operations.createNewPlaylist("title", true, false, Urn.forTrack(123)).subscribe(observer);
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.ENTITY_CREATED);
@@ -240,7 +254,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         TestSubscriber<Urn> observer = new TestSubscriber<>();
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(Urn.forPlaylist(123)));
 
-        operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
+        operations.createNewPlaylist("title", true, false, Urn.forTrack(123)).subscribe(observer);
 
         verify(requestSystemSyncAction).call();
     }

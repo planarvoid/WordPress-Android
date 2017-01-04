@@ -69,12 +69,10 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
-    private TestSubscriber<Void> subscriber;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        subscriber = new TestSubscriber<>();
 
         when(serviceInitiator.startFromUserAction()).thenReturn(startServiceAction);
         when(serviceScheduler.scheduleCleanupAction()).thenReturn(scheduleCleanupAction);
@@ -183,14 +181,12 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(offlineContentStorage.storeAsOfflinePlaylists(playlists)).thenReturn(Observable.just(txnResult));
         when(syncInitiator.syncPlaylists(playlists)).thenReturn(Observable.just(SyncJobResult.success("blah", true)));
 
-        operations.makePlaylistAvailableOffline(playlistUrn).subscribe(subscriber);
-
-        subscriber.assertValueCount(1);
-        subscriber.assertCompleted();
+        operations.makePlaylistAvailableOffline(playlistUrn).test().assertValueCount(1).assertCompleted();
     }
 
     @Test
     public void makePlaylistUnavailableOfflineRemovesOfflineContentPlaylist() {
+        TestSubscriber<Void> subscriber = new TestSubscriber<>();
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
                 changeResult));

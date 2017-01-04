@@ -67,7 +67,6 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
         trackItemMenuPresenter.show(getFragmentActivity(button),
                                     button,
                                     track,
-                                    position,
                                     playlistUrn,
                                     ownerUrn,
                                     removeTrackListener,

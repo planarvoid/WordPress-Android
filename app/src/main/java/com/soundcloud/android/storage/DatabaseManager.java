@@ -30,7 +30,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 106;
+    public static final int DATABASE_VERSION = 107;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -354,6 +354,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 106:
                             // Add mid-tier to TrackView
+                            // Re-trigger views creation
+                            success = true;
+                            break;
+                        case 107:
+                            // Add permalink URL to SoundStreamView
                             // Re-trigger views creation
                             success = true;
                             break;

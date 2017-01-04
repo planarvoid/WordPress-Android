@@ -88,8 +88,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                 .thenReturn(Observable.<List<Urn>>just(Lists.newArrayList(Urn.NOT_SET)));
 
 
-        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Void>empty());
-        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Void>empty());
+        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.empty());
+        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.empty());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
