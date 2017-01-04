@@ -1,15 +1,19 @@
 package com.soundcloud.android.associations;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
+import rx.observers.TestSubscriber;
 
 import java.util.Date;
+import java.util.List;
 
 public class RepostStorageTest extends StorageIntegrationTest {
 
@@ -24,7 +28,20 @@ public class RepostStorageTest extends StorageIntegrationTest {
         playlist = testFixtures().insertPlaylist();
         track = testFixtures().insertTrack();
 
-        repostStorage = new RepostStorage(propeller(), new TestDateProvider(CREATED_AT));
+        repostStorage = new RepostStorage(propeller(), propellerRx(), new TestDateProvider(CREATED_AT));
+    }
+
+    @Test
+    public void loadRepostsReturnsReposts() {
+        testFixtures().insertPlaylistRepost(1, 1);
+        testFixtures().insertTrackRepost(2, 1);
+        testFixtures().insertTrackPost(3, 1, false);
+
+        TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
+
+        repostStorage.loadReposts().subscribe(subscriber);
+
+        subscriber.assertValue(asList(Urn.forPlaylist(1), Urn.forTrack(2)));
     }
 
     @Test

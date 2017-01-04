@@ -7,6 +7,7 @@ import static com.soundcloud.propeller.query.Query.from;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.BaseRxResultMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Posts;
@@ -14,23 +15,44 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.rx.PropellerRx;
+import rx.Observable;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class RepostStorage {
 
     private final PropellerDatabase propeller;
+    private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
 
+    private final BaseRxResultMapper<Urn> repostsByUrnMapper = new BaseRxResultMapper<Urn>() {
+        @Override
+        public Urn map(CursorReader reader) {
+            return readSoundUrn(reader, Posts.TARGET_ID, Posts.TARGET_TYPE);
+        }
+    };
+
     @Inject
-    RepostStorage(PropellerDatabase propeller, CurrentDateProvider dateProvider) {
+    RepostStorage(PropellerDatabase propeller, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
         this.propeller = propeller;
+        this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
+    }
+
+    Observable<List<Urn>> loadReposts() {
+        return propellerRx.query(Query.from(Posts.TABLE)
+                                      .select(Posts.TARGET_TYPE, Posts.TARGET_ID)
+                                      .whereEq(Posts.TYPE, Posts.TYPE_REPOST))
+                          .map(repostsByUrnMapper).toList();
     }
 
     Command<Urn, Integer> addRepost() {
