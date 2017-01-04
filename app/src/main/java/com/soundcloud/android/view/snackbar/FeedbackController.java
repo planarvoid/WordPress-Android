@@ -39,18 +39,18 @@ public class FeedbackController {
         playerControllerOpt = Optional.absent();
     }
 
-    public void showFeedback(Feedback feedback){
+    public void showFeedback(Feedback feedback) {
         if (playerControllerOpt.isPresent()) {
             SlidingPlayerController playerController = playerControllerOpt.get();
             if (playerController.isExpanded()) {
                 playerSnackBarWrapper.show(playerController.getSnackbarHolder(), feedback);
-            } else if (snackBarHolderOpt.isPresent()){
+            } else if (snackBarHolderOpt.isPresent()) {
                 topSnackBarWrapper.show(snackBarHolderOpt.get(), feedback);
             }
         }
     }
 
-    public View getActivitySnackBarHolder(Activity activity) {
+    private View getActivitySnackBarHolder(Activity activity) {
         final View snackBarViewHolder = activity.findViewById(R.id.snackbar_holder);
         return (snackBarViewHolder != null) ? snackBarViewHolder : activity.findViewById(R.id.container);
     }
