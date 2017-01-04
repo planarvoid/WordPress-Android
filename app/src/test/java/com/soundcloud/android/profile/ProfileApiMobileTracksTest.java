@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.ProfileApi.PAGE_SIZE;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,10 +47,10 @@ public class ProfileApiMobileTracksTest extends AndroidUnitTest {
     @Test
     public void shouldReturnUserTracksByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiTracksHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/tracks/posted")
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                                        Matchers.isA(TypeToken.class))).thenReturn(results);
+        when(apiClientRx.<ModelCollection<ApiPlayableSource>>mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/tracks/posted")
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userTracks(Urn.forUser(123L)).subscribe(subscriber);
         assertAllTracksEmitted();
@@ -58,10 +59,10 @@ public class ProfileApiMobileTracksTest extends AndroidUnitTest {
     @Test
     public void shouldReturnUserTracksByNextPageLink() {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiTracksHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                                                        .withQueryParam("limit",
-                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                                        Matchers.isA(TypeToken.class))).thenReturn(results);
+        when(apiClientRx.<ModelCollection<ApiPlayableSource>>mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
+                                                                        .withQueryParam("limit",
+                                                                                        String.valueOf(PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userTracks(NEXT_HREF).subscribe(subscriber);
         assertAllTracksEmitted();

@@ -27,6 +27,10 @@ public class ProfileApiMobile implements ProfileApi {
             new TypeToken<ModelCollection<ApiPlaylistPost>>() {
             };
 
+    private final TypeToken<ModelCollection<ApiUser>> userHolderToken =
+            new TypeToken<ModelCollection<ApiUser>>() {
+            };
+
     private final ApiClientRx apiClientRx;
 
     @Inject
@@ -76,22 +80,49 @@ public class ProfileApiMobile implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowings(Urn user) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        final ApiRequest request = ApiRequest
+                .get(ApiEndpoints.FOLLOWINGS.path(user))
+                .forPrivateApi()
+                .addQueryParam("linked_partitioning", "1")
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, userHolderToken);
     }
 
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowings(String nextPageLink) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        final ApiRequest request = ApiRequest.get(nextPageLink)
+                                             .forPrivateApi()
+                                             .addQueryParam("linked_partitioning", "1")
+                                             .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                                             .build();
+
+        return apiClientRx.mappedResponse(request, userHolderToken);
     }
 
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(Urn user) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        final ApiRequest request = ApiRequest
+                .get(ApiEndpoints.FOLLOWERS.path(user))
+                .forPrivateApi()
+                .addQueryParam("linked_partitioning", "1")
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, userHolderToken);
     }
 
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        final ApiRequest request = ApiRequest.get(nextPageLink)
+                                             .forPrivateApi()
+                                             .addQueryParam("linked_partitioning", "1")
+                                             .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                                             .build();
+
+        return apiClientRx.mappedResponse(request, userHolderToken);
+
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.ProfileApi.PAGE_SIZE;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.isA;
@@ -43,7 +44,7 @@ public class ProfileApiMobileAlbumsTest extends AndroidUnitTest {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
         when(apiClientRx.<ModelCollection<ApiPlaylistPost>>mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/albums/posted")
                                                                         .withQueryParam("limit",
-                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                                                                        String.valueOf(PAGE_SIZE))),
                                         isA(TypeToken.class))).thenReturn(results);
 
         api.userAlbums(Urn.forUser(123L)).subscribe(subscriber);
@@ -55,7 +56,7 @@ public class ProfileApiMobileAlbumsTest extends AndroidUnitTest {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
         when(apiClientRx.<ModelCollection<ApiPlaylistPost>>mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
                                                                         .withQueryParam("limit",
-                                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                                                                        String.valueOf(PAGE_SIZE))),
                                         isA(TypeToken.class))).thenReturn(results);
 
         api.userAlbums(NEXT_HREF).subscribe(subscriber);

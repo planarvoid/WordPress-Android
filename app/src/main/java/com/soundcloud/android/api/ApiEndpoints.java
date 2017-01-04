@@ -77,6 +77,8 @@ public enum ApiEndpoints {
 
     // followings
     MY_FOLLOWINGS("/you/followings"),
+    FOLLOWINGS("/followings/%s/users"),
+    FOLLOWERS("/followers/%s/users"),
 
     // profile
     MY_DOB("/you/profile/dob"),
@@ -143,11 +145,6 @@ public enum ApiEndpoints {
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     LEGACY_USERS("/users"),
     TRACK_COMMENTS("/tracks/%s/comments"),
-
-    LEGACY_USER_PLAYLISTS("/users/%s/playlists"),
-    LEGACY_USER_FOLLOWINGS("/users/%s/followings"),
-    LEGACY_USER_FOLLOWERS("/users/%s/followers"),
-    LEGACY_USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
     USER_FOLLOWS("/follows/users/%s"),
 

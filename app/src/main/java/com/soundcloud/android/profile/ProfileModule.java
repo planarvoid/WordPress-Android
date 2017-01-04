@@ -18,9 +18,8 @@ public class ProfileModule {
     static final String PROFILE_SCROLL_HELPER = "profile_scroll_helper";
 
     @Provides
-    ProfileApi provideProfileApi(Lazy<ProfileApiPublic> profileApiPublic,
-                                 Lazy<ProfileApiMobile> profileApiPrivate) {
-        return new ProfileApiDelegator(profileApiPublic, profileApiPrivate);
+    ProfileApi provideProfileApi(ProfileApiMobile profileApi) {
+        return profileApi;
     }
 
     @Named(SHOW_PROFILE_BANNER)
