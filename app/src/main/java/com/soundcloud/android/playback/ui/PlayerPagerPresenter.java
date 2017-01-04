@@ -243,7 +243,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private boolean shouldShowIntroductoryOverlay() {
         return featureFlags.isEnabled(Flag.PLAY_QUEUE) &&
-                !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE);
+                !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE) &&
+                !castConnectionHelper.isCasting();
     }
 
     private void setupTrackChangedSubscriber() {
