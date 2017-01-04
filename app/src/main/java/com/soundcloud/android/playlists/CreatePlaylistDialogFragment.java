@@ -14,7 +14,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -111,13 +110,11 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
 
     private void createPlaylist(final String title, final boolean isPrivate, final boolean isOffline) {
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        final Observable<Urn> newPlaylist = playlistOperations.createNewPlaylist(title,
-                                                                                 isPrivate,
-                                                                                 Urn.forTrack(firstTrackId));
+        fireAndForget(playlistOperations.createNewPlaylist(title,
+                                                           isPrivate,
+                                                           isOffline,
+                                                           Urn.forTrack(firstTrackId)));
 
-        fireAndForget(isOffline
-                      ? newPlaylist.doOnNext(offlineContentOperations::makePlaylistAvailableOffline)
-                      : newPlaylist);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
     }
 
