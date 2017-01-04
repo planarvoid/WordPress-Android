@@ -35,6 +35,7 @@ class StreamPlayer implements PlayerListener {
 
     private final Optional<? extends Player> offlineContentPlayer;
     private final Player videoPlayer;
+    private final Player audioAdPlayer;
     private final Player defaultPlayer;
 
     private final NetworkConnectionHelper networkConnectionHelper;
@@ -64,6 +65,7 @@ class StreamPlayer implements PlayerListener {
 
         this.defaultPlayer = defaultPlayer();
         this.offlineContentPlayer = skippyPlayerDelegate;
+        this.audioAdPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;
         this.videoPlayer = mediaPlayerAdapter;
         this.currentPlayer = defaultPlayer;
     }
@@ -227,6 +229,9 @@ class StreamPlayer implements PlayerListener {
     private Optional<Player> getNextPlayer(PlaybackItem playbackItem) {
         final Player player;
         switch (playbackItem.getPlaybackType()) {
+            case AUDIO_AD:
+                player = audioAdPlayer;
+                break;
             case VIDEO_AD:
                 player = videoPlayer;
                 break;
@@ -235,7 +240,6 @@ class StreamPlayer implements PlayerListener {
                 break;
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
-            case AUDIO_AD:
                 player = defaultPlayer;
                 break;
             default:

@@ -495,10 +495,10 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
-            case AUDIO_AD:
                 currentStreamUrl = currentStreamUrl + "&format=hls_opus_64_url&format=hls_mp3_128_url";
                 flipper.open(currentStreamUrl, fromPos);
                 break;
+            case AUDIO_AD:
             case AUDIO_OFFLINE:
             case VIDEO_AD:
             default:

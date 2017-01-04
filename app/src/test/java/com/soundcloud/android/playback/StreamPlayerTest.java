@@ -128,6 +128,19 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playWithAudioAdPlaybackItemCallsDoesNotPlayOnFlipper() {
+        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
+
+        final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
+        final AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(audioAd);
+        instantiateStreamPlaya();
+
+        streamPlayerWrapper.play(audioAdPlaybackItem);
+
+        verify(flipperAdapter, never()).play(audioAdPlaybackItem);
+    }
+
+    @Test
     public void playPlaysOnMediaPlayerIfSkippyLoadFailed() {
         when(skippyAdapter.init()).thenReturn(false);
         instantiateStreamPlaya();
@@ -145,6 +158,18 @@ public class StreamPlayerTest extends AndroidUnitTest {
         startPlaybackOnSkippy(offlineItem);
 
         verify(skippyAdapter).play(offlineItem);
+    }
+
+    @Test
+    public void playOfflineCallsPlayOfflineOnSkippyWhenFlipperEnabled() {
+        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
+
+        instantiateStreamPlaya();
+
+        startPlaybackOnSkippy(offlinePlaybackItem);
+
+        verify(flipperAdapter, never()).play(offlinePlaybackItem);
+        verify(skippyAdapter).play(offlinePlaybackItem);
     }
 
     @Test
