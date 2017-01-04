@@ -48,6 +48,7 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
             SoundView.POLICIES_SNIPPED,
             SoundView.POLICIES_SUB_HIGH_TIER,
             SoundView.GENRE,
+            SoundStreamView.SOUND_PERMALINK_URL,
             SoundStreamView.REPOSTER_USERNAME,
             SoundStreamView.REPOSTER_ID,
             SoundStreamView.REPOSTER_AVATAR_URL,

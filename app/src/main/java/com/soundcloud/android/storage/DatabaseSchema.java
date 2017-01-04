@@ -172,6 +172,8 @@ final class DatabaseSchema {
             "," + Tables.Users.PERMALINK + " as " + TableColumns.SoundStreamView.REPOSTER_PERMALINK +
             "," + Tables.Users.AVATAR_URL + " as " + TableColumns.SoundStreamView.REPOSTER_AVATAR_URL +
 
+            ",SoundView." + TableColumns.SoundView.PERMALINK_URL + " as " + TableColumns.SoundStreamView.SOUND_PERMALINK_URL +
+
             // track+user data
             ",SoundView.*" +
 
