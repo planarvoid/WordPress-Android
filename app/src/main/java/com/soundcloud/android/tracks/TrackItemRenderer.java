@@ -191,7 +191,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         trackItemMenuPresenter.show(getFragmentActivity(button),
                                     button,
                                     track,
-                                    position,
                                     getEventContextMetaDataBuilder(track, module, trackSourceInfo));
     }
 

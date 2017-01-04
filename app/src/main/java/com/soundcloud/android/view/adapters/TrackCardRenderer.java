@@ -80,7 +80,6 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                 menuPresenter.show(getFragmentActivity(itemView),
                                    viewHolder.overflowButton,
                                    track,
-                                   position,
                                    getEventContextMetadataBuilder(module));
             }
         });
