@@ -5,13 +5,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Property;
 import com.soundcloud.java.optional.Optional;
 
-import java.util.Date;
-
 public final class UserProperty extends EntityProperty {
 
     public static final Property<String> USERNAME = Property.of(UserProperty.class, String.class);
-    public static final Property<Optional<String>> FIRST_NAME = Property.ofOptional(UserProperty.class, String.class);
-    public static final Property<Optional<String>> LAST_NAME = Property.ofOptional(UserProperty.class, String.class);
     public static final Property<String> COUNTRY = Property.of(UserProperty.class, String.class);
     public static final Property<String> CITY = Property.of(UserProperty.class, String.class);
     public static final Property<Integer> FOLLOWERS_COUNT = Property.of(UserProperty.class, Integer.class);
@@ -21,7 +17,6 @@ public final class UserProperty extends EntityProperty {
     public static final Property<String> WEBSITE_NAME = Property.of(UserProperty.class, String.class);
     public static final Property<String> MYSPACE_NAME = Property.of(UserProperty.class, String.class);
     public static final Property<String> DISCOGS_NAME = Property.of(UserProperty.class, String.class);
-    public static final Property<Optional<Date>> SIGNUP_DATE = Property.ofOptional(UserProperty.class, Date.class);
     public static final Property<Optional<String>> VISUAL_URL = Property.ofOptional(UserProperty.class, String.class);
     public static final Property<Optional<Urn>> ARTIST_STATION = Property.ofOptional(UserProperty.class, Urn.class);
     public static final Property<Long> ID = Property.of(UserProperty.class, Long.class);

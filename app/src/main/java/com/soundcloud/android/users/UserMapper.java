@@ -7,8 +7,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
-import java.util.Date;
-
 public final class UserMapper extends RxResultMapper<PropertySet> {
 
     @Override
@@ -18,8 +16,10 @@ public final class UserMapper extends RxResultMapper<PropertySet> {
         propertySet.put(UserProperty.USERNAME, cursorReader.getString(Tables.UsersView.USERNAME.name()));
         propertySet.put(UserProperty.FOLLOWERS_COUNT, cursorReader.getInt(Tables.UsersView.FOLLOWERS_COUNT.name()));
         propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, cursorReader.getBoolean(Tables.UsersView.IS_FOLLOWING.name()));
-        propertySet.put(UserProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(Tables.UsersView.AVATAR_URL.name())));
-        propertySet.put(UserProperty.VISUAL_URL, Optional.fromNullable(cursorReader.getString(Tables.UsersView.VISUAL_URL.name())));
+        propertySet.put(UserProperty.IMAGE_URL_TEMPLATE,
+                        Optional.fromNullable(cursorReader.getString(Tables.UsersView.AVATAR_URL.name())));
+        propertySet.put(UserProperty.VISUAL_URL,
+                        Optional.fromNullable(cursorReader.getString(Tables.UsersView.VISUAL_URL.name())));
 
         putOptionalFields(cursorReader, propertySet);
 
@@ -58,21 +58,6 @@ public final class UserMapper extends RxResultMapper<PropertySet> {
         propertySet.put(UserProperty.ARTIST_STATION,
                         cursorReader.isNotNull(Tables.UsersView.ARTIST_STATION.name()) ?
                         Optional.of(new Urn(cursorReader.getString(Tables.UsersView.ARTIST_STATION.name()))) :
-                        Optional.absent());
-
-        propertySet.put(UserProperty.FIRST_NAME,
-                        cursorReader.isNotNull(Tables.UsersView.FIRST_NAME.name()) ?
-                        Optional.of(cursorReader.getString(Tables.UsersView.FIRST_NAME.name())) :
-                        Optional.absent());
-
-        propertySet.put(UserProperty.LAST_NAME,
-                        cursorReader.isNotNull(Tables.UsersView.LAST_NAME.name()) ?
-                        Optional.of(cursorReader.getString(Tables.UsersView.LAST_NAME.name())) :
-                        Optional.absent());
-
-        propertySet.put(UserProperty.SIGNUP_DATE,
-                        cursorReader.isNotNull(Tables.UsersView.SIGNUP_DATE.name()) ?
-                        Optional.of(new Date(cursorReader.getLong(Tables.UsersView.SIGNUP_DATE.name()))) :
-                        Optional.absent());
+                        Optional.<Urn>absent());
     }
 }

@@ -110,9 +110,6 @@ public class UserStorageTest extends StorageIntegrationTest {
         return PropertySet.from(
                 UserProperty.URN.bind(apiUser.getUrn()),
                 UserProperty.USERNAME.bind(apiUser.getUsername()),
-                UserProperty.FIRST_NAME.bind(apiUser.getFirstName()),
-                UserProperty.LAST_NAME.bind(apiUser.getLastName()),
-                UserProperty.SIGNUP_DATE.bind(apiUser.getCreatedAt()),
                 UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
                 UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getImageUrlTemplate()),
                 UserProperty.IS_FOLLOWED_BY_ME.bind(false),

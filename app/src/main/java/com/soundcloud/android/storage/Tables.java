@@ -178,8 +178,6 @@ public interface Tables {
         public static final Column DISCOGS_NAME = Column.create(TABLE, "discogs_name", String.class);
         public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "followers_count", Long.class);
         public static final Column FOLLOWINGS_COUNT = Column.create(TABLE, "followings_count", Long.class);
-        public static final Column FIRST_NAME = Column.create(TABLE, "first_name", String.class);
-        public static final Column LAST_NAME = Column.create(TABLE, "last_name", String.class);
         public static final Column FULL_NAME = Column.create(TABLE, "full_name", String.class);
         public static final Column MYSPACE_NAME = Column.create(TABLE, "myspace_name", String.class);
         public static final Column TRACK_COUNT = Column.create(TABLE, "track_count", Long.class);
@@ -190,10 +188,10 @@ public interface Tables {
         public static final Column USER_FOLLOWER = Column.create(TABLE, "user_follower", Boolean.class);
         public static final Column PERMALINK_URL = Column.create(TABLE, "permalink_url", String.class);
         public static final Column ARTIST_STATION = Column.create(TABLE, "artist_station", String.class);
+
         public static final Column PRIMARY_EMAIL_CONFIRMED = Column.create(TABLE, "primary_email_confirmed", Boolean.class);
         public static final Column PUBLIC_LIKES_COUNT = Column.create(TABLE, "public_favorites_count", Long.class);
         public static final Column PRIVATE_TRACKS_COUNT = Column.create(TABLE, "private_tracks_count", Long.class);
-        public static final Column SIGNUP_DATE = Column.create(TABLE, "signup_date", Long.class);
 
         public static final Column PLAN = Column.create(TABLE, "plan", String.class);
 
@@ -207,8 +205,6 @@ public interface Tables {
                 "permalink VARCHAR(255)," +
                 "permalink_url VARCHAR(255)," +
 
-                "first_name VARCHAR(255)," +
-                "last_name VARCHAR(255)," +
                 "full_name VARCHAR(255)," +
                 "description text," +
                 "city VARCHAR(255)," +
@@ -232,7 +228,6 @@ public interface Tables {
                 "followings_count INTEGER DEFAULT -1," +
                 "public_favorites_count INTEGER DEFAULT -1," +
                 "private_tracks_count INTEGER DEFAULT -1," +
-                "signup_date INTEGER DEFAULT -1," +
 
                 // internal
                 "last_updated INTEGER" +
@@ -991,8 +986,6 @@ public interface Tables {
 
         public static final Column ID = Column.create(TABLE, "uv_id", Long.class);
         public static final Column USERNAME = Column.create(TABLE, "uv_username", String.class);
-        public static final Column FIRST_NAME = Column.create(TABLE, "uv_first_name", String.class);
-        public static final Column LAST_NAME = Column.create(TABLE, "uv_last_name", String.class);
         public static final Column COUNTRY = Column.create(TABLE, "uv_country", String.class);
         public static final Column CITY = Column.create(TABLE, "uv_city", String.class);
         public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "uv_followers_count", Long.class);
@@ -1005,7 +998,6 @@ public interface Tables {
         public static final Column DISCOGS_NAME = Column.create(TABLE, "uv_discogs_name", String.class);
         public static final Column ARTIST_STATION = Column.create(TABLE, "uv_artist_station", String.class);
         public static final Column IS_FOLLOWING = Column.create(TABLE, "uv_is_following", Boolean.class);
-        public static final Column SIGNUP_DATE = Column.create(TABLE, "uv_signup_date", String.class);
 
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
@@ -1013,8 +1005,6 @@ public interface Tables {
                      .select(
                              Users._ID.as(ID.name()),
                              Users.USERNAME.as(USERNAME.name()),
-                             Users.FIRST_NAME.as(FIRST_NAME.name()),
-                             Users.LAST_NAME.as(LAST_NAME.name()),
                              Users.COUNTRY.as(COUNTRY.name()),
                              Users.CITY.as(CITY.name()),
                              Users.FOLLOWERS_COUNT.as(FOLLOWERS_COUNT.name()),
@@ -1026,8 +1016,7 @@ public interface Tables {
                              Users.MYSPACE_NAME.as(MYSPACE_NAME.name()),
                              Users.DISCOGS_NAME.as(DISCOGS_NAME.name()),
                              Users.ARTIST_STATION.as(ARTIST_STATION.name()),
-                             exists(followingQuery()).as(IS_FOLLOWING.name()),
-                             Users.SIGNUP_DATE.as(SIGNUP_DATE.name())
+                             exists(followingQuery()).as(IS_FOLLOWING.name())
                      );
 
         static Query followingQuery() {

@@ -1,5 +1,8 @@
 package com.soundcloud.android.discovery.welcomeuser;
 
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
@@ -12,10 +15,13 @@ public class WelcomeUserStorage {
     private static final int DELTA = 12;
 
     private final SharedPreferences preferences;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public WelcomeUserStorage(SharedPreferences preferences) {
+    public WelcomeUserStorage(SharedPreferences preferences,
+                              FeatureFlags featureFlags) {
         this.preferences = preferences;
+        this.featureFlags = featureFlags;
     }
 
 
@@ -24,6 +30,10 @@ public class WelcomeUserStorage {
     }
 
     public boolean shouldShowWelcome() {
+        if (featureFlags.isEnabled(Flag.WELCOME_USER)) {
+            return true;
+        }
+
         long lastShownTimestamp = preferences.getLong(TIMESTAMP_WELCOME_CARD, 0);
         long timeDeltaFromLastShow = new Date().getTime() - lastShownTimestamp;
         return TimeUnit.HOURS.convert(timeDeltaFromLastShow, TimeUnit.MILLISECONDS) > DELTA;

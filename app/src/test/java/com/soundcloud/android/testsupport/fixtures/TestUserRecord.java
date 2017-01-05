@@ -6,7 +6,6 @@ import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TestUserRecord implements UserRecord {
@@ -43,21 +42,6 @@ public class TestUserRecord implements UserRecord {
     @Override
     public String getUsername() {
         return apiUser.getUsername();
-    }
-
-    @Override
-    public Optional<String> getFirstName() {
-        return apiUser.getFirstName();
-    }
-
-    @Override
-    public Optional<String> getLastName() {
-        return apiUser.getLastName();
-    }
-
-    @Override
-    public Optional<Date> getCreatedAt() {
-        return apiUser.getCreatedAt();
     }
 
     @Override

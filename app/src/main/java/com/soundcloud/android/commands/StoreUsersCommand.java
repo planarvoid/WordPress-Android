@@ -40,8 +40,6 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                 Users._ID,
                 Users.PERMALINK,
                 Users.USERNAME,
-                Users.FIRST_NAME,
-                Users.LAST_NAME,
                 Users.COUNTRY,
                 Users.CITY,
                 Users.FOLLOWERS_COUNT,
@@ -52,8 +50,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                 Users.WEBSITE_NAME,
                 Users.DISCOGS_NAME,
                 Users.MYSPACE_NAME,
-                Users.ARTIST_STATION,
-                Users.SIGNUP_DATE
+                Users.ARTIST_STATION
         ));
 
         for (UserRecord user : deduped) {
@@ -61,8 +58,6 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                     user.getUrn().getNumericId(),
                     user.getPermalink(),
                     user.getUsername(),
-                    user.getFirstName().orNull(),
-                    user.getLastName().orNull(),
                     user.getCountry(),
                     user.getCity(),
                     user.getFollowersCount(),
@@ -73,8 +68,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                     user.getWebsiteName().orNull(),
                     user.getDiscogsName().orNull(),
                     user.getMyspaceName().orNull(),
-                    user.getArtistStationUrn().transform(Urns.TO_STRING).orNull(),
-                    user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null
+                    user.getArtistStationUrn().transform(Urns.TO_STRING).orNull()
             ));
         }
         return builder.build();
@@ -83,8 +77,6 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
     public static ContentValues buildUserContentValues(UserRecord user) {
         final ContentValuesBuilder baseBuilder = getBaseBuilder(user);
 
-        putOptionalValue(baseBuilder, user.getFirstName(), Users.FIRST_NAME);
-        putOptionalValue(baseBuilder, user.getLastName(), Users.LAST_NAME);
         putOptionalValue(baseBuilder, user.getDescription(), Users.DESCRIPTION);
         putOptionalValue(baseBuilder, user.getImageUrlTemplate(), Users.AVATAR_URL);
         putOptionalValue(baseBuilder, user.getVisualUrlTemplate(), Users.VISUAL_URL);
@@ -104,8 +96,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                                    .put(Users.USERNAME, user.getUsername())
                                    .put(Users.COUNTRY, user.getCountry())
                                    .put(Users.CITY, user.getCity())
-                                   .put(Users.FOLLOWERS_COUNT, user.getFollowersCount())
-                                   .put(Users.SIGNUP_DATE, user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null);
+                                   .put(Users.FOLLOWERS_COUNT, user.getFollowersCount());
     }
 
     private static <T> void putOptionalValue(ContentValuesBuilder baseBuilder, Optional<T> value, Column column) {

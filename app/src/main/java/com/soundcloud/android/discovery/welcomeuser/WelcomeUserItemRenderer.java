@@ -45,7 +45,7 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
     @Override
     public void bindItemView(int position, View itemView, List<WelcomeUserItem> items) {
         WelcomeUserItem welcomeUserItem = items.get(position);
-        WelcomeResourceBundle resourceBundle = WelcomeResourceBundle.forTimeOfDay(welcomeUserItem.timeOfDay(), welcomeUserItem.isNewSignup());
+        WelcomeResourceBundle resourceBundle = WelcomeResourceBundle.forTimeOfDay(welcomeUserItem.timeOfDay());
 
         setAvatar(itemView, welcomeUserItem);
         setBackground(itemView, resourceBundle);

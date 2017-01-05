@@ -594,7 +594,6 @@
     <string name="welcome_user_title_afternoon">Good Afternoon, %s</string>
     <string name="welcome_user_title_evening">Good Evening, %s</string>
     <string name="welcome_user_title_night">Good Night, %s</string>
-    <string name="welcome_user_new_signup">Welcome to SoundCloud, %s</string>
     <string name="welcome_user_subtitle">Check out some of these new songs!</string>
 
     <!-- __FACEBOOK INVITES -->

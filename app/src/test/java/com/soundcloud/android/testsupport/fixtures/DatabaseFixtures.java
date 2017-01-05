@@ -422,9 +422,6 @@ public class DatabaseFixtures {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(Tables.Users._ID, user.getUrn().getNumericId());
         cv.put(Tables.Users.USERNAME, user.getUsername());
-        cv.put(Tables.Users.FIRST_NAME, user.getFirstName().orNull());
-        cv.put(Tables.Users.LAST_NAME, user.getLastName().orNull());
-        cv.put(Tables.Users.SIGNUP_DATE, user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null);
         cv.put(Tables.Users.COUNTRY, user.getCountry());
         cv.put(Tables.Users.CITY, user.getCity());
         cv.put(Tables.Users.FOLLOWERS_COUNT, user.getFollowersCount());

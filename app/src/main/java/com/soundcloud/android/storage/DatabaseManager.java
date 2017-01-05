@@ -356,8 +356,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             // Add mid-tier to TrackView
                             // Re-trigger views creation
                             success = true;
-                        case 107:
-                            success = upgradeTo107(db, oldVersion);
                             break;
                         case 107:
                             // Add permalink URL to SoundStreamView
@@ -1355,19 +1353,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 104);
-        }
-        return false;
-    }
-
-    /**
-     * Change the "Users" table to contain firstname, lastname, signup_date
-     */
-    private boolean upgradeTo107(SQLiteDatabase db, int oldVersion) {
-        try {
-            alterColumns(Tables.Users.TABLE.name(), Tables.Users.SQL, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 106);
         }
         return false;
     }
