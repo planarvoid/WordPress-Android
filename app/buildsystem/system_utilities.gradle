@@ -1,6 +1,6 @@
 def libraries = rootProject.ext.devLibraries
 
-addDevLibraryWithStub(libraries.leakCanaryStub, libraries.leakCanaryStub)
+addDevLibraryWithStub(libraries.leakCanary, libraries.leakCanaryStub)
 addLibrary(libraries.stetho)
 addLibrary(libraries.stethoOkhttp)
 

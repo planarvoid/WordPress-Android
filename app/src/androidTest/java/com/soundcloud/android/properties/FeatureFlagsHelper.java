@@ -2,12 +2,8 @@ package com.soundcloud.android.properties;
 
 import static com.soundcloud.android.storage.StorageModule.PREFS_FEATURE_FLAGS;
 
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.storage.PersistentStorage;
-import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.annotations.VisibleForTesting;
 
@@ -24,41 +20,45 @@ import android.support.annotation.NonNull;
 @VisibleForTesting
 public class FeatureFlagsHelper {
 
-    private final FeatureFlags featureFlags;
+    private final RuntimeConfig runtimeConfig;
 
     private FeatureFlagsHelper(Context context) {
-        final CurrentDateProvider currentDateProvider = new CurrentDateProvider();
-        final GooglePlayServicesWrapper googlePlayServicesWrapper = new GooglePlayServicesWrapper();
         final PersistentStorage persistentStorage = new PersistentStorage(createPreferencesForFeatureFlags(context));
-        final ApplicationProperties applicationProperties = new ApplicationProperties(context.getResources());
-        final RemoteConfig remoteConfig = new RemoteConfig(createFirebaseRemoteConfig(applicationProperties), persistentStorage, currentDateProvider, googlePlayServicesWrapper);
-        final LocalConfig localConfig = new LocalConfig();
-        final RuntimeConfig runtimeConfig = new RuntimeConfig(persistentStorage);
-        this.featureFlags = new FeatureFlags(remoteConfig, localConfig, runtimeConfig);
+        runtimeConfig = new RuntimeConfig(persistentStorage);
     }
 
     public static FeatureFlagsHelper create(Context context) {
         return new FeatureFlagsHelper(context);
     }
 
-    public boolean isEnabled(Flag flag) {
-        return featureFlags.isEnabled(flag);
-    }
-
-    public boolean isDisabled(Flag flag) {
-        return featureFlags.isDisabled(flag);
-    }
-
-    public void setFlag(Flag flag, boolean enabled) {
-        featureFlags.setRuntimeFeatureFlagValue(flag, enabled);
-    }
-
     public void enable(Flag flag) {
-        setFlag(flag, true);
+        runtimeConfig.setFlagValue(flag, true);
     }
 
     public void disable(Flag flag) {
-        setFlag(flag, false);
+        runtimeConfig.setFlagValue(flag, false);
+    }
+
+    public boolean isLocallyEnabled(Flag[] requiredEnabledFeatures) {
+        for (Flag flag : requiredEnabledFeatures) {
+            if (!runtimeConfig.getFlagValue(flag)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isLocallyDisabled(Flag[] requiredDisabledFeatures) {
+        for (Flag flag : requiredDisabledFeatures) {
+            if (runtimeConfig.getFlagValue(flag)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void reset(Flag flag) {
+        runtimeConfig.resetFlagValue(flag);
     }
 
     @NonNull
@@ -66,13 +66,4 @@ public class FeatureFlagsHelper {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE), new Obfuscator());
     }
 
-    @NonNull
-    private FirebaseRemoteConfig createFirebaseRemoteConfig(ApplicationProperties appProperties) {
-        final FirebaseRemoteConfigSettings remoteConfigSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setDeveloperModeEnabled(appProperties.isDevelopmentMode())
-                .build();
-        final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
-        remoteConfig.setConfigSettings(remoteConfigSettings);
-        return remoteConfig;
-    }
 }

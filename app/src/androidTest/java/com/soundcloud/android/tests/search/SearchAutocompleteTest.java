@@ -15,7 +15,6 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
     private static final String SEARCH_AUTOCOMPLETE = "search_autocomplete";
     private DiscoveryScreen discoveryScreen;
     private FeatureFlagsHelper featureFlagsHelper;
-    private boolean wasAutocompleteFlagEnabled;
 
     public SearchAutocompleteTest() {
         super(MainActivity.class);
@@ -29,7 +28,6 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         featureFlagsHelper = FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
-        wasAutocompleteFlagEnabled = featureFlagsHelper.isEnabled(Flag.AUTOCOMPLETE);
         featureFlagsHelper.enable(Flag.AUTOCOMPLETE);
 
         super.setUp();
@@ -39,7 +37,7 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
-        featureFlagsHelper.setFlag(Flag.AUTOCOMPLETE, wasAutocompleteFlagEnabled);
+        featureFlagsHelper.reset(Flag.AUTOCOMPLETE);
     }
 
     public void testAutocompleteResults() throws Exception {

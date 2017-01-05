@@ -147,25 +147,11 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     }
 
     private boolean requiredEnabledFeaturesAreEnabled() {
-        if (requiredEnabledFeatures != null) {
-            for (Flag dependency : requiredEnabledFeatures) {
-                if (getFeatureFlags().isDisabled(dependency)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return requiredDisabledFeatures == null || getFeatureFlags().isLocallyEnabled(requiredDisabledFeatures);
     }
 
     private boolean requiredDisabledFeaturesAreDisabled() {
-        if (requiredDisabledFeatures != null) {
-            for (Flag disabledDependency : requiredDisabledFeatures) {
-                if (getFeatureFlags().isEnabled(disabledDependency)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return requiredDisabledFeatures == null || getFeatureFlags().isLocallyDisabled(requiredDisabledFeatures);
     }
 
     private FeatureFlagsHelper getFeatureFlags() {

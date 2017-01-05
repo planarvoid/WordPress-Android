@@ -3,6 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.soundcloud.android">
     <uses-permission android:name="com.android.vending.BILLING" />
+    <!-- Leak canary needs access to External storage to save heap dumps -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application tools:ignore="AllowBackup">
 
         <!--Disable Firebase analytics collection in our debug builds-->
