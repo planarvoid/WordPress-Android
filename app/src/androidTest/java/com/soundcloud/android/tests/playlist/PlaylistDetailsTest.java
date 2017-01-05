@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.playlist;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -18,6 +19,7 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> {
     private static final String TEST_PLAYLIST_SHUFFLE = "playlist-shuffle-events";
+    private static final String TEST_PLAYLIST_DETAIL_MORE_PLAYLISTS = "playlist-detail-more-playlists";
 
     private PlaylistsScreen playlistsScreen;
 
@@ -75,5 +77,18 @@ public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> 
         menu.clickRemoveFromPlaylist();
 
         assertThat(playlistDetailsScreen.getTrackCount(), is(initialTrackCount - 1));
+    }
+
+    public void testGoToMorePlaylistsByUser() throws Exception {
+        startEventTracking();
+
+        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.scrollToAndClickPlaylistWithTitle("whatever");
+
+        String title = playlistDetailsScreen.getFirstPlaylistInMoreTitle();
+        PlaylistDetailsScreen nextPlaylistDetailsScreen = playlistDetailsScreen.clickFirstPlaylistInMorePlaylists();
+
+        assertThat(nextPlaylistDetailsScreen.getTitle(), is(equalTo(title)));
+
+        finishEventTracking(TEST_PLAYLIST_DETAIL_MORE_PLAYLISTS);
     }
 }

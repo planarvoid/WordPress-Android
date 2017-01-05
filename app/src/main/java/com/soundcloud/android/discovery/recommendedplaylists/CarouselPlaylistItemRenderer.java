@@ -21,18 +21,14 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class RecommendedPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
-    interface PlaylistListener {
-        void onPlaylistClick(Context context, PlaylistItem playlist, int position);
-    }
+public class CarouselPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
-    private final ImageOperations imageOperations;
-    private final Resources resources;
-
+    protected final ImageOperations imageOperations;
+    protected final Resources resources;
     private PlaylistListener playlistListener;
 
     @Inject
-    RecommendedPlaylistItemRenderer(ImageOperations imageOperations, Resources resources) {
+    CarouselPlaylistItemRenderer(ImageOperations imageOperations, Resources resources) {
         this.imageOperations = imageOperations;
         this.resources = resources;
     }
@@ -40,7 +36,7 @@ class RecommendedPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                             .inflate(R.layout.collection_recently_played_playlist_item_fixed_width, parent, false);
+                             .inflate(R.layout.carousel_playlist_item_fixed_width, parent, false);
     }
 
     @Override
@@ -56,17 +52,12 @@ class RecommendedPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         findById(view, R.id.overflow_button).setVisibility(View.GONE);
     }
 
-    void setPlaylistListener(PlaylistListener playlistListener) {
-        this.playlistListener = playlistListener;
-    }
-
-
     private void setTitle(View view, String title) {
         ButterKnife.<TextView>findById(view, R.id.title).setText(title);
     }
 
     private void setCreator(View view, String creatorName) {
-        ButterKnife.<TextView>findById(view, R.id.recently_played_type).setText(creatorName);
+        ButterKnife.<TextView>findById(view, R.id.secondary_text).setText(creatorName);
     }
 
     private void setImage(View view, ImageResource imageResource) {
@@ -80,11 +71,15 @@ class RecommendedPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlist, final int position) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                playlistListener.onPlaylistClick(view.getContext(), playlist, position);
-            }
-        };
+        return view -> playlistListener.onPlaylistClick(view.getContext(), playlist, position);
+    }
+
+    public void setPlaylistListener(PlaylistListener playlistListener) {
+        this.playlistListener = playlistListener;
+    }
+
+
+    public interface PlaylistListener {
+        void onPlaylistClick(Context context, PlaylistItem playlist, int position);
     }
 }

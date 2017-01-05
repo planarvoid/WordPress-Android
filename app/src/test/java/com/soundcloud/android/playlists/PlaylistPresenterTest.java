@@ -87,6 +87,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private Bundle args;
     private PlaylistPresenter presenter;
     private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(PlaylistItem.from(apiPlaylist), Arrays.asList(track1, track2));
+    private List<PlaylistDetailItem> itemList;
 
 
     @Before
@@ -94,8 +95,9 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
-        when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(listItems());
+        itemList = Arrays.asList(new PlaylistDetailHeaderItem(), new PlaylistDetailTrackItem(track1), new PlaylistDetailTrackItem(track2));
+        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(new PlaylistDetailsViewModel(playlistWithTracks,
+                                                                                                                                          itemList)));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
         when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
 
@@ -114,7 +116,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
                 navigator,
                 eventBus,
                 resources,
-                                          trackRendererFactory);
+                trackRendererFactory);
     }
 
     @Test
@@ -230,7 +232,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setsTitleForActivityAsAlbumTypeWithReleaseDateWhenPlaylistIsAnAlbumAndReleaseDateIsAvailable() {
-        when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
+        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -287,12 +289,12 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         return playlistDetailItems;
     }
 
-    private PlaylistWithTracks createAlbumPlaylist(String type, String releaseDate) {
+    private PlaylistDetailsViewModel createAlbumPlaylist(String type, String releaseDate) {
         apiPlaylist.setIsAlbum(true);
         apiPlaylist.setSetType(type);
         apiPlaylist.setReleaseDate(releaseDate);
 
-        return new PlaylistWithTracks(PlaylistItem.from(apiPlaylist), Arrays.asList(track1, track2));
+        return new PlaylistDetailsViewModel(new PlaylistWithTracks(PlaylistItem.from(apiPlaylist), Arrays.asList(track1, track2)), Collections.emptyList());
     }
 
 }

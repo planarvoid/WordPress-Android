@@ -53,7 +53,8 @@ public abstract class UIEvent extends NewTrackingEvent {
         PLAY_QUEUE_TRACK_REMOVE_UNDO("play_queue_track_remove_undo"),
         PLAY_QUEUE_REPEAT("play_queue_repeat"),
         PLAY_NEXT("play_next"),
-        RECOMMENDED_PLAYLISTS("playlist_discovery");
+        RECOMMENDED_PLAYLISTS("playlist_discovery"),
+        MORE_PLAYLISTS_BY_USER("more_playlists_by_user");
         private final String key;
 
         Kind(String key) {
@@ -136,6 +137,7 @@ public abstract class UIEvent extends NewTrackingEvent {
         PLAY_QUEUE_REPEAT_OFF("repeat::off"),
         PLAY_NEXT("play_next"),
         RECOMMENDED_PLAYLIST("item_navigation"),
+        MORE_PLAYLISTS_BY_USER("item_navigation"),
         SHUFFLE_ON("shuffle::on"),
         SHUFFLE_OFF("shuffle::off");
         private final String key;
@@ -404,6 +406,11 @@ public abstract class UIEvent extends NewTrackingEvent {
     public static UIEvent fromRecommendedPlaylists(Urn itemUrn,
                                                    EventContextMetadata contextMetadata) {
         return event(Kind.RECOMMENDED_PLAYLISTS, ClickName.RECOMMENDED_PLAYLIST).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
+    }
+
+    public static UIEvent fromMorePlaylistsByUser(Urn itemUrn,
+                                                   EventContextMetadata contextMetadata) {
+        return event(Kind.MORE_PLAYLISTS_BY_USER, ClickName.MORE_PLAYLISTS_BY_USER).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
     private static Builder event(Kind kind, ClickName clickName) {

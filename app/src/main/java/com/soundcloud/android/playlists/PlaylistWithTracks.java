@@ -167,4 +167,12 @@ public class PlaylistWithTracks implements ImageResource {
     public final int hashCode() {
         return MoreObjects.hashCode(playlistItem, tracks);
     }
+
+    @Override
+    public String toString() {
+        return "PlaylistWithTracks{" +
+                "playlistItem=" + playlistItem +
+                ", tracks=" + tracks +
+                '}';
+    }
 }

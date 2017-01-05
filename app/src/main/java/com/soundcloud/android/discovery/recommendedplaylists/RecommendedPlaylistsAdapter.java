@@ -24,7 +24,7 @@ import android.view.View;
 
 @AutoFactory
 public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistItem, RecyclerView.ViewHolder>
-        implements RecommendedPlaylistItemRenderer.PlaylistListener {
+        implements CarouselPlaylistItemRenderer.PlaylistListener {
 
     private static final String PLAYLIST_DISCOVERY_SOURCE = "playlist_discovery";
 
@@ -43,7 +43,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
     private Optional<Urn> queryUrn = Optional.absent();
 
     RecommendedPlaylistsAdapter(QueryPositionProvider queryPositionProvider,
-                                @Provided RecommendedPlaylistItemRenderer renderer,
+                                @Provided CarouselPlaylistItemRenderer renderer,
                                 @Provided Navigator navigator,
                                 @Provided ScreenProvider screenProvider,
                                 @Provided EventBus eventBus) {
@@ -88,7 +88,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
         final Module module = Module.create(Module.RECOMMENDED_PLAYLISTS, position);
         final Optional<Integer> queryPosition = key.isPresent() ?
                                                 Optional.of(queryPositionProvider.queryPosition(key.get(), position)) :
-                                                Optional.<Integer>absent();
+                                                Optional.absent();
         final EventContextMetadata eventContextMetadata = getEventContextMetadata(module,
                                                                                   screen,
                                                                                   queryPosition,

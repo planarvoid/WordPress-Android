@@ -63,7 +63,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     @Override
     public View createItemView(ViewGroup parent) {
         int layout = fixedWidth
-                     ? R.layout.collection_recently_played_playlist_item_fixed_width
+                     ? R.layout.carousel_playlist_item_fixed_width
                      : R.layout.collection_recently_played_playlist_item_variable_width;
 
         return LayoutInflater.from(parent.getContext())
@@ -101,7 +101,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     }
 
     private void setType(View view, int resId) {
-        ButterKnife.<TextView>findById(view, R.id.recently_played_type).setText(resId);
+        ButterKnife.<TextView>findById(view, R.id.secondary_text).setText(resId);
     }
 
     private void setImage(View view, ImageResource imageResource) {

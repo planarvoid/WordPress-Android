@@ -6,6 +6,6 @@
     android:clipChildren="false"
     android:layout_height="wrap_content">
 
-    <include layout="@layout/collection_recently_played_playlist_item" />
+    <include layout="@layout/carousel_playlist_item" />
 
 </FrameLayout>

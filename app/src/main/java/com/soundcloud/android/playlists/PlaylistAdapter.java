@@ -27,12 +27,14 @@ public class PlaylistAdapter
                     PlaylistTrackItemRenderer playlistTrackItemRenderer,
                     @Provided PlaylistDetailTrackItemRendererFactory trackItemRenderer,
                     @Provided TrackEditItemRenderer editTrackItemRenderer,
-                    @Provided PlaylistUpsellItemRenderer upsellItemRenderer) {
+                    @Provided PlaylistUpsellItemRenderer upsellItemRenderer,
+                    @Provided PlaylistDetailOtherPlaylistsItemRenderer recommendationsItemRenderer) {
         super(dragListener,
               new CellRendererBinding<>(PlaylistDetailItem.Kind.TrackItem.ordinal(), trackItemRenderer.create(playlistTrackItemRenderer)),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.EditItem.ordinal(), editTrackItemRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.UpsellItem.ordinal(), upsellItemRenderer),
-              new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistHeaderPresenter));
+              new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistHeaderPresenter),
+              new CellRendererBinding<>(PlaylistDetailItem.Kind.OtherPlaylists.ordinal(), recommendationsItemRenderer));
         this.upsellItemRenderer = upsellItemRenderer;
         isEditMode = false;
     }
@@ -45,6 +47,12 @@ public class PlaylistAdapter
         } else  {
             return item.getPlaylistItemKind().ordinal();
         }
+    }
+
+    @Override
+    public void onNext(Iterable<PlaylistDetailItem> items) {
+        clear();
+        super.onNext(items);
     }
 
     @Override
@@ -70,5 +78,4 @@ public class PlaylistAdapter
     void setOnUpsellClickListener(PlaylistUpsellItemRenderer.Listener listener) {
         this.upsellItemRenderer.setListener(listener);
     }
-
 }

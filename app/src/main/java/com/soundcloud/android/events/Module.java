@@ -18,6 +18,7 @@ public abstract class Module {
     public static final String SINGLE = "single";
     public static final String SUGGESTED_CREATORS = "followings:suggestions";
     public static final String RECOMMENDED_PLAYLISTS = "playlist_discovery";
+    public static final String MORE_PLAYLISTS_BY_USER = "more_playlists_by_user";
 
     public static Module create(String name, int position) {
         return new AutoValue_Module(name, position);

@@ -2,7 +2,7 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/collections_recently_played_item"
+    android:id="@+id/carousel_playlist_item"
     style="@style/Collections.BucketCarouselCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
             android:layout_marginRight="4dp" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/recently_played_type"
+            android:id="@+id/secondary_text"
             style="@style/Carousel.ItemArtist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

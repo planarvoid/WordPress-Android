@@ -50,7 +50,6 @@ import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -73,7 +72,7 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, PlaylistDetailItem>
+class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, PlaylistDetailItem>
         implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener {
 
     private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistDeleted = event -> event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
@@ -81,24 +80,6 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
 
     private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistPushed = event -> event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
             && event.getFirstUrn().equals(getPlaylistUrn());
-
-    private final Action1<PlaylistWithTracks> clearAdapter = new Action1<PlaylistWithTracks>() {
-        @Override
-        public void call(PlaylistWithTracks playlistWithTracks) {
-            adapter.clear();
-        }
-    };
-
-    private final Func1<PlaylistWithTracks, Iterable<PlaylistDetailItem>> toListItems = new Func1<PlaylistWithTracks, Iterable<PlaylistDetailItem>>() {
-        @Override
-        public Iterable<PlaylistDetailItem> call(PlaylistWithTracks playlistWithTracks) {
-            List<PlaylistDetailItem> playlistDetailItems = upsellOperations.toListItems(playlistWithTracks);
-            if (addInlineHeader) {
-                playlistDetailItems.add(0, new PlaylistDetailHeaderItem());
-            }
-            return playlistDetailItems;
-        }
-    };
 
     @LightCycle final PlaylistHeaderPresenter headerPresenter;
     @LightCycle final PlaylistContentPresenter playlistContentPresenter;
@@ -271,8 +252,9 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     }
 
     @Override
-    protected CollectionBinding<PlaylistWithTracks, PlaylistDetailItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)), toListItems)
+    protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)),
+                                      PlaylistDetailsViewModel::getPlaylistDetailItems)
                                 .withAdapter(adapter).build();
     }
 
@@ -287,8 +269,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
                          .subscribe(expandPlayerSubscriberProvider.get());
     }
 
-    private Observable<PlaylistWithTracks> loadPlaylistObservable(Urn playlistUrn) {
-        return playlistOperations.playlist(playlistUrn).doOnNext(clearAdapter);
+    private Observable<PlaylistDetailsViewModel> loadPlaylistObservable(Urn playlistUrn) {
+        return playlistOperations.playlistWithTracksAndRecommendations(playlistUrn, addInlineHeader);
     }
 
     private Urn getPlaylistUrn(Bundle fragmentArgs) {
@@ -304,16 +286,16 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, PlaylistDetailItem> collectionBinding,
+    protected void onSubscribeBinding(CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> collectionBinding,
                                       CompositeSubscription viewLifeCycle) {
         viewLifeCycle.add(collectionBinding.source().subscribe(new PlaylistSubscriber()));
     }
 
     @Override
-    protected CollectionBinding<PlaylistWithTracks, PlaylistDetailItem> onRefreshBinding() {
+    protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onRefreshBinding() {
         final Urn playlistUrn = getPlaylistUrn(fragment.getArguments());
-
-        return CollectionBinding.from(playlistOperations.updatedPlaylistInfo(playlistUrn), toListItems)
+        return CollectionBinding.from(playlistOperations.updatedPlaylistWithTracksAndRecommendations(playlistUrn, addInlineHeader),
+                                      PlaylistDetailsViewModel::getPlaylistDetailItems)
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -329,7 +311,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
 
     void reloadPlaylist() {
         retryWith(CollectionBinding
-                          .from(loadPlaylistObservable(getPlaylistUrn()), toListItems)
+                          .from(loadPlaylistObservable(getPlaylistUrn()),
+                                PlaylistDetailsViewModel::getPlaylistDetailItems)
                           .withAdapter(adapter).build());
     }
 
@@ -344,18 +327,19 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
         }
     }
 
-    private class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
+    protected class PlaylistSubscriber extends DefaultSubscriber<PlaylistDetailsViewModel> {
+
         @Override
-        public void onNext(PlaylistWithTracks playlist) {
+        public void onNext(PlaylistDetailsViewModel playlistDetailsViewModel) {
             FragmentActivity activity = fragment.getActivity();
             // remove when https://github.com/soundcloud/android/issues/6715 is confirmed fixed
             checkNotNull(activity, "Unexpected null activity in playlist details");
-
-            playlistWithTracks = Optional.of(playlist);
-            playSessionSource = createPlaySessionSource(playlist);
-            headerPresenter.setPlaylist(playlist, playSessionSource);
-            activity.setTitle(playlist.getPlaylistItem().getLabel(activity));
-            trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlist.getUrn(), playlist.getCreatorUrn());
+            PlaylistPresenter.this.playlistWithTracks = Optional.of(playlistDetailsViewModel.getPlaylistWithTracks());
+            PlaylistItem playlistItem = playlistDetailsViewModel.getPlaylistWithTracks().getPlaylistItem();
+            playSessionSource = createPlaySessionSource(playlistDetailsViewModel.getPlaylistWithTracks());
+            headerPresenter.setPlaylist(playlistDetailsViewModel.getPlaylistWithTracks(), playSessionSource);
+            fragment.getActivity().setTitle(playlistDetailsViewModel.getPlaylistWithTracks().getPlaylistItem().getLabel(fragment.getContext()));
+            trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlistItem.getUrn(), playlistItem.getCreatorUrn());
         }
     }
 
@@ -408,5 +392,4 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, Playli
                              UpgradeFunnelEvent.forPlaylistTracksImpression(playlistWithTracks.get().getUrn()));
         }
     }
-
 }

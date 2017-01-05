@@ -47,14 +47,6 @@ import java.util.List;
 class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionItem>, PlaylistCollectionItem>
         implements PlaylistsAdapter.Listener, PlaylistOptionsPresenter.Listener, FilterHeaderPresenter.Listener {
 
-    private Func1<List<PlaylistItem>, List<PlaylistCollectionItem>> toPlaylistsItems =
-            new Func1<List<PlaylistItem>, List<PlaylistCollectionItem>>() {
-                @Override
-                public List<PlaylistCollectionItem> call(List<PlaylistItem> playlistItems) {
-                    return playlistCollectionItems(playlistItems);
-                }
-            };
-
     private final SwipeRefreshAttacher swipeRefreshAttacher;
     private final MyPlaylistsOperations myPlaylistsOperations;
     private final PlaylistsAdapter adapter;
@@ -139,7 +131,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private CollectionBinding<List<PlaylistCollectionItem>, PlaylistCollectionItem> buildBinding(Observable<List<PlaylistItem>> source) {
-        return CollectionBinding.from(source.map(toPlaylistsItems)
+        return CollectionBinding.from(source.map(this::playlistCollectionItems)
                                             .observeOn(AndroidSchedulers.mainThread())
                                             .doOnNext(new OnCollectionLoadedAction()))
                                 .withAdapter(adapter)

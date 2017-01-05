@@ -187,6 +187,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case PLAY_QUEUE_REPEAT:
             case PLAY_NEXT:
             case RECOMMENDED_PLAYLISTS:
+            case MORE_PLAYLISTS_BY_USER:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

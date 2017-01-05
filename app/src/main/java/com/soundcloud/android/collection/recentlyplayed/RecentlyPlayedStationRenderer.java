@@ -103,7 +103,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
     }
 
     private void setType(View view, int resId) {
-        ButterKnife.<TextView>findById(view, R.id.recently_played_type).setText(resId);
+        ButterKnife.<TextView>findById(view, R.id.secondary_text).setText(resId);
     }
 
     private void setImage(View view, ImageResource imageResource) {

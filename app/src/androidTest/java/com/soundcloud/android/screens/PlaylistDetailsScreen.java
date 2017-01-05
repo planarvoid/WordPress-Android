@@ -12,6 +12,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.screens.elements.AdapterElement;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -101,6 +102,14 @@ public class PlaylistDetailsScreen extends Screen {
         return scrollToAndGetFirstTrackItem().click();
     }
 
+    public String getFirstPlaylistInMoreTitle() {
+        return scrollToAndGetFirstMorePlaylistsItem().getTitle();
+    }
+
+    public PlaylistDetailsScreen clickFirstPlaylistInMorePlaylists() {
+        return scrollToAndGetFirstMorePlaylistsItem().click();
+    }
+
     public VisualPlayerElement clickLastTrack() {
         return scrollToLastTrackItem()
                 .trackItemElements()
@@ -110,6 +119,10 @@ public class PlaylistDetailsScreen extends Screen {
 
     private TrackItemElement scrollToAndGetFirstTrackItem() {
         return toTrackItemElement.apply(scrollToItem(With.id(R.id.track_list_item)));
+    }
+
+    private PlaylistElement scrollToAndGetFirstMorePlaylistsItem() {
+        return toPlaylistItemElement.apply(scrollToItem(With.id(R.id.carousel_playlist_item)));
     }
 
     private PlaylistDetailsScreen scrollToLastTrackItem() {
@@ -189,10 +202,12 @@ public class PlaylistDetailsScreen extends Screen {
         return tracksRecyclerView();
     }
 
-    private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
+    private final Function<ViewElement, TrackItemElement> toTrackItemElement = viewElement -> new TrackItemElement(testDriver, viewElement);
+
+    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = new Function<ViewElement, PlaylistElement>() {
         @Override
-        public TrackItemElement apply(ViewElement viewElement) {
-            return new TrackItemElement(testDriver, viewElement);
+        public PlaylistElement apply(ViewElement viewElement) {
+            return PlaylistElement.forCard(testDriver, viewElement);
         }
     };
 }

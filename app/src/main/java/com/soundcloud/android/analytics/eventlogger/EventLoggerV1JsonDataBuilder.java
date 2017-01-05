@@ -26,17 +26,16 @@ import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -373,6 +372,7 @@ class EventLoggerV1JsonDataBuilder {
             case PLAY_NEXT:
                 return transform(buildClickEvent(event));
             case RECOMMENDED_PLAYLISTS:
+            case MORE_PLAYLISTS_BY_USER:
                 return transform(buildItemNavigationClickEvent(event));
             case NAVIGATION:
                 return transform(buildInteractionEvent(ACTION_NAVIGATION, event));

@@ -288,6 +288,7 @@
     <string name="edit_playlist">Edit playlist</string>
     <string name="delete_playlist">Delete playlist</string>
     <string name="search_playlists">search playlists</string>
+    <string name="more_playlists_by">More Playlists by %s</string>
 
     <!-- __PLAYLIST CREATION -->
     <string name="add_track_to_playlist">Add to playlist...</string>
