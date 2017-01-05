@@ -331,6 +331,20 @@ public class ModelFixtures {
         return profileUser;
     }
 
+    public static ProfileUser profileUser(Date signupDate) {
+        ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        apiUser.setCreatedAt(signupDate);
+
+        return ProfileUser.from(apiUser);
+    }
+
+    public static ProfileUser profileUserWithName(String firstName) {
+        ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        apiUser.setFirstName(firstName);
+
+        return ProfileUser.from(apiUser);
+    }
+
     public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
         final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
         trackItem.setUrn(trackUrn);

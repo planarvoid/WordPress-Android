@@ -11,6 +11,7 @@ import com.soundcloud.android.testsupport.fixtures.TestUserRecord;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 
 public class StoreUsersCommandTest extends StorageIntegrationTest {
@@ -36,6 +37,9 @@ public class StoreUsersCommandTest extends StorageIntegrationTest {
     public void shouldStoreUsersUsingUpsert() throws Exception {
         final ApiUser user = testFixtures().insertUser();
         user.setUsername("new username");
+        user.setFirstName("new");
+        user.setLastName("cloud");
+        user.setCreatedAt(new Date(1476350197));
 
         command.call(singletonList(user));
 

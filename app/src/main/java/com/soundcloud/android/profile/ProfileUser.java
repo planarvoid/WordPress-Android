@@ -9,6 +9,8 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
+import java.util.Date;
+
 public class ProfileUser implements ImageResource {
 
     private final PropertySet source;
@@ -22,7 +24,10 @@ public class ProfileUser implements ImageResource {
                 UserProperty.URN.bind(apiUser.getUrn()),
                 UserProperty.USERNAME.bind(apiUser.getUsername()),
                 UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
-                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getAvatarUrlTemplate())
+                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getAvatarUrlTemplate()),
+                UserProperty.SIGNUP_DATE.bind(apiUser.getCreatedAt()),
+                UserProperty.FIRST_NAME.bind(apiUser.getFirstName()),
+                UserProperty.LAST_NAME.bind(apiUser.getLastName())
         );
         // this should be modeled with an Option type instead:
         // https://github.com/soundcloud/propeller/issues/32
@@ -30,6 +35,9 @@ public class ProfileUser implements ImageResource {
             bindings.put(UserProperty.COUNTRY, apiUser.getCountry());
         }
 
+        if (apiUser.getCity() != null) {
+            bindings.put(UserProperty.CITY, apiUser.getCity());
+        }
         return new ProfileUser(bindings);
     }
 
@@ -44,19 +52,31 @@ public class ProfileUser implements ImageResource {
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
+        return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.absent());
     }
 
     public Optional<String> getVisualUrl() {
-        return source.getOrElse(UserProperty.VISUAL_URL, Optional.<String>absent());
+        return source.getOrElse(UserProperty.VISUAL_URL, Optional.absent());
     }
 
     public Optional<Urn> getArtistStationUrn() {
-        return source.getOrElse(UserProperty.ARTIST_STATION, Optional.<Urn>absent());
+        return source.getOrElse(UserProperty.ARTIST_STATION, Optional.absent());
     }
 
     public String getName() {
         return source.get(UserProperty.USERNAME);
+    }
+
+    public Optional<String> getFirstName() {
+        return source.getOrElse(UserProperty.FIRST_NAME, Optional.absent());
+    }
+
+    public Optional<String> getLastName() {
+        return source.getOrElse(UserProperty.LAST_NAME, Optional.absent());
+    }
+
+    public Optional<Date> getSignupDate() {
+        return source.getOrElse(UserProperty.SIGNUP_DATE, Optional.absent());
     }
 
     public long getFollowerCount() {

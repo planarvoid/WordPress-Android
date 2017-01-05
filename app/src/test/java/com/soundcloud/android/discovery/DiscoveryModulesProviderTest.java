@@ -10,7 +10,6 @@ import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
-import com.soundcloud.android.discovery.welcomeuser.TimeOfDay;
 import com.soundcloud.android.discovery.welcomeuser.WelcomeUserItem;
 import com.soundcloud.android.discovery.welcomeuser.WelcomeUserOperations;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -69,7 +68,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         final DiscoveryItem playlistsItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.RecommendedPlaylistsItem);
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"),
                                                                           Collections.emptyList());
-        final DiscoveryItem welcomeUserItem = WelcomeUserItem.create(ModelFixtures.profileUser(), TimeOfDay.NIGHT);
+        final DiscoveryItem welcomeUserItem = WelcomeUserItem.create(ModelFixtures.profileUser());
 
         when(chartsOperations.featuredCharts()).thenReturn(Observable.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.just(stationsItem));

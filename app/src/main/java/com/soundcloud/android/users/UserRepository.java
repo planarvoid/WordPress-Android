@@ -19,13 +19,6 @@ public class UserRepository {
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
-    private static final Func1<PropertySet, Boolean> IS_NOT_EMPTY = new Func1<PropertySet, Boolean>() {
-        @Override
-        public Boolean call(PropertySet user) {
-            return !user.isEmpty();
-        }
-    };
-
     @Inject
     public UserRepository(UserStorage userStorage,
                           SyncInitiator syncInitiator,
@@ -41,7 +34,7 @@ public class UserRepository {
     public Observable<UserItem> userInfo(Urn userUrn) {
         return Observable
                 .concat(
-                        userStorage.loadUser(userUrn).filter(IS_NOT_EMPTY),
+                        userStorage.loadUser(userUrn).filter(user -> !user.isEmpty()),
                         syncedUserInfo(userUrn)
                 )
                 .map(UserItem::from)
@@ -70,7 +63,7 @@ public class UserRepository {
      * Returns a user from local storage only, or completes without emitting if no user found
      */
     public Observable<PropertySet> localUserInfo(Urn userUrn) {
-        return userStorage.loadUser(userUrn).filter(IS_NOT_EMPTY).subscribeOn(scheduler);
+        return userStorage.loadUser(userUrn).filter(user -> !user.isEmpty()).subscribeOn(scheduler);
     }
 
 }

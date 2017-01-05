@@ -6,6 +6,8 @@ import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 import com.tobedevoured.modelcitizen.callback.FieldCallback;
 
+import java.util.Date;
+
 @Blueprint(ApiUser.class)
 public class ApiUserBlueprint {
 
@@ -18,6 +20,9 @@ public class ApiUserBlueprint {
             apiUser.setFollowersCount(100);
             apiUser.setAvatarUrlTemplate("https://i1.sndcdn.com/avatars-" + runningId + "-{size}.jpg");
             apiUser.setVisualUrlTemplate("https://i1.sndcdn.com/visuals-" + runningId + "-{size}.jpg");
+            apiUser.setFirstName("sound");
+            apiUser.setLastName("cloud");
+            apiUser.setCreatedAt(new Date(1476342997));
             return apiUser;
         }
     };

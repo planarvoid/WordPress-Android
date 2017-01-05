@@ -12,6 +12,7 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Date;
 import java.util.List;
 
 public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, ApiSyncable {
@@ -22,6 +23,8 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     private int followersCount;
     private String permalink;
     private String username;
+    private Optional<String> firstName = Optional.absent();
+    private Optional<String> lastName = Optional.absent();
     private Optional<String> avatarUrlTemplate = Optional.absent();
     private Optional<String> visualUrlTemplate = Optional.absent();
     private String description;
@@ -30,6 +33,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     private String websiteTitle;
     private String discogsName;
     private Urn artistStation;
+    private Optional<Date> createdAt = Optional.absent();
 
     public ApiUser() { /* for Deserialization */ }
 
@@ -42,6 +46,10 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return urn;
     }
 
+    public void setUrn(Urn urn) {
+        this.urn = urn;
+    }
+
     @Override
     public Optional<String> getImageUrlTemplate() {
         return avatarUrlTemplate;
@@ -52,14 +60,16 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return visualUrlTemplate;
     }
 
-    public void setUrn(Urn urn) {
-        this.urn = urn;
+    @JsonProperty("visual_url_template")
+    public void setVisualUrlTemplate(String visualUrlTemplate) {
+        this.visualUrlTemplate = Optional.fromNullable(visualUrlTemplate);
     }
 
     public long getId() {
         return urn.getNumericId();
     }
 
+    @Override
     public String getPermalink() {
         return permalink;
     }
@@ -68,6 +78,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         this.permalink = permalink;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
@@ -80,25 +91,51 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return avatarUrlTemplate;
     }
 
+    @Override
+    public Optional<String> getFirstName() {
+        return firstName;
+    }
+
+    @JsonProperty("first_name")
+    public void setFirstName(String name) {
+        firstName = Optional.fromNullable(name);
+    }
+
+    @Override
+    public Optional<String> getLastName() {
+        return lastName;
+    }
+
+    @JsonProperty("last_name")
+    public void setLastName(String name) {
+        lastName = Optional.fromNullable(name);
+    }
+
+    @Override
+    public Optional<Date> getCreatedAt() {
+        return createdAt;
+    }
+
+    @JsonProperty("created_at")
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = Optional.fromNullable(createdAt);
+    }
+
     @JsonProperty("avatar_url_template")
     public void setAvatarUrlTemplate(String avatarUrlTemplate) {
         this.avatarUrlTemplate = Optional.fromNullable(avatarUrlTemplate);
-    }
-
-    @JsonProperty("visual_url_template")
-    public void setVisualUrlTemplate(String visualUrlTemplate) {
-        this.visualUrlTemplate = Optional.fromNullable(visualUrlTemplate);
     }
 
     @JsonProperty("station_urns")
     public void setStationUrns(List<Urn> stations) {
         for (Urn stationUrn : stations) {
             if (stationUrn.isArtistStation()) {
-                this.artistStation = stationUrn;
+                artistStation = stationUrn;
             }
         }
     }
 
+    @Override
     @Nullable
     public String getCountry() {
         return country;
@@ -118,8 +155,14 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         this.city = city;
     }
 
+    @Override
     public int getFollowersCount() {
         return followersCount;
+    }
+
+    @JsonProperty("followers_count")
+    public void setFollowersCount(int followersCount) {
+        this.followersCount = followersCount;
     }
 
     @Override
@@ -127,9 +170,17 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return Optional.fromNullable(description);
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public Optional<String> getWebsiteUrl() {
         return Optional.fromNullable(website);
+    }
+
+    public void setWebsiteUrl(String website) {
+        this.website = website;
     }
 
     @Override
@@ -142,9 +193,17 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return Optional.fromNullable(discogsName);
     }
 
+    public void setDiscogsName(String discogsName) {
+        this.discogsName = discogsName;
+    }
+
     @Override
     public Optional<String> getMyspaceName() {
         return Optional.fromNullable(myspaceName);
+    }
+
+    public void setMyspaceName(String myspaceName) {
+        this.myspaceName = myspaceName;
     }
 
     @Override
@@ -152,29 +211,8 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return Optional.fromNullable(artistStation);
     }
 
-    @JsonProperty("followers_count")
-    public void setFollowersCount(int followersCount) {
-        this.followersCount = followersCount;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setWebsiteUrl(String website) {
-        this.website = website;
-    }
-
     public void setWebsiteTitle(String websiteTitle) {
         this.websiteTitle = websiteTitle;
-    }
-
-    public void setMyspaceName(String myspaceName) {
-        this.myspaceName = myspaceName;
-    }
-
-    public void setDiscogsName(String discogsName) {
-        this.discogsName = discogsName;
     }
 
     @Override
