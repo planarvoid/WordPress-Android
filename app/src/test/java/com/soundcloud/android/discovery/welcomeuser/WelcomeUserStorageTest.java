@@ -22,7 +22,7 @@ public class WelcomeUserStorageTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context());
-        welcomeUserStorage = new WelcomeUserStorage(sharedPreferences, featureFlags);
+        welcomeUserStorage = new WelcomeUserStorage(sharedPreferences);
 
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(true);
     }

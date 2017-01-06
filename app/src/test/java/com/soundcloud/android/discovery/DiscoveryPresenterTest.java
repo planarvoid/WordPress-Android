@@ -18,7 +18,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
@@ -56,7 +55,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private Navigator navigator;
-    @Mock private FeatureFlags featureFlags;
     @Mock private StartStationHandler startStationHandler;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<DiscoveryItem> discoveryItems;
@@ -86,8 +84,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 eventBus,
                 startStationHandler,
                 trackRecommendationPlaybackInitiator,
-                updatePlayableAdapterSubscriberFactory,
-                featureFlags);
+                updatePlayableAdapterSubscriberFactory);
 
         presenter.onCreate(fragment, bundle);
     }

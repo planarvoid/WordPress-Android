@@ -52,6 +52,7 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
         setWelcomeMessage(itemView, welcomeUserItem, resourceBundle);
         setDescription(itemView, resourceBundle);
 
+        itemView.findViewById(R.id.close_button).setOnClickListener(click -> listener.dismissWelcomeUserItem(position));
         itemView.setOnClickListener(click -> listener.dismissWelcomeUserItem(position));
     }
 
