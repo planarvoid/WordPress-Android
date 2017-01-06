@@ -91,7 +91,8 @@ ext {
           androidPlayServicesCast         : "com.google.android.gms:play-services-cast-framework:$googleServicesVersion",
           firebaseCore                    : "com.google.firebase:firebase-core:$googleServicesVersion",
           firebaseConfig                  : "com.google.firebase:firebase-config:$googleServicesVersion",
-          firebaseMessaging               : "com.google.firebase:firebase-messaging:$googleServicesVersion"
+          firebaseMessaging               : "com.google.firebase:firebase-messaging:$googleServicesVersion",
+          firebaseAnalytics               : "com.google.firebase:firebase-analytics:$googleServicesVersion"
   ]
 
   devLibraries = [

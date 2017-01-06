@@ -25,7 +25,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.performance.PerformanceEngine;
+import com.soundcloud.android.performance.PerformanceEngineFactory;
 import com.soundcloud.android.performance.StopWatch;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
@@ -120,6 +120,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject SyncInitiator syncInitiator;
     @Inject StationsOperations stationsOperations;
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
+    @Inject PerformanceEngineFactory performanceEngineFactory;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -158,7 +159,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void initializePerformanceEngine() {
-        new PerformanceEngine(stopWatch, eventBus).trackStartupTime(this);
+        performanceEngineFactory.create(stopWatch).trackStartupTime(this);
     }
 
     protected void bootApplication() {

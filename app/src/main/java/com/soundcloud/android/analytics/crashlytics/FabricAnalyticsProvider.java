@@ -53,16 +53,13 @@ public class FabricAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void reportDatabaseMetrics() {
-        fabricProvider.getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                final int tracksCount = databaseReporting.countTracks();
-                fabricReporter.post(create(RECORD_COUNT_METRIC, DataPoint.numeric("tracks", tracksCount)));
+        fabricProvider.getExecutor().execute(() -> {
+            final int tracksCount = databaseReporting.countTracks();
+            fabricReporter.post(create(RECORD_COUNT_METRIC, DataPoint.numeric("tracks", tracksCount)));
 
-                final Optional<DatabaseMigrationEvent> report = databaseReporting.pullDatabaseMigrationEvent();
-                if (report.isPresent()) {
-                    fabricReporter.post(report.get().toMetric());
-                }
+            final Optional<DatabaseMigrationEvent> report = databaseReporting.pullDatabaseMigrationEvent();
+            if (report.isPresent()) {
+                fabricReporter.post(report.get().toMetric());
             }
         });
     }

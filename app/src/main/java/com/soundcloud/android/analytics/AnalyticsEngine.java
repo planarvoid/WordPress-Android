@@ -9,6 +9,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -64,12 +65,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     };
 
     @Inject
-    public AnalyticsEngine(EventBus eventBus,
-                           SharedPreferences sharedPreferences,
-                           @Named(ANALYTICS_SETTINGS) SharedPreferences analyticsSettings,
-                           AnalyticsProviderFactory analyticsProviderFactory) {
-        this(eventBus, sharedPreferences, analyticsSettings, AndroidSchedulers.mainThread(),
-             analyticsProviderFactory);
+    AnalyticsEngine(EventBus eventBus,
+                    SharedPreferences sharedPreferences,
+                    @Named(ANALYTICS_SETTINGS) SharedPreferences analyticsSettings,
+                    AnalyticsProviderFactory analyticsProviderFactory) {
+        this(eventBus, sharedPreferences, analyticsSettings, AndroidSchedulers.mainThread(), analyticsProviderFactory);
     }
 
     public void onAppCreated(Context context) {
@@ -79,11 +79,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     @VisibleForTesting
-    protected AnalyticsEngine(EventBus eventBus,
-                              SharedPreferences sharedPreferences,
-                              SharedPreferences analyticsSettings,
-                              Scheduler scheduler,
-                              AnalyticsProviderFactory analyticsProviderFactory) {
+    AnalyticsEngine(EventBus eventBus,
+                    SharedPreferences sharedPreferences,
+                    SharedPreferences analyticsSettings,
+                    Scheduler scheduler,
+                    AnalyticsProviderFactory analyticsProviderFactory) {
         Log.i(this, "Creating analytics engine");
         this.analyticsProviderFactory = analyticsProviderFactory;
         this.analyticsProviders = analyticsProviderFactory.getProviders();
@@ -100,11 +100,12 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         CompositeSubscription eventsSubscription = new CompositeSubscription();
         eventsSubscription.add(eventBus.subscribe(EventQueue.TRACKING, new TrackingEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE,
-                                                  new PlaybackPerformanceEventSubscriber()));
+                new PlaybackPerformanceEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.PERFORMANCE, new PerformanceEventSubscriber()));
     }
 
     @Override
@@ -126,7 +127,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     private void handleProviderError(Throwable t, AnalyticsProvider provider, String methodName) {
         final String message = String.format("exception while processing %s for provider %s, with error = %s",
-                                             methodName, provider.getClass(), t.toString());
+                methodName, provider.getClass(), t.toString());
         Log.e(this, message);
         ErrorUtils.handleSilentException(message, t);
     }
@@ -170,6 +171,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, TrackingEvent event) {
             provider.handleTrackingEvent(event);
+        }
+    }
+
+    private final class PerformanceEventSubscriber extends EventSubscriber<PerformanceEvent> {
+        @Override
+        protected void handleEvent(AnalyticsProvider provider, PerformanceEvent event) {
+            provider.handlePerformanceEvent(event);
         }
     }
 

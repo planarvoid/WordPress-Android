@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
+import com.soundcloud.android.analytics.firebase.FirebaseAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.settings.SettingKey;
@@ -41,6 +42,7 @@ public class AnalyticsProviderFactoryTest {
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
     @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
     @Mock private FabricAnalyticsProvider fabricAnalyticsProvider;
+    @Mock private FirebaseAnalyticsProvider firebaseAnalyticsProvider;
 
     @Mock private EventTrackingManager eventTrackingManager;
     private PromotedAnalyticsProvider promotedProvider;
@@ -52,10 +54,11 @@ public class AnalyticsProviderFactoryTest {
         promotedProvider = new PromotedAnalyticsProvider(eventTrackingManager);
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(appboyAnalyticsProvider.get()).thenReturn(mock(AppboyAnalyticsProvider.class));
-        baseProviders = Arrays.<AnalyticsProvider>asList(eventLoggerProvider, promotedProvider);
+        baseProviders = Arrays.asList(eventLoggerProvider, promotedProvider);
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
                                                analyticsSettings, appboyAnalyticsProvider,
-                                               adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider,
+                                               adjustAnalyticsProvider, comScoreProvider,
+                                               fabricAnalyticsProvider, firebaseAnalyticsProvider,
                                                baseProviders);
     }
 
@@ -95,6 +98,7 @@ public class AnalyticsProviderFactoryTest {
                 adjustAnalyticsProvider,
                 fabricAnalyticsProvider,
                 appboyAnalyticsProvider.get(),
+                firebaseAnalyticsProvider,
                 comScoreProvider);
     }
 
@@ -102,7 +106,8 @@ public class AnalyticsProviderFactoryTest {
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
                                                analyticsSettings, appboyAnalyticsProvider,
-                                               adjustAnalyticsProvider, null, fabricAnalyticsProvider, baseProviders);
+                                               adjustAnalyticsProvider, null, fabricAnalyticsProvider,
+                                               firebaseAnalyticsProvider, baseProviders);
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
@@ -111,7 +116,8 @@ public class AnalyticsProviderFactoryTest {
                 promotedProvider,
                 adjustAnalyticsProvider,
                 fabricAnalyticsProvider,
-                appboyAnalyticsProvider.get());
+                appboyAnalyticsProvider.get(),
+                firebaseAnalyticsProvider);
     }
 
 }

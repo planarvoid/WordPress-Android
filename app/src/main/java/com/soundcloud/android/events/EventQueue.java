@@ -12,12 +12,7 @@ import rx.functions.Action1;
 
 public final class EventQueue {
 
-    private static final Action1<Throwable> ON_ERROR = new Action1<Throwable>() {
-        @Override
-        public void call(Throwable throwable) {
-            ErrorUtils.handleThrowable(throwable, EventQueue.class);
-        }
-    };
+    private static final Action1<Throwable> ON_ERROR = throwable -> ErrorUtils.handleThrowable(throwable, EventQueue.class);
 
     // playback
     public static final Queue<PlayStateEvent> PLAYBACK_STATE_CHANGED = Queue.of(PlayStateEvent.class)
@@ -108,4 +103,5 @@ public final class EventQueue {
                                                                         .onError(ON_ERROR)
                                                                         .get();
     public static final Queue<OnboardingEvent> ONBOARDING = Queue.of(OnboardingEvent.class).onError(ON_ERROR).get();
+    public static final Queue<PerformanceEvent> PERFORMANCE = Queue.of(PerformanceEvent.class).onError(ON_ERROR).get();
 }

@@ -110,6 +110,13 @@ public class DeviceHelperTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldReturnAndroidReleaseVersion() {
+        when(buildHelper.getAndroidReleaseVersion()).thenReturn("7.0.0");
+        assertThat(deviceHelper.getAndroidReleaseVersion()).isEqualTo("7.0.0");
+    }
+
+
+    @Test
     public void determineTabletBasedOnResources() {
         final boolean isTablet = false;
 

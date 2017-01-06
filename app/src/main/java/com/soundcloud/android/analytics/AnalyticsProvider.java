@@ -4,6 +4,7 @@ import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -33,6 +34,8 @@ public interface AnalyticsProvider {
     void handleTrackingEvent(TrackingEvent event);
 
     void handleForceUpdateEvent(ForceUpdateEvent event);
+
+    void handlePerformanceEvent(PerformanceEvent event);
 
     void onAppCreated(Context context);
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
@@ -37,6 +38,14 @@ public class AnalyticsModule {
     }
 
     @Provides
+    @Singleton
+    FirebaseAnalytics provideFirebaseAnalytics(Context context) {
+        final FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        firebaseAnalytics.setAnalyticsCollectionEnabled(true);
+        return firebaseAnalytics;
+    }
+
+    @Provides
     @Named(BASE_PROVIDERS)
     List<AnalyticsProvider> provideBaseProviders(EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider,
                                                  PromotedAnalyticsProvider promotedAnalyticsProvider) {
@@ -55,7 +64,7 @@ public class AnalyticsModule {
     @Provides
     @Singleton
     @Named(TRACKING_HTTP_CLIENT)
-    public OkHttpClient provideOkHttpClient(OkHttpClient.Builder clientBuilder) {
+    OkHttpClient provideOkHttpClient(OkHttpClient.Builder clientBuilder) {
         return clientBuilder.build();
     }
 }

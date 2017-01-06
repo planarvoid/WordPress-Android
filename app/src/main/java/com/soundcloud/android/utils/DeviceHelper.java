@@ -12,7 +12,6 @@ import android.content.res.Resources;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.VisibleForTesting;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
@@ -58,8 +57,7 @@ public class DeviceHelper {
         return udid;
     }
 
-    @VisibleForTesting
-    String getDeviceName() {
+    public String getDeviceName() {
         final String manufacturer = buildHelper.getManufacturer();
         final String model = buildHelper.getModel();
         if (Strings.isNotBlank(model)) {
@@ -92,6 +90,10 @@ public class DeviceHelper {
 
     public String getAppVersionName() {
         return BuildConfig.VERSION_NAME;
+    }
+
+    public String getAndroidReleaseVersion() {
+        return buildHelper.getAndroidReleaseVersion();
     }
 
     public int getAppVersionCode() {

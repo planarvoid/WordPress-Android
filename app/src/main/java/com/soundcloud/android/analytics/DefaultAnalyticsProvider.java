@@ -4,6 +4,7 @@ import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -50,6 +51,11 @@ public class DefaultAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleForceUpdateEvent(ForceUpdateEvent event) {
+
+    }
+
+    @Override
+    public void handlePerformanceEvent(PerformanceEvent event) {
 
     }
 

@@ -8,9 +8,6 @@
 
     <application tools:ignore="AllowBackup">
 
-        <!--Disable Firebase analytics collection in our debug builds-->
-        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
-
         <!-- Disabled due to a bug causing an ANR: https://groups.google.com/forum/#!topic/firebase-talk/Z4vqS1Ml3N4 -->
         <service
             android:name=".gcm.GcmInstanceIDListenerService"

@@ -3,9 +3,7 @@ package com.soundcloud.android.testsupport;
 import com.soundcloud.android.BuildConfig;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.model.Statement;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
@@ -40,12 +38,9 @@ import java.util.HashMap;
         sdk = 22)
 public abstract class AndroidUnitTest {
 
-    @Rule public TestRule injectMocksRule = new TestRule() {
-        @Override
-        public Statement apply(Statement base, Description description) {
-            MockitoAnnotations.initMocks(AndroidUnitTest.this);
-            return base;
-        }
+    @Rule public TestRule injectMocksRule = (base, description) -> {
+        MockitoAnnotations.initMocks(AndroidUnitTest.this);
+        return base;
     };
 
     protected static Intent getNextStartedService() {

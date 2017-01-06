@@ -28,24 +28,16 @@ public class ComScoreAnalyticsProvider extends DefaultAnalyticsProvider {
 
     @Override
     public void flush() {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                comScore.flushCache();
-            }
-        });
+        executor.execute(() -> comScore.flushCache());
     }
 
     @Override
     public void handleActivityLifeCycleEvent(final ActivityLifeCycleEvent event) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT) {
-                    comScore.onEnterForeground();
-                } else if (event.getKind() == ActivityLifeCycleEvent.ON_PAUSE_EVENT) {
-                    comScore.onExitForeground();
-                }
+        executor.execute(() -> {
+            if (event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT) {
+                comScore.onEnterForeground();
+            } else if (event.getKind() == ActivityLifeCycleEvent.ON_PAUSE_EVENT) {
+                comScore.onExitForeground();
             }
         });
     }
@@ -58,14 +50,11 @@ public class ComScoreAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (event.isPlayOrPlayStartEvent()) {
-                    comScore.onUxActive();
-                } else if (event.isStopEvent()) {
-                    comScore.onUxInactive();
-                }
+        executor.execute(() -> {
+            if (event.isPlayOrPlayStartEvent()) {
+                comScore.onUxActive();
+            } else if (event.isStopEvent()) {
+                comScore.onUxInactive();
             }
         });
     }

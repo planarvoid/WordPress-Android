@@ -235,6 +235,7 @@ dependencies {
   compile libraries.firebaseCore
   compile libraries.firebaseConfig
   compile libraries.firebaseMessaging
+  compile libraries.firebaseAnalytics
 
   /* Unit tests */
   testCompile unitTestLibraries.junit
