@@ -105,7 +105,7 @@
       "jobs": [
         {
           "create_release_checklist": {
-            "cmd": "bundle install && bundle exec rake github:release_checklist",
+            "cmd": "./gradlew openReleaseChecklist",
             "manual": true
           }
         }
@@ -116,7 +116,7 @@
       "jobs": [
         {
           "create_regression_tests_tasks": {
-            "cmd": "bundle install && bundle exec rake github:regression_tests",
+            "cmd": "./gradlew openRegressionTasks",
             "manual": true,
             "localBranch": true
           }

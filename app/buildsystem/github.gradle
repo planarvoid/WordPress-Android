@@ -1,5 +1,7 @@
 import groovy.json.JsonOutput
 
+import java.text.SimpleDateFormat
+
 apply from: "${project.('buildSrcDir')}/apk_finder.gradle"
 apply from: "${project.('buildSrcDir')}/curl.gradle"
 
@@ -7,7 +9,7 @@ task uploadGithubBeta {
   description = 'Creates a tag and release on Github for beta apk.'
 
   doLast {
-    uploadGithub('beta', project.('betaVersionCode'))
+    uploadGitHubRelease('beta', project.('betaVersionCode'))
   }
 }
 
@@ -15,7 +17,7 @@ task uploadGithubFollowUpBeta {
   description = 'Creates a tag and release on Github for follow up beta apk.'
 
   doLast {
-    uploadGithub('beta', project.('followUpBetaVersionCode'))
+    uploadGitHubRelease('beta', project.('followUpBetaVersionCode'))
   }
 }
 
@@ -23,46 +25,89 @@ task uploadGithubRelease {
   description = 'Creates a tag and release on Github for release apk.'
 
   doLast {
-    uploadGithub('release', project.('releaseVersionCode'))
+    uploadGitHubRelease('release', project.('releaseVersionCode'))
   }
 }
 
-def uploadGithub(String buildType, versionCode){
-  def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'
-  def owner = 'soundcloud'
-  def repo  = 'android'
+task openReleaseChecklist {
+  description = 'Creates release checklist issue on GitHub.'
 
-  def releaseId = createRelease(buildType, versionCode, owner, repo, token)
-  uploadApkToRelease(buildType, versionCode, owner, repo, token, releaseId)
+  doLast {
+    openGitHubIssue(new Issue(
+            title: "Release checklist " + currentDate(),
+            body: rootProject.file('.release-checklist.md').text,
+            labels: ['release']))
+  }
 }
 
-class Release { String tag_name; String target_commitish; String name; String body }
+task openRegressionTasks {
+  description = 'Creates regression milestone and tasks on GitHub.'
 
-def String createRelease(String buildType, versionCode, owner, repo, token) {
+  doLast {
+    def number = openGitHubMilestone(new Milestone(title: 'Regression tasks ' + currentDate()))
+    def input = rootProject.file('.regression-tests.md').text
+    // Individual items in the template are delimited by 2 empty lines
+    for (String ticket : input.split("\n\n\n")) {
+      openGitHubIssue(new Issue(
+              title: ticket.readLines()[0],
+              body: ticket.substring(ticket.indexOf('\n')).trim(),
+              milestone: number))
+    }
+  }
+}
+
+def uploadGitHubRelease(String buildType, versionCode){
+  def releaseId = createRelease(buildType, versionCode)
+  uploadApkToRelease(buildType, versionCode, releaseId)
+}
+
+def String createRelease(String buildType, versionCode) {
   def release = new Release(
           tag_name: findApkFilenameMinusExtension(buildType, versionCode),
-          target_commitish: project.('gitBranch'),
+          target_commit: project.('gitBranch'),
           name: project.('releaseName'),
           body: project.('releaseBody')
   )
   def jsonRelease = JsonOutput.toJson(release)
 
-  def url = "https://api.github.com/repos/$owner/$repo/releases?access_token=$token"
-
-  def result = executePostWithData(url, jsonRelease, "")
-  if (result == "") {
-    throw new Exception("Unable to create github release")
+  def result = executePostWithData(apiUrl('releases'), jsonRelease, '')
+  if (result == '') {
+    throw new Exception('Unable to create github release')
   }
-  return result.id
+  result.id
 }
 
-def uploadApkToRelease(String buildType, versionCode, owner, repo, token, releaseId) {
-  def url = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
-          "soundcloud-android.apk&access_token=$token"
+def uploadApkToRelease(String buildType, versionCode, releaseId) {
   def apkPath = findApkPath(buildType, versionCode)
 
-  def result = executePostWithApk(url, apkPath, 0)
+  def result = executePostWithApk(uploadUrl(releaseId), apkPath, 0)
   if (result == 0) {
-    throw new Exception("Unable to upload $buildType apk to github release")
+    throw new Exception('Unable to upload $buildType apk to github release')
   }
 }
+
+def openGitHubMilestone(Milestone milestone) {
+  def response = executePostWithData(apiUrl('milestones'), JsonOutput.toJson(milestone), '')
+  response.number
+}
+
+def openGitHubIssue(Issue issue) {
+  executePostWithData(apiUrl('issues'), JsonOutput.toJson(issue), '')
+}
+
+def currentDate() {
+  new SimpleDateFormat('yyyy-MM-dd').format(new Date())
+}
+
+def apiUrl(String path) {
+  "https://api.github.com/repos/soundcloud/android/$path?access_token=0330604618ffbc5232a62f3e96f9d3b25377b9cb"
+}
+
+def uploadUrl(String releaseId) {
+  "https://uploads.github.com/repos/soundcloud/android/releases/$releaseId/assets?name=soundcloud-android.apk&access_token=0330604618ffbc5232a62f3e96f9d3b25377b9cb"
+}
+
+class Release { String tag_name; String target_commit; String name; String body }
+class Milestone { String title }
+class Issue { String title; String body; String milestone; List<String> labels}
+
