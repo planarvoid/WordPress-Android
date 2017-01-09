@@ -281,6 +281,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                         refreshCollections();
                         break;
                     default:
+                        boolean updated = false;
                         for (int position = 0; position < adapter.getItems().size(); position++) {
                             PlaylistCollectionItem item = adapter.getItem(position);
 
@@ -288,8 +289,12 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                                 final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
                                 if (position < adapter.getItems().size()) {
                                     adapter.setItem(position, playlistItem.updated(event.getNextChangeSet()));
+                                    updated = true;
                                 }
                             }
+                        }
+                        if (updated) {
+                            adapter.notifyDataSetChanged();
                         }
                 }
             } else {

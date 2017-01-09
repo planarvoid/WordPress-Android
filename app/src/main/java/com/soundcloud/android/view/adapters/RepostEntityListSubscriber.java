@@ -18,13 +18,17 @@ public final class RepostEntityListSubscriber extends DefaultSubscriber<RepostsS
     @Override
     public void onNext(final RepostsStatusEvent event) {
         final Iterable<RepostableItem> filtered = Iterables.filter(adapter.getItems(), RepostableItem.class);
+        boolean updated = false;
         for (RepostableItem item : filtered) {
             final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(item.getUrn());
             if (repostStatus.isPresent()) {
                 final int position = adapter.getItems().indexOf(item);
                 adapter.getItems().set(position, item.updatedWithRepost(repostStatus.get()));
-                adapter.notifyItemChanged(position);
+                updated = true;
             }
+        }
+        if (updated) {
+            adapter.notifyDataSetChanged();
         }
     }
 }

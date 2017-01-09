@@ -39,7 +39,6 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
 
     void setItem(int position, CollectionItem item) {
         getItems().set(position, item);
-        notifyItemChanged(position);
     }
 
     void detach() {

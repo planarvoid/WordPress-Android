@@ -37,6 +37,7 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Recy
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
+        boolean updated = false;
         for (int i = 0; i < getItemCount(); i++) {
             final PlayHistoryItem item = getItem(i);
 
@@ -46,15 +47,17 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Recy
 
                 if (track.isPlaying() || isCurrent) {
                     track.setIsPlaying(isCurrent);
-                    notifyItemChanged(i);
+                    updated = true;
                 }
             }
+        }
+        if (updated) {
+            notifyDataSetChanged();
         }
     }
 
     void setItem(int position, PlayHistoryItem item) {
         getItems().set(position, item);
-        notifyItemChanged(position);
     }
 
     @Override

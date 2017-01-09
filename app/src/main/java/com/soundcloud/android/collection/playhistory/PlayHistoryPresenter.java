@@ -198,7 +198,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         @Override
         public void onNext(final T event) {
             final int itemCount = adapter.getItemCount();
-
+            boolean updated = false;
             for (int position = 0; position < itemCount; position++) {
                 final PlayHistoryItem item = adapter.getItem(position);
 
@@ -208,9 +208,13 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
                     if (containsTrackUrn(event, trackUrn) && adapter.getItems().size() > position) {
                         final PlayHistoryItemTrack updatedItem = PlayHistoryItemTrack.create(getUpdatedTrackItem(event, trackItem));
+                        updated = true;
                         adapter.setItem(position, updatedItem);
                     }
                 }
+            }
+            if (updated) {
+                adapter.notifyDataSetChanged();
             }
         }
     }
