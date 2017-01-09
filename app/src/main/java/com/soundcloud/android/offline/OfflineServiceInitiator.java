@@ -18,30 +18,15 @@ class OfflineServiceInitiator {
     }
 
     Action0 start() {
-        return new Action0() {
-            @Override
-            public void call() {
-                OfflineContentService.start(context);
-            }
-        };
+        return () -> OfflineContentService.start(context);
     }
 
     Action0 stop() {
-        return new Action0() {
-            @Override
-            public void call() {
-                OfflineContentService.stop(context);
-            }
-        };
+        return () -> OfflineContentService.stop(context);
     }
 
     Action1<Object> startFromUserAction() {
-        return new Action1<Object>() {
-            @Override
-            public void call(Object ignored) {
-                OfflineContentService.startFromUserAction(context);
-            }
-        };
+        return ignored -> OfflineContentService.startFromUserAction(context);
     }
 
     Subscriber<Void> startSubscriber() {

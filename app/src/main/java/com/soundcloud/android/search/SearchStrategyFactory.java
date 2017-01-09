@@ -34,39 +34,31 @@ import java.util.Map;
 class SearchStrategyFactory {
 
     private static final Func1<SearchModelCollection<? extends SearchableItem>, SearchResult> TO_SEARCH_RESULT =
-            new Func1<SearchModelCollection<? extends SearchableItem>, SearchResult>() {
-                @Override
-                public SearchResult call(SearchModelCollection<? extends SearchableItem> searchCollection) {
-                    return SearchResult.fromSearchableItems(
-                            searchCollection.getCollection(),
-                            searchCollection.getNextLink(),
-                            searchCollection.getQueryUrn());
-                }
-            };
+            searchCollection -> SearchResult.fromSearchableItems(
+                    searchCollection.getCollection(),
+                    searchCollection.getNextLink(),
+                    searchCollection.getQueryUrn());
 
     private static final Func1<SearchModelCollection<SearchableItem>, SearchResult> TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT =
-            new Func1<SearchModelCollection<SearchableItem>, SearchResult>() {
-                @Override
-                public SearchResult call(SearchModelCollection<SearchableItem> searchCollection) {
-                    final List<SearchableItem> collection = searchCollection.getCollection();
-                    final Optional<Link> nextLink = searchCollection.getNextLink();
-                    final Optional<Urn> queryUrn = searchCollection.getQueryUrn();
-                    final Optional<? extends SearchModelCollection<SearchableItem>> premiumContent =
-                            searchCollection.premiumContent();
-                    if (premiumContent.isPresent()) {
-                        final SearchModelCollection<SearchableItem> premiumItems = premiumContent.get();
-                        final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(premiumItems.getCollection(),
-                                                                                                  premiumItems.getNextLink(),
-                                                                                                  premiumItems.getQueryUrn(),
-                                                                                                  premiumItems.resultsCount());
-                        return SearchResult.fromSearchableItems(collection,
-                                                                nextLink,
-                                                                queryUrn,
-                                                                Optional.of(premiumSearchResult),
-                                                                searchCollection.resultsCount());
-                    }
-                    return SearchResult.fromSearchableItems(collection, nextLink, queryUrn);
+            searchCollection -> {
+                final List<SearchableItem> collection = searchCollection.getCollection();
+                final Optional<Link> nextLink = searchCollection.getNextLink();
+                final Optional<Urn> queryUrn = searchCollection.getQueryUrn();
+                final Optional<? extends SearchModelCollection<SearchableItem>> premiumContent =
+                        searchCollection.premiumContent();
+                if (premiumContent.isPresent()) {
+                    final SearchModelCollection<SearchableItem> premiumItems = premiumContent.get();
+                    final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(premiumItems.getCollection(),
+                                                                                              premiumItems.getNextLink(),
+                                                                                              premiumItems.getQueryUrn(),
+                                                                                              premiumItems.resultsCount());
+                    return SearchResult.fromSearchableItems(collection,
+                                                            nextLink,
+                                                            queryUrn,
+                                                            Optional.of(premiumSearchResult),
+                                                            searchCollection.resultsCount());
                 }
+                return SearchResult.fromSearchableItems(collection, nextLink, queryUrn);
             };
 
     private final ApiClientRx apiClientRx;

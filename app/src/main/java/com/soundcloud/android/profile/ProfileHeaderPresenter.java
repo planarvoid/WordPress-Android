@@ -90,12 +90,7 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
                                                                   screenProvider));
         }
         stationButton.setVisibility(View.GONE);
-        image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FullImageDialog.show(activity.getSupportFragmentManager(), user);
-            }
-        });
+        image.setOnClickListener(view -> FullImageDialog.show(activity.getSupportFragmentManager(), user));
     }
 
     @Override
@@ -108,17 +103,14 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
                                                        final FollowingOperations followingOperations,
                                                        final EngagementsTracking engagementsTracking,
                                                        final ScreenProvider screenProvider) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fireAndForget(followingOperations.toggleFollowing(user, followButton.isChecked()));
+        return v -> {
+            fireAndForget(followingOperations.toggleFollowing(user, followButton.isChecked()));
 
-                engagementsTracking.followUserUrn(user,
-                                                  followButton.isChecked(),
-                                                  getEventContextMetadata(screenProvider));
+            engagementsTracking.followUserUrn(user,
+                                              followButton.isChecked(),
+                                              getEventContextMetadata(screenProvider));
 
-                updateStationButton();
-            }
+            updateStationButton();
         };
     }
 
@@ -182,12 +174,9 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
         boolean hasArtistStation = user.getArtistStationUrn().isPresent();
 
         if (hasArtistStation) {
-            stationButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    updateStationButton();
-                    stationHandler.startStation(v.getContext(), user.getArtistStationUrn().get());
-                }
+            stationButton.setOnClickListener(v -> {
+                updateStationButton();
+                stationHandler.startStation(v.getContext(), user.getArtistStationUrn().get());
             });
             stationButton.setVisibility(View.VISIBLE);
             updateStationButton();

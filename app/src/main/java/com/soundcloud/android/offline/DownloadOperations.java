@@ -132,12 +132,7 @@ class DownloadOperations {
     private void saveTrack(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)
             throws IOException, EncryptionException {
 
-        fileStorage.storeTrack(request.getUrn(), response.getInputStream(), new Encryptor.EncryptionProgressListener() {
-            @Override
-            public void onBytesEncrypted(long totalProcessed) {
-                listener.onProgress(totalProcessed);
-            }
-        });
+        fileStorage.storeTrack(request.getUrn(), response.getInputStream(), totalProcessed -> listener.onProgress(totalProcessed));
 
         Log.d(OfflineContentService.TAG, "Track stored on device: " + request.getUrn());
     }

@@ -72,12 +72,7 @@ public abstract class SimpleHeaderRenderer<T>
         popupMenu.setOnMenuItemClickListener(this);
         popupMenu.setItemText(R.id.clear_history, getMenuActionText());
 
-        overflowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                popupMenu.show();
-            }
-        });
+        overflowButton.setOnClickListener(view -> popupMenu.show());
     }
 
 

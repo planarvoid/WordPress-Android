@@ -36,12 +36,7 @@ class OnboardingItemCellRenderer implements CellRenderer<CollectionItem> {
     public void bindItemView(final int position, View itemView, List<CollectionItem> items) {
         itemView.setEnabled(false);
         if (listener != null) {
-            itemView.findViewById(R.id.close_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onCollectionsOnboardingItemClosed(position);
-                }
-            });
+            itemView.findViewById(R.id.close_button).setOnClickListener(v -> listener.onCollectionsOnboardingItemClosed(position));
         }
     }
 

@@ -82,12 +82,9 @@ class UserDetailsView {
     void showWebsite(final String websiteUrl, String websiteName) {
         websiteText.setText(Strings.isBlank(websiteName) ? websiteUrl : websiteName);
         websiteText.setVisibility(View.VISIBLE);
-        websiteText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onViewUri(Uri.parse(websiteUrl));
-                }
+        websiteText.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onViewUri(Uri.parse(websiteUrl));
             }
         });
     }
@@ -99,12 +96,9 @@ class UserDetailsView {
     void showDiscogs(final String discogsName) {
         discogsText.setMovementMethod(LinkMovementMethod.getInstance());
         discogsText.setVisibility(View.VISIBLE);
-        discogsText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onViewUri(Uri.parse(String.format(Locale.US, DISCOGS_PATH, discogsName)));
-                }
+        discogsText.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onViewUri(Uri.parse(String.format(Locale.US, DISCOGS_PATH, discogsName)));
             }
         });
     }
@@ -116,12 +110,9 @@ class UserDetailsView {
     void showMyspace(final String myspaceName) {
         myspaceText.setMovementMethod(LinkMovementMethod.getInstance());
         myspaceText.setVisibility(View.VISIBLE);
-        myspaceText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onViewUri(Uri.parse(String.format(Locale.US, MYSPACE_PATH, myspaceName)));
-                }
+        myspaceText.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onViewUri(Uri.parse(String.format(Locale.US, MYSPACE_PATH, myspaceName)));
             }
         });
     }

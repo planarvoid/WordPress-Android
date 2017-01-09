@@ -21,19 +21,9 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int PLAYLIST_EDITED = 4;
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
 
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_CONTENT_CHANGED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isPlaylistEditedEvent();
-        }
-    };
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_CONTENT_CHANGED_FILTER = event -> event.isPlaylistEditedEvent();
 
-    public static final Func1<EntityStateChangedEvent, Urn> TO_URN = new Func1<EntityStateChangedEvent, Urn>() {
-        @Override
-        public Urn call(EntityStateChangedEvent entityStateChangedEvent) {
-            return entityStateChangedEvent.getFirstUrn();
-        }
-    };
+    public static final Func1<EntityStateChangedEvent, Urn> TO_URN = entityStateChangedEvent -> entityStateChangedEvent.getFirstUrn();
 
     public static EntityStateChangedEvent mergeUpdates(Collection<EntityStateChangedEvent> entityStateChangedEvents) {
         final Map<Urn, PropertySet> merged = new HashMap<>();

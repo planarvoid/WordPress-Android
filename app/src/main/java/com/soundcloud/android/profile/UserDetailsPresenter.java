@@ -31,12 +31,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
     private final UserProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;
 
-    private final Func1<ProfileUser, Boolean> hasDetails = new Func1<ProfileUser, Boolean>() {
-        @Override
-        public Boolean call(ProfileUser profileUser) {
-            return profileUser.hasDescription();
-        }
-    };
+    private final Func1<ProfileUser, Boolean> hasDetails = profileUser1 -> profileUser1.hasDescription();
     private Urn userUrn;
     private Observable<ProfileUser> userDetailsObservable;
     private ProfileUser profileUser;
@@ -61,12 +56,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         super.onViewCreated(fragment, view, savedInstanceState);
 
         userDetailsView.setView(view);
-        userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
-            @Override
-            public void onViewUri(Uri uri) {
-                fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri));
-            }
-        });
+        userDetailsView.setListener(uri -> fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri)));
 
         configureEmptyView();
         configureRefreshLayout(view);

@@ -13,11 +13,7 @@ import java.util.Arrays;
 
 public final class Urn extends ContentStringHelper<Urn> {
 
-    public static final Function<String, Urn> STRING_TO_URN = new Function<String, Urn>() {
-        public Urn apply(String input) {
-            return new Urn(input);
-        }
-    };
+    public static final Function<String, Urn> STRING_TO_URN = input -> new Urn(input);
 
     public static final Urn NOT_SET = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.UNKNOWN, Consts.NOT_SET);
 

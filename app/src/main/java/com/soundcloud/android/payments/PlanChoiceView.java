@@ -29,19 +29,16 @@ class PlanChoiceView {
     }
 
     private void setupListener(final Listener listener) {
-        View.OnClickListener clickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.buy_1:
-                        listener.onPurchaseMidTier();
-                        break;
-                    case R.id.buy_2:
-                        listener.onPurchaseHighTier();
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Click on unknown View ID");
-                }
+        View.OnClickListener clickListener = v -> {
+            switch (v.getId()) {
+                case R.id.buy_1:
+                    listener.onPurchaseMidTier();
+                    break;
+                case R.id.buy_2:
+                    listener.onPurchaseHighTier();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Click on unknown View ID");
             }
         };
         buyMidTier.setOnClickListener(clickListener);

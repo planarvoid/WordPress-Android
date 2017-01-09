@@ -171,10 +171,5 @@ public enum ApiEndpoints {
         return String.format(Locale.US, path, encodedParams.toArray());
     }
 
-    private static final Function<Object, Object> encodingFunction = new Function<Object, Object>() {
-        @Override
-        public Object apply(Object input) {
-            return Uri.encode(String.valueOf(input));
-        }
-    };
+    private static final Function<Object, Object> encodingFunction = input -> Uri.encode(String.valueOf(input));
 }

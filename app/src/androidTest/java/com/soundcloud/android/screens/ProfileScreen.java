@@ -162,12 +162,7 @@ public class ProfileScreen extends Screen {
         );
     }
 
-    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = new Function<ViewElement, PlaylistElement>() {
-        @Override
-        public PlaylistElement apply(ViewElement viewElement) {
-            return PlaylistElement.forListItem(testDriver, viewElement);
-        }
-    };
+    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = viewElement -> PlaylistElement.forListItem(testDriver, viewElement);
 
     public String getFirstTrackTitle() {
         pullToRefresh();
@@ -407,12 +402,7 @@ public class ProfileScreen extends Screen {
     }
 
     private List<ViewElement> getElementsBelow(int elementsId, final int globalTop) {
-        return newArrayList(filter(testDriver.findOnScreenElements(With.id(elementsId)), new Predicate<ViewElement>() {
-            @Override
-            public boolean apply(@Nullable ViewElement input) {
-                return input != null && input.getGlobalTop() > globalTop;
-            }
-        }));
+        return newArrayList(filter(testDriver.findOnScreenElements(With.id(elementsId)), input -> input != null && input.getGlobalTop() > globalTop));
     }
 
     private List<ViewElement> scrollToElementsBelow(int elementsId, final int globalTop) {

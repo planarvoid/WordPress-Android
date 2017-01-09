@@ -9,12 +9,7 @@ import java.util.Date;
 
 public interface PlaylistRecord extends ImageResource {
 
-    Function<PlaylistRecord, UserRecord> TO_USER_RECORD = new Function<PlaylistRecord, UserRecord>() {
-        @Override
-        public UserRecord apply(PlaylistRecord input) {
-            return input.getUser();
-        }
-    };
+    Function<PlaylistRecord, UserRecord> TO_USER_RECORD = input -> input.getUser();
 
     String getTitle();
 

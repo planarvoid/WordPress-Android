@@ -28,14 +28,9 @@ class KruxSegmentProvider {
             checkState(Thread.currentThread() == Looper.getMainLooper().getThread());
             KruxEventAggregator.initialize(context.getApplicationContext(),
                                            context.getString(R.string.krux_configuration_id),
-                                           new KruxSegments() {
-                                               @Override
-                                               public void getSegments(String segments) {
-                                                   latestSegments = Strings.isBlank(segments)
-                                                           ? Optional.<String>absent()
-                                                           : Optional.of(segments);
-                                               }
-                                           },
+                                           segments -> latestSegments = Strings.isBlank(segments)
+                                                   ? Optional.<String>absent()
+                                                   : Optional.of(segments),
                                            DEBUG_MODE);
         } catch (Exception e) {
             // If it fails to initialize, getSegments() will return Optional.absent()

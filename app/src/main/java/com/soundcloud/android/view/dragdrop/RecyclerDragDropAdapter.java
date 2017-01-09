@@ -53,14 +53,11 @@ public abstract class RecyclerDragDropAdapter<ItemT, VH extends RecyclerDragDrop
 
         // Start a drag whenever the handle view it touched
         if (holder.handleView.isPresent()) {
-            holder.handleView.get().setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        listener.onStartDrag(holder);
-                    }
-                    return false;
+            holder.handleView.get().setOnTouchListener((v, event) -> {
+                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                    listener.onStartDrag(holder);
                 }
+                return false;
             });
         }
     }

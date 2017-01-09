@@ -56,12 +56,7 @@ public class UserItem implements ListItem, UpdatableItem, FollowableItem, Search
     }
 
     public static Func1<PropertySet, UserItem> fromPropertySet() {
-        return new Func1<PropertySet, UserItem>() {
-            @Override
-            public UserItem call(PropertySet bindings) {
-                return UserItem.from(bindings);
-            }
-        };
+        return bindings -> UserItem.from(bindings);
     }
 
     UserItem(PropertySet source) {

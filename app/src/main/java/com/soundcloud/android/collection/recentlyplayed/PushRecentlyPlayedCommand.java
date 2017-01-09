@@ -20,11 +20,7 @@ import java.util.List;
 public class PushRecentlyPlayedCommand extends Command<PlayHistoryRecord, List<PlayHistoryRecord>> {
 
     private static final Function<PlayHistoryRecord, ApiRecentlyPlayed> TO_API_RECENTLY_PLAYED =
-            new Function<PlayHistoryRecord, ApiRecentlyPlayed>() {
-                public ApiRecentlyPlayed apply(PlayHistoryRecord input) {
-                    return ApiRecentlyPlayed.create(input.timestamp(), input.contextUrn().toString());
-                }
-            };
+            input -> ApiRecentlyPlayed.create(input.timestamp(), input.contextUrn().toString());
 
     private final RecentlyPlayedStorage recentlyPlayedStorage;
     private final ApiClient apiClient;

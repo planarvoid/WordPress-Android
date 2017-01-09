@@ -91,23 +91,13 @@ public class PlaylistExploder {
 
     @NonNull
     private Action0 removePlaylistLoad(final Urn playlist) {
-        return new Action0() {
-            @Override
-            public void call() {
-                playlistLoads.remove(playlist);
-            }
-        };
+        return () -> playlistLoads.remove(playlist);
     }
 
     private Collection<Urn> getSurroundingPlaylists() {
         final List<Urn> surrounding = new ArrayList<>(playQueueManager.getUpcomingPlayQueueItems(
                 PLAYLIST_LOOKAHEAD_COUNT));
         surrounding.addAll(playQueueManager.getPreviousPlayQueueItems(PLAYLIST_LOOKBEHIND_COUNT));
-        return MoreCollections.filter(surrounding, new Predicate<Urn>() {
-            @Override
-            public boolean apply(Urn input) {
-                return input.isPlaylist();
-            }
-        });
+        return MoreCollections.filter(surrounding, input -> input.isPlaylist());
     }
 }

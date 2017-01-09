@@ -22,11 +22,6 @@ public class TestPager {
     }
 
     public static <T> Pager.PagingFunction<T> singlePageFunction() {
-        return new Pager.PagingFunction<T>() {
-            @Override
-            public Observable<T> call(T t) {
-                return Pager.finish();
-            }
-        };
+        return t -> Pager.finish();
     }
 }

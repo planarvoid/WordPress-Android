@@ -15,12 +15,7 @@ import javax.inject.Singleton;
 public class ScreenProvider {
 
     private final EventBus eventBus;
-    private final Func1<TrackingEvent, Boolean> IS_SCREEN_TRACKING = new Func1<TrackingEvent, Boolean>() {
-        @Override
-        public Boolean call(TrackingEvent trackingEvent) {
-            return trackingEvent instanceof ScreenEvent;
-        }
-    };
+    private final Func1<TrackingEvent, Boolean> IS_SCREEN_TRACKING = trackingEvent -> trackingEvent instanceof ScreenEvent;
 
     private String lastScreenTag;
 

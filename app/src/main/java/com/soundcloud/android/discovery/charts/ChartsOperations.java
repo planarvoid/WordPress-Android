@@ -26,14 +26,11 @@ import java.util.List;
 
 public class ChartsOperations {
 
-    private final Func1<ChartBucket, Boolean> HAS_EXPECTED_CONTENT = new Func1<ChartBucket, Boolean>() {
-        @Override
-        public Boolean call(ChartBucket chartBucket) {
-            final Optional<Chart> trending = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TRENDING));
-            final Optional<Chart> top = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TOP));
+    private final Func1<ChartBucket, Boolean> HAS_EXPECTED_CONTENT = chartBucket -> {
+        final Optional<Chart> trending = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TRENDING));
+        final Optional<Chart> top = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TOP));
 
-            return trending.isPresent() && top.isPresent() && chartBucket.getFeaturedGenres().size() >= 3;
-        }
+        return trending.isPresent() && top.isPresent() && chartBucket.getFeaturedGenres().size() >= 3;
     };
     private final SyncOperations syncOperations;
     private final StoreChartsCommand storeChartsCommand;
@@ -74,12 +71,7 @@ public class ChartsOperations {
     }
 
     private Predicate<Chart> filterType(final ChartType type) {
-        return new Predicate<Chart>() {
-            @Override
-            public boolean apply(Chart chart) {
-                return chart.type() == type;
-            }
-        };
+        return chart -> chart.type() == type;
     }
 
     private Observable<DiscoveryItem> load(Observable<SyncOperations.Result> source) {
@@ -87,26 +79,18 @@ public class ChartsOperations {
     }
 
     private Func1<ChartBucket, DiscoveryItem> toDiscoveryItem() {
-        return new Func1<ChartBucket, DiscoveryItem>() {
-            @Override
-            public DiscoveryItem call(ChartBucket chartBucket) {
-                return ChartsBucketItem.from(chartBucket);
-            }
-        };
+        return chartBucket -> ChartsBucketItem.from(chartBucket);
     }
 
     private Func1<List<Chart>, List<Chart>> filterGenresByCategory(final ChartCategory chartCategory) {
-        return new Func1<List<Chart>, List<Chart>>() {
-            @Override
-            public List<Chart> call(List<Chart> apiCharts) {
-                List<Chart> filteredGenres = new ArrayList<>();
-                for (Chart genre : apiCharts) {
-                    if (genre.category() == chartCategory) {
-                        filteredGenres.add(genre);
-                    }
+        return apiCharts -> {
+            List<Chart> filteredGenres = new ArrayList<>();
+            for (Chart genre : apiCharts) {
+                if (genre.category() == chartCategory) {
+                    filteredGenres.add(genre);
                 }
-                return filteredGenres;
             }
+            return filteredGenres;
         };
     }
 

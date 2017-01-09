@@ -51,12 +51,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         }
     };
 
-    private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, PlayerState> toPlayerState = new Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, PlayerState>() {
-        @Override
-        public PlayerState call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
-            return new PlayerState(currentItemEvent.getCurrentPlayQueueItem(), playerUIEvent.getKind());
-        }
-    };
+    private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, PlayerState> toPlayerState = (currentItemEvent, playerUIEvent) -> new PlayerState(currentItemEvent.getCurrentPlayQueueItem(), playerUIEvent.getKind());
 
     @Inject
     public AdPlayerController(final EventBus eventBus,

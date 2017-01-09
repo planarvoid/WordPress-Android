@@ -36,15 +36,12 @@ public class FacebookInvitesOperations {
     private final MyProfileOperations myProfileOperations;
 
     private final Func1<PropertySet, Observable<StreamItem>> toCreatorInvitesItem =
-            new Func1<PropertySet, Observable<StreamItem>>() {
-                @Override
-                public Observable<StreamItem> call(PropertySet track) {
-                    if (isPostRecentlyCreated(track)) {
-                        return Observable.just(StreamItem.forFacebookCreatorInvites(track.get(PlayableProperty.URN),
-                                                                                    track.get(PlayableProperty.PERMALINK_URL)));
-                    } else {
-                        return Observable.empty();
-                    }
+            track -> {
+                if (isPostRecentlyCreated(track)) {
+                    return Observable.just(StreamItem.forFacebookCreatorInvites(track.get(PlayableProperty.URN),
+                                                                                track.get(PlayableProperty.PERMALINK_URL)));
+                } else {
+                    return Observable.empty();
                 }
             };
 
@@ -76,28 +73,18 @@ public class FacebookInvitesOperations {
     }
 
     private Observable<Boolean> canShowForCreators() {
-        return Observable.fromCallable(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return canShowAfterLastClick()
-                        && canShowCreatorsAfterLastCreatorDismiss()
-                        && facebookApiHelper.canShowAppInviteDialog()
-                        && networkConnectionHelper.isNetworkConnected();
-            }
-        });
+        return Observable.fromCallable(() -> canShowAfterLastClick()
+                && canShowCreatorsAfterLastCreatorDismiss()
+                && facebookApiHelper.canShowAppInviteDialog()
+                && networkConnectionHelper.isNetworkConnected());
     }
 
     Observable<Boolean> canShowForListeners() {
-        return Observable.fromCallable(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return canShowAfterLastClick()
-                        && canShowAfterLastOpen()
-                        && canShowAfterLastDismisses()
-                        && facebookApiHelper.canShowAppInviteDialog()
-                        && networkConnectionHelper.isNetworkConnected();
-            }
-        });
+        return Observable.fromCallable(() -> canShowAfterLastClick()
+                && canShowAfterLastOpen()
+                && canShowAfterLastDismisses()
+                && facebookApiHelper.canShowAppInviteDialog()
+                && networkConnectionHelper.isNetworkConnected());
     }
 
     private boolean canShowAfterLastOpen() {

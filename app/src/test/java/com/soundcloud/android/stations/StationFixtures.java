@@ -20,12 +20,7 @@ import java.util.Random;
 public class StationFixtures {
     private static final Random random = new Random();
 
-    private static Function<TrackRecord, StationInfoTrack> toStationInfoTrack = new Function<TrackRecord, StationInfoTrack>() {
-        @Override
-        public StationInfoTrack apply(TrackRecord input) {
-            return StationInfoTrack.from((ApiTrack) input);
-        }
-    };
+    private static Function<TrackRecord, StationInfoTrack> toStationInfoTrack = input -> StationInfoTrack.from((ApiTrack) input);
 
     public static ApiStation getApiStation() {
         return getApiStation(Urn.forTrackStation(random.nextLong()));

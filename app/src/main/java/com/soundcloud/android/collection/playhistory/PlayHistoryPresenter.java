@@ -51,11 +51,7 @@ import java.util.List;
 class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, PlayHistoryItem>
         implements SimpleHeaderRenderer.Listener, ClearPlayHistoryDialog.Listener, TrackItemRenderer.Listener {
 
-    private static final Function<TrackItem, PlayHistoryItem> TRACK_TO_PLAY_HISTORY_ITEM = new Function<TrackItem, PlayHistoryItem>() {
-        public PlayHistoryItem apply(TrackItem trackItem) {
-            return PlayHistoryItemTrack.create(trackItem);
-        }
-    };
+    private static final Function<TrackItem, PlayHistoryItem> TRACK_TO_PLAY_HISTORY_ITEM = trackItem -> PlayHistoryItemTrack.create(trackItem);
 
     private final PlayHistoryOperations playHistoryOperations;
     private final OfflineContentOperations offlineContentOperations;
@@ -118,19 +114,16 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     }
 
     private Func1<List<TrackItem>, List<PlayHistoryItem>> toPlayHistoryItem() {
-        return new Func1<List<TrackItem>, List<PlayHistoryItem>>() {
-            @Override
-            public List<PlayHistoryItem> call(List<TrackItem> trackItems) {
-                final int trackCount = trackItems.size();
-                final List<PlayHistoryItem> items = new ArrayList<>(trackCount + 1);
+        return trackItems -> {
+            final int trackCount = trackItems.size();
+            final List<PlayHistoryItem> items = new ArrayList<>(trackCount + 1);
 
-                if (trackCount > 0) {
-                    items.add(PlayHistoryItemHeader.create(trackCount));
-                    items.addAll(transform(trackItems, TRACK_TO_PLAY_HISTORY_ITEM));
-                }
-
-                return items;
+            if (trackCount > 0) {
+                items.add(PlayHistoryItemHeader.create(trackCount));
+                items.addAll(transform(trackItems, TRACK_TO_PLAY_HISTORY_ITEM));
             }
+
+            return items;
         };
     }
 

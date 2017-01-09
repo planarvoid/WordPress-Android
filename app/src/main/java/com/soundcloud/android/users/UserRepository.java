@@ -19,12 +19,7 @@ public class UserRepository {
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
-    private static final Func1<PropertySet, Boolean> IS_NOT_EMPTY = new Func1<PropertySet, Boolean>() {
-        @Override
-        public Boolean call(PropertySet user) {
-            return !user.isEmpty();
-        }
-    };
+    private static final Func1<PropertySet, Boolean> IS_NOT_EMPTY = user -> !user.isEmpty();
 
     @Inject
     public UserRepository(UserStorage userStorage,

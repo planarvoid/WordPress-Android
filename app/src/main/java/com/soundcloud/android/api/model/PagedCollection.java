@@ -19,15 +19,12 @@ public abstract class PagedCollection<T> implements Iterable<T> {
     public static <T extends PagedCollection> Pager.PagingFunction<T> pagingFunction(
             final Func1<String, Observable<T>> nextPage,
             final Scheduler scheduler) {
-        return new Pager.PagingFunction<T>() {
-            @Override
-            public Observable<T> call(T collection) {
-                final Optional<Link> nextLink = collection.nextLink();
-                if (nextLink.isPresent()) {
-                    return nextPage.call(nextLink.get().getHref()).subscribeOn(scheduler);
-                } else {
-                    return Pager.finish();
-                }
+        return collection -> {
+            final Optional<Link> nextLink = collection.nextLink();
+            if (nextLink.isPresent()) {
+                return nextPage.call(nextLink.get().getHref()).subscribeOn(scheduler);
+            } else {
+                return Pager.finish();
             }
         };
     }
@@ -37,11 +34,7 @@ public abstract class PagedCollection<T> implements Iterable<T> {
     }
 
     public Optional<String> nextPageLink(){
-        return nextLink().transform(new Function<Link, String>() {
-            public String apply(Link input) {
-                return input.getHref();
-            }
-        });
+        return nextLink().transform(input -> input.getHref());
     }
 
     public ModelCollection<T> items() {

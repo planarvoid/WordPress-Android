@@ -62,16 +62,11 @@ class TrackingStorage {
             query.limit(FIXED_BATCH_SIZE);
         }
 
-        return propeller.query(query).toList(new ResultMapper<TrackingRecord>() {
-            @Override
-            public TrackingRecord map(CursorReader reader) {
-                return new TrackingRecord(
-                        reader.getInt(TrackingDbHelper.TrackingColumns._ID),
-                        reader.getLong(TrackingDbHelper.TrackingColumns.TIMESTAMP),
-                        reader.getString(TrackingDbHelper.TrackingColumns.BACKEND),
-                        reader.getString(TrackingDbHelper.TrackingColumns.DATA));
-            }
-        });
+        return propeller.query(query).toList(reader -> new TrackingRecord(
+                reader.getInt(TrackingDbHelper.TrackingColumns._ID),
+                reader.getLong(TrackingDbHelper.TrackingColumns.TIMESTAMP),
+                reader.getString(TrackingDbHelper.TrackingColumns.BACKEND),
+                reader.getString(TrackingDbHelper.TrackingColumns.DATA)));
     }
 
     /**

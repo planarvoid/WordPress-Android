@@ -16,21 +16,11 @@ import java.util.List;
 
 public final class SyncJobResult implements Parcelable, UrnEvent {
 
-    public static final Func1<SyncJobResult, Urn> TO_URN = new Func1<SyncJobResult, Urn>() {
-        @Override
-        public Urn call(SyncJobResult syncJobResult) {
-            return syncJobResult.getFirstUrn();
-        }
-    };
+    public static final Func1<SyncJobResult, Urn> TO_URN = syncJobResult -> syncJobResult.getFirstUrn();
 
-    public static final Func1<SyncJobResult, Boolean> IS_SINGLE_PLAYLIST_SYNCED_FILTER = new Func1<SyncJobResult, Boolean>() {
-        @Override
-        public Boolean call(SyncJobResult syncJobResult) {
-            return Syncable.PLAYLIST.name().equals(syncJobResult.getAction())
-                    && syncJobResult.wasChanged()
-                    && syncJobResult.hasChangedEntities();
-        }
-    };
+    public static final Func1<SyncJobResult, Boolean> IS_SINGLE_PLAYLIST_SYNCED_FILTER = syncJobResult -> Syncable.PLAYLIST.name().equals(syncJobResult.getAction())
+            && syncJobResult.wasChanged()
+            && syncJobResult.hasChangedEntities();
 
     private final String action;
     private final boolean wasChanged;

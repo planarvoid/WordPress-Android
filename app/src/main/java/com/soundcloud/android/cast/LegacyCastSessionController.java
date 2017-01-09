@@ -95,12 +95,7 @@ public class LegacyCastSessionController extends VideoCastConsumerImpl
 
     @NonNull
     private Action1<PlaybackResult> playCurrent(final PlaybackProgress lastProgressForTrack) {
-        return new Action1<PlaybackResult>() {
-            @Override
-            public void call(PlaybackResult playbackResult) {
-                LegacyCastSessionController.this.castPlayer.playCurrent(lastProgressForTrack.getPosition());
-            }
-        };
+        return playbackResult -> LegacyCastSessionController.this.castPlayer.playCurrent(lastProgressForTrack.getPosition());
     }
 
     @Override

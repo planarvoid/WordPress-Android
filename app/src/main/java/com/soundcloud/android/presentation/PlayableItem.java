@@ -35,12 +35,7 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
 
     protected final PropertySet source;
 
-    public static final Function<PlayableItem, Urn> TO_URN = new Function<PlayableItem, Urn>() {
-        @Override
-        public Urn apply(PlayableItem item) {
-            return item.getUrn();
-        }
-    };
+    public static final Function<PlayableItem, Urn> TO_URN = item -> item.getUrn();
 
     public static PlayableItem from(ApiPlayableSource apiPlayableSource) {
         if (apiPlayableSource.getTrack().isPresent()) {

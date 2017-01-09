@@ -62,40 +62,29 @@ public class RecoverActivity extends RootActivity {
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
 
-        emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @SuppressWarnings({"SimplifiableIfStatement"})
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE ||
-                        (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
-                                event.getAction() == KeyEvent.ACTION_DOWN)) {
-                    return recoverBtn.performClick();
-                } else {
-                    return false;
-                }
+        emailField.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                            event.getAction() == KeyEvent.ACTION_DOWN)) {
+                return recoverBtn.performClick();
+            } else {
+                return false;
             }
         });
 
-        recoverBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (emailField.getText().length() == 0) {
-                    AndroidUtils.showToast(RecoverActivity.this, R.string.authentication_error_incomplete_fields);
-                } else {
-                    recoverPassword(emailField.getText().toString());
-                }
+        recoverBtn.setOnClickListener(v -> {
+            if (emailField.getText().length() == 0) {
+                AndroidUtils.showToast(RecoverActivity.this, R.string.authentication_error_incomplete_fields);
+            } else {
+                recoverPassword(emailField.getText().toString());
             }
         });
 
         ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
                              getResources().getString(R.string.authentication_recover_password_visit_our_Help_Center),
-                             new ScTextUtils.ClickSpan.OnClickListener() {
-                                 @Override
-                                 public void onClick() {
-                                     startActivity(
-                                             new Intent(Intent.ACTION_VIEW,
-                                                        Uri.parse(getString(R.string.url_forgot_email_help))));
-                                 }
-                             }, true, false);
+                             () -> startActivity(
+                                     new Intent(Intent.ACTION_VIEW,
+                                                Uri.parse(getString(R.string.url_forgot_email_help)))), true, false);
 
         if (getIntent().hasExtra("email")) {
             emailField.setText(getIntent().getStringExtra("email"));

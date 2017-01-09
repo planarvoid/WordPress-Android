@@ -30,19 +30,9 @@ public class PolicyStorage {
     private final PropellerRx propellerRx;
     private final int batchSize;
 
-    private final Func1<CursorReader, Urn> urnSelector = new Func1<CursorReader, Urn>() {
-        @Override
-        public Urn call(CursorReader cursorReader) {
-            return Urn.forTrack(cursorReader.getLong(TableColumns.SoundView._ID));
-        }
-    };
+    private final Func1<CursorReader, Urn> urnSelector = cursorReader -> Urn.forTrack(cursorReader.getLong(TableColumns.SoundView._ID));
 
-    private final Func1<CursorReader, Boolean> blockedSelector = new Func1<CursorReader, Boolean>() {
-        @Override
-        public Boolean call(CursorReader cursorReader) {
-            return cursorReader.getBoolean(TableColumns.SoundView.POLICIES_BLOCKED);
-        }
-    };
+    private final Func1<CursorReader, Boolean> blockedSelector = cursorReader -> cursorReader.getBoolean(TableColumns.SoundView.POLICIES_BLOCKED);
 
     @Inject
     public PolicyStorage(PropellerDatabase propeller) {

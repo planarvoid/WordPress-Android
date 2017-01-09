@@ -10,19 +10,16 @@ class CheckoutUpdated {
     public final String reason;
     public final String token;
 
-    public static final Func1<CheckoutUpdated, PurchaseStatus> TO_STATUS = new Func1<CheckoutUpdated, PurchaseStatus>() {
-        @Override
-        public PurchaseStatus call(CheckoutUpdated update) {
-            switch (update.state) {
-                case "pending":
-                    return PurchaseStatus.PENDING;
-                case "successful":
-                    return PurchaseStatus.SUCCESS;
-                case "failed":
-                    return PurchaseStatus.VERIFY_FAIL;
-                default:
-                    return PurchaseStatus.NONE;
-            }
+    public static final Func1<CheckoutUpdated, PurchaseStatus> TO_STATUS = update -> {
+        switch (update.state) {
+            case "pending":
+                return PurchaseStatus.PENDING;
+            case "successful":
+                return PurchaseStatus.SUCCESS;
+            case "failed":
+                return PurchaseStatus.VERIFY_FAIL;
+            default:
+                return PurchaseStatus.NONE;
         }
     };
 

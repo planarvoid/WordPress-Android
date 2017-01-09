@@ -40,28 +40,20 @@ public class PlayPublisher {
     private final ApiClient apiClient;
 
     private static final Func1<PlayStateEvent, Boolean> IS_PLAYER_PLAYING_A_TRACK =
-            new Func1<PlayStateEvent, Boolean>() {
-                @Override
-                public Boolean call(PlayStateEvent playStateEvent) {
-                    return !playStateEvent.getPlayingItemUrn().isAd() && playStateEvent.isPlayerPlaying();
-                }
-            };
+            playStateEvent -> !playStateEvent.getPlayingItemUrn().isAd() && playStateEvent.isPlayerPlaying();
 
     private Func1<PlayStateEvent, Observable<ApiResponse>> toApiResponse = new Func1<PlayStateEvent, Observable<ApiResponse>>() {
         @Override
         public Observable<ApiResponse> call(final PlayStateEvent stateTransition) {
             return Observable
-                    .defer(new Func0<Observable<ApiResponse>>() {
-                        @Override
-                        public Observable<ApiResponse> call() {
-                            final Payload payload = createPayload(stateTransition);
-                            final ApiRequest apiRequest = ApiRequest
-                                    .post(ApiEndpoints.PLAY_PUBLISH.path())
-                                    .forPublicApi()
-                                    .withContent(payload)
-                                    .build();
-                            return Observable.just(apiClient.fetchResponse(apiRequest));
-                        }
+                    .defer(() -> {
+                        final Payload payload = createPayload(stateTransition);
+                        final ApiRequest apiRequest = ApiRequest
+                                .post(ApiEndpoints.PLAY_PUBLISH.path())
+                                .forPublicApi()
+                                .withContent(payload)
+                                .build();
+                        return Observable.just(apiClient.fetchResponse(apiRequest));
                     })
                     .subscribeOn(scheduler);
         }

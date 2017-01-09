@@ -47,15 +47,12 @@ class RemoteConfig {
         if (isGooglePlayServicesAvailable(context) && shouldFetchRemoteConfig()) {
             firebaseRemoteConfig
                     .fetch(CACHE_EXPIRATION_TIME)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                firebaseRemoteConfig.activateFetched();
-                                persistFeatureFlagValues();
-                            } else {
-                                ErrorUtils.handleSilentException(task.getException());
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            firebaseRemoteConfig.activateFetched();
+                            persistFeatureFlagValues();
+                        } else {
+                            ErrorUtils.handleSilentException(task.getException());
                         }
                     });
         }

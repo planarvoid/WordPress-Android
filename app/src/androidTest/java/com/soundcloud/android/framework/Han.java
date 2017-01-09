@@ -68,14 +68,12 @@ public class Han {
         IntentFilter filter = null;
         final Instrumentation.ActivityMonitor activityMonitor = instrumentation.addMonitor(filter, null, false);
 
-        Runnable runnable = new Runnable() {
-            public void run() {
-                while (true) {
-                    Activity activity = activityMonitor.waitForActivity();
-                    if (activity != null && !activity.isFinishing()) {
-                        visibleActivity = activity;
-                        Log.i("ActivityMonitor:", visibleActivity.toString());
-                    }
+        Runnable runnable = () -> {
+            while (true) {
+                Activity activity = activityMonitor.waitForActivity();
+                if (activity != null && !activity.isFinishing()) {
+                    visibleActivity = activity;
+                    Log.i("ActivityMonitor:", visibleActivity.toString());
                 }
             }
         };
@@ -330,11 +328,7 @@ public class Han {
 
     public void scrollToPosition(final RecyclerView recyclerView, final int position) {
         instrumentation.runOnMainSync(
-                new Runnable() {
-                    public void run() {
-                        recyclerView.scrollToPosition(position);
-                    }
-                }
+                () -> recyclerView.scrollToPosition(position)
         );
     }
 

@@ -9,12 +9,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 
 public interface TrackRecord extends ImageResource {
-    Function<TrackRecord, UserRecord> TO_USER_RECORD = new Function<TrackRecord, UserRecord>() {
-        @Override
-        public UserRecord apply(TrackRecord input) {
-            return input.getUser();
-        }
-    };
+    Function<TrackRecord, UserRecord> TO_USER_RECORD = input -> input.getUser();
 
     UserRecord getUser();
 

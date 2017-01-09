@@ -17,11 +17,5 @@ public abstract class PlaylistAssociation {
 
     public abstract Date getCreatedAt();
 
-    public static Function<PlaylistAssociation, PlaylistItem> GET_PLAYLIST_ITEM = new Function<PlaylistAssociation, PlaylistItem>() {
-        @Nullable
-        @Override
-        public PlaylistItem apply(PlaylistAssociation input) {
-            return input.getPlaylistItem();
-        }
-    };
+    public static Function<PlaylistAssociation, PlaylistItem> GET_PLAYLIST_ITEM = input -> input.getPlaylistItem();
 }

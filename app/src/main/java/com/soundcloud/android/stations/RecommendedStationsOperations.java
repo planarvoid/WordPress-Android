@@ -28,31 +28,16 @@ public class RecommendedStationsOperations {
     static final int STATIONS_IN_BUCKET = 12;
 
     private static final Func2<List<StationRecord>, List<StationRecord>, List<StationRecord>> MOVE_RECENT_TO_END =
-            new Func2<List<StationRecord>, List<StationRecord>, List<StationRecord>>() {
-                @Override
-                public List<StationRecord> call(List<StationRecord> suggestions, List<StationRecord> recent) {
-                    return calculateStationsSuggestions(suggestions, recent);
-                }
-            };
-    private final Func1<SyncOperations.Result, Observable<DiscoveryItem>> loadRecommendedStations = new Func1<SyncOperations.Result, Observable<DiscoveryItem>>() {
-        @Override
-        public Observable<DiscoveryItem> call(SyncOperations.Result result) {
-            return getCollection(RECOMMENDATIONS)
-                    .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
-                    .filter(IS_NOT_EMPTY_LIST)
-                    .map(toDiscoveryItem())
-                    .switchIfEmpty(SyncOperations.<DiscoveryItem>emptyResult(result));
-        }
-    };
+            (suggestions, recent) -> calculateStationsSuggestions(suggestions, recent);
+    private final Func1<SyncOperations.Result, Observable<DiscoveryItem>> loadRecommendedStations = result -> getCollection(RECOMMENDATIONS)
+            .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
+            .filter(IS_NOT_EMPTY_LIST)
+            .map(toDiscoveryItem())
+            .switchIfEmpty(SyncOperations.<DiscoveryItem>emptyResult(result));
 
     private Func1<List<StationRecord>, DiscoveryItem> toDiscoveryItem() {
-        return new Func1<List<StationRecord>, DiscoveryItem>() {
-            @Override
-            public DiscoveryItem call(List<StationRecord> stationRecords) {
-                return RecommendedStationsBucketItem.create(transformToStationViewModels(
-                        stationRecords));
-            }
-        };
+        return stationRecords -> RecommendedStationsBucketItem.create(transformToStationViewModels(
+                stationRecords));
     }
 
     private final StationsStorage stationsStorage;

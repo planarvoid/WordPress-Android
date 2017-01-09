@@ -100,12 +100,7 @@ public class TrackInfoPresenter {
             hideView(view, R.id.comments_divider);
         }
 
-        view.findViewById(R.id.comments).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                commentClickListener.onCommentsClicked();
-            }
-        });
+        view.findViewById(R.id.comments).setOnClickListener(view1 -> commentClickListener.onCommentsClicked());
     }
 
     private void bindUploadedSinceText(View view, TrackItem trackItem) {

@@ -58,12 +58,7 @@ class TrackLikesHeaderView {
         headerOpt = Optional.of(headerView);
 
         ButterKnife.bind(this, headerView);
-        shuffleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onShuffle();
-            }
-        });
+        shuffleButton.setOnClickListener(v -> listener.onShuffle());
 
         if (trackCount >= 0) {
             updateTrackCount(trackCount);
@@ -93,25 +88,19 @@ class TrackLikesHeaderView {
     void setDownloadedButtonState(final boolean isOffline) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isOffline);
-        downloadToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean changedState = ((Checkable) v).isChecked();
-                downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
-                listener.onMakeAvailableOffline(!isOffline);
-            }
+        downloadToggle.setOnClickListener(v -> {
+            boolean changedState = ((Checkable) v).isChecked();
+            downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
+            listener.onMakeAvailableOffline(!isOffline);
         });
     }
 
     void showUpsell() {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(false);
-        downloadToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onUpsell();
-                downloadToggle.setChecked(false);
-            }
+        downloadToggle.setOnClickListener(v -> {
+            listener.onUpsell();
+            downloadToggle.setChecked(false);
         });
     }
 

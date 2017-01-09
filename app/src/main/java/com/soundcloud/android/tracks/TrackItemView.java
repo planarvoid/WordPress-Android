@@ -56,12 +56,9 @@ public class TrackItemView {
         leftSpacer = view.findViewById(R.id.left_spacer);
         position = (TextView) view.findViewById(R.id.position);
 
-        view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (overflowListener != null) {
-                    overflowListener.onOverflow(v);
-                }
+        view.findViewById(R.id.overflow_button).setOnClickListener(v -> {
+            if (overflowListener != null) {
+                overflowListener.onOverflow(v);
             }
         });
     }

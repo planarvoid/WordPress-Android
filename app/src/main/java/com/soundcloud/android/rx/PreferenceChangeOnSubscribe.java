@@ -34,12 +34,7 @@ public class PreferenceChangeOnSubscribe implements Observable.OnSubscribe<Strin
     public void call(final Subscriber<? super String> subscriber) {
         this.subscriber = subscriber;
 
-        subscriber.add(Subscriptions.create(new Action0() {
-            @Override
-            public void call() {
-                sharedPreferences.unregisterOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
-            }
-        }));
+        subscriber.add(Subscriptions.create(() -> sharedPreferences.unregisterOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)));
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
     }

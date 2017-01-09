@@ -21,12 +21,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     static final long CHECKPOINT_INTERVAL = TimeUnit.SECONDS.toMillis(3);
 
-    private static final Function<AdData, PlayerAdData> TO_PLAYER_AD = new Function<AdData, PlayerAdData>() {
-        @Override
-        public PlayerAdData apply(AdData adData) {
-            return (PlayerAdData) adData;
-        }
-    };
+    private static final Function<AdData, PlayerAdData> TO_PLAYER_AD = adData -> (PlayerAdData) adData;
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;

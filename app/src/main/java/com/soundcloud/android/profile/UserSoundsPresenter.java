@@ -44,19 +44,9 @@ import java.util.List;
 
 class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsItem> {
 
-    private static final Function<UserSoundsItem, PlayableItem> USER_SOUNDS_ITEM_TO_PLAYABLE_ITEM = new Function<UserSoundsItem, PlayableItem>() {
-        @Override
-        public PlayableItem apply(final UserSoundsItem userSoundsItem) {
-            return userSoundsItem.getPlayableItem().orNull();
-        }
-    };
+    private static final Function<UserSoundsItem, PlayableItem> USER_SOUNDS_ITEM_TO_PLAYABLE_ITEM = userSoundsItem -> userSoundsItem.getPlayableItem().orNull();
 
-    private static final Predicate<UserSoundsItem> FILTER_PLAYABLE_USER_SOUNDS_ITEMS = new Predicate<UserSoundsItem>() {
-        @Override
-        public boolean apply(UserSoundsItem input) {
-            return input.isPlaylist() || input.isTrack();
-        }
-    };
+    private static final Predicate<UserSoundsItem> FILTER_PLAYABLE_USER_SOUNDS_ITEMS = input -> input.isPlaylist() || input.isTrack();
 
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final UserSoundsAdapter adapter;

@@ -39,12 +39,7 @@ public class StreamPreloader {
 
     private Subscription preloadSubscription = RxUtils.invalidSubscription();
 
-    private final Action1<CurrentPlayQueueItemEvent> unsubscribeFromPreload = new Action1<CurrentPlayQueueItemEvent>() {
-        @Override
-        public void call(CurrentPlayQueueItemEvent currentPlayQueueItemEvent) {
-            preloadSubscription.unsubscribe();
-        }
-    };
+    private final Action1<CurrentPlayQueueItemEvent> unsubscribeFromPreload = currentPlayQueueItemEvent -> preloadSubscription.unsubscribe();
 
     private final Func1<CurrentPlayQueueItemEvent, Boolean> hasNextTrackInPlayQueue = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
@@ -61,34 +56,24 @@ public class StreamPreloader {
         }
     };
 
-    private final Func3<PlayStateEvent, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = new Func3<PlayStateEvent, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState>() {
-        @Override
-        public PlaybackNetworkState call(PlayStateEvent playStateEvent,
-                                         ConnectionType connectionType,
-                                         PlaybackProgressEvent playbackProgressEvent) {
-            return new PlaybackNetworkState(playStateEvent,
-                                            playbackProgressEvent.getPlaybackProgress(),
-                                            connectionType);
-        }
-    };
+    private final Func3<PlayStateEvent, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = (playStateEvent, connectionType, playbackProgressEvent) -> new PlaybackNetworkState(playStateEvent,
+                                                                                                                                                                                                          playbackProgressEvent.getPlaybackProgress(),
+                                                                                                                                                                                                          connectionType);
 
-    private final Func1<PlaybackNetworkState, Boolean> checkNetworkAndProgressConditions = new Func1<PlaybackNetworkState, Boolean>() {
-        @Override
-        public Boolean call(PlaybackNetworkState playbackNetworkState) {
-            if (playbackNetworkState.playStateEvent.isPlayerPlaying()) {
-                if (playbackNetworkState.connectionType == ConnectionType.WIFI) {
-                    return true;
-                } else {
-                    final PlaybackProgress playbackProgress = playbackNetworkState.playbackProgress;
-                    return playbackNetworkState.connectionType.isMobile() &&
-                            playbackProgress.isDurationValid() &&
-                            playbackProgress.getDuration() - playbackProgress.getPosition() < MOBILE_TIME_TOLERANCE;
-                }
+    private final Func1<PlaybackNetworkState, Boolean> checkNetworkAndProgressConditions = playbackNetworkState -> {
+        if (playbackNetworkState.playStateEvent.isPlayerPlaying()) {
+            if (playbackNetworkState.connectionType == ConnectionType.WIFI) {
+                return true;
             } else {
-                return false;
+                final PlaybackProgress playbackProgress = playbackNetworkState.playbackProgress;
+                return playbackNetworkState.connectionType.isMobile() &&
+                        playbackProgress.isDurationValid() &&
+                        playbackProgress.getDuration() - playbackProgress.getPosition() < MOBILE_TIME_TOLERANCE;
             }
-
+        } else {
+            return false;
         }
+
     };
 
     private final Func1<TrackItem, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<TrackItem, Observable<PreloadItem>>() {
@@ -108,23 +93,15 @@ public class StreamPreloader {
 
     @NonNull
     private Func1<Object, PreloadItem> toPreloadItem(final TrackItem propertyBindings) {
-        return new Func1<Object, PreloadItem>() {
-            @Override
-            public PreloadItem call(Object ignored) {
-                final PlaybackType playbackType = propertyBindings.isSnipped() ?
-                                                  PlaybackType.AUDIO_SNIPPET :
-                                                  PlaybackType.AUDIO_DEFAULT;
-                return new AutoParcel_PreloadItem(propertyBindings.getUrn(), playbackType);
-            }
+        return ignored -> {
+            final PlaybackType playbackType = propertyBindings.isSnipped() ?
+                                              PlaybackType.AUDIO_SNIPPET :
+                                              PlaybackType.AUDIO_DEFAULT;
+            return new AutoParcel_PreloadItem(propertyBindings.getUrn(), playbackType);
         };
     }
 
-    private final Func1<PlaybackNetworkState, Boolean> cacheSpaceAvailable = new Func1<PlaybackNetworkState, Boolean>() {
-        @Override
-        public Boolean call(PlaybackNetworkState playbackNetworkState) {
-            return hasSpaceInCache();
-        }
-    };
+    private final Func1<PlaybackNetworkState, Boolean> cacheSpaceAvailable = playbackNetworkState -> hasSpaceInCache();
 
     private boolean hasSpaceInCache() {
         return skippyConfig.getRemainingCacheSpace() > CACHE_CUSHION;

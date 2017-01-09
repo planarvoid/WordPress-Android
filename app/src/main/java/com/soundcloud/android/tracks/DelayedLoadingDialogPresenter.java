@@ -41,12 +41,9 @@ public class DelayedLoadingDialogPresenter {
         ((TextView) content.findViewById(R.id.loading_message)).setText(loadingMessage);
 
         dialog = new AlertDialog.Builder(context)
-                .setOnCancelListener((new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        cancelDelayedPresentation();
-                        onCancelListener.onCancel(dialog);
-                    }
+                .setOnCancelListener((dialog1 -> {
+                    cancelDelayedPresentation();
+                    onCancelListener.onCancel(dialog1);
                 }))
                 .setView(content)
                 .create();

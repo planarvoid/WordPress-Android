@@ -55,19 +55,9 @@ public class PlaySessionController {
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    private final Action0 stopLoadingPreviousTrack = new Action0() {
-        @Override
-        public void call() {
-            subscription.unsubscribe();
-        }
-    };
+    private final Action0 stopLoadingPreviousTrack = () -> subscription.unsubscribe();
 
-    private final Action1<PlaybackResult> playCurrentTrack = new Action1<PlaybackResult>() {
-        @Override
-        public void call(PlaybackResult playbackResult) {
-            playCurrent();
-        }
-    };
+    private final Action1<PlaybackResult> playCurrentTrack = playbackResult -> playCurrent();
 
     private final Func1<PlayQueue, Observable<Void>> toPlayCurrent = new Func1<PlayQueue, Observable<Void>>() {
         @Override

@@ -90,12 +90,7 @@ class DownloadHandler extends Handler {
     }
 
     private DownloadOperations.DownloadProgressListener createDownloadProgressListener(final DownloadRequest request) {
-        return new DownloadOperations.DownloadProgressListener() {
-            @Override
-            public void onProgress(long downloaded) {
-                sendDownloadState(DownloadState.inProgress(request, downloaded));
-            }
-        };
+        return downloaded -> sendDownloadState(DownloadState.inProgress(request, downloaded));
     }
 
     private DownloadState tryToStoreDownloadSuccess(DownloadState result) {

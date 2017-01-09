@@ -138,13 +138,10 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         setOfflineAvailability(isAvailable);
 
         // do not use setOnCheckedChangeListener or all hell will break loose
-        downloadToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean changedState = ((Checkable) v).isChecked();
-                downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
-                listener.onMakeOfflineAvailable(!isAvailable);
-            }
+        downloadToggle.setOnClickListener(v -> {
+            boolean changedState = ((Checkable) v).isChecked();
+            downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
+            listener.onMakeOfflineAvailable(!isAvailable);
         });
     }
 
@@ -161,12 +158,9 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         downloadToggle.setVisibility(View.VISIBLE);
         showMenuUpsell();
         downloadToggle.setChecked(false);
-        downloadToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onUpsell(v.getContext());
-                downloadToggle.setChecked(false);
-            }
+        downloadToggle.setOnClickListener(v -> {
+            listener.onUpsell(v.getContext());
+            downloadToggle.setChecked(false);
         });
     }
 

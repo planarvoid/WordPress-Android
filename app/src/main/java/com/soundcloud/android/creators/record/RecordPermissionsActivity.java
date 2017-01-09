@@ -38,12 +38,7 @@ public class RecordPermissionsActivity extends LoggedInActivity {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setTitle(R.string.side_menu_record)
                         .setMessage(R.string.record_permission_rationale)
-                        .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                requestMicrophonePermission();
-                            }
-                        });
+                        .setPositiveButton(R.string.ok_got_it, (dialogInterface, i) -> requestMicrophonePermission());
                 builder.show();
             } else {
                 requestMicrophonePermission();

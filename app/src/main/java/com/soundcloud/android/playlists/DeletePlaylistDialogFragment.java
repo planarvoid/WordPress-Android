@@ -45,12 +45,7 @@ public class DeletePlaylistDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
-                .setPositiveButton(R.string.delete_playlist, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deletePlaylist();
-                    }
-                })
+                .setPositiveButton(R.string.delete_playlist, (dialog, which) -> deletePlaylist())
                 .setNegativeButton(R.string.btn_cancel, null)
                 .create();
     }

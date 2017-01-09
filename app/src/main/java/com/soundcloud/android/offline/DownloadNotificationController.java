@@ -134,23 +134,13 @@ class DownloadNotificationController {
     }
 
     private int getErrorCount() {
-        return MoreCollections.filter(previousDownloads, new Predicate<DownloadState>() {
-            @Override
-            public boolean apply(DownloadState downloadState) {
-                return downloadState.isConnectivityError()
-                        || downloadState.isDownloadFailed()
-                        || downloadState.isUnavailable();
-            }
-        }).size();
+        return MoreCollections.filter(previousDownloads, downloadState -> downloadState.isConnectivityError()
+                || downloadState.isDownloadFailed()
+                || downloadState.isUnavailable()).size();
     }
 
     private boolean hasStorageErrors() {
-        return Iterables.tryFind(previousDownloads, new Predicate<DownloadState>() {
-            @Override
-            public boolean apply(DownloadState downloadState) {
-                return downloadState.isNotEnoughSpace() || downloadState.isNotEnoughMinimumSpace();
-            }
-        }).isPresent();
+        return Iterables.tryFind(previousDownloads, downloadState -> downloadState.isNotEnoughSpace() || downloadState.isNotEnoughMinimumSpace()).isPresent();
     }
 
     public void onConnectionError(DownloadState lastDownload, boolean showResult) {

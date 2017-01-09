@@ -32,12 +32,7 @@ class WebCheckoutView {
     void setupContentView(AppCompatActivity activity, final Listener listener) {
         ButterKnife.bind(this, activity);
         configureWebView();
-        retryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onRetry();
-            }
-        });
+        retryButton.setOnClickListener(v -> listener.onRetry());
     }
 
     @SuppressLint("SetJavaScriptEnabled")

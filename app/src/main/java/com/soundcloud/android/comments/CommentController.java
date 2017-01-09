@@ -89,13 +89,10 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
         @Override
         public void onNext(PublicApiComment comment) {
             final Feedback feedback = Feedback.create(R.string.comment_posted,
-                                                   R.string.btn_view, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            subscribeToCollapsedEvent(activity);
-                            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-                        }
-                    });
+                                                      R.string.btn_view, v -> {
+                                                          subscribeToCollapsedEvent(activity);
+                                                          eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
+                                                      });
             feedbackController.showFeedback(feedback);
 
         }

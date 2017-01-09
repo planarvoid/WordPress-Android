@@ -16,14 +16,11 @@ import android.view.View;
 
 public class StaleCheckoutDialog extends UnrecoverableErrorDialog {
 
-    private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int which) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                openSupport();
-            }
-            dismiss();
+    private final DialogInterface.OnClickListener listener = (dialogInterface, which) -> {
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            openSupport();
         }
+        dismiss();
     };
 
     private void openSupport() {

@@ -7,12 +7,7 @@ import com.soundcloud.java.functions.Function;
 
 @AutoValue
 public abstract class ApiVideoSource {
-    public static Function<ApiVideoSource, VideoAdSource> toVideoAdSource = new Function<ApiVideoSource, VideoAdSource>() {
-        @Override
-        public VideoAdSource apply(ApiVideoSource apiVideoSource) {
-            return VideoAdSource.create(apiVideoSource);
-        }
-    };
+    public static Function<ApiVideoSource, VideoAdSource> toVideoAdSource = apiVideoSource -> VideoAdSource.create(apiVideoSource);
 
     @JsonCreator
     public static ApiVideoSource create(@JsonProperty("type") String type,

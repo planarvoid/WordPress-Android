@@ -64,12 +64,7 @@ public class AdOrientationController extends DefaultActivityLightCycle<AppCompat
      * device to the video orientation) before unlocking again so they still have control via rotation.
      */
     private void unlockOrientationDelayed(final Activity activity) {
-        unlockHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-            }
-        }, ORIENTATION_UNLOCK_DELAY);
+        unlockHandler.postDelayed(() -> activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED), ORIENTATION_UNLOCK_DELAY);
     }
 
     @Override

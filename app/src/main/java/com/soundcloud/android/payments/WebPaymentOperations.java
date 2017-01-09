@@ -17,12 +17,7 @@ public class WebPaymentOperations {
 
     private static final TypeToken<ModelCollection<WebProduct>> PRODUCT_COLLECTION_TOKEN = new TypeToken<ModelCollection<WebProduct>>() {};
 
-    private static final Func1<ModelCollection<WebProduct>, AvailableWebProducts> TO_AVAILABLE_PRODUCTS = new Func1<ModelCollection<WebProduct>, AvailableWebProducts>() {
-        @Override
-        public AvailableWebProducts call(ModelCollection<WebProduct> webProducts) {
-            return new AvailableWebProducts(webProducts.getCollection());
-        }
-    };
+    private static final Func1<ModelCollection<WebProduct>, AvailableWebProducts> TO_AVAILABLE_PRODUCTS = webProducts -> new AvailableWebProducts(webProducts.getCollection());
 
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;

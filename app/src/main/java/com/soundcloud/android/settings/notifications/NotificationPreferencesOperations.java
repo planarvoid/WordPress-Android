@@ -70,35 +70,26 @@ class NotificationPreferencesOperations {
     }
 
     private Func1<ApiResponse, Observable<NotificationPreferences>> fetchOnSuccess() {
-        return new Func1<ApiResponse, Observable<NotificationPreferences>>() {
-            @Override
-            public Observable<NotificationPreferences> call(ApiResponse apiResponse) {
-                if (apiResponse.isSuccess()) {
-                    return fetch();
-                } else {
-                    return Observable.just(storage.buildNotificationPreferences());
-                }
+        return apiResponse -> {
+            if (apiResponse.isSuccess()) {
+                return fetch();
+            } else {
+                return Observable.just(storage.buildNotificationPreferences());
             }
         };
     }
 
     private Action1<NotificationPreferences> updateStorage() {
-        return new Action1<NotificationPreferences>() {
-            @Override
-            public void call(NotificationPreferences notificationPreferences) {
-                storage.update(notificationPreferences);
-                storage.setUpdated();
-            }
+        return notificationPreferences -> {
+            storage.update(notificationPreferences);
+            storage.setUpdated();
         };
     }
 
     private Action1<ApiResponse> updatePendingSync() {
-        return new Action1<ApiResponse>() {
-            @Override
-            public void call(ApiResponse apiResponse) {
-                if (apiResponse.isSuccess()) {
-                    storage.setPendingSync(false);
-                }
+        return apiResponse -> {
+            if (apiResponse.isSuccess()) {
+                storage.setPendingSync(false);
             }
         };
     }

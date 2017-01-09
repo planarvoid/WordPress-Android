@@ -58,11 +58,7 @@ public class AdRequestEvent extends LegacyTrackingEvent {
         private static final String URN_KEY = "urn";
         private static final String URNS_KEY = "urns";
 
-        private static final Function<Urn, String> URN_TO_STRING = new Function<Urn, String>() {
-            public String apply(Urn input) {
-                return input.toString();
-            }
-        };
+        private static final Function<Urn, String> URN_TO_STRING = input -> input.toString();
 
         public final HashMap<String, Object> ads;
 

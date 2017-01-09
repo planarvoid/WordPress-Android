@@ -53,27 +53,24 @@ public class ClearText extends EditText {
         x.setBounds(0, 0, x.getIntrinsicWidth(), x.getIntrinsicHeight());
         setCompoundDrawables(null, null, "".equals(value) ? originalRightDrawable : x, null);
         setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
-        setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (getCompoundDrawables()[2] == null) {
-                    return false;
-                }
-                if (event.getAction() != MotionEvent.ACTION_UP) {
-                    return false;
-                }
-                if (event.getX() > getWidth() - getPaddingRight() - x.getIntrinsicWidth()) {
-                    if (TextUtils.isEmpty(getText())) {
-                        if (defaultDrawableListener != null) {
-                            defaultDrawableListener.onClick(ClearText.this);
-                        }
-                    } else {
-                        setText("");
-                        setCompoundDrawables(null, null, originalRightDrawable, null);
-                    }
-                }
+        setOnTouchListener((v, event) -> {
+            if (getCompoundDrawables()[2] == null) {
                 return false;
             }
+            if (event.getAction() != MotionEvent.ACTION_UP) {
+                return false;
+            }
+            if (event.getX() > getWidth() - getPaddingRight() - x.getIntrinsicWidth()) {
+                if (TextUtils.isEmpty(getText())) {
+                    if (defaultDrawableListener != null) {
+                        defaultDrawableListener.onClick(ClearText.this);
+                    }
+                } else {
+                    setText("");
+                    setCompoundDrawables(null, null, originalRightDrawable, null);
+                }
+            }
+            return false;
         });
         addTextChangedListener(new TextWatcher() {
             @Override

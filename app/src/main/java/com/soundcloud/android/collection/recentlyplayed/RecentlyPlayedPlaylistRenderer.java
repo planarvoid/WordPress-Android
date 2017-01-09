@@ -119,25 +119,17 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     }
 
     private View.OnClickListener goToPlaylist(final RecentlyPlayedPlayableItem playlist) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Urn urn = playlist.getUrn();
-                Screen lastScreen = screenProvider.getLastScreen();
-                eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-                navigator.legacyOpenPlaylist(view.getContext(), urn, lastScreen);
-            }
+        return view -> {
+            Urn urn = playlist.getUrn();
+            Screen lastScreen = screenProvider.getLastScreen();
+            eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
+            navigator.legacyOpenPlaylist(view.getContext(), urn, lastScreen);
         };
     }
 
     private void setupOverFlow(final View button, final RecentlyPlayedPlayableItem playlistItem) {
         final OverflowMenuOptions options = OverflowMenuOptions.builder().showOffline(true).build();
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playlistItemMenuPresenter.show(button, playlistItem.getUrn(), options);
-            }
-        });
+        button.setOnClickListener(v -> playlistItemMenuPresenter.show(button, playlistItem.getUrn(), options));
         ViewUtils.extendTouchArea(button, TOUCH_DELEGATE_DP);
     }
 

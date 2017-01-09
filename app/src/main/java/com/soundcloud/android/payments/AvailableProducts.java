@@ -10,16 +10,13 @@ class AvailableProducts {
 
     private static final String HIGH_TIER = "high_tier";
 
-    public static final Func1<AvailableProducts, Product> TO_PRODUCT = new Func1<AvailableProducts, Product>() {
-        @Override
-        public Product call(AvailableProducts availableProducts) {
-            for (Product product : availableProducts.products) {
-                if (product.planId.equals(HIGH_TIER)) {
-                    return product;
-                }
+    public static final Func1<AvailableProducts, Product> TO_PRODUCT = availableProducts -> {
+        for (Product product : availableProducts.products) {
+            if (product.planId.equals(HIGH_TIER)) {
+                return product;
             }
-            return Product.empty();
         }
+        return Product.empty();
     };
 
     public final List<Product> products;

@@ -64,13 +64,7 @@ public class Waiter {
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
         solo.getCurrentActivity().runOnUiThread(new Runnable() {
-            Condition condition = new Condition() {
-
-                @Override
-                public boolean isSatisfied() {
-                    return (webViewToCheck.getUrl() != null);
-                }
-            };
+            Condition condition = () -> (webViewToCheck.getUrl() != null);
 
             @Override
             public void run() {
@@ -142,30 +136,15 @@ public class Waiter {
     }
 
     public boolean waitForContent(final ViewPager viewPager) {
-        return solo.waitForCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return viewPager.getAdapter().getCount() > 0;
-            }
-        }, TIMEOUT);
+        return solo.waitForCondition(() -> viewPager.getAdapter().getCount() > 0, TIMEOUT);
     }
 
     public boolean waitForItemCountToIncrease(final Adapter adapter, final int currentSize) {
-        return solo.waitForCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return adapter.getCount() > currentSize;
-            }
-        }, TIMEOUT);
+        return solo.waitForCondition(() -> adapter.getCount() > currentSize, TIMEOUT);
     }
 
     public boolean waitForItemCountToIncrease(final RecyclerView.Adapter adapter, final int currentSize) {
-        return solo.waitForCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return adapter.getItemCount() > currentSize;
-            }
-        }, TIMEOUT);
+        return solo.waitForCondition(() -> adapter.getItemCount() > currentSize, TIMEOUT);
     }
 
     public boolean waitForPlaybackToBePlaying() {
@@ -197,12 +176,7 @@ public class Waiter {
     }
 
     public boolean waitForAdToBeComeSkippable(final With matcher) {
-        return solo.waitForCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return solo.findOnScreenElement(matcher).isOnScreen();
-            }
-        }, 15000);
+        return solo.waitForCondition(() -> solo.findOnScreenElement(matcher).isOnScreen(), 15000);
     }
 
     public boolean waitForElement(final Class<? extends View> viewClass) {

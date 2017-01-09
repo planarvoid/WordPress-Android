@@ -182,11 +182,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
         final PublishSubject<List<Long>> subject = PublishSubject.create();
         final AtomicBoolean verified = new AtomicBoolean();
         when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(subject);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.create(new Observable.OnSubscribe<StreamPlayable>() {
-            @Override
-            public void call(Subscriber<? super StreamPlayable> subscriber) {
-                verified.set(subject.hasObservers());
-            }
+        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.create(subscriber1 -> {
+            verified.set(subject.hasObservers());
         }));
 
         operations.initialStreamItems().subscribe(observer);

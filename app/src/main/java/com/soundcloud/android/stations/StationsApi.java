@@ -100,11 +100,6 @@ class StationsApi {
                 .forPrivateApi()
                 .build();
 
-        return apiClientRx.response(request).map(new Func1<ApiResponse, Boolean>() {
-            @Override
-            public Boolean call(ApiResponse apiResponse) {
-                return apiResponse.isSuccess();
-            }
-        });
+        return apiClientRx.response(request).map(apiResponse -> apiResponse.isSuccess());
     }
 }

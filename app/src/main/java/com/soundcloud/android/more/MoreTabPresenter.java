@@ -235,12 +235,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
         new AlertDialog.Builder(activityContext)
                 .setView(view)
-                .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        LogoutActivity.start(activityContext);
-                    }
-                })
+                .setPositiveButton(R.string.ok_got_it, (dialog, which) -> LogoutActivity.start(activityContext))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
@@ -252,12 +247,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
         new AlertDialog.Builder(activityContext)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        LogoutActivity.start(activityContext);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> LogoutActivity.start(activityContext))
                 .show();
     }
 

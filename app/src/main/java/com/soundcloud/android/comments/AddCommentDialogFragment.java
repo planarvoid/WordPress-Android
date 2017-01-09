@@ -54,14 +54,11 @@ public class AddCommentDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setView(dialogView)
-                .setPositiveButton(R.string.btn_post, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final String commentText = input.getText().toString();
-                        if (Strings.isNotBlank(commentText)) {
-                            addComment(commentText, track, position);
-                            dismiss();
-                        }
+                .setPositiveButton(R.string.btn_post, (dialog, which) -> {
+                    final String commentText = input.getText().toString();
+                    if (Strings.isNotBlank(commentText)) {
+                        addComment(commentText, track, position);
+                        dismiss();
                     }
                 })
                 .setNegativeButton(R.string.btn_cancel, null)

@@ -27,24 +27,17 @@ import java.util.List;
 
 public class RecommendedPlaylistsStorage {
 
-    private final Func1<List<Pair<RecommendedPlaylistsEntity, Urn>>, List<RecommendedPlaylistsEntity>> TO_BUCKET_WITH_PLAYLIST_URNS = new Func1<List<Pair<RecommendedPlaylistsEntity, Urn>>, List<RecommendedPlaylistsEntity>>() {
-        @Override
-        public List<RecommendedPlaylistsEntity> call(List<Pair<RecommendedPlaylistsEntity, Urn>> bucketsWithPlaylistUrn) {
-            final MultiMap<RecommendedPlaylistsEntity, Urn> bucketToUrnMap = new ListMultiMap<>();
-            for (final Pair<RecommendedPlaylistsEntity, Urn> bucket : bucketsWithPlaylistUrn) {
-                bucketToUrnMap.put(bucket.first, bucket.second);
-            }
-            final List<RecommendedPlaylistsEntity> result = new ArrayList<>(bucketToUrnMap.keySet().size());
-            for (final RecommendedPlaylistsEntity entity : bucketToUrnMap.keySet()) {
-                result.add(entity.copyWithPlaylistUrns(Lists.newArrayList(bucketToUrnMap.get(entity))));
-            }
-            Collections.sort(result, new Comparator<RecommendedPlaylistsEntity>() {
-                public int compare(RecommendedPlaylistsEntity lhs, RecommendedPlaylistsEntity rhs) {
-                    return lhs.localId().compareTo(rhs.localId());
-                }
-            });
-            return result;
+    private final Func1<List<Pair<RecommendedPlaylistsEntity, Urn>>, List<RecommendedPlaylistsEntity>> TO_BUCKET_WITH_PLAYLIST_URNS = bucketsWithPlaylistUrn -> {
+        final MultiMap<RecommendedPlaylistsEntity, Urn> bucketToUrnMap = new ListMultiMap<>();
+        for (final Pair<RecommendedPlaylistsEntity, Urn> bucket : bucketsWithPlaylistUrn) {
+            bucketToUrnMap.put(bucket.first, bucket.second);
         }
+        final List<RecommendedPlaylistsEntity> result = new ArrayList<>(bucketToUrnMap.keySet().size());
+        for (final RecommendedPlaylistsEntity entity : bucketToUrnMap.keySet()) {
+            result.add(entity.copyWithPlaylistUrns(Lists.newArrayList(bucketToUrnMap.get(entity))));
+        }
+        Collections.sort(result, (lhs, rhs) -> lhs.localId().compareTo(rhs.localId()));
+        return result;
     };
 
     private final PropellerRx propellerRx;

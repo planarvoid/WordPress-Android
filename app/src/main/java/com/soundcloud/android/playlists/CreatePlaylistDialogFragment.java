@@ -77,20 +77,17 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setView(dialogView)
-                .setPositiveButton(R.string.btn_done, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final String playlistTitle = input.getText().toString().trim();
-                        if (TextUtils.isEmpty(playlistTitle)) {
-                            Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT)
-                                 .show();
-                        } else {
-                            createPlaylist(playlistTitle, privacy.isChecked(), offline.isChecked());
-                            Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(),
-                                           R.string.added_to_playlist,
-                                           Toast.LENGTH_SHORT).show();
-                            dismiss();
-                        }
+                .setPositiveButton(R.string.btn_done, (dialog, which) -> {
+                    final String playlistTitle = input.getText().toString().trim();
+                    if (TextUtils.isEmpty(playlistTitle)) {
+                        Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT)
+                             .show();
+                    } else {
+                        createPlaylist(playlistTitle, privacy.isChecked(), offline.isChecked());
+                        Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(),
+                                       R.string.added_to_playlist,
+                                       Toast.LENGTH_SHORT).show();
+                        dismiss();
                     }
                 })
                 .setNegativeButton(R.string.btn_cancel, null)

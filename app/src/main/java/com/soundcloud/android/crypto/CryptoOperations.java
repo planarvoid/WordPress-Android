@@ -49,12 +49,7 @@ public class CryptoOperations {
     }
 
     public void generateAndStoreDeviceKeyIfNeeded() {
-        fireAndForget(Observable.fromCallable(new Callable<DeviceSecret>() {
-            @Override
-            public DeviceSecret call() throws Exception {
-                return checkAndGetDeviceKey();
-            }
-        }).subscribeOn(storageScheduler));
+        fireAndForget(Observable.fromCallable(() -> checkAndGetDeviceKey()).subscribeOn(storageScheduler));
     }
 
     public String generateHashForUrn(Urn urn) throws EncryptionException {

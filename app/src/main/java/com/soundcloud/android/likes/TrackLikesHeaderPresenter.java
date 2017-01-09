@@ -55,12 +55,7 @@ import java.util.List;
 public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment>
         implements TrackLikesHeaderView.Listener, CellRenderer<TrackLikesItem> {
 
-    private static final Func1<Optional<WeakReference<View>>, View> EXTRACT_VIEW = new Func1<Optional<WeakReference<View>>, View>() {
-        @Override
-        public View call(Optional<WeakReference<View>> weakReferenceOptional) {
-            return weakReferenceOptional.get().get();
-        }
-    };
+    private static final Func1<Optional<WeakReference<View>>, View> EXTRACT_VIEW = weakReferenceOptional -> weakReferenceOptional.get().get();
 
     private final TrackLikesHeaderViewFactory headerViewFactory;
     private final OfflineStateOperations offlineStateOperations;

@@ -13,12 +13,7 @@ import android.view.View;
 
 public class BillingUnavailableDialog extends UnrecoverableErrorDialog {
 
-    private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int which) {
-            dismiss();
-        }
-    };
+    private final DialogInterface.OnClickListener listener = (dialogInterface, which) -> dismiss();
 
     public static void show(FragmentManager fragmentManager) {
         new BillingUnavailableDialog().show(fragmentManager, PaymentError.DIALOG_TAG);

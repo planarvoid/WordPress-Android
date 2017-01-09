@@ -24,18 +24,8 @@ public class VisualPlayerElement extends Element {
 
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
-    private final Condition IS_EXPANDED_CONDITION = new Condition() {
-        @Override
-        public boolean isSatisfied() {
-            return player().isOnScreen() && isExpanded();
-        }
-    };
-    private final Condition IS_COLLAPSED_CONDITION = new Condition() {
-        @Override
-        public boolean isSatisfied() {
-            return isCollapsed();
-        }
-    };
+    private final Condition IS_EXPANDED_CONDITION = () -> player().isOnScreen() && isExpanded();
+    private final Condition IS_COLLAPSED_CONDITION = () -> isCollapsed();
 
     public VisualPlayerElement(Han testDriver) {
         super(testDriver, With.id(R.id.player_layout));
@@ -309,12 +299,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForMoreContent() {
-        waiter.waitForNetworkCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return hasMoreTracks();
-            }
-        });
+        waiter.waitForNetworkCondition(() -> hasMoreTracks());
     }
 
     public boolean hasMoreTracks() {
@@ -370,12 +355,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean waitForInterstitialToLoad() {
-        return waiter.waitForNetworkCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return testDriver.findOnScreenElement(With.id(R.id.interstitial)).hasVisibility();
-            }
-        });
+        return waiter.waitForNetworkCondition(() -> testDriver.findOnScreenElement(With.id(R.id.interstitial)).hasVisibility());
     }
 
     public VisualPlayerElement waitForLeaveBehindToLoad() {

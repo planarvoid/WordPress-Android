@@ -41,12 +41,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
             .whereEq(Tables.Likes._ID, Sounds._ID)
             .whereEq(Tables.Likes._TYPE, Sounds.TYPE_TRACK);
 
-    private static final Function<OfflineRequestData, Urn> TO_URN = new Function<OfflineRequestData, Urn>() {
-        @Override
-        public Urn apply(OfflineRequestData input) {
-            return input.track;
-        }
-    };
+    private static final Function<OfflineRequestData, Urn> TO_URN = input -> input.track;
 
     private final PropellerDatabase database;
 

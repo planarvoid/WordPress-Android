@@ -16,12 +16,7 @@ public class VerifyIssueDialog extends UnrecoverableErrorDialog {
 
     private static final String TITLE_ID = "title_id";
 
-    private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int which) {
-            dismiss();
-        }
-    };
+    private final DialogInterface.OnClickListener listener = (dialogInterface, which) -> dismiss();
 
     public static void showFail(FragmentManager fragmentManager) {
         show(fragmentManager, R.string.payments_error_title_verification_fail);

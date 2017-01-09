@@ -30,12 +30,7 @@ public class MediaNotificationHelperTest extends AndroidUnitTest {
     public static final String TITLE = "TITLE";
     public static final String DESCRIPTION = "DESCRIPTION";
 
-    private static final Function<NotificationCompat.Action, String> ACTION_TO_TITLE = new Function<NotificationCompat.Action, String>() {
-        @Override
-        public String apply(NotificationCompat.Action input) {
-            return input.getTitle().toString();
-        }
-    };
+    private static final Function<NotificationCompat.Action, String> ACTION_TO_TITLE = input -> input.getTitle().toString();
 
     @Mock private MediaSessionCompat mediaSession;
     @Mock private MediaControllerCompat mediaController;

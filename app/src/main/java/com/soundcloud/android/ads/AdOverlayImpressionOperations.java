@@ -59,21 +59,14 @@ class AdOverlayImpressionOperations {
     };
 
     private final Func3<AdOverlayEvent, ActivityLifeCycleEvent, PlayerUIEvent, VisualImpressionState> combineFunction =
-            new Func3<AdOverlayEvent, ActivityLifeCycleEvent, PlayerUIEvent, VisualImpressionState>() {
-                @Override
-                public VisualImpressionState call(AdOverlayEvent adOverlayEvent,
-                                                  ActivityLifeCycleEvent event,
-                                                  PlayerUIEvent playerUIEvent) {
-                    return new VisualImpressionState(
-                            adOverlayEvent.getKind() == AdOverlayEvent.SHOWN,
-                            event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
-                            playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED,
-                            adOverlayEvent.getCurrentPlayingUrn(),
-                            adOverlayEvent.getAdData(),
-                            adOverlayEvent.getTrackSourceInfo()
-                    );
-                }
-            };
+            (adOverlayEvent, event, playerUIEvent) -> new VisualImpressionState(
+                    adOverlayEvent.getKind() == AdOverlayEvent.SHOWN,
+                    event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
+                    playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED,
+                    adOverlayEvent.getCurrentPlayingUrn(),
+                    adOverlayEvent.getAdData(),
+                    adOverlayEvent.getTrackSourceInfo()
+            );
 
     private boolean impressionEventEmitted = false;
 

@@ -60,28 +60,20 @@ public class PlaylistOptionsPresenter {
                                                                 final ToggleButton showPosts,
                                                                 final ToggleButton showOffline,
                                                                 final RadioButton sortByTitle) {
-        return new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final PlaylistsOptions playlistsOptions = AutoValue_PlaylistsOptions.builder()
-                                                                                    .showLikes(showLikes.isChecked())
-                                                                                    .showPosts(showPosts.isChecked())
-                                                                                    .sortByTitle(sortByTitle.isChecked())
-                                                                                    .showOfflineOnly(showOffline.isChecked())
-                                                                                    .build();
-                listener.onOptionsUpdated(playlistsOptions);
-            }
+        return (dialog, which) -> {
+            final PlaylistsOptions playlistsOptions = AutoValue_PlaylistsOptions.builder()
+                                                                                .showLikes(showLikes.isChecked())
+                                                                                .showPosts(showPosts.isChecked())
+                                                                                .sortByTitle(sortByTitle.isChecked())
+                                                                                .showOfflineOnly(showOffline.isChecked())
+                                                                                .build();
+            listener.onOptionsUpdated(playlistsOptions);
         };
     }
 
     @NonNull
     private DialogInterface.OnClickListener buildCancelListener() {
-        return new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        };
+        return (dialog, which) -> dialog.cancel();
     }
 
 }

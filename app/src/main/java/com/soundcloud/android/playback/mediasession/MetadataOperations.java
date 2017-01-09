@@ -81,20 +81,17 @@ class MetadataOperations {
     }
 
     private Func1<TrackItem, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
-        return new Func1<TrackItem, Observable<TrackAndBitmap>>() {
-            @Override
-            public Observable<TrackAndBitmap> call(final TrackItem track) {
-                final SimpleImageResource imageResource = SimpleImageResource.create(track);
-                final Bitmap cachedBitmap = getCachedBitmap(imageResource);
+        return track -> {
+            final SimpleImageResource imageResource = SimpleImageResource.create(track);
+            final Bitmap cachedBitmap = getCachedBitmap(imageResource);
 
-                if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
-                    return Observable.just(new TrackAndBitmap(track, Optional.of(cachedBitmap)));
-                } else {
-                    return Observable.concat(
-                            Observable.just(new TrackAndBitmap(track, getCurrentBitmap(existingMetadata))),
-                            loadArtwork(track, imageResource)
-                    );
-                }
+            if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
+                return Observable.just(new TrackAndBitmap(track, Optional.of(cachedBitmap)));
+            } else {
+                return Observable.concat(
+                        Observable.just(new TrackAndBitmap(track, getCurrentBitmap(existingMetadata))),
+                        loadArtwork(track, imageResource)
+                );
             }
         };
     }
@@ -108,12 +105,7 @@ class MetadataOperations {
         final int targetSize = getTargetImageSize();
 
         return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
-                              .map(new Func1<Bitmap, TrackAndBitmap>() {
-                                  @Override
-                                  public TrackAndBitmap call(Bitmap bitmap) {
-                                      return new TrackAndBitmap(track, Optional.fromNullable(bitmap));
-                                  }
-                              });
+                              .map(bitmap -> new TrackAndBitmap(track, Optional.fromNullable(bitmap)));
     }
 
     @Nullable
@@ -136,27 +128,24 @@ class MetadataOperations {
     }
 
     private Func1<TrackAndBitmap, MediaMetadataCompat> toMediaMetadata() {
-        return new Func1<TrackAndBitmap, MediaMetadataCompat>() {
-            @Override
-            public MediaMetadataCompat call(TrackAndBitmap trackAndBitmap) {
-                NotificationTrack notificationTrack =
-                        new NotificationTrack(resources, trackAndBitmap.track);
+        return trackAndBitmap -> {
+            NotificationTrack notificationTrack =
+                    new NotificationTrack(resources, trackAndBitmap.track);
 
-                Bitmap bitmap = notificationTrack.isAudioAd()
-                                ? getAdArtwork()
-                                : trackAndBitmap.bitmap.orNull();
+            Bitmap bitmap = notificationTrack.isAudioAd()
+                            ? getAdArtwork()
+                            : trackAndBitmap.bitmap.orNull();
 
-                MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
-                        .putString(METADATA_KEY_TITLE, notificationTrack.getTitle())
-                        .putString(METADATA_KEY_ARTIST, notificationTrack.getCreatorName())
-                        .putBitmap(METADATA_KEY_ART, bitmap);
+            MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
+                    .putString(METADATA_KEY_TITLE, notificationTrack.getTitle())
+                    .putString(METADATA_KEY_ARTIST, notificationTrack.getCreatorName())
+                    .putBitmap(METADATA_KEY_ART, bitmap);
 
-                if (!notificationTrack.isAudioAd()) {
-                    builder.putLong(METADATA_KEY_DURATION, notificationTrack.getDuration());
-                }
-
-                return builder.build();
+            if (!notificationTrack.isAudioAd()) {
+                builder.putLong(METADATA_KEY_DURATION, notificationTrack.getDuration());
             }
+
+            return builder.build();
         };
     }
 

@@ -58,12 +58,7 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
             if (via != SignupVia.NONE) {
                 // user has signed up, schedule sync of user data to possibly refresh image data
                 // which gets processed asynchronously by the backend and is only available after signup has happened
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        syncInitiatorBridge.refreshMe();
-                    }
-                }, ME_SYNC_DELAY_MILLIS);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> syncInitiatorBridge.refreshMe(), ME_SYNC_DELAY_MILLIS);
             }
             return true;
         } else {

@@ -9,12 +9,7 @@ import com.soundcloud.java.functions.Function;
 abstract class ApiAudioAdSource {
 
     static final Function<ApiAudioAdSource, AudioAdSource> toAudioAdSource =
-            new Function<ApiAudioAdSource, AudioAdSource>() {
-                @Override
-                public AudioAdSource apply(ApiAudioAdSource apiAudioAdSource) {
-                    return AudioAdSource.create(apiAudioAdSource);
-                }
-            };
+            apiAudioAdSource -> AudioAdSource.create(apiAudioAdSource);
 
     @JsonCreator
     public static ApiAudioAdSource create(@JsonProperty("type") String type,

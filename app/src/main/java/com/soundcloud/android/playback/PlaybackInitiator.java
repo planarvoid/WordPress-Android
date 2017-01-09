@@ -97,25 +97,17 @@ public class PlaybackInitiator {
     }
 
     private Func1<List<Urn>, Observable<PlayQueue>> toShuffledPlayQueue(final PlaySessionSource playSessionSource) {
-        return new Func1<List<Urn>, Observable<PlayQueue>>() {
-            @Override
-            public Observable<PlayQueue> call(final List<Urn> urns) {
-                return policyOperations.blockedStatuses(urns)
-                                       .flatMap(createShuffledPlayQueue(urns, playSessionSource));
-            }
-        };
+        return urns -> policyOperations.blockedStatuses(urns)
+                               .flatMap(createShuffledPlayQueue(urns, playSessionSource));
     }
 
     @NonNull
     private Func1<Map<Urn, Boolean>, Observable<PlayQueue>> createShuffledPlayQueue(
             final List<Urn> urns, final PlaySessionSource playSessionSource) {
-        return new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
-            @Override
-            public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
-                PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedTracksMap);
-                PlayQueue shuffledPlayQueue = ShuffledPlayQueue.from(playQueue, 0, playQueue.size());
-                return Observable.just(shuffledPlayQueue);
-            }
+        return blockedTracksMap -> {
+            PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedTracksMap);
+            PlayQueue shuffledPlayQueue = ShuffledPlayQueue.from(playQueue, 0, playQueue.size());
+            return Observable.just(shuffledPlayQueue);
         };
     }
 
@@ -148,45 +140,32 @@ public class PlaybackInitiator {
     }
 
     private Func1<List<PlayableWithReposter>, Observable<PlayQueue>> playablesToPlayQueue(final PlaySessionSource playSessionSource) {
-        return new Func1<List<PlayableWithReposter>, Observable<PlayQueue>>() {
-            @Override
-            public Observable<PlayQueue> call(final List<PlayableWithReposter> playablesWithReposters) {
-                if (playablesWithReposters.isEmpty()) {
-                    return Observable.just(PlayQueue.empty());
-                } else {
-                    return policyOperations.blockedStatuses(Lists.transform(playablesWithReposters, PlayableWithReposter::getUrn))
-                                           .flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
-                                               @Override
-                                               public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
-                                                   return Observable.just(PlayQueue.fromPlayableList(playablesWithReposters,
-                                                                                                     playSessionSource,
-                                                                                                     blockedTracksMap));
-                                               }
-                                           });
-                }
+        return playablesWithReposters -> {
+            if (playablesWithReposters.isEmpty()) {
+                return Observable.just(PlayQueue.empty());
+            } else {
+                return policyOperations.blockedStatuses(Lists.transform(playablesWithReposters, PlayableWithReposter::getUrn))
+                                       .flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
+                                           @Override
+                                           public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
+                                               return Observable.just(PlayQueue.fromPlayableList(playablesWithReposters,
+                                                                                                 playSessionSource,
+                                                                                                 blockedTracksMap));
+                                           }
+                                       });
             }
         };
     }
 
     private Func1<PlayQueue, Observable<PlaybackResult>> toPlaybackResult(final int startPosition,
                                                                           final PlaySessionSource playSessionSource) {
-        return new Func1<PlayQueue, Observable<PlaybackResult>>() {
-            @Override
-            public Observable<PlaybackResult> call(PlayQueue playQueue) {
-                return playNewQueue(playQueue, playQueue.getUrn(startPosition), startPosition, playSessionSource);
-            }
-        };
+        return playQueue -> playNewQueue(playQueue, playQueue.getUrn(startPosition), startPosition, playSessionSource);
     }
 
     private Func1<PlayQueue, Observable<PlaybackResult>> toPlaybackResult(final Urn initialTrack,
                                                                           final int startPosition,
                                                                           final PlaySessionSource playSessionSource) {
-        return new Func1<PlayQueue, Observable<PlaybackResult>>() {
-            @Override
-            public Observable<PlaybackResult> call(PlayQueue playQueue) {
-                return playNewQueue(playQueue, initialTrack, startPosition, playSessionSource);
-            }
-        };
+        return playQueue -> playNewQueue(playQueue, initialTrack, startPosition, playSessionSource);
     }
 
     private Observable<PlaybackResult> playNewQueue(PlayQueue playQueue,
@@ -210,15 +189,12 @@ public class PlaybackInitiator {
 
     @NonNull
     private Func1<List<Urn>, Observable<PlayQueue>> urnsToPlayQueue(final PlaySessionSource playSessionSource) {
-        return new Func1<List<Urn>, Observable<PlayQueue>>() {
-            @Override
-            public Observable<PlayQueue> call(final List<Urn> urns) {
-                if (urns.isEmpty()) {
-                    return Observable.just(PlayQueue.empty());
-                } else {
-                    return policyOperations.blockedStatuses(urns)
-                                           .flatMap(urnsToPlayQueueWithBlockedStati(urns, playSessionSource));
-                }
+        return urns -> {
+            if (urns.isEmpty()) {
+                return Observable.just(PlayQueue.empty());
+            } else {
+                return policyOperations.blockedStatuses(urns)
+                                       .flatMap(urnsToPlayQueueWithBlockedStati(urns, playSessionSource));
             }
         };
     }
@@ -226,12 +202,7 @@ public class PlaybackInitiator {
     @NonNull
     private Func1<Map<Urn, Boolean>, Observable<PlayQueue>> urnsToPlayQueueWithBlockedStati(final List<Urn> urns,
                                                                                             final PlaySessionSource playSessionSource) {
-        return new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
-            @Override
-            public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracks) {
-                return Observable.just(fromTrackUrnList(urns, playSessionSource, blockedTracks));
-            }
-        };
+        return blockedTracks -> Observable.just(fromTrackUrnList(urns, playSessionSource, blockedTracks));
     }
 
     public Observable<PlaybackResult> startPlaybackWithRecommendations(Urn urn,

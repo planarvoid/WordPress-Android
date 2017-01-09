@@ -40,13 +40,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
     private static final Date CURRENT_DATE = new Date();
     private static final List<AppInstallAd> APP_INSTALLS = AdFixtures.getAppInstalls();
     private static final List<StreamItem> ITEMS = Lists.transform(APP_INSTALLS,
-            new Function<AppInstallAd, StreamItem>() {
-                @Nullable
-                @Override
-                public StreamItem apply(AppInstallAd ad) {
-                    return StreamItem.forAppInstall(ad);
-                }
-            });
+                                                                  ad -> StreamItem.forAppInstall(ad));
 
     @Mock private Resources resources;
     @Mock private ImageOperations imageOperations;

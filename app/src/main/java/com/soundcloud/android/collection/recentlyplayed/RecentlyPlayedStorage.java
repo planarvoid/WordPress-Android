@@ -36,12 +36,9 @@ public class RecentlyPlayedStorage {
 
     private static final String TRACK_STATIONS_URN_PREFIX = "soundcloud:track-stations:";
     private static final String ARTIST_STATIONS_URN_PREFIX = "soundcloud:artist-stations:";
-    public static final Func2<RecentlyPlayedPlayableItem, RecentlyPlayedPlayableItem, Integer> SORT_BY_TIMESTAMP = new Func2<RecentlyPlayedPlayableItem, RecentlyPlayedPlayableItem, Integer>() {
-        @Override
-        public Integer call(RecentlyPlayedPlayableItem a, RecentlyPlayedPlayableItem b) {
-            final long l = b.getTimestamp() - a.getTimestamp();
-            return l > 0 ? 1 : l < 0 ? -1 : 0;
-        }
+    public static final Func2<RecentlyPlayedPlayableItem, RecentlyPlayedPlayableItem, Integer> SORT_BY_TIMESTAMP = (a, b) -> {
+        final long l = b.getTimestamp() - a.getTimestamp();
+        return l > 0 ? 1 : l < 0 ? -1 : 0;
     };
 
     private final PropellerDatabase database;
@@ -104,12 +101,7 @@ public class RecentlyPlayedStorage {
     }
 
     private Func1<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedPlayableItem>> withLimit(final int limit) {
-        return new Func1<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedPlayableItem>>() {
-            @Override
-            public List<RecentlyPlayedPlayableItem> call(List<RecentlyPlayedPlayableItem> items) {
-                return items.subList(0, Math.min(limit, items.size()));
-            }
-        };
+        return items -> items.subList(0, Math.min(limit, items.size()));
     }
 
     boolean hasPendingContextsToSync() {
@@ -182,17 +174,14 @@ public class RecentlyPlayedStorage {
 
     private List<PlayHistoryRecord> syncedRecentlyPlayed(boolean synced) {
         return database.query(loadSyncedRecentlyPlayedQuery(synced))
-                       .toList(new ResultMapper<PlayHistoryRecord>() {
-                           @Override
-                           public PlayHistoryRecord map(CursorReader reader) {
-                               int contextType = reader.getInt(RecentlyPlayed.CONTEXT_TYPE);
-                               long contextId = reader.getLong(RecentlyPlayed.CONTEXT_ID);
-                               Urn contextUrn = PlayHistoryRecord.contextUrnFor(contextType, contextId);
-                               return PlayHistoryRecord.create(
-                                       reader.getLong(RecentlyPlayed.TIMESTAMP),
-                                       Urn.NOT_SET,
-                                       contextUrn);
-                           }
+                       .toList(reader -> {
+                           int contextType = reader.getInt(RecentlyPlayed.CONTEXT_TYPE);
+                           long contextId = reader.getLong(RecentlyPlayed.CONTEXT_ID);
+                           Urn contextUrn = PlayHistoryRecord.contextUrnFor(contextType, contextId);
+                           return PlayHistoryRecord.create(
+                                   reader.getLong(RecentlyPlayed.TIMESTAMP),
+                                   Urn.NOT_SET,
+                                   contextUrn);
                        });
     }
 

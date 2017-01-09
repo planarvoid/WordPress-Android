@@ -12,13 +12,7 @@ import java.util.Date;
 @AutoValue
 public abstract class ApiFollowing {
 
-    static final Function<ApiFollowing, Long> TO_USER_IDS = new Function<ApiFollowing, Long>() {
-        @Nullable
-        @Override
-        public Long apply(ApiFollowing input) {
-            return input.getTargetUrn().getNumericId();
-        }
-    };
+    static final Function<ApiFollowing, Long> TO_USER_IDS = input -> input.getTargetUrn().getNumericId();
 
     @JsonCreator
     public static ApiFollowing create(@JsonProperty("user") Urn userUrn,

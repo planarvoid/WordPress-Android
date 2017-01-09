@@ -114,31 +114,25 @@ public class AdsOperations {
 
     private Action1<AdsCollection> onRequestSuccess(final AdRequestData requestData, final String endpoint,
                                                     final boolean playerVisible, final boolean inForeground) {
-        return new Action1<AdsCollection>() {
-            @Override
-            public void call(AdsCollection apiAds) {
-                Log.i(ADS_TAG, "Retrieved ads via " + endpoint + ": " + apiAds.contentString());
-                logRequestSuccess(apiAds, requestData, endpoint, playerVisible, inForeground);
-            }
+        return apiAds -> {
+            Log.i(ADS_TAG, "Retrieved ads via " + endpoint + ": " + apiAds.contentString());
+            logRequestSuccess(apiAds, requestData, endpoint, playerVisible, inForeground);
         };
     }
 
     private Action1<Throwable> onRequestFailure(final AdRequestData requestData, final String endpoint,
                                                 final boolean playerVisible, final boolean inForeground) {
-        return new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                Log.i(ADS_TAG, "Failed to retrieve ads via " + endpoint, throwable);
-                if (throwable instanceof ApiRequestException && ((ApiRequestException) throwable).reason() == NOT_FOUND) {
-                    final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
-                    logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
-                } else {
-                    eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestFailure(requestData.getRequestId(),
-                                                                                          requestData.getMonetizableTrackUrn(),
-                                                                                          endpoint,
-                                                                                          playerVisible,
-                                                                                          inForeground));
-                }
+        return throwable -> {
+            Log.i(ADS_TAG, "Failed to retrieve ads via " + endpoint, throwable);
+            if (throwable instanceof ApiRequestException && ((ApiRequestException) throwable).reason() == NOT_FOUND) {
+                final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
+                logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
+            } else {
+                eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestFailure(requestData.getRequestId(),
+                                                                                      requestData.getMonetizableTrackUrn(),
+                                                                                      endpoint,
+                                                                                      playerVisible,
+                                                                                      inForeground));
             }
         };
     }

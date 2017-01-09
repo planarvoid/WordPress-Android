@@ -34,12 +34,7 @@ import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_72
 public class VideoSourceProvider {
 
     private static final List<String> SUPPORTED_FORMATS = Collections.singletonList(PlaybackConstants.MIME_TYPE_MP4);
-    private static final Predicate<VideoAdSource> SUPPORTED_FORMAT_PREDICATE = new Predicate<VideoAdSource>() {
-        @Override
-        public boolean apply(VideoAdSource source) {
-            return SUPPORTED_FORMATS.contains(source.getType());
-        }
-    };
+    private static final Predicate<VideoAdSource> SUPPORTED_FORMAT_PREDICATE = source -> SUPPORTED_FORMATS.contains(source.getType());
 
     private final ApplicationProperties applicationProperties;
     private final DeviceHelper deviceHelper;

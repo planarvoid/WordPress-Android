@@ -51,14 +51,11 @@ class DevDrawerExperimentsHelper {
         setExperimentEntries(listPreference, experiment);
         setExperimentSummary(listPreference, experiment);
 
-        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object variation) {
-                clearPreferencesForExperimentLayer(screen, experiment.getLayerName());
-                experimentOperations.forceExperimentVariation(experiment, (String) variation);
-                setExperimentSummary((ListPreference) preference, experiment);
-                return true;
-            }
+        listPreference.setOnPreferenceChangeListener((preference, variation) -> {
+            clearPreferencesForExperimentLayer(screen, experiment.getLayerName());
+            experimentOperations.forceExperimentVariation(experiment, (String) variation);
+            setExperimentSummary((ListPreference) preference, experiment);
+            return true;
         });
 
         return listPreference;

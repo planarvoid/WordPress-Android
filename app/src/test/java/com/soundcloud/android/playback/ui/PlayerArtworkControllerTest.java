@@ -59,12 +59,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay_image)).thenReturn(artworkOverlayImage);
         when(playerTrackArtworkView.findViewById(R.id.artwork_holder)).thenReturn(artworkHolder);
         when(animationControllerFactory.create(artworkHolder)).thenReturn(progressController);
-        playerArtworkLoaderProvider = new Provider<PlayerArtworkLoader>() {
-            @Override
-            public PlayerArtworkLoader get() {
-                return playerArtworkLoader;
-            }
-        };
+        playerArtworkLoaderProvider = () -> playerArtworkLoader;
 
         playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory,
                                                                       playerArtworkLoaderProvider).create(

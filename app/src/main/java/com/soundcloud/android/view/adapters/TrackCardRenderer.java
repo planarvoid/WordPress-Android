@@ -74,15 +74,10 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
         viewHolder.bindArtworkView(track);
         showPlayCountOrNowPlaying(viewHolder, track);
-        viewHolder.overflowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View overflowButton) {
-                menuPresenter.show(getFragmentActivity(itemView),
-                                   viewHolder.overflowButton,
-                                   track,
-                                   getEventContextMetadataBuilder(module));
-            }
-        });
+        viewHolder.overflowButton.setOnClickListener(overflowButton -> menuPresenter.show(getFragmentActivity(itemView),
+                                                                                  viewHolder.overflowButton,
+                                                                                  track,
+                                                                                  getEventContextMetadataBuilder(module)));
     }
 
     public void setLayoutResource(@LayoutRes int layoutResource) {

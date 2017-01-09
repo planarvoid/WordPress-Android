@@ -58,10 +58,5 @@ public abstract class RecommendedTracksBucketItem extends DiscoveryItem implemen
         return updated;
     }
 
-    static Function<DiscoveryItem, List<Recommendation>> TO_RECOMMENDATIONS = new Function<DiscoveryItem, List<Recommendation>>() {
-        @Override
-        public List<Recommendation> apply(DiscoveryItem input) {
-            return ((RecommendedTracksBucketItem) input).getRecommendations();
-        }
-    };
+    static Function<DiscoveryItem, List<Recommendation>> TO_RECOMMENDATIONS = input -> ((RecommendedTracksBucketItem) input).getRecommendations();
 }

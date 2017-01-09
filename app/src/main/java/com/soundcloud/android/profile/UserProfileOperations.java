@@ -54,17 +54,14 @@ public class UserProfileOperations {
     }
 
     private static final Func2<PagedRemoteCollection<PlayableItem>, UserItem, PagedRemoteCollection<PlayableItem>> MERGE_REPOSTER =
-            new Func2<PagedRemoteCollection<PlayableItem>, UserItem, PagedRemoteCollection<PlayableItem>>() {
-                @Override
-                public PagedRemoteCollection<PlayableItem> call(PagedRemoteCollection<PlayableItem> remoteCollection, UserItem userItem) {
-                    for (PlayableItem post : remoteCollection) {
-                        if (post.isRepost()) {
-                            post.setReposter(userItem.getName());
-                            post.setReposterUrn(userItem.getUrn());
-                        }
+            (remoteCollection, userItem) -> {
+                for (PlayableItem post : remoteCollection) {
+                    if (post.isRepost()) {
+                        post.setReposter(userItem.getName());
+                        post.setReposterUrn(userItem.getUrn());
                     }
-                    return remoteCollection;
                 }
+                return remoteCollection;
             };
 
     @Inject
@@ -121,15 +118,12 @@ public class UserProfileOperations {
     }
 
     Observable<List<PropertySet>> postsForPlayback(final List<? extends PlayableItem> playableItems) {
-        return Observable.fromCallable(new Callable<List<PropertySet>>() {
-            @Override
-            public List<PropertySet> call() throws Exception {
-                final List<PropertySet> postsForPlayback = new ArrayList<>();
-                for (PlayableItem playableItem : playableItems) {
-                    postsForPlayback.add(createPostForPlayback(playableItem));
-                }
-                return postsForPlayback;
+        return Observable.fromCallable(() -> {
+            final List<PropertySet> postsForPlayback = new ArrayList<>();
+            for (PlayableItem playableItem : playableItems) {
+                postsForPlayback.add(createPostForPlayback(playableItem));
             }
+            return postsForPlayback;
         });
     }
 
@@ -289,11 +283,6 @@ public class UserProfileOperations {
     }
 
     private Action1<UserProfile> publishEntityChanged() {
-        return new Action1<UserProfile>() {
-            @Override
-            public void call(UserProfile userProfile) {
-                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, userProfile.getUser().toEntityStateChangedEvent());
-            }
-        };
+        return userProfile -> eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, userProfile.getUser().toEntityStateChangedEvent());
     }
 }

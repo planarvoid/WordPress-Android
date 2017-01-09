@@ -43,18 +43,8 @@ public class LegacyCastOperations implements CastOperations {
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";
 
-    private static final Func1<TrackItem, Boolean> FILTER_PRIVATE_TRACKS = new Func1<TrackItem, Boolean>() {
-        @Override
-        public Boolean call(TrackItem track) {
-            return !track.isPrivate();
-        }
-    };
-    private static final Func1<TrackItem, Urn> TO_URNS = new Func1<TrackItem, Urn>() {
-        @Override
-        public Urn call(TrackItem track) {
-            return track.getUrn();
-        }
-    };
+    private static final Func1<TrackItem, Boolean> FILTER_PRIVATE_TRACKS = track -> !track.isPrivate();
+    private static final Func1<TrackItem, Urn> TO_URNS = track -> track.getUrn();
 
     private final VideoCastManager videoCastManager;
     private final TrackRepository trackRepository;
@@ -115,17 +105,11 @@ public class LegacyCastOperations implements CastOperations {
     public Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn, List<Urn> filteredLocalPlayQueueTracks) {
         return Observable.zip(trackRepository.track(currentTrackUrn),
                               Observable.from(filteredLocalPlayQueueTracks).toList(),
-                              new Func2<TrackItem, List<Urn>, LocalPlayQueue>() {
-                                  @Override
-                                  public LocalPlayQueue call(TrackItem track,
-                                                             List<Urn> filteredLocalPlayQueueTracks) {
-                                      return new LocalPlayQueue(
-                                              createPlayQueueJSON(filteredLocalPlayQueueTracks),
-                                              filteredLocalPlayQueueTracks,
-                                              createMediaInfo(track),
-                                              track.getUrn());
-                                  }
-                              });
+                              (track, filteredLocalPlayQueueTracks1) -> new LocalPlayQueue(
+                                      createPlayQueueJSON(filteredLocalPlayQueueTracks1),
+                                      filteredLocalPlayQueueTracks1,
+                                      createMediaInfo(track),
+                                      track.getUrn()));
     }
 
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {

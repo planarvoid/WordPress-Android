@@ -139,21 +139,11 @@ class SimplePlayQueue extends PlayQueue {
     }
 
     private Predicate<PlayQueueItem> isMatchingItem(final Urn urn) {
-        return new Predicate<PlayQueueItem>() {
-            @Override
-            public boolean apply(PlayQueueItem input) {
-                return input.getUrn().equals(urn);
-            }
-        };
+        return input -> input.getUrn().equals(urn);
     }
 
     private Predicate<PlayQueueItem> isMatchingTrackItem(final Urn urn) {
-        return new Predicate<PlayQueueItem>() {
-            @Override
-            public boolean apply(PlayQueueItem input) {
-                return input.isTrack() && input.getUrn().equals(urn);
-            }
-        };
+        return input -> input.isTrack() && input.getUrn().equals(urn);
     }
 
     @Override

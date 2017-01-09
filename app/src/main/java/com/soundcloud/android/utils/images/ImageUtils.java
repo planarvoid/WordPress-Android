@@ -285,20 +285,10 @@ public final class ImageUtils {
     public static void showImagePickerDialog(final Activity activity, final File newImageLocation) {
         new AlertDialog.Builder(activity)
                 .setView(new CustomFontViewBuilder(activity).setTitle(R.string.image_where).get())
-                .setPositiveButton(R.string.take_new_picture, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ImageUtils.startTakeNewPictureIntent(activity,
-                                                             newImageLocation,
-                                                             Consts.RequestCodes.GALLERY_IMAGE_TAKE);
-                    }
-                })
-                .setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ImageUtils.startPickImageIntent(activity, Consts.RequestCodes.GALLERY_IMAGE_PICK);
-                    }
-                }).show();
+                .setPositiveButton(R.string.take_new_picture, (dialog, which) -> ImageUtils.startTakeNewPictureIntent(activity,
+                                                                                                              newImageLocation,
+                                                                                                              Consts.RequestCodes.GALLERY_IMAGE_TAKE))
+                .setNegativeButton(R.string.use_existing_image, (dialog, which) -> ImageUtils.startPickImageIntent(activity, Consts.RequestCodes.GALLERY_IMAGE_PICK)).show();
     }
 
     private static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {

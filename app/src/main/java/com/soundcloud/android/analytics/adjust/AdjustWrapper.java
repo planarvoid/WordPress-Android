@@ -88,12 +88,7 @@ public class AdjustWrapper {
     }
 
     private void setAttributionListener(AdjustConfig config) {
-        config.setOnAttributionChangedListener(new OnAttributionChangedListener() {
-            @Override
-            public void onAttributionChanged(AdjustAttribution adjustAttribution) {
-                publishAttribution(adjustAttribution);
-            }
-        });
+        config.setOnAttributionChangedListener(adjustAttribution -> publishAttribution(adjustAttribution));
     }
 
     private void publishAttribution(AdjustAttribution adjustAttribution) {
@@ -106,12 +101,7 @@ public class AdjustWrapper {
     }
 
     private void enableDeferredDeeplinking(AdjustConfig config) {
-        config.setOnDeeplinkResponseListener(new OnDeeplinkResponseListener() {
-            @Override
-            public boolean launchReceivedDeeplink(Uri deeplink) {
-                return accountOperations.get().isUserLoggedIn();
-            }
-        });
+        config.setOnDeeplinkResponseListener(deeplink -> accountOperations.get().isUserLoggedIn());
     }
 
 }

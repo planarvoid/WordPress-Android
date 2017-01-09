@@ -175,12 +175,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                final int position,
                                final Optional<TrackSourceInfo> trackSourceInfo,
                                final Optional<Module> module) {
-        itemView.setOverflowListener(new TrackItemView.OverflowListener() {
-            @Override
-            public void onOverflow(View overflowButton) {
-                showTrackItemMenu(overflowButton, track, position, trackSourceInfo, module);
-            }
-        });
+        itemView.setOverflowListener(overflowButton -> showTrackItemMenu(overflowButton, track, position, trackSourceInfo, module));
     }
 
     protected void showTrackItemMenu(View button,

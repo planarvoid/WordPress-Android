@@ -202,15 +202,10 @@ abstract class UserSoundsItem implements ListItem, UpdatableItem, UpdatablePlayl
 
     private static List<UserSoundsItem> filterItemsInModule(final List<UserSoundsItem> userSoundsItems,
                                                             final UserSoundsItem userSoundsItem) {
-        return newArrayList(filter(userSoundsItems, new Predicate<UserSoundsItem>() {
-            @Override
-            public boolean apply(UserSoundsItem input) {
-                return input.getItemType() != TYPE_DIVIDER
-                        && input.getItemType() != TYPE_HEADER
-                        && input.getItemType() != TYPE_VIEW_ALL
-                        && input.getItemType() != TYPE_END_OF_LIST_DIVIDER
-                        && input.getCollectionType() == userSoundsItem.getCollectionType();
-            }
-        }));
+        return newArrayList(filter(userSoundsItems, input -> input.getItemType() != TYPE_DIVIDER
+                && input.getItemType() != TYPE_HEADER
+                && input.getItemType() != TYPE_VIEW_ALL
+                && input.getItemType() != TYPE_END_OF_LIST_DIVIDER
+                && input.getCollectionType() == userSoundsItem.getCollectionType()));
     }
 }

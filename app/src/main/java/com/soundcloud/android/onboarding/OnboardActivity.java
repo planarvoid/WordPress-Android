@@ -867,12 +867,7 @@ public class OnboardActivity extends FragmentActivity
     public void confirmRequestForFacebookEmail() {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(R.string.authentication_signup_facebook_email_required)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        requestFacebookEmail();
-                    }
-                });
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> requestFacebookEmail());
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupFacebookEmailDenied());
     }
 
@@ -919,13 +914,10 @@ public class OnboardActivity extends FragmentActivity
     public void onBlocked() {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_blocked_title)
                 .setMessage(R.string.authentication_blocked_message)
-                .setPositiveButton(R.string.contact_support, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(new Intent(Intent.ACTION_VIEW)
-                                              .setData(Uri.parse(getString(R.string.url_contact_support))));
-                        dialogInterface.dismiss();
-                    }
+                .setPositiveButton(R.string.contact_support, (dialogInterface, i) -> {
+                    startActivity(new Intent(Intent.ACTION_VIEW)
+                                          .setData(Uri.parse(getString(R.string.url_contact_support))));
+                    dialogInterface.dismiss();
                 })
                 .setNegativeButton(android.R.string.cancel, null);
         showDialogWithHyperlinksAndTrackEvent(dialogBuilder, OnboardingEvent.signupDenied());
@@ -957,12 +949,7 @@ public class OnboardActivity extends FragmentActivity
                                  .setIcon(R.drawable.dialog_device_management)
                                  .setTitle(R.string.device_management_limit_title)
                                  .setMessage(R.string.device_management_limit_active).get())
-                .setPositiveButton(R.string.device_management_register, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        login(loginBundle);
-                    }
-                })
+                .setPositiveButton(R.string.device_management_register, (dialog, which) -> login(loginBundle))
                 .setNegativeButton(R.string.btn_cancel, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictOnLogin());
     }
@@ -1009,12 +996,9 @@ public class OnboardActivity extends FragmentActivity
     private void addFeedbackButton(AlertDialog.Builder dialogBuilder) {
         if (applicationProperties.shouldAllowFeedback()) {
             dialogBuilder
-                    .setNeutralButton(R.string.title_feedback, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Log.i(ONBOARDING_TAG, "on send bug report");
-                            bugReporter.showSignInFeedbackDialog(getFragmentActivity());
-                        }
+                    .setNeutralButton(R.string.title_feedback, (dialog, which) -> {
+                        Log.i(ONBOARDING_TAG, "on send bug report");
+                        bugReporter.showSignInFeedbackDialog(getFragmentActivity());
                     });
         }
     }

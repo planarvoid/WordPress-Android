@@ -97,18 +97,15 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     }
 
     private Func1<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedItem>> augmentRecentlyPlayedItems() {
-        return new Func1<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedItem>>() {
-            @Override
-            public List<RecentlyPlayedItem> call(List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems) {
-                final int contextCount = recentlyPlayedPlayableItems.size();
-                List<RecentlyPlayedItem> list = new ArrayList<>(contextCount + 1);
+        return recentlyPlayedPlayableItems -> {
+            final int contextCount = recentlyPlayedPlayableItems.size();
+            List<RecentlyPlayedItem> list = new ArrayList<>(contextCount + 1);
 
-                if (contextCount > 0) {
-                    list.add(RecentlyPlayedHeader.create(contextCount));
-                    list.addAll(recentlyPlayedPlayableItems);
-                }
-                return list;
+            if (contextCount > 0) {
+                list.add(RecentlyPlayedHeader.create(contextCount));
+                list.addAll(recentlyPlayedPlayableItems);
             }
+            return list;
         };
     }
 

@@ -11,26 +11,11 @@ import java.util.Collections;
 
 public final class OfflineContentChangedEvent {
 
-    public static final Func1<OfflineContentChangedEvent, OfflineState> TO_OFFLINE_STATE = new Func1<OfflineContentChangedEvent, OfflineState>() {
-        @Override
-        public OfflineState call(OfflineContentChangedEvent event) {
-            return event.state;
-        }
-    };
+    public static final Func1<OfflineContentChangedEvent, OfflineState> TO_OFFLINE_STATE = event -> event.state;
 
-    public static final Func1<OfflineContentChangedEvent, Boolean> HAS_LIKED_COLLECTION_CHANGE = new Func1<OfflineContentChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(OfflineContentChangedEvent event) {
-            return event.isLikedTrackCollection;
-        }
-    };
+    public static final Func1<OfflineContentChangedEvent, Boolean> HAS_LIKED_COLLECTION_CHANGE = event -> event.isLikedTrackCollection;
 
-    static final Func1<OfflineContentChangedEvent, Boolean> TO_LIKES_COLLECTION_MARKED_OFFLINE = new Func1<OfflineContentChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(OfflineContentChangedEvent event) {
-            return event.state != OfflineState.NOT_OFFLINE;
-        }
-    };
+    static final Func1<OfflineContentChangedEvent, Boolean> TO_LIKES_COLLECTION_MARKED_OFFLINE = event -> event.state != OfflineState.NOT_OFFLINE;
 
     public final OfflineState state;
     public final Collection<Urn> entities;

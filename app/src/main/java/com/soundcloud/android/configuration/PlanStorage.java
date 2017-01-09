@@ -25,20 +25,10 @@ public class PlanStorage {
 
     private static final int NO_TRIAL = 0;
 
-    private static final Func1<String, Boolean> UPSELLS_PREFERENCE = new Func1<String, Boolean>() {
-        @Override
-        public Boolean call(String key) {
-            return KEY_UPSELLS.equals(key);
-        }
-    };
+    private static final Func1<String, Boolean> UPSELLS_PREFERENCE = key -> KEY_UPSELLS.equals(key);
 
     private final SharedPreferences sharedPreferences;
-    private final Func1<String, List<Plan>> toUpsells = new Func1<String, List<Plan>>() {
-        @Override
-        public List<Plan> call(String key) {
-            return getUpsells();
-        }
-    };
+    private final Func1<String, List<Plan>> toUpsells = key -> getUpsells();
 
     @Inject
     public PlanStorage(@Named(StorageModule.FEATURES) SharedPreferences sharedPreferences) {

@@ -42,19 +42,16 @@ class UpsellItemCellRenderer implements CellRenderer<CollectionItem> {
     public void bindItemView(final int position, View itemView, List<CollectionItem> items) {
         itemView.setEnabled(false);
         if (listener != null) {
-            final View.OnClickListener clickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    switch(v.getId()) {
-                        case R.id.close_button:
-                            listener.onUpsellClose(position);
-                            break;
-                        case R.id.upsell_button:
-                            listener.onUpsell(v.getContext());
-                            break;
-                        default:
-                            break;
-                    }
+            final View.OnClickListener clickListener = v -> {
+                switch(v.getId()) {
+                    case R.id.close_button:
+                        listener.onUpsellClose(position);
+                        break;
+                    case R.id.upsell_button:
+                        listener.onUpsell(v.getContext());
+                        break;
+                    default:
+                        break;
                 }
             };
             itemView.findViewById(R.id.close_button).setOnClickListener(clickListener);

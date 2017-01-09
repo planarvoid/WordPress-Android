@@ -24,12 +24,7 @@ class WriteStationsRecommendationsCommand
     private static final int STATIONS_COLLECTIONS_TYPE = StationsCollectionsTypes.RECOMMENDATIONS;
 
     private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES =
-            new Function<ApiStationMetadata, ContentValues>() {
-                @Override
-                public ContentValues apply(ApiStationMetadata station) {
-                    return buildStationContentValues(station);
-                }
-            };
+            station -> buildStationContentValues(station);
 
     @Inject
     WriteStationsRecommendationsCommand(PropellerDatabase propeller) {

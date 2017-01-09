@@ -5,12 +5,7 @@ import rx.functions.Func1;
 
 final class ProductStatus {
 
-    public static final Func1<ProductDetails, ProductStatus> SUCCESS = new Func1<ProductDetails, ProductStatus>() {
-        @Override
-        public ProductStatus call(ProductDetails details) {
-            return ProductStatus.fromSuccess(details);
-        }
-    };
+    public static final Func1<ProductDetails, ProductStatus> SUCCESS = details1 -> ProductStatus.fromSuccess(details1);
 
     private final ProductDetails details;
 

@@ -14,14 +14,11 @@ import android.view.View;
 
 public class WrongUserDialog extends UnrecoverableErrorDialog {
 
-    private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int which) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                LogoutActivity.start(getActivity());
-            }
-            dismiss();
+    private final DialogInterface.OnClickListener listener = (dialogInterface, which) -> {
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            LogoutActivity.start(getActivity());
         }
+        dismiss();
     };
 
     public static void show(FragmentManager fragmentManager) {

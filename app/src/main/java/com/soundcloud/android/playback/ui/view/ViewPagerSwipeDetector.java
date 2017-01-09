@@ -20,11 +20,8 @@ import java.util.concurrent.TimeUnit;
  * `PagerSwipeDetector` tries to bridge the gap.
  */
 public class ViewPagerSwipeDetector extends ViewPager.SimpleOnPageChangeListener {
-    public static final SwipeListener EMPTY_LISTENER = new SwipeListener() {
-        @Override
-        public void onSwipe() {
-            // no-op
-        }
+    public static final SwipeListener EMPTY_LISTENER = () -> {
+        // no-op
     };
 
     public static ViewPagerSwipeDetector forPager(ViewPager pager) {

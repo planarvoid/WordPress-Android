@@ -148,18 +148,8 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
         new AlertDialog.Builder(getActivity())
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        resetOfflineFeature();
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        setOfflineCollectionChecked(true);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> resetOfflineFeature())
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> setOfflineCollectionChecked(true))
                 .show();
     }
 
@@ -222,12 +212,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
         new AlertDialog.Builder(getActivity())
                 .setView(view)
-                .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        resetOfflineFeature();
-                    }
-                })
+                .setPositiveButton(R.string.btn_continue, (dialog, which) -> resetOfflineFeature())
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }

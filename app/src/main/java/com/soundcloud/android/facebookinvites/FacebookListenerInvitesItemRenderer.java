@@ -104,23 +104,17 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamI
     }
 
     private void setClickListeners(View itemView, final int position) {
-        itemView.findViewById(R.id.close_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                facebookInvitesStorage.setDismissed();
-                if (listener != null) {
-                    listener.onListenerInvitesDismiss(position);
-                }
+        itemView.findViewById(R.id.close_button).setOnClickListener(v -> {
+            facebookInvitesStorage.setDismissed();
+            if (listener != null) {
+                listener.onListenerInvitesDismiss(position);
             }
         });
 
-        itemView.findViewById(R.id.action_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                facebookInvitesStorage.setClicked();
-                if (listener != null) {
-                    listener.onListenerInvitesClicked(position);
-                }
+        itemView.findViewById(R.id.action_button).setOnClickListener(v -> {
+            facebookInvitesStorage.setClicked();
+            if (listener != null) {
+                listener.onListenerInvitesClicked(position);
             }
         });
     }

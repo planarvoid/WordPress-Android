@@ -73,12 +73,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private static final String PARAM_CAN_SNIP = "can_snip";
 
     private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
-    private static final Predicate<AudioAdSource> IS_HLS = new Predicate<AudioAdSource>() {
-        @Override
-        public boolean apply(AudioAdSource input) {
-            return input.isHls();
-        }
-    };
+    private static final Predicate<AudioAdSource> IS_HLS = input -> input.isHls();
 
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;

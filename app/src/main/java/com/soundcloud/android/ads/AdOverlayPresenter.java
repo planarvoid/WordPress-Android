@@ -98,21 +98,11 @@ public abstract class AdOverlayPresenter {
 
         this.adImage = (ImageView) overlay.findViewById(adImageId);
         final View adImageHolder = overlay.findViewById(adClickId);
-        adImageHolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onImageClick();
-            }
-        });
+        adImageHolder.setOnClickListener(v -> listener.onImageClick());
 
         this.leaveBehindHeader = overlay.findViewById(headerId);
 
-        this.overlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onCloseButtonClick();
-            }
-        });
+        this.overlay.setOnClickListener(v -> listener.onCloseButtonClick());
         this.imageOperations = imageOperations;
 
     }

@@ -67,23 +67,13 @@ public class PlaylistTagStorage {
 
     public Observable<List<String>> getRecentTagsAsync() {
         return Observable
-                .fromCallable(new Callable<List<String>>() {
-                    @Override
-                    public List<String> call() throws Exception {
-                        return getRecentTags();
-                    }
-                })
+                .fromCallable(() -> getRecentTags())
                 .subscribeOn(scheduler);
     }
 
     public Observable<List<String>> getPopularTagsAsync() {
         return Observable
-                .fromCallable(new Callable<List<String>>() {
-                    @Override
-                    public List<String> call() throws Exception {
-                        return getPopularTags();
-                    }
-                })
+                .fromCallable(() -> getPopularTags())
                 .subscribeOn(scheduler);
     }
 

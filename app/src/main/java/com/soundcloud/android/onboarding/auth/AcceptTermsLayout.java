@@ -59,37 +59,17 @@ public class AcceptTermsLayout extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        findViewById(R.id.btn_cancel).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAcceptTermsHandler().onRejectTerms();
-            }
-        });
+        findViewById(R.id.btn_cancel).setOnClickListener(v -> getAcceptTermsHandler().onRejectTerms());
 
-        findViewById(R.id.btn_accept_terms).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAcceptTermsHandler().onAcceptTerms(signupVia, signupParams);
-            }
-        });
+        findViewById(R.id.btn_accept_terms).setOnClickListener(v -> getAcceptTermsHandler().onAcceptTerms(signupVia, signupParams));
 
         ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
                              getResources().getString(R.string.terms_of_use),
-                             new ScTextUtils.ClickSpan.OnClickListener() {
-                                 @Override
-                                 public void onClick() {
-                                     getAcceptTermsHandler().onShowTermsOfUse();
-                                 }
-                             }, false, false);
+                             () -> getAcceptTermsHandler().onShowTermsOfUse(), false, false);
 
         ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
                              getResources().getString(R.string.privacy_policy),
-                             new ScTextUtils.ClickSpan.OnClickListener() {
-                                 @Override
-                                 public void onClick() {
-                                     getAcceptTermsHandler().onShowPrivacyPolicy();
-                                 }
-                             }, false, false);
+                             () -> getAcceptTermsHandler().onShowPrivacyPolicy(), false, false);
 
     }
 

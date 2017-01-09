@@ -46,23 +46,20 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
         final ToggleButton toggleFollow = ((ToggleButton) itemView.findViewById(R.id.toggle_btn_follow));
         toggleFollow.setVisibility(View.VISIBLE);
         toggleFollow.setChecked(user.isFollowedByMe());
-        toggleFollow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String screen = screenProvider.getLastScreen().get();
+        toggleFollow.setOnClickListener(v -> {
+            final String screen = screenProvider.getLastScreen().get();
 
-                fireAndForget(followingOperations.toggleFollowing(user.getUrn(), toggleFollow.isChecked()));
+            fireAndForget(followingOperations.toggleFollowing(user.getUrn(), toggleFollow.isChecked()));
 
-                engagementsTracking.followUserUrn(user.getUrn(),
-                                                  toggleFollow.isChecked(),
-                                                  EventContextMetadata.builder()
-                                                                      .module(Module.create(
-                                                                              screen,
-                                                                              position
-                                                                      ))
-                                                                      .pageName(screen)
-                                                                      .build());
-            }
+            engagementsTracking.followUserUrn(user.getUrn(),
+                                              toggleFollow.isChecked(),
+                                              EventContextMetadata.builder()
+                                                                  .module(Module.create(
+                                                                          screen,
+                                                                          position
+                                                                  ))
+                                                                  .pageName(screen)
+                                                                  .build());
         });
     }
 }

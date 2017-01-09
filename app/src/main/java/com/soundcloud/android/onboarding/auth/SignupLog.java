@@ -35,11 +35,8 @@ public final class SignupLog {
     }
 
     public static Thread writeNewSignupAsync(final Context context) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                writeNewSignup(context, System.currentTimeMillis());
-            }
+        Thread t = new Thread(() -> {
+            writeNewSignup(context, System.currentTimeMillis());
         });
         t.start();
         return t;

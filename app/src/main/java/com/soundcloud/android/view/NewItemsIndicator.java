@@ -114,14 +114,11 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
     }
 
     private void assignIndicatorClickListener() {
-        indicatorTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                newItems = 0;
-                hide();
-                if (clickListener != null) {
-                    clickListener.onNewItemsIndicatorClicked();
-                }
+        indicatorTextView.setOnClickListener(v -> {
+            newItems = 0;
+            hide();
+            if (clickListener != null) {
+                clickListener.onNewItemsIndicatorClicked();
             }
         });
     }

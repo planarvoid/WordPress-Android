@@ -6,12 +6,7 @@ import rx.functions.Func1;
 
 class CheckoutStarted {
 
-    public static final Func1<CheckoutStarted, String> TOKEN = new Func1<CheckoutStarted, String>() {
-        @Override
-        public String call(CheckoutStarted result) {
-            return result.token;
-        }
-    };
+    public static final Func1<CheckoutStarted, String> TOKEN = result -> result.token;
 
     public final String token;
 

@@ -76,12 +76,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
     }
 
     private void setupOverflow(final View button, final RecentlyPlayedPlayableItem station) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stationMenuPresenter.show(button, station.getUrn());
-            }
-        });
+        button.setOnClickListener(v -> stationMenuPresenter.show(button, station.getUrn()));
 
         ViewUtils.extendTouchArea(button);
     }
@@ -116,15 +111,12 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
     }
 
     private View.OnClickListener goToStation(final RecentlyPlayedPlayableItem station) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Urn urn = station.getUrn();
+        return view -> {
+            Urn urn = station.getUrn();
 
-                Screen lastScreen = screenProvider.getLastScreen();
-                eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-                stationHandler.startStation(view.getContext(), urn);
-            }
+            Screen lastScreen = screenProvider.getLastScreen();
+            eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
+            stationHandler.startStation(view.getContext(), urn);
         };
     }
 }

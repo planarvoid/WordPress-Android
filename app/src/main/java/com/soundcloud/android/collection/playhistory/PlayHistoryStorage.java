@@ -74,12 +74,7 @@ public class PlayHistoryStorage {
     }
 
     Observable<Urn> loadPlayHistoryForPlayback() {
-        return rxDatabase.query(loadForPlaybackQuery()).map(new Func1<CursorReader, Urn>() {
-            @Override
-            public Urn call(CursorReader cursorReader) {
-                return Urn.forTrack(cursorReader.getLong(PlayHistory.TRACK_ID.name()));
-            }
-        });
+        return rxDatabase.query(loadForPlaybackQuery()).map(cursorReader -> Urn.forTrack(cursorReader.getLong(PlayHistory.TRACK_ID.name())));
     }
 
     boolean hasPendingTracksToSync() {
@@ -113,15 +108,10 @@ public class PlayHistoryStorage {
 
     private List<PlayHistoryRecord> syncedPlayHistory(boolean synced) {
         return database.query(loadSyncedTracksQuery(synced))
-                       .toList(new ResultMapper<PlayHistoryRecord>() {
-                           @Override
-                           public PlayHistoryRecord map(CursorReader reader) {
-                               return PlayHistoryRecord.create(
-                                       reader.getLong(PlayHistory.TIMESTAMP),
-                                       Urn.forTrack(reader.getLong(PlayHistory.TRACK_ID)),
-                                       Urn.NOT_SET);
-                           }
-                       });
+                       .toList(reader -> PlayHistoryRecord.create(
+                               reader.getLong(PlayHistory.TIMESTAMP),
+                               Urn.forTrack(reader.getLong(PlayHistory.TRACK_ID)),
+                               Urn.NOT_SET));
     }
 
     private Query loadSyncedTracksQuery(boolean synced) {

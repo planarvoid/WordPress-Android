@@ -4,19 +4,9 @@ import android.view.View;
 
 public interface ViewVisibilityProvider {
 
-    ViewVisibilityProvider EMPTY = new ViewVisibilityProvider() {
-        @Override
-        public boolean isCurrentlyVisible(View view) {
-            return false;
-        }
-    };
+    ViewVisibilityProvider EMPTY = view -> false;
 
-    ViewVisibilityProvider ALWAYS_VISIBLE = new ViewVisibilityProvider() {
-        @Override
-        public boolean isCurrentlyVisible(View view) {
-            return true;
-        }
-    };
+    ViewVisibilityProvider ALWAYS_VISIBLE = view -> true;
 
     boolean isCurrentlyVisible(View view);
 }

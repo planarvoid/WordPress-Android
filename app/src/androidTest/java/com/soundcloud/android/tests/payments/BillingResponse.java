@@ -38,12 +38,7 @@ final class BillingResponse {
 
     public void insertInto(final Activity activity) {
         final NativeConversionActivity subscribe = (NativeConversionActivity) activity;
-        subscribe.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                subscribe.onActivityResult(REQUEST_CODE, getResponseCode(), getData(activity));
-            }
-        });
+        subscribe.runOnUiThread(() -> subscribe.onActivityResult(REQUEST_CODE, getResponseCode(), getData(activity)));
     }
 
     private int getResponseCode() {

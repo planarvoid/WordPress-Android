@@ -18,20 +18,17 @@ public class SeekBarElement {
     }
 
     public void tapAt(final int percentage) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                int x = view.getMeasuredWidth() * percentage / 100;
-                int y = view.getMeasuredHeight() / 2;
+        new Handler(Looper.getMainLooper()).post(() -> {
+            int x = view.getMeasuredWidth() * percentage / 100;
+            int y = view.getMeasuredHeight() / 2;
 
-                MotionEvent event = MotionEvent.obtain(1000L,
-                                                       SystemClock.uptimeMillis(),
-                                                       MotionEvent.ACTION_UP,
-                                                       x,
-                                                       y,
-                                                       0);
-                view.dispatchTouchEvent(event);
-            }
+            MotionEvent event = MotionEvent.obtain(1000L,
+                                                   SystemClock.uptimeMillis(),
+                                                   MotionEvent.ACTION_UP,
+                                                   x,
+                                                   y,
+                                                   0);
+            view.dispatchTouchEvent(event);
         });
     }
 }

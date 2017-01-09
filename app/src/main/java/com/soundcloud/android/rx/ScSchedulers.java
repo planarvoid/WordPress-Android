@@ -57,12 +57,9 @@ public final class ScSchedulers {
         public void execute(@NonNull final Runnable command) {
             logExecuteWarning();
             final long startTime = System.currentTimeMillis();
-            target.execute(new Runnable() {
-                @Override
-                public void run() {
-                    logExecutingWarning(startTime);
-                    command.run();
-                }
+            target.execute(() -> {
+                logExecutingWarning(startTime);
+                command.run();
             });
         }
 

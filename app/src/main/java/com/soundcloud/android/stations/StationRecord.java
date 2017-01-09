@@ -8,12 +8,7 @@ import java.util.List;
 
 public interface StationRecord extends ImageResource {
 
-    Function<StationRecord, Urn> TO_URN = new Function<StationRecord, Urn>() {
-        @Override
-        public Urn apply(StationRecord station) {
-            return station.getUrn();
-        }
-    };
+    Function<StationRecord, Urn> TO_URN = station -> station.getUrn();
 
     List<StationTrack> getTracks();
 

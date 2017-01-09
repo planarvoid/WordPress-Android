@@ -7,12 +7,7 @@ import com.soundcloud.java.optional.Optional;
 
 public abstract class PlayQueueItem {
 
-    public static final Function<PlayQueueItem, Urn> TO_URN = new Function<PlayQueueItem, Urn>() {
-        @Override
-        public Urn apply(PlayQueueItem input) {
-            return input.getUrn();
-        }
-    };
+    public static final Function<PlayQueueItem, Urn> TO_URN = input -> input.getUrn();
 
     public static final PlayQueueItem EMPTY = new Empty();
 

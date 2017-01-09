@@ -26,41 +26,29 @@ import javax.inject.Singleton;
 public class PlayHistoryController {
 
     private static final Func1<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>, Boolean> IS_ELIGIBLE_FOR_HISTORY =
-            new Func1<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>, Boolean>() {
-                @Override
-                public Boolean call(Pair<CurrentPlayQueueItemEvent, PlayStateEvent> pair) {
-                    CurrentPlayQueueItemEvent playQueueEvent = pair.first();
-                    PlayQueueItem currentPlayQueueItem = playQueueEvent.getCurrentPlayQueueItem();
-                    PlayStateEvent playStateEvent = pair.second();
+            pair -> {
+                CurrentPlayQueueItemEvent playQueueEvent = pair.first();
+                PlayQueueItem currentPlayQueueItem = playQueueEvent.getCurrentPlayQueueItem();
+                PlayStateEvent playStateEvent = pair.second();
 
-                    return playStateEvent.isPlayerPlaying()
-                            && !PlayQueueItem.EMPTY.equals(currentPlayQueueItem)
-                            && currentPlayQueueItem.getUrn().equals(playStateEvent.getPlayingItemUrn())
-                            && !currentPlayQueueItem.isAd();
-                }
+                return playStateEvent.isPlayerPlaying()
+                        && !PlayQueueItem.EMPTY.equals(currentPlayQueueItem)
+                        && currentPlayQueueItem.getUrn().equals(playStateEvent.getPlayingItemUrn())
+                        && !currentPlayQueueItem.isAd();
             };
 
     private static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, Pair<CurrentPlayQueueItemEvent, PlayStateEvent>> COMBINE_EVENTS =
-            new Func2<CurrentPlayQueueItemEvent, PlayStateEvent, Pair<CurrentPlayQueueItemEvent, PlayStateEvent>>() {
-                @Override
-                public Pair<CurrentPlayQueueItemEvent, PlayStateEvent> call(CurrentPlayQueueItemEvent queueItemEvent,
-                                                                            PlayStateEvent playStateEvent) {
-                    return Pair.of(queueItemEvent, playStateEvent);
-                }
-            };
+            (queueItemEvent, playStateEvent) -> Pair.of(queueItemEvent, playStateEvent);
 
     private static final Func1<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>, PlayHistoryRecord> TO_PLAY_HISTORY_RECORD =
-            new Func1<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>, PlayHistoryRecord>() {
-                @Override
-                public PlayHistoryRecord call(Pair<CurrentPlayQueueItemEvent, PlayStateEvent> pair) {
-                    CurrentPlayQueueItemEvent queueItemEvent = pair.first();
-                    PlayStateEvent playStateEvent = pair.second();
+            pair -> {
+                CurrentPlayQueueItemEvent queueItemEvent = pair.first();
+                PlayStateEvent playStateEvent = pair.second();
 
-                    return PlayHistoryRecord.create(
-                            playStateEvent.getProgress().getCreatedAt(),
-                            queueItemEvent.getCurrentPlayQueueItem().getUrn(),
-                            queueItemEvent.getCollectionUrn());
-                }
+                return PlayHistoryRecord.create(
+                        playStateEvent.getProgress().getCreatedAt(),
+                        queueItemEvent.getCurrentPlayQueueItem().getUrn(),
+                        queueItemEvent.getCollectionUrn());
             };
 
     private final EventBus eventBus;
@@ -103,11 +91,6 @@ public class PlayHistoryController {
     }
 
     private Action1<PlayHistoryRecord> publishNewPlayHistory() {
-        return new Action1<PlayHistoryRecord>() {
-            @Override
-            public void call(PlayHistoryRecord record) {
-                eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
-            }
-        };
+        return record -> eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
     }
 }

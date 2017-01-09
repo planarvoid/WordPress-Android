@@ -31,66 +31,41 @@ public class MyPlaylistsOperations {
 
     private static final int PLAYLIST_LIMIT = 1000; // Arbitrarily high, we don't want to worry about paging
 
-    private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> REMOVE_DUPLICATE_PLAYLISTS = new Func1<List<PlaylistAssociation>, List<PlaylistAssociation>>() {
-        @Override
-        public List<PlaylistAssociation> call(List<PlaylistAssociation> playlistAssociations) {
-            Set<Urn> uniquePlaylists = Sets.newHashSetWithExpectedSize(playlistAssociations.size());
-            for (Iterator<PlaylistAssociation> iterator = playlistAssociations.iterator(); iterator.hasNext(); ) {
-                final Urn urn = iterator.next().getPlaylistItem().getUrn();
-                if (uniquePlaylists.contains(urn)) {
-                    iterator.remove();
-                } else {
-                    uniquePlaylists.add(urn);
-                }
+    private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> REMOVE_DUPLICATE_PLAYLISTS = playlistAssociations -> {
+        Set<Urn> uniquePlaylists = Sets.newHashSetWithExpectedSize(playlistAssociations.size());
+        for (Iterator<PlaylistAssociation> iterator = playlistAssociations.iterator(); iterator.hasNext(); ) {
+            final Urn urn = iterator.next().getPlaylistItem().getUrn();
+            if (uniquePlaylists.contains(urn)) {
+                iterator.remove();
+            } else {
+                uniquePlaylists.add(urn);
             }
-            return playlistAssociations;
         }
+        return playlistAssociations;
     };
 
-    private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> SORT_BY_CREATION = new Func1<List<PlaylistAssociation>, List<PlaylistAssociation>>() {
-        @Override
-        public List<PlaylistAssociation> call(List<PlaylistAssociation> playlistAssociations) {
-            Collections.sort(playlistAssociations, new Comparator<PlaylistAssociation>() {
-                @Override
-                public int compare(PlaylistAssociation lhs, PlaylistAssociation rhs) {
-                    // flipped as we want reverse chronological order
-                    return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
-                }
-            });
-            return playlistAssociations;
-        }
+    private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> SORT_BY_CREATION = playlistAssociations -> {
+        Collections.sort(playlistAssociations, (lhs, rhs) -> {
+            // flipped as we want reverse chronological order
+            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+        });
+        return playlistAssociations;
     };
 
-    private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> SORT_BY_TITLE = new Func1<List<PlaylistAssociation>, List<PlaylistAssociation>>() {
-        @Override
-        public List<PlaylistAssociation> call(List<PlaylistAssociation> propertySets) {
-            Collections.sort(propertySets, new Comparator<PlaylistAssociation>() {
-                @Override
-                public int compare(PlaylistAssociation lhs, PlaylistAssociation rhs) {
-                    return lhs.getPlaylistItem().getTitle().compareTo(rhs.getPlaylistItem().getTitle());
-                }
-            });
-            return propertySets;
-        }
+    private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> SORT_BY_TITLE = propertySets -> {
+        Collections.sort(propertySets, (lhs, rhs) -> lhs.getPlaylistItem().getTitle().compareTo(rhs.getPlaylistItem().getTitle()));
+        return propertySets;
     };
 
 
-    private static Func2<List<PlaylistAssociation>, List<PlaylistAssociation>, List<PlaylistAssociation>> COMBINE_POSTED_AND_LIKED = new Func2<List<PlaylistAssociation>, List<PlaylistAssociation>, List<PlaylistAssociation>>() {
-        @Override
-        public List<PlaylistAssociation> call(List<PlaylistAssociation> postedPlaylists, List<PlaylistAssociation> likedPlaylists) {
-            List<PlaylistAssociation> all = new ArrayList<>(postedPlaylists.size() + likedPlaylists.size());
-            all.addAll(postedPlaylists);
-            all.addAll(likedPlaylists);
-            return all;
-        }
+    private static Func2<List<PlaylistAssociation>, List<PlaylistAssociation>, List<PlaylistAssociation>> COMBINE_POSTED_AND_LIKED = (postedPlaylists, likedPlaylists) -> {
+        List<PlaylistAssociation> all = new ArrayList<>(postedPlaylists.size() + likedPlaylists.size());
+        all.addAll(postedPlaylists);
+        all.addAll(likedPlaylists);
+        return all;
     };
 
-    private static final Func1<List<PlaylistAssociation>, List<PlaylistItem>> EXTRACT_PLAYLIST_ITEMS = new Func1<List<PlaylistAssociation>, List<PlaylistItem>>() {
-        @Override
-        public List<PlaylistItem> call(List<PlaylistAssociation> playlistAssociations) {
-            return Lists.transform(playlistAssociations, PlaylistAssociation.GET_PLAYLIST_ITEM);
-        }
-    };
+    private static final Func1<List<PlaylistAssociation>, List<PlaylistItem>> EXTRACT_PLAYLIST_ITEMS = playlistAssociations -> Lists.transform(playlistAssociations, PlaylistAssociation.GET_PLAYLIST_ITEM);
 
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final PlaylistLikesStorage playlistLikesStorage;
@@ -139,20 +114,17 @@ public class MyPlaylistsOperations {
     }
 
     private Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> offlineOnly(final boolean offlineOnly) {
-        return new Func1<List<PlaylistAssociation>, List<PlaylistAssociation>>() {
-            @Override
-            public List<PlaylistAssociation> call(List<PlaylistAssociation> propertySets) {
-                if (offlineOnly) {
-                    for (Iterator<PlaylistAssociation> iterator = propertySets.iterator(); iterator.hasNext(); ) {
-                        OfflineState offlineState = iterator.next().getPlaylistItem().getDownloadState();
+        return propertySets -> {
+            if (offlineOnly) {
+                for (Iterator<PlaylistAssociation> iterator = propertySets.iterator(); iterator.hasNext(); ) {
+                    OfflineState offlineState = iterator.next().getPlaylistItem().getDownloadState();
 
-                        if (offlineState.equals(NOT_OFFLINE)) {
-                            iterator.remove();
-                        }
+                    if (offlineState.equals(NOT_OFFLINE)) {
+                        iterator.remove();
                     }
                 }
-                return propertySets;
             }
+            return propertySets;
         };
     }
 

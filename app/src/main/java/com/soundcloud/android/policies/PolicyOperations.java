@@ -26,19 +26,9 @@ import java.util.concurrent.TimeUnit;
 public class PolicyOperations {
     public static final long POLICY_STALE_AGE_MILLISECONDS = TimeUnit.HOURS.toMillis(24);
 
-    private static final Func1<ApiPolicyInfo, Urn> TO_TRACK_URN = new Func1<ApiPolicyInfo, Urn>() {
-        @Override
-        public Urn call(ApiPolicyInfo policy) {
-            return policy.getUrn();
-        }
-    };
+    private static final Func1<ApiPolicyInfo, Urn> TO_TRACK_URN = policy -> policy.getUrn();
 
-    private static final Func1<ApiPolicyInfo, Boolean> FILTER_MONETIZABLE = new Func1<ApiPolicyInfo, Boolean>() {
-        @Override
-        public Boolean call(ApiPolicyInfo policy) {
-            return !policy.isMonetizable();
-        }
-    };
+    private static final Func1<ApiPolicyInfo, Boolean> FILTER_MONETIZABLE = policy -> !policy.isMonetizable();
 
     private final ClearTableCommand clearTableCommand;
     private final UpdatePoliciesCommand updatePoliciesCommand;
@@ -52,12 +42,7 @@ public class PolicyOperations {
             clearTableCommand.call(Tables.TrackPolicies.TABLE);
         }
     };
-    private final Action1<Throwable> handleErrorAction = new Action1<Throwable>() {
-        @Override
-        public void call(Throwable throwable) {
-            handlePolicyUpdateFailure(throwable, false);
-        }
-    };
+    private final Action1<Throwable> handleErrorAction = throwable -> handlePolicyUpdateFailure(throwable, false);
 
     @Inject
     PolicyOperations(ClearTableCommand clearTableCommand, UpdatePoliciesCommand updatePoliciesCommand,

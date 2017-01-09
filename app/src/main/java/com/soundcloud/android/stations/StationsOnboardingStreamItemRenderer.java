@@ -38,13 +38,7 @@ public class StationsOnboardingStreamItemRenderer implements CellRenderer<Stream
     public void bindItemView(final int position, View itemView, List<StreamItem> notifications) {
         itemView.setEnabled(false);
         if (listener != null) {
-            itemView.findViewById(R.id.close_button).setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    listener.onStationOnboardingItemClosed(position);
-                }
-            });
+            itemView.findViewById(R.id.close_button).setOnClickListener(v -> listener.onStationOnboardingItemClosed(position));
         }
     }
 

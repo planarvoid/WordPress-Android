@@ -309,12 +309,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void setupBackground(final AppCompatActivity activity) {
-        activity.findViewById(R.id.search_screen_bg).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss(activity);
-            }
-        });
+        activity.findViewById(R.id.search_screen_bg).setOnClickListener(v -> dismiss(activity));
     }
 
     public void dismiss(final AppCompatActivity activity) {

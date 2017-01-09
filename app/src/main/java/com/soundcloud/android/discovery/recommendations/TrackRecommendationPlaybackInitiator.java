@@ -75,20 +75,10 @@ public class TrackRecommendationPlaybackInitiator {
     }
 
     private static Predicate<DiscoveryItem> isForSeed(final Urn seedUrn) {
-        return new Predicate<DiscoveryItem>() {
-            @Override
-            public boolean apply(DiscoveryItem input) {
-                return input.getKind() == Kind.RecommendedTracksItem && ((RecommendedTracksBucketItem) input).getSeedTrackUrn() == seedUrn;
-            }
-        };
+        return input -> input.getKind() == Kind.RecommendedTracksItem && ((RecommendedTracksBucketItem) input).getSeedTrackUrn() == seedUrn;
     }
 
     private Predicate<Recommendation> isForTrack(final Urn trackUrn) {
-        return new Predicate<Recommendation>() {
-            @Override
-            public boolean apply(@Nullable Recommendation input) {
-                return input.getTrackUrn() == trackUrn;
-            }
-        };
+        return input -> input.getTrackUrn() == trackUrn;
     }
 }

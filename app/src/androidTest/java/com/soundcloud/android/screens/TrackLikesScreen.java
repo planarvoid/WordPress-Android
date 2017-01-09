@@ -80,12 +80,7 @@ public class TrackLikesScreen extends Screen {
         final int retries = 3;
         boolean downloadFinished = false;
         for (int i = 0; i < retries && !downloadFinished; i++) {
-            waiter.waitForNetworkCondition(new Condition() {
-                @Override
-                public boolean isSatisfied() {
-                    return !isUpdateInProgress();
-                }
-            });
+            waiter.waitForNetworkCondition(() -> !isUpdateInProgress());
             downloadFinished = !isUpdateInProgress();
         }
         return downloadFinished;

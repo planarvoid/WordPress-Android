@@ -34,13 +34,11 @@ class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
     @Override
     public void bindItemView(final int position, View itemView, List<ChartTrackListItem> items) {
         final ChartTrackListItem.Track track = (ChartTrackListItem.Track) items.get(position);
-        Optional<TrackSourceInfo> trackSourceInfo = track.chartTrackItem.queryUrn().transform(new Function<Urn, TrackSourceInfo>() {
-            public TrackSourceInfo apply(Urn queryUrn) {
-                TrackSourceInfo info = new TrackSourceInfo(screenProvider.getLastScreenTag(), true);
-                final int queryPosition = position - ChartTracksPresenter.NUM_EXTRA_ITEMS;
-                info.setQuerySourceInfo(QuerySourceInfo.create(queryPosition, queryUrn));
-                return info;
-            }
+        Optional<TrackSourceInfo> trackSourceInfo = track.chartTrackItem.queryUrn().transform(queryUrn -> {
+            TrackSourceInfo info = new TrackSourceInfo(screenProvider.getLastScreenTag(), true);
+            final int queryPosition = position - ChartTracksPresenter.NUM_EXTRA_ITEMS;
+            info.setQuerySourceInfo(QuerySourceInfo.create(queryPosition, queryUrn));
+            return info;
         });
         trackItemRenderer.bindChartTrackView(track.chartTrackItem, itemView, position, trackSourceInfo);
     }

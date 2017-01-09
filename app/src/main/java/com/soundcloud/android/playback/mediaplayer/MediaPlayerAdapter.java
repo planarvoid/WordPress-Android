@@ -66,12 +66,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     public static final int MAX_CONNECT_RETRIES = 2;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
 
-    private static final Predicate<AudioAdSource> IS_MP3 = new Predicate<AudioAdSource>() {
-        @Override
-        public boolean apply(AudioAdSource input) {
-            return input.isMp3();
-        }
-    };
+    private static final Predicate<AudioAdSource> IS_MP3 = input -> input.isMp3();
 
     private final Context context;
     private final MediaPlayerManager mediaPlayerManager;

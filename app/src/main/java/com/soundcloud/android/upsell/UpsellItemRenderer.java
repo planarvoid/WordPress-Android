@@ -46,12 +46,7 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
     public void bindItemView(final int position, View view) {
         view.setEnabled(false);
         if (listener != null) {
-            ButterKnife.findById(view, R.id.close_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onUpsellItemDismissed(position);
-                }
-            });
+            ButterKnife.findById(view, R.id.close_button).setOnClickListener(v -> listener.onUpsellItemDismissed(position));
             bindActionButton(view);
         }
     }
@@ -59,12 +54,7 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
     private void bindActionButton(final View view) {
         final Button action = ButterKnife.findById(view, R.id.action_button);
         setButtonText(view, action);
-        action.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onUpsellItemClicked(view.getContext());
-            }
-        });
+        action.setOnClickListener(v -> listener.onUpsellItemClicked(view.getContext()));
     }
 
     private void setButtonText(View view, Button action) {

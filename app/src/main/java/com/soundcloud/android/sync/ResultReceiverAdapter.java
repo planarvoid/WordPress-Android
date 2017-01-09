@@ -28,12 +28,9 @@ public class ResultReceiverAdapter extends ResultReceiver {
         this.subscriberRef = new AtomicReference<Subscriber<? super SyncJobResult>>(subscriber);
         // make sure we release the observer reference as soon as we're unsubscribing, or
         // we might create a memory leak
-        subscriber.add(Subscriptions.create(new Action0() {
-            @Override
-            public void call() {
-                Log.d(TAG, "observer is unsubscribing, releasing ref...");
-                subscriberRef.set(null);
-            }
+        subscriber.add(Subscriptions.create(() -> {
+            Log.d(TAG, "observer is unsubscribing, releasing ref...");
+            subscriberRef.set(null);
         }));
     }
 

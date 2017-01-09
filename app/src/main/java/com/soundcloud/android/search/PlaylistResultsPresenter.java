@@ -33,17 +33,14 @@ import java.util.List;
 
 class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, PlaylistItem> {
 
-    private static final Func1<SearchResult, List<PlaylistItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<PlaylistItem>>() {
-        @Override
-        public List<PlaylistItem> call(SearchResult searchResult) {
-            final List<PlaylistItem> result = new ArrayList<>(searchResult.getItems().size());
-            for (SearchableItem source : searchResult) {
-                if (source instanceof PlaylistItem) {
-                    result.add((PlaylistItem) source);
-                }
+    private static final Func1<SearchResult, List<PlaylistItem>> TO_PRESENTATION_MODELS = searchResult -> {
+        final List<PlaylistItem> result = new ArrayList<>(searchResult.getItems().size());
+        for (SearchableItem source : searchResult) {
+            if (source instanceof PlaylistItem) {
+                result.add((PlaylistItem) source);
             }
-            return result;
         }
+        return result;
     };
 
     private final PlaylistDiscoveryOperations operations;

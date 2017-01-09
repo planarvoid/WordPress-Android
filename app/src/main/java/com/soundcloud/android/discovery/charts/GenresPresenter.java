@@ -18,20 +18,12 @@ import java.util.List;
 
 public class GenresPresenter extends RecyclerViewPresenter<List<Chart>, ChartListItem> {
 
-    private static final Func1<List<Chart>, List<ChartListItem>> TO_PRESENTATION_MODELS = new Func1<List<Chart>, List<ChartListItem>>() {
-        public List<ChartListItem> call(List<Chart> charts) {
-            return Lists.transform(charts, new Function<Chart, ChartListItem>() {
-                public ChartListItem apply(Chart input) {
-                    return new ChartListItem(input.trackArtworks(),
-                                             input.genre(),
-                                             input.displayName(),
-                                             input.bucketType(),
-                                             input.type(),
-                                             input.category());
-                }
-            });
-        }
-    };
+    private static final Func1<List<Chart>, List<ChartListItem>> TO_PRESENTATION_MODELS = charts -> Lists.transform(charts, input -> new ChartListItem(input.trackArtworks(),
+                                                                                                                                               input.genre(),
+                                                                                                                                               input.displayName(),
+                                                                                                                                               input.bucketType(),
+                                                                                                                                               input.type(),
+                                                                                                                                               input.category()));
     private final ChartsOperations chartsOperations;
     private final ChartListItemAdapter chartListItemAdapter;
 

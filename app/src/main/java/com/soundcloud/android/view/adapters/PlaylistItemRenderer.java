@@ -90,15 +90,10 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private void setupOverFlow(final View button,
                                final PlaylistItem playlist,
                                final Optional<Module> module) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playlistItemMenuPresenter.show(button,
-                                               playlist,
-                                               menuOptions,
-                                               getEventContextMetaDataBuilder(playlist, module));
-            }
-        });
+        button.setOnClickListener(v -> playlistItemMenuPresenter.show(button,
+                                                              playlist,
+                                                              menuOptions,
+                                                              getEventContextMetaDataBuilder(playlist, module)));
     }
 
     private void showTrackCount(View itemView, PlaylistItem playlist) {

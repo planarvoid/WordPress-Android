@@ -47,10 +47,5 @@ class Recommendation {
         return queryUrn;
     }
 
-    public static final Function<Recommendation, Urn> TO_TRACK_URN = new Function<Recommendation, Urn>() {
-        @Override
-        public Urn apply(Recommendation item) {
-            return item.getTrack().getUrn();
-        }
-    };
+    public static final Function<Recommendation, Urn> TO_TRACK_URN = item -> item.getTrack().getUrn();
 }

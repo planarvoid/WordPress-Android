@@ -58,12 +58,9 @@ public class ConfigurationHelper {
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
         planStorage.getUpsellUpdates()
-                   .doOnNext(new Action1<List<Plan>>() {
-                       @Override
-                       public void call(List<Plan> plans) {
-                           if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
-                               planStorage.updateUpsells(Collections.singletonList(HIGH_TIER));
-                           }
+                   .doOnNext(plans -> {
+                       if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
+                           planStorage.updateUpsells(Collections.singletonList(HIGH_TIER));
                        }
                    }).subscribe();
     }
@@ -104,12 +101,9 @@ public class ConfigurationHelper {
 
         featureStorage.getUpdates(name)
                       .filter(RxUtils.IS_FALSE)
-                      .doOnNext(new Action1<Boolean>() {
-                          @Override
-                          public void call(Boolean enabled) {
-                              Log.d(TAG, "updating feature after change: " + feature.name);
-                              featureStorage.update(feature);
-                          }
+                      .doOnNext(enabled -> {
+                          Log.d(TAG, "updating feature after change: " + feature.name);
+                          featureStorage.update(feature);
                       })
                       .subscribe();
     }
@@ -122,12 +116,7 @@ public class ConfigurationHelper {
 
         featureStorage.getUpdates(name)
                       .filter(RxUtils.IS_TRUE)
-                      .doOnNext(new Action1<Boolean>() {
-                          @Override
-                          public void call(Boolean enabled) {
-                              featureStorage.update(feature);
-                          }
-                      })
+                      .doOnNext(enabled -> featureStorage.update(feature))
                       .subscribe();
     }
 

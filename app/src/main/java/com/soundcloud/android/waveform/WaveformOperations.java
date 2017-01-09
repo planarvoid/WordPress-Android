@@ -63,20 +63,10 @@ public class WaveformOperations {
 
     @VisibleForTesting
     protected Observable<WaveformData> fetchDefault() {
-        return Observable.fromCallable(new Callable<WaveformData>() {
-            @Override
-            public WaveformData call() throws Exception {
-                return waveformParser.parse(context.getAssets().open(DEFAULT_WAVEFORM_ASSET_FILE));
-            }
-        });
+        return Observable.fromCallable(() -> waveformParser.parse(context.getAssets().open(DEFAULT_WAVEFORM_ASSET_FILE)));
     }
 
     private Action1<WaveformData> storeAction(final Urn trackUrn) {
-        return new Action1<WaveformData>() {
-            @Override
-            public void call(WaveformData waveformData) {
-                fireAndForget(waveformStorage.store(trackUrn, waveformData));
-            }
-        };
+        return waveformData -> fireAndForget(waveformStorage.store(trackUrn, waveformData));
     }
 }

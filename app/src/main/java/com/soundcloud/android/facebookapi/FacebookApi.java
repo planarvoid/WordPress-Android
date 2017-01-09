@@ -33,12 +33,9 @@ public class FacebookApi {
         }
 
         return Observable
-                .fromCallable(new Callable<List<String>>() {
-                    @Override
-                    public List<String> call() throws Exception {
-                        final FacebookApiResponse response = facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES);
-                        return extractFriendPictureUrls(response);
-                    }
+                .fromCallable(() -> {
+                    final FacebookApiResponse response = facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES);
+                    return extractFriendPictureUrls(response);
                 })
                 .subscribeOn(scheduler);
     }

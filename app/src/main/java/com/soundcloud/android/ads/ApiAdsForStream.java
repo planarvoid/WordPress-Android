@@ -21,12 +21,7 @@ import java.util.Map;
 
 class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollection {
 
-    private static final Predicate<ApiAdWrapper> IS_APP_INSTALL = new Predicate<ApiAdWrapper>() {
-        @Override
-        public boolean apply(@Nullable ApiAdWrapper input) {
-            return input != null && input.getAppInstall().isPresent();
-        }
-    };
+    private static final Predicate<ApiAdWrapper> IS_APP_INSTALL = input -> input != null && input.getAppInstall().isPresent();
 
     private static final class ToAppInstall implements Function<ApiAdWrapper, AppInstallAd> {
         private final DateProvider dateProvider;

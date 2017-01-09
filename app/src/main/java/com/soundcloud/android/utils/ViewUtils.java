@@ -53,16 +53,14 @@ public final class ViewUtils {
     public static void extendTouchArea(final View delegate, int extendDp) {
         final int extendPx = dpToPx(delegate.getContext(), extendDp);
         final View parent = (View) delegate.getParent();
-        parent.post(new Runnable() {
-            public void run() {
-                final Rect r = new Rect();
-                delegate.getHitRect(r);
-                r.top -= extendPx;
-                r.left -= extendPx;
-                r.right += extendPx;
-                r.bottom += extendPx;
-                parent.setTouchDelegate(new TouchDelegate(r, delegate));
-            }
+        parent.post(() -> {
+            final Rect r = new Rect();
+            delegate.getHitRect(r);
+            r.top -= extendPx;
+            r.left -= extendPx;
+            r.right += extendPx;
+            r.bottom += extendPx;
+            parent.setTouchDelegate(new TouchDelegate(r, delegate));
         });
     }
 

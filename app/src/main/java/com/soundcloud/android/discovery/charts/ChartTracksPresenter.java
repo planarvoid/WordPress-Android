@@ -35,38 +35,27 @@ import java.util.List;
 class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, ChartTrackListItem> {
 
     static final int NUM_EXTRA_ITEMS = 1;
-    private static final Predicate<ChartTrackListItem> IS_TRACK = new Predicate<ChartTrackListItem>() {
-        public boolean apply(ChartTrackListItem input) {
-            return input.getKind() == ChartTrackListItem.Kind.TrackItem;
-        }
-    };
+    private static final Predicate<ChartTrackListItem> IS_TRACK = input -> input.getKind() == ChartTrackListItem.Kind.TrackItem;
 
     private static Function<ApiTrack, ChartTrackListItem> toChartTrackListItem(final ApiChart<ApiTrack> apiChart) {
-        return new Function<ApiTrack, ChartTrackListItem>() {
-            public ChartTrackListItem apply(ApiTrack input) {
-                return ChartTrackListItem.forTrack(new ChartTrackItem(apiChart.type(),
-                                                                      input,
-                                                                      apiChart.category(),
-                                                                      apiChart.genre(),
-                                                                      apiChart.getQueryUrn()));
-            }
-        };
+        return input -> ChartTrackListItem.forTrack(new ChartTrackItem(apiChart.type(),
+                                                               input,
+                                                               apiChart.category(),
+                                                               apiChart.genre(),
+                                                               apiChart.getQueryUrn()));
     }
 
     private static final Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>> TO_PRESENTATION_MODELS =
-            new Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>>() {
-                @Override
-                public Iterable<ChartTrackListItem> call(final ApiChart<ApiTrack> apiChart) {
+            apiChart -> {
 
-                    final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(apiChart.tracks()
-                                                                                                 .getCollection()
-                                                                                                 .size() + 2);
-                    chartTrackListItems.add(ChartTrackListItem.forHeader(apiChart.type()));
-                    Iterables.addAll(chartTrackListItems,
-                                     transform(apiChart.tracks(), toChartTrackListItem(apiChart)));
-                    chartTrackListItems.add(ChartTrackListItem.forFooter(apiChart.lastUpdated()));
-                    return chartTrackListItems;
-                }
+                final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(apiChart.tracks()
+                                                                                             .getCollection()
+                                                                                             .size() + 2);
+                chartTrackListItems.add(ChartTrackListItem.forHeader(apiChart.type()));
+                Iterables.addAll(chartTrackListItems,
+                                 transform(apiChart.tracks(), toChartTrackListItem(apiChart)));
+                chartTrackListItems.add(ChartTrackListItem.forFooter(apiChart.lastUpdated()));
+                return chartTrackListItems;
             };
 
     private final Action1<ApiChart<ApiTrack>> trackChart = new Action1<ApiChart<ApiTrack>>() {

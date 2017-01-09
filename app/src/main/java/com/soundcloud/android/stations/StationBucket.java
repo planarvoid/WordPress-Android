@@ -41,11 +41,6 @@ class StationBucket {
     public static Func1<List<StationViewModel>, StationBucket> fromStationViewModels(final String name,
                                                                                      final int collectionType,
                                                                                      final int bucketSize) {
-        return new Func1<List<StationViewModel>, StationBucket>() {
-            @Override
-            public StationBucket call(List<StationViewModel> stationViewModels) {
-                return new StationBucket(name, collectionType, bucketSize, stationViewModels);
-            }
-        };
+        return stationViewModels1 -> new StationBucket(name, collectionType, bucketSize, stationViewModels1);
     }
 }

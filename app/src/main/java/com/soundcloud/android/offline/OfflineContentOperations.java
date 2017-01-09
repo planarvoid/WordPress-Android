@@ -24,7 +24,6 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -67,12 +66,7 @@ public class OfflineContentOperations {
                 }
             };
 
-    private final Func1<List<PlaylistItem>, List<Urn>> TO_URN = new Func1<List<PlaylistItem>, List<Urn>>() {
-        @Override
-        public List<Urn> call(List<PlaylistItem> playlistItems) {
-            return Lists.transform(playlistItems, PlayableItem.TO_URN);
-        }
-    };
+    private final Func1<List<PlaylistItem>, List<Urn>> TO_URN = playlistItems -> Lists.transform(playlistItems, PlayableItem.TO_URN);
 
     private final Func1<List<Urn>, Observable<TxnResult>> resetOfflinePlaylists = new Func1<List<Urn>, Observable<TxnResult>>() {
         @Override
@@ -95,12 +89,7 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Action1<Void> disableOfflineCollection = new Action1<Void>() {
-        @Override
-        public void call(Void aVoid) {
-            disableOfflineCollection();
-        }
-    };
+    private final Action1<Void> disableOfflineCollection = aVoid -> disableOfflineCollection();
 
     @Inject
     OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
@@ -214,12 +203,7 @@ public class OfflineContentOperations {
     }
 
     private Func1<TxnResult, Observable<SyncJobResult>> syncPlaylists(final List<Urn> playlistUrns) {
-        return new Func1<TxnResult, Observable<SyncJobResult>>() {
-            @Override
-            public Observable<SyncJobResult> call(TxnResult changeResult) {
-                return syncInitiator.syncPlaylists(playlistUrns);
-            }
-        };
+        return changeResult -> syncInitiator.syncPlaylists(playlistUrns);
     }
 
     public Observable<Void> makePlaylistUnavailableOffline(final Urn playlistUrn) {
@@ -259,20 +243,10 @@ public class OfflineContentOperations {
         return Observable.zip(
                 loadOfflinePlaylistsCommand.toObservable(null),
                 isOfflineLikedTracksEnabled(),
-                new Func2<List<Urn>, Boolean, OfflineContentChangedEvent>() {
-                    @Override
-                    public OfflineContentChangedEvent call(List<Urn> playlists, Boolean isOfflineLikedTracks) {
-                        return new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE,
-                                                              playlists,
-                                                              isOfflineLikedTracks);
-                    }
-                })
-                         .doOnNext(new Action1<OfflineContentChangedEvent>() {
-                             @Override
-                             public void call(OfflineContentChangedEvent event) {
-                                 eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, event);
-                             }
-                         });
+                (playlists, isOfflineLikedTracks) -> new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE,
+                                                      playlists,
+                                                      isOfflineLikedTracks))
+                         .doOnNext(event -> eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, event));
     }
 
     Observable<OfflineContentUpdates> loadOfflineContentUpdates() {

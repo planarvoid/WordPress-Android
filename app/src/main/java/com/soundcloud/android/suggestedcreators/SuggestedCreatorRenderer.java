@@ -80,32 +80,24 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         toggleButton.setOnCheckedChangeListener(null);
         toggleButton.setChecked(suggestedCreatorItem.following);
         toggleButton.setEnabled(true);
-        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                toggleButton.setEnabled(false);
-                suggestedCreatorItem.following = isChecked;
-                suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
-                                           .subscribe(new DefaultSubscriber<Void>());
+        toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            toggleButton.setEnabled(false);
+            suggestedCreatorItem.following = isChecked;
+            suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
+                                       .subscribe(new DefaultSubscriber<Void>());
 
-                engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
-                                                  isChecked,
-                                                  buildEventContextMetadata(position));
-            }
+            engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
+                                              isChecked,
+                                              buildEventContextMetadata(position));
         });
     }
 
     private void bindArtistName(View view, final User creator, final int position) {
         final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_artist);
         textView.setText(creator.username());
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigator.openProfile(v.getContext(),
-                                      creator.urn(),
-                                      UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position)));
-            }
-        });
+        textView.setOnClickListener(v -> navigator.openProfile(v.getContext(),
+                                                       creator.urn(),
+                                                       UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position))));
     }
 
     private EventContextMetadata buildEventContextMetadata(int position) {

@@ -32,21 +32,11 @@ public class PopupMenuWrapper {
     }
 
     public void setOnMenuItemClickListener(final PopupMenuWrapperListener popupMenuWrapperListener) {
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                return popupMenuWrapperListener.onMenuItemClick(item, context);
-            }
-        });
+        popupMenu.setOnMenuItemClickListener(item -> popupMenuWrapperListener.onMenuItemClick(item, context));
     }
 
     public void setOnDismissListener(final PopupMenuWrapperListener popupMenuWrapperListener) {
-        popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                popupMenuWrapperListener.onDismiss();
-            }
-        });
+        popupMenu.setOnDismissListener(menu -> popupMenuWrapperListener.onDismiss());
     }
 
     public void show() {

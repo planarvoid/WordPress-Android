@@ -20,12 +20,7 @@ public class OfflineSettingsStorage {
 
     private final SharedPreferences sharedPreferences;
 
-    private static final Func1<String, Boolean> FILTER_WIFI_ONLY_KEY = new Func1<String, Boolean>() {
-        @Override
-        public Boolean call(String key) {
-            return OFFLINE_WIFI_ONLY.equals(key);
-        }
-    };
+    private static final Func1<String, Boolean> FILTER_WIFI_ONLY_KEY = key -> OFFLINE_WIFI_ONLY.equals(key);
 
     private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
         @Override

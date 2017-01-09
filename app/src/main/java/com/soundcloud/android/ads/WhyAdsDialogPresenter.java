@@ -47,12 +47,9 @@ public class WhyAdsDialogPresenter {
 
     private void configureForUpsell(final Context context, CustomFontViewBuilder view, AlertDialog.Builder dialog) {
         dialog.setView(view.setMessage(R.string.ads_why_ads_upsell_dialog_message).get())
-              .setPositiveButton(R.string.upsell_remove_ads, new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog11, int which) {
-                      navigator.openUpgrade(context);
-                      eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forWhyAdsClick());
-                  }
+              .setPositiveButton(R.string.upsell_remove_ads, (dialog11, which) -> {
+                  navigator.openUpgrade(context);
+                  eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forWhyAdsClick());
               })
               .setNegativeButton(android.R.string.ok, null);
     }

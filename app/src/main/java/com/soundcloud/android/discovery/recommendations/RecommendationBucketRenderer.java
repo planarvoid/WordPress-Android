@@ -85,12 +85,7 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
         viewAllButton.setVisibility(visibility);
 
         if (isViewAllBucket) {
-            viewAllButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    navigator.openViewAllRecommendations(v.getContext());
-                }
-            });
+            viewAllButton.setOnClickListener(v -> navigator.openViewAllRecommendations(v.getContext()));
         }
     }
 
@@ -150,11 +145,6 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
 
     @NonNull
     private View.OnClickListener buildOnReasonClickListener(final RecommendedTracksBucketItem bucket) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onReasonClicked(bucket.getSeedTrackUrn());
-            }
-        };
+        return v -> listener.onReasonClicked(bucket.getSeedTrackUrn());
     }
 }

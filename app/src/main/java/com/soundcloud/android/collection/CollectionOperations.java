@@ -54,28 +54,14 @@ public class CollectionOperations {
 
 
     private static final Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection> TO_MY_COLLECTIONS =
-            new Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection>() {
-                @Override
-                public MyCollection call(List<PlaylistItem> playlistItems,
-                                         LikesItem likes,
-                                         List<StationRecord> stationRecords,
-                                         List<TrackItem> playHistoryTrackItems,
-                                         List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems) {
-                    return MyCollection.forCollectionWithPlayHistory(likes,
-                                                                     playlistItems,
-                                                                     stationRecords,
-                                                                     playHistoryTrackItems,
-                                                                     recentlyPlayedPlayableItems,
-                                                                     false);
-                }
-            };
+            (playlistItems, likes, stationRecords, playHistoryTrackItems, recentlyPlayedPlayableItems) -> MyCollection.forCollectionWithPlayHistory(likes,
+                                                             playlistItems,
+                                                             stationRecords,
+                                                             playHistoryTrackItems,
+                                                             recentlyPlayedPlayableItems,
+                                                             false);
 
-    private static final Func2<List<LikedTrackPreview>, OfflineState, LikesItem> TO_LIKES_ITEM = new Func2<List<LikedTrackPreview>, OfflineState, LikesItem>() {
-        @Override
-        public LikesItem call(List<LikedTrackPreview> likedTracks, OfflineState offlineState) {
-            return LikesItem.create(likedTracks, offlineState);
-        }
-    };
+    private static final Func2<List<LikedTrackPreview>, OfflineState, LikesItem> TO_LIKES_ITEM = (likedTracks, offlineState) -> LikesItem.create(likedTracks, offlineState);
 
     private static List<PlaylistItem> getPlaylistsPreview(Notification<List<PlaylistItem>> playlists) {
         return playlists.isOnError() ? Collections.emptyList() : playlists.getValue();
@@ -88,27 +74,20 @@ public class CollectionOperations {
     }
 
     private static final Func5<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>> TO_MY_COLLECTIONS_OR_ERROR =
-            new Func5<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>>() {
-                @Override
-                public Notification<MyCollection> call(Notification<List<PlaylistItem>> playlists,
-                                                       Notification<LikesItem> likes,
-                                                       Notification<List<StationRecord>> stations,
-                                                       Notification<List<TrackItem>> playHistoryTrackItems,
-                                                       Notification<List<RecentlyPlayedPlayableItem>> recentlyPlayedItems) {
-                    if (playlists.isOnCompleted() && likes.isOnCompleted() && stations.isOnCompleted()
-                            && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems.isOnCompleted()) {
-                        return Notification.createOnCompleted();
-                    }
-                    return Notification.createOnNext(MyCollection.forCollectionWithPlayHistory(
-                            getLikesPreviews(likes),
-                            getPlaylistsPreview(playlists),
-                            getStationsPreview(stations),
-                            getPlayHistoryTrackItems(playHistoryTrackItems),
-                            getRecentlyPlayedPlayableItems(recentlyPlayedItems),
-                            likes.isOnError() || playlists.isOnError() || stations.isOnError()
-                                    || playHistoryTrackItems.isOnError() || recentlyPlayedItems.isOnError()
-                    ));
+            (playlists, likes, stations, playHistoryTrackItems, recentlyPlayedItems) -> {
+                if (playlists.isOnCompleted() && likes.isOnCompleted() && stations.isOnCompleted()
+                        && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems.isOnCompleted()) {
+                    return Notification.createOnCompleted();
                 }
+                return Notification.createOnNext(MyCollection.forCollectionWithPlayHistory(
+                        getLikesPreviews(likes),
+                        getPlaylistsPreview(playlists),
+                        getStationsPreview(stations),
+                        getPlayHistoryTrackItems(playHistoryTrackItems),
+                        getRecentlyPlayedPlayableItems(recentlyPlayedItems),
+                        likes.isOnError() || playlists.isOnError() || stations.isOnError()
+                                || playHistoryTrackItems.isOnError() || recentlyPlayedItems.isOnError()
+                ));
             };
 
     private static List<RecentlyPlayedPlayableItem> getRecentlyPlayedPlayableItems(Notification<List<RecentlyPlayedPlayableItem>> recentlyPlayed) {

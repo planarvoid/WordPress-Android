@@ -81,12 +81,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
 
     private void setupOverFlow(final View button, final PlaylistItem playlistItem) {
         final OverflowMenuOptions options = OverflowMenuOptions.builder().showOffline(true).build();
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playlistItemMenuPresenter.show(button, playlistItem, options);
-            }
-        });
+        button.setOnClickListener(v -> playlistItemMenuPresenter.show(button, playlistItem, options));
         ViewUtils.extendTouchArea(button);
     }
 
@@ -101,12 +96,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigator.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.PLAYLISTS);
-            }
-        };
+        return view -> navigator.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.PLAYLISTS);
     }
 
 }

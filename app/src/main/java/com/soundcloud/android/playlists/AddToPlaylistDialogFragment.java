@@ -101,16 +101,13 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setCustomTitle(new CustomFontViewBuilder(getActivity()).setTitle(R.string.add_track_to_playlist).get())
-                .setAdapter(adapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int position) {
-                        final long rowId = adapter.getItemId(position);
-                        if (rowId == Urn.NOT_SET.getNumericId()) {
-                            showPlaylistCreationScreen();
-                            getDialog().dismiss();
-                        } else if (getActivity() != null) {
-                            onAddTrackToSet(rowId);
-                        }
+                .setAdapter(adapter, (dialog, position) -> {
+                    final long rowId = adapter.getItemId(position);
+                    if (rowId == Urn.NOT_SET.getNumericId()) {
+                        showPlaylistCreationScreen();
+                        getDialog().dismiss();
+                    } else if (getActivity() != null) {
+                        onAddTrackToSet(rowId);
                     }
                 })
                 .setPositiveButton(R.string.btn_cancel, null)

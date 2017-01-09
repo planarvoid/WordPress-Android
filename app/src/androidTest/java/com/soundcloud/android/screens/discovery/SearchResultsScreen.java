@@ -128,12 +128,7 @@ public class SearchResultsScreen extends Screen {
         );
     }
 
-    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = new Function<ViewElement, PlaylistElement>() {
-        @Override
-        public PlaylistElement apply(ViewElement viewElement) {
-            return PlaylistElement.forListItem(testDriver, viewElement);
-        }
-    };
+    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = viewElement -> PlaylistElement.forListItem(testDriver, viewElement);
 
     private ViewPagerElement getViewPager() {
         return new ViewPagerElement(testDriver);

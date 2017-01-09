@@ -135,10 +135,5 @@ public class StreamScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
 
-    private final Function<ViewElement, FacebookInvitesItemElement> toFacebookInvitesItemElement = new Function<ViewElement, FacebookInvitesItemElement>() {
-        @Override
-        public FacebookInvitesItemElement apply(ViewElement viewElement) {
-            return new FacebookInvitesItemElement(testDriver, viewElement);
-        }
-    };
+    private final Function<ViewElement, FacebookInvitesItemElement> toFacebookInvitesItemElement = viewElement -> new FacebookInvitesItemElement(testDriver, viewElement);
 }

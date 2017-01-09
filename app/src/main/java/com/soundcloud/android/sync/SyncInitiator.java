@@ -24,12 +24,7 @@ import java.util.List;
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 public class SyncInitiator {
 
-    private final Action0 requestSystemSyncAction = new Action0() {
-        @Override
-        public void call() {
-            requestSystemSync();
-        }
-    };
+    private final Action0 requestSystemSyncAction = () -> requestSystemSync();
 
     public static final String ACTION_APPEND = ApiSyncService.ACTION_APPEND;
     public static final String ACTION_HARD_REFRESH = ApiSyncService.ACTION_HARD_REFRESH;

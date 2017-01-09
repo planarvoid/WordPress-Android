@@ -63,12 +63,9 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        disableAutomaticCollectionSync();
-                        proceedWithRemoval();
-                    }
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    disableAutomaticCollectionSync();
+                    proceedWithRemoval();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();

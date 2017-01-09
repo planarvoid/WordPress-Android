@@ -35,25 +35,18 @@ import java.util.List;
 class ChartsStorage {
     private final PropellerRx propellerRx;
 
-    private final Func1<List<Pair<Chart, TrackArtwork>>, List<Chart>> TO_CHARTS_WITH_TRACKS = new Func1<List<Pair<Chart, TrackArtwork>>, List<Chart>>() {
-        @Override
-        public List<Chart> call(List<Pair<Chart, TrackArtwork>> chartsWithTracks) {
-            final MultiMap<Chart, TrackArtwork> chartToArtworkMap = new ListMultiMap<>();
-            for (final Pair<Chart, TrackArtwork> chartWithTrack : chartsWithTracks) {
-                chartToArtworkMap.put(chartWithTrack.first, chartWithTrack.second);
-            }
-            final List<Chart> result = new ArrayList<>(chartToArtworkMap.keySet().size());
-            for (final Chart chart : chartToArtworkMap.keySet()) {
-                final List<TrackArtwork> trackArtworks = Lists.newArrayList(chartToArtworkMap.get(chart));
-                result.add(chart.copyWithTrackArtworks(trackArtworks));
-            }
-            Collections.sort(result, new Comparator<Chart>() {
-                public int compare(Chart lhs, Chart rhs) {
-                    return lhs.localId().compareTo(rhs.localId());
-                }
-            });
-            return result;
+    private final Func1<List<Pair<Chart, TrackArtwork>>, List<Chart>> TO_CHARTS_WITH_TRACKS = chartsWithTracks -> {
+        final MultiMap<Chart, TrackArtwork> chartToArtworkMap = new ListMultiMap<>();
+        for (final Pair<Chart, TrackArtwork> chartWithTrack : chartsWithTracks) {
+            chartToArtworkMap.put(chartWithTrack.first, chartWithTrack.second);
         }
+        final List<Chart> result = new ArrayList<>(chartToArtworkMap.keySet().size());
+        for (final Chart chart : chartToArtworkMap.keySet()) {
+            final List<TrackArtwork> trackArtworks = Lists.newArrayList(chartToArtworkMap.get(chart));
+            result.add(chart.copyWithTrackArtworks(trackArtworks));
+        }
+        Collections.sort(result, (lhs, rhs) -> lhs.localId().compareTo(rhs.localId()));
+        return result;
     };
 
     @Inject
@@ -94,24 +87,14 @@ class ChartsStorage {
     }
 
     private Func1<List<Chart>, ChartBucket> toChartBucket() {
-        return new Func1<List<Chart>, ChartBucket>() {
-            @Override
-            public ChartBucket call(List<Chart> charts) {
-                return ChartBucket.create(
-                        newArrayList(filterCharts(charts, ChartBucketType.GLOBAL)),
-                        newArrayList(filterCharts(charts, ChartBucketType.FEATURED_GENRES))
-                );
-            }
-        };
+        return charts -> ChartBucket.create(
+                newArrayList(filterCharts(charts, ChartBucketType.GLOBAL)),
+                newArrayList(filterCharts(charts, ChartBucketType.FEATURED_GENRES))
+        );
     }
 
     private Iterable<Chart> filterCharts(List<Chart> charts, final ChartBucketType type) {
-        return Iterables.filter(charts, new Predicate<Chart>() {
-            @Override
-            public boolean apply(Chart input) {
-                return input.bucketType() == type;
-            }
-        });
+        return Iterables.filter(charts, input -> input.bucketType() == type);
     }
 
     private static final class ChartWithTrackMapper extends RxResultMapper<Pair<Chart, TrackArtwork>> {

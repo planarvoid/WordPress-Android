@@ -79,12 +79,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent,
                                      final PlaybackProgressEvent progressEvent) {
         trackObservable
-                .filter(new Func1<TrackItem, Boolean>() {
-                    @Override
-                    public Boolean call(TrackItem trackItem) {
-                        return isForPlayingTrack(progressEvent);
-                    }
-                })
+                .filter(trackItem -> isForPlayingTrack(progressEvent))
                 .map(stateTransitionToCheckpointEvent(previousPlayStateEvent, progressEvent))
                 .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
@@ -110,34 +105,31 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     private Func1<TrackItem, PlaybackSessionEvent> playStateToSessionPlayEvent(final PlayStateEvent playStateEvent) {
-        return new Func1<TrackItem, PlaybackSessionEvent>() {
-            @Override
-            public PlaybackSessionEvent call(TrackItem track) {
-                final String playId = playStateEvent.getPlayId();
-                PlaybackSessionEvent playSessionEvent = playStateEvent.isFirstPlay() ?
-                                                        PlaybackSessionEvent.forPlayStart(buildEventArgs(track,
-                                                                                                         playStateEvent,
-                                                                                                         playId,
-                                                                                                         playId)) :
-                                                        PlaybackSessionEvent.forPlay(buildEventArgs(track,
-                                                                                                    playStateEvent,
-                                                                                                    uuidProvider.getRandomUuid(),
-                                                                                                    playId));
+        return track -> {
+            final String playId = playStateEvent.getPlayId();
+            PlaybackSessionEvent playSessionEvent = playStateEvent.isFirstPlay() ?
+                                                    PlaybackSessionEvent.forPlayStart(buildEventArgs(track,
+                                                                                                     playStateEvent,
+                                                                                                     playId,
+                                                                                                     playId)) :
+                                                    PlaybackSessionEvent.forPlay(buildEventArgs(track,
+                                                                                                playStateEvent,
+                                                                                                uuidProvider.getRandomUuid(),
+                                                                                                playId));
 
-                final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-                PlaySessionSource playSource = playQueueManager.getCurrentPlaySessionSource();
+            final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+            PlaySessionSource playSource = playQueueManager.getCurrentPlaySessionSource();
 
-                if (currentPlayQueueItem.isTrack()
-                        && playQueueManager.isTrackFromCurrentPromotedItem(currentPlayQueueItem.getUrn())
-                        && !playSource.getPromotedSourceInfo().isPlaybackStarted()) {
-                    PromotedSourceInfo promotedSourceInfo = playSource.getPromotedSourceInfo();
-                    playSessionEvent = playSessionEvent.withPromotedTrack(promotedSourceInfo);
-                    promotedSourceInfo.setPlaybackStarted();
-                }
-
-                lastPlaySessionEvent = Optional.of(playSessionEvent);
-                return playSessionEvent;
+            if (currentPlayQueueItem.isTrack()
+                    && playQueueManager.isTrackFromCurrentPromotedItem(currentPlayQueueItem.getUrn())
+                    && !playSource.getPromotedSourceInfo().isPlaybackStarted()) {
+                PromotedSourceInfo promotedSourceInfo = playSource.getPromotedSourceInfo();
+                playSessionEvent = playSessionEvent.withPromotedTrack(promotedSourceInfo);
+                promotedSourceInfo.setPlaybackStarted();
             }
+
+            lastPlaySessionEvent = Optional.of(playSessionEvent);
+            return playSessionEvent;
         };
     }
 
@@ -148,17 +140,12 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         if (lastPlaySessionEvent.isPresent() && currentTrackSourceInfo.isPresent()) {
             final PlaybackSessionEvent playEventForStop = lastPlaySessionEvent.get();
             trackObservable
-                    .map(new Func1<TrackItem, PlaybackSessionEvent>() {
-                        @Override
-                        public PlaybackSessionEvent call(TrackItem track) {
-                            return PlaybackSessionEvent.forStop(playEventForStop,
-                                                                stopReason,
-                                                                buildEventArgs(track,
-                                                                               playStateEvent,
-                                                                               uuidProvider.getRandomUuid(),
-                                                                               playStateEvent.getPlayId()));
-                        }
-                    })
+                    .map(track -> PlaybackSessionEvent.forStop(playEventForStop,
+                                                       stopReason,
+                                                       buildEventArgs(track,
+                                                                       playStateEvent,
+                                                                       uuidProvider.getRandomUuid(),
+                                                                       playStateEvent.getPlayId())))
                     .subscribe(eventBus.queue(EventQueue.TRACKING));
             lastPlaySessionEvent = Optional.absent();
         }
@@ -166,16 +153,11 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private Func1<TrackItem, TrackingEvent> stateTransitionToCheckpointEvent(final PlayStateEvent playStateEvent,
                                                                              final PlaybackProgressEvent progressEvent) {
-        return new Func1<TrackItem, TrackingEvent>() {
-            @Override
-            public TrackingEvent call(TrackItem track) {
-                return PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
-                                                                         progressEvent.getPlaybackProgress(),
-                                                                         playStateEvent,
-                                                                         uuidProvider.getRandomUuid(),
-                                                                         playStateEvent.getPlayId()));
-            }
-        };
+        return track -> PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
+                                                                  progressEvent.getPlaybackProgress(),
+                                                                  playStateEvent,
+                                                                  uuidProvider.getRandomUuid(),
+                                                                  playStateEvent.getPlayId()));
     }
 
     private boolean isForPlayingTrack(PlaybackProgressEvent progressEvent) {

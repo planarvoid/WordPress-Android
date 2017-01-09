@@ -216,26 +216,18 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     }
 
     private void displayRecordScreenWithDelay() {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                displayRecordScreen();
-            }
-        }, 2000);
+        handler.postDelayed(() -> displayRecordScreen(), 2000);
     }
 
     private void showCancelDialog() {
         new AlertDialog.Builder(uploadMonitorFragment.getActivity())
                 .setView(new CustomFontViewBuilder(uploadMonitorFragment.getActivity()).setTitle(R.string.dialog_cancel_upload_message)
                                                                                        .get())
-                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (isUploading) {
-                            isUploading = false;
-                            setCancellingState();
-                            eventBus.publish(EventQueue.UPLOAD, UploadEvent.cancelled(recording));
-                        }
+                .setPositiveButton(R.string.btn_yes, (dialog, which) -> {
+                    if (isUploading) {
+                        isUploading = false;
+                        setCancellingState();
+                        eventBus.publish(EventQueue.UPLOAD, UploadEvent.cancelled(recording));
                     }
                 })
                 .setNegativeButton(R.string.btn_no, null)

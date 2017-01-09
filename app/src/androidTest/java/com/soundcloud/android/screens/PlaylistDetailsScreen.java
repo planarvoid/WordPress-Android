@@ -149,12 +149,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public boolean waitForDownloadToFinish() {
         waitForDownloadToStart();
-        return waiter.waitForNetworkCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return !testDriver.isElementDisplayed(With.text(offlineUpdateInProgress()));
-            }
-        });
+        return waiter.waitForNetworkCondition(() -> !testDriver.isElementDisplayed(With.text(offlineUpdateInProgress())));
     }
 
     private String offlineUpdateInProgress() {
@@ -204,10 +199,5 @@ public class PlaylistDetailsScreen extends Screen {
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = viewElement -> new TrackItemElement(testDriver, viewElement);
 
-    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = new Function<ViewElement, PlaylistElement>() {
-        @Override
-        public PlaylistElement apply(ViewElement viewElement) {
-            return PlaylistElement.forCard(testDriver, viewElement);
-        }
-    };
+    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = viewElement -> PlaylistElement.forCard(testDriver, viewElement);
 }

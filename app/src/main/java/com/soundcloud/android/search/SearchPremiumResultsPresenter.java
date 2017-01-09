@@ -49,16 +49,13 @@ import java.util.List;
 class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, ListItem>
         implements SearchUpsellRenderer.OnUpsellClickListener {
 
-    private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<ListItem>>() {
-        @Override
-        public List<ListItem> call(SearchResult searchResult) {
-            final List<SearchableItem> sourceSetsItems = searchResult.getItems();
-            final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
-            for (SearchableItem source : sourceSetsItems) {
-                searchItems.add(source);
-            }
-            return searchItems;
+    private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = searchResult -> {
+        final List<SearchableItem> sourceSetsItems = searchResult.getItems();
+        final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
+        for (SearchableItem source : sourceSetsItems) {
+            searchItems.add(source);
         }
+        return searchItems;
     };
 
     private final Func1<SearchResult, SearchResult> addUpsellItem = new Func1<SearchResult, SearchResult>() {

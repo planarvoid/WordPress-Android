@@ -13,15 +13,12 @@ public class PostProperty {
     public static final Property<String> REPOSTER = Property.of(PostProperty.class, String.class);
     public static final Property<Urn> REPOSTER_URN = Property.of(PostProperty.class, Urn.class);
 
-    public static final Comparator<PostRecord> COMPARATOR = new Comparator<PostRecord>() {
-        @Override
-        public int compare(PostRecord lhs, PostRecord rhs) {
-            int result = lhs.getTargetUrn().compareTo(rhs.getTargetUrn());
-            if (result == 0) {
-                result = Boolean.valueOf(lhs.isRepost()).compareTo(rhs.isRepost());
-            }
-            return result == 0 ? lhs.getCreatedAt().compareTo(rhs.getCreatedAt()) : result;
+    public static final Comparator<PostRecord> COMPARATOR = (lhs, rhs) -> {
+        int result = lhs.getTargetUrn().compareTo(rhs.getTargetUrn());
+        if (result == 0) {
+            result = Boolean.valueOf(lhs.isRepost()).compareTo(rhs.isRepost());
         }
+        return result == 0 ? lhs.getCreatedAt().compareTo(rhs.getCreatedAt()) : result;
     };
 }
 

@@ -29,30 +29,15 @@ public abstract class Command<I, O> {
     }
 
     public final Action1<I> toAction1() {
-        return new Action1<I>() {
-            @Override
-            public void call(I i) {
-                Command.this.call(i);
-            }
-        };
+        return i -> Command.this.call(i);
     }
 
     public final Action0 toAction0() {
-        return new Action0() {
-            @Override
-            public void call() {
-                Command.this.call();
-            }
-        };
+        return () -> Command.this.call();
     }
 
     public final Func1<I, Observable<O>> toContinuation() {
-        return new Func1<I, Observable<O>>() {
-            @Override
-            public Observable<O> call(I i) {
-                return toObservable(i);
-            }
-        };
+        return i -> toObservable(i);
     }
 
 }

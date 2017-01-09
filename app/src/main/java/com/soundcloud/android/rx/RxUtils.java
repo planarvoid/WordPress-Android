@@ -21,77 +21,27 @@ import java.util.Map;
 
 public final class RxUtils {
 
-    public static final Func1<Boolean, Boolean> IS_TRUE = new Func1<Boolean, Boolean>() {
-        @Override
-        public Boolean call(Boolean isTrue) {
-            return isTrue;
-        }
-    };
+    public static final Func1<Boolean, Boolean> IS_TRUE = isTrue -> isTrue;
 
-    public static final Func1<Boolean, Boolean> IS_FALSE = new Func1<Boolean, Boolean>() {
-        @Override
-        public Boolean call(Boolean isTrue) {
-            return !isTrue;
-        }
-    };
+    public static final Func1<Boolean, Boolean> IS_FALSE = isTrue -> !isTrue;
 
-    public static final Func1<Object, Void> TO_VOID = new Func1<Object, Void>() {
-        @Override
-        public Void call(Object ignore) {
-            return null;
-        }
-    };
+    public static final Func1<Object, Void> TO_VOID = ignore -> null;
 
-    public static final Func2<Object, Object, Void> ZIP_TO_VOID = new Func2<Object, Object, Void>() {
-        @Override
-        public Void call(Object ignored,
-                         Object ignored2) {
-            return null;
-        }
-    };
+    public static final Func2<Object, Object, Void> ZIP_TO_VOID = (ignored, ignored2) -> null;
 
-    public static final Func1<Long, Boolean> IS_VALID_TIMESTAMP = new Func1<Long, Boolean>() {
-        @Override
-        public Boolean call(Long ts) {
-            return ts != Consts.NOT_SET;
-        }
-    };
+    public static final Func1<Long, Boolean> IS_VALID_TIMESTAMP = ts -> ts != Consts.NOT_SET;
 
-    public static final Func1<Optional, Boolean> IS_PRESENT = new Func1<Optional, Boolean>() {
-        @Override
-        public Boolean call(Optional optional) {
-            return optional.isPresent();
-        }
-    };
+    public static final Func1<Optional, Boolean> IS_PRESENT = optional -> optional.isPresent();
 
     public static final Object EMPTY_VALUE = new Object();
 
-    public static final Func1<List, Boolean> IS_NOT_EMPTY_LIST = new Func1<List, Boolean>() {
-        @Override
-        public Boolean call(List list) {
-            return !list.isEmpty();
-        }
-    };
+    public static final Func1<List, Boolean> IS_NOT_EMPTY_LIST = list -> !list.isEmpty();
 
-    public static final Func1<Object, Boolean> IS_NOT_NULL = new Func1<Object, Boolean>() {
-        @Override
-        public Boolean call(Object obj) {
-            return obj != null;
-        }
-    };
+    public static final Func1<Object, Boolean> IS_NOT_NULL = obj -> obj != null;
 
-    public static final Func1<List, Integer> TO_SIZE = new Func1<List, Integer>() {
-        public Integer call(List list) {
-            return list.size();
-        }
-    };
+    public static final Func1<List, Integer> TO_SIZE = list -> list.size();
 
-    public static final Func2<Boolean, Boolean, Boolean> AT_LEAST_ONE_TRUE = new Func2<Boolean, Boolean, Boolean>() {
-        @Override
-        public Boolean call(Boolean first, Boolean second) {
-            return first || second;
-        }
-    };
+    public static final Func2<Boolean, Boolean, Boolean> AT_LEAST_ONE_TRUE = (first, second) -> first || second;
 
     /**
      * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality
@@ -102,55 +52,33 @@ public final class RxUtils {
     }
 
     public static <T> Func1<Iterable<T>, Observable<T>> iterableToObservable() {
-        return new Func1<Iterable<T>, Observable<T>>() {
-            @Override
-            public Observable<T> call(Iterable<T> items) {
-                return Observable.from(items);
-            }
-        };
+        return items -> Observable.from(items);
     }
 
     public static <T> Func1<Object, T> returning(final T obj) {
-        return new Func1<Object, T>() {
-            @Override
-            public T call(Object o) {
-                return obj;
-            }
-        };
+        return o -> obj;
     }
 
     public static <T> Func1<Object, Observable<T>> continueWith(final Observable<T> continuation) {
-        return new Func1<Object, Observable<T>>() {
-            @Override
-            public Observable<T> call(Object o) {
-                return continuation;
-            }
-        };
+        return o -> continuation;
     }
 
     public static <T> Func1<T, Optional<T>> toOptional() {
-        return new Func1<T, Optional<T>>() {
-            @Override
-            public Optional<T> call(T t) {
-                return Optional.of(t);
-            }
-        };
+        return t -> Optional.of(t);
     }
 
     public static <T, P> Func1<Map<T, P>, List<P>> toOrderedList(final List<T> list,
                                                                  final Optional<P> defaultValue) {
-        return new Func1<Map<T, P>, List<P>>() {
-            public List<P> call(Map<T, P> map) {
-                List<P> result = new ArrayList<>(map.size());
-                for (T key : list) {
-                    if (map.containsKey(key)) {
-                        result.add(map.get(key));
-                    } else if (defaultValue.isPresent()) {
-                        result.add(defaultValue.get());
-                    }
+        return map -> {
+            List<P> result = new ArrayList<>(map.size());
+            for (T key : list) {
+                if (map.containsKey(key)) {
+                    result.add(map.get(key));
+                } else if (defaultValue.isPresent()) {
+                    result.add(defaultValue.get());
                 }
-                return result;
             }
+            return result;
         };
     }
 
@@ -164,25 +92,16 @@ public final class RxUtils {
     private static class ConcatEagerIgnorePartialErrors<ItemT>
             implements Observable.Transformer<List<Observable<ItemT>>, ItemT> {
 
-        private final Function<Observable<ItemT>, Observable<Notification<ItemT>>> toMaterializedObservable = new Function<Observable<ItemT>, Observable<Notification<ItemT>>>() {
-            @Override
-            public Observable<Notification<ItemT>> apply(Observable<ItemT> input) {
-                return input.materialize();
-            }
-        };
+        private final Function<Observable<ItemT>, Observable<Notification<ItemT>>> toMaterializedObservable = input -> input.materialize();
 
-        private final Func1<List<Notification<ItemT>>, Observable<Notification<ItemT>>> sanitizeNotifications = new Func1<List<Notification<ItemT>>, Observable<Notification<ItemT>>>() {
-            @Override
-            public Observable<Notification<ItemT>> call(List<Notification<ItemT>> notifications) {
-                if (containsCompleted(notifications)) {
-                    final List<Notification<ItemT>> sanitizedNotifications = removeTerminalNotifications(notifications);
-                    sanitizedNotifications.add(Notification.<ItemT>createOnCompleted());
-                    return Observable.from(sanitizedNotifications);
-                } else {
-                    return Observable.from(notifications);
-                }
+        private final Func1<List<Notification<ItemT>>, Observable<Notification<ItemT>>> sanitizeNotifications = notifications -> {
+            if (containsCompleted(notifications)) {
+                final List<Notification<ItemT>> sanitizedNotifications = removeTerminalNotifications(notifications);
+                sanitizedNotifications.add(Notification.<ItemT>createOnCompleted());
+                return Observable.from(sanitizedNotifications);
+            } else {
+                return Observable.from(notifications);
             }
-
         };
 
         @Override
@@ -201,12 +120,7 @@ public final class RxUtils {
 
 
         private List<Notification<ItemT>> removeTerminalNotifications(List<Notification<ItemT>> notifications1) {
-            return newArrayList(Iterables.filter(notifications1, new Predicate<Notification<ItemT>>() {
-                @Override
-                public boolean apply(Notification<ItemT> notification) {
-                    return notification.getKind() == Notification.Kind.OnNext;
-                }
-            }));
+            return newArrayList(Iterables.filter(notifications1, notification -> notification.getKind() == Notification.Kind.OnNext));
         }
 
         private boolean containsCompleted(List<Notification<ItemT>> notifications1) {

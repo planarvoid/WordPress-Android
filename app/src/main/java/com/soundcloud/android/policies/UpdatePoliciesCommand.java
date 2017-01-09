@@ -78,12 +78,7 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
 
     @NonNull
     private Callable<ModelCollection<ApiPolicyInfo>> fetchPoliciesCallable(final List<Urn> urnBatch) {
-        return new Callable<ModelCollection<ApiPolicyInfo>>() {
-            @Override
-            public ModelCollection<ApiPolicyInfo> call() throws Exception {
-                return apiClient.fetchMappedResponse(buildApiRequest(urnBatch), TYPE_TOKEN);
-            }
-        };
+        return () -> apiClient.fetchMappedResponse(buildApiRequest(urnBatch), TYPE_TOKEN);
     }
 
     private ApiRequest buildApiRequest(Collection<Urn> trackUrns) {

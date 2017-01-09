@@ -516,12 +516,7 @@ public class IOUtils {
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                         .setMessage(R.string.crop_external_permission_rationale)
-                        .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                requestExternalStoragePermission(activity);
-                            }
-                        });
+                        .setPositiveButton(R.string.ok_got_it, (dialogInterface, i) -> requestExternalStoragePermission(activity));
                 builder.show();
             } else {
                 requestExternalStoragePermission(activity);
@@ -539,12 +534,7 @@ public class IOUtils {
             if (fragment.shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getContext())
                         .setMessage(R.string.crop_external_permission_rationale)
-                        .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                requestExternalStoragePermission(fragment);
-                            }
-                        });
+                        .setPositiveButton(R.string.ok_got_it, (dialogInterface, i) -> requestExternalStoragePermission(fragment));
                 builder.show();
             } else {
                 requestExternalStoragePermission(fragment);

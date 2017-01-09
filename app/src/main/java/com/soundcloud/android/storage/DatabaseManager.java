@@ -1462,20 +1462,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     private List<Table> allLegacyTables() {
-        return newArrayList(filter(asList(Table.values()), new Predicate<Table>() {
-            @Override
-            public boolean apply(Table t) {
-                return !t.view;
-            }
-        }));
+        return newArrayList(filter(asList(Table.values()), t -> !t.view));
     }
 
     private List<Table> allLegacyViews() {
-        return newArrayList(filter(asList(Table.values()), new Predicate<Table>() {
-            @Override
-            public boolean apply(Table t) {
-                return t.view;
-            }
-        }));
+        return newArrayList(filter(asList(Table.values()), t -> t.view));
     }
 }

@@ -83,12 +83,7 @@ class ErrorViewController {
 
     private void setupStartStationButton(Button stationButton) {
         stationButton.setVisibility(View.VISIBLE);
-        stationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stationHandler.startStation(errorLayout.getContext(), Urn.forTrackStation(urn.getNumericId()));
-            }
-        });
+        stationButton.setOnClickListener(v -> stationHandler.startStation(errorLayout.getContext(), Urn.forTrackStation(urn.getNumericId())));
     }
 
     private void setupErrorLayout() {

@@ -46,36 +46,18 @@ public class PlaylistDiscoveryOperations {
     private final Scheduler scheduler;
 
     private static final Func2<List<String>, List<String>, DiscoveryItem> TAGS_TO_DISCOVERY_ITEM_LIST =
-            new Func2<List<String>, List<String>, DiscoveryItem>() {
-                @Override
-                public DiscoveryItem call(List<String> popular, List<String> recent) {
-                    return PlaylistTagsItem.create(popular, recent);
-                }
-            };
+            (popular, recent) -> PlaylistTagsItem.create(popular, recent);
 
-    private static final Func1<DiscoveryItem, Boolean> IS_NOT_EMPTY = new Func1<DiscoveryItem, Boolean>() {
-        @Override
-        public Boolean call(DiscoveryItem playlistDiscoveryItem) {
-            return !((PlaylistTagsItem) playlistDiscoveryItem).isEmpty();
-        }
+    private static final Func1<DiscoveryItem, Boolean> IS_NOT_EMPTY = playlistDiscoveryItem -> !((PlaylistTagsItem) playlistDiscoveryItem).isEmpty();
+
+    private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = collection -> {
+        final SearchResult result = SearchResult.fromSearchableItems(collection.transform(PlaylistItem::from).getCollection(),
+                                                                     collection.getNextLink(),
+                                                                     collection.getQueryUrn());
+        return backfillSearchResult(result);
     };
 
-    private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = new Func1<ApiPlaylistCollection, SearchResult>() {
-        @Override
-        public SearchResult call(ApiPlaylistCollection collection) {
-            final SearchResult result = SearchResult.fromSearchableItems(collection.transform(PlaylistItem::from).getCollection(),
-                                                                         collection.getNextLink(),
-                                                                         collection.getQueryUrn());
-            return backfillSearchResult(result);
-        }
-    };
-
-    private final Func1<ModelCollection<String>, List<String>> collectionToList = new Func1<ModelCollection<String>, List<String>>() {
-        @Override
-        public List<String> call(ModelCollection<String> collection) {
-            return collection.getCollection();
-        }
-    };
+    private final Func1<ModelCollection<String>, List<String>> collectionToList = collection -> collection.getCollection();
 
     private final Action1<ModelCollection<String>> cachePopularTags = new Action1<ModelCollection<String>>() {
         @Override
@@ -147,24 +129,16 @@ public class PlaylistDiscoveryOperations {
                         .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
                         .addQueryParam("tag", tag)
                         .build();
-        return getPlaylistResultsPage(tag, request).finallyDo(new Action0() {
-            @Override
-            public void call() {
-                tagStorage.addRecentTag(tag);
-            }
-        });
+        return getPlaylistResultsPage(tag, request).finallyDo(() -> tagStorage.addRecentTag(tag));
     }
 
     Pager.PagingFunction<SearchResult> pager(final String searchTag) {
-        return new Pager.PagingFunction<SearchResult>() {
-            @Override
-            public Observable<SearchResult> call(SearchResult searchResult) {
-                final Optional<Link> nextLink = searchResult.nextHref;
-                if (nextLink.isPresent()) {
-                    return getPlaylistResultsNextPage(searchTag, nextLink.get().getHref());
-                } else {
-                    return Pager.finish();
-                }
+        return searchResult -> {
+            final Optional<Link> nextLink = searchResult.nextHref;
+            if (nextLink.isPresent()) {
+                return getPlaylistResultsNextPage(searchTag, nextLink.get().getHref());
+            } else {
+                return Pager.finish();
             }
         };
     }
@@ -187,17 +161,14 @@ public class PlaylistDiscoveryOperations {
     }
 
     private Func1<ApiPlaylistCollection, ApiPlaylistCollection> withSearchTag(final String searchTag) {
-        return new Func1<ApiPlaylistCollection, ApiPlaylistCollection>() {
-            @Override
-            public ApiPlaylistCollection call(ApiPlaylistCollection collection) {
-                for (ApiPlaylist playlist : collection) {
-                    LinkedList<String> tagsWithSearchTag = new LinkedList<>(
-                            removeItemIgnoreCase(playlist.getTags(), searchTag));
-                    tagsWithSearchTag.addFirst(searchTag);
-                    playlist.setTags(tagsWithSearchTag);
-                }
-                return collection;
+        return collection -> {
+            for (ApiPlaylist playlist : collection) {
+                LinkedList<String> tagsWithSearchTag = new LinkedList<>(
+                        removeItemIgnoreCase(playlist.getTags(), searchTag));
+                tagsWithSearchTag.addFirst(searchTag);
+                playlist.setTags(tagsWithSearchTag);
             }
+            return collection;
         };
     }
 

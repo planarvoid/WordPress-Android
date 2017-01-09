@@ -39,13 +39,10 @@ public class PullToRefreshController extends DefaultSupportFragmentLightCycle {
 
     public <T extends Iterable<?>, OT extends Observable<? extends T>>
     void setRefreshListener(final RefreshableListComponent<OT> component, final ReactiveAdapter<T> adapter) {
-        refreshListener = new OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                OT refreshObservable = component.refreshObservable();
-                refreshSubscription = refreshObservable.subscribe(new RefreshSubscriber<>(adapter));
-                component.connectObservable(refreshObservable);
-            }
+        refreshListener = () -> {
+            OT refreshObservable = component.refreshObservable();
+            refreshSubscription = refreshObservable.subscribe(new RefreshSubscriber<>(adapter));
+            component.connectObservable(refreshObservable);
         };
     }
 

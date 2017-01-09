@@ -25,12 +25,7 @@ import javax.inject.Inject;
 
 public class ProfileImageHelper {
 
-    private static final Func1<Notification<?>, Boolean> FILTER_OUT_COMPLETED = new Func1<Notification<?>, Boolean>() {
-        @Override
-        public Boolean call(Notification<?> paletteNotification) {
-            return paletteNotification.getKind() != Notification.Kind.OnCompleted;
-        }
-    };
+    private static final Func1<Notification<?>, Boolean> FILTER_OUT_COMPLETED = paletteNotification -> paletteNotification.getKind() != Notification.Kind.OnCompleted;
 
     private final ImageOperations imageOperations;
     private final PlaceholderGenerator placeholderGenerator;
@@ -68,20 +63,16 @@ public class ProfileImageHelper {
 
     private Func2<Notification<Bitmap>, Notification<Palette>, UserImageSource> combineImageLoadingEvents(
             final UserImageSource suggestedCreatorItem) {
-        return new Func2<Notification<Bitmap>, Notification<Palette>, UserImageSource>() {
-            @Override
-            public UserImageSource call(Notification<Bitmap> bitmapNotification,
-                                        Notification<Palette> paletteNotification) {
-                if (paletteNotification.getKind() == Notification.Kind.OnNext) {
-                    suggestedCreatorItem.setPalette(Optional.of(
-                            paletteNotification.getValue()));
+        return (bitmapNotification, paletteNotification) -> {
+            if (paletteNotification.getKind() == Notification.Kind.OnNext) {
+                suggestedCreatorItem.setPalette(Optional.of(
+                        paletteNotification.getValue()));
 
-                    if (bitmapNotification.getKind() == Notification.Kind.OnError) {
-                        suggestedCreatorItem.setShouldDefaultToPalette(true);
-                    }
+                if (bitmapNotification.getKind() == Notification.Kind.OnError) {
+                    suggestedCreatorItem.setShouldDefaultToPalette(true);
                 }
-                return suggestedCreatorItem;
             }
+            return suggestedCreatorItem;
         };
     }
 

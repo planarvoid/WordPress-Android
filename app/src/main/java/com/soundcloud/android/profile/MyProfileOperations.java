@@ -70,15 +70,12 @@ public class MyProfileOperations {
     }
 
     Pager.PagingFunction<List<PropertySet>> followingsPagingFunction() {
-        return new Pager.PagingFunction<List<PropertySet>>() {
-            @Override
-            public Observable<List<PropertySet>> call(List<PropertySet> result) {
-                if (result.size() < PAGE_SIZE) {
-                    return Pager.finish();
-                } else {
-                    return pagedFollowingsFromPosition(getLast(result).get(UserAssociationProperty.POSITION))
-                            .subscribeOn(scheduler);
-                }
+        return result -> {
+            if (result.size() < PAGE_SIZE) {
+                return Pager.finish();
+            } else {
+                return pagedFollowingsFromPosition(getLast(result).get(UserAssociationProperty.POSITION))
+                        .subscribeOn(scheduler);
             }
         };
     }
@@ -91,14 +88,9 @@ public class MyProfileOperations {
     public Observable<List<UserAssociation>> followingsUserAssociations() {
         return loadFollowingUserAssociationsFromStorage()
                 .filter(IS_NOT_EMPTY_LIST)
-                .switchIfEmpty(Observable.defer(new Func0<Observable<List<UserAssociation>>>() {
-                    @Override
-                    public Observable<List<UserAssociation>> call() {
-                        return syncInitiatorBridge.refreshFollowings()
-                                                  .flatMap(continueWith(
-                                                          loadFollowingUserAssociationsFromStorage()));
-                    }
-                }));
+                .switchIfEmpty(Observable.defer(() -> syncInitiatorBridge.refreshFollowings()
+                                                                 .flatMap(continueWith(
+                                                  loadFollowingUserAssociationsFromStorage()))));
     }
 
     private Observable<List<UserAssociation>> loadFollowingUserAssociationsFromStorage() {
@@ -114,15 +106,12 @@ public class MyProfileOperations {
     @NonNull
     private Func1<List<Urn>, Observable<List<PropertySet>>> syncAndReloadFollowings(final int pageSize,
                                                                                     final long fromPosition) {
-        return new Func1<List<Urn>, Observable<List<PropertySet>>>() {
-            @Override
-            public Observable<List<PropertySet>> call(List<Urn> urns) {
-                if (urns.isEmpty()) {
-                    return Observable.just(Collections.<PropertySet>emptyList());
-                } else {
-                    return syncInitiator.batchSyncUsers(urns)
-                                        .flatMap(loadFollowings(pageSize, fromPosition));
-                }
+        return urns -> {
+            if (urns.isEmpty()) {
+                return Observable.just(Collections.<PropertySet>emptyList());
+            } else {
+                return syncInitiator.batchSyncUsers(urns)
+                                    .flatMap(loadFollowings(pageSize, fromPosition));
             }
         };
     }
@@ -130,12 +119,7 @@ public class MyProfileOperations {
     @NonNull
     private Func1<SyncJobResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize,
                                                                                final long fromPosition) {
-        return new Func1<SyncJobResult, Observable<List<PropertySet>>>() {
-            @Override
-            public Observable<List<PropertySet>> call(SyncJobResult syncJobResult) {
-                return userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler);
-            }
-        };
+        return syncJobResult -> userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler);
     }
 
     public Observable<PropertySet> lastPublicPostedTrack() {

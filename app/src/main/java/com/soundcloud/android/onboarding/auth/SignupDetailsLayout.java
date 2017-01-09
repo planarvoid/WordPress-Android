@@ -161,53 +161,35 @@ public class SignupDetailsLayout extends RelativeLayout {
 
         username.setHint(R.string.authentication_add_info_username_hint);
 
-        username.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean done = actionId == EditorInfo.IME_ACTION_DONE;
-                boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
-                boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
+        username.setOnEditorActionListener((v, actionId, event) -> {
+            boolean done = actionId == EditorInfo.IME_ACTION_DONE;
+            boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
+            boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
 
-                if (done || pressedEnter && downAction) {
-                    return avatarFile == null && avatarText.performClick();
-                } else {
-                    return false;
-                }
+            if (done || pressedEnter && downAction) {
+                return avatarFile == null && avatarText.performClick();
+            } else {
+                return false;
             }
         });
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onSave();
+        saveButton.setOnClickListener(v -> onSave());
+
+        avatarText.setOnClickListener(v -> {
+            final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
+            if (IOUtils.checkReadExternalStoragePermission(activity)) {
+                showImagePicker(activity);
             }
         });
 
-        avatarText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
-                if (IOUtils.checkReadExternalStoragePermission(activity)) {
-                    showImagePicker(activity);
-                }
-            }
-        });
+        avatarView.setOnClickListener(v -> Toast.makeText(getContext(), R.string.authentication_clear_image, Toast.LENGTH_LONG).show());
 
-        avatarView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), R.string.authentication_clear_image, Toast.LENGTH_LONG).show();
-            }
-        });
+        avatarView.setOnLongClickListener(v -> {
+            resetAvatarFile();
+            avatarView.setVisibility(View.GONE);
+            avatarText.setVisibility(View.VISIBLE);
 
-        avatarView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                resetAvatarFile();
-                avatarView.setVisibility(View.GONE);
-                avatarText.setVisibility(View.VISIBLE);
-
-                return true;
-            }
+            return true;
         });
     }
 

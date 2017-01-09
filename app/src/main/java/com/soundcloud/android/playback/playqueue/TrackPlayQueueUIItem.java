@@ -18,12 +18,7 @@ import android.support.v4.content.ContextCompat;
 
 class TrackPlayQueueUIItem extends PlayQueueUIItem {
 
-    static final Func1<PlayQueueUIItem, Boolean> ONLY_TRACKS = new Func1<PlayQueueUIItem, Boolean>() {
-        @Override
-        public Boolean call(PlayQueueUIItem playQueueUIItem) {
-            return playQueueUIItem.isTrack();
-        }
-    };
+    static final Func1<PlayQueueUIItem, Boolean> ONLY_TRACKS = playQueueUIItem -> playQueueUIItem.isTrack();
 
     private final PlayQueueItem playQueueItem;
     private final TrackItem trackItem;

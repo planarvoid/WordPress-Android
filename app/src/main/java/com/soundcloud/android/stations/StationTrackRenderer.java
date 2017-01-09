@@ -90,12 +90,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(View.VISIBLE);
-            artist.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    navigator.legacyOpenProfile(artist.getContext(), creatorUrn);
-                }
-            });
+            artist.setOnClickListener(v -> navigator.legacyOpenProfile(artist.getContext(), creatorUrn));
         }
 
         findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);

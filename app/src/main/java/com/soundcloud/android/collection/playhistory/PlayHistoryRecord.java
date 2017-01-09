@@ -7,11 +7,7 @@ import com.soundcloud.java.functions.Function;
 @AutoValue
 public abstract class PlayHistoryRecord {
 
-    static final Function<PlayHistoryRecord, Urn> TO_TRACK_URN = new Function<PlayHistoryRecord, Urn>() {
-        public Urn apply(PlayHistoryRecord input) {
-            return input.trackUrn();
-        }
-    };
+    static final Function<PlayHistoryRecord, Urn> TO_TRACK_URN = input -> input.trackUrn();
 
     public static final int CONTEXT_OTHER = 0;
     public static final int CONTEXT_PLAYLIST = 1;

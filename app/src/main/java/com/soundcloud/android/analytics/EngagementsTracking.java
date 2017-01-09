@@ -21,28 +21,18 @@ public class EngagementsTracking {
     private static Func1<TrackItem, UIEvent> LIKE_EVENT_FROM_TRACK(final Urn trackUrn, final boolean addLike,
                                                                      final EventContextMetadata eventMetadata,
                                                                      final PromotedSourceInfo promotedSourceInfo) {
-        return new Func1<TrackItem, UIEvent>() {
-            @Override
-            public UIEvent call(TrackItem track) {
-                return UIEvent.fromToggleLike(addLike,
-                                              trackUrn,
-                                              eventMetadata,
-                                              promotedSourceInfo,
-                                              EntityMetadata.from(track));
-            }
-        };
+        return track -> UIEvent.fromToggleLike(addLike,
+                                       trackUrn,
+                                       eventMetadata,
+                                       promotedSourceInfo,
+                                       EntityMetadata.from(track));
     }
 
     private static Func1<UserItem, UIEvent> FOLLOW_EVENT_FROM_USER(final boolean isFollow,
                                                                    final EventContextMetadata eventContextMetadata) {
-        return new Func1<UserItem, UIEvent>() {
-            @Override
-            public UIEvent call(UserItem user) {
-                return UIEvent.fromToggleFollow(isFollow,
-                                                EntityMetadata.fromUser(user),
-                                                eventContextMetadata);
-            }
-        };
+        return user -> UIEvent.fromToggleFollow(isFollow,
+                                        EntityMetadata.fromUser(user),
+                                        eventContextMetadata);
     }
 
     @Inject

@@ -44,23 +44,20 @@ public class BugReporter {
     private void showFeedbackDialog(final Context context, @ArrayRes int options) {
         final String[] feedbackOptions = resources.getStringArray(options);
         new AlertDialog.Builder(context).setTitle(R.string.select_feedback_category)
-                                        .setItems(feedbackOptions, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                final String feedbackOption = feedbackOptions[which];
-                                                final String subject = resources.getString(R.string.feedback_email_subject,
-                                                                                           feedbackOption);
-                                                final String actionChooser = resources.getString(R.string.feedback_action_chooser);
-                                                final String feedbackEmail = feedbackOption.equals(resources.getString(R.string.feedback_playback_issue)) ?
-                                                                             applicationProperties.getPlaybackFeedbackEmail() :
-                                                                             applicationProperties.getFeedbackEmail();
+                                        .setItems(feedbackOptions, (dialog, which) -> {
+                                            final String feedbackOption = feedbackOptions[which];
+                                            final String subject = resources.getString(R.string.feedback_email_subject,
+                                                                                       feedbackOption);
+                                            final String actionChooser = resources.getString(R.string.feedback_action_chooser);
+                                            final String feedbackEmail = feedbackOption.equals(resources.getString(R.string.feedback_playback_issue)) ?
+                                                                         applicationProperties.getPlaybackFeedbackEmail() :
+                                                                         applicationProperties.getFeedbackEmail();
 
-                                                sendLogs(context,
-                                                         feedbackEmail,
-                                                         subject,
-                                                         deviceHelper.getUserAgent(),
-                                                         actionChooser);
-                                            }
+                                            sendLogs(context,
+                                                     feedbackEmail,
+                                                     subject,
+                                                     deviceHelper.getUserAgent(),
+                                                     actionChooser);
                                         }).show();
     }
 

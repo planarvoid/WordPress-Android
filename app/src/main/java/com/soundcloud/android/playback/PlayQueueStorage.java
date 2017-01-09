@@ -37,12 +37,7 @@ public class PlayQueueStorage {
 
     private final PropellerRx propellerRx;
 
-    private Func1<QueryResult, Map<Urn, String>> toMapOfUrnAndTitles = new Func1<QueryResult, Map<Urn, String>>() {
-        @Override
-        public Map<Urn, String> call(QueryResult cursorReaders) {
-            return toMapOfUrnAndTitles(cursorReaders);
-        }
-    };
+    private Func1<QueryResult, Map<Urn, String>> toMapOfUrnAndTitles = cursorReaders -> toMapOfUrnAndTitles(cursorReaders);
 
     @Inject
     public PlayQueueStorage(PropellerRx propellerRx) {

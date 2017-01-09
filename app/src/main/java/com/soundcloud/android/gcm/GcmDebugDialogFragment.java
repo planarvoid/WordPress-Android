@@ -60,12 +60,7 @@ public class GcmDebugDialogFragment extends DialogFragment implements GcmMessage
 
     @Override
     public void onRemoteMessage(final RemoteMessage remoteMessage, final String payload) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                debugText.append(getMessageOutput(remoteMessage, payload) + "\n\n");
-            }
-        });
+        new Handler(Looper.getMainLooper()).post(() -> debugText.append(getMessageOutput(remoteMessage, payload) + "\n\n"));
     }
 
     private String getMessageOutput(RemoteMessage remoteMessage, String payload) {

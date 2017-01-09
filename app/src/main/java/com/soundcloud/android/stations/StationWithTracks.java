@@ -21,28 +21,13 @@ class StationWithTracks {
 
     private static final int MAX_NUMBER_OF_MOST_PLAYED_ARTIST = 3;
 
-    private static final Comparator<StationInfoTrack> STATION_INFO_TRACK_COMPARATOR = new Comparator<StationInfoTrack>() {
-        @Override
-        public int compare(StationInfoTrack trackA, StationInfoTrack trackB) {
-            return trackB.getTrack().getPlayCount() - trackA.getTrack().getPlayCount();
-        }
-    };
+    private static final Comparator<StationInfoTrack> STATION_INFO_TRACK_COMPARATOR = (trackA, trackB) -> trackB.getTrack().getPlayCount() - trackA.getTrack().getPlayCount();
 
-    private static final Function<StationInfoTrack, String> TO_CREATOR_NAME = new Function<StationInfoTrack, String>() {
-        @Override
-        public String apply(StationInfoTrack input) {
-            return input.getTrack().getCreatorName();
-        }
-    };
+    private static final Function<StationInfoTrack, String> TO_CREATOR_NAME = input -> input.getTrack().getCreatorName();
 
     @VisibleForTesting
     static final Function<ApiTrack, StationInfoTrack> TO_STATION_TRACKS =
-            new Function<ApiTrack, StationInfoTrack>() {
-                @Override
-                public StationInfoTrack apply(ApiTrack input) {
-                    return StationInfoTrack.from(input);
-                }
-            };
+            input -> StationInfoTrack.from(input);
 
 
     private Urn urn;

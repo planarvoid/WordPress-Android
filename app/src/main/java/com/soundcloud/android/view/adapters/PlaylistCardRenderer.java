@@ -98,15 +98,10 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
                                       playlistItem,
                                       getEventContextMetadataBuilder(module).build());
 
-        playlistView.overflowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View overflowButton) {
-                playlistItemMenuPresenter.show(overflowButton,
-                                               playlistItem,
-                                               builder().build(),
-                                               getEventContextMetadataBuilder(module));
-            }
-        });
+        playlistView.overflowButton.setOnClickListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton,
+                                                                                                playlistItem,
+                                                                                                builder().build(),
+                                                                                                getEventContextMetadataBuilder(module)));
     }
 
     private EventContextMetadata.Builder getEventContextMetadataBuilder(final Optional<Module> module) {
@@ -123,12 +118,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         loadArtwork(itemView, playableItem);
         itemView.title.setText(playableItem.getTitle());
         itemView.creator.setText(playableItem.getCreatorName());
-        itemView.creator.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigator.legacyOpenProfile(v.getContext(), playableItem.getCreatorUrn());
-            }
-        });
+        itemView.creator.setOnClickListener(v -> navigator.legacyOpenProfile(v.getContext(), playableItem.getCreatorUrn()));
     }
 
     private void loadArtwork(PlaylistViewHolder itemView, PlayableItem playableItem) {
@@ -139,12 +129,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     private static String formatTags(List<String> tags) {
         if (tags.size() >= 2) {
-            return Strings.joinOn(", ").join(Lists.transform(tags.subList(0, 2), new Function<String, String>() {
-                @Override
-                public String apply(String tag) {
-                    return "#" + tag;
-                }
-            }));
+            return Strings.joinOn(", ").join(Lists.transform(tags.subList(0, 2), tag -> "#" + tag));
         } else if (tags.size() == 1) {
             return "#" + tags.get(0);
         } else {

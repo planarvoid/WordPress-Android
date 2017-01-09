@@ -77,15 +77,10 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
     }
 
     private void setupOverflow(final View button, final RecentlyPlayedPlayableItem user, final int position) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                userMenuPresenter.show(button, user.getUrn(), EventContextMetadata.builder()
-                                                                                  .pageName(screenProvider.getLastScreen().get())
-                                                                                  .module(Module.create(Module.RECENTLY_PLAYED, position))
-                                                                                  .build());
-            }
-        });
+        button.setOnClickListener(v -> userMenuPresenter.show(button, user.getUrn(), EventContextMetadata.builder()
+                                                                                                 .pageName(screenProvider.getLastScreen().get())
+                                                                                                 .module(Module.create(Module.RECENTLY_PLAYED, position))
+                                                                                                 .build()));
 
         ViewUtils.extendTouchArea(button, 8); // todo: use default ViewUtils.extendTouchArea
     }
@@ -104,14 +99,11 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
     }
 
     private View.OnClickListener goToUserProfile(final RecentlyPlayedPlayableItem user) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Urn urn = user.getUrn();
-                Screen lastScreen = screenProvider.getLastScreen();
-                eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-                navigator.legacyOpenProfile(view.getContext(), urn, lastScreen);
-            }
+        return view -> {
+            Urn urn = user.getUrn();
+            Screen lastScreen = screenProvider.getLastScreen();
+            eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
+            navigator.legacyOpenProfile(view.getContext(), urn, lastScreen);
         };
     }
 

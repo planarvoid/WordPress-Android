@@ -11,12 +11,7 @@ import javax.inject.Provider;
 public class TestSubscribers {
 
     public static Provider<ExpandPlayerSubscriber> expandPlayerSubscriber() {
-        return new Provider<ExpandPlayerSubscriber>() {
-            @Override
-            public ExpandPlayerSubscriber get() {
-                return new ExpandPlayerSubscriber(new TestEventBus(), mock(PlaybackToastHelper.class));
-            }
-        };
+        return () -> new ExpandPlayerSubscriber(new TestEventBus(), mock(PlaybackToastHelper.class));
     }
 
 }

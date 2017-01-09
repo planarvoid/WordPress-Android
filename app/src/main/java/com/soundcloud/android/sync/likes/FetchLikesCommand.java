@@ -14,12 +14,7 @@ import java.util.TreeSet;
 
 class FetchLikesCommand extends LegacyCommand<ApiEndpoints, NavigableSet<LikeRecord>, FetchLikesCommand> {
 
-    public static final Comparator<LikeRecord> LIKES_COMPARATOR = new Comparator<LikeRecord>() {
-        @Override
-        public int compare(LikeRecord lhs, LikeRecord rhs) {
-            return lhs.getTargetUrn().compareTo(rhs.getTargetUrn());
-        }
-    };
+    public static final Comparator<LikeRecord> LIKES_COMPARATOR = (lhs, rhs) -> lhs.getTargetUrn().compareTo(rhs.getTargetUrn());
 
     private final ApiClient apiClient;
 

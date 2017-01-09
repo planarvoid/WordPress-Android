@@ -9,12 +9,7 @@ import java.util.Comparator;
 @AutoParcel
 public abstract class VideoAdSource implements Parcelable {
 
-    public static final Comparator<VideoAdSource> BITRATE_COMPARATOR = new Comparator<VideoAdSource>() {
-        @Override
-        public int compare(VideoAdSource lhs, VideoAdSource rhs) {
-            return Integer.valueOf(lhs.getBitRateKbps()).compareTo(rhs.getBitRateKbps());
-        }
-    };
+    public static final Comparator<VideoAdSource> BITRATE_COMPARATOR = (lhs, rhs) -> Integer.valueOf(lhs.getBitRateKbps()).compareTo(rhs.getBitRateKbps());
 
     public static VideoAdSource create(ApiVideoSource apiVideoSource) {
         return new AutoParcel_VideoAdSource(

@@ -294,13 +294,8 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     }
 
     private Action1<Throwable> reportPlaybackError(final Urn initialTrackUrnCandidate) {
-        return new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                reportStateChange(createStateTransition(initialTrackUrnCandidate, PlaybackState.IDLE,
-                                                        PlayStateReason.ERROR_FAILED));
-            }
-        };
+        return throwable -> reportStateChange(createStateTransition(initialTrackUrnCandidate, PlaybackState.IDLE,
+                                                            PlayStateReason.ERROR_FAILED));
     }
 
     @NonNull

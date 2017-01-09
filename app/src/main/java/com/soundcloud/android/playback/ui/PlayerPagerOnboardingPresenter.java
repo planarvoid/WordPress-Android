@@ -148,12 +148,7 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
 
         @Override
         public void onAnimationEnd(Animator animator) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    pager.endFakeDrag();
-                }
-            }, timeBeforeDeceleration);
+            handler.postDelayed(() -> pager.endFakeDrag(), timeBeforeDeceleration);
         }
 
         @Override

@@ -88,21 +88,11 @@ public class LoginLayout extends AuthLayout {
 
         ScTextUtils.clickify(((TextView) findViewById(R.id.txt_i_forgot_my_password)),
                              getResources().getString(R.string.authentication_I_forgot_my_password),
-                             new ScTextUtils.ClickSpan.OnClickListener() {
-                                 @Override
-                                 public void onClick() {
-                                     getLoginHandler().onRecoverPassword(emailField.getText().toString());
-                                 }
-                             }, true, false);
+                             () -> getLoginHandler().onRecoverPassword(emailField.getText().toString()), true, false);
 
         ScTextUtils.clickify(((TextView) findViewById(R.id.tou_reminder)),
                              getResources().getString(R.string.onboarding_tou_reminder_link_highlight),
-                             new ScTextUtils.ClickSpan.OnClickListener() {
-                                 @Override
-                                 public void onClick() {
-                                     getLoginHandler().onShowTermsOfUse();
-                                 }
-                             }, true, false);
+                             () -> getLoginHandler().onShowTermsOfUse(), true, false);
     }
 
     @OnEditorAction(R.id.txt_password)

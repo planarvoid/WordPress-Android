@@ -95,21 +95,18 @@ public class ViewFetcher {
 
         List<ViewElement> results = Lists.newArrayList(filter(
                 getOnScreenElements(with),
-                new Predicate<ViewElement>() {
-                    @Override
-                    public boolean apply(ViewElement viewElement) {
-                        for (With with : withs) {
-                            try {
-                                if (!with.apply(viewElement)) {
-                                    return false;
-                                }
-                            } catch (Exception e) {
+                viewElement -> {
+                    for (With with1 : withs) {
+                        try {
+                            if (!with1.apply(viewElement)) {
                                 return false;
                             }
+                        } catch (Exception e) {
+                            return false;
                         }
-                        return true;
-
                     }
+                    return true;
+
                 }
         ));
 
@@ -157,12 +154,7 @@ public class ViewFetcher {
     }
 
     public List<ViewElement> getDirectChildViews() {
-        return Lists.newArrayList(filter(getAllOnScreenElements(), new Predicate<ViewElement>() {
-            @Override
-            public boolean apply(ViewElement viewElement) {
-                return parentView.equals(viewElement.getParent());
-            }
-        }));
+        return Lists.newArrayList(filter(getAllOnScreenElements(), viewElement -> parentView.equals(viewElement.getParent())));
     }
 
     private ViewElement getOnScreenElement(With matcher) {
@@ -184,11 +176,7 @@ public class ViewFetcher {
     }
 
     private List<ViewElement> getAllOnScreenElements() {
-        return Lists.newArrayList(filter(getAllChildViews(), new Predicate<ViewElement>() {
-            public boolean apply(ViewElement viewElement) {
-                return viewElement.isOnScreen();
-            }
-        }));
+        return Lists.newArrayList(filter(getAllChildViews(), viewElement -> viewElement.isOnScreen()));
     }
 
     private List<ViewElement> getAllChildViews() {
@@ -197,12 +185,7 @@ public class ViewFetcher {
         if (views == null) {
             return Collections.emptyList();
         } else {
-            return Lists.transform(views, new Function<View, ViewElement>() {
-                @Override
-                public ViewElement apply(View view) {
-                    return new DefaultViewElement(view, testDriver);
-                }
-            });
+            return Lists.transform(views, view -> new DefaultViewElement(view, testDriver));
         }
     }
 
@@ -211,30 +194,15 @@ public class ViewFetcher {
         private static final int POLL_INTERVAL = 100;
 
         public ViewElement waitForElement(final With with) {
-            return waitForOne(with.getSelector(), new Callable<List<ViewElement>>() {
-                @Override
-                public List<ViewElement> call() throws Exception {
-                    return Lists.newArrayList(filter(getAllChildViews(), with));
-                }
-            });
+            return waitForOne(with.getSelector(), () -> Lists.newArrayList(filter(getAllChildViews(), with)));
         }
 
         public List<ViewElement> waitForOnScreenElements(final With with) {
-            return waitForMany(with.getSelector(), new Callable<List<ViewElement>>() {
-                @Override
-                public List<ViewElement> call() throws Exception {
-                    return Lists.newArrayList(filter(getAllOnScreenElements(), with));
-                }
-            });
+            return waitForMany(with.getSelector(), () -> Lists.newArrayList(filter(getAllOnScreenElements(), with)));
         }
 
         public ViewElement waitForOnScreenElement(final With with) {
-            return waitForOne(with.getSelector(), new Callable<List<ViewElement>>() {
-                @Override
-                public List<ViewElement> call() throws Exception {
-                    return Lists.newArrayList(filter(getAllOnScreenElements(), with));
-                }
-            });
+            return waitForOne(with.getSelector(), () -> Lists.newArrayList(filter(getAllOnScreenElements(), with)));
         }
 
         private List<ViewElement> waitForMany(String selector, Callable<List<ViewElement>> callable) {

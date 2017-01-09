@@ -33,12 +33,7 @@ import java.util.List;
 public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     private static Function<StationRecord, StationViewModel> TO_VIEW_MODEL =
-            new Function<StationRecord, StationViewModel>() {
-                @Override
-                public StationViewModel apply(StationRecord input) {
-                    return viewModelFrom(input, false);
-                }
-            };
+            input -> viewModelFrom(input, false);
 
     private static final Urn URN_1 = Urn.forArtistStation(1);
     private static final Urn URN_2 = Urn.forTrackStation(2);

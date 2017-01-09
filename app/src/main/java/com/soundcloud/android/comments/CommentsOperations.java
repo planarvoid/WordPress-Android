@@ -28,15 +28,12 @@ class CommentsOperations {
     @VisibleForTesting
     static final int COMMENTS_PAGE_SIZE = 50;
 
-    static final Func1<CommentsCollection, List<Comment>> TO_COMMENT_VIEW_MODEL = new Func1<CommentsCollection, List<Comment>>() {
-        @Override
-        public List<Comment> call(CommentsCollection apiComments) {
-            List<Comment> comments = new ArrayList<>(CommentsOperations.COMMENTS_PAGE_SIZE);
-            for (PublicApiComment apiComment : apiComments) {
-                comments.add(new Comment(apiComment));
-            }
-            return comments;
+    static final Func1<CommentsCollection, List<Comment>> TO_COMMENT_VIEW_MODEL = apiComments -> {
+        List<Comment> comments = new ArrayList<>(CommentsOperations.COMMENTS_PAGE_SIZE);
+        for (PublicApiComment apiComment : apiComments) {
+            comments.add(new Comment(apiComment));
         }
+        return comments;
     };
 
     private final ApiClientRx apiClientRx;

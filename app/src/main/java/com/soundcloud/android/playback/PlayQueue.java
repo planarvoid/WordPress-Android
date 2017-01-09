@@ -41,24 +41,21 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
                                                               final PlaySessionSource playSessionSource,
                                                               final Map<Urn, Boolean> blockedTracks) {
 
-        return newArrayList(Lists.transform(urns, new Function<Urn, PlayQueueItem>() {
-            @Override
-            public PlayQueueItem apply(Urn playable) {
-                if (playable.isTrack()) {
-                    return new TrackQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource())
-                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
-                            .blocked(Boolean.TRUE.equals(blockedTracks.get(playable)))
-                            .build();
+        return newArrayList(Lists.transform(urns, (Function<Urn, PlayQueueItem>) playable -> {
+            if (playable.isTrack()) {
+                return new TrackQueueItem.Builder(playable)
+                        .fromSource(playSessionSource.getInitialSource())
+                        .withPlaybackContext(PlaybackContext.create(playSessionSource))
+                        .blocked(Boolean.TRUE.equals(blockedTracks.get(playable)))
+                        .build();
 
-                } else if (playable.isPlaylist()) {
-                    return new PlaylistQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource())
-                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
-                            .build();
-                } else {
-                    throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
-                }
+            } else if (playable.isPlaylist()) {
+                return new PlaylistQueueItem.Builder(playable)
+                        .fromSource(playSessionSource.getInitialSource())
+                        .withPlaybackContext(PlaybackContext.create(playSessionSource))
+                        .build();
+            } else {
+                throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
             }
         }));
     }
@@ -74,27 +71,24 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     private static List<PlayQueueItem> playQueueItemsFromPlayables(List<PlayableWithReposter> playablesWithReposters,
                                                                    final PlaySessionSource playSessionSource,
                                                                    final Map<Urn, Boolean> blockedTracks) {
-        return newArrayList(Lists.transform(playablesWithReposters, new Function<PlayableWithReposter, PlayQueueItem>() {
-            @Override
-            public PlayQueueItem apply(PlayableWithReposter playableAndReposter) {
+        return newArrayList(Lists.transform(playablesWithReposters, (Function<PlayableWithReposter, PlayQueueItem>) playableAndReposter -> {
 
-                if (playableAndReposter.getUrn().isTrack()) {
-                    return new TrackQueueItem.Builder(playableAndReposter)
-                            .fromSource(playSessionSource.getInitialSource())
-                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
-                            .blocked(Boolean.TRUE.equals(blockedTracks.get(playableAndReposter.getUrn())))
-                            .build();
+            if (playableAndReposter.getUrn().isTrack()) {
+                return new TrackQueueItem.Builder(playableAndReposter)
+                        .fromSource(playSessionSource.getInitialSource())
+                        .withPlaybackContext(PlaybackContext.create(playSessionSource))
+                        .blocked(Boolean.TRUE.equals(blockedTracks.get(playableAndReposter.getUrn())))
+                        .build();
 
-                } else if (playableAndReposter.getUrn().isPlaylist()) {
-                    return new PlaylistQueueItem.Builder(playableAndReposter)
-                            .fromSource(playSessionSource.getInitialSource())
-                            .withPlaybackContext(PlaybackContext.create(playSessionSource))
-                            .build();
-                } else {
-                    throw new IllegalArgumentException("Unrecognized playable sent for playback " + playableAndReposter);
-                }
-
+            } else if (playableAndReposter.getUrn().isPlaylist()) {
+                return new PlaylistQueueItem.Builder(playableAndReposter)
+                        .fromSource(playSessionSource.getInitialSource())
+                        .withPlaybackContext(PlaybackContext.create(playSessionSource))
+                        .build();
+            } else {
+                throw new IllegalArgumentException("Unrecognized playable sent for playback " + playableAndReposter);
             }
+
         }));
     }
 
@@ -146,12 +140,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public static Predicate<PlayQueueItem> isMatchingItem(final PlayQueueItem playQueueItem) {
-        return new Predicate<PlayQueueItem>() {
-            @Override
-            public boolean apply(PlayQueueItem input) {
-                return input.equals(playQueueItem);
-            }
-        };
+        return input -> input.equals(playQueueItem);
     }
 
     public abstract PlayQueue copy();

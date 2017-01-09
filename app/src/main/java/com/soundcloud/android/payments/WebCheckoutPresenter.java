@@ -128,12 +128,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     public void onWebAppReady() {
         cancelTimeout();
         // WebView callbacks are not on the UI thread
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                view.setLoading(false);
-            }
-        });
+        activity.runOnUiThread(() -> view.setLoading(false));
     }
 
     @Override
@@ -169,12 +164,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void startTimeout() {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setRetryState();
-            }
-        }, TIMEOUT_MILLIS);
+        handler.postDelayed(() -> setRetryState(), TIMEOUT_MILLIS);
     }
 
     private void cancelTimeout() {

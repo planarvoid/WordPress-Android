@@ -58,12 +58,9 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
                     final Func1<CollT, ? extends Iterable<R>> itemMapper) {
         this.adapter = adapter;
         this.pager = pager;
-        adapter.setOnErrorRetryListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adapter.setLoading();
-                pager.currentPage().map(itemMapper).observeOn(mainThread()).subscribe(adapter);
-            }
+        adapter.setOnErrorRetryListener(v -> {
+            adapter.setLoading();
+            pager.currentPage().map(itemMapper).observeOn(mainThread()).subscribe(adapter);
         });
     }
 

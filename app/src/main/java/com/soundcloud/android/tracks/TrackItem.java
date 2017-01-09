@@ -98,21 +98,11 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     }
 
     public static Func1<PropertySet, TrackItem> fromPropertySet() {
-        return new Func1<PropertySet, TrackItem>() {
-            @Override
-            public TrackItem call(PropertySet bindings) {
-                return TrackItem.from(bindings);
-            }
-        };
+        return bindings -> TrackItem.from(bindings);
     }
 
     public static Func1<List<PropertySet>, List<TrackItem>> fromPropertySets() {
-        return new Func1<List<PropertySet>, List<TrackItem>>() {
-            @Override
-            public List<TrackItem> call(List<PropertySet> bindings) {
-                return TrackItem.fromPropertySets(bindings);
-            }
-        };
+        return bindings -> TrackItem.fromPropertySets(bindings);
     }
 
     @NonNull
@@ -125,15 +115,12 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     }
 
     public static <T extends Iterable<ApiTrack>> Func1<T, List<TrackItem>> fromApiTracks() {
-        return new Func1<T, List<TrackItem>>() {
-            @Override
-            public List<TrackItem> call(T trackList) {
-                List<TrackItem> trackItems = new ArrayList<>();
-                for (ApiTrack source : trackList) {
-                    trackItems.add(from(source));
-                }
-                return trackItems;
+        return trackList -> {
+            List<TrackItem> trackItems = new ArrayList<>();
+            for (ApiTrack source1 : trackList) {
+                trackItems.add(from(source1));
             }
+            return trackItems;
         };
     }
 

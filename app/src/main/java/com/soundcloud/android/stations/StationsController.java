@@ -24,16 +24,11 @@ public class StationsController {
     private final StationsOperations operations;
     private final Scheduler scheduler;
 
-    private static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = new Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState>() {
-        @Override
-        public CollectionPlaybackState call(CurrentPlayQueueItemEvent event, PlayStateEvent playStateEvent) {
-            return new CollectionPlaybackState(
-                    event.getCollectionUrn(),
-                    event.getPosition(),
-                    playStateEvent.getNewState()
-            );
-        }
-    };
+    private static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = (event, playStateEvent) -> new CollectionPlaybackState(
+            event.getCollectionUrn(),
+            event.getPosition(),
+            playStateEvent.getNewState()
+    );
 
     private final Action1<CollectionPlaybackState> saveRecentStation = new Action1<CollectionPlaybackState>() {
         @Override
@@ -46,12 +41,7 @@ public class StationsController {
         }
     };
 
-    private static final Func1<CollectionPlaybackState, Boolean> IS_PLAYING_STATION = new Func1<CollectionPlaybackState, Boolean>() {
-        @Override
-        public Boolean call(CollectionPlaybackState collectionPlaybackState) {
-            return collectionPlaybackState.collectionUrn.isStation() && collectionPlaybackState.playbackState.isPlayerPlaying();
-        }
-    };
+    private static final Func1<CollectionPlaybackState, Boolean> IS_PLAYING_STATION = collectionPlaybackState -> collectionPlaybackState.collectionUrn.isStation() && collectionPlaybackState.playbackState.isPlayerPlaying();
 
     @Inject
     public StationsController(EventBus eventBus,

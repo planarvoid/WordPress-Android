@@ -9,17 +9,7 @@ public final class PlayQueueFunctions {
     private PlayQueueFunctions() {
     }
 
-    public static final Func1<CurrentPlayQueueItemEvent, Boolean> IS_AUDIO_AD_QUEUE_ITEM = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentPlayQueueItemEvent currentItemEvent) {
-            return currentItemEvent.getCurrentPlayQueueItem().isAudioAd();
-        }
-    };
+    public static final Func1<CurrentPlayQueueItemEvent, Boolean> IS_AUDIO_AD_QUEUE_ITEM = currentItemEvent -> currentItemEvent.getCurrentPlayQueueItem().isAudioAd();
 
-    public static final Func1<CurrentPlayQueueItemEvent, TrackQueueItem> TO_TRACK_QUEUE_ITEM = new Func1<CurrentPlayQueueItemEvent, TrackQueueItem>() {
-        @Override
-        public TrackQueueItem call(CurrentPlayQueueItemEvent currentItemEvent) {
-            return (TrackQueueItem) currentItemEvent.getCurrentPlayQueueItem();
-        }
-    };
+    public static final Func1<CurrentPlayQueueItemEvent, TrackQueueItem> TO_TRACK_QUEUE_ITEM = currentItemEvent -> (TrackQueueItem) currentItemEvent.getCurrentPlayQueueItem();
 }

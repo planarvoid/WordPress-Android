@@ -19,11 +19,7 @@ import java.util.List;
 class PushPlayHistoryCommand extends Command<PlayHistoryRecord, List<PlayHistoryRecord>> {
 
     private static final Function<PlayHistoryRecord, ApiPlayHistory> TO_API_PLAY_HISTORY =
-            new Function<PlayHistoryRecord, ApiPlayHistory>() {
-                public ApiPlayHistory apply(PlayHistoryRecord input) {
-                    return ApiPlayHistory.create(input.timestamp(), input.trackUrn().toString());
-                }
-            };
+            input -> ApiPlayHistory.create(input.timestamp(), input.trackUrn().toString());
 
     private final PlayHistoryStorage playHistoryStorage;
     private final ApiClient apiClient;

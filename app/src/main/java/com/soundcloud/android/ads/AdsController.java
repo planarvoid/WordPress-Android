@@ -72,27 +72,12 @@ public class AdsController {
     private boolean isForeground;
     private boolean isPlayerVisible;
 
-    private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
-        @Override
-        public Boolean call(PlayQueueEvent playQueueEvent) {
-            return playQueueEvent.isQueueUpdate();
-        }
-    };
+    private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = playQueueEvent -> playQueueEvent.isQueueUpdate();
 
-    private static final Func1<TrackItem, Boolean> IS_MONETIZABLE = new Func1<TrackItem, Boolean>() {
-        @Override
-        public Boolean call(TrackItem trackItem) {
-            return trackItem.isMonetizable();
-        }
-    };
+    private static final Func1<TrackItem, Boolean> IS_MONETIZABLE = trackItem -> trackItem.isMonetizable();
 
     private static final Func2<TrackItem, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
-            new Func2<TrackItem, Optional<String>, AdRequestData>() {
-                @Override
-                public AdRequestData call(TrackItem track, Optional<String> kruxSegments) {
-                    return AdRequestData.forPlayerAd(track.getUrn(), kruxSegments);
-                }
-            };
+            (track, kruxSegments) -> AdRequestData.forPlayerAd(track.getUrn(), kruxSegments);
 
     private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
         @Override

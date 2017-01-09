@@ -19,15 +19,12 @@ public class OperationsInstrumentation {
         final int threshold = 5;
         final UnresponsiveAppException callSite = new UnresponsiveAppException();
 
-        return reportOverdue(threshold, timeUnit, new Action1<Long>() {
-            @Override
-            public void call(Long duration) {
-                final String message = String.format(Locale.US,
-                                                     "Operation took too long : %d ms (expected < %d)",
-                                                     duration,
-                                                     timeUnit.toMillis(threshold));
-                ErrorUtils.handleSilentException(message, callSite);
-            }
+        return reportOverdue(threshold, timeUnit, duration -> {
+            final String message = String.format(Locale.US,
+                                                 "Operation took too long : %d ms (expected < %d)",
+                                                 duration,
+                                                 timeUnit.toMillis(threshold));
+            ErrorUtils.handleSilentException(message, callSite);
         });
     }
 
@@ -41,12 +38,7 @@ public class OperationsInstrumentation {
 
     public static class ReportOverdueTransformer<T> implements Observable.Transformer<T, T> {
 
-        private final Func1<TimeInterval<T>, T> unwrap = new Func1<TimeInterval<T>, T>() {
-            @Override
-            public T call(TimeInterval<T> timeInterval) {
-                return timeInterval.getValue();
-            }
-        };
+        private final Func1<TimeInterval<T>, T> unwrap = timeInterval -> timeInterval.getValue();
         private final Action1<Long> reportAction;
         private final long maxDuration;
 
@@ -64,13 +56,10 @@ public class OperationsInstrumentation {
         }
 
         private Action1<TimeInterval<T>> reportOverdue(final long maxDuration, final Action1<Long> reportAction) {
-            return new Action1<TimeInterval<T>>() {
-                @Override
-                public void call(TimeInterval<T> timeInterval) {
-                    final long duration = timeInterval.getIntervalInMilliseconds();
-                    if (duration >= maxDuration) {
-                        reportAction.call(duration);
-                    }
+            return timeInterval -> {
+                final long duration = timeInterval.getIntervalInMilliseconds();
+                if (duration >= maxDuration) {
+                    reportAction.call(duration);
                 }
             };
         }

@@ -78,30 +78,14 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
 
     private void populateItemToParallaxViewsMaps(ViewGroup itemView) {
         if (!parallaxViewMap.containsKey(itemView)) {
-            parallaxViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
-                @Override
-                public boolean apply(View input) {
-                    return (VIEW_FOREGROUND_TAG.equals(input.getTag()));
-                }
-            }));
+            parallaxViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), input -> (VIEW_FOREGROUND_TAG.equals(input.getTag()))));
         }
 
         if (!parallaxBgImageViewMap.containsKey(itemView)) {
             parallaxBgImageViewMap.put(itemView,
                                        Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView),
-                                                                            new Predicate<View>() {
-                                                                                @Override
-                                                                                public boolean apply(View input) {
-                                                                                    return input instanceof ParallaxImageView;
-                                                                                }
-                                                                            }),
-                                                           new Function<View, ParallaxImageView>() {
-                                                               @Nullable
-                                                               @Override
-                                                               public ParallaxImageView apply(@Nullable View input) {
-                                                                   return (ParallaxImageView) input;
-                                                               }
-                                                           }));
+                                                                            input -> input instanceof ParallaxImageView),
+                                                           input -> (ParallaxImageView) input));
         }
     }
 }

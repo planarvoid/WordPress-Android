@@ -58,16 +58,9 @@ public class VisualAdImpressionOperations {
     };
 
     private final Func3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, State> combineFunction =
-            new Func3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, State>() {
-                @Override
-                public State call(ActivityLifeCycleEvent event,
-                                  CurrentPlayQueueItemEvent currentItemEvent,
-                                  PlayerUIEvent playerUIEvent) {
-                    return new State(currentItemEvent.getCurrentPlayQueueItem().getAdData().get(),
-                                     event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
-                                     playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
-                }
-            };
+            (event, currentItemEvent, playerUIEvent) -> new State(currentItemEvent.getCurrentPlayQueueItem().getAdData().get(),
+                             event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
+                             playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
 
     private boolean impressionEventEmitted;
 

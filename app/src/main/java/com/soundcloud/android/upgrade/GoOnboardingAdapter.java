@@ -69,12 +69,7 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
     }
 
     private void bindBackground(final OnboardingPage page, final ViewGroup view) {
-        Observable.fromCallable(new Func0<Bitmap>() {
-            @Override
-            public Bitmap call() {
-                return backgroundDecoder.decode(page.background);
-            }
-        })
+        Observable.fromCallable((Func0<Bitmap>) () -> backgroundDecoder.decode(page.background))
         .subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER)
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new BackgroundSubscriber((ImageView) view.findViewById(R.id.go_onboarding_background)));

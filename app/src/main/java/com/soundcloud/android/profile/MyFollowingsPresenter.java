@@ -41,15 +41,12 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final FollowingOperations followingOperations;
 
-    private final Func1<List<PropertySet>, List<UserItem>> pageTransformer = new Func1<List<PropertySet>, List<UserItem>>() {
-        @Override
-        public List<UserItem> call(List<PropertySet> collection) {
-            final List<UserItem> items = new ArrayList<>();
-            for (PropertySet source : collection) {
-                items.add(UserItem.from(source));
-            }
-            return items;
+    private final Func1<List<PropertySet>, List<UserItem>> pageTransformer = collection -> {
+        final List<UserItem> items = new ArrayList<>();
+        for (PropertySet source : collection) {
+            items.add(UserItem.from(source));
         }
+        return items;
     };
 
     private final UserRecyclerItemAdapter adapter;

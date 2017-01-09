@@ -76,12 +76,7 @@ public class AuthenticatorService extends Service {
                 reply.putInt(AccountManager.KEY_ERROR_CODE, 0);
                 reply.putString(AccountManager.KEY_ERROR_MESSAGE, context.getString(R.string.account_one_active));
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        AndroidUtils.showToast(context, R.string.account_one_active);
-                    }
-                });
+                handler.post(() -> AndroidUtils.showToast(context, R.string.account_one_active));
             }
             return reply;
         }

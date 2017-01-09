@@ -105,15 +105,12 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
     }
 
     public static Func1<List<PropertySet>, List<PlaylistItem>> fromPropertySets() {
-        return new Func1<List<PropertySet>, List<PlaylistItem>>() {
-            @Override
-            public List<PlaylistItem> call(List<PropertySet> bindings) {
-                List<PlaylistItem> playlistItems = new ArrayList<>(bindings.size());
-                for (PropertySet source : bindings) {
-                    playlistItems.add(from(source));
-                }
-                return playlistItems;
+        return bindings -> {
+            List<PlaylistItem> playlistItems = new ArrayList<>(bindings.size());
+            for (PropertySet source1 : bindings) {
+                playlistItems.add(from(source1));
             }
+            return playlistItems;
         };
     }
 

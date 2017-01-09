@@ -26,12 +26,7 @@ class WriteRecentStationsCollectionsCommand
         extends WriteStorageCommand<WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata, TxnResult, Boolean> {
 
     private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES =
-            new Function<ApiStationMetadata, ContentValues>() {
-                @Override
-                public ContentValues apply(ApiStationMetadata station) {
-                    return buildStationContentValues(station);
-                }
-            };
+            station -> buildStationContentValues(station);
 
     @Inject
     WriteRecentStationsCollectionsCommand(PropellerDatabase propeller) {

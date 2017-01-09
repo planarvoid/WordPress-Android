@@ -59,26 +59,19 @@ public class ImageOperations {
 
     private static final String TAG = ImageLoader.TAG;
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
-    private static final Func1<Bitmap, Observable<Palette>> BITMAP_TO_PALETTE = new Func1<Bitmap, Observable<Palette>>() {
+    private static final Func1<Bitmap, Observable<Palette>> BITMAP_TO_PALETTE = bitmap -> Observable.create(new Observable.OnSubscribe<Palette>() {
         @Override
-        public Observable<Palette> call(final Bitmap bitmap) {
-            return Observable.create(new Observable.OnSubscribe<Palette>() {
-                @Override
-                public void call(final Subscriber<? super Palette> subscriber) {
-                    Palette.from(bitmap)
-                           .generate(new Palette.PaletteAsyncListener() {
-                               public void onGenerated(Palette palette) {
-                                   if (!subscriber.isUnsubscribed()) {
-                                       subscriber.onNext(
-                                               palette);
-                                       subscriber.onCompleted();
-                                   }
-                               }
-                           });
-                }
-            });
+        public void call(final Subscriber<? super Palette> subscriber) {
+            Palette.from(bitmap)
+                   .generate(palette -> {
+                       if (!subscriber.isUnsubscribed()) {
+                           subscriber.onNext(
+                                   palette);
+                           subscriber.onCompleted();
+                       }
+                   });
         }
-    };
+    });
     private final ImageLoader imageLoader;
     private final ImageUrlBuilder imageUrlBuilder;
     private final PlaceholderGenerator placeholderGenerator;
@@ -494,21 +487,11 @@ public class ImageOperations {
     }
 
     private Func1<Bitmap, Bitmap> blurBitmap(final Optional<Float> blurRadius) {
-        return new Func1<Bitmap, Bitmap>() {
-            @Override
-            public Bitmap call(Bitmap bitmap) {
-                return imageProcessor.blurBitmap(bitmap, blurRadius);
-            }
-        };
+        return bitmap -> imageProcessor.blurBitmap(bitmap, blurRadius);
     }
 
     private Action1<Bitmap> cacheBlurredBitmap(final Urn resourceUrn) {
-        return new Action1<Bitmap>() {
-            @Override
-            public void call(Bitmap bitmap) {
-                blurredImageCache.put(resourceUrn, bitmap);
-            }
-        };
+        return bitmap -> blurredImageCache.put(resourceUrn, bitmap);
     }
 
     private Observable<Bitmap> blurBitmap(final Bitmap original, final Optional<Float> blurRadius) {
@@ -592,23 +575,13 @@ public class ImageOperations {
     @Nullable
     private TransitionDrawable getPlaceholderDrawable(final Urn urn, int width, int height) {
         final String key = String.format(PLACEHOLDER_KEY_BASE, urn, String.valueOf(width), String.valueOf(height));
-        return placeholderCache.get(key, new ValueProvider<String, TransitionDrawable>() {
-            @Override
-            public TransitionDrawable get(String key) {
-                return placeholderGenerator.generateTransitionDrawable(urn.toString());
-            }
-        });
+        return placeholderCache.get(key, key1 -> placeholderGenerator.generateTransitionDrawable(urn.toString()));
     }
 
     @Nullable
     private TransitionDrawable getCircularPlaceholderDrawable(final Urn urn, int width, int height) {
         final String key = String.format(PLACEHOLDER_KEY_BASE, urn, String.valueOf(width), String.valueOf(height));
-        return placeholderCache.get(key, new ValueProvider<String, TransitionDrawable>() {
-            @Override
-            public TransitionDrawable get(String key) {
-                return circularPlaceholderGenerator.generateTransitionDrawable(urn.toString());
-            }
-        });
+        return placeholderCache.get(key, key1 -> circularPlaceholderGenerator.generateTransitionDrawable(urn.toString()));
     }
 
     @Nullable

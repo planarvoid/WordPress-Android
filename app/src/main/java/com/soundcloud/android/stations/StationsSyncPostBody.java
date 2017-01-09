@@ -29,15 +29,10 @@ class StationsSyncPostBody {
     }
 
     static class RecentStations {
-        private final Function<PropertySet, RecentStation> toCollection = new Function<PropertySet, RecentStation>() {
-            @Override
-            public RecentStation apply(PropertySet recentStation) {
-                return new RecentStation(
-                        recentStation.get(StationProperty.URN),
-                        recentStation.get(StationProperty.ADDED_AT)
-                );
-            }
-        };
+        private final Function<PropertySet, RecentStation> toCollection = recentStation -> new RecentStation(
+                recentStation.get(StationProperty.URN),
+                recentStation.get(StationProperty.ADDED_AT)
+        );
 
         private List<RecentStation> collection;
 

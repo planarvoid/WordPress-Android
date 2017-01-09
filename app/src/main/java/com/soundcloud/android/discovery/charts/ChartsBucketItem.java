@@ -15,16 +15,12 @@ import java.util.List;
 
 @AutoValue
 public abstract class ChartsBucketItem extends DiscoveryItem {
-    private static final Function<Chart, ChartListItem> TO_PRESENTATION_MODEL = new Function<Chart, ChartListItem>() {
-        public ChartListItem apply(Chart chart) {
-            return new ChartListItem(chart.trackArtworks(),
-                                     chart.genre(),
-                                     chart.displayName(),
-                                     chart.bucketType(),
-                                     chart.type(),
-                                     chart.category());
-        }
-    };
+    private static final Function<Chart, ChartListItem> TO_PRESENTATION_MODEL = chart -> new ChartListItem(chart.trackArtworks(),
+                                                                                                   chart.genre(),
+                                                                                                   chart.displayName(),
+                                                                                                   chart.bucketType(),
+                                                                                                   chart.type(),
+                                                                                                   chart.category());
 
     public static ChartsBucketItem from(ChartBucket chartBucket) {
         final Optional<ChartListItem> newAndHotChart = tryFind(chartBucket.getGlobal(), isType(TRENDING)).transform(
@@ -52,12 +48,7 @@ public abstract class ChartsBucketItem extends DiscoveryItem {
     }
 
     private static Predicate<Chart> isType(final ChartType chartType) {
-        return new Predicate<Chart>() {
-            @Override
-            public boolean apply(Chart input) {
-                return input.type() == chartType;
-            }
-        };
+        return input -> input.type() == chartType;
     }
 
     abstract Optional<ChartListItem> newAndHotChart();

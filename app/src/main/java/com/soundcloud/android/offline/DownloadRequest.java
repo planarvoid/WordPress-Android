@@ -9,12 +9,7 @@ import com.soundcloud.java.optional.Optional;
 @AutoValue
 public abstract class DownloadRequest implements ImageResource {
 
-    public static final Function<DownloadRequest, Urn> TO_TRACK_URN = new Function<DownloadRequest, Urn>() {
-        @Override
-        public Urn apply(DownloadRequest request) {
-            return request.getUrn();
-        }
-    };
+    public static final Function<DownloadRequest, Urn> TO_TRACK_URN = request -> request.getUrn();
 
     public static DownloadRequest create(Urn track,
                                          Optional<String> imageUrlTemplate,

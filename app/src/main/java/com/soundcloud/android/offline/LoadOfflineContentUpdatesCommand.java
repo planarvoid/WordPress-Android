@@ -29,26 +29,11 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     private final PropellerDatabase propellerDatabase;
     private final DateProvider dateProvider;
 
-    private final Function<DownloadRequest, Urn> TO_URN = new Function<DownloadRequest, Urn>() {
-        @Override
-        public Urn apply(DownloadRequest request) {
-            return request.getUrn();
-        }
-    };
+    private final Function<DownloadRequest, Urn> TO_URN = request -> request.getUrn();
 
-    private final Predicate<DownloadRequest> IS_SYNCABLE = new Predicate<DownloadRequest>() {
-        @Override
-        public boolean apply(DownloadRequest input) {
-            return input.isSyncable() && !input.isSnipped();
-        }
-    };
+    private final Predicate<DownloadRequest> IS_SYNCABLE = input -> input.isSyncable() && !input.isSnipped();
 
-    private final Predicate<DownloadRequest> IS_NOT_SYNCABLE = new Predicate<DownloadRequest>() {
-        @Override
-        public boolean apply(DownloadRequest input) {
-            return !input.isSyncable() || input.isSnipped();
-        }
-    };
+    private final Predicate<DownloadRequest> IS_NOT_SYNCABLE = input -> !input.isSyncable() || input.isSnipped();
 
     private static <T> Collection<T> add(Collection<T> items, Collection<T>... collectionsToAdd) {
         final ArrayList<T> result = new ArrayList<>(items);
@@ -158,39 +143,24 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     }
 
     private Collection<Urn> getTracksToRestore(Collection<Urn> expectedContent, final List<Urn> pendingRemovals) {
-        return MoreCollections.filter(expectedContent, new Predicate<Urn>() {
-            @Override
-            public boolean apply(Urn track) {
-                return pendingRemovals.contains(track);
-            }
-        });
+        return MoreCollections.filter(expectedContent, track -> pendingRemovals.contains(track));
     }
 
     private Collection<Urn> getNewPendingDownloads(Collection<Urn> expectedContent,
                                                    final List<Urn> pendingDownloads,
                                                    final List<Urn> downloadedTracks,
                                                    final Collection<Urn> tracksToRestore) {
-        return MoreCollections.filter(expectedContent, new Predicate<Urn>() {
-            @Override
-            public boolean apply(Urn track) {
-                return !pendingDownloads.contains(track) &&
-                        !downloadedTracks.contains(track) &&
-                        !tracksToRestore.contains(track);
-            }
-        });
+        return MoreCollections.filter(expectedContent, track -> !pendingDownloads.contains(track) &&
+                !downloadedTracks.contains(track) &&
+                !tracksToRestore.contains(track));
     }
 
     private Collection<DownloadRequest> getAllDownloadRequests(Collection<DownloadRequest> expectedRequests,
                                                                final List<Urn> downloadedTracks,
                                                                final Collection<Urn> tracksToRestore,
                                                                final List<Urn> downloadedContent) {
-        return MoreCollections.filter(expectedRequests, new Predicate<DownloadRequest>() {
-            @Override
-            public boolean apply(DownloadRequest request) {
-                return !downloadedTracks.contains(request.getUrn()) &&
-                        !tracksToRestore.contains(request.getUrn()) &&
-                        !downloadedContent.contains(request.getUrn());
-            }
-        });
+        return MoreCollections.filter(expectedRequests, request -> !downloadedTracks.contains(request.getUrn()) &&
+                !tracksToRestore.contains(request.getUrn()) &&
+                !downloadedContent.contains(request.getUrn()));
     }
 }

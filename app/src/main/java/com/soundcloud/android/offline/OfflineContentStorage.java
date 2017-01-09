@@ -134,12 +134,7 @@ class OfflineContentStorage {
     }
 
     private List<ContentValues> buildContentValuesForPlaylist(List<Urn> playlists) {
-        return Lists.transform(playlists, new Function<Urn, ContentValues>() {
-            @Override
-            public ContentValues apply(Urn playlist) {
-                return buildContentValuesForPlaylist(playlist);
-            }
-        });
+        return Lists.transform(playlists, playlist -> buildContentValuesForPlaylist(playlist));
     }
 
     private ContentValues buildContentValuesForOfflineLikes() {

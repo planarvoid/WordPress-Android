@@ -6,11 +6,7 @@ import com.soundcloud.java.functions.Predicate;
 public abstract class DiscoveryItem {
 
     public static Predicate<DiscoveryItem> byKind(final Kind kind) {
-        return new Predicate<DiscoveryItem>() {
-            public boolean apply(DiscoveryItem input) {
-                return input.getKind() == kind;
-            }
-        };
+        return input -> input.getKind() == kind;
     }
 
     public static DiscoveryItem forRecommendedTracksFooter() {

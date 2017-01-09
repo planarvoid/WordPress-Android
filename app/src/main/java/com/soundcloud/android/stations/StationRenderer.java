@@ -66,11 +66,6 @@ class StationRenderer implements CellRenderer<StationViewModel> {
     }
 
     private View.OnClickListener startStation(final StationRecord station) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                stationHandler.startStation(view.getContext(), station.getUrn());
-            }
-        };
+        return view -> stationHandler.startStation(view.getContext(), station.getUrn());
     }
 }

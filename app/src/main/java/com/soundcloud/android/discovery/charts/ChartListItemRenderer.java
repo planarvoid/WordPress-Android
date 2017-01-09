@@ -47,16 +47,11 @@ class ChartListItemRenderer implements CellRenderer<ChartListItem> {
         chartListItemView.setTitle(headingFor(chartListItem, itemView, chartListItem.getChartType().value()));
         chartListItemView.refreshThumbnails(imageOperations, chartListItem.getTrackArtworks(),
                                             resources.getInteger(R.integer.collection_preview_thumbnail_count));
-        chartListItemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigator.openChart(view.getContext(),
-                                    chartListItem.getGenre(),
-                                    chartListItem.getChartType(),
-                                    chartListItem.getChartCategory(),
-                                    appendCharts(headingFor(chartListItem, view, "soundcloud")));
-            }
-        });
+        chartListItemView.setOnClickListener(view -> navigator.openChart(view.getContext(),
+                                                                 chartListItem.getGenre(),
+                                                                 chartListItem.getChartType(),
+                                                                 chartListItem.getChartCategory(),
+                                                                 appendCharts(headingFor(chartListItem, view, "soundcloud"))));
     }
 
     private String headingFor(ChartListItem chartListItem, View view, String globalSuffix) {

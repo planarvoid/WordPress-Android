@@ -51,12 +51,7 @@ public class DownloadImageViewElement {
         @Override
         protected boolean matchesSafely(final DownloadImageViewElement element) {
             debugLog("IsRequested.matchesSafely ", element);
-            return element.waiter.waitForElementCondition(new Condition() {
-                @Override
-                public boolean isSatisfied() {
-                    return element.isRequested();
-                }
-            });
+            return element.waiter.waitForElementCondition(() -> element.isRequested());
         }
 
         @Factory
@@ -74,12 +69,9 @@ public class DownloadImageViewElement {
 
         @Override
         protected boolean matchesSafely(final DownloadImageViewElement element) {
-            return element.waiter.waitForElementCondition(new Condition() {
-                @Override
-                public boolean isSatisfied() {
-                    debugLog("IsDownloading.matchesSafely ", element);
-                    return element.isDownloading();
-                }
+            return element.waiter.waitForElementCondition(() -> {
+                debugLog("IsDownloading.matchesSafely ", element);
+                return element.isDownloading();
             });
         }
 
@@ -98,12 +90,9 @@ public class DownloadImageViewElement {
 
         @Override
         protected boolean matchesSafely(final DownloadImageViewElement element) {
-            return element.waiter.waitForElementCondition(new Condition() {
-                @Override
-                public boolean isSatisfied() {
-                    debugLog("IsDownloaded.matchesSafely ", element);
-                    return element.isDownloaded();
-                }
+            return element.waiter.waitForElementCondition(() -> {
+                debugLog("IsDownloaded.matchesSafely ", element);
+                return element.isDownloaded();
             });
         }
 
@@ -123,12 +112,9 @@ public class DownloadImageViewElement {
 
         @Override
         protected boolean matchesSafely(final DownloadImageViewElement element) {
-            return element.waiter.waitForElementCondition(new Condition() {
-                @Override
-                public boolean isSatisfied() {
-                    debugLog("IsDownloadingOrDownloaded.matchesSafely ", element);
-                    return element.isDownloading() || element.isDownloaded();
-                }
+            return element.waiter.waitForElementCondition(() -> {
+                debugLog("IsDownloadingOrDownloaded.matchesSafely ", element);
+                return element.isDownloading() || element.isDownloaded();
             });
         }
 

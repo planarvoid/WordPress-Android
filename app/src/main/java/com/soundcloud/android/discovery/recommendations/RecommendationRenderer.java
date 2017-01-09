@@ -78,12 +78,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(VISIBLE);
-            artist.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    navigator.legacyOpenProfile(artist.getContext(), creatorUrn);
-                }
-            });
+            artist.setOnClickListener(v -> navigator.legacyOpenProfile(artist.getContext(), creatorUrn));
         }
     }
 
@@ -92,13 +87,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     }
 
     private void setOnClickListener(final Recommendation recommendation, View view) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onTrackClicked(recommendation.getSeedUrn(), recommendation.getTrackUrn());
-
-            }
-        });
+        view.setOnClickListener(view1 -> listener.onTrackClicked(recommendation.getSeedUrn(), recommendation.getTrackUrn()));
     }
 
     private void loadTrackArtwork(View view, TrackItem track) {
@@ -108,12 +97,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     }
 
     private void setOverflowMenuClickListener(final ImageView button, final TrackItem trackItem, final int position) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                trackItemMenuPresenter.show(getFragmentActivity(button), button, trackItem, position);
-            }
-        });
+        button.setOnClickListener(v -> trackItemMenuPresenter.show(getFragmentActivity(button), button, trackItem, position));
     }
 
 }

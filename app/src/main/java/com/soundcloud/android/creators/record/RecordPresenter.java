@@ -516,13 +516,10 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         new AlertDialog.Builder(recordFragment.getActivity())
                 .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(message).get())
                 .setNegativeButton(R.string.btn_no, null)
-                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        recorder.reset(true);
-                        waveDisplay.reset();
-                        checkForUnsavedRecordings();
-                    }
+                .setPositiveButton(R.string.btn_yes, (dialog, which) -> {
+                    recorder.reset(true);
+                    waveDisplay.reset();
+                    checkForUnsavedRecordings();
                 })
                 .show();
     }
@@ -532,12 +529,9 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
                 .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(R.string.dialog_revert_recording_message)
                                                                                 .get())
                 .setNegativeButton(R.string.btn_no, null)
-                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        recorder.revertFile();
-                        updateUi(currentState.isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
-                    }
+                .setPositiveButton(R.string.btn_yes, (dialog, which) -> {
+                    recorder.revertFile();
+                    updateUi(currentState.isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                 })
                 .show();
     }

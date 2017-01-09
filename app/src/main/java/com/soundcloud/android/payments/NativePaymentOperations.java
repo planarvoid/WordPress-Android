@@ -32,21 +32,11 @@ class NativePaymentOperations {
     private final BillingService playBilling;
     private final TokenStorage tokenStorage;
 
-    private static final Func1<ApiResponse, PurchaseStatus> TO_STATUS = new Func1<ApiResponse, PurchaseStatus>() {
-        @Override
-        public PurchaseStatus call(ApiResponse apiResponse) {
-            return apiResponse.isSuccess()
-                   ? PurchaseStatus.PENDING
-                   : PurchaseStatus.UPDATE_FAIL;
-        }
-    };
+    private static final Func1<ApiResponse, PurchaseStatus> TO_STATUS = apiResponse -> apiResponse.isSuccess()
+           ? PurchaseStatus.PENDING
+           : PurchaseStatus.UPDATE_FAIL;
 
-    private static final Func1<PurchaseStatus, Boolean> IGNORE_PENDING = new Func1<PurchaseStatus, Boolean>() {
-        @Override
-        public Boolean call(PurchaseStatus purchaseStatus) {
-            return !purchaseStatus.isPending();
-        }
-    };
+    private static final Func1<PurchaseStatus, Boolean> IGNORE_PENDING = purchaseStatus -> !purchaseStatus.isPending();
 
     private final Func1<SubscriptionStatus, Observable<PurchaseStatus>> verifyPendingSubscription = new Func1<SubscriptionStatus, Observable<PurchaseStatus>>() {
         @Override
@@ -59,14 +49,9 @@ class NativePaymentOperations {
         }
     };
 
-    private final Func1<Product, Observable<ProductStatus>> productToResult = new Func1<Product, Observable<ProductStatus>>() {
-        @Override
-        public Observable<ProductStatus> call(Product product) {
-            return product.isEmpty()
-                   ? Observable.just(ProductStatus.fromNoProduct())
-                   : queryProduct(product.id).map(ProductStatus.SUCCESS);
-        }
-    };
+    private final Func1<Product, Observable<ProductStatus>> productToResult = product -> product.isEmpty()
+           ? Observable.just(ProductStatus.fromNoProduct())
+           : queryProduct(product.id).map(ProductStatus.SUCCESS);
 
     private final Action1<String> saveToken = new Action1<String>() {
         @Override
@@ -132,12 +117,7 @@ class NativePaymentOperations {
     }
 
     private Action1<String> launchPaymentFlow(final String id) {
-        return new Action1<String>() {
-            @Override
-            public void call(String token) {
-                playBilling.startPurchase(id, token);
-            }
-        };
+        return token -> playBilling.startPurchase(id, token);
     }
 
     Observable<PurchaseStatus> verify(final Payload payload) {

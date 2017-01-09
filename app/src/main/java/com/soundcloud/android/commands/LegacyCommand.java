@@ -27,14 +27,11 @@ public abstract class LegacyCommand<I, O, This extends LegacyCommand<I, O, This>
     }
 
     public final Action1<I> toAction() {
-        return new Action1<I>() {
-            @Override
-            public void call(I i) {
-                try {
-                    with(i).call();
-                } catch (Exception e) {
-                    throw new CommandFailedException(e);
-                }
+        return i -> {
+            try {
+                with(i).call();
+            } catch (Exception e) {
+                throw new CommandFailedException(e);
             }
         };
     }

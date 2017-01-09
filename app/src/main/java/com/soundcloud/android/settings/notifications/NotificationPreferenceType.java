@@ -30,17 +30,9 @@ enum NotificationPreferenceType {
             EnumSet.of(MESSAGES, GROUPS, NEWSLETTERS, COMMENTS, FOLLOWS, NEW_CONTENT, LIKES,
                        REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS, RECOMMENDATIONS);
 
-    private static final Function<NotificationPreferenceType, String> TO_MOBILE_KEY = new Function<NotificationPreferenceType, String>() {
-        public String apply(NotificationPreferenceType type) {
-            return type.mobileKey().get();
-        }
-    };
+    private static final Function<NotificationPreferenceType, String> TO_MOBILE_KEY = type -> type.mobileKey().get();
 
-    private static final Function<NotificationPreferenceType, String> TO_MAIL_KEY = new Function<NotificationPreferenceType, String>() {
-        public String apply(NotificationPreferenceType type) {
-            return type.mailKey().get();
-        }
-    };
+    private static final Function<NotificationPreferenceType, String> TO_MAIL_KEY = type -> type.mailKey().get();
 
     private final String settingKey;
     private final Optional<String> mobileKey;
