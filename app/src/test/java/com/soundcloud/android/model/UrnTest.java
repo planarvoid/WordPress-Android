@@ -201,6 +201,8 @@ public class UrnTest extends AndroidUnitTest {
 
     @Test
     public void shouldImplementEqualsAndHashCode() throws Exception {
-        EqualsVerifier.forClass(Urn.class).verify();
+        EqualsVerifier.forClass(Urn.class)
+                      .withOnlyTheseFields("content")
+                      .verify();
     }
 }

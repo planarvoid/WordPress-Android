@@ -7,6 +7,6 @@ public class StringPartTest {
 
     @Test
     public void shouldDefineEqualsAndHashCode() {
-        EqualsVerifier.forClass(StringPart.class).allFieldsShouldBeUsed().verify();
+        EqualsVerifier.forClass(StringPart.class).verify();
     }
 }

@@ -7,6 +7,6 @@ public class FilePartTest {
 
     @Test
     public void shouldDefineEqualsAndHashCode() {
-        EqualsVerifier.forClass(FilePart.class).allFieldsShouldBeUsed().verify();
+        EqualsVerifier.forClass(FilePart.class).verify();
     }
 }

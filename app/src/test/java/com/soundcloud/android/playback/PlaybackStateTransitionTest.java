@@ -28,6 +28,7 @@ public class PlaybackStateTransitionTest extends AndroidUnitTest {
     @Test
     public void implementsEqualsContract() {
         EqualsVerifier.forClass(PlaybackStateTransition.class)
+                      .withOnlyTheseFields("newState", "reason", "progress", "itemUrn")
                       .usingGetClass()
                       .verify();
     }

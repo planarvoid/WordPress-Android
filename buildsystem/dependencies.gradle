@@ -110,7 +110,7 @@ ext {
           robolectricSupport              : "org.robolectric:shadows-support-v4:3.2",
           mockito                         : "org.mockito:mockito-core:2.3.9",
           modelCitizen                    : "com.tobedevoured.modelcitizen:core:0.8.1",
-          equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:1.4.1",
+          equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:2.1.8",
           androidSupportAnnotations       : "com.android.support:support-annotations:$androidSupportVersion",
           sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",
   ]

@@ -7,6 +7,6 @@ public class TrackingEventTest {
 
     @Test
     public void shouldImplementEqualsAndHashCode() {
-        EqualsVerifier.forClass(LegacyTrackingEvent.class).usingGetClass().allFieldsShouldBeUsed().verify();
+        EqualsVerifier.forClass(LegacyTrackingEvent.class).usingGetClass().verify();
     }
 }
