@@ -10,7 +10,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,15 +24,15 @@ public class UserRepositoryTest extends AndroidUnitTest {
     private UserRepository userRepository;
 
     private final Urn userUrn = Urn.forUser(123L);
-    private final PropertySet user = PropertySet.from(UserProperty.URN.bind(Urn.forUser(123L)));
-    private final UserItem userItem = UserItem.from(user);
-    private final PropertySet updatedUser = PropertySet.create()
-                                                       .put(UserProperty.URN, Urn.forUser(123L))
-                                                       .put(UserProperty.USERNAME, "name");
+    private final User user = ModelFixtures.userBuilder(false)
+                                           .urn(Urn.forUser(123L)).build();
+    private final User updatedUser =  ModelFixtures.userBuilder(false)
+                                                   .urn(Urn.forUser(123L))
+                                                   .username("updated-name")
+                                                   .build();
 
 
-    private TestSubscriber<PropertySet> observer = new TestSubscriber<>();
-    private TestSubscriber<UserItem> userObserver = new TestSubscriber<>();
+    private TestSubscriber<User> observer = new TestSubscriber<>();
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private UserStorage userStorage;
@@ -56,27 +56,27 @@ public class UserRepositoryTest extends AndroidUnitTest {
     @Test
     public void userInfoReturnsUserInfoFromStorage() {
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user));
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.<SyncJobResult>never());
+        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.never());
 
-        userRepository.userInfo(userUrn).subscribe(userObserver);
+        userRepository.userInfo(userUrn).subscribe(observer);
 
-        assertThat(userObserver.getOnNextEvents()).containsExactly(userItem);
+        assertThat(observer.getOnNextEvents()).containsExactly(user);
     }
 
     @Test
     public void userInfoReturnsUserInfoFromSyncerIfStorageEmpty() {
         final PublishSubject<SyncJobResult> subject = PublishSubject.create();
-        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()),
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.empty(),
                                                        Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
-        userRepository.userInfo(userUrn).subscribe(userObserver);
+        userRepository.userInfo(userUrn).subscribe(observer);
 
-        assertThat(userObserver.getOnNextEvents()).isEmpty();
+        assertThat(observer.getOnNextEvents()).isEmpty();
 
         subject.onNext(SyncJobResult.success(Syncable.USERS.name(), true));
 
-        assertThat(userObserver.getOnNextEvents()).containsExactly(UserItem.from(updatedUser));
+        assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
     @Test
     public void localAndSyncedUserInfoReturnsDoesNotEmitMissingUser() {
         final PublishSubject<SyncJobResult> subject = PublishSubject.create();
-        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()),
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.empty(),
                                                        Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 

@@ -14,15 +14,19 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StartStationHandler;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.ProfileToggleButton;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.ImageView;
@@ -105,11 +109,9 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
                                                        final ScreenProvider screenProvider) {
         return v -> {
             fireAndForget(followingOperations.toggleFollowing(user, followButton.isChecked()));
-
             engagementsTracking.followUserUrn(user,
                                               followButton.isChecked(),
                                               getEventContextMetadata(screenProvider));
-
             updateStationButton();
         };
     }
@@ -121,41 +123,56 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
                                    .build();
     }
 
-    void setUserDetails(ProfileUser user) {
-        username.setText(user.getName());
+    void setUserDetails(User user) {
+        username.setText(user.username());
         setUserImage(user);
         setFollowerCount(user);
         setFollowingButton(user);
         setArtistStation(user);
     }
 
-    private void setUserImage(ProfileUser user) {
-        if (!user.getUrn().equals(lastUser)) {
-            lastUser = user.getUrn();
+    private void setUserImage(User user) {
+        if (!user.urn().equals(lastUser)) {
+            lastUser = user.urn();
 
             if (banner != null) {
                 profileImageHelper.bindImages(new ProfileImageSource(user), banner, image);
             } else {
-                imageOperations.displayCircularWithPlaceholder(user,
+                imageOperations.displayCircularWithPlaceholder(getImageResource(user),
                                                                ApiImageSize.getFullImageSize(image.getResources()),
                                                                image);
             }
         }
     }
 
-    private void setFollowerCount(ProfileUser user) {
-        if (user.getFollowerCount() != Consts.NOT_SET) {
-            followerCount.setText(numberFormatter.format(user.getFollowerCount()));
+    @NonNull
+    private ImageResource getImageResource(final User user) {
+        return new ImageResource() {
+                                                           @Override
+                                                           public Urn getUrn() {
+                                                               return user.urn();
+                                                           }
+
+                                                           @Override
+                                                           public Optional<String> getImageUrlTemplate() {
+                                                               return user.avatarUrl();
+                                                           }
+                                                       };
+    }
+
+    private void setFollowerCount(User user) {
+        if (user.followersCount() != Consts.NOT_SET) {
+            followerCount.setText(numberFormatter.format(user.followersCount()));
             followerCount.setVisibility(View.VISIBLE);
         } else {
             followerCount.setVisibility(View.GONE);
         }
     }
 
-    private void setFollowingButton(ProfileUser user) {
-        boolean hasArtistStation = user.getArtistStationUrn().isPresent();
+    private void setFollowingButton(User user) {
+        boolean hasArtistStation = user.artistStation().isPresent();
         boolean stationVisible = stationButton.getVisibility() == View.VISIBLE;
-        boolean isFollowed = user.isFollowed();
+        boolean isFollowed = user.isFollowing();
 
         if (followButton instanceof ProfileToggleButton) {
             if (isFollowed) {
@@ -170,13 +187,13 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
         followButton.setChecked(isFollowed);
     }
 
-    private void setArtistStation(final ProfileUser user) {
-        boolean hasArtistStation = user.getArtistStationUrn().isPresent();
+    private void setArtistStation(final User user) {
+        boolean hasArtistStation = user.artistStation().isPresent();
 
         if (hasArtistStation) {
             stationButton.setOnClickListener(v -> {
                 updateStationButton();
-                stationHandler.startStation(v.getContext(), user.getArtistStationUrn().get());
+                stationHandler.startStation(v.getContext(), user.artistStation().get());
             });
             stationButton.setVisibility(View.VISIBLE);
             updateStationButton();

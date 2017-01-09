@@ -8,15 +8,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,10 +24,8 @@ import rx.subjects.PublishSubject;
 import android.view.View;
 
 public class UserMenuPresenterTest extends AndroidUnitTest {
-    private static final ApiUser USER_PROPERTY_SET = TestPropertySets.user();
-    private static final UserItem USER = UserItem.from(USER_PROPERTY_SET);
     private static final EventContextMetadata EVENT_CONTEXT_METADATA = EventContextMetadata.builder().build();
-    private static final PropertySet localUserInfo = PropertySet.create();
+    private static final User USER = ModelFixtures.user();
 
     @Mock private UserRepository userRepository;
     @Mock private FollowingOperations followingOperations;
@@ -44,7 +40,7 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Observable.just(localUserInfo));
+        when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Observable.just(USER));
         when(followingOperations.toggleFollowing(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         presenter = new UserMenuPresenter(userMenuRenderFactory,
@@ -61,23 +57,23 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
     public void togglesFollowStatus() {
         final PublishSubject<FollowingStatusEvent> followObservable = PublishSubject.create();
 
-        when(followingOperations.toggleFollowing(USER.getUrn(), !USER.isFollowedByMe())).thenReturn(followObservable);
-        presenter.show(button, USER.getUrn(), EVENT_CONTEXT_METADATA);
+        when(followingOperations.toggleFollowing(USER.urn(), !USER.isFollowing())).thenReturn(followObservable);
+        presenter.show(button, USER.urn(), EVENT_CONTEXT_METADATA);
 
         presenter.handleToggleFollow(USER);
 
-        verify(engagementsTracking).followUserUrn(USER.getUrn(), !USER.isFollowedByMe(), EVENT_CONTEXT_METADATA);
+        verify(engagementsTracking).followUserUrn(USER.urn(), !USER.isFollowing(), EVENT_CONTEXT_METADATA);
 
         assertThat(followObservable.hasObservers()).isTrue();
     }
 
     @Test
     public void startsStation() {
-        presenter.show(button, USER.getUrn(), EVENT_CONTEXT_METADATA);
+        presenter.show(button, USER.urn(), EVENT_CONTEXT_METADATA);
 
         presenter.handleOpenStation(context(), USER);
 
-        verify(stationHandler).startStation(context(), Urn.forArtistStation(USER.getUrn().getNumericId()));
+        verify(stationHandler).startStation(context(), Urn.forArtistStation(USER.urn().getNumericId()));
     }
 
 }

@@ -53,16 +53,15 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
     }
 
     @Override
-    public void handleToggleFollow(UserItem user) {
-        boolean isFollowed = !user.isFollowedByMe();
-        fireAndForget(followingOperations.toggleFollowing(user.getUrn(), isFollowed));
-        engagementsTracking.followUserUrn(user.getUrn(), isFollowed, eventContextMetadata);
+    public void handleToggleFollow(User user) {
+        boolean isFollowed = !user.isFollowing();
+        fireAndForget(followingOperations.toggleFollowing(user.urn(), isFollowed));
+        engagementsTracking.followUserUrn(user.urn(), isFollowed, eventContextMetadata);
     }
 
     @Override
-    public void handleOpenStation(Context context, UserItem user) {
-        final Urn userUrn = user.getUrn();
-        stationHandler.startStation(context, Urn.forArtistStation(userUrn.getNumericId()));
+    public void handleOpenStation(Context context, User user) {
+        stationHandler.startStation(context, Urn.forArtistStation(user.urn().getNumericId()));
     }
 
     @Override
@@ -74,16 +73,14 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
     private void loadUser(Urn urn) {
         userSubscription.unsubscribe();
         userSubscription = userRepository.localUserInfo(urn)
-                                         .first()
-                                         .map(UserItem.fromPropertySet())
                                          .observeOn(AndroidSchedulers.mainThread())
                                          .subscribe(new UserSubscriber());
     }
 
-    private class UserSubscriber extends DefaultSubscriber<UserItem> {
+    private class UserSubscriber extends DefaultSubscriber<User> {
         @Override
-        public void onNext(UserItem user) {
-            renderer.render(user, accountOperations.getLoggedInUserUrn());
+        public void onNext(User user) {
+            renderer.render(user, accountOperations.isLoggedInUser(user.urn()));
         }
     }
 }

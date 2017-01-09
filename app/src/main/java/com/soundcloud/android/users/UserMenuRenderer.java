@@ -1,10 +1,8 @@
 package com.soundcloud.android.users;
 
 import com.google.auto.factory.AutoFactory;
-
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
 import android.content.Context;
@@ -14,13 +12,13 @@ import android.view.View;
 @AutoFactory(allowSubclasses = true)
 class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
 
-    private UserItem user;
+    private User user;
 
     interface Listener {
 
-        void handleToggleFollow(UserItem user);
+        void handleToggleFollow(User user);
 
-        void handleOpenStation(Context context, UserItem user);
+        void handleOpenStation(Context context, User user);
 
         void onDismiss();
 
@@ -42,22 +40,21 @@ class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
         menu.setOnDismissListener(this);
     }
 
-    void render(UserItem user, Urn loggedInUser) {
+    void render(User user, boolean showFollowAction) {
         this.user = user;
 
-        final boolean isLoggedInUser = user.getUrn().equals(loggedInUser);
-        updateFollowAction(user, isLoggedInUser);
+        updateFollowAction(user, showFollowAction);
         menu.show();
     }
 
-    private void updateFollowAction(UserItem user, boolean isLoggedInUser) {
+    private void updateFollowAction(User user, boolean showFollowAction) {
         final MenuItem item = menu.findItem(R.id.toggle_follow);
-        updateFollowActionVisibility(item, isLoggedInUser);
-        updateFollowActionTitle(item, user.isFollowedByMe());
+        updateFollowActionVisibility(item, showFollowAction);
+        updateFollowActionTitle(item, user.isFollowing());
     }
 
-    private void updateFollowActionVisibility(MenuItem item, boolean isLoggedInUser) {
-        item.setVisible(!isLoggedInUser);
+    private void updateFollowActionVisibility(MenuItem item, boolean showFollowAction) {
+        item.setVisible(showFollowAction);
     }
 
     private void updateFollowActionTitle(MenuItem item, boolean isFollowed) {

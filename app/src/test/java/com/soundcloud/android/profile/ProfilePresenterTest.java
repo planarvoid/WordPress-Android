@@ -11,7 +11,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.TrackingStateProvider;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ReferringEvent;
@@ -25,6 +24,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.collections.PropertySet;
@@ -77,7 +77,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    private ProfileUser profileUser;
+    private User profileUser;
     private Intent intent = new Intent();
 
     @Before
@@ -137,7 +137,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     public void entityStateChangedEventReloadsUserOnHeaderPresenter() throws Exception {
         profilePresenter.onCreate(activity, null);
 
-        final ProfileUser updatedProfileUser = createProfileUser();
+        final User updatedProfileUser = ModelFixtures.userBuilder(false).username("updated-name").build();
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(USER_URN));
@@ -182,7 +182,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         assertThat(screenEventArgumentCaptor.getValue().screen()).isEqualTo(Screen.YOUR_MAIN.get());
     }
 
-    private ProfileUser createProfileUser() {
-        return ProfileUser.from(ModelFixtures.create(ApiUser.class));
+    private User createProfileUser() {
+        return ModelFixtures.user();
     }
 }

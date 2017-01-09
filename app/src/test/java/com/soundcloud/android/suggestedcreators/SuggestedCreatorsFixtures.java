@@ -5,7 +5,6 @@ import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreatorItem;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreators;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.User;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 
@@ -36,7 +35,7 @@ class SuggestedCreatorsFixtures {
     static List<SuggestedCreator> createSuggestedCreators(int count, SuggestedCreatorRelation relation, Date followedAt) {
         final ArrayList<SuggestedCreator> result = Lists.newArrayList();
         for (int i = 0; i < count; i++) {
-            result.add(SuggestedCreator.create(ModelFixtures.create(User.class), relation, Optional.fromNullable(followedAt)));
+            result.add(SuggestedCreator.create(ModelFixtures.user(), relation, Optional.fromNullable(followedAt)));
         }
         return result;
     }

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -12,10 +13,8 @@ import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
@@ -31,10 +30,9 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
     private final UserProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;
 
-    private final Func1<ProfileUser, Boolean> hasDetails = profileUser1 -> profileUser1.hasDescription();
     private Urn userUrn;
-    private Observable<ProfileUser> userDetailsObservable;
-    private ProfileUser profileUser;
+    private Observable<User> userDetailsObservable;
+    private User profileUser;
 
     UserDetailsPresenter(UserProfileOperations profileOperations, UserDetailsView userDetailsView) {
         this.profileOperations = profileOperations;
@@ -47,7 +45,6 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
 
         userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
-                                                 .filter(hasDetails)
                                                  .cache();
     }
 
@@ -94,9 +91,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
     @Override
     public void onRefresh() {
         userDetailsObservable = profileOperations.getSyncedProfileUser(userUrn)
-                                                 .filter(hasDetails)
                                                  .cache();
-
         loadUser();
     }
 
@@ -108,48 +103,70 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         }
     }
 
-    private void updateViews(ProfileUser user) {
-        isNotEmpty = user.hasDetails();
+    private void updateViews(User user) {
+        isNotEmpty = hasDetails(user);
         setupWebsite(user);
         setupDiscogs(user);
         setupMyspace(user);
         setupDescription(user);
     }
 
-    private void setupDescription(ProfileUser user) {
-        if (Strings.isNotBlank(user.getDescription())) {
-            userDetailsView.showDescription(user.getDescription());
+    public boolean hasDetails(User user) {
+        return hasDescription(user)
+                || hasDiscogs(user)
+                || hasWebsite(user)
+                || hasMyspace(user);
+    }
+
+    private void setupDescription(User user) {
+        if (hasDescription(user)) {
+            userDetailsView.showDescription(user.description().get());
         } else {
             userDetailsView.hideDescription();
         }
     }
 
-    private void setupWebsite(final ProfileUser user) {
-        final String websiteUrl = user.getWebsiteUrl();
-        if (Strings.isNotBlank(websiteUrl)) {
-            userDetailsView.showWebsite(websiteUrl, user.getWebsiteName());
+    private void setupWebsite(final User user) {
+        if (hasWebsite(user)) {
+            userDetailsView.showWebsite(user.websiteUrl().get(), user.websiteName().get());
         } else {
             userDetailsView.hideWebsite();
         }
     }
 
-    private void setupDiscogs(final ProfileUser user) {
-        if (Strings.isNotBlank(user.getDiscogsName())) {
-            userDetailsView.showDiscogs(user.getDiscogsName());
+    private void setupDiscogs(final User user) {
+        if (hasDiscogs(user)) {
+            userDetailsView.showDiscogs(user.discogsName().get());
         } else {
             userDetailsView.hideDiscogs();
         }
     }
 
-    private void setupMyspace(final ProfileUser user) {
-        if (Strings.isNotBlank(user.getMyspaceName())) {
-            userDetailsView.showMyspace(user.getMyspaceName());
+    private void setupMyspace(final User user) {
+        if (hasMyspace(user)) {
+            userDetailsView.showMyspace(user.mySpaceName().get());
         } else {
             userDetailsView.hideMyspace();
         }
     }
 
-    private class ProfileUserSubscriber extends DefaultSubscriber<ProfileUser> {
+    private boolean hasMyspace(User user) {
+        return user.mySpaceName().isPresent() && Strings.isNotBlank(user.mySpaceName().get());
+    }
+
+    private boolean hasWebsite(User user) {
+        return user.websiteUrl().isPresent() && Strings.isNotBlank(user.websiteUrl().get());
+    }
+
+    private boolean hasDiscogs(User user) {
+        return user.discogsName().isPresent() && Strings.isNotBlank(user.discogsName().get());
+    }
+
+    private boolean hasDescription(User user) {
+        return user.description().isPresent() && Strings.isNotBlank(user.description().get());
+    }
+
+    private class ProfileUserSubscriber extends DefaultSubscriber<User> {
         @Override
         public void onCompleted() {
             emptyViewStatus = EmptyView.Status.OK;
@@ -173,7 +190,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         }
 
         @Override
-        public void onNext(ProfileUser profileUser) {
+        public void onNext(User profileUser) {
             UserDetailsPresenter.this.profileUser = profileUser;
             updateViews(profileUser);
             configureEmptyView();

@@ -426,6 +426,7 @@ public class DatabaseFixtures {
         cv.put(Tables.Users.CITY, user.getCity());
         cv.put(Tables.Users.FOLLOWERS_COUNT, user.getFollowersCount());
         cv.put(Tables.Users.AVATAR_URL, user.getImageUrlTemplate().orNull());
+        cv.put(Tables.Users.VISUAL_URL, user.getVisualUrlTemplate().orNull());
         return cv;
     }
 

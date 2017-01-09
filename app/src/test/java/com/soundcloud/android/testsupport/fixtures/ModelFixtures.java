@@ -1,5 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
@@ -31,7 +32,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.profile.ApiPlayableSource;
-import com.soundcloud.android.profile.ProfileUser;
 import com.soundcloud.android.sync.activities.ApiActivityItem;
 import com.soundcloud.android.sync.activities.ApiPlaylistLikeActivity;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
@@ -45,9 +45,8 @@ import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
-import com.soundcloud.android.users.UserBlueprint;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItemBlueprint;
-import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
@@ -58,8 +57,9 @@ import java.util.List;
 
 public class ModelFixtures {
 
-    private static final ModelFactory modelFactory = new ModelFactory();
+    public static long runningUserId = 1L;
 
+    private static final ModelFactory modelFactory = new ModelFactory();
     static {
         try {
             modelFactory.registerBlueprint(PublicApiUserBlueprint.class);
@@ -81,7 +81,6 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(TrackItemBlueprint.class);
             modelFactory.registerBlueprint(PlaylistItemBlueprint.class);
             modelFactory.registerBlueprint(UserItemBlueprint.class);
-            modelFactory.registerBlueprint(UserBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }
@@ -101,6 +100,27 @@ public class ModelFixtures {
             models.add(create(target));
         }
         return models;
+    }
+
+    public static User user() {
+        return user(false);
+    }
+
+    public static User user(boolean isFollowing) {
+        return userBuilder(isFollowing)
+                   .build();
+    }
+
+    public static User.Builder userBuilder(boolean isFollowing) {
+        return User.builder()
+                   .urn(Urn.forUser(runningUserId++))
+                   .username("avieciie")
+                   .country(of("country"))
+                   .city(of("city"))
+                   .followersCount(2)
+                   .isFollowing(isFollowing)
+                   .avatarUrl(of("avatar-url"))
+                   .visualUrl(of("visual-url"));
     }
 
     public static ApiLike apiTrackLike() {
@@ -197,7 +217,7 @@ public class ModelFixtures {
     public static DownloadRequest downloadRequestFromLikes(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), true, false);
         return DownloadRequest.create(track,
-                                      Optional.of("http://artwork.url"),
+                                      of("http://artwork.url"),
                                       1234,
                                       "http://waveform.url",
                                       true,
@@ -230,7 +250,7 @@ public class ModelFixtures {
     public static DownloadRequest creatorOptOutRequest(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), false, true);
         return DownloadRequest.create(track,
-                                      Optional.of("http://artwork.url"),
+                                      of("http://artwork.url"),
                                       1234,
                                       "http://waveform.url",
                                       false,
@@ -241,7 +261,7 @@ public class ModelFixtures {
     public static DownloadRequest snippetRequest(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), false, true);
         return DownloadRequest.create(track,
-                Optional.of("http://artwork.url"),
+                of("http://artwork.url"),
                 1234,
                 "http://waveform.url",
                 false,
@@ -319,16 +339,6 @@ public class ModelFixtures {
                          .trackTime(1234)
                          .user(byUser)
                          .build();
-    }
-
-    public static ProfileUser profileUser() {
-        return ProfileUser.from(ModelFixtures.create(ApiUser.class));
-    }
-
-    public static ProfileUser profileUser(Urn urn) {
-        ProfileUser profileUser = profileUser();
-        profileUser.setUrn(urn);
-        return profileUser;
     }
 
     public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {

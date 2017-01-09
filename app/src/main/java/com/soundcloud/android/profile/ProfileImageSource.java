@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.users.User;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.v7.graphics.Palette;
@@ -13,10 +14,10 @@ class ProfileImageSource implements UserImageSource {
     private Optional<String> avatarUrl;
     private Optional<String> visualUrl;
 
-    ProfileImageSource(ProfileUser user) {
-        creatorUrn = user.getUrn();
-        avatarUrl = user.getImageUrlTemplate();
-        visualUrl = user.getVisualUrl();
+    ProfileImageSource(User user) {
+        creatorUrn = user.urn();
+        avatarUrl = user.avatarUrl();
+        visualUrl = user.visualUrl();
         shouldDefaultToPalette = false;
         paletteOptional = Optional.absent();
     }

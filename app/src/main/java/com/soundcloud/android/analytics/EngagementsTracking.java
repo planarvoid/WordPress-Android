@@ -6,7 +6,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import rx.functions.Func1;
 
@@ -28,8 +28,8 @@ public class EngagementsTracking {
                                        EntityMetadata.from(track));
     }
 
-    private static Func1<UserItem, UIEvent> FOLLOW_EVENT_FROM_USER(final boolean isFollow,
-                                                                   final EventContextMetadata eventContextMetadata) {
+    private static Func1<User, UIEvent> FOLLOW_EVENT_FROM_USER(final boolean isFollow,
+                                                               final EventContextMetadata eventContextMetadata) {
         return user -> UIEvent.fromToggleFollow(isFollow,
                                         EntityMetadata.fromUser(user),
                                         eventContextMetadata);

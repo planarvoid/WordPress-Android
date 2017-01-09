@@ -17,6 +17,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.users.User;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -153,9 +154,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         super.onDestroy(activity);
     }
 
-    private final class UserDetailsSubscriber extends DefaultSubscriber<ProfileUser> {
+    private final class UserDetailsSubscriber extends DefaultSubscriber<User> {
         @Override
-        public void onNext(ProfileUser profileUser) {
+        public void onNext(User profileUser) {
             headerPresenter.setUserDetails(profileUser);
         }
     }

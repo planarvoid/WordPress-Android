@@ -1,5 +1,7 @@
 package com.soundcloud.android.api.model;
 
+import static com.soundcloud.java.optional.Optional.fromNullable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -12,9 +14,16 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Date;
 import java.util.List;
 
 public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, ApiSyncable {
+
+    private static final String DISCOGS_PATH = "http://www.discogs.com/artist/";
+    private static final String DISCOGS_NETWORK = "discogs";
+    private static final String MYSPACE_PATH = "http://www.myspace.com/";
+    private static final String MYSPACE_NETWORK = "myspace";
+    private static final String PERSONAL_NETWORK = "personal";
 
     private Urn urn;
     @Nullable private String country;
@@ -30,6 +39,16 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     private String websiteTitle;
     private String discogsName;
     private Urn artistStation;
+
+    // these are currently unused, but they come back in the representation, and are part of a future story
+    private String firstName;
+    private String lastName;
+    private String countryCode;
+    private int trackCount;
+    private int followingsCount;
+    private boolean isVerified;
+    private boolean isPro;
+    private Date createdAt;
 
     public ApiUser() { /* for Deserialization */ }
 
@@ -82,12 +101,12 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
 
     @JsonProperty("avatar_url_template")
     public void setAvatarUrlTemplate(String avatarUrlTemplate) {
-        this.avatarUrlTemplate = Optional.fromNullable(avatarUrlTemplate);
+        this.avatarUrlTemplate = fromNullable(avatarUrlTemplate);
     }
 
     @JsonProperty("visual_url_template")
     public void setVisualUrlTemplate(String visualUrlTemplate) {
-        this.visualUrlTemplate = Optional.fromNullable(visualUrlTemplate);
+        this.visualUrlTemplate = fromNullable(visualUrlTemplate);
     }
 
     @JsonProperty("station_urns")
@@ -124,32 +143,32 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
 
     @Override
     public Optional<String> getDescription() {
-        return Optional.fromNullable(description);
+        return fromNullable(description);
     }
 
     @Override
     public Optional<String> getWebsiteUrl() {
-        return Optional.fromNullable(website);
+        return fromNullable(website);
     }
 
     @Override
     public Optional<String> getWebsiteName() {
-        return Optional.fromNullable(websiteTitle);
+        return fromNullable(websiteTitle);
     }
 
     @Override
     public Optional<String> getDiscogsName() {
-        return Optional.fromNullable(discogsName);
+        return fromNullable(discogsName);
     }
 
     @Override
     public Optional<String> getMyspaceName() {
-        return Optional.fromNullable(myspaceName);
+        return fromNullable(myspaceName);
     }
 
     @Override
     public Optional<Urn> getArtistStationUrn() {
-        return Optional.fromNullable(artistStation);
+        return fromNullable(artistStation);
     }
 
     @JsonProperty("followers_count")
@@ -177,6 +196,61 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         this.discogsName = discogsName;
     }
 
+    @JsonProperty("first_name")
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @JsonProperty("last_name")
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    @JsonProperty("verified")
+    public void setIsVerified(boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
+    @JsonProperty("is_pro")
+    public void setIsPro(boolean isPro) {
+        this.isPro = isPro;
+    }
+
+    @JsonProperty("created_at")
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @JsonProperty("track_count")
+    public void setTrackCount(int trackCount) {
+        this.trackCount = trackCount;
+    }
+
+    @JsonProperty("followings_count")
+    public void setFollowingsCount(int followingsCount) {
+        this.followingsCount = followingsCount;
+    }
+    @JsonProperty("country_code")
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    @JsonProperty("social_media_links")
+    public void setApiSocialMediaLinks(ModelCollection<ApiSocialMediaLink> apiSocialMediaLinks) {
+        // this converts new social links to the legacy format, and should be removed when we fully move
+        // to the new format in https://soundcloud.atlassian.net/browse/CREATORS-2240
+        for (ApiSocialMediaLink apiSocialMediaLink : apiSocialMediaLinks) {
+            if (MYSPACE_NETWORK.equals(apiSocialMediaLink.network())) {
+                setMyspaceName(apiSocialMediaLink.url().replace(MYSPACE_PATH, ""));
+            } else if (DISCOGS_NETWORK.equals(apiSocialMediaLink.network())) {
+                setDiscogsName(apiSocialMediaLink.url().replace(DISCOGS_PATH, ""));
+            } else if (PERSONAL_NETWORK.equals(apiSocialMediaLink.network())) {
+                setWebsiteUrl(apiSocialMediaLink.url());
+                setWebsiteTitle(apiSocialMediaLink.title().orNull());
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -202,5 +276,38 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     @Override
     public EntityStateChangedEvent toUpdateEvent() {
         return UserItem.from(this).toUpdateEvent();
+    }
+
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public int getTrackCount() {
+        return trackCount;
+    }
+
+    public int getFollowingsCount() {
+        return followingsCount;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public boolean isPro() {
+        return isPro;
+    }
+
+    public Date createdAt() {
+        return createdAt;
     }
 }

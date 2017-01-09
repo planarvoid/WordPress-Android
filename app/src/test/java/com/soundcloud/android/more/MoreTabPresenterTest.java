@@ -20,11 +20,10 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +39,8 @@ import java.util.List;
 
 public class MoreTabPresenterTest extends AndroidUnitTest {
 
-    private static final UserItem USER = UserItem.from(TestPropertySets.user());
-    private static final Urn USER_URN = USER.getUrn();
+    private static final User USER = ModelFixtures.user();
+    private static final Urn USER_URN = USER.urn();
 
     private MoreTabPresenter presenter;
 
@@ -100,7 +99,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedBindsUserToViewWhenLoadedAfterViewCreated() {
-        final PublishSubject<UserItem> subject = PublishSubject.create();
+        final PublishSubject<User> subject = PublishSubject.create();
 
         setupForegroundFragment();
 
@@ -304,7 +303,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unbindsHeaderViewInOnDestroyView() {
-        final PublishSubject<PropertySet> subject = PublishSubject.create();
+        final PublishSubject<User> subject = PublishSubject.create();
         when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(subject);
 
         setupForegroundFragment();
@@ -335,6 +334,6 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     }
 
     private void verifyUserBound() {
-        verify(moreView).setUsername(USER.getName());
+        verify(moreView).setUsername(USER.username());
     }
 }

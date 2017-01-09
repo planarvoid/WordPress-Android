@@ -85,6 +85,7 @@ public enum ApiEndpoints {
     USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
 
     TRACKS_FETCH("/tracks/fetch"),
+    USERS_FETCH("/users/fetch"),
 
     // playlist
     PLAYLISTS_CREATE("/playlists"),

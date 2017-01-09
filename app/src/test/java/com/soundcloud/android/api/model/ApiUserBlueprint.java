@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
@@ -9,15 +10,13 @@ import com.tobedevoured.modelcitizen.callback.FieldCallback;
 @Blueprint(ApiUser.class)
 public class ApiUserBlueprint {
 
-    private static long runningId = 1L;
-
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            final ApiUser apiUser = new ApiUser(Urn.forUser(runningId++));
+            final ApiUser apiUser = new ApiUser(Urn.forUser(ModelFixtures.runningUserId++));
             apiUser.setFollowersCount(100);
-            apiUser.setAvatarUrlTemplate("https://i1.sndcdn.com/avatars-" + runningId + "-{size}.jpg");
-            apiUser.setVisualUrlTemplate("https://i1.sndcdn.com/visuals-" + runningId + "-{size}.jpg");
+            apiUser.setAvatarUrlTemplate("https://i1.sndcdn.com/avatars-" + ModelFixtures.runningUserId + "-{size}.jpg");
+            apiUser.setVisualUrlTemplate("https://i1.sndcdn.com/visuals-" + ModelFixtures.runningUserId + "-{size}.jpg");
             return apiUser;
         }
     };

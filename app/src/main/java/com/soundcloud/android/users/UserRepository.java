@@ -5,10 +5,8 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -18,8 +16,6 @@ public class UserRepository {
     private final UserStorage userStorage;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
-
-    private static final Func1<PropertySet, Boolean> IS_NOT_EMPTY = user -> !user.isEmpty();
 
     @Inject
     public UserRepository(UserStorage userStorage,
@@ -33,13 +29,12 @@ public class UserRepository {
     /***
      * Returns a user from local storage if it exists, and backfills from the api if the user is not found locally
      */
-    public Observable<UserItem> userInfo(Urn userUrn) {
+    public Observable<User> userInfo(Urn userUrn) {
         return Observable
                 .concat(
-                        userStorage.loadUser(userUrn).filter(IS_NOT_EMPTY),
+                        userStorage.loadUser(userUrn),
                         syncedUserInfo(userUrn)
                 )
-                .map(UserItem::from)
                 .first()
                 .subscribeOn(scheduler);
     }
@@ -47,14 +42,14 @@ public class UserRepository {
     /***
      * Syncs a given user then returns the local user after the sync
      */
-    public Observable<PropertySet> syncedUserInfo(Urn userUrn) {
+    public Observable<User> syncedUserInfo(Urn userUrn) {
         return syncInitiator.syncUser(userUrn).flatMap(continueWith(localUserInfo(userUrn)));
     }
 
     /***
      * Returns a local user, then syncs and emits the user again after the sync finishes
      */
-    public Observable<PropertySet> localAndSyncedUserInfo(Urn userUrn) {
+    public Observable<User> localAndSyncedUserInfo(Urn userUrn) {
         return Observable.concat(
                 localUserInfo(userUrn),
                 syncedUserInfo(userUrn)
@@ -64,8 +59,8 @@ public class UserRepository {
     /***
      * Returns a user from local storage only, or completes without emitting if no user found
      */
-    public Observable<PropertySet> localUserInfo(Urn userUrn) {
-        return userStorage.loadUser(userUrn).filter(IS_NOT_EMPTY).subscribeOn(scheduler);
+    public Observable<User> localUserInfo(Urn userUrn) {
+        return userStorage.loadUser(userUrn).subscribeOn(scheduler);
     }
 
 }

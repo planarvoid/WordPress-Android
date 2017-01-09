@@ -19,6 +19,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
@@ -44,9 +45,11 @@ import java.util.List;
 
 class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsItem> {
 
-    private static final Function<UserSoundsItem, PlayableItem> USER_SOUNDS_ITEM_TO_PLAYABLE_ITEM = userSoundsItem -> userSoundsItem.getPlayableItem().orNull();
+    private static final Function<UserSoundsItem, PlayableItem> USER_SOUNDS_ITEM_TO_PLAYABLE_ITEM =
+            userSoundsItem -> userSoundsItem.getPlayableItem().orNull();
 
-    private static final Predicate<UserSoundsItem> FILTER_PLAYABLE_USER_SOUNDS_ITEMS = input -> input.isPlaylist() || input.isTrack();
+    private static final Predicate<UserSoundsItem> FILTER_PLAYABLE_USER_SOUNDS_ITEMS =
+            input -> input.isPlaylist() || input.isTrack();
 
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final UserSoundsAdapter adapter;
@@ -167,12 +170,12 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         userSubscription.unsubscribe();
         userSubscription = operations.getLocalProfileUser(userUrn)
                                      .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new DefaultSubscriber<ProfileUser>() {
+                                     .subscribe(new DefaultSubscriber<User>() {
                                          @Override
-                                         public void onNext(ProfileUser profileUser) {
+                                         public void onNext(User profileUser) {
                                              getEmptyView().setSecondaryText(
                                                      resources.getString(R.string.empty_user_sounds_message_secondary,
-                                                                         profileUser.getName())
+                                                                         profileUser.username())
                                              );
                                          }
                                      });

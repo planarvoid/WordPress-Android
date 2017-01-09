@@ -1,13 +1,14 @@
 package com.soundcloud.android.users;
 
+import static com.soundcloud.java.optional.Optional.absent;
+import static com.soundcloud.java.optional.Optional.fromNullable;
+import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,9 +30,9 @@ public class UserStorageTest extends StorageIntegrationTest {
     public void loadsUser() {
         ApiUser apiUser = testFixtures().insertUser();
 
-        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getApiUserProperties(apiUser));
+        assertThat(user).isEqualTo(getApiUserBuilder(apiUser).build());
     }
 
     @Test
@@ -41,9 +42,9 @@ public class UserStorageTest extends StorageIntegrationTest {
         apiUser.setCity(null);
         testFixtures().insertUser(apiUser);
 
-        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getBaseApiUserProperties(apiUser));
+        assertThat(user).isEqualTo(getBaseUserBuilder(apiUser).city(absent()).country(absent()).build());
     }
 
     @Test
@@ -51,9 +52,9 @@ public class UserStorageTest extends StorageIntegrationTest {
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
         testFixtures().insertExtendedUser(apiUser, DESCRIPTION, WEBSITE_URL, WEBSITE_NAME, DISCOGS_NAME, MYSPACE_NAME);
 
-        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getExtendedUserProperties(apiUser));
+        assertThat(user).isEqualTo(getExtendedUserBuilder(apiUser).build());
     }
 
     @Test
@@ -61,10 +62,10 @@ public class UserStorageTest extends StorageIntegrationTest {
         ApiUser apiUser = testFixtures().insertUser();
         testFixtures().insertFollowing(apiUser.getUrn());
 
-        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
         assertThat(user).isEqualTo(
-                getApiUserProperties(apiUser).put(UserProperty.IS_FOLLOWED_BY_ME, true));
+                getApiUserBuilder(apiUser).isFollowing(true).build());
     }
 
     @Test
@@ -72,9 +73,9 @@ public class UserStorageTest extends StorageIntegrationTest {
         ApiUser apiUser = testFixtures().insertUser();
         testFixtures().insertFollowingPendingRemoval(apiUser.getUrn(), 123);
 
-        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getApiUserProperties(apiUser));
+        assertThat(user).isEqualTo(getApiUserBuilder(apiUser).build());
     }
 
     @Test
@@ -83,38 +84,35 @@ public class UserStorageTest extends StorageIntegrationTest {
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
         testFixtures().insertUser(apiUser, artistStation);
 
-        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
         assertThat(user).isEqualTo(
-                getApiUserProperties(apiUser).put(UserProperty.ARTIST_STATION, Optional.of(artistStation)));
+                getApiUserBuilder(apiUser).artistStation(of(artistStation)).build());
     }
 
-    private PropertySet getExtendedUserProperties(ApiUser apiUser) {
-        return getBaseApiUserProperties(apiUser)
-                .put(UserProperty.COUNTRY, apiUser.getCountry())
-                .put(UserProperty.CITY, apiUser.getCity())
-                .put(UserProperty.DESCRIPTION, DESCRIPTION)
-                .put(UserProperty.WEBSITE_URL, WEBSITE_URL)
-                .put(UserProperty.WEBSITE_NAME, WEBSITE_NAME)
-                .put(UserProperty.DISCOGS_NAME, DISCOGS_NAME)
-                .put(UserProperty.MYSPACE_NAME, MYSPACE_NAME);
+    private User.Builder getExtendedUserBuilder(ApiUser apiUser) {
+        return getBaseUserBuilder(apiUser)
+                .country(fromNullable(apiUser.getCountry()))
+                .city(fromNullable(apiUser.getCity()))
+                .description(of(DESCRIPTION))
+                .websiteUrl(of(WEBSITE_URL))
+                .websiteName(of(WEBSITE_NAME))
+                .discogsName(of(DISCOGS_NAME))
+                .mySpaceName(of(MYSPACE_NAME));
     }
 
-    private PropertySet getApiUserProperties(ApiUser apiUser) {
-        return getBaseApiUserProperties(apiUser)
-                .put(UserProperty.COUNTRY, apiUser.getCountry())
-                .put(UserProperty.CITY, apiUser.getCity());
+    private User.Builder getApiUserBuilder(ApiUser apiUser) {
+        return getBaseUserBuilder(apiUser)
+                .country(fromNullable(apiUser.getCountry()))
+                .city(fromNullable(apiUser.getCity()));
     }
 
-    private PropertySet getBaseApiUserProperties(ApiUser apiUser) {
-        return PropertySet.from(
-                UserProperty.URN.bind(apiUser.getUrn()),
-                UserProperty.USERNAME.bind(apiUser.getUsername()),
-                UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
-                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getImageUrlTemplate()),
-                UserProperty.IS_FOLLOWED_BY_ME.bind(false),
-                UserProperty.VISUAL_URL.bind(Optional.<String>absent()),
-                UserProperty.ARTIST_STATION.bind(Optional.<Urn>absent())
-        );
+    private User.Builder getBaseUserBuilder(ApiUser apiUser) {
+        return ModelFixtures.userBuilder(false)
+                .urn(apiUser.getUrn())
+                .username(apiUser.getUsername())
+                .followersCount(apiUser.getFollowersCount())
+                .avatarUrl(apiUser.getImageUrlTemplate())
+                .visualUrl(apiUser.getVisualUrlTemplate());
     }
 }

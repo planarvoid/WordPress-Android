@@ -12,6 +12,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.Lists;
@@ -53,12 +54,12 @@ public class UserProfileOperations {
         return input;
     }
 
-    private static final Func2<PagedRemoteCollection<PlayableItem>, UserItem, PagedRemoteCollection<PlayableItem>> MERGE_REPOSTER =
+    private static final Func2<PagedRemoteCollection<PlayableItem>, User, PagedRemoteCollection<PlayableItem>> MERGE_REPOSTER =
             (remoteCollection, userItem) -> {
                 for (PlayableItem post : remoteCollection) {
                     if (post.isRepost()) {
-                        post.setReposter(userItem.getName());
-                        post.setReposterUrn(userItem.getUrn());
+                        post.setReposter(userItem.username());
+                        post.setReposterUrn(userItem.urn());
                     }
                 }
                 return remoteCollection;
@@ -83,19 +84,19 @@ public class UserProfileOperations {
         this.eventBus = eventBus;
     }
 
-    public Observable<ProfileUser> getLocalProfileUser(Urn user) {
-        return userRepository.localUserInfo(user).map(ProfileUser::new);
+    Observable<User> getLocalProfileUser(Urn user) {
+        return userRepository.localUserInfo(user);
     }
 
-    Observable<ProfileUser> getLocalAndSyncedProfileUser(Urn user) {
-        return userRepository.localAndSyncedUserInfo(user).map(ProfileUser::new);
+    Observable<User> getLocalAndSyncedProfileUser(Urn user) {
+        return userRepository.localAndSyncedUserInfo(user);
     }
 
-    Observable<ProfileUser> getSyncedProfileUser(Urn user) {
-        return userRepository.syncedUserInfo(user).map(ProfileUser::new);
+    Observable<User> getSyncedProfileUser(Urn user) {
+        return userRepository.syncedUserInfo(user);
     }
 
-    public Observable<PagedRemoteCollection<PlayableItem>> pagedPostItems(Urn user) {
+    Observable<PagedRemoteCollection<PlayableItem>> pagedPostItems(Urn user) {
         return profileApi
                 .userPosts(user)
                 .doOnNext(posts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))

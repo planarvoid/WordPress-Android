@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import static com.soundcloud.java.optional.Optional.of;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -10,10 +11,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -61,7 +62,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>empty());
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.empty());
     }
 
     @Test
@@ -93,7 +94,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedShowsEmptyViewWithErrorStatus() throws Exception {
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>error(new Throwable()));
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.error(new Throwable()));
 
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
@@ -143,7 +144,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragment);
         Mockito.reset(userDetailsView);
 
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>never());
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.never());
 
         presenter.onViewCreated(fragment, view, null);
 
@@ -170,7 +171,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     public void swipeToRefreshShowsEmptyViewWithErrorStatus() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>error(new Throwable()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.error(new Throwable()));
 
         swipeToRefresh();
 
@@ -186,7 +187,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
         swipeToRefresh();
 
-        verify(userDetailsView).showEmptyView(EmptyView.Status.OK);
+        verify(userDetailsView, times(2)).showEmptyView(EmptyView.Status.OK);
     }
 
     @Test
@@ -254,27 +255,25 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         refreshCaptor.getValue().onRefresh();
     }
 
-    private ProfileUser emptyUser() {
-        return new ProfileUser(PropertySet.create());
+    private User emptyUser() {
+        return ModelFixtures.user();
     }
 
-    private ProfileUser userWithBlankDescription() {
-        return new ProfileUser(PropertySet.from(UserProperty.DESCRIPTION.bind("")));
+    private User userWithBlankDescription() {
+        return ModelFixtures.userBuilder(false).description(of("")).build();
     }
 
-    private ProfileUser userWithDescription() {
-        return new ProfileUser(PropertySet.from(UserProperty.DESCRIPTION.bind(DESCRIPTION)));
+    private User userWithDescription() {
+        return ModelFixtures.userBuilder(false).description(of(DESCRIPTION)).build();
     }
 
-    private ProfileUser userWithFullDetails() {
-        return new ProfileUser(
-                PropertySet.from(
-                        UserProperty.DESCRIPTION.bind(DESCRIPTION),
-                        UserProperty.WEBSITE_NAME.bind(WEBSITE_NAME),
-                        UserProperty.WEBSITE_URL.bind(WEBSITE_URL),
-                        UserProperty.DISCOGS_NAME.bind(DISCOGS_NAME),
-                        UserProperty.MYSPACE_NAME.bind(MYSPACE_NAME)
-                )
-        );
+    private User userWithFullDetails() {
+        return ModelFixtures.userBuilder(false)
+                .description(of(DESCRIPTION))
+                .websiteName(of(WEBSITE_NAME))
+                .websiteUrl(of(WEBSITE_URL))
+                .discogsName(of(DISCOGS_NAME))
+                .mySpaceName(of(MYSPACE_NAME))
+                .build();
     }
 }

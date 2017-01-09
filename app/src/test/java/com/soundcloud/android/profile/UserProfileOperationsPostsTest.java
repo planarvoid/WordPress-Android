@@ -24,10 +24,9 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -50,8 +49,8 @@ import java.util.Map;
 
 public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
-    private static final UserItem USER = UserItem.from(TestPropertySets.user());
-    private static final Urn USER_URN = USER.getUrn();
+    private static final User USER = ModelFixtures.user();
+    private static final Urn USER_URN = USER.urn();
     private static final String NEXT_HREF = "next-href";
 
     private UserProfileOperations operations;
@@ -225,7 +224,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     @NonNull
     private PlayableItem attachRepostInfo(PlayableItem playableItem) {
         playableItem.setReposterUrn(USER_URN);
-        playableItem.setReposter(USER.getName());
+        playableItem.setReposter(USER.username());
         return playableItem;
     }
 

@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.ProfileUser;
+import com.soundcloud.android.users.User;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
@@ -15,8 +15,8 @@ public abstract class WelcomeUserItem extends DiscoveryItem implements ImageReso
     public abstract String avatarUrl();
     public abstract TimeOfDay timeOfDay();
 
-    public static DiscoveryItem create(ProfileUser user, TimeOfDay timeOfDay) {
-        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.getUrn(), user.getName(), user.getImageUrlTemplate().get(), timeOfDay);
+    public static DiscoveryItem create(User user, TimeOfDay timeOfDay) {
+        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.urn(), user.username(), user.avatarUrl().get(), timeOfDay);
     }
 
     @Override

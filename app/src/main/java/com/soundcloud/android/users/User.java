@@ -41,44 +41,71 @@ public abstract class User {
     public abstract boolean isFollowing();
 
     public static User fromCursorReader(CursorReader cursorReader) {
-        return new AutoValue_User(
-                forUser(cursorReader.getLong(UsersView.ID.name())),
-                cursorReader.getString(UsersView.USERNAME.name()),
-                Optional.fromNullable(cursorReader.getString(UsersView.COUNTRY.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.CITY.name())),
-                cursorReader.getInt(UsersView.FOLLOWERS_COUNT.name()),
-                Optional.fromNullable(cursorReader.getString(UsersView.DESCRIPTION.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.AVATAR_URL.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.VISUAL_URL.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.WEBSITE_URL.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.WEBSITE_NAME.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.MYSPACE_NAME.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.DISCOGS_NAME.name())),
-                Optional.fromNullable(cursorReader.getString(UsersView.ARTIST_STATION.name())).transform(STRING_TO_URN),
-                cursorReader.getBoolean(UsersView.IS_FOLLOWING.name()));
+        return new AutoValue_User.Builder()
+                .urn(forUser(cursorReader.getLong(UsersView.ID.name())))
+                .username(cursorReader.getString(UsersView.USERNAME.name()))
+                .country(Optional.fromNullable(cursorReader.getString(UsersView.COUNTRY.name())))
+                .city(Optional.fromNullable(cursorReader.getString(UsersView.CITY.name())))
+                .followersCount(cursorReader.getInt(UsersView.FOLLOWERS_COUNT.name()))
+                .description(Optional.fromNullable(cursorReader.getString(UsersView.DESCRIPTION.name())))
+                .avatarUrl(Optional.fromNullable(cursorReader.getString(UsersView.AVATAR_URL.name())))
+                .visualUrl(Optional.fromNullable(cursorReader.getString(UsersView.VISUAL_URL.name())))
+                .websiteUrl(Optional.fromNullable(cursorReader.getString(UsersView.WEBSITE_URL.name())))
+                .websiteName(Optional.fromNullable(cursorReader.getString(UsersView.WEBSITE_NAME.name())))
+                .mySpaceName(Optional.fromNullable(cursorReader.getString(UsersView.MYSPACE_NAME.name())))
+                .discogsName(Optional.fromNullable(cursorReader.getString(UsersView.DISCOGS_NAME.name())))
+                .artistStation(Optional.fromNullable(cursorReader.getString(UsersView.ARTIST_STATION.name())).transform(STRING_TO_URN))
+                .isFollowing(cursorReader.getBoolean(UsersView.IS_FOLLOWING.name()))
+                .build();
     }
 
-    public static User create(Urn urn,
-                              String username,
-                              String country,
-                              String city,
-                              int followersCount,
-                              boolean isFollowing,
-                              Optional<String> avatarUrl,
-                              Optional<String> visualUrl) {
-        return new AutoValue_User(urn,
-                                  username,
-                                  Optional.of(country),
-                                  Optional.of(city),
-                                  followersCount,
-                                  Optional.<String>absent(),
-                                  avatarUrl,
-                                  visualUrl,
-                                  Optional.<String>absent(),
-                                  Optional.<String>absent(),
-                                  Optional.<String>absent(),
-                                  Optional.<String>absent(),
-                                  Optional.<Urn>absent(),
-                                  isFollowing);
+    public static Builder builder() {
+        // we only do this because we cannot extend the automatic optional functionality
+        // of autovalue to include our optional : https://github.com/google/auto/issues/359
+        return new AutoValue_User.Builder()
+                .country(Optional.absent())
+                .city(Optional.absent())
+                .description(Optional.absent())
+                .avatarUrl(Optional.absent())
+                .visualUrl(Optional.absent())
+                .websiteUrl(Optional.absent())
+                .websiteName(Optional.absent())
+                .mySpaceName(Optional.absent())
+                .discogsName(Optional.absent())
+                .artistStation(Optional.absent());
+
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder urn(Urn urn);
+
+        public abstract Builder username(String username);
+
+        public abstract Builder country(Optional<String> country);
+
+        public abstract Builder city(Optional<String> city);
+
+        public abstract Builder followersCount(int followerCount);
+
+        public abstract Builder description(Optional<String> description);
+
+        public abstract Builder avatarUrl(Optional<String> avatarUrl);
+
+        public abstract Builder visualUrl(Optional<String> visualUrl);
+
+        public abstract Builder websiteUrl(Optional<String> websiteUrl);
+
+        public abstract Builder websiteName(Optional<String> websiteName);
+
+        public abstract Builder mySpaceName(Optional<String> myspaceName);
+
+        public abstract Builder discogsName(Optional<String> discogsName);
+
+        public abstract Builder artistStation(Optional<Urn> artistStation);
+
+        public abstract Builder isFollowing(boolean isFollowing);
+
+        public abstract User build();
     }
 }

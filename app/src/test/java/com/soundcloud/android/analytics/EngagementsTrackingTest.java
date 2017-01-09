@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedFollowingForFollowingsScreen;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedTrack;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForWidget;
@@ -12,10 +11,11 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -31,7 +31,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     private static final PromotedTrackItem PROMOTED_TRACK = expectedPromotedTrack();
     private static final TrackItem PLAYER_TRACK = expectedTrackForPlayer();
     private static final TrackItem WIDGET_TRACK = expectedTrackForWidget();
-    private static final UserItem FOLLOWED_USER = UserItem.from(expectedFollowingForFollowingsScreen(0));
+    private static final User FOLLOWED_USER = ModelFixtures.user(true);
 
     private final TestEventBus eventBus = new TestEventBus();
 

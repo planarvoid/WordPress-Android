@@ -110,8 +110,7 @@ public class SuggestedCreatorsOperationsTest {
 
     @Test
     public void filtersOutCreatorsAlreadyFollowed() {
-        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(2,
-                                                                                 SuggestedCreatorRelation.LIKED);
+        final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(2, SuggestedCreatorRelation.LIKED);
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.just(
                 suggestedCreators));
 

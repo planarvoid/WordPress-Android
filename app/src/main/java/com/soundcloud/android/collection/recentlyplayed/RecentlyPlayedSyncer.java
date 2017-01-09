@@ -5,8 +5,8 @@ import static com.soundcloud.android.collection.playhistory.PlayHistoryRecord.CO
 import static com.soundcloud.android.collection.playhistory.PlayHistoryRecord.CONTEXT_PLAYLIST;
 import static com.soundcloud.android.collection.playhistory.PlayHistoryRecord.CONTEXT_TRACK_STATION;
 
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -126,7 +126,7 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
                     storePlaylistsCommand.call(playlists);
                     break;
                 case CONTEXT_ARTIST:
-                    Collection<PublicApiUser> users = fetchUsersCommand.with(urns).call();
+                    Collection<ApiUser> users = fetchUsersCommand.with(urns).call();
                     storeUsersCommand.call(users);
                     break;
                 case CONTEXT_TRACK_STATION:

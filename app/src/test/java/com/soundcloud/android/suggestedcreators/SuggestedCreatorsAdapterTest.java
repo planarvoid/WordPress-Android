@@ -44,7 +44,7 @@ public class SuggestedCreatorsAdapterTest extends AndroidUnitTest {
 
         suggestedCreatorsAdapter.onFollowingEntityChange(event);
 
-        assertThat(item.following).isTrue();
+        assertThat(item.following).isFalse();
     }
 
 }

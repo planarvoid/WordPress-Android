@@ -340,14 +340,6 @@ public abstract class TestPropertySets {
                 PlaylistProperty.RELEASE_DATE.bind(apiPlaylist.getReleaseDate())));
     }
 
-    public static PropertySet followingEntityChangeSet(Urn targetUrn, int followersCount, boolean following) {
-        return PropertySet.from(
-                UserProperty.URN.bind(targetUrn),
-                UserProperty.FOLLOWERS_COUNT.bind(followersCount),
-                UserProperty.IS_FOLLOWED_BY_ME.bind(following)
-        );
-    }
-
     public static PropertySet userFollowing(ApiUser user, boolean following) {
         return PropertySet.from(
                 UserProperty.URN.bind(Urn.forUser(user.getId())),
@@ -411,5 +403,4 @@ public abstract class TestPropertySets {
         trackItem.setSnipped(true);
         return trackItem;
     }
-
 }
