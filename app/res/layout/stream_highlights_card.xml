@@ -30,7 +30,8 @@
 
         <com.soundcloud.android.view.CustomFontTextView
             style="@style/Cards.SecondaryHeaderText"
-            android:text="@string/stream_highlights_description" />
+            android:maxLines="3"
+            android:id="@+id/stream_highlights_description"/>
 
     </LinearLayout>
 </FrameLayout>

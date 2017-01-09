@@ -1,11 +1,13 @@
 package com.soundcloud.android.stream;
 
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
 
@@ -13,8 +15,10 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
 
 class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
@@ -52,8 +56,20 @@ class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
             listener.onStreamHighlightsClicked(Lists.transform(streamHighlights.suggestedTrackItems(), TrackItem.TO_URN));
         });
 
-        setThumbnails(streamHighlights.suggestedTrackItems(),
-                      (CollectionPreviewView) itemView.findViewById(R.id.stream_highlights_preview));
+        setThumbnails(streamHighlights.suggestedTrackItems(), ButterKnife.findById(itemView, R.id.stream_highlights_preview));
+        setHighlightsDescription(itemView, streamHighlights);
+    }
+
+    void setHighlightsDescription(View itemView, StreamItem.StreamHighlights streamHighlights) {
+        List<String> topCreators = getTopCreators(streamHighlights.suggestedTrackItems());
+        ((TextView) ButterKnife.findById(itemView, R.id.stream_highlights_description)).setText(
+                itemView.getResources().getQuantityString(R.plurals.stream_highlights_description,topCreators.size(), topCreators.toArray())
+        );
+    }
+
+    private List<String> getTopCreators(List<TrackItem> trackItems) {
+        HashSet<String> strings = new HashSet<>(Lists.transform(trackItems, PlayableItem::getCreatorName));
+        return Lists.newArrayList(strings).subList(0, Math.max(strings.size(), 3));
     }
 
     private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {
