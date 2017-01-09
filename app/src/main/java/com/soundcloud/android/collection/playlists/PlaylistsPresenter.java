@@ -308,6 +308,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         @Override
         public void onNext(EntityStateChangedEvent event) {
             if (event.isSingularChange()) {
+                boolean updated = false;
                 for (int position = 0; position < adapter.getItems().size(); position++) {
                     PlaylistCollectionItem item = adapter.getItem(position);
 
@@ -315,8 +316,12 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                         final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
                         if (position < adapter.getItems().size()) {
                             adapter.setItem(position, playlistItem.updated(event.getNextChangeSet()));
+                            updated = true;
                         }
                     }
+                }
+                if (updated) {
+                    adapter.notifyDataSetChanged();
                 }
             } else {
                 refreshCollections();
@@ -335,14 +340,19 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private class UpdatePlaylistsDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
         @Override
         public void onNext(final OfflineContentChangedEvent event) {
+            boolean isUpdated = false;
             for (int position = 0; position < adapter.getItems().size(); position++) {
                 PlaylistCollectionItem item = adapter.getItem(position);
                 if (item.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && event.entities.contains(item.getUrn())) {
                     final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
                     if (position < adapter.getItems().size()) {
+                        isUpdated = true;
                         adapter.setItem(position, playlistItem.updatedWithOfflineState(event.state));
                     }
                 }
+            }
+            if (isUpdated) {
+                adapter.notifyDataSetChanged();
             }
         }
     }

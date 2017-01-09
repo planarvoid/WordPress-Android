@@ -17,13 +17,17 @@ public class UpdatePlayableAdapterSubscriber extends DefaultSubscriber<CurrentPl
 
     @Override
     public void onNext(CurrentPlayQueueItemEvent event) {
+        boolean updated = false;
         for (int i = 0; i < adapter.getItems().size(); i++) {
             final Object object = adapter.getItems().get(i);
             if ((object instanceof PlayableViewItem)) {
                 if (((PlayableViewItem) object).updateNowPlaying(event)) {
-                    adapter.notifyItemChanged(i);
+                    updated = true;
                 }
             }
+        }
+        if (updated) {
+            adapter.notifyDataSetChanged();
         }
     }
 }

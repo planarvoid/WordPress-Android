@@ -17,13 +17,17 @@ public final class FollowEntityListSubscriber extends DefaultSubscriber<Followin
     @Override
     public void onNext(final FollowingStatusEvent event) {
         final Iterable<FollowableItem> filtered = Iterables.filter(adapter.getItems(), FollowableItem.class);
+        boolean updated = false;
         for (FollowableItem item : filtered) {
             if (event.urn().equals(item.getUrn())) {
                 final FollowableItem updatedListItem = item.updatedWithFollowing(event.isFollowed(), event.followingsCount());
                 final int position = adapter.getItems().indexOf(item);
                 adapter.getItems().set(position, updatedListItem);
-                adapter.notifyItemChanged(position);
+                updated = true;
             }
+        }
+        if (updated) {
+            adapter.notifyDataSetChanged();
         }
     }
 }

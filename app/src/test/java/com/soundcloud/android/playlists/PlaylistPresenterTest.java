@@ -107,17 +107,17 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     private void createPresenter() {
         presenter = new PlaylistPresenter(operations,
-                upsellOperations,
-                swipeAttacher,
-                headerPresenter,
-                playlistContentPresenter,
-                adapterFactory,
-                playbackInitiator,
-                expandPlayerSubscriberProvider,
-                navigator,
-                eventBus,
-                resources,
-                trackRendererFactory);
+                                          upsellOperations,
+                                          swipeAttacher,
+                                          headerPresenter,
+                                          playlistContentPresenter,
+                                          adapterFactory,
+                                          playbackInitiator,
+                                          expandPlayerSubscriberProvider,
+                                          navigator,
+                                          eventBus,
+                                          resources,
+                                          trackRendererFactory);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         assertThat(track1.isLikedByCurrentUser()).isTrue();
         assertThat(track1.getLikesCount()).isEqualTo(2);
-        verify(adapter).notifyItemChanged(0);
+        verify(adapter).notifyDataSetChanged();
     }
 
     @Test

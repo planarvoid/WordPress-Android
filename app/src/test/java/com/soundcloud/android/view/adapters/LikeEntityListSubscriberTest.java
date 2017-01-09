@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,7 +53,7 @@ public class LikeEntityListSubscriberTest extends AndroidUnitTest {
 
         subscriber.onNext(likesStatusEvent);
 
-        verify(adapter).notifyItemChanged(1);
+        verify(adapter).notifyDataSetChanged();
         assertThat(adapterItems.get(1)).isEqualTo(updatedListItem);
     }
 
@@ -64,7 +63,7 @@ public class LikeEntityListSubscriberTest extends AndroidUnitTest {
 
         subscriber.onNext(likesStatusEvent);
 
-        verify(adapter, never()).notifyItemChanged(anyInt());
+        verify(adapter, never()).notifyDataSetChanged();
         assertThat(adapterItems.get(1)).isEqualTo(likeableListItem);
     }
 

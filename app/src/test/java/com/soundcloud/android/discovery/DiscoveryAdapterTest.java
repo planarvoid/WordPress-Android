@@ -7,7 +7,6 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTra
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.WelcomeUserItem;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -28,8 +27,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.Collections;
 
 public class DiscoveryAdapterTest extends AndroidUnitTest {
 
@@ -97,26 +94,5 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         verify(playlistTagRenderer).setOnTagClickListener(itemListener);
         verify(searchItemRenderer).setSearchListener(itemListener);
         verify(recommendedStationsBucketRenderer).setListener(itemListener);
-    }
-
-    @Test
-    public void setItemWhenItemIsAlreadyPresent() {
-        final DiscoveryItem initialItem = DiscoveryItem.forSearchItem();
-        final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
-        adapter.onNext(singletonList(initialItem));
-
-        adapter.setItem(0, updatedItem);
-
-        assertThat(adapter.getItems()).containsExactly(updatedItem);
-    }
-
-    @Test
-    public void setItemWhenItemIsAbsent() {
-        final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
-        adapter.onNext(Collections.<DiscoveryItem>emptyList());
-
-        adapter.setItem(0, updatedItem);
-
-        assertThat(adapter.getItems()).containsExactly(updatedItem);
     }
 }

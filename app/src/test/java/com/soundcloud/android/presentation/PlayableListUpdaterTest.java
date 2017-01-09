@@ -1,7 +1,6 @@
 package com.soundcloud.android.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -116,7 +115,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
 
         assertThat(track1.getCreatorName()).isEqualTo(UPDATED_CREATOR);
-        verify(adapter).notifyItemChanged(0);
+        verify(adapter).notifyDataSetChanged();
     }
 
     @Test
@@ -131,7 +130,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
 
         assertThat(track1.getCreatorName()).isNotEqualTo(UPDATED_CREATOR);
-        verify(adapter, never()).notifyItemChanged(anyInt());
+        verify(adapter, never()).notifyDataSetChanged();
     }
 
     @Test
@@ -147,7 +146,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         final EntityStateChangedEvent event = changeSet.toUpdateEvent();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
-        verify(adapter, never()).notifyItemChanged(anyInt());
+        verify(adapter, never()).notifyDataSetChanged();
 
     }
 
@@ -179,7 +178,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         assertThat(likedTrack.getLikesCount()).isEqualTo(likesCount);
         assertThat(likedTrack.isLikedByCurrentUser()).isTrue();
-        verify(adapter).notifyItemChanged(0);
+        verify(adapter).notifyDataSetChanged();
     }
 
     @Test
@@ -199,7 +198,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         assertThat(likedTrack.getLikesCount()).isNotEqualTo(likesCount);
         assertThat(likedTrack.isLikedByCurrentUser()).isFalse();
-        verify(adapter, never()).notifyItemChanged(anyInt());
+        verify(adapter, never()).notifyDataSetChanged();
     }
 
     @Test
@@ -213,7 +212,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
-        verify(adapter, never()).notifyItemChanged(anyInt());
+        verify(adapter, never()).notifyDataSetChanged();
 
     }
 

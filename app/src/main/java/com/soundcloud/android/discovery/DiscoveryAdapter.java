@@ -23,7 +23,6 @@ import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
-import com.soundcloud.java.collections.Iterables;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -104,23 +103,5 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
         searchItemRenderer.setSearchListener(itemListener);
         stationsBucketRenderer.setListener(itemListener);
         welcomeUserItemRenderer.setListener(itemListener);
-    }
-
-    void setItem(int position, DiscoveryItem item) {
-        if (containsItem(item)) {
-            items.set(position, item);
-            notifyItemChanged(position);
-        } else {
-            items.add(position, item);
-            notifyItemInserted(position);
-        }
-    }
-
-    private boolean containsItem(DiscoveryItem item) {
-        return findItemIndex(item.getKind()) >= 0;
-    }
-
-    private int findItemIndex(final DiscoveryItem.Kind kind) {
-        return Iterables.indexOf(getItems(), input -> input.getKind() == kind);
     }
 }
