@@ -18,7 +18,6 @@ class UpdateCollectionDownloadSubscriber extends DefaultSubscriber<OfflineConten
             if (event.isLikedTrackCollection && item.getType() == CollectionItem.TYPE_PREVIEW && adapter.getItems().size() > position) {
                 final PreviewCollectionItem previewCollectionItem = (PreviewCollectionItem) item;
                 adapter.setItem(position, previewCollectionItem.updatedWithOfflineState(event.state));
-                adapter.notifyDataSetChanged();
                 break;
 
             }

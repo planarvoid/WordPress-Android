@@ -18,17 +18,13 @@ public final class LikeEntityListSubscriber extends DefaultSubscriber<LikesStatu
     @Override
     public void onNext(final LikesStatusEvent event) {
         final Iterable<LikeableItem> filtered = Iterables.filter(adapter.getItems(), LikeableItem.class);
-        boolean updated = false;
         for (LikeableItem item : filtered) {
             final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(item.getUrn());
             if (likeStatus.isPresent()) {
                 final int position = adapter.getItems().indexOf(item);
                 adapter.getItems().set(position, item.updatedWithLike(likeStatus.get()));
-                updated = true;
+                adapter.notifyItemChanged(position);
             }
-        }
-        if (updated) {
-            adapter.notifyDataSetChanged();
         }
     }
 }

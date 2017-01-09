@@ -153,7 +153,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.LIKE_CHANGED, fakeLikePlaylistEvent(playlist));
 
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     @Test

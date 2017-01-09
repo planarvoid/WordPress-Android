@@ -22,7 +22,6 @@ public final class UpdateEntityListSubscriber extends DefaultSubscriber<EntitySt
     public void onNext(final EntityStateChangedEvent event) {
         final Map<Urn, PropertySet> changeSet = event.getChangeMap();
         final Iterable<UpdatableItem> filtered = Iterables.filter(adapter.getItems(), UpdatableItem.class);
-        boolean updated = false;
         for (UpdatableItem item : filtered) {
             final Urn urn = item.getUrn();
             if (changeSet.containsKey(urn)) {
@@ -30,12 +29,9 @@ public final class UpdateEntityListSubscriber extends DefaultSubscriber<EntitySt
                 final int position = adapter.getItems().indexOf(item);
                 if (adapter.getItems().size() > position) {
                     adapter.getItems().set(position, updatedListItem);
-                    updated = true;
+                    adapter.notifyItemChanged(position);
                 }
             }
-        }
-        if (updated) {
-            adapter.notifyDataSetChanged();
         }
     }
 }

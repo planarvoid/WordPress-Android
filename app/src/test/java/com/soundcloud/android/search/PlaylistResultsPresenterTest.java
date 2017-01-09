@@ -98,7 +98,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.LIKE_CHANGED, fakeLikePlaylistEvent(playlist.getUrn()));
 
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(0);
     }
 
     private LikesStatusEvent fakeLikePlaylistEvent(Urn playlistUrn) {

@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -44,7 +45,7 @@ public class UpdatePlayableAdapterSubscriberTest extends AndroidUnitTest {
 
         verify(playableViewItem).updateNowPlaying(eventWithTrackAndCollection);
         verifyZeroInteractions(differentItem);
-        verify(adapter).notifyDataSetChanged();
+        verify(adapter).notifyItemChanged(discoveryItems.indexOf(playableViewItem));
     }
 
     @Test
@@ -55,6 +56,6 @@ public class UpdatePlayableAdapterSubscriberTest extends AndroidUnitTest {
 
         verify(playableViewItem).updateNowPlaying(eventWithTrackAndCollection);
         verifyZeroInteractions(differentItem);
-        verify(adapter, never()).notifyDataSetChanged();
+        verify(adapter, never()).notifyItemChanged(anyInt());
     }
 }

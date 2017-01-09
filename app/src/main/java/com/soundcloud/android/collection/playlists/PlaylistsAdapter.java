@@ -49,6 +49,7 @@ public class PlaylistsAdapter extends PagingRecyclerItemAdapter<PlaylistCollecti
 
     void setItem(int position, PlaylistCollectionItem item) {
         getItems().set(position, item);
+        notifyItemChanged(position);
     }
 
     public void setListener(Listener listener) {
