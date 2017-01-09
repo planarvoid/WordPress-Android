@@ -87,7 +87,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Test
     public void loadingProductCanBeRetried() {
         when(activity.getIntent()).thenReturn(new Intent());
-        when(paymentOperations.products()).thenReturn(Observable.<AvailableWebProducts>error(new IOException()));
+        when(paymentOperations.products()).thenReturn(Observable.error(new IOException()));
 
         presenter.onCreate(activity, null);
 
@@ -132,7 +132,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         presenter.onPaymentSuccess();
 
-        eventBus.lastEventOn(EventQueue.TRACKING).getKind().equals(PurchaseEvent.KIND_HIGH_TIER_SUB);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(PurchaseEvent.Subscription.HIGH_TIER.toString());
     }
 
     @Test

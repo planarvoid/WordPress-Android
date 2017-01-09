@@ -5,13 +5,11 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
-import org.jetbrains.annotations.NotNull;
 
 @AutoValue
 public abstract class ForegroundEvent extends NewTrackingEvent {
     public static final String KIND_OPEN = "open";
 
-    @NotNull
     @Override
     public String getKind() {
         return KIND_OPEN;

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class NewTrackingEvent implements TrackingEvent {
+abstract class NewTrackingEvent implements TrackingEvent {
 
     static String defaultId() {
         return UUID.randomUUID().toString();
@@ -34,7 +34,6 @@ public abstract class NewTrackingEvent implements TrackingEvent {
         return id();
     }
 
-    @NotNull
     @Override
     public String getKind() {
         throw new UnsupportedOperationException("Not implemented in new tracking");

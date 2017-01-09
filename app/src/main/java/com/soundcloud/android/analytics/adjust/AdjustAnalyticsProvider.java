@@ -43,8 +43,8 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handlePurchaseTracking(PurchaseEvent event) {
-        if (event.getKind().equals(PurchaseEvent.KIND_HIGH_TIER_SUB)) {
-            adjustWrapper.trackPurchase(AdjustEventToken.HIGH_TIER_PURCHASE, event.getPrice(), event.getCurrency());
+        if (event.subscription() == PurchaseEvent.Subscription.HIGH_TIER) {
+            adjustWrapper.trackPurchase(AdjustEventToken.HIGH_TIER_PURCHASE, event.price(), event.currency());
         }
     }
 
