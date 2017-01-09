@@ -18,10 +18,6 @@ import java.util.Map;
 public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static final int UPDATED = 0;
-    public static final int PLAYLIST_EDITED = 4;
-    public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_CONTENT_CHANGED_FILTER = event -> event.isPlaylistEditedEvent();
 
     public static final Func1<EntityStateChangedEvent, Urn> TO_URN = entityStateChangedEvent -> entityStateChangedEvent.getFirstUrn();
 
@@ -37,16 +33,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return create(UPDATED, propertySet);
     }
 
-    public static EntityStateChangedEvent fromPlaylistPushedToServer(Urn localUrn, PropertySet playlist) {
-        Map<Urn, PropertySet> changeMap = Collections.singletonMap(localUrn, playlist);
-        return new AutoValue_EntityStateChangedEvent(PLAYLIST_PUSHED_TO_SERVER, changeMap);
-    }
-
-    public static EntityStateChangedEvent fromPlaylistEdited(PropertySet newPlaylistState) {
-        return create(PLAYLIST_EDITED, newPlaylistState);
-    }
-
-    static EntityStateChangedEvent create(int kind, Collection<PropertySet> changedEntities) {
+    private static EntityStateChangedEvent create(int kind, Collection<PropertySet> changedEntities) {
         Map<Urn, PropertySet> changeMap = new ArrayMap<>(changedEntities.size());
         for (PropertySet entity : changedEntities) {
             changeMap.put(entity.get(EntityProperty.URN), entity);
@@ -54,7 +41,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return new AutoValue_EntityStateChangedEvent(kind, changeMap);
     }
 
-    static EntityStateChangedEvent create(int kind, PropertySet changedEntity) {
+    private static EntityStateChangedEvent create(int kind, PropertySet changedEntity) {
         return create(kind, Collections.singleton(changedEntity));
     }
 
@@ -85,10 +72,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
             }
         }
         return false;
-    }
-
-    private boolean isPlaylistEditedEvent() {
-        return getKind() == PLAYLIST_EDITED;
     }
 
     @Override

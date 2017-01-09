@@ -243,9 +243,4 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
     public EntityStateChangedEvent toUpdateEvent() {
         return PlaylistItem.from(this).toUpdateEvent();
     }
-
-    public EntityStateChangedEvent toPushedEvent(Urn localPlaylistUrn) {
-        return PlaylistItem.from(this).toPushedEvent(localPlaylistUrn);
-    }
-
 }

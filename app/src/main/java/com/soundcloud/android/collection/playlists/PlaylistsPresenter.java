@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection.playlists;
 
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
@@ -10,7 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionItemDecoration;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.events.CollectionEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaylistChangedEvent;
@@ -224,19 +222,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         };
     }
 
-    private static final Func1<? super EntityStateChangedEvent, Boolean> IS_PLAYLIST_CHANGE =
-            new Func1<EntityStateChangedEvent, Boolean>() {
-                @Override
-                public Boolean call(EntityStateChangedEvent event) {
-                    switch (event.getKind()) {
-                        case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
-                            return true;
-                        default:
-                            return false;
-                    }
-                }
-            };
-
     private final Func1<Object, Boolean> isNotRefreshing = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
@@ -248,12 +233,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         eventSubscriptions.unsubscribe();
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdatePlaylistsDownloadSubscriber()),
-                eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_CHANGE)
-                        .filter(isNotRefreshing)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RefreshCollectionsSubscriber()),
                 eventBus.queue(PLAYLIST_CHANGED)
-                        .filter(event -> event.kind() == PlaylistChangedEvent.Kind.PLAYLIST_MARKED_FOR_DOWNLOAD)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new DefaultSubscriber<PlaylistChangedEvent>() {
@@ -288,6 +268,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private void updateFromPlaylistChange(PlaylistChangedEvent event) {
         final Set<Urn> urns = PlaylistChangedEvent.TO_URNS.call(event);
         if (urns.size() == 1) {
+            boolean updated = false;
             final Urn urn = urns.iterator().next();
             for (int position = 0; position < adapter.getItems().size(); position++) {
                 PlaylistCollectionItem item = adapter.getItem(position);
@@ -296,30 +277,15 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                     final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
                     if (position < adapter.getItems().size()) {
                         adapter.setItem(position, (PlaylistCollectionPlaylistItem) event.apply(playlistItem));
+                        updated = true;
                     }
                 }
+            }
+            if (updated) {
+                adapter.notifyDataSetChanged();
             }
         } else {
             refreshCollections();
-        }
-    }
-
-    private class RefreshCollectionsSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(EntityStateChangedEvent event) {
-            if (event.isSingularChange()) {
-                for (int position = 0; position < adapter.getItems().size(); position++) {
-                    PlaylistCollectionItem item = adapter.getItem(position);
-                    if (item.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && item.getUrn().equals(event.getFirstUrn())) {
-                        final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
-                        if (position < adapter.getItems().size()) {
-                            adapter.setItem(position, playlistItem.updated(event.getNextChangeSet()));
-                        }
-                    }
-                }
-            } else {
-                refreshCollections();
-            }
         }
     }
 

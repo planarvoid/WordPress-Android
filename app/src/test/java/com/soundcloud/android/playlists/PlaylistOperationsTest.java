@@ -20,9 +20,9 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
@@ -39,7 +39,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,6 +103,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
+        when(playlistRepository.withUrn(playlist.getUrn())).thenReturn(just(playlist));
         operations = new PlaylistOperations(Schedulers.immediate(),
                                             syncInitiator,
                                             playlistRepository,
@@ -476,10 +476,10 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         verifyEditPlaylistCommandParams();
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_EDITED);
-        assertThat(event.getFirstUrn()).isEqualTo(playlist.getUrn());
-        assertThat(event.getChangeMap().get(playlist.getUrn())).isEqualTo(playlistEditedChangeSet(playlist.getUrn()));
+        final PlaylistEntityChangedEvent event = (PlaylistEntityChangedEvent) eventBus.lastEventOn(EventQueue.PLAYLIST_CHANGED);
+        assertThat(event.kind()).isEqualTo(PlaylistChangedEvent.Kind.PLAYLIST_EDITED);
+        assertThat(event.changeMap().containsKey(playlist.getUrn())).isTrue();
+        assertThat(event.changeMap().get(playlist.getUrn())).isEqualTo(playlist);
     }
 
     @Test
@@ -498,26 +498,10 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.<Integer>error(new Exception()));
 
         operations.editPlaylist(playlist.getUrn(), NEW_TITLE, IS_PRIVATE, asList(trackUrn))
-                  .subscribe(new TestSubscriber<PropertySet>());
+                  .subscribe(new TestSubscriber<>());
 
         verifyEditPlaylistCommandParams();
         eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
-    }
-
-    private PropertySet playlistChangeSet(Urn playlistUrn) {
-        return PropertySet.from(
-                PlaylistProperty.URN.bind(playlistUrn),
-                PlaylistProperty.TRACK_COUNT.bind(1)
-        );
-    }
-
-    private PropertySet playlistEditedChangeSet(Urn playlistUrn) {
-        return PropertySet.from(
-                PlaylistProperty.URN.bind(playlistUrn),
-                PlaylistProperty.IS_PRIVATE.bind(IS_PRIVATE),
-                PlaylistProperty.TITLE.bind(NEW_TITLE),
-                PlaylistProperty.TRACK_COUNT.bind(1)
-        );
     }
 
     private List<TrackItem> trackItems() {

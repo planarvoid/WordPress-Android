@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistEdited;
+import static com.soundcloud.android.events.PlaylistEntityChangedEvent.fromPlaylistEdited;
 import static com.soundcloud.android.events.PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist;
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.requested;
 import static java.util.Collections.singletonList;
@@ -14,12 +14,12 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -170,11 +170,12 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     @Test
     public void startsOfflineSyncWhenPlaylistMarkedAsAvailableOfflineIsEdited() {
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        PlaylistItem editedPlaylist = ModelFixtures.playlistItem();
+        editedPlaylist.setUrn(PLAYLIST);
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         fromPlaylistEdited(PropertySet.from(PlaylistProperty.URN.bind(PLAYLIST))));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, fromPlaylistEdited(editedPlaylist));
 
         startServiceSubscriber.assertValueCount(1);
     }

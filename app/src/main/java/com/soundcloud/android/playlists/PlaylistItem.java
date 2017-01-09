@@ -153,6 +153,11 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
     }
 
     @Override
+    public UpdatablePlaylistItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
+        return playlistItem;
+    }
+
+    @Override
     public String getPlayableType() {
         if (isAlbum()) {
             return source.getOrElse(PlaylistProperty.SET_TYPE, TYPE_ALBUM);
@@ -249,10 +254,6 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
 
     public EntityStateChangedEvent toUpdateEvent() {
         return EntityStateChangedEvent.forUpdate(source);
-    }
-
-    public EntityStateChangedEvent toPushedEvent(Urn localUrn) {
-        return EntityStateChangedEvent.fromPlaylistPushedToServer(localUrn, source);
     }
 
     @Override

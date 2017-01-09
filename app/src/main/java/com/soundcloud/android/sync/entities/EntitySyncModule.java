@@ -6,6 +6,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.android.sync.commands.FetchUsersCommand;
+import com.soundcloud.android.sync.playlists.PublishPlaylistUpdateEvent;
 import dagger.Module;
 import dagger.Provides;
 
@@ -20,19 +21,19 @@ public class EntitySyncModule {
 
     @Provides
     @Named(TRACKS_SYNC)
-    EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks) {
-        return new EntitySyncJob(fetchTracks, storeTracks);
+    EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks, LegacyPublishEntityUpdateEvent legacyPublishEntityUpdateEvent) {
+        return new EntitySyncJob(fetchTracks, storeTracks, legacyPublishEntityUpdateEvent);
     }
 
     @Provides
     @Named(PLAYLISTS_SYNC)
-    EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists) {
-        return new EntitySyncJob(fetchPlaylists, storePlaylists);
+    EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists, PublishPlaylistUpdateEvent publishPlaylistUpdateEvent) {
+        return new EntitySyncJob(fetchPlaylists, storePlaylists, publishPlaylistUpdateEvent);
     }
 
     @Provides
     @Named(USERS_SYNC)
-    EntitySyncJob provideUsersSyncJob(FetchUsersCommand fetchUsers, StoreUsersCommand storeUsers) {
-        return new EntitySyncJob(fetchUsers, storeUsers);
+    EntitySyncJob provideUsersSyncJob(FetchUsersCommand fetchUsers, StoreUsersCommand storeUsers, LegacyPublishEntityUpdateEvent legacyPublishEntityUpdateEvent) {
+        return new EntitySyncJob(fetchUsers, storeUsers, legacyPublishEntityUpdateEvent);
     }
 }

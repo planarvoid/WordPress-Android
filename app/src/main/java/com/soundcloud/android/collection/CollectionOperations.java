@@ -1,7 +1,7 @@
 package com.soundcloud.android.collection;
 
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_HISTORY;
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_CHANGE;
@@ -13,7 +13,7 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
-import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
@@ -143,7 +143,7 @@ public class CollectionOperations {
 
     Observable<Object> onCollectionChanged() {
         return Observable.merge(
-                eventBus.queue(ENTITY_STATE_CHANGED).filter(event -> event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER).cast(Object.class),
+                eventBus.queue(PLAYLIST_CHANGED).filter(event -> event.kind() == PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER).cast(Object.class),
                 eventBus.queue(URN_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(LIKE_CHANGED).cast(Object.class),
                 eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_CHANGE)

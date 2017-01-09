@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Iterables.filter;
 import static com.soundcloud.java.collections.Lists.newArrayList;
@@ -13,8 +14,8 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
@@ -27,7 +28,6 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -43,14 +43,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class PlaylistOperations {
-
-    private final Action1<PropertySet> publishPlaylistEditedEvent = new Action1<PropertySet>() {
-        @Override
-        public void call(PropertySet newPlaylistTrackData) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                             EntityStateChangedEvent.fromPlaylistEdited(newPlaylistTrackData));
-        }
-    };
 
     private final Action1<Urn> publishPlaylistCreatedEvent = new Action1<Urn>() {
         @Override
@@ -130,13 +122,13 @@ public class PlaylistOperations {
                                     .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
-    Observable<PropertySet> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
+    Observable<PlaylistItem> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
         return editPlaylistCommand.toObservable(new EditPlaylistCommandParams(playlistUrn,
                                                                               title,
                                                                               isPrivate,
                                                                               updatedTracklist))
-                                  .map(toEditedChangeSet(playlistUrn, title, isPrivate))
-                                  .doOnNext(publishPlaylistEditedEvent)
+                                  .flatMap(continueWith(playlistRepository.withUrn(playlistUrn)))
+                                  .doOnNext(newPlaylistTrackData -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistEdited(newPlaylistTrackData)))
                                   .doOnCompleted(syncInitiator.requestSystemSyncAction())
                                   .subscribeOn(scheduler);
     }
@@ -144,8 +136,7 @@ public class PlaylistOperations {
     Observable<Integer> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
         final AddTrackToPlaylistParams params = new AddTrackToPlaylistParams(playlistUrn, trackUrn);
         return addTrackToPlaylistCommand.toObservable(params)
-                                        .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED,
-                                                                                 PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlistUrn, trackCount)))
+                                        .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlistUrn, trackCount)))
                                         .doOnCompleted(syncInitiator.requestSystemSyncAction())
                                         .subscribeOn(scheduler);
     }
@@ -154,19 +145,9 @@ public class PlaylistOperations {
         final RemoveTrackFromPlaylistParams params = new RemoveTrackFromPlaylistParams(playlistUrn, trackUrn);
         return removeTrackFromPlaylistCommand.toObservable(params)
                                              .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED,
-                                                                                        PlaylistTrackCountChangedEvent.fromTrackRemovedFromPlaylist(playlistUrn, trackCount)))
+                                                                                      PlaylistTrackCountChangedEvent.fromTrackRemovedFromPlaylist(playlistUrn, trackCount)))
                                              .doOnCompleted(syncInitiator.requestSystemSyncAction())
                                              .subscribeOn(scheduler);
-    }
-
-    private Func1<Integer, PropertySet> toEditedChangeSet(final Urn targetUrn,
-                                                          final String title,
-                                                          final boolean isPrivate) {
-        return newTrackCount -> PropertySet.from(
-                PlaylistProperty.URN.bind(targetUrn),
-                PlaylistProperty.TITLE.bind(title),
-                PlaylistProperty.IS_PRIVATE.bind(isPrivate),
-                PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback(final Urn playlistUrn) {

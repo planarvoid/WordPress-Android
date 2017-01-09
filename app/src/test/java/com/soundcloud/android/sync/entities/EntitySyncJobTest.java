@@ -13,9 +13,12 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 public class EntitySyncJobTest extends AndroidUnitTest {
@@ -24,10 +27,12 @@ public class EntitySyncJobTest extends AndroidUnitTest {
 
     @Mock private BulkFetchCommand fetchResources;
     @Mock private StoreTracksCommand storeResources;
+    @Mock private PublishUpdateEvent<ApiTrack> publishUpdateEvent;
+    @Captor private ArgumentCaptor<Collection<ApiTrack>> collectionArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        entitySyncJob = new EntitySyncJob(fetchResources, storeResources);
+        entitySyncJob = new EntitySyncJob(fetchResources, storeResources, publishUpdateEvent);
     }
 
     @Test
@@ -49,9 +54,9 @@ public class EntitySyncJobTest extends AndroidUnitTest {
         entitySyncJob.setUrns(singletonList(Urn.forTrack(123L)));
         entitySyncJob.run();
 
-        assertThat(entitySyncJob.getUpdatedEntities()).containsExactly(
-                tracks.get(0).toUpdateEvent(),
-                tracks.get(1).toUpdateEvent());
+        entitySyncJob.publishSyncEvent();
+        verify(publishUpdateEvent).call(collectionArgumentCaptor.capture());
+        assertThat(collectionArgumentCaptor.getValue()).containsExactly(tracks.get(0), tracks.get(1));
     }
 
     @Test

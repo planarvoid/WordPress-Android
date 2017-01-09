@@ -12,9 +12,9 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.main.Screen;
@@ -146,10 +146,10 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     public void shouldReplaceUrnWhenPlaylistPushed() {
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        playlistItem.setUrn(UPDATED_PLAYLIST_URN);
 
-        final PropertySet updatedPlaylist = PropertySet.from(PlaylistProperty.URN.bind(UPDATED_PLAYLIST_URN));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromPlaylistPushedToServer(PLAYLIST_URN, updatedPlaylist));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(PLAYLIST_URN, playlistItem));
 
         final Bundle fragmentArgs = fragmentRule.getFragment().getArguments();
         assertThat(fragmentArgs.get(PlaylistDetailFragment.EXTRA_URN)).isEqualTo(UPDATED_PLAYLIST_URN);
@@ -206,7 +206,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void savePlaylist() {
-        final PublishSubject<PropertySet> editPlaylistOperation = PublishSubject.create();
+        final PublishSubject<PlaylistItem> editPlaylistOperation = PublishSubject.create();
         final List<Urn> tracks = Arrays.asList(track1.getUrn(), track2.getUrn());
         final List<TrackItem> trackItems = Arrays.asList(track1, track2);
         when(adapter.getTracks()).thenReturn(trackItems);

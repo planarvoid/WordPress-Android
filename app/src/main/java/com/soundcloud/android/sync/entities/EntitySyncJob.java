@@ -1,14 +1,13 @@
 package com.soundcloud.android.sync.entities;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
+import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.WriteStorageCommand;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
@@ -20,32 +19,33 @@ public class EntitySyncJob implements SyncJob {
 
     private final BulkFetchCommand<? extends ApiSyncable> fetchResources;
     private final WriteStorageCommand storeResources;
+    private final Command<Collection<? extends ApiSyncable>, Boolean> publishSyncEvent;
 
     private List<Urn> urns = Collections.emptyList();
-    private Collection<EntityStateChangedEvent> updatedEntities = Collections.emptyList();
+    private Collection<? extends ApiSyncable> updatedEntities = Collections.emptyList();
     private Exception exception;
 
     @Inject
-    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable> fetchResources, WriteStorageCommand storeResources) {
+    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable> fetchResources, WriteStorageCommand storeResources, PublishUpdateEvent publishSyncEvent) {
         this.fetchResources = fetchResources;
         this.storeResources = storeResources;
+        this.publishSyncEvent = publishSyncEvent;
     }
 
     public void setUrns(List<Urn> urns) {
         this.urns = urns;
     }
 
-    public Collection<EntityStateChangedEvent> getUpdatedEntities() {
-        return updatedEntities;
+    public void publishSyncEvent() {
+        publishSyncEvent.call(updatedEntities);
     }
 
     @Override
     public void run() {
         try {
             if (!urns.isEmpty()) {
-                Collection<? extends ApiSyncable> collection = fetchResources.with(urns).call();
-                storeResources.call(collection);
-                updatedEntities = MoreCollections.transform(collection, ApiSyncable::toUpdateEvent);
+                updatedEntities = fetchResources.with(urns).call();
+                storeResources.call(updatedEntities);
             }
         } catch (Exception e) {
             ErrorUtils.handleThrowable(e, this.getClass());

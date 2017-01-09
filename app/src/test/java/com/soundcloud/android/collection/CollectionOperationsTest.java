@@ -13,6 +13,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
@@ -20,7 +21,6 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
-import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
@@ -68,18 +68,18 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     private List<RecentlyPlayedPlayableItem> recentlyPlayed = Arrays.asList(
             new RecentlyPlayedPlayableItem(Urn.forPlaylist(123L),
-                                           Optional.<String>absent(),
+                                           Optional.absent(),
                                            "title 1",
                                            10,
                                            false,
-                                           Optional.<OfflineState>absent(),
+                                           Optional.absent(),
                                            1000),
             new RecentlyPlayedPlayableItem(Urn.forTrackStation(234L),
-                                           Optional.<String>absent(),
+                                           Optional.absent(),
                                            "title 2",
                                            0,
                                            false,
-                                           Optional.<OfflineState>absent(),
+                                           Optional.absent(),
                                            1000)
     );
 
@@ -166,7 +166,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, playlist.toPushedEvent(Urn.forPlaylist(4)));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), PlaylistItem.from(playlist)));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
@@ -175,20 +175,20 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void collectionsShouldReturnAnErrorWhenAllCollectionsFailedToLoad() {
         final RuntimeException exception = new RuntimeException("Test");
 
-        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.<List<LikedTrackPreview>>error(
+        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.error(
                 exception));
 
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL)).thenReturn(
-                Observable.<List<PlaylistItem>>error(exception));
+                Observable.error(exception));
 
-        when(stationsOperations.collection(StationsCollectionsTypes.LIKED)).thenReturn(Observable.<StationRecord>error(
+        when(stationsOperations.collection(StationsCollectionsTypes.LIKED)).thenReturn(Observable.error(
                 exception));
 
         when(playHistoryOperations.playHistory(3)).thenReturn(
-                Observable.<List<TrackItem>>error(exception));
+                Observable.error(exception));
 
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS)).thenReturn(
-                Observable.<List<RecentlyPlayedPlayableItem>>error(exception));
+                Observable.error(exception));
 
         operations.collections().subscribe(subscriber);
 
@@ -205,9 +205,9 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final RuntimeException exception = new RuntimeException("Test");
 
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
-                .thenReturn(Observable.<List<PlaylistItem>>error(exception));
+                .thenReturn(Observable.error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
-                .thenReturn(Observable.<StationRecord>error(exception));
+                .thenReturn(Observable.error(exception));
 
         operations.collections().subscribe(subscriber);
 

@@ -4,6 +4,7 @@ import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
+import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROMOTED_SOURCE_INFO;
@@ -17,8 +18,9 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistChangedEvent;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
@@ -46,13 +48,11 @@ import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.android.view.dragdrop.SimpleItemTouchHelperCallback;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -73,12 +73,10 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, PlaylistDetailItem>
         implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener {
-
-    private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistPushed = event -> event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
-            && event.getFirstUrn().equals(getPlaylistUrn());
 
     @LightCycle final PlaylistHeaderPresenter headerPresenter;
     @LightCycle final PlaylistContentPresenter playlistContentPresenter;
@@ -169,8 +167,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
                         .filter(UrnStateChangedEvent::containsPlaylist)
                         .subscribe(new GoBackSubscriber()),
                 eventBus
-                        .queue(ENTITY_STATE_CHANGED)
-                        .filter(isCurrentPlaylistPushed)
+                        .queue(PLAYLIST_CHANGED)
+                        .filter(event1 -> event1.kind() == PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER)
                         .subscribe(new PlaylistPushedSubscriber()),
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayableAdapterSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
@@ -361,11 +359,16 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         return playSessionSource;
     }
 
-    private class PlaylistPushedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private class PlaylistPushedSubscriber extends DefaultSubscriber<PlaylistChangedEvent> {
         @Override
-        public void onNext(EntityStateChangedEvent args) {
-            final PropertySet updatedPlaylist = args.getNextChangeSet();
-            fragment.getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
+        public void onNext(PlaylistChangedEvent args) {
+            if (args.isEntityChangeEvent()) {
+                final Map<Urn, PlaylistItem> urnPlaylistItemMap = ((PlaylistEntityChangedEvent) args).changeMap();
+                if (urnPlaylistItemMap.containsKey(getPlaylistUrn())) {
+                    final PlaylistItem updatedPlaylist = urnPlaylistItemMap.get(getPlaylistUrn());
+                    fragment.getArguments().putParcelable(EXTRA_URN, updatedPlaylist.getUrn());
+                }
+            }
         }
     }
 

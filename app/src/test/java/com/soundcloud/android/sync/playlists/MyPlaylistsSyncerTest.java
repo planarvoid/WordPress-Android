@@ -18,10 +18,10 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistChangedEvent;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
@@ -146,17 +146,17 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldPublishPlaylistPushedEventAfterReplacingPlaylist() throws Exception {
         final ApiPlaylist newPlaylist = setupNewPlaylistCreation();
-        ArgumentCaptor<EntityStateChangedEvent> captor = ArgumentCaptor.forClass(EntityStateChangedEvent.class);
+        ArgumentCaptor<PlaylistChangedEvent> captor = ArgumentCaptor.forClass(PlaylistChangedEvent.class);
 
         syncer.call();
 
         InOrder inOrder = Mockito.inOrder(replacePlaylist, eventBus);
         inOrder.verify(replacePlaylist).call();
-        inOrder.verify(eventBus).publish(eq(EventQueue.ENTITY_STATE_CHANGED), captor.capture());
+        inOrder.verify(eventBus).publish(eq(EventQueue.PLAYLIST_CHANGED), captor.capture());
 
-        EntityStateChangedEvent event = captor.getValue();
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER);
-        assertThat(event.getChangeMap().get(localPlaylistUrn).get(EntityProperty.URN)).isEqualTo(newPlaylist.getUrn());
+        PlaylistChangedEvent event = captor.getValue();
+        assertThat(event.kind()).isEqualTo(PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER);
+        assertThat(((PlaylistEntityChangedEvent)event).changeMap().get(localPlaylistUrn).getUrn()).isEqualTo(newPlaylist.getUrn());
     }
 
     @Test

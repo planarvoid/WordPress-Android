@@ -53,6 +53,11 @@ public abstract class PlaylistStreamItem extends StreamItem implements Updatable
     }
 
     @Override
+    public PlaylistStreamItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
+        return create(playlistItem);
+    }
+
+    @Override
     public PlaylistStreamItem updatedWithTrackCount(int trackCount) {
         return create(playlistItem().updatedWithTrackCount(trackCount));
     }

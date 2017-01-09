@@ -57,6 +57,11 @@ public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionI
     }
 
     @Override
+    public UpdatablePlaylistItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
+        return create(playlistItem);
+    }
+
+    @Override
     public Urn getUrn() {
         return getPlaylistItem().getUrn();
     }

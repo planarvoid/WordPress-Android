@@ -1,9 +1,6 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_CONTENT_CHANGED_FILTER;
-
 import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaylistChangedEvent;
@@ -86,7 +83,6 @@ public class OfflineContentController {
     private Observable<Object> offlinePlaylistChanged() {
         return Observable.merge(
                 playlistSynced(),
-                offlinePlaylistContentChanged(),
                 playlistChanged()
         );
     }
@@ -95,17 +91,6 @@ public class OfflineContentController {
         return eventBus.queue(EventQueue.SYNC_RESULT)
                        .filter(SyncJobResult.IS_SINGLE_PLAYLIST_SYNCED_FILTER)
                        .map(SyncJobResult.TO_URN)
-                       .flatMap(offlineContentOperations::isOfflinePlaylist)
-                       .filter(RxUtils.IS_TRUE)
-                       .cast(Object.class);
-    }
-
-    private Observable<Object> offlinePlaylistContentChanged() {
-        return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                       // NOTE : this event is not sent from the Syncer.
-                       // This case is handled in MyPlaylistsSyncer.syncOfflinePlaylists.
-                       .filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER)
-                       .map(EntityStateChangedEvent.TO_URN)
                        .flatMap(offlineContentOperations::isOfflinePlaylist)
                        .filter(RxUtils.IS_TRUE)
                        .cast(Object.class);

@@ -8,8 +8,8 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityMetadata;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
@@ -150,8 +150,8 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
     private void publishPlaylistCreated(Urn localPlaylistUrn, ApiPlaylist newPlaylist) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromCreatePlaylist(EntityMetadata.from(newPlaylist)));
 
-        final EntityStateChangedEvent event = newPlaylist.toPushedEvent(localPlaylistUrn);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
+        final PlaylistEntityChangedEvent event = PlaylistEntityChangedEvent.fromPlaylistPushedToServer(localPlaylistUrn, PlaylistItem.from(newPlaylist));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, event);
     }
 
     private Map<String, Object> createPlaylistBody(PlaylistItem localPlaylist, List<Urn> trackUrns) {
