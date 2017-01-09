@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromStationsUpdated;
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
+import static com.soundcloud.android.events.UrnStateChangedEvent.fromStationsUpdated;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
@@ -187,7 +187,7 @@ public class StationsOperations {
 
     Observable<ChangeResult> toggleStationLike(Urn stationUrn, boolean liked) {
         return stationsStorage.updateLocalStationLike(stationUrn, liked)
-                              .doOnNext(eventBus.publishAction1(ENTITY_STATE_CHANGED, fromStationsUpdated(stationUrn)))
+                              .doOnNext(eventBus.publishAction1(URN_STATE_CHANGED, fromStationsUpdated(stationUrn)))
                               .subscribeOn(scheduler);
     }
 

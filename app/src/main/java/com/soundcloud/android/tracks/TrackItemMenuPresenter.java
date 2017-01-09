@@ -31,7 +31,6 @@ import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -229,9 +228,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                 final Urn trackUrn = track.getUrn();
                 playlistOperations.removeTrackFromPlaylist(playlistUrn, trackUrn)
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .subscribe(new DefaultSubscriber<PropertySet>() {
+                                  .subscribe(new DefaultSubscriber<Integer>() {
                                       @Override
-                                      public void onNext(PropertySet args) {
+                                      public void onNext(Integer args) {
                                           if (removeTrackListener != null) {
                                               removeTrackListener.onPlaylistTrackRemoved(trackUrn);
                                           }

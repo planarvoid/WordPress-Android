@@ -2,8 +2,8 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -58,7 +58,7 @@ class PlaylistPostOperations {
     }
 
     private Action1<WriteResult> publishPlaylistDeletedEvent(final Urn urn) {
-        return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityDeleted(urn));
+        return eventBus.publishAction1(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityDeleted(urn));
     }
 
 

@@ -22,7 +22,6 @@ import org.mockito.Mock;
 import android.support.v7.widget.RecyclerView;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
 
@@ -48,7 +47,7 @@ public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
 
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.forUpdate(Collections.singletonList(changeSet));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.forUpdate(changeSet);
         updateEntityListSubscriber.onNext(event);
 
         assertThat(track1.getCreatorName()).isEqualTo(UPDATED_CREATOR);

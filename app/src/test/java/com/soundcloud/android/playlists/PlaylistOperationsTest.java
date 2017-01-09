@@ -22,6 +22,9 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistChangedEvent;
+import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
@@ -378,9 +381,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         operations.createNewPlaylist("title", true, false, Urn.forTrack(123)).subscribe(observer);
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.ENTITY_CREATED);
-        assertThat(event.getFirstUrn()).isEqualTo(localPlaylist);
+        final UrnStateChangedEvent event = eventBus.lastEventOn(EventQueue.URN_STATE_CHANGED);
+        assertThat(event.kind()).isEqualTo(UrnStateChangedEvent.Kind.ENTITY_CREATED);
+        assertThat(event.urns().iterator().next()).isEqualTo(localPlaylist);
     }
 
     @Test
@@ -402,10 +405,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         verifyAddToPlaylistParams();
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.TRACK_ADDED_TO_PLAYLIST);
-        assertThat(event.getFirstUrn()).isEqualTo(playlist.getUrn());
-        assertThat(event.getChangeMap().get(playlist.getUrn())).isEqualTo(playlistChangeSet(playlist.getUrn()));
+        final PlaylistChangedEvent event = eventBus.lastEventOn(EventQueue.PLAYLIST_CHANGED);
+        assertThat(event.kind()).isEqualTo(PlaylistTrackCountChangedEvent.Kind.TRACK_ADDED);
+        assertThat(event.changeMap().keySet().iterator().next()).isEqualTo(playlist.getUrn());
     }
 
     @Test
@@ -424,7 +426,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class)))
                 .thenReturn(Observable.<Integer>error(new Exception()));
 
-        operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestSubscriber<PropertySet>());
+        operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestSubscriber<>());
 
         verifyAddToPlaylistParams();
         eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
@@ -439,11 +441,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         verifyRemoveFromPlaylistParams();
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.TRACK_REMOVED_FROM_PLAYLIST);
-        assertThat(event.getFirstUrn()).isEqualTo(playlist.getUrn());
-        assertThat(event.getChangeMap().get(playlist.getUrn())).isEqualTo(playlistChangeSet(playlist.getUrn()));
-
+        final PlaylistChangedEvent event = eventBus.lastEventOn(EventQueue.PLAYLIST_CHANGED);
+        assertThat(event.kind()).isEqualTo(PlaylistTrackCountChangedEvent.Kind.TRACK_REMOVED);
+        assertThat(event.changeMap().keySet().iterator().next()).isEqualTo(playlist.getUrn());
     }
 
     @Test
@@ -462,7 +462,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class)))
                 .thenReturn(Observable.<Integer>error(new Exception()));
 
-        operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestSubscriber<PropertySet>());
+        operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestSubscriber<>());
 
         verifyRemoveFromPlaylistParams();
         eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);

@@ -2,8 +2,8 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -109,8 +109,8 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         configureRecyclerView(view);
         configureEmptyView();
 
-        subscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                               .filter(EntityStateChangedEvent.IS_STATION_COLLECTION_UPDATED)
+        subscription = eventBus.queue(EventQueue.URN_STATE_CHANGED)
+                               .filter(event -> event.kind() == UrnStateChangedEvent.Kind.STATIONS_COLLECTION_UPDATED)
                                .observeOn(AndroidSchedulers.mainThread())
                                .subscribe(new RefreshLikedStationsSubscriber());
     }
@@ -161,10 +161,10 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private class RefreshLikedStationsSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private class RefreshLikedStationsSubscriber extends DefaultSubscriber<UrnStateChangedEvent> {
 
         @Override
-        public void onNext(EntityStateChangedEvent args) {
+        public void onNext(UrnStateChangedEvent args) {
             adapter.clear();
             retryWith(onRefreshBinding());
         }

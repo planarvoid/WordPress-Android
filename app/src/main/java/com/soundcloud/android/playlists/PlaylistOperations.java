@@ -15,6 +15,8 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
@@ -42,14 +44,6 @@ import java.util.List;
 
 public class PlaylistOperations {
 
-    private final Action1<PropertySet> publishTrackAddedToPlaylistEvent = new Action1<PropertySet>() {
-        @Override
-        public void call(PropertySet newPlaylistTrackData) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                             EntityStateChangedEvent.fromTrackAddedToPlaylist(newPlaylistTrackData));
-        }
-    };
-
     private final Action1<PropertySet> publishPlaylistEditedEvent = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newPlaylistTrackData) {
@@ -58,18 +52,10 @@ public class PlaylistOperations {
         }
     };
 
-    private final Action1<PropertySet> publishTrackRemovedFromPlaylistEvent = new Action1<PropertySet>() {
-        @Override
-        public void call(PropertySet newPlaylistTrackData) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                             EntityStateChangedEvent.fromTrackRemovedFromPlaylist(newPlaylistTrackData));
-        }
-    };
-
     private final Action1<Urn> publishPlaylistCreatedEvent = new Action1<Urn>() {
         @Override
         public void call(Urn urn) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityCreated(urn));
+            eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityCreated(urn));
         }
     };
 
@@ -155,28 +141,22 @@ public class PlaylistOperations {
                                   .subscribeOn(scheduler);
     }
 
-    Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
+    Observable<Integer> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
         final AddTrackToPlaylistParams params = new AddTrackToPlaylistParams(playlistUrn, trackUrn);
         return addTrackToPlaylistCommand.toObservable(params)
-                                        .map(toChangeSet(playlistUrn))
-                                        .doOnNext(publishTrackAddedToPlaylistEvent)
+                                        .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED,
+                                                                                 PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlistUrn, trackCount)))
                                         .doOnCompleted(syncInitiator.requestSystemSyncAction())
                                         .subscribeOn(scheduler);
     }
 
-    public Observable<PropertySet> removeTrackFromPlaylist(Urn playlistUrn, Urn trackUrn) {
+    public Observable<Integer> removeTrackFromPlaylist(Urn playlistUrn, Urn trackUrn) {
         final RemoveTrackFromPlaylistParams params = new RemoveTrackFromPlaylistParams(playlistUrn, trackUrn);
         return removeTrackFromPlaylistCommand.toObservable(params)
-                                             .map(toChangeSet(playlistUrn))
-                                             .doOnNext(publishTrackRemovedFromPlaylistEvent)
+                                             .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED,
+                                                                                        PlaylistTrackCountChangedEvent.fromTrackRemovedFromPlaylist(playlistUrn, trackCount)))
                                              .doOnCompleted(syncInitiator.requestSystemSyncAction())
                                              .subscribeOn(scheduler);
-    }
-
-    private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn) {
-        return newTrackCount -> PropertySet.from(
-                PlaylistProperty.URN.bind(targetUrn),
-                PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
     }
 
     private Func1<Integer, PropertySet> toEditedChangeSet(final Urn targetUrn,

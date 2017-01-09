@@ -5,15 +5,12 @@ import static com.soundcloud.android.events.RepostsStatusEvent.RepostStatus.crea
 
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.WriteStorageCommand;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
-import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.text.TextUtils;
@@ -113,14 +110,14 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
 
     private void publishStateChanges(Set<PostRecord> changes, boolean isAddition) {
         final Map<Urn, RepostsStatusEvent.RepostStatus> updatedEntities = new HashMap<>(changes.size());
-        final Set<PropertySet> newEntities = new HashSet<>(changes.size());
+        final Set<Urn> newEntities = new HashSet<>(changes.size());
 
         for (PostRecord post : changes) {
             if (post.isRepost()) {
                 final Urn urn = post.getTargetUrn();
                 updatedEntities.put(urn, isAddition ? createReposted(urn) : createUnposted(urn));
             } else {
-                newEntities.add(PropertySet.from(PlayableProperty.URN.bind(post.getTargetUrn())));
+                newEntities.add(post.getTargetUrn());
             }
         }
 
@@ -129,9 +126,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         }
 
         if (!newEntities.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, isAddition ?
-                                                              EntityStateChangedEvent.fromEntityCreated(newEntities) :
-                                                              EntityStateChangedEvent.fromEntityDeleted(newEntities));
+            eventBus.publish(EventQueue.URN_STATE_CHANGED, isAddition ? UrnStateChangedEvent.fromEntitiesCreated(newEntities) : UrnStateChangedEvent.fromEntitiesDeleted(newEntities));
         }
     }
 

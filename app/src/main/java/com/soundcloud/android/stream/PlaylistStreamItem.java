@@ -9,12 +9,13 @@ import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableItem;
+import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
 @AutoValue
-public abstract class PlaylistStreamItem extends StreamItem implements UpdatableItem, LikeableItem, RepostableItem {
+public abstract class PlaylistStreamItem extends StreamItem implements UpdatableItem, LikeableItem, RepostableItem, UpdatablePlaylistItem {
     public abstract PlaylistItem playlistItem();
     public abstract boolean promoted();
     public abstract Date createdAt();
@@ -49,5 +50,15 @@ public abstract class PlaylistStreamItem extends StreamItem implements Updatable
     @Override
     public PlaylistStreamItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
         return create(playlistItem().updatedWithRepost(repostStatus));
+    }
+
+    @Override
+    public PlaylistStreamItem updatedWithTrackCount(int trackCount) {
+        return create(playlistItem().updatedWithTrackCount(trackCount));
+    }
+
+    @Override
+    public PlaylistStreamItem updatedWithMarkedForOffline(boolean markedForOffline) {
+        return create(playlistItem().updatedWithMarkedForOffline(markedForOffline));
     }
 }

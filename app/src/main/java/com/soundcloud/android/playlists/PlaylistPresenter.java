@@ -5,6 +5,7 @@ import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
+import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROMOTED_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
@@ -19,6 +20,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -74,9 +76,6 @@ import java.util.List;
 
 class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, PlaylistDetailItem>
         implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener {
-
-    private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistDeleted = event -> event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
-            && event.getFirstUrn().equals(getPlaylistUrn());
 
     private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistPushed = event -> event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
             && event.getFirstUrn().equals(getPlaylistUrn());
@@ -165,8 +164,9 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         super.onViewCreated(fragment, view, savedInstanceState);
         subscription = new CompositeSubscription(
                 eventBus
-                        .queue(ENTITY_STATE_CHANGED)
-                        .filter(isCurrentPlaylistDeleted)
+                        .queue(URN_STATE_CHANGED)
+                        .filter(event -> event.kind() == UrnStateChangedEvent.Kind.ENTITY_DELETED)
+                        .filter(UrnStateChangedEvent::containsPlaylist)
                         .subscribe(new GoBackSubscriber()),
                 eventBus
                         .queue(ENTITY_STATE_CHANGED)
@@ -316,9 +316,9 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
                           .withAdapter(adapter).build());
     }
 
-    private class GoBackSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private class GoBackSubscriber extends DefaultSubscriber<UrnStateChangedEvent> {
         @Override
-        public void onNext(EntityStateChangedEvent args) {
+        public void onNext(UrnStateChangedEvent args) {
             // This actually go back in the stack because the fragment is tied up
             // to PlaylistDetailActivity.
             if (fragment.isAdded()) {

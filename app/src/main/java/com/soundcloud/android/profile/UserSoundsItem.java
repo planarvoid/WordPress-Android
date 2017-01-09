@@ -15,6 +15,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableItem;
+import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
@@ -23,7 +24,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem, RepostableItem {
+abstract class UserSoundsItem implements ListItem, UpdatableItem, UpdatablePlaylistItem, LikeableItem, RepostableItem {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
@@ -154,6 +155,22 @@ abstract class UserSoundsItem implements ListItem, UpdatableItem, LikeableItem, 
         } else {
             return this;
         }
+    }
+
+    @Override
+    public UpdatablePlaylistItem updatedWithTrackCount(int trackCount) {
+        if (isPlaylist()) {
+            return copyWithPlaylistItem(getPlaylistItem().get().updatedWithTrackCount(trackCount));
+        }
+        return this;
+    }
+
+    @Override
+    public UpdatablePlaylistItem updatedWithMarkedForOffline(boolean markedForOffline) {
+        if (isPlaylist()) {
+            return copyWithPlaylistItem(getPlaylistItem().get().updatedWithMarkedForOffline(markedForOffline));
+        }
+        return this;
     }
 
     @Override

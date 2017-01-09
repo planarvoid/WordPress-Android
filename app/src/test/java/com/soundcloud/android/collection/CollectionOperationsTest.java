@@ -11,9 +11,9 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
@@ -156,7 +156,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
         final Urn localPlaylist = Urn.newLocalPlaylist();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityCreated(localPlaylist));
+        eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityCreated(localPlaylist));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }

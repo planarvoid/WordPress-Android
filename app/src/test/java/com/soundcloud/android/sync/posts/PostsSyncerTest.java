@@ -132,7 +132,7 @@ public class PostsSyncerTest extends AndroidUnitTest {
         withRemotePlaylistPosts(newPost);
 
         assertThat(syncer.call()).isTrue();
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED).iterator().next().getFirstUrn())
+        assertThat(eventBus.eventsOn(EventQueue.URN_STATE_CHANGED).iterator().next().urns().iterator().next())
                 .isEqualTo(urn);
     }
 
@@ -145,7 +145,7 @@ public class PostsSyncerTest extends AndroidUnitTest {
         withRemotePlaylistPosts();
 
         assertThat(syncer.call()).isTrue();
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED).iterator().next().getFirstUrn())
+        assertThat(eventBus.eventsOn(EventQueue.URN_STATE_CHANGED).iterator().next().urns().iterator().next())
                 .isEqualTo(urn);
     }
 

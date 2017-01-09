@@ -15,6 +15,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -166,6 +167,13 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
         foregroundSubscription = new CompositeSubscription(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber()),
+                                                           eventBus.queue(EventQueue.PLAYLIST_CHANGED)
+                                                                   .filter(event -> headerItem != null
+                                                                           && event instanceof PlaylistTrackCountChangedEvent
+                                                                           && event.changeMap().containsKey(headerItem.getUrn()))
+                                                                   .subscribe(event -> {
+                                                                       headerItem = headerItem.update(((PlaylistTrackCountChangedEvent) event).changeMap().get(headerItem.getUrn()));
+                                                                   }),
                                                            eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()),
                                                            eventBus.subscribe(EventQueue.REPOST_CHANGED, new PlaylistRepostsSubscriber()));
     }

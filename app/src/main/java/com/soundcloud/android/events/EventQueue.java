@@ -77,6 +77,8 @@ public final class EventQueue {
     public static final Queue<EntityStateChangedEvent> ENTITY_STATE_CHANGED = Queue.of(EntityStateChangedEvent.class)
                                                                                    .onError(ON_ERROR)
                                                                                    .get();
+    public static final Queue<UrnStateChangedEvent> URN_STATE_CHANGED = Queue.of(UrnStateChangedEvent.class).onError(ON_ERROR).get();
+    public static final Queue<PlaylistChangedEvent> PLAYLIST_CHANGED = Queue.of(PlaylistChangedEvent.class).onError(ON_ERROR).get();
     public static final Queue<LikesStatusEvent> LIKE_CHANGED = Queue.of(LikesStatusEvent.class).onError(ON_ERROR).get();
     public static final Queue<RepostsStatusEvent> REPOST_CHANGED = Queue.of(RepostsStatusEvent.class).onError(ON_ERROR).get();
     public static final Queue<FollowingStatusEvent> FOLLOWING_CHANGED = Queue.of(FollowingStatusEvent.class).onError(ON_ERROR).get();

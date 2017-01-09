@@ -3,8 +3,8 @@ package com.soundcloud.android.playlists;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -31,8 +31,8 @@ public class PlaylistContentPresenterTest extends AndroidUnitTest {
         final PlaylistDefaultView playlistDefaultView = new PlaylistDefaultView(eventBus, playlistPresenter);
         playlistDefaultView.start();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED,
+                         PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
 
         verify(playlistPresenter).reloadPlaylist();
     }
@@ -44,8 +44,8 @@ public class PlaylistContentPresenterTest extends AndroidUnitTest {
         playlistDefaultView.start();
         playlistDefaultView.stop();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED,
+                         PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
 
         verify(playlistPresenter, never()).reloadPlaylist();
     }
@@ -55,8 +55,8 @@ public class PlaylistContentPresenterTest extends AndroidUnitTest {
         final PlaylistEditView playlistDefaultView = new PlaylistEditView(eventBus, playlistPresenter);
         playlistDefaultView.start();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED,
+                         PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
 
         verify(playlistPresenter, never()).reloadPlaylist();
     }

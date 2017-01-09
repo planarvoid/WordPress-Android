@@ -10,11 +10,12 @@ import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableItem;
+import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionItem implements OfflineItem, UpdatableItem, LikeableItem, RepostableItem {
+public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionItem implements OfflineItem, UpdatableItem, UpdatablePlaylistItem, LikeableItem, RepostableItem {
 
     public static PlaylistCollectionPlaylistItem create(PlaylistItem playlistItem) {
         return new AutoValue_PlaylistCollectionPlaylistItem(PlaylistCollectionItem.TYPE_PLAYLIST, playlistItem);
@@ -30,6 +31,16 @@ public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionI
     @Override
     public PlaylistCollectionPlaylistItem updated(PropertySet sourceSet) {
         return create(getPlaylistItem().updated(sourceSet));
+    }
+
+    @Override
+    public PlaylistCollectionPlaylistItem updatedWithTrackCount(int trackCount) {
+        return create(getPlaylistItem().updatedWithTrackCount(trackCount));
+    }
+
+    @Override
+    public PlaylistCollectionPlaylistItem updatedWithMarkedForOffline(boolean markedForOffline) {
+        return create(getPlaylistItem().updatedWithMarkedForOffline(markedForOffline));
     }
 
     @Override

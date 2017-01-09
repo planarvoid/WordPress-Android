@@ -142,6 +142,10 @@ public class PlaylistWithTracks implements ImageResource {
         return new PlaylistWithTracks(this.playlistItem.updated(source), tracks);
     }
 
+    public PlaylistWithTracks update(int trackCount) {
+        return new PlaylistWithTracks(this.playlistItem.updatedWithTrackCount(trackCount), tracks);
+    }
+
     public PlaylistWithTracks updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
         return new PlaylistWithTracks(this.playlistItem.updatedWithLike(likeStatus), tracks);
     }

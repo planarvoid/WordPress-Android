@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistsMarkedForDownload;
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistsUnmarkedForDownload;
+import static com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsMarkedForDownload;
+import static com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsUnmarkedForDownload;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static java.util.Collections.singletonList;
 
@@ -205,7 +205,7 @@ public class OfflineContentOperations {
     public Observable<Void> makePlaylistAvailableOffline(final List<Urn> playlistUrns) {
         return offlineContentStorage
                 .storeAsOfflinePlaylists(playlistUrns)
-                .doOnNext(eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED,
+                .doOnNext(eventBus.publishAction1(EventQueue.PLAYLIST_CHANGED,
                                                   fromPlaylistsMarkedForDownload(playlistUrns)))
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .flatMap(syncPlaylists(playlistUrns))
@@ -229,7 +229,7 @@ public class OfflineContentOperations {
     public Observable<Void> makePlaylistUnavailableOffline(final List<Urn> playlistUrns) {
         return offlineContentStorage
                 .removePlaylistsFromOffline(playlistUrns)
-                .doOnNext(eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED,
+                .doOnNext(eventBus.publishAction1(EventQueue.PLAYLIST_CHANGED,
                                                   fromPlaylistsUnmarkedForDownload(playlistUrns)))
                 .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED,
                                                   OfflineContentChangedEvent.removed(playlistUrns)))

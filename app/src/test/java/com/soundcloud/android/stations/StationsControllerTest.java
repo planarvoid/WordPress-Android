@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -66,9 +66,9 @@ public class StationsControllerTest extends AndroidUnitTest {
                                                                        STATION,
                                                                        0));
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.STATIONS_COLLECTION_UPDATED);
-        assertThat(event.getFirstUrn()).isEqualTo(STATION);
+        final UrnStateChangedEvent event = eventBus.lastEventOn(EventQueue.URN_STATE_CHANGED);
+        assertThat(event.kind()).isEqualTo(UrnStateChangedEvent.Kind.STATIONS_COLLECTION_UPDATED);
+        assertThat(event.urns().iterator().next()).isEqualTo(STATION);
     }
 
     @Test

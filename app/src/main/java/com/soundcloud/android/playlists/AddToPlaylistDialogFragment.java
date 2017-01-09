@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -154,10 +153,10 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         super.onDestroy();
     }
 
-    private final class TrackAddedSubscriber extends DefaultSubscriber<PropertySet> {
+    private final class TrackAddedSubscriber extends DefaultSubscriber<Integer> {
 
         @Override
-        public void onNext(PropertySet ignored) {
+        public void onNext(Integer ignored) {
             final Dialog toDismiss = getDialog();
             Toast.makeText(getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
             if (toDismiss != null) {

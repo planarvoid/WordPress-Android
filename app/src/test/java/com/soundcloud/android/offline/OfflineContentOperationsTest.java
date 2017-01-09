@@ -12,8 +12,9 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistChangedEvent;
+import com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -205,8 +206,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistsMarkedForDownload(playlists));
+        final PlaylistChangedEvent event = eventBus.lastEventOn(EventQueue.PLAYLIST_CHANGED);
+        assertThat(event).isEqualTo(PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsMarkedForDownload(playlists));
     }
 
     @Test
@@ -217,8 +218,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistsUnmarkedForDownload(playlists));
+        final PlaylistChangedEvent event = eventBus.lastEventOn(EventQueue.PLAYLIST_CHANGED);
+        assertThat(event).isEqualTo(PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsUnmarkedForDownload(playlists));
     }
 
     @Test

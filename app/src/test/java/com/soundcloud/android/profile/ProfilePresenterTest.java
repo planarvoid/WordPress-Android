@@ -46,8 +46,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
-import java.util.Collections;
-
 public class ProfilePresenterTest extends AndroidUnitTest {
 
     private static final int DIVIDER_WIDTH = 55;
@@ -144,7 +142,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(USER_URN));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.forUpdate(Collections.singletonList(userProperties)));
+                         EntityStateChangedEvent.forUpdate(userProperties));
 
         verify(profileHeaderPresenter).setUserDetails(updatedProfileUser);
     }
@@ -156,7 +154,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(Urn.forUser(444)));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.forUpdate(Collections.singletonList(userProperties)));
+                         EntityStateChangedEvent.forUpdate(userProperties));
 
         verifyZeroInteractions(profileOperations);
     }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromStationsUpdated;
+import static com.soundcloud.android.events.UrnStateChangedEvent.fromStationsUpdated;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -41,7 +41,7 @@ public class StationsController {
             operations.saveLastPlayedTrackPosition(collectionPlaybackState.collectionUrn,
                                                    collectionPlaybackState.position);
             operations.saveRecentlyPlayedStation(collectionPlaybackState.collectionUrn);
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+            eventBus.publish(EventQueue.URN_STATE_CHANGED,
                              fromStationsUpdated(collectionPlaybackState.collectionUrn));
         }
     };

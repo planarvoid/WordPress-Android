@@ -1,13 +1,11 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER;
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -27,10 +25,10 @@ class PlaylistDefaultView implements PlaylistContentPresenter.PlaylistContentVie
     @Override
     public void start() {
         eventSubscription.unsubscribe();
-        eventSubscription = eventBus.queue(ENTITY_STATE_CHANGED)
-                                    .filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
+        eventSubscription = eventBus.queue(PLAYLIST_CHANGED)
+                                    .filter(event -> event.kind() == PlaylistTrackCountChangedEvent.Kind.TRACK_ADDED)
                                     .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new ReloadSubscriber());
+                                    .subscribe(event -> presenter.reloadPlaylist());
     }
 
     @Override
@@ -46,12 +44,5 @@ class PlaylistDefaultView implements PlaylistContentPresenter.PlaylistContentVie
     @Override
     public void onHeaderClick() {
         presenter.playFromBegninning();
-    }
-
-    private class ReloadSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(EntityStateChangedEvent event) {
-            presenter.reloadPlaylist();
-        }
     }
 }

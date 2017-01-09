@@ -1,18 +1,18 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER;
 import static com.soundcloud.android.utils.DateUtils.yearFromDateString;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
@@ -28,9 +28,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-public class PlaylistItem extends PlayableItem {
+public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem {
 
     public static final String TYPE_PLAYLIST = "playlist";
     public static final String TYPE_ALBUM = "album";
@@ -145,6 +144,18 @@ public class PlaylistItem extends PlayableItem {
     }
 
     @Override
+    public PlaylistItem updatedWithTrackCount(int trackCount) {
+        this.setTrackCount(trackCount);
+        return this;
+    }
+
+    @Override
+    public PlaylistItem updatedWithMarkedForOffline(boolean markedForOffline) {
+        this.setMarkedForOffline(markedForOffline);
+        return this;
+    }
+
+    @Override
     public String getPlayableType() {
         if (isAlbum()) {
             return source.getOrElse(PlaylistProperty.SET_TYPE, TYPE_ALBUM);
@@ -244,8 +255,7 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public EntityStateChangedEvent toPushedEvent(Urn localUrn) {
-        Map<Urn, PropertySet> changeMap = Collections.singletonMap(localUrn, source);
-        return EntityStateChangedEvent.forChangeMap(PLAYLIST_PUSHED_TO_SERVER, changeMap);
+        return EntityStateChangedEvent.fromPlaylistPushedToServer(localUrn, source);
     }
 
     @Override

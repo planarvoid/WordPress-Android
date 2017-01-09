@@ -1,18 +1,18 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromEntityDeleted;
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistEdited;
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromTrackAddedToPlaylist;
+import static com.soundcloud.android.events.PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist;
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.requested;
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Sets;
 import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PolicyUpdateEvent;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
@@ -185,7 +185,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fromTrackAddedToPlaylist(PLAYLIST, 1));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, fromTrackAddedToPlaylist(PLAYLIST, 1));
 
         startServiceSubscriber.assertValueCount(1);
     }
@@ -195,7 +195,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
 
         controller.subscribe();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fromTrackAddedToPlaylist(PLAYLIST, 1));
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, fromTrackAddedToPlaylist(PLAYLIST, 1));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -251,10 +251,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
                 makePlaylistUnavailableOffline);
 
         controller.subscribe();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fromEntityDeleted(Arrays.asList(
-                PropertySet.from(PlaylistProperty.URN.bind(playlist1)),
-                PropertySet.from(PlaylistProperty.URN.bind(playlist2)))
-        ));
+        eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntitiesDeleted(Sets.newHashSet(playlist1, playlist2)));
 
         startServiceSubscriber.assertNoValues();
         makePlaylistUnavailableOffline.onNext(null);
@@ -290,7 +287,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityCreated(PLAYLIST));
+        eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityCreated(PLAYLIST));
 
         startServiceSubscriber.assertValueCount(0);
         makeAvailableOffline.onNext(null);

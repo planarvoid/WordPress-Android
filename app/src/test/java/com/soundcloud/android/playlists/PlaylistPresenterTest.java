@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
@@ -135,8 +136,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.fromEntityDeleted(PLAYLIST_URN));
+        eventBus.publish(EventQueue.URN_STATE_CHANGED,
+                         UrnStateChangedEvent.fromEntityDeleted(PLAYLIST_URN));
 
         assertThat(fragmentRule.getActivity().isFinishing()).isTrue();
     }

@@ -17,6 +17,7 @@ import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.android.view.adapters.UpdatePlaylistListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -78,6 +79,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
 
         eventSubscription = new CompositeSubscription(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                                                      eventBus.subscribe(EventQueue.PLAYLIST_CHANGED, new UpdatePlaylistListSubscriber(adapter)),
                                                       eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
                                                       eventBus.subscribe(EventQueue.REPOST_CHANGED, new RepostEntityListSubscriber(adapter))
         );
