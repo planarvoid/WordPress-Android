@@ -1,28 +1,41 @@
 package com.soundcloud.android.events;
 
-public class PurchaseEvent extends LegacyTrackingEvent {
+import com.google.auto.value.AutoValue;
+import com.soundcloud.java.optional.Optional;
 
-    public static final String KIND_HIGH_TIER_SUB = "high_tier_sub";
+@AutoValue
+public abstract class PurchaseEvent extends NewTrackingEvent {
+    public enum Subscription {
+        HIGH_TIER("high_tier_sub");
 
-    private static final String KEY_VALUE = "raw_price";
-    private static final String KEY_CURRENCY = "raw_currency";
+        private final String key;
 
-    private PurchaseEvent(String kind, String rawPrice, String rawCurrency) {
-        super(kind);
-        put(KEY_VALUE, rawPrice);
-        put(KEY_CURRENCY, rawCurrency);
+        Subscription(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
     }
 
     public static PurchaseEvent forHighTierSub(String rawPrice, String rawCurrency) {
-        return new PurchaseEvent(KIND_HIGH_TIER_SUB, rawPrice, rawCurrency);
+        return new AutoValue_PurchaseEvent(defaultId(), defaultTimestamp(), Optional.absent(), Subscription.HIGH_TIER, rawPrice, rawCurrency);
     }
 
-    public String getPrice() {
-        return get(KEY_VALUE);
+    public abstract Subscription subscription();
+
+    public abstract String price();
+
+    public abstract String currency();
+
+    @Override
+    public String getKind() {
+        return subscription().toString();
     }
 
-    public String getCurrency() {
-        return get(KEY_CURRENCY);
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_PurchaseEvent(this.id(), this.timestamp(), Optional.of(referringEvent), this.subscription(), this.price(), this.currency());
     }
-
 }

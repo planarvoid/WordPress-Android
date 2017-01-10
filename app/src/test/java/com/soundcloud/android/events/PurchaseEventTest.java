@@ -13,9 +13,9 @@ public class PurchaseEventTest {
     public void createsHighTierPurchaseEvent() {
         PurchaseEvent event = PurchaseEvent.forHighTierSub("9.99", "USD");
 
-        assertThat(event.getKind()).isEqualTo(PurchaseEvent.KIND_HIGH_TIER_SUB);
-        assertThat(event.getPrice()).isEqualTo("9.99");
-        assertThat(event.getCurrency()).isEqualTo("USD");
+        assertThat(event.subscription()).isEqualTo(PurchaseEvent.Subscription.HIGH_TIER);
+        assertThat(event.price()).isEqualTo("9.99");
+        assertThat(event.currency()).isEqualTo("USD");
     }
 
 }

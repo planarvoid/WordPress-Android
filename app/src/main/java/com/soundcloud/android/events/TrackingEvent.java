@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 public interface TrackingEvent {
-    @NotNull
     String getKind();
 
     @NotNull

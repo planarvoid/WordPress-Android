@@ -21,7 +21,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.cache.Cache;
-import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
@@ -103,8 +102,8 @@ public class ImageOperations {
              adapterFactory,
              bitmapAdapterFactory,
              imageProcessor,
-             Cache.<String, TransitionDrawable>withSoftValues(50),
-             Cache.<Urn, Bitmap>withSoftValues(10),
+             Cache.withSoftValues(50),
+             Cache.withSoftValues(10),
              new HashCodeFileNameGenerator(),
              imageDownloaderFactory,
              deviceHelper);
@@ -173,7 +172,7 @@ public class ImageOperations {
                              imageView,
                              buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
                              notFoundListener,
-                             Optional.<Drawable>absent());
+                             Optional.absent());
     }
 
     public Observable<Bitmap> displayInAdapterView(final ImageResource imageResource,
@@ -232,7 +231,7 @@ public class ImageOperations {
      */
     @Deprecated // use the ImageResource variant instead
     public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
-        displayInAdapterView(urn, apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize), notFoundListener, Optional.<Drawable>absent());
+        displayInAdapterView(urn, apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize), notFoundListener, Optional.absent());
     }
 
     private void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl, FallbackImageListener imageListener, Optional<Drawable> placeholderDrawable) {
@@ -349,7 +348,7 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayAppInstall(Urn urn, String imageUri, ImageView imageView) {
+    void displayAppInstall(Urn urn, String imageUri, ImageView imageView) {
         displayAppInstall(urn, imageUri, imageView, notFoundListener);
     }
 
@@ -459,13 +458,13 @@ public class ImageOperations {
 
     public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final ImageResource imageResource,
                                                    Scheduler scheduleOn, Scheduler observeOn) {
-        return blurredArtwork(resources, imageResource, Optional.<Float>absent(), scheduleOn, observeOn);
+        return blurredArtwork(resources, imageResource, Optional.absent(), scheduleOn, observeOn);
     }
 
-    public Observable<Bitmap> blurredArtwork(final Resources resources,
-                                             final ImageResource imageResource,
-                                             Optional<Float> blurRadius,
-                                             Scheduler scheduleOn, Scheduler observeOn) {
+    Observable<Bitmap> blurredArtwork(final Resources resources,
+                                      final ImageResource imageResource,
+                                      Optional<Float> blurRadius,
+                                      Scheduler scheduleOn, Scheduler observeOn) {
         final Bitmap cachedBlurImage = blurredImageCache.get(imageResource.getUrn());
         if (cachedBlurImage != null) {
             return Observable.just(cachedBlurImage);
@@ -613,11 +612,11 @@ public class ImageOperations {
         private final ImageListenerUILAdapter listenerAdapter;
         private final Set<String> notFoundUris;
 
-        public FallbackImageListener(Set<String> notFoundUris) {
+        FallbackImageListener(Set<String> notFoundUris) {
             this(null, notFoundUris);
         }
 
-        public FallbackImageListener(@Nullable ImageListener imageListener, Set<String> notFoundUris) {
+        FallbackImageListener(@Nullable ImageListener imageListener, Set<String> notFoundUris) {
             this.notFoundUris = notFoundUris;
             listenerAdapter = imageListener != null ? new ImageListenerUILAdapter(imageListener) : null;
         }
