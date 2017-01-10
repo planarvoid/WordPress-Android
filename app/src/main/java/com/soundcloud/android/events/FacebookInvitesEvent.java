@@ -1,30 +1,59 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.events.FacebookInvitesEvent.InteractionName.TYPE_CREATOR_DISMISS_WITH_IMAGES;
+import static com.soundcloud.android.events.FacebookInvitesEvent.InteractionName.TYPE_CREATOR_WITH_IMAGES;
+
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.main.Screen;
-import org.jetbrains.annotations.NotNull;
+import com.soundcloud.java.optional.Optional;
 
-public final class FacebookInvitesEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class FacebookInvitesEvent extends NewTrackingEvent {
 
-    public static final String KIND_IMPRESSION = "impression";
-    public static final String KIND_CLICK = "click";
+    private static final String CATEGORY_INVITE_FRIENDS = "invite_friends";
 
-    public static final String KEY_PAGE_NAME = "page_name";
-    public static final String KEY_IMPRESSION_CATEGORY = "impression_category";
-    public static final String KEY_IMPRESSION_NAME = "impression_name";
-    public static final String KEY_CLICK_CATEGORY = "click_category";
-    public static final String KEY_CLICK_NAME = "click_name";
+    public enum EventName {
+        IMPRESSION("impression"), CLICK("click");
+        private final String key;
 
-    public static final String CATEGORY_INVITE_FRIENDS = "invite_friends";
-    public static final String TYPE_LISTENER_WITH_IMAGES = "fb::with_images";
-    public static final String TYPE_LISTENER_WITHOUT_IMAGES = "fb::no_image";
-    public static final String TYPE_LISTENER_DISMISS_WITH_IMAGES = "fb::with_images::dismiss";
-    public static final String TYPE_LISTENER_DISMISS_WITHOUT_IMAGES = "fb::no_image::dismiss";
-    public static final String TYPE_CREATOR_WITH_IMAGES = "fb::creator_with_images";
-    public static final String TYPE_CREATOR_DISMISS_WITH_IMAGES = "fb::creator_with_images::dismiss";
+        EventName(String key) {
+            this.key = key;
+        }
 
-    private FacebookInvitesEvent(@NotNull String kind, long timeStamp) {
-        super(kind, timeStamp);
+        public String toString() {
+            return key;
+        }
     }
+
+    public enum InteractionName {
+        TYPE_LISTENER_WITH_IMAGES("fb::with_images"),
+        TYPE_LISTENER_WITHOUT_IMAGES("fb::no_image"),
+        TYPE_LISTENER_DISMISS_WITH_IMAGES("fb::with_images::dismiss"),
+        TYPE_LISTENER_DISMISS_WITHOUT_IMAGES("fb::no_image::dismiss"),
+        TYPE_CREATOR_WITH_IMAGES("fb::creator_with_images"),
+        TYPE_CREATOR_DISMISS_WITH_IMAGES("fb::creator_with_images::dismiss");
+        private final String key;
+
+        InteractionName(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public abstract EventName eventName();
+
+    public abstract String pageName();
+
+    public abstract Optional<String> clickCategory();
+
+    public abstract Optional<String> impressionCategory();
+
+    public abstract Optional<InteractionName> clickName();
+
+    public abstract Optional<InteractionName> impressionName();
 
     public static FacebookInvitesEvent forListenerShown(boolean hasPictures) {
         return baseImpressionEvent(withListenerImages(hasPictures));
@@ -50,28 +79,60 @@ public final class FacebookInvitesEvent extends LegacyTrackingEvent {
         return baseClickEvent(TYPE_CREATOR_DISMISS_WITH_IMAGES);
     }
 
-    private static FacebookInvitesEvent baseEvent(String kind, String screen) {
-        return new FacebookInvitesEvent(kind, System.currentTimeMillis())
-                .put(KEY_PAGE_NAME, screen);
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_FacebookInvitesEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
-    private static FacebookInvitesEvent baseClickEvent(String clickName) {
-        return baseEvent(KIND_CLICK, Screen.STREAM.get())
-                .put(KEY_CLICK_CATEGORY, CATEGORY_INVITE_FRIENDS)
-                .put(KEY_CLICK_NAME, clickName);
+    private static FacebookInvitesEvent.Builder baseEvent(String screen, EventName eventName) {
+        return new AutoValue_FacebookInvitesEvent.Builder().id(defaultId())
+                                                           .timestamp(defaultTimestamp())
+                                                           .referringEvent(Optional.absent())
+                                                           .pageName(screen)
+                                                           .eventName(eventName)
+                                                           .clickCategory(Optional.absent())
+                                                           .impressionCategory(Optional.absent())
+                                                           .clickName(Optional.absent())
+                                                           .impressionName(Optional.absent());
     }
 
-    private static FacebookInvitesEvent baseImpressionEvent(String impressionName) {
-        return baseEvent(KIND_IMPRESSION, Screen.STREAM.get())
-                .put(KEY_IMPRESSION_CATEGORY, CATEGORY_INVITE_FRIENDS)
-                .put(KEY_IMPRESSION_NAME, impressionName);
+    private static FacebookInvitesEvent baseClickEvent(InteractionName clickName) {
+        return baseEvent(Screen.STREAM.get(), EventName.CLICK).clickName(Optional.of(clickName)).clickCategory(Optional.of(CATEGORY_INVITE_FRIENDS)).build();
     }
 
-    private static String withListenerImages(boolean hasPictures) {
-        return hasPictures ? TYPE_LISTENER_WITH_IMAGES : TYPE_LISTENER_WITHOUT_IMAGES;
+    private static FacebookInvitesEvent baseImpressionEvent(InteractionName impressionName) {
+        return baseEvent(Screen.STREAM.get(), EventName.IMPRESSION).impressionName(Optional.of(impressionName)).impressionCategory(Optional.of(CATEGORY_INVITE_FRIENDS)).build();
     }
 
-    private static String dismissWithListenerImages(boolean hasPictures) {
-        return hasPictures ? TYPE_LISTENER_DISMISS_WITH_IMAGES : TYPE_LISTENER_DISMISS_WITHOUT_IMAGES;
+    private static InteractionName withListenerImages(boolean hasPictures) {
+        return hasPictures ? InteractionName.TYPE_LISTENER_WITH_IMAGES : InteractionName.TYPE_LISTENER_WITHOUT_IMAGES;
+    }
+
+    private static InteractionName dismissWithListenerImages(boolean hasPictures) {
+        return hasPictures ? InteractionName.TYPE_LISTENER_DISMISS_WITH_IMAGES : InteractionName.TYPE_LISTENER_DISMISS_WITHOUT_IMAGES;
+    }
+
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder id(String id);
+
+        public abstract Builder timestamp(long timestamp);
+
+        public abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
+
+        public abstract Builder eventName(EventName eventName);
+
+        public abstract Builder pageName(String pageName);
+
+        public abstract Builder clickCategory(Optional<String> clickCategory);
+
+        public abstract Builder impressionCategory(Optional<String> impressionCategory);
+
+        public abstract Builder clickName(Optional<InteractionName> clickName);
+
+        public abstract Builder impressionName(Optional<InteractionName> impressionName);
+
+        public abstract FacebookInvitesEvent build();
     }
 }

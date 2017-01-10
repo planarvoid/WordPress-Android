@@ -8,7 +8,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDI
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
-import static com.soundcloud.android.events.FacebookInvitesEvent.KEY_CLICK_NAME;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
@@ -143,12 +142,12 @@ class EventLoggerV1JsonDataBuilder {
 
     String buildForStreamAd(InlayAdImpressionEvent event) {
         return transform(buildBaseEvent(IMPRESSION_EVENT, event.getTimestamp())
-                                .clientEventId(event.getId())
-                                .impressionName(event.getImpressionName())
-                                .adUrn(event.getAd().toString())
-                                .pageName(event.getPageName())
-                                .contextPosition(event.getContextPosition())
-                                .monetizationType(event.getMonetizationType()));
+                                 .clientEventId(event.getId())
+                                 .impressionName(event.getImpressionName())
+                                 .adUrn(event.getAd().toString())
+                                 .pageName(event.getPageName())
+                                 .contextPosition(event.getContextPosition())
+                                 .monetizationType(event.getMonetizationType()));
     }
 
     String buildForAdDelivery(AdDeliveryEvent event) {
@@ -290,14 +289,20 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForFacebookInvites(FacebookInvitesEvent event) {
-        switch (event.getKind()) {
-            case FacebookInvitesEvent.KIND_CLICK:
-                return transform(buildFacebookInvitesClickEvent(event));
-            case FacebookInvitesEvent.KIND_IMPRESSION:
-                return transform(buildFacebookInvitesImpressionEvent(event));
-            default:
-                throw new IllegalStateException("Unexpected FacebookInvitesEvent type: " + event);
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event).pageName(event.pageName());
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get().toString());
         }
+        if (event.impressionName().isPresent()) {
+            eventData.impressionName(event.impressionName().get().toString());
+        }
+        if (event.clickCategory().isPresent()) {
+            eventData.clickCategory(event.clickCategory().get());
+        }
+        if (event.impressionCategory().isPresent()) {
+            eventData.impressionCategory(event.impressionCategory().get());
+        }
+        return transform(eventData);
     }
 
     String buildForUpsell(UpgradeFunnelEvent event) {
@@ -587,7 +592,7 @@ class EventLoggerV1JsonDataBuilder {
         if (event.clickName().isPresent()) {
             eventData.clickName(event.clickName().get().toString());
         }
-        return  eventData;
+        return eventData;
     }
 
     private EventLoggerEventData buildInteractionEvent(String action, UIEvent event) {
@@ -684,20 +689,6 @@ class EventLoggerV1JsonDataBuilder {
         addTrackSourceInfoToSessionEvent(data, event.getTrackSourceInfo(), urn);
 
         return data;
-    }
-
-    private EventLoggerEventData buildFacebookInvitesImpressionEvent(FacebookInvitesEvent event) {
-        return buildBaseEvent(IMPRESSION_EVENT, event)
-                .pageName(event.get(FacebookInvitesEvent.KEY_PAGE_NAME))
-                .impressionCategory(event.get(FacebookInvitesEvent.KEY_IMPRESSION_CATEGORY))
-                .impressionName(event.get(FacebookInvitesEvent.KEY_IMPRESSION_NAME));
-    }
-
-    private EventLoggerEventData buildFacebookInvitesClickEvent(FacebookInvitesEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .pageName(event.get(FacebookInvitesEvent.KEY_PAGE_NAME))
-                .clickCategory(event.get(FacebookInvitesEvent.KEY_CLICK_CATEGORY))
-                .clickName(event.get(KEY_CLICK_NAME));
     }
 
     private String transform(EventLoggerEventData data) {
