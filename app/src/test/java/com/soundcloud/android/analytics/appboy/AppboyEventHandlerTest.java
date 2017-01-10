@@ -176,7 +176,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAttributionEvents() {
-        AttributionEvent event = new AttributionEvent("net", "cam", "adg", "cre");
+        AttributionEvent event = AttributionEvent.create("net", "cam", "adg", "cre");
 
         eventHandler.handleEvent(event);
 

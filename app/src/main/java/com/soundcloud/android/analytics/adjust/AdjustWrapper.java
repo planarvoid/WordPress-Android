@@ -80,11 +80,11 @@ public class AdjustWrapper {
     }
 
     private void setAttributionListener(AdjustConfig config) {
-        config.setOnAttributionChangedListener(adjustAttribution -> publishAttribution(adjustAttribution));
+        config.setOnAttributionChangedListener(this::publishAttribution);
     }
 
     private void publishAttribution(AdjustAttribution adjustAttribution) {
-        eventBus.publish(EventQueue.TRACKING, new AttributionEvent(
+        eventBus.publish(EventQueue.TRACKING, AttributionEvent.create(
                 adjustAttribution.network,
                 adjustAttribution.campaign,
                 adjustAttribution.adgroup,
