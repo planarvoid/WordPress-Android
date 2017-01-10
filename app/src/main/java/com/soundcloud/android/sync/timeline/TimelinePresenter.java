@@ -82,7 +82,6 @@ public abstract class TimelinePresenter<ItemT>
     @Override
     public void onNewItemsIndicatorClicked() {
         scrollToTop();
-        adapter.clear();
         rebuildBinding(null).connect();
     }
 

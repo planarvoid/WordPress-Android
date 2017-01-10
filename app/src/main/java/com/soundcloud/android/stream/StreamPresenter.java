@@ -49,6 +49,7 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -139,7 +140,9 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(streamOperations.initialStreamItems())
+        return CollectionBinding.from(streamOperations.initialStreamItems()
+                                                      .observeOn(AndroidSchedulers.mainThread())
+                                                      .doOnNext(streamItems -> adapter.clear()))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
                                 .build();
