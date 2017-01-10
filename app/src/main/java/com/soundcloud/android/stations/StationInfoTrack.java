@@ -4,13 +4,13 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.UpdatableItem;
+import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-abstract class StationInfoTrack implements ListItem, UpdatableItem {
+abstract class StationInfoTrack implements ListItem, UpdatableTrackItem {
 
     public static StationInfoTrack from(ApiTrack track) {
         return new AutoValue_StationInfoTrack(TrackItem.from(track));
@@ -27,8 +27,8 @@ abstract class StationInfoTrack implements ListItem, UpdatableItem {
     public abstract TrackItem getTrack();
 
     @Override
-    public StationInfoTrack updated(PropertySet sourceSet) {
-        return new AutoValue_StationInfoTrack(getTrack().updated(sourceSet));
+    public StationInfoTrack updatedWithTrackItem(TrackItem trackItem) {
+        return new AutoValue_StationInfoTrack(trackItem);
     }
 
     @Override

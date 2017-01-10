@@ -7,16 +7,15 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
-import com.soundcloud.android.presentation.UpdatableItem;
+import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
-import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
 @AutoValue
-abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, UpdatableItem, LikeableItem, RepostableItem {
+abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, UpdatableTrackItem, LikeableItem, RepostableItem {
     public abstract TrackItem trackItem();
 
     public abstract boolean promoted();
@@ -41,8 +40,8 @@ abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, U
     }
 
     @Override
-    public TrackStreamItem updated(PropertySet sourceSet) {
-        return create(trackItem().updated(sourceSet));
+    public TrackStreamItem updatedWithTrackItem(TrackItem trackItem) {
+        return create(trackItem);
     }
 
     @Override

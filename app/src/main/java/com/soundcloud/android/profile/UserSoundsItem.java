@@ -14,17 +14,16 @@ import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RepostableItem;
-import com.soundcloud.android.presentation.UpdatableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
+import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
 @AutoValue
-abstract class UserSoundsItem implements ListItem, UpdatableItem, UpdatablePlaylistItem, LikeableItem, RepostableItem {
+abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, UpdatablePlaylistItem, LikeableItem, RepostableItem {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
@@ -115,14 +114,11 @@ abstract class UserSoundsItem implements ListItem, UpdatableItem, UpdatablePlayl
     }
 
     @Override
-    public UserSoundsItem updated(PropertySet sourceSet) {
+    public UserSoundsItem updatedWithTrackItem(TrackItem trackItem) {
         if (isTrack()) {
-            return copyWithTrackItem(getTrackItem().get().updated(sourceSet));
-        } else if (isPlaylist()) {
-            return copyWithPlaylistItem(getPlaylistItem().get().updated(sourceSet));
-        } else {
-            return this;
+            return copyWithTrackItem(trackItem);
         }
+        return this;
     }
 
     public UserSoundsItem updatedWithOfflineState(OfflineState offlineState) {

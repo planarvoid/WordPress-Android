@@ -11,10 +11,10 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.TrackingStateProvider;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
@@ -24,10 +24,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.User;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -140,9 +139,10 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         final User updatedProfileUser = ModelFixtures.userBuilder(false).username("updated-name").build();
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
 
-        final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(USER_URN));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.forUpdate(userProperties));
+        final UserItem userItem = ModelFixtures.create(UserItem.class);
+        userItem.setUrn(USER_URN);
+        eventBus.publish(EventQueue.USER_CHANGED,
+                         UserChangedEvent.forUpdate(userItem));
 
         verify(profileHeaderPresenter).setUserDetails(updatedProfileUser);
     }
@@ -152,9 +152,10 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         profilePresenter.onCreate(activity, null);
         Mockito.reset(profileOperations);
 
-        final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(Urn.forUser(444)));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                         EntityStateChangedEvent.forUpdate(userProperties));
+        final UserItem userItem = ModelFixtures.create(UserItem.class);
+        userItem.setUrn(Urn.forUser(444));
+        eventBus.publish(EventQueue.USER_CHANGED,
+                         UserChangedEvent.forUpdate(userItem));
 
         verifyZeroInteractions(profileOperations);
     }

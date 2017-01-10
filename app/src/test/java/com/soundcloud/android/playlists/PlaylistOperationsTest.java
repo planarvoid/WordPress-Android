@@ -424,12 +424,12 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldNotPublishEntityChangedEventWhenAddingTrackToPlaylistFailed() {
         when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class)))
-                .thenReturn(Observable.<Integer>error(new Exception()));
+                .thenReturn(Observable.error(new Exception()));
 
         operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestSubscriber<>());
 
         verifyAddToPlaylistParams();
-        eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
+        eventBus.verifyNoEventsOn(EventQueue.PLAYLIST_CHANGED);
     }
 
     @Test
@@ -460,12 +460,12 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldNotPublishEntityChangedEventWhenRemovingTrackFromPlaylistFailed() {
         when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class)))
-                .thenReturn(Observable.<Integer>error(new Exception()));
+                .thenReturn(Observable.error(new Exception()));
 
         operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestSubscriber<>());
 
         verifyRemoveFromPlaylistParams();
-        eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
+        eventBus.verifyNoEventsOn(EventQueue.PLAYLIST_CHANGED);
     }
 
     @Test
@@ -495,13 +495,13 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldNotPublishEntityChangedEventAfterEditingPlaylistFailed() {
         when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class)))
-                .thenReturn(Observable.<Integer>error(new Exception()));
+                .thenReturn(Observable.error(new Exception()));
 
         operations.editPlaylist(playlist.getUrn(), NEW_TITLE, IS_PRIVATE, asList(trackUrn))
                   .subscribe(new TestSubscriber<>());
 
         verifyEditPlaylistCommandParams();
-        eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
+        eventBus.verifyNoEventsOn(EventQueue.PLAYLIST_CHANGED);
     }
 
     private List<TrackItem> trackItems() {

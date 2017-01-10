@@ -31,7 +31,7 @@ import android.support.annotation.VisibleForTesting;
 
 import java.util.Date;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, UpdatableItem, LikeableItem, SearchableItem, RepostableItem  {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, SearchableItem, RepostableItem  {
 
     protected final PropertySet source;
 
@@ -105,12 +105,6 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Updata
 
     public Urn getUserUrn() {
         return getReposter().isPresent() && getReposterUrn().isPresent() ? getReposterUrn().get() : getCreatorUrn();
-    }
-
-    @Override
-    public PlayableItem updated(PropertySet playableData) {
-        this.source.update(playableData);
-        return this;
     }
 
     @Override

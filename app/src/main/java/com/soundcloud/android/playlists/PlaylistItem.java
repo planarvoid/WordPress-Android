@@ -4,7 +4,6 @@ import static com.soundcloud.android.utils.DateUtils.yearFromDateString;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.EntityProperty;
@@ -119,12 +118,6 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
     }
 
     @Override
-    public PlaylistItem updated(PropertySet playableData) {
-        super.updated(playableData);
-        return this;
-    }
-
-    @Override
     public PlaylistItem updatedWithOfflineState(OfflineState offlineState) {
         super.updatedWithOfflineState(offlineState);
         return this;
@@ -153,7 +146,7 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
     }
 
     @Override
-    public UpdatablePlaylistItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
+    public PlaylistItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
         return playlistItem;
     }
 
@@ -250,10 +243,6 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).addValue(source).toString();
-    }
-
-    public EntityStateChangedEvent toUpdateEvent() {
-        return EntityStateChangedEvent.forUpdate(source);
     }
 
     @Override

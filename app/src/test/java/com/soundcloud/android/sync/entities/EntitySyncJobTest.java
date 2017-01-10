@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.sync.commands.PublishUpdateEventCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -27,12 +28,12 @@ public class EntitySyncJobTest extends AndroidUnitTest {
 
     @Mock private BulkFetchCommand fetchResources;
     @Mock private StoreTracksCommand storeResources;
-    @Mock private PublishUpdateEvent<ApiTrack> publishUpdateEvent;
+    @Mock private PublishUpdateEventCommand<ApiTrack> publishUpdateEventCommand;
     @Captor private ArgumentCaptor<Collection<ApiTrack>> collectionArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        entitySyncJob = new EntitySyncJob(fetchResources, storeResources, publishUpdateEvent);
+        entitySyncJob = new EntitySyncJob(fetchResources, storeResources, publishUpdateEventCommand);
     }
 
     @Test
@@ -55,7 +56,7 @@ public class EntitySyncJobTest extends AndroidUnitTest {
         entitySyncJob.run();
 
         entitySyncJob.publishSyncEvent();
-        verify(publishUpdateEvent).call(collectionArgumentCaptor.capture());
+        verify(publishUpdateEventCommand).call(collectionArgumentCaptor.capture());
         assertThat(collectionArgumentCaptor.getValue()).containsExactly(tracks.get(0), tracks.get(1));
     }
 

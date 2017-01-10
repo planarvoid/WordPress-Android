@@ -1,8 +1,8 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
+import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
@@ -20,7 +20,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.RepoUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -109,8 +109,7 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
 
-                eventBus.subscribe(ENTITY_STATE_CHANGED,
-                                   new UpdateEntityListSubscriber(adapter))
+                eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter))
         );
     }
 

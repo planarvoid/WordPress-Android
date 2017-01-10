@@ -1,21 +1,20 @@
-package com.soundcloud.android.sync.playlists;
+package com.soundcloud.android.sync.commands;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.sync.entities.PublishUpdateEvent;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
 import java.util.Collection;
 
-public class PublishPlaylistUpdateEvent extends PublishUpdateEvent<ApiPlaylist> {
+public class PublishPlaylistUpdateEventCommand extends PublishUpdateEventCommand<ApiPlaylist> {
     private final EventBus eventBus;
 
     @Inject
-    public PublishPlaylistUpdateEvent(EventBus eventBus) {
+    public PublishPlaylistUpdateEventCommand(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 

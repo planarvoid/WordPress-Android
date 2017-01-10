@@ -3,11 +3,9 @@ package com.soundcloud.android.api.model;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserRecordHolder;
 import com.soundcloud.java.objects.MoreObjects;
@@ -272,12 +270,6 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     public UserRecord getUserRecord() {
         return this;
     }
-
-    @Override
-    public EntityStateChangedEvent toUpdateEvent() {
-        return UserItem.from(this).toUpdateEvent();
-    }
-
 
     public String getFirstName() {
         return firstName;

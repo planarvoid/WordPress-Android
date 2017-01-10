@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserItem;
@@ -94,7 +95,6 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
 
         operations.userProfile(userUrn).subscribe(subscriber);
 
-        verify(eventBus).publish(EventQueue.ENTITY_STATE_CHANGED,
-                                 user.toUpdateEvent());
+        verify(eventBus).publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(user));
     }
 }

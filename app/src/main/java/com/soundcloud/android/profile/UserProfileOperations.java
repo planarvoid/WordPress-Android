@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.PagedCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
@@ -284,6 +285,6 @@ public class UserProfileOperations {
     }
 
     private Action1<UserProfile> publishEntityChanged() {
-        return userProfile -> eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, userProfile.getUser().toEntityStateChangedEvent());
+        return userProfile -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(userProfile.getUser()));
     }
 }

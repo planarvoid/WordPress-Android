@@ -2,12 +2,10 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
 import com.soundcloud.java.objects.MoreObjects;
@@ -237,10 +235,5 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
         void setStats(PlayableStats stats) {
             this.stats = stats;
         }
-    }
-
-    @Override
-    public EntityStateChangedEvent toUpdateEvent() {
-        return PlaylistItem.from(this).toUpdateEvent();
     }
 }

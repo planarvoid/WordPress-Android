@@ -6,11 +6,11 @@ import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.events.TrackChangedEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -63,7 +63,7 @@ public class PlayerWidgetController {
     }
 
     public void subscribe() {
-        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackMetadataChangeSubscriber());
+        eventBus.subscribe(EventQueue.TRACK_CHANGED, new TrackMetadataChangeSubscriber());
         eventBus.subscribe(EventQueue.LIKE_CHANGED, new TrackLikeChangeSubscriber());
         eventBus.subscribe(EventQueue.REPOST_CHANGED, new TrackRepostChangeSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
@@ -154,11 +154,15 @@ public class PlayerWidgetController {
         }
     }
 
-    private final class TrackMetadataChangeSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private final class TrackMetadataChangeSubscriber extends DefaultSubscriber<TrackChangedEvent> {
         @Override
-        public void onNext(final EntityStateChangedEvent event) {
-            if (!playQueueManager.isQueueEmpty() && playQueueManager.isCurrentTrack(event.getFirstUrn())) {
-                updatePlayableInformation(track -> track.updated(event.getNextChangeSet()));
+        public void onNext(final TrackChangedEvent event) {
+            if (!playQueueManager.isQueueEmpty()) {
+                for (TrackItem trackItem : event.changeMap().values()) {
+                    if (playQueueManager.isCurrentTrack(trackItem.getUrn())) {
+                        updatePlayableInformation(track -> track.updatedWithTrackItem(trackItem));
+                    }
+                }
             }
         }
     }

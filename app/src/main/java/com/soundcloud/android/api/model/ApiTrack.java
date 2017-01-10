@@ -2,11 +2,9 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
 import com.soundcloud.android.users.UserRecord;
@@ -345,11 +343,6 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     @Override
     public TrackRecord getTrackRecord() {
         return this;
-    }
-
-    @Override
-    public EntityStateChangedEvent toUpdateEvent() {
-        return TrackItem.from(this).toUpdateEvent();
     }
 
     private static class RelatedResources {

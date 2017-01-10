@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.EntityProperty;
@@ -13,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -26,7 +26,7 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrackItem extends PlayableItem implements TieredTrack {
+public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTrackItem {
 
     public static final TrackItem EMPTY = new TrackItem(
             PropertySet.from(
@@ -129,13 +129,8 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     }
 
     @Override
-    public TrackItem updated(PropertySet playableData) {
-        super.updated(playableData);
-        return this;
-    }
-
-    public TrackItem updated(TrackItem trackItem) {
-        return updated(trackItem.source);
+    public TrackItem updatedWithTrackItem(TrackItem trackItem) {
+        return trackItem;
     }
 
     @Override
@@ -256,10 +251,6 @@ public class TrackItem extends PlayableItem implements TieredTrack {
             return true;
         }
         return false;
-    }
-
-    public EntityStateChangedEvent toUpdateEvent() {
-        return EntityStateChangedEvent.forUpdate(source);
     }
 
     public void setAd(boolean ad) {

@@ -10,12 +10,10 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -37,7 +35,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -166,13 +163,10 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
-        foregroundSubscription = new CompositeSubscription(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber()),
-                                                           eventBus.queue(EventQueue.PLAYLIST_CHANGED)
-                                                                   .filter(event -> headerItem != null
-                                                                           && event instanceof PlaylistTrackCountChangedEvent
-                                                                           && event.changeMap().containsKey(headerItem.getUrn()))
+        foregroundSubscription = new CompositeSubscription(eventBus.queue(EventQueue.PLAYLIST_CHANGED)
+                                                                   .filter(event -> headerItem != null && event.changeMap().containsKey(headerItem.getUrn()))
                                                                    .subscribe(event -> {
-                                                                       headerItem = headerItem.update(((PlaylistTrackCountChangedEvent) event).changeMap().get(headerItem.getUrn()));
+                                                                       headerItem = (PlaylistWithTracks) event.apply(headerItem);
                                                                    }),
                                                            eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()),
                                                            eventBus.subscribe(EventQueue.REPOST_CHANGED, new PlaylistRepostsSubscriber()));
@@ -467,16 +461,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             playlistEngagementsView.showNoWifi();
         } else if (!connectionHelper.isNetworkConnected()) {
             playlistEngagementsView.showNoConnection();
-        }
-    }
-
-    private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(EntityStateChangedEvent event) {
-            if (headerItem != null && headerItem.getUrn().equals(event.getFirstUrn())) {
-                final PropertySet changeSet = event.getNextChangeSet();
-                headerItem = headerItem.update(changeSet);
-            }
         }
     }
 

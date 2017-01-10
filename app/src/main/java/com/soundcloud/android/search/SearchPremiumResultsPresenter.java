@@ -1,11 +1,12 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.FOLLOWING_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
+import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
+import static com.soundcloud.android.events.EventQueue.USER_CHANGED;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY;
@@ -28,8 +29,9 @@ import com.soundcloud.android.view.adapters.FollowEntityListSubscriber;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdatePlaylistListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateUserListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -114,8 +116,9 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         super.onViewCreated(fragment, view, savedInstanceState);
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
-                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
                 eventBus.subscribe(PLAYLIST_CHANGED, new UpdatePlaylistListSubscriber(adapter)),
+                eventBus.subscribe(USER_CHANGED, new UpdateUserListSubscriber(adapter)),
                 eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
                 eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 eventBus.subscribe(FOLLOWING_CHANGED, new FollowEntityListSubscriber(adapter))

@@ -6,12 +6,11 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
-import com.soundcloud.android.presentation.UpdatableItem;
+import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 
 @AutoValue
-abstract class PlayHistoryItemTrack extends PlayHistoryItem implements UpdatableItem, LikeableItem, RepostableItem {
+abstract class PlayHistoryItemTrack extends PlayHistoryItem implements UpdatableTrackItem, LikeableItem, RepostableItem {
 
     static PlayHistoryItemTrack create(TrackItem trackItem) {
         return new AutoValue_PlayHistoryItemTrack(Kind.PlayHistoryTrack, trackItem);
@@ -25,8 +24,8 @@ abstract class PlayHistoryItemTrack extends PlayHistoryItem implements Updatable
     }
 
     @Override
-    public PlayHistoryItemTrack updated(PropertySet sourceSet) {
-        return create(trackItem().updated(sourceSet));
+    public PlayHistoryItemTrack updatedWithTrackItem(TrackItem trackItem) {
+        return create(trackItem);
     }
 
     @Override

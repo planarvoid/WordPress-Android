@@ -7,6 +7,7 @@ import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.sync.commands.PublishUpdateEventCommand;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 
@@ -26,7 +27,7 @@ public class EntitySyncJob implements SyncJob {
     private Exception exception;
 
     @Inject
-    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable> fetchResources, WriteStorageCommand storeResources, PublishUpdateEvent publishSyncEvent) {
+    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable> fetchResources, WriteStorageCommand storeResources, PublishUpdateEventCommand publishSyncEvent) {
         this.fetchResources = fetchResources;
         this.storeResources = storeResources;
         this.publishSyncEvent = publishSyncEvent;

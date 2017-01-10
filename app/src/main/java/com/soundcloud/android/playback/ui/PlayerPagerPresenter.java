@@ -11,7 +11,6 @@ import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -248,15 +247,10 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     }
 
     private void setupTrackChangedSubscriber() {
-        backgroundSubscription.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                                           .filter(EntityStateChangedEvent::containsTrackChange)
+        backgroundSubscription.add(eventBus.queue(EventQueue.TRACK_CHANGED)
+                                           .flatMap(event -> Observable.from(event.changeMap().keySet()))
                                            .observeOn(AndroidSchedulers.mainThread())
-                                           .subscribe(event -> {
-                                               for (Urn urn : event.getChangeMap().keySet()) {
-                                                   trackObservableCache.remove(urn);
-                                               }
-                                           }
-                                           ));
+                                           .subscribe(trackObservableCache::remove));
     }
 
     private void setupTrackRepostChangedSubscriber() {

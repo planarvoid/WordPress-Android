@@ -5,10 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -308,10 +306,5 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     @Override
     public Optional<String> getImageUrlTemplate() {
         return imageUrlToTemplate(avatar_url);
-    }
-
-    @Override
-    public EntityStateChangedEvent toUpdateEvent() {
-        return UserItem.from(this).toUpdateEvent();
     }
 }

@@ -10,13 +10,12 @@ import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RepostableItem;
-import com.soundcloud.android.presentation.UpdatableItem;
+import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
-class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, ListItem, OfflineItem, UpdatableItem, LikeableItem, RepostableItem {
+class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, ListItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
 
     private final TrackItem trackItem;
 
@@ -40,8 +39,8 @@ class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, Li
     }
 
     @Override
-    public TrackLikesTrackItem updated(PropertySet sourceSet) {
-        return new TrackLikesTrackItem(trackItem.updated(sourceSet));
+    public TrackLikesTrackItem updatedWithTrackItem(TrackItem trackItem) {
+        return new TrackLikesTrackItem(trackItem);
     }
 
     @Override

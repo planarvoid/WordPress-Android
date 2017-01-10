@@ -6,7 +6,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
@@ -39,7 +38,6 @@ public class FollowingOperationsTest extends AndroidUnitTest {
     @Mock private UserAssociationStorage userAssociationStorage;
     @Mock private EventBus mockEventBus;
     @Captor private ArgumentCaptor<UpdateFollowingParams> commandParamsCaptor;
-    @Captor private ArgumentCaptor<EntityStateChangedEvent> entityStateChangedEventArgumentCaptor;
     @Captor private ArgumentCaptor<FollowingStatusEvent> followingChangedEventArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();

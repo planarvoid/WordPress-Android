@@ -190,7 +190,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void playNextIsDisabledWhenTrackIsBlocked() throws Exception {
-        trackItem.updated(PropertySet.from(TrackProperty.BLOCKED.bind(true)));
+        trackItem.setBlocked(true);
 
         presenter.show(activity, view, trackItem, 0);
 

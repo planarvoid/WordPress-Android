@@ -6,10 +6,10 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +19,7 @@ import android.support.annotation.NonNull;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class PlaylistWithTracks implements ImageResource {
+public class PlaylistWithTracks implements ImageResource, UpdatablePlaylistItem {
 
     @NotNull private final PlaylistItem playlistItem;
     @NotNull private final List<TrackItem> tracks;
@@ -138,12 +138,19 @@ public class PlaylistWithTracks implements ImageResource {
         return playlistItem.getPermalinkUrl();
     }
 
-    public PlaylistWithTracks update(PropertySet source) {
-        return new PlaylistWithTracks(this.playlistItem.updated(source), tracks);
+    @Override
+    public PlaylistWithTracks updatedWithTrackCount(int trackCount) {
+        return new PlaylistWithTracks(this.playlistItem.updatedWithTrackCount(trackCount), tracks);
     }
 
-    public PlaylistWithTracks update(int trackCount) {
-        return new PlaylistWithTracks(this.playlistItem.updatedWithTrackCount(trackCount), tracks);
+    @Override
+    public PlaylistWithTracks updatedWithMarkedForOffline(boolean markedForOffline) {
+        return new PlaylistWithTracks(this.playlistItem.updatedWithMarkedForOffline(markedForOffline), tracks);
+    }
+
+    @Override
+    public PlaylistWithTracks updatedWithPlaylistItem(PlaylistItem newItem) {
+        return new PlaylistWithTracks(this.playlistItem.updatedWithPlaylistItem(newItem), tracks);
     }
 
     public PlaylistWithTracks updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {

@@ -6,7 +6,9 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.android.sync.commands.FetchUsersCommand;
-import com.soundcloud.android.sync.playlists.PublishPlaylistUpdateEvent;
+import com.soundcloud.android.sync.commands.PublishPlaylistUpdateEventCommand;
+import com.soundcloud.android.sync.commands.PublishTrackUpdateEventCommand;
+import com.soundcloud.android.sync.commands.PublishUserUpdateEventCommand;
 import dagger.Module;
 import dagger.Provides;
 
@@ -21,19 +23,19 @@ public class EntitySyncModule {
 
     @Provides
     @Named(TRACKS_SYNC)
-    EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks, LegacyPublishEntityUpdateEvent legacyPublishEntityUpdateEvent) {
-        return new EntitySyncJob(fetchTracks, storeTracks, legacyPublishEntityUpdateEvent);
+    EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks, PublishTrackUpdateEventCommand publishTracksUpdateEvent) {
+        return new EntitySyncJob(fetchTracks, storeTracks, publishTracksUpdateEvent);
     }
 
     @Provides
     @Named(PLAYLISTS_SYNC)
-    EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists, PublishPlaylistUpdateEvent publishPlaylistUpdateEvent) {
+    EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists, PublishPlaylistUpdateEventCommand publishPlaylistUpdateEvent) {
         return new EntitySyncJob(fetchPlaylists, storePlaylists, publishPlaylistUpdateEvent);
     }
 
     @Provides
     @Named(USERS_SYNC)
-    EntitySyncJob provideUsersSyncJob(FetchUsersCommand fetchUsers, StoreUsersCommand storeUsers, LegacyPublishEntityUpdateEvent legacyPublishEntityUpdateEvent) {
-        return new EntitySyncJob(fetchUsers, storeUsers, legacyPublishEntityUpdateEvent);
+    EntitySyncJob provideUsersSyncJob(FetchUsersCommand fetchUsers, StoreUsersCommand storeUsers, PublishUserUpdateEventCommand publishUserUpdateEvent) {
+        return new EntitySyncJob(fetchUsers, storeUsers, publishUserUpdateEvent);
     }
 }

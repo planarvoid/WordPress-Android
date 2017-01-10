@@ -89,8 +89,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
         refreshUser();
 
-        userUpdatedSubscription = new CompositeSubscription(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                                                                    .filter(entityStateChangedEvent -> entityStateChangedEvent.getChangeMap().containsKey(user))
+        userUpdatedSubscription = new CompositeSubscription(eventBus.queue(EventQueue.USER_CHANGED)
+                                                                    .filter(entityStateChangedEvent -> entityStateChangedEvent.changeMap().containsKey(user))
                                                                     .subscribe(event -> refreshUser()),
                                                             eventBus.queue(EventQueue.FOLLOWING_CHANGED)
                                                                     .filter(event -> event.urn().equals(user))

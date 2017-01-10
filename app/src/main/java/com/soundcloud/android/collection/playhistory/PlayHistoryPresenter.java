@@ -1,10 +1,10 @@
 package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
+import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
@@ -30,7 +30,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -144,7 +144,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
                 eventBus.queue(OFFLINE_CONTENT_CHANGED)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new CurrentDownloadSubscriber()),
-                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
                 eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
                 eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()

@@ -20,7 +20,6 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -31,7 +30,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -279,10 +277,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private PlaylistItem repostedPlaylist() {
         final PlaylistItem playlistItem = postedPlaylist();
-        playlistItem.updated(PropertySet.from(
-                PostProperty.REPOSTER.bind("reposter"),
-                PostProperty.REPOSTER_URN.bind(Urn.forUser(123L))
-        ));
+        playlistItem.setReposter("reposter");
+        playlistItem.setReposterUrn(Urn.forUser(123L));
         return playlistItem;
     }
 
@@ -295,10 +291,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private TrackItem repostedTrack() {
         final TrackItem trackItem = postedTrack();
-        trackItem.updated(PropertySet.from(
-                PostProperty.REPOSTER.bind("reposter"),
-                PostProperty.REPOSTER_URN.bind(Urn.forUser(123L))
-        ));
+        trackItem.setReposter("reposter");
+        trackItem.setReposterUrn(Urn.forUser(123L));
         return trackItem;
     }
 

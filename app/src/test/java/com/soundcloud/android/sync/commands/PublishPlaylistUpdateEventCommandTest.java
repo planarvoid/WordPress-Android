@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.playlists;
+package com.soundcloud.android.sync.commands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,23 +22,23 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 
-public class PublishPlaylistUpdateEventTest extends AndroidUnitTest {
+public class PublishPlaylistUpdateEventCommandTest extends AndroidUnitTest {
 
     @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<PlaylistEntityChangedEvent> playlistEntityChangedEventArgumentCaptor;
 
-    private PublishPlaylistUpdateEvent publishPlaylistUpdateEvent;
+    private PublishPlaylistUpdateEventCommand publishPlaylistUpdateEventCommand;
 
     @Before
     public void setUp() throws Exception {
-        publishPlaylistUpdateEvent = new PublishPlaylistUpdateEvent(eventBus);
+        publishPlaylistUpdateEventCommand = new PublishPlaylistUpdateEventCommand(eventBus);
     }
 
     @Test
     public void sendsConvertedPlaylistItem() throws Exception {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
-        publishPlaylistUpdateEvent.call(Collections.singletonList(apiPlaylist));
+        publishPlaylistUpdateEventCommand.call(Collections.singletonList(apiPlaylist));
 
         verify(eventBus).publish(eq(EventQueue.PLAYLIST_CHANGED), playlistEntityChangedEventArgumentCaptor.capture());
         final PlaylistEntityChangedEvent changedEvent = playlistEntityChangedEventArgumentCaptor.getValue();
@@ -48,7 +48,7 @@ public class PublishPlaylistUpdateEventTest extends AndroidUnitTest {
 
     @Test
     public void doesNotSendEmptyEvent() throws Exception {
-        publishPlaylistUpdateEvent.call(Collections.emptyList());
+        publishPlaylistUpdateEventCommand.call(Collections.emptyList());
 
         verify(eventBus, never()).publish(eq(EventQueue.PLAYLIST_CHANGED), any(PlaylistChangedEvent.class));
     }

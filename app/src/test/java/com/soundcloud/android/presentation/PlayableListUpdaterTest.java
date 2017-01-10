@@ -6,15 +6,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.TrackChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -22,7 +22,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +31,7 @@ import android.support.v4.app.Fragment;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PlayableListUpdaterTest extends AndroidUnitTest {
@@ -110,12 +110,15 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     public void entityChangedEventUpdatesItemWithTheSameUrnAndNotifiesAdapter() throws Exception {
         TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
         TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        final EntityStateChangedEvent entityStateChangedEvent = getEntityStateChangedEvent(track1, track2);
+        List<PlayableItem> trackItems = Lists.newArrayList(track1, track2);
+        final TrackChangedEvent trackChangedEvent = getTrackChangedEvent(track1.getUrn(), trackItems);
 
         updater.onCreate(fragment, null);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
+        eventBus.publish(EventQueue.TRACK_CHANGED, trackChangedEvent);
 
-        assertThat(track1.getCreatorName()).isEqualTo(UPDATED_CREATOR);
+
+        assertThat(trackItems.get(0).getUrn()).isEqualTo(track1.getUrn());
+        assertThat(trackItems.get(0).getCreatorName()).isEqualTo(UPDATED_CREATOR);
         verify(adapter).notifyItemChanged(0);
     }
 
@@ -123,14 +126,16 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     public void entityChangedEventDoesNotUpdateItemAfterOnDestroy() throws Exception {
         TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
         TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        final EntityStateChangedEvent entityStateChangedEvent = getEntityStateChangedEvent(track1, track2);
+        List<PlayableItem> trackItems = Lists.newArrayList(track1, track2);
+        final TrackChangedEvent trackChangedEvent = getTrackChangedEvent(track1.getUrn(), trackItems);
 
         updater.onCreate(fragment, null);
         updater.onDestroy(fragment);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
+        eventBus.publish(EventQueue.TRACK_CHANGED, trackChangedEvent);
 
-        assertThat(track1.getCreatorName()).isNotEqualTo(UPDATED_CREATOR);
+        assertThat(trackItems.get(0).getUrn()).isEqualTo(track1.getUrn());
+        assertThat(trackItems.get(0).getCreatorName()).isNotEqualTo(UPDATED_CREATOR);
         verify(adapter, never()).notifyItemChanged(anyInt());
     }
 
@@ -144,8 +149,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        final EntityStateChangedEvent event = changeSet.toUpdateEvent();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
+        final TrackChangedEvent event = TrackChangedEvent.forUpdate(changeSet);
+        eventBus.publish(EventQueue.TRACK_CHANGED, event);
 
         verify(adapter, never()).notifyItemChanged(anyInt());
 
@@ -224,13 +229,12 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         return trackItem;
     }
 
-    private EntityStateChangedEvent getEntityStateChangedEvent(TrackItem track1, TrackItem track2) {
-        PropertySet changeSet = PropertySet.from(
-                PlayableProperty.URN.bind(track1.getUrn()),
-                PlayableProperty.CREATOR_NAME.bind(UPDATED_CREATOR));
-
-        when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
-        return EntityStateChangedEvent.forUpdate(changeSet);
+    private TrackChangedEvent getTrackChangedEvent(Urn updatedItemUrn, List<PlayableItem> trackItems) {
+        final TrackItem updatedTrack = ModelFixtures.trackItem();
+        updatedTrack.setUrn(updatedItemUrn);
+        updatedTrack.setCreatorName(UPDATED_CREATOR);
+        when(adapter.getItems()).thenReturn(trackItems);
+        return TrackChangedEvent.forUpdate(updatedTrack);
     }
 
     private PlaylistChangedEvent getPlaylistChangedEvent(PlaylistItem playlist1, PlaylistItem playlist2) {
