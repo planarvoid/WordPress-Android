@@ -44,10 +44,10 @@ public class OfflineContentController {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    public OfflineContentController(EventBus eventBus,
-                                    OfflineSettingsStorage settingsStorage,
-                                    OfflineServiceInitiator serviceInitiator,
-                                    OfflineContentOperations offlineContentOperations) {
+    OfflineContentController(EventBus eventBus,
+                             OfflineSettingsStorage settingsStorage,
+                             OfflineServiceInitiator serviceInitiator,
+                             OfflineContentOperations offlineContentOperations) {
         this.serviceInitiator = serviceInitiator;
         this.eventBus = eventBus;
         this.offlineContentOperations = offlineContentOperations;

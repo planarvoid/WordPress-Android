@@ -13,8 +13,8 @@ public class ConfigurationFeatureController {
     private final Observable<Boolean> offlineSyncFeatureUpdatesObservable;
 
     @Inject
-    public ConfigurationFeatureController(OfflineContentController offlineContentController,
-                                          FeatureOperations featureOperations) {
+    ConfigurationFeatureController(OfflineContentController offlineContentController,
+                                   FeatureOperations featureOperations) {
         this.offlineContentController = offlineContentController;
         this.featureOperations = featureOperations;
         this.offlineSyncFeatureUpdatesObservable = featureOperations.offlineContentEnabled();

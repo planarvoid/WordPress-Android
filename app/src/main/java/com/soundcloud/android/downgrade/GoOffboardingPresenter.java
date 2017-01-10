@@ -21,7 +21,7 @@ import javax.inject.Inject;
 
 class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> {
 
-    enum StrategyContext {
+    private enum StrategyContext {
         USER_NO_ACTION, USER_CONTINUE, USER_RESUBSCRIBE
     }
 

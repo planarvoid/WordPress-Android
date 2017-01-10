@@ -131,8 +131,7 @@ public class ConfigurationOperations {
     }
 
     Observable<Configuration> awaitConfigurationFromPendingPlanChange() {
-        //TODO: account for mid-tier
-        if (isPendingHighTierUpgrade()) {
+        if (isPendingUpgrade()) {
             return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanUpgrade());
         } else if (isPendingDowngrade()) {
             return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanDowngrade());
@@ -197,12 +196,14 @@ public class ConfigurationOperations {
         featureOperations.updatePlan(configuration.getUserPlan());
     }
 
-    boolean isPendingHighTierUpgrade() {
-        return configurationSettingsStorage.getPendingPlanUpgrade() == Plan.HIGH_TIER;
+    boolean isPendingUpgrade() {
+        final Plan pendingPlan = configurationSettingsStorage.getPendingPlanUpgrade();
+        return pendingPlan == Plan.MID_TIER || pendingPlan == Plan.HIGH_TIER;
     }
 
     boolean isPendingDowngrade() {
-        return configurationSettingsStorage.getPendingPlanDowngrade() != Plan.UNDEFINED;
+        final Plan pendingPlan = configurationSettingsStorage.getPendingPlanDowngrade();
+        return pendingPlan == Plan.FREE_TIER || pendingPlan == Plan.MID_TIER;
     }
 
     void clearPendingPlanChanges() {

@@ -3,6 +3,7 @@ package com.soundcloud.android.upgrade;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -118,7 +119,8 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
-            subscription = planChangeOperations.awaitAccountUpgrade()
+            // TODO: Pass mid-tier plan if we're onboarding to mid rather than high tier
+            subscription = planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)
                                                .observeOn(AndroidSchedulers.mainThread())
                                                .subscribe(new UpgradeCompleteSubscriber());
             return strategy;

@@ -12,8 +12,6 @@ import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Action1;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -24,11 +22,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PolicyOperations {
+
     public static final long POLICY_STALE_AGE_MILLISECONDS = TimeUnit.HOURS.toMillis(24);
-
-    private static final Func1<ApiPolicyInfo, Urn> TO_TRACK_URN = policy -> policy.getUrn();
-
-    private static final Func1<ApiPolicyInfo, Boolean> FILTER_MONETIZABLE = policy -> !policy.isMonetizable();
 
     private final ClearTableCommand clearTableCommand;
     private final UpdatePoliciesCommand updatePoliciesCommand;
@@ -36,13 +31,6 @@ public class PolicyOperations {
     private final Scheduler scheduler;
     private final PolicyStorage policyStorage;
     private final EventBus eventBus;
-    private final Action1<List<Urn>> clearTrackPolicies = new Action1<List<Urn>>() {
-        @Override
-        public void call(List<Urn> urns) {
-            clearTableCommand.call(Tables.TrackPolicies.TABLE);
-        }
-    };
-    private final Action1<Throwable> handleErrorAction = throwable -> handlePolicyUpdateFailure(throwable, false);
 
     @Inject
     PolicyOperations(ClearTableCommand clearTableCommand, UpdatePoliciesCommand updatePoliciesCommand,
@@ -67,13 +55,13 @@ public class PolicyOperations {
 
     public Observable<List<Urn>> filterMonetizableTracks(Collection<Urn> urns) {
         return fetchAndStorePolicies(urns)
-                .flatMap(RxUtils.<ApiPolicyInfo>iterableToObservable())
-                .filter(FILTER_MONETIZABLE)
-                .map(TO_TRACK_URN)
+                .flatMap(RxUtils.iterableToObservable())
+                .filter(policy -> !policy.isMonetizable())
+                .map(ApiPolicyInfo::getUrn)
                 .toList();
     }
 
-    public List<Urn> updateTrackPolicies() {
+    List<Urn> updateTrackPolicies() {
         try {
             final List<Urn> urns = policyStorage.loadTracksForPolicyUpdate();
             updatePoliciesCommand.call(urns);
@@ -86,16 +74,16 @@ public class PolicyOperations {
 
     public Observable<List<Urn>> refreshedTrackPolicies() {
         return policyStorage.tracksForPolicyUpdate()
-                            .doOnNext(clearTrackPolicies)
+                            .doOnNext(urns -> clearTableCommand.call(Tables.TrackPolicies.TABLE))
                             .flatMap(updatePoliciesCommand.toContinuation())
-                            .flatMap(RxUtils.<ApiPolicyInfo>iterableToObservable())
-                            .map(TO_TRACK_URN)
+                            .flatMap(RxUtils.iterableToObservable())
+                            .map(ApiPolicyInfo::getUrn)
                             .toList()
-                            .doOnError(handleErrorAction)
+                            .doOnError(throwable -> handlePolicyUpdateFailure(throwable, false))
                             .subscribeOn(scheduler);
     }
 
-    public Observable<Long> getMostRecentPolicyUpdateTimestamp() {
+    Observable<Long> getMostRecentPolicyUpdateTimestamp() {
         return loadPolicyUpdateTimeCommand.toObservable(null)
                                           .subscribeOn(scheduler);
     }
@@ -117,4 +105,5 @@ public class PolicyOperations {
                 : PolicyUpdateFailureEvent.fetchFailed(isBackgroundUpdate);
         eventBus.publish(EventQueue.TRACKING, failureEvent);
     }
+
 }

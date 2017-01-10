@@ -3,11 +3,13 @@ package com.soundcloud.android.configuration;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
-import rx.functions.Action0;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
@@ -18,13 +20,7 @@ public class PlanChangeOperations {
     private final OfflineContentOperations offlineContentOperations;
     private final PolicyOperations policyOperations;
     private final PlaySessionController playSessionController;
-
-    private final Action0 clearPendingPlanChangeFlags = new Action0() {
-        @Override
-        public void call() {
-            configurationOperations.clearPendingPlanChanges();
-        }
-    };
+    private final EventBus eventBus;
 
     private Action1<Throwable> clearPendingPlanChangeFlagsIfUnrecoverableError = new Action1<Throwable>() {
         @Override
@@ -36,52 +32,52 @@ public class PlanChangeOperations {
         }
     };
 
-    private final Action0 resetPlaySession = new Action0() {
-        @Override
-        public void call() {
-            playSessionController.resetPlaySession();
-        }
-    };
-
     @Inject
     PlanChangeOperations(ConfigurationOperations configurationOperations,
                          PolicyOperations policyOperations,
                          PlaySessionController playSessionController,
-                         OfflineContentOperations offlineContentOperations) {
+                         OfflineContentOperations offlineContentOperations,
+                         EventBus eventBus) {
         this.configurationOperations = configurationOperations;
         this.policyOperations = policyOperations;
         this.playSessionController = playSessionController;
         this.offlineContentOperations = offlineContentOperations;
+        this.eventBus = eventBus;
     }
 
     public Observable<Object> awaitAccountDowngrade() {
         return configurationOperations.awaitConfigurationFromPendingPlanChange()
-                                      .flatMap(continueWith(offlineContentOperations.resetOfflineFeature()))
+                                      .flatMap(configuration -> configuration.getUserPlan().currentPlan == Plan.FREE_TIER
+                                             ? offlineContentOperations.resetOfflineFeature()
+                                             : Observable.just(configuration))
                                       .compose(new PlanChangedSteps());
     }
 
-    public Observable<Object> awaitAccountUpgrade() {
+    public Observable<Object> awaitAccountUpgrade(Plan plan) {
         Observable<Configuration> updatedConfiguration;
-        if (configurationOperations.isPendingHighTierUpgrade()) {
-            // plan change occurred in background; await that configuration
+        if (configurationOperations.isPendingUpgrade()) {
+            // Plan change occurred in background; await that configuration
             updatedConfiguration = configurationOperations.awaitConfigurationFromPendingPlanChange();
         } else {
-            //TODO: handle mid-tier; right now, this can only be triggered by purchasing a high-tier
-            // sub in the app
-            updatedConfiguration = configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER);
+            updatedConfiguration = configurationOperations.awaitConfigurationWithPlan(plan);
         }
         return updatedConfiguration.compose(new PlanChangedSteps());
     }
 
+    /*
+     * Publishes policy change event, triggering the offline service if we downgraded to mid-tier.
+     * That's a no-op if we downgraded to free, since that config change unsubscribes OfflineContentController.
+     */
     private final class PlanChangedSteps implements Observable.Transformer<Object, Object> {
-
         @Override
         public Observable<Object> call(Observable<Object> source) {
             return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
-                         .doOnSubscribe(resetPlaySession)
-                         .doOnCompleted(clearPendingPlanChangeFlags)
+                         .doOnNext(urns -> eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(urns)))
+                         .doOnSubscribe(playSessionController::resetPlaySession)
+                         .doOnCompleted(configurationOperations::clearPendingPlanChanges)
                          .doOnError(clearPendingPlanChangeFlagsIfUnrecoverableError)
                          .cast(Object.class);
         }
     }
+
 }

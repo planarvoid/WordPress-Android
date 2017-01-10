@@ -33,12 +33,12 @@ public abstract class Configuration {
 
     public static Builder builder() {
         return new AutoValue_Configuration.Builder()
-                .features(Collections.<Feature>emptyList())
-                .userPlan(new UserPlan(Plan.FREE_TIER.planId, Collections.<UserPlan.Upsell>emptyList()))
+                .features(Collections.emptyList())
+                .userPlan(new UserPlan(Plan.FREE_TIER.planId, Collections.emptyList()))
                 .assignment(Assignment.empty())
                 .deviceManagement(new DeviceManagement(true, false))
                 .selfDestruct(false)
-                .imageSizeSpecs(Collections.<String>emptyList());
+                .imageSizeSpecs(Collections.emptyList());
     }
 
     public abstract List<Feature> getFeatures();

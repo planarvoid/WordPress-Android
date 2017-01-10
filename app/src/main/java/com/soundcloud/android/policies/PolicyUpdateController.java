@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatActivity> {
 
-    static final int OFFLINE_DAYS_WARNING_THRESHOLD = 27;
     static final int OFFLINE_DAYS_ERROR_THRESHOLD = 30;
+    private static final int OFFLINE_DAYS_WARNING_THRESHOLD = 27;
 
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;

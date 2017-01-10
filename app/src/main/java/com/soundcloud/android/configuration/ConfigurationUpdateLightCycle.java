@@ -31,7 +31,7 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
     @Override
     public void onStart(AppCompatActivity activity) {
         subscription = eventBus.subscribe(EventQueue.USER_PLAN_CHANGE, new PlanChangeSubscriber(activity));
-        if (configurationManager.isPendingHighTierUpgrade()) {
+        if (configurationManager.isPendingUpgrade()) {
             navigator.resetForAccountUpgrade(activity);
         } else if (configurationManager.isPendingDowngrade()) {
             navigator.resetForAccountDowngrade(activity);

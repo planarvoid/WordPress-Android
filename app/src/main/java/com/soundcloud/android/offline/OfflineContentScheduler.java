@@ -13,12 +13,13 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 
-public class OfflineContentScheduler {
+class OfflineContentScheduler {
 
     @VisibleForTesting
     static final int RETRY_REQUEST_ID = R.id.offline_retry_request_id;
-    static final int CLEANUP_REQUEST_ID = R.id.offline_cleanup_request_id;
     static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
+
+    private static final int CLEANUP_REQUEST_ID = R.id.offline_cleanup_request_id;
 
     private final Context context;
     private final AlarmManager alarmManager;
@@ -27,11 +28,11 @@ public class OfflineContentScheduler {
     private final CurrentDateProvider dateProvider;
 
     @Inject
-    public OfflineContentScheduler(Context context,
-                                   AlarmManager alarmManager,
-                                   ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver,
-                                   DownloadConnectionHelper downloadConnectionHelper,
-                                   CurrentDateProvider dateProvider) {
+    OfflineContentScheduler(Context context,
+                            AlarmManager alarmManager,
+                            ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver,
+                            DownloadConnectionHelper downloadConnectionHelper,
+                            CurrentDateProvider dateProvider) {
         this.context = context;
         this.alarmManager = alarmManager;
         this.resumeOnConnectedReceiver = resumeOnConnectedReceiver;
@@ -39,12 +40,12 @@ public class OfflineContentScheduler {
         this.dateProvider = dateProvider;
     }
 
-    public void cancelPendingRetries() {
+    void cancelPendingRetries() {
         alarmManager.cancel(getPendingIntent(context, RETRY_REQUEST_ID));
         resumeOnConnectedReceiver.unregister();
     }
 
-    public void scheduleRetryForConnectivityError() {
+    void scheduleRetryForConnectivityError() {
         if (downloadConnectionHelper.isDownloadPermitted()) {
             // Connectivity blip
             // Note: this code is not on the server error path. IT is not subject to DDOS.
@@ -54,7 +55,7 @@ public class OfflineContentScheduler {
         }
     }
 
-    public Action1<Object> scheduleCleanupAction() {
+    Action1<Object> scheduleCleanupAction() {
         return ignored -> scheduleStartAt(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY,
                                   CLEANUP_REQUEST_ID);
     }

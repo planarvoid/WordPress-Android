@@ -8,8 +8,8 @@ import java.util.List;
 
 public class UserPlan {
 
-    public final Plan currentPlan;
-    public final List<Upsell> planUpsells;
+    final Plan currentPlan;
+    final List<Upsell> planUpsells;
 
     @JsonCreator
     public UserPlan(@JsonProperty("id") String id,
@@ -21,7 +21,7 @@ public class UserPlan {
     public static class Upsell {
 
         public final String id;
-        public final int trialDays;
+        final int trialDays;
 
         @JsonCreator
         public Upsell(@JsonProperty("id") String id,

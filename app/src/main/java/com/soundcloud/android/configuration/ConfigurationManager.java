@@ -53,8 +53,8 @@ public class ConfigurationManager {
         return configurationOperations.isPendingDowngrade();
     }
 
-    boolean isPendingHighTierUpgrade() {
-        return configurationOperations.isPendingHighTierUpgrade();
+    boolean isPendingUpgrade() {
+        return configurationOperations.isPendingUpgrade();
     }
 
     public boolean shouldDisplayDeviceConflict() {

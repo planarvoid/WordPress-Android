@@ -28,6 +28,7 @@ public class DailyUpdateService extends IntentService {
     @Inject AdIdHelper adIdHelper;
     @Inject EventBus eventBus;
 
+    @SuppressWarnings("unused")
     public DailyUpdateService() {
         super(TAG);
         SoundCloudApplication.getObjectGraph().inject(this);

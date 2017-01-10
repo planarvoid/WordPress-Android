@@ -23,16 +23,16 @@ public class ConfigurationBlueprint {
                                 .assignment(new Assignment(createLayers()))
                                 .deviceManagement(new DeviceManagement(false, true))
                                 .selfDestruct(false)
-                                .imageSizeSpecs(Collections.<String>emptyList())
+                                .imageSizeSpecs(Collections.emptyList())
                                 .build();
         }
     };
 
-    public static List<Feature> createFeatures() {
+    private static List<Feature> createFeatures() {
         return TestFeatures.asList();
     }
 
-    public static List<Layer> createLayers() {
+    static List<Layer> createLayers() {
         final Layer androidUi = new Layer("android-ui", 5, "experiment 5", 3, "variant 3");
         final Layer androidListeningTime = new Layer("android-listen", 3, "experiment 3", 9, "variant 9");
 

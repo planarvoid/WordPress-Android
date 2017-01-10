@@ -21,7 +21,6 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.configuration.UserPlan.Upsell;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageConfigurationStorage;
@@ -40,7 +39,6 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.TestScheduler;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperationsTest extends AndroidUnitTest {
@@ -88,7 +86,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updateReturnsConfiguration() throws Exception {
-        final Configuration noPlan = getNoPlanConfiguration();
+        final Configuration noPlan = TestConfiguration.free();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(noPlan);
 
         operations.update().subscribe(configSubscriber);
@@ -100,7 +98,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updateIfNecessaryUpdatesConfigurationIfLastUpdateTooLongAgo() throws Exception {
-        final Configuration noPlan = getNoPlanConfiguration();
+        final Configuration noPlan = TestConfiguration.free();
         when(configurationSettingsStorage.getLastConfigurationCheckTime())
                 .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS - 1);
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
@@ -138,7 +136,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationWithPlanReturnsExpectedConfigurationOnFirstAttempt() throws Exception {
-        final Configuration highTier = getHighTierConfiguration();
+        final Configuration highTier = TestConfiguration.highTier();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(highTier);
 
@@ -151,8 +149,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationWithPlanStopsPollingWhenExpectedPlanIsReturned() throws Exception {
-        final Configuration noPlan = getNoPlanConfiguration();
-        final Configuration withPlan = getHighTierConfiguration();
+        final Configuration noPlan = TestConfiguration.free();
+        final Configuration withPlan = TestConfiguration.highTier();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(noPlan, withPlan);
 
@@ -169,7 +167,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationWithPlanSavesConfigurationWhenExpectedPlanIsReturned() throws Exception {
-        final Configuration withPlan = getHighTierConfiguration();
+        final Configuration withPlan = TestConfiguration.highTier();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(withPlan);
 
@@ -181,7 +179,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationWithPlanFailsAfterThreeAttempts() {
-        final Configuration noPlan = getNoPlanConfiguration();
+        final Configuration noPlan = TestConfiguration.free();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(
                 noPlan));
 
@@ -193,7 +191,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationWithPlanDoesNotSaveConfigurationIfFailed() {
-        final Configuration noPlan = getNoPlanConfiguration();
+        final Configuration noPlan = TestConfiguration.free();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(
                 noPlan));
 
@@ -219,7 +217,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void awaitConfigurationFromPendingPlanChangeAwaitsPendingHighTierUpgrade() throws Exception {
         when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.HIGH_TIER);
-        final Configuration highTier = getHighTierConfiguration();
+        final Configuration highTier = TestConfiguration.highTier();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(highTier);
 
@@ -233,7 +231,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void awaitConfigurationFromPendingPlanChangeAwaitsPendingDowngrade() throws Exception {
         when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.FREE_TIER);
-        final Configuration noPlan = getNoPlanConfiguration();
+        final Configuration noPlan = TestConfiguration.free();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(noPlan);
 
@@ -247,7 +245,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void awaitConfigurationFromPendingPlanChangeCompletesImmediatelyIfNoPendingChange() {
         when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.UNDEFINED);
-        final Configuration noPlan = getNoPlanConfiguration();
+        final Configuration noPlan = TestConfiguration.free();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(noPlan));
 
@@ -323,7 +321,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void saveConfigurationStoresUserPlan() {
         final Configuration configuration = Configuration.builder()
-                                                         .userPlan(getHighTierConfiguration().getUserPlan())
+                                                         .userPlan(TestConfiguration.highTier().getUserPlan())
                                                          .build();
 
         operations.saveConfiguration(configuration);
@@ -356,7 +354,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void savingConfigurationStoresLastUpdateTimestamp() {
         final long now = System.currentTimeMillis();
-        final Configuration authorized = getHighTierConfiguration();
+        final Configuration authorized = TestConfiguration.highTier();
 
         operations.saveConfiguration(authorized);
 
@@ -364,17 +362,37 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void hasPendingHighTierPlanUpgrade() {
+    public void hasPendingHighTierUpgrade() {
         when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.HIGH_TIER);
-        assertThat(operations.isPendingHighTierUpgrade()).isTrue();
-        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.UNDEFINED);
-        assertThat(operations.isPendingHighTierUpgrade()).isFalse();
+        assertThat(operations.isPendingUpgrade()).isTrue();
     }
 
     @Test
-    public void hasPendingPlanDowngrade() {
+    public void hasPendingHMidTierUpgrade() {
+        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.MID_TIER);
+        assertThat(operations.isPendingUpgrade()).isTrue();
+    }
+
+    @Test
+    public void hasNoPendingUpgrade() {
+        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.UNDEFINED);
+        assertThat(operations.isPendingUpgrade()).isFalse();
+    }
+
+    @Test
+    public void hasPendingFreeDowngrade() {
         when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.FREE_TIER);
         assertThat(operations.isPendingDowngrade()).isTrue();
+    }
+
+    @Test
+    public void hasPendingMidTierDowngrade() {
+        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.MID_TIER);
+        assertThat(operations.isPendingDowngrade()).isTrue();
+    }
+
+    @Test
+    public void hasNoPendingDowngrade() {
         when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.UNDEFINED);
         assertThat(operations.isPendingDowngrade()).isFalse();
     }
@@ -404,16 +422,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.saveConfiguration(configuration);
 
         verify(forceUpdateHandler).checkForForcedUpdate(configuration);
-    }
-
-    private Configuration getNoPlanConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<Upsell>emptyList());
-        return Configuration.builder().userPlan(userPlan).build();
-    }
-
-    private Configuration getHighTierConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<Upsell>emptyList());
-        return Configuration.builder().userPlan(userPlan).build();
     }
 
 }
