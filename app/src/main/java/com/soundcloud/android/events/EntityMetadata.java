@@ -76,7 +76,7 @@ public class EntityMetadata {
         }
 
         return new EntityMetadata(
-                userItem.getName(),
+                userItem.name(),
                 userItem.getUrn(),
                 Strings.EMPTY,
                 Urn.NOT_SET);

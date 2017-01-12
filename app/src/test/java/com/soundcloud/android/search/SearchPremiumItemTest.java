@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -57,7 +58,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildUserAsFirstItem() {
-        final UserItem userItem = UserItem.from(PropertySet.create().put(EntityProperty.URN, USER_URN));
+        final UserItem userItem = ModelFixtures.create(UserItem.class).copyWithUrn(USER_URN);
         searchPremiumItem = buildWithTrackItem(userItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(UserItem.class);

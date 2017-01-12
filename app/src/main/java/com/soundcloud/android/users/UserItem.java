@@ -1,129 +1,58 @@
 package com.soundcloud.android.users;
 
+import auto.parcel.AutoParcel;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.FollowableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.search.SearchableItem;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
-import rx.functions.Func1;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-public class UserItem implements ListItem, FollowableItem, SearchableItem {
-
-    protected final PropertySet source;
+@AutoParcel
+public abstract class UserItem implements ListItem, FollowableItem, SearchableItem {
 
     public static UserItem from(PropertySet source) {
-        return new UserItem(source);
+        return create(source.get(UserProperty.URN),
+                      source.get(UserProperty.USERNAME),
+                      source.get(UserProperty.IMAGE_URL_TEMPLATE),
+                      Optional.fromNullable(source.getOrElseNull(UserProperty.COUNTRY)),
+                      source.get(UserProperty.FOLLOWERS_COUNT),
+                      source.get(UserProperty.IS_FOLLOWED_BY_ME));
+    }
+
+    public static UserItem create(Urn urn, String name, Optional<String> imageUrlTemplate, Optional<String> country, int followersCount, boolean isFollowedByMe) {
+        return new AutoParcel_UserItem(imageUrlTemplate, urn, name, country, followersCount, isFollowedByMe);
     }
 
     public static UserItem from(ApiUser apiUser) {
-        final PropertySet bindings = PropertySet.from(
-                UserProperty.URN.bind(apiUser.getUrn()),
-                UserProperty.USERNAME.bind(apiUser.getUsername()),
-                UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
-                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getAvatarUrlTemplate())
-        );
-        // this should be modeled with an Option type instead:
-        // https://github.com/soundcloud/propeller/issues/32
-        if (apiUser.getCountry() != null) {
-            bindings.put(UserProperty.COUNTRY, apiUser.getCountry());
-        }
-
-        return new UserItem(bindings);
+        return new AutoParcel_UserItem(apiUser.getAvatarUrlTemplate(), apiUser.getUrn(), apiUser.getUsername(), Optional.fromNullable(apiUser.getCountry()), apiUser.getFollowersCount(), false);
     }
 
-    public static Func1<PropertySet, UserItem> fromPropertySet() {
-        return bindings -> UserItem.from(bindings);
+    public static UserItem from(User user) {
+        return new AutoParcel_UserItem(user.avatarUrl(), user.urn(), user.username(), user.country(), user.followersCount(), user.isFollowing());
     }
 
-    UserItem(PropertySet source) {
-        this.source = source;
+    public UserItem copyWithFollowing(boolean isFollowedByMe) {
+        return new AutoParcel_UserItem(getImageUrlTemplate(), getUrn(), name(), country(), followersCount(), isFollowedByMe);
+    }
+
+    @VisibleForTesting
+    public UserItem copyWithUrn(Urn urn) {
+        return new AutoParcel_UserItem(getImageUrlTemplate(), urn, name(), country(), followersCount(), isFollowedByMe());
     }
 
     @Override
-    public FollowableItem updatedWithFollowing(boolean isFollowedByMe, int followingsCount) {
-        this.source.put(UserProperty.IS_FOLLOWED_BY_ME, isFollowedByMe);
-        this.source.put(UserProperty.FOLLOWERS_COUNT, followingsCount);
-        return this;
+    public UserItem updatedWithFollowing(boolean isFollowedByMe, int followingsCount) {
+        return new AutoParcel_UserItem(getImageUrlTemplate(), getUrn(), name(), country(), followingsCount, isFollowedByMe);
     }
 
-    @Override
-    public Urn getUrn() {
-        return source.get(UserProperty.URN);
-    }
+    public abstract String name();
 
-    public void setUrn(Urn urn) {
-        this.source.put(UserProperty.URN, urn);
-    }
+    public abstract Optional<String> country();
 
-    @Override
-    public Optional<String> getImageUrlTemplate() {
-        return source.getOrElse(UserProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
-    }
+    public abstract int followersCount();
 
-    public String getName() {
-        return source.get(UserProperty.USERNAME);
-    }
-
-    public Optional<String> getCountry() {
-        return source.contains(UserProperty.COUNTRY) ?
-               Optional.of(source.get(UserProperty.COUNTRY)) : Optional.<String>absent();
-    }
-
-    public int getFollowersCount() {
-        return source.get(UserProperty.FOLLOWERS_COUNT);
-    }
-
-    public boolean isFollowedByMe() {
-        return source.getOrElse(UserProperty.IS_FOLLOWED_BY_ME, false);
-    }
-
-    public void setFollowing(boolean following) {
-        source.put(UserProperty.IS_FOLLOWED_BY_ME, following);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(source, 0);
-    }
-
-    public UserItem(Parcel in) {
-        this.source = in.readParcelable(UserItem.class.getClassLoader());
-    }
-
-    public static final Parcelable.Creator<UserItem> CREATOR = new Parcelable.Creator<UserItem>() {
-        public UserItem createFromParcel(Parcel in) {
-            return new UserItem(in);
-        }
-
-        public UserItem[] newArray(int size) {
-            return new UserItem[size];
-        }
-    };
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof UserItem && ((UserItem) o).source.equals(this.source);
-    }
-
-    @Override
-    public int hashCode() {
-        return MoreObjects.hashCode(source);
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).addValue(source).toString();
-    }
-
+    public abstract boolean isFollowedByMe();
 }

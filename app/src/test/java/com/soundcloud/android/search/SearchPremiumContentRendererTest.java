@@ -16,6 +16,7 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
@@ -174,7 +175,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
             } else if (urn.isPlaylist()) {
                 propertySets.add(PlaylistItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
             } else if (urn.isUser()) {
-                propertySets.add(UserItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
+                propertySets.add(ModelFixtures.create(UserItem.class).copyWithUrn(urn));
             }
         }
         return Collections.singletonList(new SearchPremiumItem(propertySets, Optional.<Link>absent(), urns.length));

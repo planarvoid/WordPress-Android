@@ -28,6 +28,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -88,13 +89,17 @@ class SearchStrategyFactory {
         @Override
         public SearchResult call(SearchResult input) {
             final Map<Urn, Boolean> userIsFollowing = loadFollowingCommand.call(Lists.transform(input.getItems(), SearchableItem::getUrn));
+            final List<SearchableItem> updatedSearchResult = new ArrayList<>(input.getItems().size());
             for (final SearchableItem resultItem : input) {
                 final Urn itemUrn = resultItem.getUrn();
                 if (userIsFollowing.containsKey(itemUrn)) {
-                    ((UserItem) resultItem).setFollowing(userIsFollowing.get(itemUrn));
+                    final UserItem updatedUserItem = ((UserItem) resultItem).copyWithFollowing(userIsFollowing.get(itemUrn));
+                    updatedSearchResult.add(updatedUserItem);
+                } else {
+                    updatedSearchResult.add(resultItem);
                 }
             }
-            return input;
+            return input.copyWithSearchableItems(updatedSearchResult);
         }
     };
 

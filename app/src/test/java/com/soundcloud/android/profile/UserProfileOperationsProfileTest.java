@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -91,7 +91,7 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishEntityChangedEvent() {
-        UserItem user = UserItem.from(profile.getUser());
+        User user = User.fromApiUser(profile.getUser());
 
         operations.userProfile(userUrn).subscribe(subscriber);
 

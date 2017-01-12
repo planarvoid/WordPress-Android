@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class PublishUserUpdateEventCommandTest extends AndroidUnitTest {
 
         verify(eventBus).publish(eq(EventQueue.USER_CHANGED), userChangedEventArgumentCaptor.capture());
         final UserChangedEvent changedEvent = userChangedEventArgumentCaptor.getValue();
-        assertThat(changedEvent.changeMap().values()).containsExactly(UserItem.from(apiUser));
+        assertThat(changedEvent.changeMap().values()).containsExactly(User.fromApiUser(apiUser));
     }
 
     @Test

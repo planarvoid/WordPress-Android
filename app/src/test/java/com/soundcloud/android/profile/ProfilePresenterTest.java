@@ -24,7 +24,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
@@ -139,10 +138,9 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         final User updatedProfileUser = ModelFixtures.userBuilder(false).username("updated-name").build();
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
 
-        final UserItem userItem = ModelFixtures.create(UserItem.class);
-        userItem.setUrn(USER_URN);
+        final User user = ModelFixtures.userBuilder(false).urn(USER_URN).build();
         eventBus.publish(EventQueue.USER_CHANGED,
-                         UserChangedEvent.forUpdate(userItem));
+                         UserChangedEvent.forUpdate(user));
 
         verify(profileHeaderPresenter).setUserDetails(updatedProfileUser);
     }
@@ -152,10 +150,8 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         profilePresenter.onCreate(activity, null);
         Mockito.reset(profileOperations);
 
-        final UserItem userItem = ModelFixtures.create(UserItem.class);
-        userItem.setUrn(Urn.forUser(444));
-        eventBus.publish(EventQueue.USER_CHANGED,
-                         UserChangedEvent.forUpdate(userItem));
+        final User user = ModelFixtures.userBuilder(false).urn(Urn.forUser(444)).build();
+        eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(user));
 
         verifyZeroInteractions(profileOperations);
     }

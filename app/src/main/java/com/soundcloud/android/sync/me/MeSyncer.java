@@ -7,7 +7,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -46,7 +46,7 @@ public class MeSyncer implements Callable<Boolean> {
     }
 
     private void publishChangeEvent(Me me) {
-        eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(UserItem.from(me.getUser())));
+        eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(me.getUser())));
     }
 
     private void storeMe(Me me) {

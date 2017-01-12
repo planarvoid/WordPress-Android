@@ -12,7 +12,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import org.junit.Before;
@@ -58,7 +57,7 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetFollowedToggleButton() {
-        UserItem followedUserItem = UserItem.from(TestPropertySets.userFollowing(user, true));
+        UserItem followedUserItem = UserItem.from(user).copyWithFollowing(true);
         renderer.bindItemView(0, itemView, Collections.singletonList(followedUserItem));
 
         ToggleButton followButton = getFollowToggleButton();
@@ -68,7 +67,7 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetFollowedToggleButton() {
-        UserItem unfollowedUserItem = UserItem.from(TestPropertySets.userFollowing(user, false));
+        UserItem unfollowedUserItem = UserItem.from(user).copyWithFollowing(false);
         renderer.bindItemView(0, itemView, Collections.singletonList(unfollowedUserItem));
 
         ToggleButton followButton = getFollowToggleButton();

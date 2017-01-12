@@ -79,7 +79,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
         updateFollowingsSubscription = new CompositeSubscription(
 
                 followingOperations.populatedOnUserFollowed()
-                                   .map(UserItem.fromPropertySet())
+                                   .map(UserItem::from)
                                    .observeOn(AndroidSchedulers.mainThread())
                                    .subscribe(new PrependItemToListSubscriber<>(adapter)),
 

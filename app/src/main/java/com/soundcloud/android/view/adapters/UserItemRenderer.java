@@ -37,14 +37,14 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
     @Override
     public void bindItemView(int position, View itemView, List<UserItem> items) {
         UserItem user = items.get(position);
-        ((TextView) itemView.findViewById(R.id.list_item_header)).setText(user.getName());
+        ((TextView) itemView.findViewById(R.id.list_item_header)).setText(user.name());
         setOptionalCountry(itemView, user);
         setupFollowersCount(itemView, user);
         loadImage(itemView, user);
     }
 
     private void setOptionalCountry(View itemView, UserItem user) {
-        final Optional<String> country = user.getCountry();
+        final Optional<String> country = user.country();
         final TextView countryText = (TextView) itemView.findViewById(R.id.list_item_subheader);
         if (country.isPresent()) {
             countryText.setText(country.get());
@@ -56,7 +56,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
 
     private void setupFollowersCount(View itemView, UserItem user) {
         final TextView followersCountText = (TextView) itemView.findViewById(R.id.list_item_counter);
-        final int followersCount = user.getFollowersCount();
+        final int followersCount = user.followersCount();
         if (followersCount > Consts.NOT_SET) {
             followersCountText.setVisibility(View.VISIBLE);
             followersCountText.setText(numberFormatter.format(followersCount));

@@ -39,9 +39,9 @@ public class ApiUserTest extends AndroidUnitTest {
 
         UserItem userItem = UserItem.from(apiUser);
         assertThat(userItem.getUrn()).isEqualTo(apiUser.getUrn());
-        assertThat(userItem.getName()).isEqualTo(apiUser.getUsername());
-        assertThat(userItem.getCountry().get()).isEqualTo(apiUser.getCountry());
-        assertThat(userItem.getFollowersCount()).isEqualTo(apiUser.getFollowersCount());
+        assertThat(userItem.name()).isEqualTo(apiUser.getUsername());
+        assertThat(userItem.country().get()).isEqualTo(apiUser.getCountry());
+        assertThat(userItem.followersCount()).isEqualTo(apiUser.getFollowersCount());
     }
 
     // The below exists purely to aid developers in completing stories regarding updating the profile.

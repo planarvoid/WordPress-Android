@@ -60,6 +60,10 @@ class SearchResult implements Iterable<SearchableItem> {
         return new SearchResult(nonNullItems, nextHref, queryUrn, premiumContent, resultsCount);
     }
 
+    SearchResult copyWithSearchableItems(List<SearchableItem> items) {
+        return new SearchResult(items, this.nextHref, this.queryUrn, this.premiumContent, this.resultsCount);
+    }
+
     private static IllegalStateException getMissingItemException(List<? extends SearchableItem> items,
                                                                  Optional<Link> nextHref, int emptyItems) {
         return new IllegalStateException(

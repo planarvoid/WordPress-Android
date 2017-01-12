@@ -31,7 +31,6 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 public class UserProfileOperations {
 
@@ -178,9 +177,9 @@ public class UserProfileOperations {
     public Observable<UserProfile> userProfile(final Urn user) {
         return profileApi.userProfile(user)
                          .doOnNext(storeProfileCommand.toAction1())
+                         .doOnNext(publishEntityChanged())
                          .map(UserProfile::fromUserProfileRecord)
                          .doOnNext(spotlightItemStatusLoader.toAction1())
-                         .doOnNext(publishEntityChanged())
                          .subscribeOn(scheduler);
     }
 
@@ -284,7 +283,7 @@ public class UserProfileOperations {
         return PagedCollection.pagingFunction(nextPage, scheduler);
     }
 
-    private Action1<UserProfile> publishEntityChanged() {
-        return userProfile -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(userProfile.getUser()));
+    private Action1<ApiUserProfile> publishEntityChanged() {
+        return userProfile -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(userProfile.getUser())));
     }
 }

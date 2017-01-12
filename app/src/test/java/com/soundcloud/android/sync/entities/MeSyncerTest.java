@@ -19,7 +19,7 @@ import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.sync.me.MeSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.User;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -69,7 +69,7 @@ public class MeSyncerTest extends AndroidUnitTest {
 
         meSyncer.call();
 
-        assertThat(eventBus.lastEventOn(EventQueue.USER_CHANGED)).isEqualTo(UserChangedEvent.forUpdate(UserItem.from(me.getUser())));
+        assertThat(eventBus.lastEventOn(EventQueue.USER_CHANGED)).isEqualTo(UserChangedEvent.forUpdate(User.fromApiUser(me.getUser())));
     }
 
     private void setupSuccessfulFetch() throws ApiRequestException, IOException, ApiMapperException {

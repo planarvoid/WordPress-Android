@@ -4,6 +4,7 @@ import static com.soundcloud.android.model.Urn.STRING_TO_URN;
 import static com.soundcloud.android.model.Urn.forUser;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.UsersView;
 import com.soundcloud.java.optional.Optional;
@@ -56,6 +57,25 @@ public abstract class User {
                 .discogsName(Optional.fromNullable(cursorReader.getString(UsersView.DISCOGS_NAME.name())))
                 .artistStation(Optional.fromNullable(cursorReader.getString(UsersView.ARTIST_STATION.name())).transform(STRING_TO_URN))
                 .isFollowing(cursorReader.getBoolean(UsersView.IS_FOLLOWING.name()))
+                .build();
+    }
+
+    public static User fromApiUser(ApiUser apiUser) {
+        return new AutoValue_User.Builder()
+                .urn(apiUser.getUrn())
+                .username(apiUser.getUsername())
+                .country(Optional.fromNullable(apiUser.getCountry()))
+                .city(Optional.fromNullable(apiUser.getCity()))
+                .followersCount(apiUser.getFollowersCount())
+                .description(apiUser.getDescription())
+                .avatarUrl(apiUser.getAvatarUrlTemplate())
+                .visualUrl(apiUser.getVisualUrlTemplate())
+                .websiteUrl(apiUser.getWebsiteUrl())
+                .websiteName(apiUser.getWebsiteName())
+                .mySpaceName(apiUser.getMyspaceName())
+                .discogsName(apiUser.getDiscogsName())
+                .artistStation(apiUser.getArtistStationUrn())
+                .isFollowing(false)
                 .build();
     }
 
