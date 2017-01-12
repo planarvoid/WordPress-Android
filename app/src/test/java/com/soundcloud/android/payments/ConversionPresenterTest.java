@@ -87,7 +87,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void allowsRetryIfProductLoadFails() {
-        when(paymentOperations.products()).thenReturn(Observable.<AvailableWebProducts>error(new IOException()));
+        when(paymentOperations.products()).thenReturn(Observable.error(new IOException()));
 
         presenter.onCreate(activity, null);
 
@@ -114,8 +114,9 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onPurchasePrimary();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).get(UpgradeFunnelEvent.KEY_ID))
-                .isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_BUTTON);
+        final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
+
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.Tcode.UPGRADE_BUTTON.toString());
     }
 
     @Test
@@ -125,8 +126,9 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onPurchasePrimary();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).get(UpgradeFunnelEvent.KEY_ID))
-                .isEqualTo(UpgradeFunnelEvent.ID_UPGRADE_PROMO);
+        final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
+
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.Tcode.UPGRADE_PROMO.toString());
     }
 
     @Test
@@ -164,7 +166,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void closeCallbackFinishesActivity() {
-        when(paymentOperations.products()).thenReturn(Observable.<AvailableWebProducts>empty());
+        when(paymentOperations.products()).thenReturn(Observable.empty());
         presenter.onCreate(activity, null);
 
         presenter.onClose();

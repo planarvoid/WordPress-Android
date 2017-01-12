@@ -33,7 +33,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.android.view.dragdrop.OnStartDragListener;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.Queue;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -267,7 +266,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
@@ -280,7 +278,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     private List<PlaylistDetailItem> listItems() {

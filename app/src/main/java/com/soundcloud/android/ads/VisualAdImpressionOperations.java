@@ -28,7 +28,7 @@ public class VisualAdImpressionOperations {
     private final Func1<State, TrackingEvent> toTrackingEvent = new Func1<State, TrackingEvent>() {
         @Override
         public VisualAdImpressionEvent call(State state) {
-            return new VisualAdImpressionEvent(
+            return VisualAdImpressionEvent.create(
                     (AudioAd) state.adData,
                     accountOperations.getLoggedInUserUrn(),
                     playQueueManager.getCurrentTrackSourceInfo()
@@ -65,9 +65,9 @@ public class VisualAdImpressionOperations {
     private boolean impressionEventEmitted;
 
     @Inject
-    public VisualAdImpressionOperations(EventBus eventBus,
-                                        PlayQueueManager playQueueManager,
-                                        AccountOperations accountOperations) {
+    VisualAdImpressionOperations(EventBus eventBus,
+                                 PlayQueueManager playQueueManager,
+                                 AccountOperations accountOperations) {
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
         this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
@@ -76,7 +76,7 @@ public class VisualAdImpressionOperations {
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
     }
 
-    public Observable<TrackingEvent> trackImpression() {
+    Observable<TrackingEvent> trackImpression() {
         return Observable
                 .combineLatest(
                         activityLifeCycleQueue,

@@ -637,7 +637,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
 
         UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
-        assertThat(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)).isEqualTo(PLAYLIST_URN.toString());
+        assertThat(event.pageUrn().get()).isEqualTo(PLAYLIST_URN.toString());
     }
 
     @Test

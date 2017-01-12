@@ -305,46 +305,41 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForUpsell(UpgradeFunnelEvent event) {
-        switch (event.getKind()) {
-            case UpgradeFunnelEvent.KIND_UPSELL_CLICK:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                                         .clickName("clickthrough::consumer_sub_ad")
-                                         .clickObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
-                                         .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event);
 
-            case UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                                         .impressionName("consumer_sub_ad")
-                                         .impressionObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
-                                         .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
-
-            case UpgradeFunnelEvent.KIND_UPGRADE_SUCCESS:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                                         .impressionName("consumer_sub_upgrade_success"));
-
-            case UpgradeFunnelEvent.KIND_RESUBSCRIBE_CLICK:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                                         .clickName("clickthrough::consumer_sub_resubscribe")
-                                         .clickObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
-
-            case UpgradeFunnelEvent.KIND_RESUBSCRIBE_IMPRESSION:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                                         .impressionName("consumer_sub_resubscribe")
-                                         .impressionObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
-
-            default:
-                throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
+        if (event.pageName().isPresent()) {
+            eventData.pageName(event.pageName().get());
         }
-    }
 
-    private String getUpsellTrackingCode(UpgradeFunnelEvent event) {
-        return TrackingCode.fromEventId(event.get(UpgradeFunnelEvent.KEY_ID));
+        if (event.pageUrn().isPresent()) {
+            eventData.pageUrn(event.pageUrn().get());
+        }
+
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get().toString());
+        }
+
+        if (event.clickCategory().isPresent()) {
+            eventData.clickCategory(event.clickCategory().get().toString());
+        }
+
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get());
+        }
+
+        if (event.impressionName().isPresent()) {
+            eventData.impressionName(event.impressionName().get().toString());
+        }
+
+        if (event.impressionCategory().isPresent()) {
+            eventData.impressionCategory(event.impressionCategory().get());
+        }
+
+        if (event.impressionObject().isPresent()) {
+            eventData.impressionObject(event.impressionObject().get());
+        }
+
+        return transform(eventData);
     }
 
     String buildForUIEvent(UIEvent event) {

@@ -1,9 +1,9 @@
 package com.soundcloud.android.tests.discovery;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -54,7 +54,6 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     private void assertPlaylistResultsScreenShown(String tagTitle, PlaylistResultsScreen resultsScreen) {
         assertThat("Playlist results screen should be visible", resultsScreen.isVisible());
         assertThat("Screen should show clicked playlist tag as title", resultsScreen.getActionBarTitle(), is(tagTitle));
-        assertThat("Playlist results should not be empty", resultsScreen.getResultsCount(), is(
-                Consts.CARD_PAGE_SIZE));
+        assertThat("Playlist results should not be empty", resultsScreen.getResultsCount(), greaterThan(0));
     }
 }

@@ -57,7 +57,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.trackResubscribeButtonImpression();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
-                .isEqualTo(UpgradeFunnelEvent.KIND_RESUBSCRIBE_IMPRESSION);
+                .isEqualTo(UpgradeFunnelEvent.Kind.RESUBSCRIBE_IMPRESSION.toString());
     }
 
     @Test
@@ -179,7 +179,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onResubscribeClicked();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
-                .isEqualTo(UpgradeFunnelEvent.KIND_RESUBSCRIBE_CLICK);
+                .isEqualTo(UpgradeFunnelEvent.Kind.RESUBSCRIBE_CLICK.toString());
     }
 
     @Test

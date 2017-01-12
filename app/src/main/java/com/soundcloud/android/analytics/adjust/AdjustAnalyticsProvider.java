@@ -49,44 +49,8 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleUpgradeTrackingEvent(UpgradeFunnelEvent event) {
-        if (event.isImpression()) {
-            trackImpression(event);
+        if (event.adjustToken().isPresent()) {
+            adjustWrapper.trackEvent(event.adjustToken().get().toString());
         }
     }
-
-    private void trackImpression(UpgradeFunnelEvent event) {
-        switch (event.get(UpgradeFunnelEvent.KEY_ID)) {
-            case UpgradeFunnelEvent.ID_WHY_ADS:
-                adjustWrapper.trackEvent(AdjustEventToken.WHY_ADS);
-                break;
-            case UpgradeFunnelEvent.ID_UPGRADE_BUTTON:
-                adjustWrapper.trackEvent(AdjustEventToken.CONVERSION);
-                break;
-            case UpgradeFunnelEvent.ID_UPGRADE_PROMO:
-                adjustWrapper.trackEvent(AdjustEventToken.PROMO);
-                break;
-            case UpgradeFunnelEvent.ID_PLAYER:
-                adjustWrapper.trackEvent(AdjustEventToken.HIGH_TIER_TRACK_PLAYED);
-                break;
-            case UpgradeFunnelEvent.ID_SEARCH_RESULTS_GO:
-                adjustWrapper.trackEvent(AdjustEventToken.HIGH_TIER_SEARCH_RESULTS);
-                break;
-            case UpgradeFunnelEvent.ID_STREAM:
-                adjustWrapper.trackEvent(AdjustEventToken.STREAM_UPSELL);
-                break;
-            case UpgradeFunnelEvent.ID_SETTINGS_UPGRADE:
-                adjustWrapper.trackEvent(AdjustEventToken.OFFLINE_SETTINGS);
-                break;
-            case UpgradeFunnelEvent.ID_PLAYLIST_TRACKS:
-                adjustWrapper.trackEvent(AdjustEventToken.PLAYLIST_TRACKS_UPSELL);
-                break;
-            case UpgradeFunnelEvent.ID_RESUBSCRIBE_BUTTON:
-                adjustWrapper.trackEvent(AdjustEventToken.PLAN_DOWNGRADED);
-                break;
-            default:
-                // Not all funnel events go to Adjust
-                break;
-        }
-    }
-
 }

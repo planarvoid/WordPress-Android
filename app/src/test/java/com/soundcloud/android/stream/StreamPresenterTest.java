@@ -131,9 +131,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 whyAdsDialogPresenter,
                 updatePlayableAdapterSubscriberFactory);
 
-        when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
-        when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
+        when(streamOperations.initialStreamItems()).thenReturn(Observable.empty());
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
+        when(streamOperations.pagingFunction()).thenReturn(TestPager.singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
         when(followingOperations.onUserFollowed()).thenReturn(followSubject);
         when(followingOperations.onUserUnfollowed()).thenReturn(unfollowSubject);
@@ -347,13 +347,12 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
     public void onRefreshableOverlayClickedUpdatesStreamAgain() {
         when(streamOperations.initialStreamItems())
-                .thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
+                .thenReturn(Observable.just(Collections.emptyList()));
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
@@ -391,7 +390,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.emptyList()));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.of(DATE));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
 
@@ -402,7 +401,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotUpdateIndicatorWhenUpdatedItemsForStartIsEmpty() {
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.of(DATE));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
 
@@ -413,7 +412,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetOverlayOnRefreshBinding() {
-        when(streamOperations.updatedStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.updatedStreamItems()).thenReturn(Observable.empty());
 
         presenter.onRefreshBinding();
 
