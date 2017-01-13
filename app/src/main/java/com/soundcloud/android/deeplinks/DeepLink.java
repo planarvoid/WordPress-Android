@@ -209,6 +209,7 @@ public enum DeepLink {
             case "/buy_ht":
                 return SOUNDCLOUD_GO_BUY;
             case "/notification_preferences":
+            case "/settings/notifications":
             case "/settings/notification_preferences":
                 return NOTIFICATION_PREFERENCES;
             case "/settings_offlinelistening":

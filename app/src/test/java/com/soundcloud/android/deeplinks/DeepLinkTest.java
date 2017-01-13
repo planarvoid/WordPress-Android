@@ -125,6 +125,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://www.soundcloud.com/go");
         assertDeeplink(DeepLink.OFFLINE_SETTINGS, "https://www.soundcloud.com/settings_offlinelistening");
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "https://www.soundcloud.com/notification_preferences");
+        assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "https://soundcloud.com/settings/notifications");
         assertDeeplink(DeepLink.SHARE_APP, "https://www.soundcloud.com/share/app");
         assertDeeplink(DeepLink.SYSTEM_SETTINGS, "https://www.soundcloud.com/open-notification-settings");
     }
