@@ -4,7 +4,6 @@ package com.soundcloud.android.api;
 import com.soundcloud.android.Consts;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,13 +11,16 @@ import org.json.JSONObject;
 
 import android.support.annotation.VisibleForTesting;
 
+import java.net.HttpURLConnection;
+
 public class ApiResponse {
 
     private static final String BAD_REQUEST_ERROR_KEY = "error_key";
     private static final String PUBLIC_API_ERRORS_KEY = "errors";
     private static final String PUBLIC_API_ERROR_KEY = "error";
     private static final String PUBLIC_API_ERROR_MESSAGE_KEY = "error_message";
-    private static final int SC_REQUEST_TOO_MANY_REQUESTS = 429;
+    private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
+    private static final int HTTP_REQUEST_TOO_MANY_REQUESTS = 429;
 
     private final int statusCode;
     private final String responseBody;
@@ -32,19 +34,19 @@ public class ApiResponse {
     }
 
     private void determineFailure(ApiRequest request, int statusCode) {
-        if (statusCode == SC_REQUEST_TOO_MANY_REQUESTS) {
+        if (statusCode == HTTP_REQUEST_TOO_MANY_REQUESTS) {
             failure = ApiRequestException.rateLimited(request, this);
-        } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
+        } else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
             failure = ApiRequestException.notFound(request, this);
-        } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+        } else if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
             failure = ApiRequestException.authError(request, this);
-        } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+        } else if (statusCode == HttpURLConnection.HTTP_FORBIDDEN) {
             failure = ApiRequestException.notAllowed(request, this);
-        } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+        } else if (statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
             failure = ApiRequestException.badRequest(request, this, getErrorKey());
-        } else if (statusCode == HttpStatus.SC_UNPROCESSABLE_ENTITY) {
+        } else if (statusCode == HTTP_UNPROCESSABLE_ENTITY) {
             failure = ApiRequestException.validationError(request, this, getErrorKey(), getErrorCode());
-        } else if (statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+        } else if (statusCode >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
             failure = ApiRequestException.serverError(request, this);
         } else if (!isSuccessCode(statusCode)) {
             failure = ApiRequestException.unexpectedResponse(request, this);
@@ -63,7 +65,7 @@ public class ApiResponse {
     }
 
     private boolean isSuccessCode(int statusCode) {
-        return statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_BAD_REQUEST;
+        return statusCode >= HttpURLConnection.HTTP_OK && statusCode < HttpURLConnection.HTTP_BAD_REQUEST;
     }
 
     public boolean isSuccess() {

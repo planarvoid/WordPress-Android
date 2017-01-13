@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.strings.Charsets;
-import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,7 +46,7 @@ public class WaveformFetchCommandTest extends AndroidUnitTest {
 
     @Test
     public void invalidResponseCodeEmitsIOException() throws Exception {
-        when(urlConnection.getResponseCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
+        when(urlConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
 
         command.toObservable(WAVEFORM_URL).subscribe(observer);
         verify(observer).onError(any(WaveformFetchCommand.WaveformFetchException.class));
@@ -112,7 +111,7 @@ public class WaveformFetchCommandTest extends AndroidUnitTest {
 
     private void setupWaveformResponse(String waveformData) throws IOException {
         final byte[] waveformBytes = waveformData.getBytes(Charsets.UTF_8.name());
-        when(urlConnection.getResponseCode()).thenReturn(HttpStatus.SC_OK);
+        when(urlConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(urlConnection.getInputStream()).thenReturn(new ByteArrayInputStream(waveformBytes));
     }
 }

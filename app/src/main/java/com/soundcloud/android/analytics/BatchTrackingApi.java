@@ -10,13 +10,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +104,7 @@ public class BatchTrackingApi implements TrackingApi {
     }
 
     private boolean isSuccessCodeOrIgnored(int status) {
-        return status >= HttpStatus.SC_OK && status < HttpStatus.SC_INTERNAL_SERVER_ERROR;
+        return status >= HttpURLConnection.HTTP_OK && status < HttpURLConnection.HTTP_INTERNAL_ERROR;
     }
 
 }

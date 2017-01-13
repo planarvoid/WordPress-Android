@@ -18,7 +18,6 @@ import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -27,6 +26,7 @@ import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.TestScheduler;
 
+import java.net.HttpURLConnection;
 import java.util.concurrent.TimeUnit;
 
 public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
@@ -49,7 +49,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                                           .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
+                .thenReturn(Observable.just(new ApiResponse(null, HttpURLConnection.HTTP_OK, null)));
         when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))),
                                 eq(CheckoutUpdated.class)))
                 .thenReturn(successObservable());
@@ -67,7 +67,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
     public void verifyReturnsUpdateFailStatusIfUpdateFailed() {
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                                           .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_FORBIDDEN, null)));
+                .thenReturn(Observable.just(new ApiResponse(null, HttpURLConnection.HTTP_FORBIDDEN, null)));
 
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
@@ -193,7 +193,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                                           .withContent(UpdateCheckout.fromSuccess(payload)))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
+                .thenReturn(Observable.just(new ApiResponse(null, HttpURLConnection.HTTP_OK, null)));
     }
 
 }

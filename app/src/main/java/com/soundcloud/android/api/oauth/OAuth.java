@@ -1,9 +1,6 @@
 package com.soundcloud.android.api.oauth;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import org.apache.http.Header;
-import org.apache.http.auth.AUTH;
-import org.apache.http.message.BasicHeader;
 
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
@@ -60,14 +57,6 @@ public class OAuth {
 
     public String getClientSecret() {
         return clientSecret;
-    }
-
-    /**
-     * Creates an OAuth2 header for the given token
-     */
-    @Deprecated
-    public static Header createOAuthHeader(Token token) {
-        return new BasicHeader(AUTH.WWW_AUTH_RESP, createOAuthHeaderValue(token));
     }
 
     public static String createOAuthHeaderValue(Token token) {

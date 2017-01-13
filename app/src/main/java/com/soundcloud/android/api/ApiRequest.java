@@ -7,8 +7,8 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.java.collections.MultiMap;
+import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.objects.MoreObjects;
-import org.apache.http.auth.AUTH;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
@@ -200,7 +200,7 @@ public class ApiRequest {
         }
 
         public Builder withToken(Token token) {
-            withHeader(AUTH.WWW_AUTH_RESP, OAuth.createOAuthHeaderValue(token));
+            withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token));
             return this;
         }
     }

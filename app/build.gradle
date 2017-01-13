@@ -126,8 +126,6 @@ android {
     jumboMode true
     javaMaxHeapSize "4g"
   }
-
-  useLibrary 'org.apache.http.legacy'
 }
 
 nimbledroid {

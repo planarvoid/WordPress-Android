@@ -14,9 +14,9 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.annotations.VisibleForTesting;
-import org.apache.http.HttpStatus;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 public final class ApiRequestException extends Exception {
 
@@ -41,7 +41,7 @@ public final class ApiRequestException extends Exception {
 
     public static ApiRequestException unexpectedResponse(ApiRequest request, ApiResponse response) {
         int statusCode = response.getStatusCode();
-        final boolean isValidStatusCode = statusCode < HttpStatus.SC_OK || statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode >= HttpStatus.SC_BAD_REQUEST;
+        final boolean isValidStatusCode = statusCode < HttpURLConnection.HTTP_OK || statusCode < HttpURLConnection.HTTP_INTERNAL_ERROR && statusCode >= HttpURLConnection.HTTP_BAD_REQUEST;
         checkArgument(isValidStatusCode, "Status code must be< 200 or between 400 and 500");
         return new ApiRequestException(UNEXPECTED_RESPONSE, request, response, "HTTP " + statusCode);
     }
