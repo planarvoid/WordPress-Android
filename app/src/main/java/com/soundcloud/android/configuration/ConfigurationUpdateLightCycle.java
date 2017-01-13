@@ -15,15 +15,18 @@ import javax.inject.Inject;
 public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final ConfigurationManager configurationManager;
+    private final PendingPlanOperations pendingPlanOperations;
     private final Navigator navigator;
     private final EventBus eventBus;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     ConfigurationUpdateLightCycle(ConfigurationManager configurationManager,
+                                  PendingPlanOperations pendingPlanOperations,
                                   Navigator navigator,
                                   EventBus eventBus) {
         this.configurationManager = configurationManager;
+        this.pendingPlanOperations = pendingPlanOperations;
         this.navigator = navigator;
         this.eventBus = eventBus;
     }
@@ -31,9 +34,9 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
     @Override
     public void onStart(AppCompatActivity activity) {
         subscription = eventBus.subscribe(EventQueue.USER_PLAN_CHANGE, new PlanChangeSubscriber(activity));
-        if (configurationManager.isPendingUpgrade()) {
+        if (pendingPlanOperations.isPendingUpgrade()) {
             navigator.resetForAccountUpgrade(activity);
-        } else if (configurationManager.isPendingDowngrade()) {
+        } else if (pendingPlanOperations.isPendingDowngrade()) {
             navigator.resetForAccountDowngrade(activity);
         } else {
             configurationManager.requestConfigurationUpdate();
@@ -55,7 +58,7 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
 
         @Override
         public void onNext(UserPlanChangedEvent event) {
-            if (isHighTierUpgradeEvent(event)) {
+            if (isUpgradeEvent(event)) {
                 navigator.resetForAccountUpgrade(activity);
             } else if (isDowngradeEvent(event)) {
                 navigator.resetForAccountDowngrade(activity);
@@ -67,7 +70,7 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
         return event.newPlan.isDowngradeFrom(event.oldPlan);
     }
 
-    private static boolean isHighTierUpgradeEvent(UserPlanChangedEvent event) {
-        return event.newPlan == Plan.HIGH_TIER && event.newPlan.isUpgradeFrom(event.oldPlan);
+    private static boolean isUpgradeEvent(UserPlanChangedEvent event) {
+        return event.newPlan.isUpgradeFrom(event.oldPlan);
     }
 }

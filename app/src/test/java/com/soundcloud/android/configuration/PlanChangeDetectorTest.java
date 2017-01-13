@@ -19,13 +19,12 @@ public class PlanChangeDetectorTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     @Mock private FeatureOperations featureOperations;
-    @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
+    @Mock private PendingPlanOperations pendingPlanOperations;
 
     @Before
     public void setUp() throws Exception {
-        planChangeDetector = new PlanChangeDetector(eventBus, featureOperations, configurationSettingsStorage);
-        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.UNDEFINED);
-        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.UNDEFINED);
+        planChangeDetector = new PlanChangeDetector(eventBus, featureOperations, pendingPlanOperations);
+        when(pendingPlanOperations.hasPendingPlanChange()).thenReturn(false);
     }
 
     @Test
@@ -34,7 +33,7 @@ public class PlanChangeDetectorTest extends AndroidUnitTest {
 
         planChangeDetector.handleRemotePlan(Plan.FREE_TIER);
 
-        verify(configurationSettingsStorage).storePendingPlanDowngrade(Plan.FREE_TIER);
+        verify(pendingPlanOperations).setPendingDowngrade(Plan.FREE_TIER);
     }
 
     @Test
@@ -43,7 +42,7 @@ public class PlanChangeDetectorTest extends AndroidUnitTest {
 
         planChangeDetector.handleRemotePlan(Plan.HIGH_TIER);
 
-        verify(configurationSettingsStorage).storePendingPlanUpgrade(Plan.HIGH_TIER);
+        verify(pendingPlanOperations).setPendingUpgrade(Plan.HIGH_TIER);
     }
 
     @Test
@@ -52,8 +51,8 @@ public class PlanChangeDetectorTest extends AndroidUnitTest {
 
         planChangeDetector.handleRemotePlan(Plan.FREE_TIER);
 
-        verify(configurationSettingsStorage, never()).storePendingPlanUpgrade(any(Plan.class));
-        verify(configurationSettingsStorage, never()).storePendingPlanDowngrade(any(Plan.class));
+        verify(pendingPlanOperations, never()).setPendingUpgrade(any(Plan.class));
+        verify(pendingPlanOperations, never()).setPendingDowngrade(any(Plan.class));
     }
 
     @Test
@@ -90,24 +89,15 @@ public class PlanChangeDetectorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isNoOpWhenPlanDowngradeAlreadySignalled() {
-        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.FREE_TIER);
+    public void isNoOpWhenPlanChangeIsAlreadySignalled() {
+        when(pendingPlanOperations.hasPendingPlanChange()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
 
         planChangeDetector.handleRemotePlan(Plan.FREE_TIER);
 
-        verify(configurationSettingsStorage, never()).storePendingPlanDowngrade(any(Plan.class));
+        verify(pendingPlanOperations, never()).setPendingDowngrade(any(Plan.class));
+        verify(pendingPlanOperations, never()).setPendingUpgrade(any(Plan.class));
         eventBus.verifyNoEventsOn(EventQueue.USER_PLAN_CHANGE);
     }
 
-    @Test
-    public void isNoOpWhenPlanUpgradeAlreadySignalled() {
-        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.HIGH_TIER);
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-
-        planChangeDetector.handleRemotePlan(Plan.HIGH_TIER);
-
-        verify(configurationSettingsStorage, never()).storePendingPlanDowngrade(any(Plan.class));
-        eventBus.verifyNoEventsOn(EventQueue.USER_PLAN_CHANGE);
-    }
 }

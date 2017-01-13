@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.Screen;
@@ -30,6 +31,11 @@ public class GoOnboardingSubscribedUserTest extends ActivityTest<GoOnboardingAct
         super.setUp();
         networkManagerClient.switchWifiOff();
         screen = new GoOnboardingScreen(solo);
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        ConfigurationHelper.forcePendingPlanUpgrade(getInstrumentation().getTargetContext());
     }
 
     public void testGoStartLazyLoadingAndRetry() {

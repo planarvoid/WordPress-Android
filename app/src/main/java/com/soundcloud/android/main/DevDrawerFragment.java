@@ -139,15 +139,20 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
 
         screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
               .setOnPreferenceClickListener(preference -> {
+                  getActivity().getSharedPreferences("device_config_settings", Context.MODE_PRIVATE)
+                               .edit()
+                               .putString("pending_plan_upgrade", Plan.HIGH_TIER.planId)
+                               .apply();
                   navigator.resetForAccountUpgrade(getActivity());
                   return true;
               });
 
         screen.findPreference(getString(R.string.dev_drawer_action_downgrade_flow_key))
               .setOnPreferenceClickListener(preference -> {
-                  final SharedPreferences configSettings = getActivity().getSharedPreferences(
-                          "device_config_settings", Context.MODE_PRIVATE);
-                  configSettings.edit().putString("pending_plan_downgrade", Plan.FREE_TIER.planId).apply();
+                  getActivity().getSharedPreferences("device_config_settings", Context.MODE_PRIVATE)
+                               .edit()
+                               .putString("pending_plan_downgrade", Plan.FREE_TIER.planId)
+                               .apply();
                   navigator.resetForAccountDowngrade(getActivity());
                   return true;
               });

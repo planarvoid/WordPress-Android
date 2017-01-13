@@ -3,12 +3,13 @@ package com.soundcloud.android.upgrade;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -20,11 +21,13 @@ import android.support.v7.app.AppCompatActivity;
 import javax.inject.Inject;
 
 class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
-    enum StrategyContext {
+
+    private enum StrategyContext {
         USER_NO_ACTION, USER_CLICKED_START
     }
 
     private final Navigator navigator;
+    private final PendingPlanOperations pendingPlanOperations;
     private final PlanChangeOperations planChangeOperations;
     private final GoOnboardingView view;
     private final EventBus eventBus;
@@ -37,10 +40,12 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Inject
     GoOnboardingPresenter(Navigator navigator,
+                          PendingPlanOperations pendingPlanOperations,
                           PlanChangeOperations planChangeOperations,
                           GoOnboardingView view,
                           EventBus eventBus) {
         this.navigator = navigator;
+        this.pendingPlanOperations = pendingPlanOperations;
         this.planChangeOperations = planChangeOperations;
         this.view = view;
         this.eventBus = eventBus;
@@ -56,6 +61,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
+        Log.i("Launching onboarding for upgrade to: " + pendingPlanOperations.getPendingUpgrade().planId);
         view.bind(activity, this);
         this.activity = activity;
         context = StrategyContext.USER_NO_ACTION;
@@ -119,8 +125,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
-            // TODO: Pass mid-tier plan if we're onboarding to mid rather than high tier
-            subscription = planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)
+            subscription = planChangeOperations.awaitAccountUpgrade()
                                                .observeOn(AndroidSchedulers.mainThread())
                                                .subscribe(new UpgradeCompleteSubscriber());
             return strategy;

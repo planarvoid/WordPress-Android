@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -32,6 +33,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Mock private AppCompatActivity activity;
     @Mock private Navigator navigator;
+    @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private PlanChangeOperations planChangeOperations;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -41,13 +43,14 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
+        when(pendingPlanOperations.getPendingUpgrade()).thenReturn(Plan.MID_TIER);
         view = new GoOnboardingViewStub();
-        presenter = new GoOnboardingPresenter(navigator, planChangeOperations, view, eventBus);
+        presenter = new GoOnboardingPresenter(navigator, pendingPlanOperations, planChangeOperations, view, eventBus);
     }
 
     @Test
     public void clickingSetupOfflineOpensOfflineContentOnboardingIfAccountUpgradeAlreadyCompleted() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(Observable.just(accountUpgradeSignal));
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.just(accountUpgradeSignal));
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -58,7 +61,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingSetupOfflineSendsOnboardingStartTrackingEventIfAccountUpgradeAlreadyCompleted() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(Observable.just(accountUpgradeSignal));
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.just(accountUpgradeSignal));
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -69,7 +72,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingSetupOfflineShowsProgressSpinnerIfAccountUpgradeOngoing() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(Observable.never());
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.never());
         presenter.onCreate(activity, null);
 
         presenter.onSetupOfflineClicked();
@@ -80,7 +83,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingSetupOfflineAwaitsAccountUpgradeBeforeProceeding() {
         PublishSubject<Object> subject = PublishSubject.create();
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(subject);
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(subject);
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -94,7 +97,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     @Test
     public void displaySetupOfflineRetryOnNetworkError() {
         final PublishSubject<Object> subject = PublishSubject.create();
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(subject);
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(subject);
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -106,7 +109,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displaySetupOfflineRetryOnNetworkErrorWhenErrorAlreadyOccurred() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(Observable.error(new IOException()));
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.error(new IOException()));
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -118,7 +121,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     @Test
     public void displaySetupOfflineRetryOnApiRequestExceptionForNetworkError() {
         final PublishSubject<Object> subject = PublishSubject.create();
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(subject);
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(subject);
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -130,7 +133,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displaySetupOfflineRetryOnApiRequestExceptionForNetworkErrorAlreadyOccurred() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER))
+        when(planChangeOperations.awaitAccountUpgrade())
                 .thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException())));
 
         presenter.onCreate(activity, null);
@@ -144,7 +147,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     public void clickOnSetupOfflineRetryShouldOpenOfflineContentOnboardingOnSuccess() {
         final PublishSubject<Object> error = PublishSubject.create();
         final PublishSubject<Object> success = PublishSubject.create();
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(error, success);
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(error, success);
 
         presenter.onCreate(activity, null);
 
@@ -162,7 +165,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     public void clickOnSetupOfflineRetryShouldDisplayRetryOnNetworkError() {
         final PublishSubject<Object> error1 = PublishSubject.create();
         final PublishSubject<Object> error2 = PublishSubject.create();
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(error1, error2);
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(error1, error2);
 
         presenter.onCreate(activity, null);
 
@@ -177,7 +180,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingRetryOnNetworkErrorTogglesProgressSpinner() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER))
+        when(planChangeOperations.awaitAccountUpgrade())
                 .thenReturn(Observable.error(new IOException()), Observable.never());
 
         presenter.onCreate(activity, null);
@@ -191,7 +194,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displayErrorDialogOnNonNetworkError() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER))
+        when(planChangeOperations.awaitAccountUpgrade())
                 .thenReturn(Observable.error(ApiRequestException.malformedInput(null, new ApiMapperException("test"))));
 
         presenter.onCreate(activity, null);
@@ -202,7 +205,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displayErrorDialogOnNoPlanChange() {
-        when(planChangeOperations.awaitAccountUpgrade(Plan.HIGH_TIER)).thenReturn(Observable.empty());
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.empty());
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();

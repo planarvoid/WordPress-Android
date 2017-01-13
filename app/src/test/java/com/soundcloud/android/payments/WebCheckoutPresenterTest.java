@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.PendingPlanOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -36,6 +38,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private LocaleFormatter localeFormatter;
     @Mock private WebPaymentOperations paymentOperations;
+    @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private Navigator navigator;
     @Mock private Resources resources;
     @Mock private AppCompatActivity activity;
@@ -52,7 +55,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         eventBus = new TestEventBus();
         presenter = new WebCheckoutPresenter(view, accountOperations, localeFormatter, lazyOf(paymentOperations),
-                                             navigator, eventBus, resources);
+                                             pendingPlanOperations, navigator, eventBus, resources);
     }
 
     @Test
@@ -122,6 +125,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         presenter.onPaymentSuccess();
 
+        verify(pendingPlanOperations).setPendingUpgrade(Plan.HIGH_TIER);
         verify(navigator).resetForAccountUpgrade(eq(activity));
     }
 

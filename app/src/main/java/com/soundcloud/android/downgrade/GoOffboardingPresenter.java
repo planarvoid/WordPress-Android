@@ -3,11 +3,13 @@ package com.soundcloud.android.downgrade;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -26,7 +28,8 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     }
 
     private final Navigator navigator;
-    private final PlanChangeOperations operations;
+    private final PendingPlanOperations pendingPlanOperations;
+    private final PlanChangeOperations planChangeOperations;
     private final GoOffboardingView view;
     private final EventBus eventBus;
 
@@ -38,11 +41,13 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     @Inject
     GoOffboardingPresenter(Navigator navigator,
-                           PlanChangeOperations operations,
+                           PendingPlanOperations pendingPlanOperations,
+                           PlanChangeOperations planChangeOperations,
                            GoOffboardingView view,
                            EventBus eventBus) {
         this.navigator = navigator;
-        this.operations = operations;
+        this.pendingPlanOperations = pendingPlanOperations;
+        this.planChangeOperations = planChangeOperations;
         this.view = view;
         this.eventBus = eventBus;
     }
@@ -57,6 +62,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
+        Log.i("Launching offboarding for downgrade to: " + pendingPlanOperations.getPendingUpgrade().planId);
         this.fragment = fragment;
         context = StrategyContext.USER_NO_ACTION;
         strategy = initialLoadingStrategy().proceed();
@@ -128,7 +134,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         public Strategy proceed() {
             strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
             subscription.unsubscribe();
-            subscription = operations.awaitAccountDowngrade()
+            subscription = planChangeOperations.awaitAccountDowngrade()
                                      .observeOn(AndroidSchedulers.mainThread())
                                      .subscribe(new DowngradeCompleteSubscriber());
             return strategy;

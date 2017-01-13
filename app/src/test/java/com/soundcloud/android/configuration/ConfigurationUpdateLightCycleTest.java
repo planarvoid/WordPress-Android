@@ -1,6 +1,5 @@
 package com.soundcloud.android.configuration;
 
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Navigator;
@@ -10,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -20,13 +19,15 @@ public class ConfigurationUpdateLightCycleTest {
     private ConfigurationUpdateLightCycle lightCycle;
 
     @Mock private ConfigurationManager configurationManager;
+    @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private Navigator navigator;
     @Mock private AppCompatActivity activity;
+
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        lightCycle = new ConfigurationUpdateLightCycle(configurationManager, navigator, eventBus);
+        lightCycle = new ConfigurationUpdateLightCycle(configurationManager, pendingPlanOperations, navigator, eventBus);
     }
 
     @Test
@@ -47,22 +48,22 @@ public class ConfigurationUpdateLightCycleTest {
         verify(navigator).resetForAccountUpgrade(activity);
     }
 
-    @Test // because we don't know how to handle this yet. Remove this test once we launch mid tier
-    public void shouldNotRestartAppForUpgradeIfPlanUpgradedToMidTier() {
+    @Test
+    public void shouldRestartAppForUpgradeIfPlanUpgradedToMidTier() {
         lightCycle.onStart(activity);
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(Plan.FREE_TIER, Plan.MID_TIER));
 
-        verify(navigator, never()).resetForAccountUpgrade(activity);
+        verify(navigator).resetForAccountUpgrade(activity);
     }
 
     @Test
     public void shouldResetAppForDowngrade() {
         lightCycle.onStart(activity);
 
-        eventBus.publish(EventQueue.USER_PLAN_CHANGE,
-                         UserPlanChangedEvent.forDowngrade(Plan.HIGH_TIER, Plan.FREE_TIER));
+        eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(Plan.HIGH_TIER, Plan.FREE_TIER));
 
         verify(navigator).resetForAccountDowngrade(activity);
     }
+
 }

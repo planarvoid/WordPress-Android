@@ -18,6 +18,7 @@ public class PlanChangeOperations {
 
     private final ConfigurationOperations configurationOperations;
     private final OfflineContentOperations offlineContentOperations;
+    private final PendingPlanOperations pendingPlanOperations;
     private final PolicyOperations policyOperations;
     private final PlaySessionController playSessionController;
     private final EventBus eventBus;
@@ -27,18 +28,20 @@ public class PlanChangeOperations {
         public void call(Throwable throwable) {
             // we retry network errors, so don't treat this as terminal
             if (!isNetworkError(throwable)) {
-                configurationOperations.clearPendingPlanChanges();
+                pendingPlanOperations.clearPendingPlanChanges();
             }
         }
     };
 
     @Inject
     PlanChangeOperations(ConfigurationOperations configurationOperations,
+                         PendingPlanOperations pendingPlanOperations,
                          PolicyOperations policyOperations,
                          PlaySessionController playSessionController,
                          OfflineContentOperations offlineContentOperations,
                          EventBus eventBus) {
         this.configurationOperations = configurationOperations;
+        this.pendingPlanOperations = pendingPlanOperations;
         this.policyOperations = policyOperations;
         this.playSessionController = playSessionController;
         this.offlineContentOperations = offlineContentOperations;
@@ -46,22 +49,16 @@ public class PlanChangeOperations {
     }
 
     public Observable<Object> awaitAccountDowngrade() {
-        return configurationOperations.awaitConfigurationFromPendingPlanChange()
+        return configurationOperations.awaitConfigurationFromPendingDowngrade()
                                       .flatMap(configuration -> configuration.getUserPlan().currentPlan == Plan.FREE_TIER
                                              ? offlineContentOperations.resetOfflineFeature()
                                              : Observable.just(configuration))
                                       .compose(new PlanChangedSteps());
     }
 
-    public Observable<Object> awaitAccountUpgrade(Plan plan) {
-        Observable<Configuration> updatedConfiguration;
-        if (configurationOperations.isPendingUpgrade()) {
-            // Plan change occurred in background; await that configuration
-            updatedConfiguration = configurationOperations.awaitConfigurationFromPendingPlanChange();
-        } else {
-            updatedConfiguration = configurationOperations.awaitConfigurationWithPlan(plan);
-        }
-        return updatedConfiguration.compose(new PlanChangedSteps());
+    public Observable<Object> awaitAccountUpgrade() {
+        return configurationOperations.awaitConfigurationFromPendingUpgrade()
+                .compose(new PlanChangedSteps());
     }
 
     /*
@@ -74,7 +71,7 @@ public class PlanChangeOperations {
             return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
                          .doOnNext(urns -> eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(urns)))
                          .doOnSubscribe(playSessionController::resetPlaySession)
-                         .doOnCompleted(configurationOperations::clearPendingPlanChanges)
+                         .doOnCompleted(pendingPlanOperations::clearPendingPlanChanges)
                          .doOnError(clearPendingPlanChangeFlagsIfUnrecoverableError)
                          .cast(Object.class);
         }

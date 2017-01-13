@@ -1,8 +1,5 @@
 package com.soundcloud.android.framework.helpers;
 
-import static com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey.CHROMECAST;
-import static com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey.PLAY_QUEUE;
-
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.configuration.FeatureName;
@@ -21,14 +18,12 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.java.collections.Sets;
-import rx.functions.Action1;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Collections;
-import java.util.List;
 
 @SuppressLint("CommitPrefEdits")
 public class ConfigurationHelper {
@@ -84,6 +79,12 @@ public class ConfigurationHelper {
     public static void disableFacebookInvitesNotification(final Context context) {
         final FacebookInvitesStorage facebookInvitesStorage = getFacebookInvitesStorage(context);
         facebookInvitesStorage.setTimesAppOpened(0);
+    }
+
+    public static void forcePendingPlanUpgrade(Context context) {
+        final SharedPreferences configSettings =
+                context.getSharedPreferences("device_config_settings", Context.MODE_PRIVATE);
+        configSettings.edit().putString("pending_plan_upgrade", Plan.HIGH_TIER.planId).apply();
     }
 
     public static void forcePendingPlanDowngrade(Context context) {

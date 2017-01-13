@@ -49,14 +49,6 @@ public class ConfigurationManager {
         forceUpdateHandler.checkPendingForcedUpdate();
     }
 
-    boolean isPendingDowngrade() {
-        return configurationOperations.isPendingDowngrade();
-    }
-
-    boolean isPendingUpgrade() {
-        return configurationOperations.isPendingUpgrade();
-    }
-
     public boolean shouldDisplayDeviceConflict() {
         return deviceManagementStorage.hadDeviceConflict();
     }

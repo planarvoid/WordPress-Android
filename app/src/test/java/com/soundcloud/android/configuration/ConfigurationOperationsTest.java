@@ -49,6 +49,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private PlanChangeDetector planChangeDetector;
     @Mock private ForceUpdateHandler forceUpdateHandler;
+    @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private DeviceManagementStorage deviceManagementStorage;
     @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
@@ -72,9 +73,10 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
                                                  featureOperations,
                                                  planChangeDetector,
                                                  forceUpdateHandler,
+                                                 pendingPlanOperations,
                                                  configurationSettingsStorage,
                                                  imageConfigurationStorage,
-                                                 factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1),
+                                                 factory.create(0, TimeUnit.SECONDS, 0, 1),
                                                  scheduler);
 
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
@@ -216,12 +218,13 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationFromPendingPlanChangeAwaitsPendingHighTierUpgrade() throws Exception {
-        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.HIGH_TIER);
+        when(pendingPlanOperations.isPendingUpgrade()).thenReturn(true);
+        when(pendingPlanOperations.getPendingUpgrade()).thenReturn(Plan.HIGH_TIER);
         final Configuration highTier = TestConfiguration.highTier();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(highTier);
 
-        operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
+        operations.awaitConfigurationFromPendingUpgrade().subscribe(configSubscriber);
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
         assertThat(configSubscriber.getOnNextEvents().get(0)).isSameAs(highTier);
@@ -230,12 +233,13 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationFromPendingPlanChangeAwaitsPendingDowngrade() throws Exception {
-        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.FREE_TIER);
+        when(pendingPlanOperations.isPendingDowngrade()).thenReturn(true);
+        when(pendingPlanOperations.getPendingDowngrade()).thenReturn(Plan.FREE_TIER);
         final Configuration noPlan = TestConfiguration.free();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(noPlan);
 
-        operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
+        operations.awaitConfigurationFromPendingDowngrade().subscribe(configSubscriber);
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
         assertThat(configSubscriber.getOnNextEvents().get(0)).isSameAs(noPlan);
@@ -244,12 +248,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationFromPendingPlanChangeCompletesImmediatelyIfNoPendingChange() {
-        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.UNDEFINED);
-        final Configuration noPlan = TestConfiguration.free();
+        when(pendingPlanOperations.isPendingUpgrade()).thenReturn(false);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(noPlan));
+                .thenReturn(Observable.just(TestConfiguration.free()));
 
-        operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
+        operations.awaitConfigurationFromPendingUpgrade().subscribe(configSubscriber);
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
         configSubscriber.assertNoValues();
@@ -359,42 +362,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.saveConfiguration(authorized);
 
         verify(configurationSettingsStorage).setLastConfigurationUpdateTime(geq(now));
-    }
-
-    @Test
-    public void hasPendingHighTierUpgrade() {
-        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.HIGH_TIER);
-        assertThat(operations.isPendingUpgrade()).isTrue();
-    }
-
-    @Test
-    public void hasPendingHMidTierUpgrade() {
-        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.MID_TIER);
-        assertThat(operations.isPendingUpgrade()).isTrue();
-    }
-
-    @Test
-    public void hasNoPendingUpgrade() {
-        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.UNDEFINED);
-        assertThat(operations.isPendingUpgrade()).isFalse();
-    }
-
-    @Test
-    public void hasPendingFreeDowngrade() {
-        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.FREE_TIER);
-        assertThat(operations.isPendingDowngrade()).isTrue();
-    }
-
-    @Test
-    public void hasPendingMidTierDowngrade() {
-        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.MID_TIER);
-        assertThat(operations.isPendingDowngrade()).isTrue();
-    }
-
-    @Test
-    public void hasNoPendingDowngrade() {
-        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.UNDEFINED);
-        assertThat(operations.isPendingDowngrade()).isFalse();
     }
 
     @Test

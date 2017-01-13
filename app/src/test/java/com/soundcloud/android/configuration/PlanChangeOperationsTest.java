@@ -32,6 +32,7 @@ public class PlanChangeOperationsTest {
     private PlanChangeOperations operations;
 
     @Mock private ConfigurationOperations configurationOperations;
+    @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private PolicyOperations policyOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private PlaySessionController playSessionController;
@@ -42,14 +43,14 @@ public class PlanChangeOperationsTest {
     @Before
     public void setUp() throws Exception {
         when(offlineContentOperations.resetOfflineFeature()).thenReturn(Observable.just(null));
-        operations = new PlanChangeOperations(configurationOperations, policyOperations, playSessionController, offlineContentOperations, eventBus);
+        operations = new PlanChangeOperations(configurationOperations, pendingPlanOperations, policyOperations, playSessionController, offlineContentOperations, eventBus);
     }
 
     @Test
     public void downgradeShouldAwaitUpdatedConfigurationAndPolicies() {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
@@ -63,7 +64,7 @@ public class PlanChangeOperationsTest {
         Urn track1 = Urn.forTrack(123L);
         Urn track2 = Urn.forTrack(456L);
         when(policyOperations.refreshedTrackPolicies()).thenReturn(Observable.just(Arrays.asList(track1, track2)));
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
@@ -76,7 +77,7 @@ public class PlanChangeOperationsTest {
     public void downgradeShouldClearDownloadedTracksOnCompletion() {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
@@ -86,7 +87,7 @@ public class PlanChangeOperationsTest {
     public void downgradeShouldResetPlaybackServiceOnSubscription() {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.never());
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
@@ -96,128 +97,100 @@ public class PlanChangeOperationsTest {
 
     @Test
     public void downgradeShouldResetPendingPlanChangeFlagsOnSuccess() {
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 
-        verify(configurationOperations).clearPendingPlanChanges();
+        verify(pendingPlanOperations).clearPendingPlanChanges();
     }
 
     @Test
     public void downgradeShouldNotResetPendingPlanChangeFlagsOnNetworkErrors() {
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.error(new IOException()));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 
-        verify(configurationOperations, never()).clearPendingPlanChanges();
+        verify(pendingPlanOperations, never()).clearPendingPlanChanges();
     }
 
     @Test
     public void downgradeShouldResetPendingPlanChangeFlagsOnOtherError() {
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.error(new Exception()));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 
-        verify(configurationOperations).clearPendingPlanChanges();
+        verify(pendingPlanOperations).clearPendingPlanChanges();
     }
 
     @Test
-    public void upgradeShouldAwaitConfigurationAndPoliciesWhenPlanChangePending() {
-        when(configurationOperations.isPendingUpgrade()).thenReturn(true);
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+    public void upgradeShouldAwaitConfigurationAndPolicies() {
+        when(configurationOperations.awaitConfigurationFromPendingUpgrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
-        operations.awaitAccountUpgrade(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitAccountUpgrade().subscribe(subscriber);
 
         subscriber.assertValue(singletonList(Urn.forTrack(123L)));
     }
 
     @Test
-    public void upgradeShouldAwaitConfigurationAndPoliciesWhenNoPlanChangePending() {
-        when(configurationOperations.isPendingUpgrade()).thenReturn(false);
-        when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
-                .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
-        when(policyOperations.refreshedTrackPolicies())
-                .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
-
-        operations.awaitAccountUpgrade(Plan.HIGH_TIER).subscribe(subscriber);
-
-        subscriber.assertValue(singletonList(Urn.forTrack(123L)));
-    }
-
-    @Test
-    public void upgradeShouldResetPlaybackServiceOnSubscriptionWhenNoPlanChangePending() {
-        when(configurationOperations.isPendingUpgrade()).thenReturn(false);
-        when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
-                .thenReturn(Observable.never());
-        when(policyOperations.refreshedTrackPolicies())
-                .thenReturn(Observable.never());
-
-        operations.awaitAccountUpgrade(Plan.HIGH_TIER).subscribe(subscriber);
-
-        verify(playSessionController).resetPlaySession();
-    }
-
-    @Test
-    public void upgradeShouldResetPlaybackServiceOnSubscriptionWhenPlanChangePending() {
-        when(configurationOperations.isPendingUpgrade()).thenReturn(true);
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+    public void upgradeShouldResetPlaybackServiceOnSubscription() {
+        when(configurationOperations.awaitConfigurationFromPendingUpgrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.never());
 
-        operations.awaitAccountUpgrade(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitAccountUpgrade().subscribe(subscriber);
 
         verify(playSessionController).resetPlaySession();
     }
 
     @Test
     public void upgradeShouldResetPendingPlanChangeFlagsOnSuccess() {
-        when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
+        when(configurationOperations.awaitConfigurationFromPendingUpgrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
-        operations.awaitAccountUpgrade(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitAccountUpgrade().subscribe(subscriber);
 
-        verify(configurationOperations).clearPendingPlanChanges();
+        verify(pendingPlanOperations).clearPendingPlanChanges();
     }
 
     @Test
     public void upgradeShouldNotResetPendingPlanChangeFlagsOnNetworkErrors() {
-        when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
+        when(configurationOperations.awaitConfigurationFromPendingUpgrade())
                 .thenReturn(Observable.error(new IOException()));
 
-        operations.awaitAccountUpgrade(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitAccountUpgrade().subscribe(subscriber);
 
-        verify(configurationOperations, never()).clearPendingPlanChanges();
+        verify(pendingPlanOperations, never()).clearPendingPlanChanges();
     }
 
     @Test
     public void upgradeShouldResetPendingPlanChangeFlagsOnOtherErrors() {
-        when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
+        when(configurationOperations.awaitConfigurationFromPendingUpgrade())
                 .thenReturn(Observable.error(new Exception()));
 
-        operations.awaitAccountUpgrade(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitAccountUpgrade().subscribe(subscriber);
 
-        verify(configurationOperations).clearPendingPlanChanges();
+        verify(pendingPlanOperations).clearPendingPlanChanges();
     }
 
     @Test
     public void downgradeToFreeResetsOfflineFeature() {
         final PublishSubject<Void> clearObservable = PublishSubject.create();
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange()).thenReturn(Observable.just(TestConfiguration.free()));
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade()).thenReturn(Observable.just(TestConfiguration.free()));
         when(offlineContentOperations.resetOfflineFeature()).thenReturn(clearObservable);
         when(policyOperations.refreshedTrackPolicies()).thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
@@ -228,7 +201,7 @@ public class PlanChangeOperationsTest {
 
     @Test
     public void downgradeToMidTierDoesNotClearOfflineContent() {
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange()).thenReturn(Observable.just(TestConfiguration.midTier()));
+        when(configurationOperations.awaitConfigurationFromPendingDowngrade()).thenReturn(Observable.just(TestConfiguration.midTier()));
         when(policyOperations.refreshedTrackPolicies()).thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);

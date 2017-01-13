@@ -3,6 +3,7 @@ package com.soundcloud.android.payments;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
@@ -52,6 +53,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final AccountOperations operations;
     private final LocaleFormatter localeFormatter;
     private final Lazy<WebPaymentOperations> paymentOperations;
+    private final PendingPlanOperations pendingPlanOperations;
     private final Navigator navigator;
     private final EventBus eventBus;
     private final Resources resources;
@@ -66,6 +68,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                                 AccountOperations operations,
                                 LocaleFormatter localeFormatter,
                                 Lazy<WebPaymentOperations> paymentOperations,
+                                PendingPlanOperations pendingPlanOperations,
                                 Navigator navigator,
                                 EventBus eventBus,
                                 Resources resources) {
@@ -73,6 +76,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         this.operations = operations;
         this.localeFormatter = localeFormatter;
         this.paymentOperations = paymentOperations;
+        this.pendingPlanOperations = pendingPlanOperations;
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.resources = resources;
@@ -135,8 +139,14 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     public void onPaymentSuccess() {
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeSuccess());
         trackPurchase();
-        navigator.resetForAccountUpgrade(activity);
+        launchUpgrade();
         activity.finish();
+    }
+
+    private void launchUpgrade() {
+        Plan targetPlan = Plan.fromId(getProductFromIntent().getPlanId());
+        pendingPlanOperations.setPendingUpgrade(targetPlan);
+        navigator.resetForAccountUpgrade(activity);
     }
 
     private void trackPurchase() {
@@ -152,7 +162,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         eventBus.publish(EventQueue.TRACKING, PaymentErrorEvent.create(errorType));
     }
 
-    public boolean handleBackPress() {
+    boolean handleBackPress() {
         return view.handleBackPress();
     }
 

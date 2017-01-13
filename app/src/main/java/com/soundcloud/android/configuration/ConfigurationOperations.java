@@ -48,6 +48,7 @@ public class ConfigurationOperations {
     private final FeatureOperations featureOperations;
     private final PlanChangeDetector planChangeDetector;
     private final ForceUpdateHandler forceUpdateHandler;
+    private final PendingPlanOperations pendingPlanOperations;
     private final ConfigurationSettingsStorage configurationSettingsStorage;
     private final ImageConfigurationStorage imageConfigurationStorage;
     private final TryWithBackOff<Configuration> tryWithBackOff;
@@ -64,6 +65,7 @@ public class ConfigurationOperations {
     public ConfigurationOperations(ApiClientRx apiClientRx,
                                    ExperimentOperations experimentOperations,
                                    FeatureOperations featureOperations,
+                                   PendingPlanOperations pendingPlanOperations,
                                    ConfigurationSettingsStorage configurationSettingsStorage,
                                    TryWithBackOff.Factory tryWithBackOffFactory,
                                    @Named(HIGH_PRIORITY) Scheduler scheduler,
@@ -71,7 +73,7 @@ public class ConfigurationOperations {
                                    ForceUpdateHandler forceUpdateHandler,
                                    ImageConfigurationStorage imageConfigurationStorage) {
         this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler,
-             configurationSettingsStorage, imageConfigurationStorage,
+             pendingPlanOperations, configurationSettingsStorage, imageConfigurationStorage,
              tryWithBackOffFactory.withDefaults(), scheduler);
     }
 
@@ -81,6 +83,7 @@ public class ConfigurationOperations {
                             FeatureOperations featureOperations,
                             PlanChangeDetector planChangeDetector,
                             ForceUpdateHandler forceUpdateHandler,
+                            PendingPlanOperations pendingPlanOperations,
                             ConfigurationSettingsStorage configurationSettingsStorage,
                             ImageConfigurationStorage imageConfigurationStorage,
                             TryWithBackOff<Configuration> tryWithBackOff,
@@ -92,6 +95,7 @@ public class ConfigurationOperations {
         this.apiClient = apiClientRx.getApiClient();
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
+        this.pendingPlanOperations = pendingPlanOperations;
         this.configurationSettingsStorage = configurationSettingsStorage;
         this.tryWithBackOff = tryWithBackOff;
         this.scheduler = scheduler;
@@ -122,6 +126,18 @@ public class ConfigurationOperations {
         }
     }
 
+    Observable<Configuration> awaitConfigurationFromPendingUpgrade() {
+        return pendingPlanOperations.isPendingUpgrade()
+                ? awaitConfigurationWithPlan(pendingPlanOperations.getPendingUpgrade())
+                : noPlanChange();
+    }
+
+    Observable<Configuration> awaitConfigurationFromPendingDowngrade() {
+        return pendingPlanOperations.isPendingDowngrade()
+                ? awaitConfigurationWithPlan(pendingPlanOperations.getPendingDowngrade())
+                : noPlanChange();
+    }
+
     Observable<Configuration> awaitConfigurationWithPlan(final Plan expectedPlan) {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
                          .take(POLLING_MAX_ATTEMPTS)
@@ -130,19 +146,13 @@ public class ConfigurationOperations {
                          .doOnNext(this::saveConfiguration);
     }
 
-    Observable<Configuration> awaitConfigurationFromPendingPlanChange() {
-        if (isPendingUpgrade()) {
-            return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanUpgrade());
-        } else if (isPendingDowngrade()) {
-            return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanDowngrade());
-        } else {
-            // this might seem counter-intuitive since it actually violates a precondition, but we actually
-            // found a case where due to abnormal termination of the offboarding activity, Android launched
-            // us back into it after we successfully completed the flow, so instead of throwing an error
-            // here we just nod and move on.
-            // See https://github.com/soundcloud/android/issues/5024
-            return Observable.empty();
-        }
+    private Observable<Configuration> noPlanChange() {
+        // This might seem counter-intuitive since it actually violates a precondition, but we actually
+        // found a case where due to abnormal termination of the offboarding activity, Android launched
+        // us back into it after we successfully completed the flow, so instead of throwing an error
+        // here we just nod and move on.
+        // See https://github.com/soundcloud/android/issues/5024
+        return Observable.empty();
     }
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
@@ -194,20 +204,6 @@ public class ConfigurationOperations {
         featureOperations.updateFeatures(configuration.getFeatures());
         planChangeDetector.handleRemotePlan(configuration.getUserPlan().currentPlan);
         featureOperations.updatePlan(configuration.getUserPlan());
-    }
-
-    boolean isPendingUpgrade() {
-        final Plan pendingPlan = configurationSettingsStorage.getPendingPlanUpgrade();
-        return pendingPlan == Plan.MID_TIER || pendingPlan == Plan.HIGH_TIER;
-    }
-
-    boolean isPendingDowngrade() {
-        final Plan pendingPlan = configurationSettingsStorage.getPendingPlanDowngrade();
-        return pendingPlan == Plan.FREE_TIER || pendingPlan == Plan.MID_TIER;
-    }
-
-    void clearPendingPlanChanges() {
-        configurationSettingsStorage.clearPendingPlanChanges();
     }
 
     public void clearConfigurationSettings() {

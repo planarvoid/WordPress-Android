@@ -12,36 +12,30 @@ public class PlanChangeDetector {
 
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
-    private final ConfigurationSettingsStorage configurationSettingsStorage;
+    private final PendingPlanOperations pendingPlanOperations;
 
     @Inject
     PlanChangeDetector(EventBus eventBus,
                        FeatureOperations featureOperations,
-                       ConfigurationSettingsStorage configurationSettingsStorage) {
+                       PendingPlanOperations pendingPlanOperations) {
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
-        this.configurationSettingsStorage = configurationSettingsStorage;
+        this.pendingPlanOperations = pendingPlanOperations;
     }
 
     public void handleRemotePlan(Plan remotePlan) {
-        if (!hasPendingPlanChanges()) {
+        if (!pendingPlanOperations.hasPendingPlanChange()) {
             final Plan currentPlan = featureOperations.getCurrentPlan();
             if (remotePlan.isUpgradeFrom(currentPlan)) {
                 Log.d(TAG, "Plan upgrade detected from " + currentPlan + " to " + remotePlan);
-                configurationSettingsStorage.storePendingPlanUpgrade(remotePlan);
+                pendingPlanOperations.setPendingUpgrade(remotePlan);
                 eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(currentPlan, remotePlan));
             } else if (remotePlan.isDowngradeFrom(currentPlan)) {
                 Log.d(TAG, "Plan downgrade detected from " + currentPlan + " to " + remotePlan);
-                configurationSettingsStorage.storePendingPlanDowngrade(remotePlan);
-                eventBus.publish(EventQueue.USER_PLAN_CHANGE,
-                                 UserPlanChangedEvent.forDowngrade(currentPlan, remotePlan));
+                pendingPlanOperations.setPendingDowngrade(remotePlan);
+                eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(currentPlan, remotePlan));
             }
         }
     }
 
-    private boolean hasPendingPlanChanges() {
-        final Plan pendingPlanDowngrade = configurationSettingsStorage.getPendingPlanDowngrade();
-        final Plan pendingPlanUpgrade = configurationSettingsStorage.getPendingPlanUpgrade();
-        return pendingPlanDowngrade != Plan.UNDEFINED || pendingPlanUpgrade != Plan.UNDEFINED;
-    }
 }

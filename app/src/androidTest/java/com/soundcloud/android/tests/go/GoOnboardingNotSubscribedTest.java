@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.Element;
 import com.soundcloud.android.screens.elements.GoOnboardingErrorElement;
@@ -28,6 +29,11 @@ public class GoOnboardingNotSubscribedTest extends ActivityTest<GoOnboardingActi
     protected void setUp() throws Exception {
         super.setUp();
         screen = new GoOnboardingScreen(solo);
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        ConfigurationHelper.forcePendingPlanUpgrade(getInstrumentation().getTargetContext());
     }
 
     public void testSubscriptionFailed() {
