@@ -5,6 +5,7 @@ import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.utils.DateUtils;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
@@ -14,9 +15,13 @@ public abstract class WelcomeUserItem extends DiscoveryItem implements ImageReso
     public abstract String userName();
     public abstract String avatarUrl();
     public abstract TimeOfDay timeOfDay();
+    public abstract boolean isNewSignup();
 
-    public static DiscoveryItem create(User user, TimeOfDay timeOfDay) {
-        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.urn(), user.username(), user.avatarUrl().get(), timeOfDay);
+    public static DiscoveryItem create(User user) {
+        String name = user.firstName().isPresent() ? user.firstName().get() : user.username();
+        TimeOfDay timeOfDay = TimeOfDay.getCurrent();
+        boolean newSignup = DateUtils.isInLastHours(user.signupDate(), 2);
+        return new AutoValue_WelcomeUserItem(Kind.WelcomeUserItem, user.urn(), name, user.avatarUrl().get(), timeOfDay, newSignup);
     }
 
     @Override

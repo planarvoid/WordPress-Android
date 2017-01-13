@@ -22,7 +22,7 @@ public class WelcomeUserStorage {
         preferences.edit().putLong(TIMESTAMP_WELCOME_CARD, new Date().getTime()).apply();
     }
 
-    boolean shouldShowWelcome() {
+    public boolean shouldShowWelcome() {
         long lastShownTimestamp = preferences.getLong(TIMESTAMP_WELCOME_CARD, 0);
         long timeDeltaFromLastShow = new Date().getTime() - lastShownTimestamp;
         return TimeUnit.HOURS.convert(timeDeltaFromLastShow, TimeUnit.MILLISECONDS) > DELTA_HOURS;

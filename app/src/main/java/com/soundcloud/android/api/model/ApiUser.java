@@ -29,6 +29,8 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     private int followersCount;
     private String permalink;
     private String username;
+    private Optional<String> firstName = Optional.absent();
+    private Optional<String> lastName = Optional.absent();
     private Optional<String> avatarUrlTemplate = Optional.absent();
     private Optional<String> visualUrlTemplate = Optional.absent();
     private String description;
@@ -37,16 +39,14 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     private String websiteTitle;
     private String discogsName;
     private Urn artistStation;
+    private Optional<Date> createdAt = Optional.absent();
 
     // these are currently unused, but they come back in the representation, and are part of a future story
-    private String firstName;
-    private String lastName;
     private String countryCode;
     private int trackCount;
     private int followingsCount;
     private boolean isVerified;
     private boolean isPro;
-    private Date createdAt;
 
     public ApiUser() { /* for Deserialization */ }
 
@@ -59,6 +59,10 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return urn;
     }
 
+    public void setUrn(Urn urn) {
+        this.urn = urn;
+    }
+
     @Override
     public Optional<String> getImageUrlTemplate() {
         return avatarUrlTemplate;
@@ -69,14 +73,11 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return visualUrlTemplate;
     }
 
-    public void setUrn(Urn urn) {
-        this.urn = urn;
-    }
-
     public long getId() {
         return urn.getNumericId();
     }
 
+    @Override
     public String getPermalink() {
         return permalink;
     }
@@ -85,6 +86,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         this.permalink = permalink;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
@@ -95,6 +97,36 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
 
     public Optional<String> getAvatarUrlTemplate() {
         return avatarUrlTemplate;
+    }
+
+    @Override
+    public Optional<String> getFirstName() {
+        return firstName;
+    }
+
+    @JsonProperty("first_name")
+    public void setFirstName(String name) {
+        firstName = Optional.fromNullable(name);
+    }
+
+    @Override
+    public Optional<String> getLastName() {
+        return lastName;
+    }
+
+    @JsonProperty("last_name")
+    public void setLastName(String name) {
+        lastName = Optional.fromNullable(name);
+    }
+
+    @Override
+    public Optional<Date> getCreatedAt() {
+        return createdAt;
+    }
+
+    @JsonProperty("created_at")
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = Optional.fromNullable(createdAt);
     }
 
     @JsonProperty("avatar_url_template")
@@ -111,11 +143,12 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
     public void setStationUrns(List<Urn> stations) {
         for (Urn stationUrn : stations) {
             if (stationUrn.isArtistStation()) {
-                this.artistStation = stationUrn;
+                artistStation = stationUrn;
             }
         }
     }
 
+    @Override
     @Nullable
     public String getCountry() {
         return country;
@@ -135,8 +168,14 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         this.city = city;
     }
 
+    @Override
     public int getFollowersCount() {
         return followersCount;
+    }
+
+    @JsonProperty("followers_count")
+    public void setFollowersCount(int followersCount) {
+        this.followersCount = followersCount;
     }
 
     @Override
@@ -144,9 +183,17 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return fromNullable(description);
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public Optional<String> getWebsiteUrl() {
         return fromNullable(website);
+    }
+
+    public void setWebsiteUrl(String website) {
+        this.website = website;
     }
 
     @Override
@@ -159,9 +206,17 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return fromNullable(discogsName);
     }
 
+    public void setDiscogsName(String discogsName) {
+        this.discogsName = discogsName;
+    }
+
     @Override
     public Optional<String> getMyspaceName() {
         return fromNullable(myspaceName);
+    }
+
+    public void setMyspaceName(String myspaceName) {
+        this.myspaceName = myspaceName;
     }
 
     @Override
@@ -169,39 +224,8 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return fromNullable(artistStation);
     }
 
-    @JsonProperty("followers_count")
-    public void setFollowersCount(int followersCount) {
-        this.followersCount = followersCount;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setWebsiteUrl(String website) {
-        this.website = website;
-    }
-
     public void setWebsiteTitle(String websiteTitle) {
         this.websiteTitle = websiteTitle;
-    }
-
-    public void setMyspaceName(String myspaceName) {
-        this.myspaceName = myspaceName;
-    }
-
-    public void setDiscogsName(String discogsName) {
-        this.discogsName = discogsName;
-    }
-
-    @JsonProperty("first_name")
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    @JsonProperty("last_name")
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     @JsonProperty("verified")
@@ -214,10 +238,6 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         this.isPro = isPro;
     }
 
-    @JsonProperty("created_at")
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
 
     @JsonProperty("track_count")
     public void setTrackCount(int trackCount) {
@@ -271,14 +291,6 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
         return this;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
     public String getCountryCode() {
         return countryCode;
     }
@@ -297,9 +309,5 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
 
     public boolean isPro() {
         return isPro;
-    }
-
-    public Date createdAt() {
-        return createdAt;
     }
 }

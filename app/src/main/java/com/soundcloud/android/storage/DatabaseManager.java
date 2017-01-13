@@ -13,7 +13,6 @@ import static java.util.Arrays.asList;
 import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.functions.Predicate;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -30,7 +29,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 107;
+    public static final int DATABASE_VERSION = 108;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -356,11 +355,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             // Add mid-tier to TrackView
                             // Re-trigger views creation
                             success = true;
-                            break;
                         case 107:
                             // Add permalink URL to SoundStreamView
                             // Re-trigger views creation
                             success = true;
+                            break;
+                        case 108:
+                            success = upgradeTo108(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1353,6 +1354,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 104);
+        }
+        return false;
+    }
+
+    /**
+     * Change the "Users" table to contain firstname, lastname, signup_date
+     */
+    private boolean upgradeTo108(SQLiteDatabase db, int oldVersion) {
+        try {
+            alterColumns(Tables.Users.TABLE.name(), Tables.Users.SQL, db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 108);
         }
         return false;
     }

@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 @Deprecated
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PublicApiUser extends PublicApiResource implements UserHolder, UserRecord, ApiSyncable {
@@ -139,6 +141,21 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     @Nullable
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public Optional<String> getFirstName() {
+        return Optional.absent();
+    }
+
+    @Override
+    public Optional<String> getLastName() {
+        return Optional.absent();
+    }
+
+    @Override
+    public Optional<Date> getCreatedAt() {
+        return Optional.absent();
     }
 
     public final void setUsername(@Nullable String username) {

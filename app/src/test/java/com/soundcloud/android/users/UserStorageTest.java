@@ -109,10 +109,13 @@ public class UserStorageTest extends StorageIntegrationTest {
 
     private User.Builder getBaseUserBuilder(ApiUser apiUser) {
         return ModelFixtures.userBuilder(false)
-                .urn(apiUser.getUrn())
-                .username(apiUser.getUsername())
-                .followersCount(apiUser.getFollowersCount())
-                .avatarUrl(apiUser.getImageUrlTemplate())
-                .visualUrl(apiUser.getVisualUrlTemplate());
+                            .urn(apiUser.getUrn())
+                            .username(apiUser.getUsername())
+                            .signupDate(apiUser.getCreatedAt())
+                            .firstName(apiUser.getFirstName())
+                            .lastName(apiUser.getLastName())
+                            .followersCount(apiUser.getFollowersCount())
+                            .avatarUrl(apiUser.getImageUrlTemplate())
+                            .visualUrl(apiUser.getVisualUrlTemplate());
     }
 }

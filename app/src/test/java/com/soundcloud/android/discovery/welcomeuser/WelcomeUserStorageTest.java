@@ -1,21 +1,16 @@
 package com.soundcloud.android.discovery.welcomeuser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 public class WelcomeUserStorageTest extends AndroidUnitTest {
 
-    @Mock private FeatureFlags featureFlags;
     private SharedPreferences sharedPreferences;
     private WelcomeUserStorage welcomeUserStorage;
 
@@ -23,12 +18,10 @@ public class WelcomeUserStorageTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context());
         welcomeUserStorage = new WelcomeUserStorage(sharedPreferences);
-
-        when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(true);
     }
 
     @Test
-    public void featureFlagEnabledAndNoSavedValue() throws Exception {
+    public void noStoredValueShowWelcome() throws Exception {
         assertThat(welcomeUserStorage.shouldShowWelcome()).isTrue();
     }
 
@@ -40,7 +33,6 @@ public class WelcomeUserStorageTest extends AndroidUnitTest {
 
     @Test
     public void storeValueAndDontWelcomeAgain() throws Exception {
-        when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
         welcomeUserStorage.onWelcomeUser();
         assertThat(welcomeUserStorage.shouldShowWelcome()).isFalse();
     }

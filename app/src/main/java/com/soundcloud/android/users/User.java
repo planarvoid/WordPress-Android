@@ -10,12 +10,20 @@ import com.soundcloud.android.storage.Tables.UsersView;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 
+import java.util.Date;
+
 @AutoValue
 public abstract class User {
 
     public abstract Urn urn();
 
     public abstract String username();
+
+    public abstract Optional<String> firstName();
+
+    public abstract Optional<String> lastName();
+
+    public abstract Optional<Date> signupDate();
 
     public abstract Optional<String> country();
 
@@ -45,6 +53,9 @@ public abstract class User {
         return new AutoValue_User.Builder()
                 .urn(forUser(cursorReader.getLong(UsersView.ID.name())))
                 .username(cursorReader.getString(UsersView.USERNAME.name()))
+                .firstName(Optional.fromNullable(cursorReader.getString(UsersView.FIRST_NAME.name())))
+                .lastName(Optional.fromNullable(cursorReader.getString(UsersView.LAST_NAME.name())))
+                .signupDate(cursorReader.hasColumn(UsersView.SIGNUP_DATE.name()) ? Optional.of(cursorReader.getDateFromTimestamp(UsersView.SIGNUP_DATE.name())): Optional.absent())
                 .country(Optional.fromNullable(cursorReader.getString(UsersView.COUNTRY.name())))
                 .city(Optional.fromNullable(cursorReader.getString(UsersView.CITY.name())))
                 .followersCount(cursorReader.getInt(UsersView.FOLLOWERS_COUNT.name()))
@@ -64,6 +75,9 @@ public abstract class User {
         return new AutoValue_User.Builder()
                 .urn(apiUser.getUrn())
                 .username(apiUser.getUsername())
+                .firstName(apiUser.getFirstName())
+                .lastName(apiUser.getLastName())
+                .signupDate(apiUser.getCreatedAt())
                 .country(Optional.fromNullable(apiUser.getCountry()))
                 .city(Optional.fromNullable(apiUser.getCity()))
                 .followersCount(apiUser.getFollowersCount())
@@ -84,6 +98,9 @@ public abstract class User {
         // of autovalue to include our optional : https://github.com/google/auto/issues/359
         return new AutoValue_User.Builder()
                 .country(Optional.absent())
+                .firstName(Optional.absent())
+                .lastName(Optional.absent())
+                .signupDate(Optional.absent())
                 .city(Optional.absent())
                 .description(Optional.absent())
                 .avatarUrl(Optional.absent())
@@ -101,6 +118,12 @@ public abstract class User {
         public abstract Builder urn(Urn urn);
 
         public abstract Builder username(String username);
+
+        public abstract Builder firstName(Optional<String> firstName);
+
+        public abstract Builder lastName(Optional<String> lastName);
+
+        public abstract Builder signupDate(Optional<Date> signupDate);
 
         public abstract Builder country(Optional<String> country);
 

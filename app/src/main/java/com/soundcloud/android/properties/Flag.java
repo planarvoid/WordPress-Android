@@ -35,7 +35,8 @@ public enum Flag {
     ADJUST_DEFERRED_DEEPLINKS(BuildConfig.ADJUST_DEFERRED_DEEPLINKS),
     FLIPPER(BuildConfig.FLIPPER),
     APPBOY(BuildConfig.APPBOY),
-    WELCOME_USER(BuildConfig.WELCOME_USER);
+    WELCOME_USER(BuildConfig.WELCOME_USER),
+    FORCE_SHOW_WELCOME_USER(BuildConfig.FORCE_SHOW_WELCOME_USER);
 
     private final State state;
 

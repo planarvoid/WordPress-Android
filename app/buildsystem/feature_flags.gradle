@@ -29,7 +29,8 @@ enum Feature {
   CAST_V3,
   FLIPPER,
   APPBOY,
-  WELCOME_USER;
+  WELCOME_USER,
+  FORCE_SHOW_WELCOME_USER;
 }
 
 android {
@@ -55,6 +56,7 @@ android {
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APPBOY.name(), UNDER_DEVELOPMENT
   }
 
@@ -74,6 +76,8 @@ android {
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -102,6 +106,8 @@ android {
       buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
     }
 
     release {

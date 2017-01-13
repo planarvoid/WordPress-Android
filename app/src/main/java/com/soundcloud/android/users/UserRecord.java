@@ -4,11 +4,19 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
+import java.util.Date;
+
 public interface UserRecord extends ImageResource {
 
     String getPermalink();
 
     String getUsername();
+
+    Optional<String> getFirstName();
+
+    Optional<String> getLastName();
+
+    Optional<Date> getCreatedAt();
 
     String getCountry();
 
