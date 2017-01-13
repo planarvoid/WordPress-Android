@@ -13,7 +13,7 @@ public class CollectionEventTest {
     public void createsClearEvent() {
         final CollectionEvent event = CollectionEvent.forClearFilter();
 
-        assertThat(event.getKind()).isEqualTo(CollectionEvent.KIND_CLEAR);
+        assertThat(event.clickName()).isEqualTo(CollectionEvent.ClickName.CLEAR);
     }
 
     @Test
@@ -24,8 +24,8 @@ public class CollectionEventTest {
 
         final CollectionEvent event = CollectionEvent.forFilter(options);
 
-        assertThat(event.getKind()).isEqualTo(CollectionEvent.KIND_SET);
-        assertThat(event.get(CollectionEvent.KEY_TARGET)).isEqualTo(CollectionEvent.SORT_TITLE);
+        assertThat(event.clickName()).isEqualTo(CollectionEvent.ClickName.SET);
+        assertThat(event.target().get()).isEqualTo(CollectionEvent.Target.SORT_TITLE);
     }
 
     @Test
@@ -35,8 +35,8 @@ public class CollectionEventTest {
 
         final CollectionEvent event = CollectionEvent.forFilter(options);
 
-        assertThat(event.getKind()).isEqualTo(CollectionEvent.KIND_SET);
-        assertThat(event.get(CollectionEvent.KEY_OBJECT)).isEqualTo(CollectionEvent.FILTER_ALL);
+        assertThat(event.clickName()).isEqualTo(CollectionEvent.ClickName.SET);
+        assertThat(event.object().get()).isEqualTo(CollectionEvent.FilterTag.ALL.toString());
     }
 
     @Test
@@ -47,8 +47,8 @@ public class CollectionEventTest {
 
         final CollectionEvent event = CollectionEvent.forFilter(options);
 
-        assertThat(event.getKind()).isEqualTo(CollectionEvent.KIND_SET);
-        assertThat(event.get(CollectionEvent.KEY_OBJECT)).isEqualTo(CollectionEvent.FILTER_LIKED);
+        assertThat(event.clickName()).isEqualTo(CollectionEvent.ClickName.SET);
+        assertThat(event.object().get()).isEqualTo(CollectionEvent.FilterTag.LIKED.toString());
     }
 
     @Test
@@ -56,8 +56,8 @@ public class CollectionEventTest {
         Urn urn = Urn.forPlaylist(123);
         final CollectionEvent event = CollectionEvent.forRecentlyPlayed(urn, Screen.COLLECTIONS);
 
-        assertThat(event.getKind()).isEqualTo(CollectionEvent.KIND_RECENTLY_PLAYED_NAVIGATION);
-        assertThat(event.get(CollectionEvent.KEY_OBJECT)).isEqualTo(urn.toString());
-        assertThat(event.get(CollectionEvent.KEY_PAGE_NAME)).isEqualTo(Screen.COLLECTIONS.get());
+        assertThat(event.clickName()).isEqualTo(CollectionEvent.ClickName.ITEM_NAVIGATION);
+        assertThat(event.object().get()).isEqualTo(urn.toString());
+        assertThat(event.pageName()).isEqualTo(Screen.COLLECTIONS.get());
     }
 }

@@ -1428,7 +1428,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName("collection:main")
                                                .clickName("filter_sort::clear")
-                                               .clickCategory(EventLoggerClickCategories.COLLECTION));
+                                               .clickCategory(CollectionEvent.COLLECTION_CATEGORY));
     }
 
     @Test

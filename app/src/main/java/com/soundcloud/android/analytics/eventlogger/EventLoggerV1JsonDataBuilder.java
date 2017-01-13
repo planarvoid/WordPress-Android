@@ -38,7 +38,6 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -481,33 +480,21 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForCollectionEvent(CollectionEvent event) {
-        switch (event.getKind()) {
-            case CollectionEvent.KIND_SET:
-                return transform(buildCollectionEvent("filter_sort::set", event));
-            case CollectionEvent.KIND_CLEAR:
-                return transform(buildCollectionEvent("filter_sort::clear", event));
-            case CollectionEvent.KIND_RECENTLY_PLAYED_NAVIGATION:
-                return transform(buildNavigationCollectionEvent(event));
-            default:
-                throw new IllegalStateException("Unexpected CollectionEvent type: " + event);
+        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event).clickName(event.clickName().toString()).pageName(event.pageName());
+        if (event.source().isPresent()) {
+            eventData.clickSource(event.source().get().value());
         }
-    }
+        if (event.object().isPresent()) {
+            eventData.clickObject(event.object().get());
+        }
+        if (event.clickCategory().isPresent()) {
+            eventData.clickCategory(event.clickCategory().get());
+        }
+        if (event.target().isPresent()) {
+            eventData.clickTarget(event.target().get().toString());
+        }
 
-    private EventLoggerEventData buildCollectionEvent(String clickName, CollectionEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .clickName(clickName)
-                .pageName(Screen.COLLECTIONS.get())
-                .clickCategory(EventLoggerClickCategories.COLLECTION)
-                .clickObject(event.get(CollectionEvent.KEY_OBJECT))
-                .clickTarget(event.get(CollectionEvent.KEY_TARGET));
-    }
-
-    private EventLoggerEventData buildNavigationCollectionEvent(CollectionEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .clickName(CollectionEvent.CLICK_NAME_ITEM_NAVIGATION)
-                .clickSource(event.get(CollectionEvent.KEY_SOURCE))
-                .pageName(event.get(CollectionEvent.KEY_PAGE_NAME))
-                .clickObject(event.get(CollectionEvent.KEY_OBJECT));
+        return transform(eventData);
     }
 
     private EventLoggerEventData buildItemNavigationClickEvent(UIEvent event) {

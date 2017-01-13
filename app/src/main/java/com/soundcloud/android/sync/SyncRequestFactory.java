@@ -138,7 +138,7 @@ class SyncRequestFactory {
 
     private void logBackgroundSync(List<Syncable> syncables, boolean isHighPriority) {
         if (!isHighPriority) {
-            eventBus.publish(EventQueue.TRACKING, new BackgroundSyncEvent(syncables.size()));
+            eventBus.publish(EventQueue.TRACKING, BackgroundSyncEvent.create(syncables.size()));
         }
     }
 
