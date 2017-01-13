@@ -21,9 +21,9 @@ task slogRolloutOnePercent {
   }
 }
 
-task slogRolloutFivePercent {
+task slogRolloutTwentyPercent {
   doLast {
-    sendMessage(basicText("5% rollout", project.('ext').releaseVersionCode, release_annotation))
+    sendMessage(basicText("20% rollout", project.('ext').releaseVersionCode, release_annotation))
   }
 }
 

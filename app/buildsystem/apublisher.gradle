@@ -44,14 +44,14 @@ task rolloutOnePercent(dependsOn: ['clearBeta']) {
   }
 }
 
-task rolloutFivePercent {
-  description = 'Rolls the app out to 5% of user base.'
+task rolloutTwentyPercent {
+  description = 'Rolls the app out to 20% of user base.'
 
   doLast {
     executeCmd(
             ['apublisher', '-n', project(':app').applicationId, '-v', project.('releaseVersionCode'), '-t', 'rollout',
-             '--fraction', '0.05'],
-            "Rollout to 5% failed"
+             '--fraction', '0.20'],
+            "Rollout to 20% failed"
     )
   }
 }

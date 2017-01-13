@@ -94,13 +94,13 @@ task deployReleaseOnePercent(dependsOn: ['uploadGithubRelease', 'rolloutOnePerce
 rolloutOnePercent.mustRunAfter('uploadGithubRelease')
 slogRolloutOnePercent.mustRunAfter('rolloutOnePercent')
 
-task deployReleaseFivePercent(dependsOn: ['rolloutFivePercent', 'slogRolloutFivePercent']) {
-  description = 'Deploy Release build to playstore (5% rollout).'
+task deployReleaseTwentyPercent(dependsOn: ['rolloutTwentyPercent', 'slogRolloutTwentyPercent']) {
+  description = 'Deploy Release build to playstore (20% rollout).'
 }
-slogRolloutFivePercent.mustRunAfter('rolloutFivePercent')
+slogRolloutTwentyPercent.mustRunAfter('rolloutTwentyPercent')
 
 task deployReleaseRolloutFull(dependsOn: ['rolloutFull', 'slogRolloutFull']) {
-  description = 'Deploy Release build to playstore (5% rollout).'
+  description = 'Deploy Release build to playstore (100% rollout).'
 }
 slogRolloutFull.mustRunAfter('rolloutFull')
 

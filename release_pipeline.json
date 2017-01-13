@@ -198,8 +198,8 @@
           }
         },
         {
-          "rollout_release_5_percent": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \nBUILD_TYPE=release ./gradlew deployReleaseFivePercent",
+          "rollout_release_20_percent": {
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \nBUILD_TYPE=release ./gradlew deployReleaseTwentyPercent",
             "manual": true,
             "localBranch": true,
             "artifacts": [
