@@ -63,7 +63,7 @@ public final class PlaylistQueries {
             query.where(Tables.PlaylistView.TITLE + " LIKE '%" + sanitized + "%' OR " +
                                 Tables.PlaylistView.USERNAME.name() + " LIKE '%" + sanitized + "%' OR " +
                                 Tables.TrackView.TITLE.name() + " LIKE '%" + sanitized + "%' OR " +
-                                Tables.TrackView.USERNAME.name() + " LIKE '%" + sanitized + "%'");
+                                Tables.TrackView.CREATOR_NAME.name() + " LIKE '%" + sanitized + "%'");
         }
     }
 }

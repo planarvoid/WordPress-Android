@@ -70,7 +70,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         track = PropertySet.from(TrackProperty.URN.bind(trackUrn),
                                  PlayableProperty.TITLE.bind(TITLE),
                                  PlayableProperty.CREATOR_NAME.bind(CREATOR));
-        trackItem = TrackItem.from(track);
+        trackItem = TestPropertySets.trackWith(track);
         trackDescription = PropertySet.from(TrackProperty.DESCRIPTION.bind(DESCRIPTION));
     }
 
@@ -128,7 +128,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
         trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
 
-        final TrackItem first = TrackItem.from(propSubscriber.getOnNextEvents().get(0));
+        final TrackItem first = TestPropertySets.trackWith(propSubscriber.getOnNextEvents().get(0));
         assertThat(first.getTitle()).isEqualTo(trackItem.getTitle());
         assertThat(first.getCreatorName()).isEqualTo(trackItem.getCreatorName());
         assertThat(first.getDescription()).isEqualTo(DESCRIPTION);

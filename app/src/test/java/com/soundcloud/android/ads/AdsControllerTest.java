@@ -36,6 +36,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -70,12 +71,12 @@ public class AdsControllerTest extends AndroidUnitTest {
     private final Urn nextTrackUrn = Urn.forTrack(456L);
     private final TrackQueueItem nextPlayQueueItem = TestPlayQueueItem.createTrack(nextTrackUrn);
 
-    private final TrackItem currentMonetizablePropertySet = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(currentTrackUrn),
-                                                                               TrackProperty.MONETIZABLE.bind(true)));
-    private final TrackItem nextMonetizablePropertySet = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
-                                                                            TrackProperty.MONETIZABLE.bind(true)));
-    private final TrackItem nextNonMonetizablePropertySet = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
-                                                                             TrackProperty.MONETIZABLE.bind(false)));
+    private final TrackItem currentMonetizablePropertySet = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(currentTrackUrn),
+                                                                                                        TrackProperty.MONETIZABLE.bind(true)));
+    private final TrackItem nextMonetizablePropertySet = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                                                                     TrackProperty.MONETIZABLE.bind(true)));
+    private final TrackItem nextNonMonetizablePropertySet = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                                                                        TrackProperty.MONETIZABLE.bind(false)));
 
     @Mock private AdViewabilityController adViewabilityController;
     @Mock private PlayQueueManager playQueueManager;

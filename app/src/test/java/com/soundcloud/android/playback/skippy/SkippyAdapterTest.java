@@ -55,6 +55,7 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.LockUtil;
@@ -126,7 +127,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        track = TrackItem.from(PropertySet.from(
+        track = TestPropertySets.trackWith(PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.SNIPPET_DURATION.bind(345L),
                 TrackProperty.FULL_DURATION.bind(456L),

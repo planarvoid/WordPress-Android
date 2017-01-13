@@ -6,6 +6,7 @@ import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Recommendations;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
@@ -58,25 +59,27 @@ class RecommendationsStorage {
                 .whereEq(RecommendationSeeds._ID, Recommendations.SEED_ID);
 
         final Where soundsViewJoin = filter()
-                .whereEq(Recommendations.RECOMMENDED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
-                .whereEq(Recommendations.RECOMMENDED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
+                .whereEq(Recommendations.RECOMMENDED_SOUND_ID, Tables.TrackView.ID.qualifiedName());
 
         final Query query = Query.from(Recommendations.TABLE)
                                  .select(Recommendations.SEED_ID,
                                          Recommendations.RECOMMENDED_SOUND_ID,
-                                         TableColumns.SoundView.TITLE,
-                                         TableColumns.SoundView.USER_ID,
-                                         TableColumns.SoundView.USERNAME,
-                                         TableColumns.SoundView.SNIPPET_DURATION,
-                                         TableColumns.SoundView.FULL_DURATION,
-                                         TableColumns.SoundView.PLAYBACK_COUNT,
-                                         TableColumns.SoundView.LIKES_COUNT,
-                                         TableColumns.SoundView.CREATED_AT,
-                                         TableColumns.SoundView.POLICIES_SUB_HIGH_TIER,
-                                         TableColumns.SoundView.POLICIES_SNIPPED)
+                                         Tables.TrackView.TITLE,
+                                         Tables.TrackView.CREATOR_ID,
+                                         Tables.TrackView.CREATOR_NAME,
+                                         Tables.TrackView.SNIPPET_DURATION,
+                                         Tables.TrackView.FULL_DURATION,
+                                         Tables.TrackView.PLAY_COUNT,
+                                         Tables.TrackView.LIKES_COUNT,
+                                         Tables.TrackView.CREATED_AT,
+                                         Tables.TrackView.SUB_HIGH_TIER,
+                                         Tables.TrackView.SNIPPED,
+                                         Tables.TrackView.IS_USER_LIKE,
+                                         Tables.TrackView.IS_USER_REPOST,
+                                         Tables.TrackView.PERMALINK_URL)
 
                                  .innerJoin(RecommendationSeeds.TABLE, recommendationsJoin)
-                                 .innerJoin(SoundView.name(), soundsViewJoin)
+                                 .innerJoin(Tables.TrackView.TABLE, soundsViewJoin)
                                  .whereEq(Recommendations.SEED_ID, localSeedId);
 
         return propellerRx.query(query).map(new RecommendedTrackMapper()).toList();

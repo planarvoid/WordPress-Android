@@ -1054,8 +1054,8 @@ public interface Tables {
         public static final Column ID = Column.create(TABLE, "tv_id", Long.class);
         public static final Column CREATED_AT = Column.create(TABLE, "tv_created_at", Long.class);
         public static final Column TITLE = Column.create(TABLE, "tv_title", String.class);
-        public static final Column USERNAME = Column.create(TABLE, "tv_username", String.class);
-        public static final Column USER_ID = Column.create(TABLE, "tv_user_id", Long.class);
+        public static final Column CREATOR_NAME = Column.create(TABLE, "tv_username", String.class);
+        public static final Column CREATOR_ID = Column.create(TABLE, "tv_user_id", Long.class);
         public static final Column PERMALINK_URL = Column.create(TABLE, "tv_permalink_url", String.class);
         public static final Column WAVEFORM_URL = Column.create(TABLE, "tv_waveform_url", String.class);
 
@@ -1092,8 +1092,8 @@ public interface Tables {
                      .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.name()),
                              field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(CREATED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.name()),
-                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(USERNAME.name()),
-                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(USER_ID.name()),
+                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(CREATOR_NAME.name()),
+                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(CREATOR_ID.name()),
                              field(SoundView.field(TableColumns.SoundView.PERMALINK_URL)).as(PERMALINK_URL.name()),
                              field(SoundView.field(TableColumns.SoundView.WAVEFORM_URL)).as(WAVEFORM_URL.name()),
                              field(SoundView.field(TableColumns.SoundView.SNIPPET_DURATION)).as(SNIPPET_DURATION.name()),

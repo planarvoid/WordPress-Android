@@ -23,6 +23,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -46,7 +47,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     private Urn trackUrn = Urn.forTrack(123L);
-    private TrackItem track = TrackItem.from(PropertySet.from(
+    private TrackItem track = TestPropertySets.trackWith(PropertySet.from(
             TrackProperty.URN.bind(trackUrn),
             TrackProperty.SNIPPED.bind(false),
             TrackProperty.SNIPPET_DURATION.bind(345L),

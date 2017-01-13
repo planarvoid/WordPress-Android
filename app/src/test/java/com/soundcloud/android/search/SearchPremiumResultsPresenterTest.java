@@ -22,6 +22,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
@@ -64,7 +65,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         final List<SearchableItem> searchableItems =
-                Collections.singletonList(TrackItem.from(PropertySet.create()
+                Collections.singletonList(TestPropertySets.trackWith(PropertySet.create()
                                                      .put(EntityProperty.URN, PREMIUM_TRACK_URN_ONE)
                                                      .put(EntityProperty.URN, PREMIUM_TRACK_URN_TWO)));
         final SearchResult searchResult = SearchResult.fromSearchableItems(searchableItems,
@@ -155,7 +156,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     }
 
     private List<ListItem> setupAdapter() {
-        final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
+        final TrackItem trackItem = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
         final List<ListItem> listItems = Collections.singletonList((ListItem) trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);

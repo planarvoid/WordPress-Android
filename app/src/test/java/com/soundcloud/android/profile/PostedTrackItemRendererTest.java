@@ -12,6 +12,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -50,7 +51,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                 TrackProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
         );
-        trackItem = TrackItem.from(propertySet);
+        trackItem = TestPropertySets.trackWith(propertySet);
 
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getResources()).thenReturn(resources());
@@ -71,6 +72,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindReposterIfAny() {
         propertySet.put(PostProperty.REPOSTER, "reposter");
+        trackItem = TestPropertySets.trackWith(propertySet);
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).showReposter("reposter");

@@ -9,6 +9,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -29,7 +30,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        final PlayableItem playableItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
         searchPremiumItem = buildWithTrackItem(playableItem);
     }
 
@@ -40,7 +41,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildTrackAsFirstItem() {
-        final PlayableItem playableItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(TrackItem.class);
@@ -67,7 +68,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetTrackPlayingIfFirstItemIsTrack() {
-        final PlayableItem playableItem = PlayableItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();
@@ -79,7 +80,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetTrackPlayingWithIncorrectUrn() {
-        final PlayableItem playableItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();

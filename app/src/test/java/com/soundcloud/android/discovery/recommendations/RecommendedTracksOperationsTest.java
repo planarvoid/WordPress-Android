@@ -17,6 +17,7 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -197,7 +198,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     }
 
     private List<PropertySet> createRecommendedTrackPropertySet() {
-        PropertySet trackPropertySet = PropertySet.from(
+        PropertySet trackPropertySet = TestPropertySets.mandatoryTrackProperties().merge(PropertySet.from(
                 RecommendedTrackProperty.SEED_SOUND_URN.bind(Urn.forTrack(SEED_ID)),
                 PlayableProperty.URN.bind(Urn.forTrack(RECOMMENDED_TRACK.getId())),
                 PlayableProperty.TITLE.bind(RECOMMENDED_TRACK.getTitle()),
@@ -208,7 +209,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                 TrackProperty.PLAY_COUNT.bind(RECOMMENDED_TRACK.getPlaybackCount()),
                 PlayableProperty.LIKES_COUNT.bind(RECOMMENDED_TRACK.getLikesCount()),
                 PlayableProperty.CREATED_AT.bind(RECOMMENDED_TRACK.getCreatedAt())
-        );
+        ));
         return Collections.singletonList(trackPropertySet);
     }
 }

@@ -19,6 +19,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -352,7 +353,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet createTrackPropertySet(final ApiTrack track, final Date createdAt) {
-        return PropertySet.from(
+        return TestPropertySets.mandatoryTrackProperties().merge(PropertySet.from(
                 SoundStreamProperty.AVATAR_URL_TEMPLATE.bind(track.getUser().getImageUrlTemplate()),
                 PlayableProperty.CREATED_AT.bind(createdAt),
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
@@ -371,7 +372,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
                 TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()),
                 TrackProperty.SNIPPED.bind(track.isSnipped()),
                 PlayableProperty.GENRE.bind(track.getGenre()),
-                PlayableProperty.PERMALINK_URL.bind(track.getPermalinkUrl()));
+                PlayableProperty.PERMALINK_URL.bind(track.getPermalinkUrl())));
     }
 
     private StreamPlayable createRepostedPlaylist(ApiPlaylist playlist, ApiUser reposter) {

@@ -44,7 +44,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(TrackItem.from(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(TestPropertySets.trackWith(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         final TrackItem expected = TestPropertySets.fromApiTrack(apiTrack);
         expected.setOfflineState(OfflineState.DOWNLOADED);
-        assertThat(TrackItem.from(track)).isEqualTo(expected);
+        assertThat(TestPropertySets.trackWith(track)).isEqualTo(expected);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         final TrackItem expected = TestPropertySets.fromApiTrack(apiTrack);
         expected.setOfflineState(OfflineState.NOT_OFFLINE);
-        assertThat(TrackItem.from(track)).isEqualTo(expected);
+        assertThat(TestPropertySets.trackWith(track)).isEqualTo(expected);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(TrackItem.from(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(TestPropertySets.trackWith(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(TrackItem.from(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(TestPropertySets.trackWith(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
     }
 
     @Test

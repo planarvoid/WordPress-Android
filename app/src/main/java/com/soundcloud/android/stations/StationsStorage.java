@@ -3,10 +3,16 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.model.PlayableProperty.CREATOR_NAME;
 import static com.soundcloud.android.model.PlayableProperty.CREATOR_URN;
 import static com.soundcloud.android.model.PlayableProperty.IMAGE_URL_TEMPLATE;
+import static com.soundcloud.android.model.PlayableProperty.IS_USER_LIKE;
+import static com.soundcloud.android.model.PlayableProperty.IS_USER_REPOST;
+import static com.soundcloud.android.model.PlayableProperty.LIKES_COUNT;
+import static com.soundcloud.android.model.PlayableProperty.PERMALINK_URL;
 import static com.soundcloud.android.model.PlayableProperty.TITLE;
 import static com.soundcloud.android.model.PlayableProperty.URN;
 import static com.soundcloud.android.stations.Stations.NEVER_PLAYED;
+import static com.soundcloud.android.tracks.TrackProperty.FULL_DURATION;
 import static com.soundcloud.android.tracks.TrackProperty.PLAY_COUNT;
+import static com.soundcloud.android.tracks.TrackProperty.SNIPPET_DURATION;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 import static com.soundcloud.propeller.ContentValuesBuilder.values;
@@ -16,12 +22,10 @@ import static com.soundcloud.propeller.query.Query.apply;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns.SoundView;
-import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.storage.Tables.TrackView;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
@@ -200,15 +204,21 @@ class StationsStorage {
     }
 
     private static Query stationInfoTracksQuery(Urn station) {
-        return Query.from(Table.SoundView.name())
-                    .innerJoin(StationsPlayQueues.TABLE.name(), SoundView._ID, StationsPlayQueues.TRACK_ID.name())
-                    .select(SoundView._ID,
-                            SoundView.TITLE,
-                            SoundView.USERNAME,
-                            SoundView.USER_ID,
-                            SoundView.PLAYBACK_COUNT,
-                            SoundView.ARTWORK_URL)
-                    .whereEq(SoundView._TYPE, Tables.Sounds.TYPE_TRACK)
+        return Query.from(TrackView.TABLE)
+                    .innerJoin(StationsPlayQueues.TABLE.name(), TrackView.ID.qualifiedName(), StationsPlayQueues.TRACK_ID.name())
+                    .select(TrackView.ID,
+                            TrackView.TITLE,
+                            TrackView.CREATOR_NAME,
+                            TrackView.CREATOR_ID,
+                            TrackView.SNIPPET_DURATION,
+                            TrackView.FULL_DURATION,
+                            TrackView.SNIPPED,
+                            TrackView.IS_USER_LIKE,
+                            TrackView.IS_USER_REPOST,
+                            TrackView.LIKES_COUNT,
+                            TrackView.PERMALINK_URL,
+                            TrackView.PLAY_COUNT,
+                            TrackView.ARTWORK_URL)
                     .whereEq(StationsPlayQueues.STATION_URN, station.toString())
                     .order(StationsPlayQueues.POSITION, Query.Order.ASC);
     }
@@ -335,12 +345,18 @@ class StationsStorage {
         @Override
         public StationInfoTrack map(CursorReader reader) {
             return StationInfoTrack.from(
-                    PropertySet.from(URN.bind(Urn.forTrack(reader.getLong(SoundView._ID))),
-                                     TITLE.bind(reader.getString(SoundView.TITLE)),
-                                     CREATOR_NAME.bind(reader.getString(SoundView.USERNAME)),
-                                     CREATOR_URN.bind(Urn.forUser(reader.getLong(SoundView.USER_ID))),
-                                     PLAY_COUNT.bind(reader.getInt(SoundView.PLAYBACK_COUNT)),
-                                     IMAGE_URL_TEMPLATE.bind(fromNullable(reader.getString(SoundView.ARTWORK_URL)))
+                    PropertySet.from(URN.bind(Urn.forTrack(reader.getLong(TrackView.ID))),
+                                     TITLE.bind(reader.getString(TrackView.TITLE)),
+                                     CREATOR_NAME.bind(reader.getString(TrackView.CREATOR_NAME)),
+                                     CREATOR_URN.bind(Urn.forUser(reader.getLong(TrackView.CREATOR_ID))),
+                                     SNIPPET_DURATION.bind(reader.getLong(TrackView.SNIPPET_DURATION)),
+                                     FULL_DURATION.bind(reader.getLong(TrackView.FULL_DURATION)),
+                                     IS_USER_LIKE.bind(reader.getBoolean(TrackView.IS_USER_LIKE)),
+                                     IS_USER_REPOST.bind(reader.getBoolean(TrackView.IS_USER_REPOST)),
+                                     PLAY_COUNT.bind(reader.getInt(TrackView.PLAY_COUNT)),
+                                     LIKES_COUNT.bind(reader.getInt(TrackView.LIKES_COUNT)),
+                                     PERMALINK_URL.bind(reader.getString(TrackView.PERMALINK_URL)),
+                                     IMAGE_URL_TEMPLATE.bind(fromNullable(reader.getString(TrackView.ARTWORK_URL)))
                     )
             );
         }

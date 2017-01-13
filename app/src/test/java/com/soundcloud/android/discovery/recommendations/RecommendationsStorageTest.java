@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -151,7 +152,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet recommendedTrack(Urn seedTrackUrn, ApiTrack recommendedTrack) {
-        return PropertySet.from(
+        return TestPropertySets.mandatoryTrackProperties().merge(PropertySet.from(
                 RecommendedTrackProperty.SEED_SOUND_URN.bind(seedTrackUrn),
                 PlayableProperty.URN.bind(recommendedTrack.getUrn()),
                 PlayableProperty.TITLE.bind(recommendedTrack.getTitle()),
@@ -163,7 +164,8 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
                 PlayableProperty.LIKES_COUNT.bind(recommendedTrack.getLikesCount()),
                 PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt()),
                 TrackProperty.SUB_HIGH_TIER.bind(recommendedTrack.isSubHighTier().get()),
-                TrackProperty.SNIPPED.bind(recommendedTrack.isSnipped())
-        );
+                TrackProperty.SNIPPED.bind(recommendedTrack.isSnipped()),
+                PlayableProperty.PERMALINK_URL.bind(recommendedTrack.getPermalinkUrl())
+        ));
     }
 }

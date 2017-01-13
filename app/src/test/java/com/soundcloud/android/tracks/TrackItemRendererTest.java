@@ -31,6 +31,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,12 +74,18 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          screenProvider, navigator, featureOperations, trackItemViewFactory);
 
         propertySet = PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.TITLE.bind("title"),
                 TrackProperty.CREATOR_NAME.bind("creator"),
+                TrackProperty.CREATOR_URN.bind(Urn.forUser(456L)),
                 TrackProperty.SNIPPET_DURATION.bind(227000L),
                 TrackProperty.FULL_DURATION.bind(237000L),
                 TrackProperty.SNIPPED.bind(true),
-                TrackProperty.URN.bind(Urn.forTrack(123)),
+                TrackProperty.IS_USER_LIKE.bind(false),
+                TrackProperty.IS_USER_REPOST.bind(false),
+                TrackProperty.LIKES_COUNT.bind(0),
+                TrackProperty.PERMALINK_URL.bind(Strings.EMPTY),
+                TrackProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(870)
         );
         trackItem = TrackItem.from(propertySet);

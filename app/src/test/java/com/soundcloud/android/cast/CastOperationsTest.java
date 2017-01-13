@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -156,7 +157,7 @@ public class CastOperationsTest extends AndroidUnitTest {
     }
 
     private TrackItem createAndSetupPublicTrack(Urn urn, boolean isPrivate) {
-        TrackItem track = TrackItem.from(PropertySet.from(
+        TrackItem track = TestPropertySets.trackWith(PropertySet.from(
                 TrackProperty.URN.bind(urn),
                 TrackProperty.TITLE.bind("Title " + urn),
                 TrackProperty.CREATOR_NAME.bind("Creator " + urn),

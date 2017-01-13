@@ -17,7 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
@@ -171,7 +171,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         final List<SearchableItem> propertySets = new ArrayList<>(urns.length);
         for (Urn urn : urns) {
             if (urn.isTrack()) {
-                propertySets.add(TrackItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
+                propertySets.add(TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, urn)));
             } else if (urn.isPlaylist()) {
                 propertySets.add(PlaylistItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
             } else if (urn.isUser()) {

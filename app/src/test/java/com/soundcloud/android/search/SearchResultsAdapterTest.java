@@ -17,6 +17,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
@@ -133,7 +134,7 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
-        final TrackItem trackItem = TrackItem.from(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L)));
+        final TrackItem trackItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L)));
         return new SearchPremiumItem(Collections.singletonList(trackItem),
                                      Optional.<Link>absent(),
                                      SEARCH_RESULTS_COUNT);

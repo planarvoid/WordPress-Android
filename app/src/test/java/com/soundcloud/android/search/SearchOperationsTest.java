@@ -29,6 +29,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
@@ -696,8 +697,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void premiumContentUrnShouldNotBeIncludedInPaginatedContentWhenAbsent() {
-        final TrackItem trackOne = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN));
-        final TrackItem trackTwo = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN));
+        final TrackItem trackOne = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN));
+        final TrackItem trackTwo = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN));
         final SearchResult searchResult = SearchResult.fromSearchableItems(Arrays.asList(trackOne, trackTwo),
                                                                            Optional.absent(),
                                                                            Urn.NOT_SET);
@@ -710,8 +711,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void premiumContentUrnShouldBeIncludedInPaginatedContent() {
-        final TrackItem premiumTrack = TrackItem.from(PropertySet.create().put(EntityProperty.URN, PREMIUM_TRACK_URN));
-        final ArrayList<ApiUniversalSearchItem> searchItems = Lists.newArrayList(forTrack(track));
+        final TrackItem premiumTrack = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, PREMIUM_TRACK_URN));
         final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(singletonList(premiumTrack),
                                                                                   Optional.absent(), Urn.NOT_SET);
         final SearchResult searchResult = SearchResult.fromSearchableItems(Lists.newArrayList(TrackItem.from(track)),
@@ -729,8 +729,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void contentUpsellUrnShouldNotBeIncludedInPaginatedContent() {
         final UpsellSearchableItem upsellItem = UpsellSearchableItem.forUpsell();
-        final TrackItem trackOne = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN));
-        final TrackItem trackTwo = TrackItem.from(PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN));
+        final TrackItem trackOne = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN));
+        final TrackItem trackTwo = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN));
         final SearchResult searchResult = SearchResult.fromSearchableItems(Arrays.asList(upsellItem, trackOne, trackTwo),
                                                                            Optional.absent(),
                                                                            Urn.NOT_SET);

@@ -34,6 +34,7 @@ public final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TrackView.TITLE.name()));
         propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(TrackView.SNIPPET_DURATION.name()));
         propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(TrackView.FULL_DURATION.name()));
+
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TrackView.PLAY_COUNT.name()));
         propertySet.put(TrackProperty.COMMENTS_COUNT, cursorReader.getInt(TrackView.COMMENTS_COUNT.name()));
         propertySet.put(TrackProperty.IS_COMMENTABLE, cursorReader.getBoolean(TrackView.IS_COMMENTABLE.name()));
@@ -72,9 +73,9 @@ public final class TrackItemMapper extends RxResultMapper<PropertySet> {
         }
 
         // synced tracks that might not have a user if they haven't been lazily updated yet
-        final String creator = cursorReader.getString(TrackView.USERNAME.name());
+        final String creator = cursorReader.getString(TrackView.CREATOR_NAME.name());
         propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? Strings.EMPTY : creator);
-        final long creatorId = cursorReader.getLong(TrackView.USER_ID.name());
+        final long creatorId = cursorReader.getLong(TrackView.CREATOR_ID.name());
         propertySet.put(PlayableProperty.CREATOR_URN,
                         creatorId == Consts.NOT_SET ? Urn.NOT_SET : Urn.forUser(creatorId));
     }

@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -21,6 +22,7 @@ public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private RecyclerItemAdapter<ListItem, ?> adapter;
+    private final TrackItem item = TestPropertySets.trackWith(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
 
     private PublishSubject<Urn> observable;
 
@@ -33,7 +35,6 @@ public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
 
     @Test
     public void onNextShouldRemoveEntityFromAdapter() {
-        TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
         when(adapter.getItemCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
@@ -44,7 +45,6 @@ public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
 
     @Test
     public void onNextShouldNotifyDataSetChangedOnSuccessfulRemoval() {
-        TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
         when(adapter.getItemCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
@@ -55,7 +55,6 @@ public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
 
     @Test
     public void onNextShouldNotNotifyDataSetChangedIfNoRemovalWasMade() {
-        TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
         when(adapter.getItemCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 

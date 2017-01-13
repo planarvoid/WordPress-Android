@@ -39,7 +39,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
@@ -470,7 +469,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     private void assertInitialStreamEmpty() {
         final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
-        subscriber.assertValue(Collections.<StreamItem>emptyList());
+        subscriber.assertValue(Collections.emptyList());
     }
 
     private void assertInitialStreamFirstItemKind(Kind kind) {

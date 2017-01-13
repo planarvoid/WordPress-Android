@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdProperty;
@@ -13,6 +14,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
+import com.soundcloud.java.collections.Property;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -21,34 +23,57 @@ import rx.functions.Func1;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTrackItem {
 
+
     public static final TrackItem EMPTY = new TrackItem(
             PropertySet.from(
-            TrackProperty.URN.bind(Urn.NOT_SET),
-            TrackProperty.TITLE.bind(Strings.EMPTY),
-            TrackProperty.CREATOR_NAME.bind(Strings.EMPTY),
-            TrackProperty.CREATOR_URN.bind(Urn.NOT_SET),
-            TrackProperty.SNIPPET_DURATION.bind(0L),
-            TrackProperty.FULL_DURATION.bind(0L),
-            TrackProperty.WAVEFORM_URL.bind(Strings.EMPTY),
-            TrackProperty.IS_USER_LIKE.bind(false),
-            TrackProperty.IS_USER_REPOST.bind(false),
-            TrackProperty.LIKES_COUNT.bind(0),
-            TrackProperty.PERMALINK_URL.bind(Strings.EMPTY),
-            TrackProperty.IS_PRIVATE.bind(false)
-    ));
+                    TrackProperty.URN.bind(Urn.NOT_SET),
+                    TrackProperty.TITLE.bind(Strings.EMPTY),
+                    TrackProperty.CREATOR_NAME.bind(Strings.EMPTY),
+                    TrackProperty.CREATOR_URN.bind(Urn.NOT_SET),
+                    TrackProperty.SNIPPET_DURATION.bind(0L),
+                    TrackProperty.FULL_DURATION.bind(0L),
+                    TrackProperty.WAVEFORM_URL.bind(Strings.EMPTY),
+                    TrackProperty.IS_USER_LIKE.bind(false),
+                    TrackProperty.IS_USER_REPOST.bind(false),
+                    TrackProperty.LIKES_COUNT.bind(0),
+                    TrackProperty.PERMALINK_URL.bind(Strings.EMPTY),
+                    TrackProperty.IS_PRIVATE.bind(false)
+            ));
     public static final String PLAYABLE_TYPE = "track";
+
+    private static final List<Property<?>> MANDATORY_PROPERTIES = Arrays.asList(
+            TrackProperty.URN,
+            TrackProperty.TITLE,
+            TrackProperty.CREATOR_NAME,
+            TrackProperty.CREATOR_URN,
+            TrackProperty.SNIPPET_DURATION,
+            TrackProperty.FULL_DURATION,
+            TrackProperty.IS_USER_LIKE,
+            TrackProperty.IS_USER_REPOST,
+            TrackProperty.LIKES_COUNT,
+            TrackProperty.PERMALINK_URL
+    );
 
     private boolean isPlaying;
 
     public static TrackItem from(PropertySet trackState) {
+        checkProperties(trackState);
+
         return new TrackItem(trackState);
+    }
+
+    private static void checkProperties(PropertySet trackState) {
+        // chasing this crash: https://fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/55ede1d5f5d3a7f76bdb6b38
+        for (Property<?> property : MANDATORY_PROPERTIES) {
+            checkArgument(trackState.contains(property), "Property is missing:" + property);
+        }
     }
 
     public static TrackItem from(ApiTrack apiTrack, boolean repost) {
@@ -101,11 +126,6 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
         return bindings -> TrackItem.from(bindings);
     }
 
-    public static Func1<List<PropertySet>, List<TrackItem>> fromPropertySets() {
-        return bindings -> TrackItem.fromPropertySets(bindings);
-    }
-
-    @NonNull
     public static List<TrackItem> fromPropertySets(List<PropertySet> bindings) {
         List<TrackItem> trackItems = new ArrayList<>(bindings.size());
         for (PropertySet source : bindings) {

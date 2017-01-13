@@ -40,6 +40,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -158,13 +159,13 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.setCurrentPlayQueue(playQueue, 0);
 
-        track = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
-                                 PlayableProperty.TITLE.bind("title"),
-                                 PlayableProperty.CREATOR_NAME.bind("artist"),
-                                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))));
+        track = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
+                                                            PlayableProperty.TITLE.bind("title"),
+                                                            PlayableProperty.CREATOR_NAME.bind("artist"),
+                                                            PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))));
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
-                TrackItem.from(PropertySet.from(
+                TestPropertySets.trackWith(PropertySet.from(
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
                         PlayableProperty.CREATOR_NAME.bind("artist"),
@@ -172,7 +173,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         ));
 
         when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
-                TrackItem.from(PropertySet.from(
+                TestPropertySets.trackWith(PropertySet.from(
                         TrackProperty.URN.bind(TRACK2_RELATED_URN),
                         PlayableProperty.TITLE.bind("related title"),
                         PlayableProperty.CREATOR_NAME.bind("related artist"),

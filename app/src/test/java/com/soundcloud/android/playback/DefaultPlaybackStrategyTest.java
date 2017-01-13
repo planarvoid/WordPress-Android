@@ -22,6 +22,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -224,7 +225,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     }
 
     private TrackItem onlineTrack() {
-        return TrackItem.from(PropertySet.from(
+        return TestPropertySets.trackWith(PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.SNIPPET_DURATION.bind(123L),
                 TrackProperty.FULL_DURATION.bind(456L),
@@ -240,7 +241,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     }
 
     private TrackItem offlineTrack() {
-        return TrackItem.from(PropertySet.from(
+        return TestPropertySets.trackWith(PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.SNIPPET_DURATION.bind(123L),
                 TrackProperty.FULL_DURATION.bind(456L),
