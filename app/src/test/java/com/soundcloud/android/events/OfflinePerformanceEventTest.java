@@ -15,7 +15,7 @@ public class OfflinePerformanceEventTest {
     public void createsSyncCompleteOfflineEvent() {
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCompleted(TRACK_URN, TRACK_CONTEXT);
 
-        assertThat(event.getKind()).isEqualTo(OfflinePerformanceEvent.KIND_COMPLETE);
+        assertThat(event.kind()).isEqualTo(OfflinePerformanceEvent.Kind.KIND_COMPLETE);
         assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
     }
 
@@ -23,7 +23,7 @@ public class OfflinePerformanceEventTest {
     public void createsSyncStartOfflineEvent() {
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStarted(TRACK_URN, TRACK_CONTEXT);
 
-        assertThat(event.getKind()).isEqualTo(OfflinePerformanceEvent.KIND_START);
+        assertThat(event.kind()).isEqualTo(OfflinePerformanceEvent.Kind.KIND_START);
         assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
     }
 
@@ -31,7 +31,7 @@ public class OfflinePerformanceEventTest {
     public void createsSyncFailedOfflineEvent() {
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromFailed(TRACK_URN, TRACK_CONTEXT);
 
-        assertThat(event.getKind()).isEqualTo(OfflinePerformanceEvent.KIND_FAIL);
+        assertThat(event.kind()).isEqualTo(OfflinePerformanceEvent.Kind.KIND_FAIL);
         assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
     }
 
@@ -39,7 +39,7 @@ public class OfflinePerformanceEventTest {
     public void createsSyncCancelOfflineEvent() {
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(TRACK_URN, TRACK_CONTEXT);
 
-        assertThat(event.getKind()).isEqualTo(OfflinePerformanceEvent.KIND_USER_CANCEL);
+        assertThat(event.kind()).isEqualTo(OfflinePerformanceEvent.Kind.KIND_USER_CANCEL);
         assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
     }
 
@@ -47,15 +47,15 @@ public class OfflinePerformanceEventTest {
     public void createSyncErrorFromStorageLimitReachedEvent() {
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStorageLimit(TRACK_URN, TRACK_CONTEXT);
 
-        assertThat(event.getKind()).isEqualTo(OfflinePerformanceEvent.KIND_STORAGE_LIMIT);
+        assertThat(event.kind()).isEqualTo(OfflinePerformanceEvent.Kind.KIND_STORAGE_LIMIT);
         assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
     }
 
     private void assertThatTrackContextValuesAreEqual(OfflinePerformanceEvent event,
                                                       Urn track,
                                                       TrackingMetadata context) {
-        assertThat(event.getTrackUrn()).isEqualTo(track);
-        assertThat(event.getTrackOwner()).isEqualTo(context.getCreatorUrn());
+        assertThat(event.trackUrn()).isEqualTo(track);
+        assertThat(event.trackOwner()).isEqualTo(context.getCreatorUrn());
         assertThat(event.isFromLikes()).isEqualTo(context.isFromLikes());
         assertThat(event.partOfPlaylist()).isEqualTo(context.isFromPlaylists());
     }

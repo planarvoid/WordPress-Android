@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,7 +13,6 @@ import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.AdDeliveryEvent;
@@ -80,9 +78,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     private Urn userUrn = Urn.forUser(123L);
     private Urn trackUrn = Urn.forTrack(123L);
+    private TrackingMetadata trackingMetadata = new TrackingMetadata(userUrn, true, true);
 
     private TrackSourceInfo trackSourceInfo;
-    private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Before
     public void setUp() {
@@ -91,10 +89,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                         InjectionSupport.lazyOf(dataBuilderv1),
                                                                         sharedPreferences, featureFlags);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
-        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"),
-                                                          5,
-                                                          new Urn("some:clicked:urn"),
-                                                          "query");
     }
 
     @Test
@@ -658,25 +652,25 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackOfflineSyncStartEvent() {
-        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStarted(trackUrn, mock(TrackingMetadata.class));
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStarted(trackUrn, trackingMetadata);
         assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 
     @Test
     public void shouldTrackOfflineSyncCompleteEvent() {
-        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCompleted(trackUrn, mock(TrackingMetadata.class));
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCompleted(trackUrn, trackingMetadata);
         assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 
     @Test
     public void shouldTrackOfflineSyncFailEvent() {
-        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromFailed(trackUrn, mock(TrackingMetadata.class));
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromFailed(trackUrn, trackingMetadata);
         assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 
     @Test
     public void shouldTrackOfflineSyncCancelEvent() {
-        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(trackUrn, mock(TrackingMetadata.class));
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(trackUrn, trackingMetadata);
         assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 

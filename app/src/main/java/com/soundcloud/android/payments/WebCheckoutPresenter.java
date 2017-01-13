@@ -149,7 +149,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Override
     public void onPaymentError(String errorType) {
-        eventBus.publish(EventQueue.TRACKING, new PaymentErrorEvent(errorType));
+        eventBus.publish(EventQueue.TRACKING, PaymentErrorEvent.create(errorType));
     }
 
     public boolean handleBackPress() {

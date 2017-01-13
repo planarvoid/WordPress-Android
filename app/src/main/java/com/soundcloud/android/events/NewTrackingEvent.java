@@ -7,13 +7,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
-abstract class NewTrackingEvent implements TrackingEvent {
+public abstract class NewTrackingEvent implements TrackingEvent {
 
-    static String defaultId() {
+    protected static String defaultId() {
         return UUID.randomUUID().toString();
     }
 
-    static long defaultTimestamp() {
+    protected static long defaultTimestamp() {
         return System.currentTimeMillis();
     }
 

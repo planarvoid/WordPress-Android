@@ -29,7 +29,7 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
-                OfflinePerformanceEvent.KIND_START);
+                OfflinePerformanceEvent.Kind.KIND_START);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
-                OfflinePerformanceEvent.KIND_COMPLETE);
+                OfflinePerformanceEvent.Kind.KIND_COMPLETE);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
-                OfflinePerformanceEvent.KIND_USER_CANCEL);
+                OfflinePerformanceEvent.Kind.KIND_USER_CANCEL);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
-                OfflinePerformanceEvent.KIND_FAIL);
+                OfflinePerformanceEvent.Kind.KIND_FAIL);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
-                OfflinePerformanceEvent.KIND_STORAGE_LIMIT);
+                OfflinePerformanceEvent.Kind.KIND_STORAGE_LIMIT);
     }
 
     @Test
@@ -74,13 +74,13 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
-                OfflinePerformanceEvent.KIND_STORAGE_LIMIT);
+                OfflinePerformanceEvent.Kind.KIND_STORAGE_LIMIT);
     }
 
-    private void assertTrackingEventSent(OfflinePerformanceEvent event, String kind) {
-        assertThat(event.getKind()).isEqualTo(kind);
-        assertThat(event.getTrackUrn()).isEqualTo(DOWNLOAD_REQUEST.getUrn());
-        assertThat(event.getTrackOwner()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().getCreatorUrn());
+    private void assertTrackingEventSent(OfflinePerformanceEvent event, OfflinePerformanceEvent.Kind kind) {
+        assertThat(event.kind()).isEqualTo(kind);
+        assertThat(event.trackUrn()).isEqualTo(DOWNLOAD_REQUEST.getUrn());
+        assertThat(event.trackOwner()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().getCreatorUrn());
         assertThat(event.partOfPlaylist()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().isFromPlaylists());
         assertThat(event.isFromLikes()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().isFromLikes());
     }

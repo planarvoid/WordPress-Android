@@ -13,7 +13,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.optional.Optional;
@@ -109,10 +108,11 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     public void paymentErrorsShouldBeTracked() {
         setupIntentWithProduct();
         presenter.onCreate(activity, null);
-        presenter.onPaymentError("KHAAAAAAAAAAAAAAAAAAAN");
+        final String errorType = "KHAAAAAAAAAAAAAAAAAAAN";
+        presenter.onPaymentError(errorType);
 
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(PaymentErrorEvent.KIND);
+        final PaymentErrorEvent event = (PaymentErrorEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.errorType()).isEqualTo(errorType);
     }
 
     @Test

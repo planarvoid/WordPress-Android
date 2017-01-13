@@ -1,59 +1,73 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_COMPLETE;
+import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_FAIL;
+import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_START;
+import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_STORAGE_LIMIT;
+import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_USER_CANCEL;
+
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
+import com.soundcloud.java.optional.Optional;
 
-public class OfflinePerformanceEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class OfflinePerformanceEvent extends NewTrackingEvent {
 
-    public static final String KIND_START = "start";
-    public static final String KIND_FAIL = "fail";
-    public static final String KIND_USER_CANCEL = "user_cancelled";
-    public static final String KIND_COMPLETE = "complete";
-    public static final String KIND_STORAGE_LIMIT = "storage_limit_reached";
+    public enum Kind {
+        KIND_START("start"),
+        KIND_FAIL("fail"),
+        KIND_USER_CANCEL("user_cancelled"),
+        KIND_COMPLETE("complete"),
+        KIND_STORAGE_LIMIT("storage_limit_reached");
+        private final String key;
 
-    private final Urn track;
-    private final TrackingMetadata metadata;
+        Kind(String key) {
+            this.key = key;
+        }
 
+        @Override
+        public String toString() {
+            return key;
+        }
+    }
 
-    private OfflinePerformanceEvent(String kind, Urn track, TrackingMetadata metadata) {
-        super(kind);
-        this.track = track;
-        this.metadata = metadata;
+    private static OfflinePerformanceEvent create(Kind kind, Urn track, TrackingMetadata metadata) {
+        return new AutoValue_OfflinePerformanceEvent(defaultId(), defaultTimestamp(), Optional.absent(), kind, track, metadata.getCreatorUrn(), metadata.isFromPlaylists(), metadata.isFromLikes());
     }
 
     public static OfflinePerformanceEvent fromCompleted(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflinePerformanceEvent(KIND_COMPLETE, track, trackingMetadata);
+        return create(KIND_COMPLETE, track, trackingMetadata);
     }
 
     public static OfflinePerformanceEvent fromStarted(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflinePerformanceEvent(KIND_START, track, trackingMetadata);
+        return create(KIND_START, track, trackingMetadata);
     }
 
     public static OfflinePerformanceEvent fromCancelled(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflinePerformanceEvent(KIND_USER_CANCEL, track, trackingMetadata);
+        return create(KIND_USER_CANCEL, track, trackingMetadata);
     }
 
     public static OfflinePerformanceEvent fromFailed(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflinePerformanceEvent(KIND_FAIL, track, trackingMetadata);
+        return create(KIND_FAIL, track, trackingMetadata);
     }
 
     public static OfflinePerformanceEvent fromStorageLimit(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflinePerformanceEvent(KIND_STORAGE_LIMIT, track, trackingMetadata);
+        return create(KIND_STORAGE_LIMIT, track, trackingMetadata);
     }
 
-    public Urn getTrackUrn() {
-        return track;
-    }
+    public abstract Kind kind();
 
-    public Urn getTrackOwner() {
-        return metadata.getCreatorUrn();
-    }
+    public abstract Urn trackUrn();
 
-    public boolean partOfPlaylist() {
-        return metadata.isFromPlaylists();
-    }
+    public abstract Urn trackOwner();
 
-    public boolean isFromLikes() {
-        return metadata.isFromLikes();
+    public abstract boolean partOfPlaylist();
+
+    public abstract boolean isFromLikes();
+
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_OfflinePerformanceEvent(id(), timestamp(), Optional.of(referringEvent), kind(), trackUrn(), trackOwner(), partOfPlaylist(), isFromLikes());
     }
 }

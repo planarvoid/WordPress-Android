@@ -472,9 +472,9 @@ class EventLoggerV1JsonDataBuilder {
 
     String buildForOfflinePerformanceEvent(OfflinePerformanceEvent event) {
         final EventLoggerEventData eventLoggerEventData = buildBaseEvent(OFFLINE_SYNC_EVENT, event)
-                .eventStage(event.getKind())
-                .track(event.getTrackUrn())
-                .trackOwner(event.getTrackOwner())
+                .eventStage(event.kind().toString())
+                .track(event.trackUrn())
+                .trackOwner(event.trackOwner())
                 .inOfflineLikes(event.isFromLikes())
                 .inOfflinePlaylist(event.partOfPlaylist());
         return transform(eventLoggerEventData);
