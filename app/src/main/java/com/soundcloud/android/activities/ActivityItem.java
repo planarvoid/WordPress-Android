@@ -8,14 +8,14 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 @AutoValue
-abstract class ActivityItem implements Timestamped {
+public abstract class ActivityItem implements Timestamped {
     abstract ActivityKind getKind();
     abstract String getUserName();
     abstract String getPlayableTitle();
     abstract Optional<Urn> getCommentedTrackUrn();
     abstract Urn getUrn();
 
-    static ActivityItem fromPropertySet(PropertySet sourceSet) {
+    public static ActivityItem fromPropertySet(PropertySet sourceSet) {
         return new AutoValue_ActivityItem(sourceSet.get(ActivityProperty.DATE),
                                           sourceSet.get(ActivityProperty.KIND),
                                           sourceSet.get(ActivityProperty.USER_NAME),

@@ -21,7 +21,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Lists;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -32,21 +32,19 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
-class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, UserItem> {
+class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserItem> {
 
     private final MyProfileOperations profileOperations;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final FollowingOperations followingOperations;
 
-    private final Func1<List<PropertySet>, List<UserItem>> pageTransformer = collection -> {
-        final List<UserItem> items = new ArrayList<>();
-        for (PropertySet source : collection) {
-            items.add(UserItem.from(source));
+    private final Func1<List<Following>, List<UserItem>> pageTransformer = new Func1<List<Following>, List<UserItem>>() {
+        @Override
+        public List<UserItem> call(List<Following> collection) {
+            return Lists.transform(collection, Following::userItem);
         }
-        return items;
     };
 
     private final UserRecyclerItemAdapter adapter;
@@ -79,7 +77,6 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
         updateFollowingsSubscription = new CompositeSubscription(
 
                 followingOperations.populatedOnUserFollowed()
-                                   .map(UserItem::from)
                                    .observeOn(AndroidSchedulers.mainThread())
                                    .subscribe(new PrependItemToListSubscriber<>(adapter)),
 
@@ -111,7 +108,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
     }
 
     @Override
-    protected CollectionBinding<List<PropertySet>, UserItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<Following>, UserItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedFollowings(), pageTransformer)
                                 .withAdapter(adapter)
                                 .withPager(profileOperations.followingsPagingFunction())
@@ -119,7 +116,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
     }
 
     @Override
-    protected CollectionBinding<List<PropertySet>, UserItem> onRefreshBinding() {
+    protected CollectionBinding<List<Following>, UserItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedFollowings(), pageTransformer)
                                 .withAdapter(adapter)
                                 .withPager(profileOperations.followingsPagingFunction())

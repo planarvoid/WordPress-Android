@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -150,7 +149,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPromoted() {
-        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -159,7 +158,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountIfPlaylistIsPromoted() {
-        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -168,7 +167,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideAlbumsLabelAndYearIfPlaylistIsPromoted() {
-        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -177,7 +176,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedLabelWithPromoterIfPlaylistIsPromotedByPromoter() {
-        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -187,7 +186,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedLabelWithoutPromoterIfPlaylistIsPromotedWithoutPromoter() {
-        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylistWithoutPromoter());
+        PlaylistItem item = TestPropertySets.expectedPromotedPlaylistWithoutPromoter();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 

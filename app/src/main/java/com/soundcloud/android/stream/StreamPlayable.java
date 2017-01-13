@@ -7,8 +7,8 @@ import com.soundcloud.java.collections.PropertySet;
 import java.util.Date;
 
 @AutoValue
-abstract class StreamPlayable {
-    static StreamPlayable createFromPropertySet(Date createdAt, PropertySet propertySet) {
+public abstract class StreamPlayable {
+    public static StreamPlayable createFromPropertySet(Date createdAt, PropertySet propertySet) {
         return new AutoValue_StreamPlayable(createdAt, PlayableItem.from(propertySet));
     }
     static StreamPlayable createFromPlayable(Date createdAt, PlayableItem playableItem) {

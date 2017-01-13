@@ -29,7 +29,6 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -319,7 +318,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedPlaylistImpressionJson() throws Exception {
-        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PromotedListItem item = TestPropertySets.expectedPromotedPlaylist();
         PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);

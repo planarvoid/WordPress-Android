@@ -15,10 +15,7 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserAssociation;
-import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import org.junit.Before;
@@ -46,7 +43,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Mock private UserAssociationStorage userAssociationStorage;
 
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<List<PropertySet>> subscriber;
+    private TestSubscriber<List<Following>> subscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -62,13 +59,13 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void syncAndLoadFollowingsWhenInitialFollowingsLoadReturnsEmptyList() {
-        final List<PropertySet> firstPage = createPageOfFollowings(PAGE_SIZE);
+        final List<Following> firstPage = createPageOfFollowings(PAGE_SIZE);
         final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
 
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
                 followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE,
-                                                  Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
+                                                  Consts.NOT_SET)).thenReturn(Observable.just(Collections.emptyList()),
                                                                               Observable.just(firstPage));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
         when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
@@ -84,17 +81,17 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE,
                                                      Consts.NOT_SET)).thenReturn(Observable.just(Collections.<Urn>emptyList()));
         when(userAssociationStorage.followedUsers(PAGE_SIZE,
-                                                  Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+                                                  Consts.NOT_SET)).thenReturn(Observable.just(Collections.emptyList()));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
 
         operations.pagedFollowings().subscribe(subscriber);
 
-        subscriber.assertValue(Collections.<PropertySet>emptyList());
+        subscriber.assertValue(Collections.emptyList());
     }
 
     @Test
     public void pagedFollowingsReturnsFollowingsFromStorage() {
-        final List<PropertySet> pageOfFollowings = createPageOfFollowings(2);
+        final List<Following> pageOfFollowings = createPageOfFollowings(2);
         final List<Urn> urns = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(urns));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
@@ -109,10 +106,10 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void followingsPagerLoadsNextPageUsingPositionOfLastItemOfPreviousPage() {
-        final List<PropertySet> firstPage = createPageOfFollowings(PAGE_SIZE);
-        final List<PropertySet> secondPage = createPageOfFollowings(1);
+        final List<Following> firstPage = createPageOfFollowings(PAGE_SIZE);
+        final List<Following> secondPage = createPageOfFollowings(1);
         final List<Urn> followingsUrn = pageOfUrns(firstPage);
-        final long position = firstPage.get(PAGE_SIZE - 1).get(UserAssociationProperty.POSITION);
+        final long position = firstPage.get(PAGE_SIZE - 1).userAssociation().position();
 
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, position)).thenReturn(Observable.just(followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, position)).thenReturn(Observable.just(secondPage));
@@ -134,7 +131,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedFollowingsReloadsFollowingsAfterSyncWithChange() {
-        final List<PropertySet> pageOfFollowings1 = createPageOfFollowings(2);
+        final List<Following> pageOfFollowings1 = createPageOfFollowings(2);
         final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
 
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
@@ -144,7 +141,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
         when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
                                                                                                            true)));
-        final List<PropertySet> pageOfFollowings = pageOfFollowings1;
+        final List<Following> pageOfFollowings = pageOfFollowings1;
 
         operations.updatedFollowings().subscribe(subscriber);
 
@@ -153,9 +150,9 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadLastPublicPostedTrack() {
-        PropertySet trackOpt = TestPropertySets.expectedPostedTrackForPostsScreen();
+        LastPostedTrack trackOpt = TestPropertySets.expectedLastPostedTrackForPostsScreen();
         when(postStorage.loadLastPublicPostedTrack()).thenReturn(Observable.just(trackOpt));
-        TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+        TestSubscriber<LastPostedTrack> subscriber = new TestSubscriber<>();
 
         operations.lastPublicPostedTrack().subscribe(subscriber);
 
@@ -201,18 +198,18 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         return UserAssociation.create(urn, 0, 1, Optional.<Date>absent(), Optional.<Date>absent());
     }
 
-    private List<PropertySet> createPageOfFollowings(int size) {
-        List<PropertySet> page = new ArrayList<>(size);
+    private List<Following> createPageOfFollowings(int size) {
+        List<Following> page = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             page.add(TestPropertySets.expectedFollowingForFollowingsScreen(i));
         }
         return page;
     }
 
-    private List<Urn> pageOfUrns(List<PropertySet> propertySets) {
-        List<Urn> page = new ArrayList<>(propertySets.size());
-        for (PropertySet propertySet : propertySets) {
-            page.add(propertySet.get(UserProperty.URN));
+    private List<Urn> pageOfUrns(List<Following> followings) {
+        List<Urn> page = new ArrayList<>(followings.size());
+        for (Following following : followings) {
+            page.add(following.userAssociation().userUrn());
         }
         return page;
     }

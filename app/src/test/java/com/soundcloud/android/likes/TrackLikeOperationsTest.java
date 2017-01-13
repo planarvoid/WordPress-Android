@@ -23,10 +23,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -214,13 +212,12 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void onTrackLikedEventReturnsTrackInfoFromLike() throws Exception {
-        final PropertySet likedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
-        TrackItem trackItem = TrackItem.from(likedTrack);
-        when(trackRepository.track(likedTrack.get(TrackProperty.URN))).thenReturn(Observable.just(trackItem));
+        TrackItem trackItem = TestPropertySets.expectedLikedTrackForLikesScreen();
+        when(trackRepository.track(trackItem.getUrn())).thenReturn(Observable.just(trackItem));
 
         final TestSubscriber<TrackItem> observer = new TestSubscriber<>();
         operations.onTrackLiked().subscribe(observer);
-        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(likedTrack.get(TrackProperty.URN), true, 5));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(trackItem.getUrn(), true, 5));
 
         assertThat(observer.getOnNextEvents()).containsExactly(trackItem);
     }

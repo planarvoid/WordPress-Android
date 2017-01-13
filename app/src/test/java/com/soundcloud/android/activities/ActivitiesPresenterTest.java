@@ -16,7 +16,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.NewItemsIndicator;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,7 +59,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadInitialItemsInOnCreate() {
-        ActivityItem activityItem = ActivityItem.fromPropertySet(TestPropertySets.activityTrackLike());
+        ActivityItem activityItem = TestPropertySets.activityTrackLike();
         when(operations.initialActivities()).thenReturn(Observable.just(singletonList(activityItem)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -70,61 +69,61 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToUserProfileWhenClickingFollower() {
-        final PropertySet activity = TestPropertySets.activityUserFollow();
-        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
+        final ActivityItem activity = TestPropertySets.activityUserFollow();
+        when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingTrackLike() {
-        final PropertySet activity = TestPropertySets.activityTrackLike();
-        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
+        final ActivityItem activity = TestPropertySets.activityTrackLike();
+        when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingTrackRepost() {
-        final PropertySet activity = TestPropertySets.activityTrackRepost();
-        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
+        final ActivityItem activity = TestPropertySets.activityTrackRepost();
+        when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistLike() {
-        final PropertySet activity = TestPropertySets.activityPlaylistLike();
-        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
+        final ActivityItem activity = TestPropertySets.activityPlaylistLike();
+        when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistRepost() {
-        final PropertySet activity = TestPropertySets.activityPlaylistRepost();
-        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
+        final ActivityItem activity = TestPropertySets.activityPlaylistRepost();
+        when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
     public void shouldGoToTrackCommentsWhenClickingTrackComment() {
         final TrackItem track = TestPropertySets.expectedTrackForPlayer();
-        final PropertySet activity = TestPropertySets.activityTrackComment();
-        when(trackRepository.track(activity.get(ActivityProperty.COMMENTED_TRACK_URN)))
+        final ActivityItem activity = TestPropertySets.activityTrackComment();
+        when(trackRepository.track(activity.getCommentedTrackUrn().get()))
                 .thenReturn(Observable.just(track));
-        when(adapter.getItem(0)).thenReturn(ActivityItem.fromPropertySet(activity));
+        when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
 

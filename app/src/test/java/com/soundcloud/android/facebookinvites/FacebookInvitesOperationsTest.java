@@ -11,14 +11,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -159,14 +158,14 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldLoadForCreatorsWhenRecentPost() throws Exception {
         final TestSubscriber<StreamItem> subscriber = new TestSubscriber<>();
-        PropertySet track = TestPropertySets.expectedPostedTrackForPostsScreen();
+        LastPostedTrack track = TestPropertySets.expectedLastPostedTrackForPostsScreen();
         when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(track));
 
         operations.creatorInvites().subscribe(subscriber);
 
         final StreamItem.FacebookCreatorInvites invitesItem = (StreamItem.FacebookCreatorInvites) subscriber.getOnNextEvents()
                                                                                                             .get(0);
-        assertThat(invitesItem.trackUrn()).isEqualTo(track.get(PlayableProperty.URN));
+        assertThat(invitesItem.trackUrn()).isEqualTo(track.urn());
     }
 
 }

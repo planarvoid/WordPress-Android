@@ -8,8 +8,6 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
-import com.soundcloud.java.collections.PropertySet;
-import org.assertj.core.util.Lists;
 import rx.Scheduler;
 
 import java.util.Date;
@@ -37,17 +35,12 @@ public class ActivitiesOperationsTest extends TimelineOperationsTest<ActivityIte
 
     @Override
     protected List<ActivityItem> createItems(int length, long lastItemTimestamp) {
-        final List<PropertySet> propertySets = createPropertySets(length, lastItemTimestamp);
-        final List<ActivityItem> items = Lists.newArrayList();
-        for (PropertySet propertySet : propertySets) {
-            items.add(ActivityItem.fromPropertySet(propertySet));
-        }
-        return items;
+        return createStorageModels(length, lastItemTimestamp);
     }
 
     @Override
-    protected PropertySet createTimelineItem(long timestamp) {
-        return activityTrackLike().put(ActivityProperty.DATE, new Date(timestamp));
+    protected ActivityItem createTimelineItem(long timestamp) {
+        return activityTrackLike(new Date(timestamp));
     }
 
     @Override

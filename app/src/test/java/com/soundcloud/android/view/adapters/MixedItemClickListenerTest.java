@@ -150,7 +150,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void itemClickOnPromotedPlaylistSendsPlaylistDetailIntent() {
         Observable<List<Urn>> playables = Observable.from(Collections.<List<Urn>>emptyList());
-        PromotedPlaylistItem playlistItem = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PromotedPlaylistItem playlistItem = TestPropertySets.expectedPromotedPlaylist();
         PromotedSourceInfo info = PromotedSourceInfo.fromItem(playlistItem);
 
         listener.onItemClick(playables, view, 0, playlistItem);

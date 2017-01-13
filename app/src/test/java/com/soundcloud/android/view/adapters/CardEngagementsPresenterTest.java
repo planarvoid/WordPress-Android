@@ -22,7 +22,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,7 +47,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final PlayableItem playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-    private final PublishSubject<PropertySet> testSubject = PublishSubject.create();
+    private final PublishSubject<Integer> testSubject = PublishSubject.create();
     private final PublishSubject<RepostsStatusEvent.RepostStatus> repostTestSubject = PublishSubject.create();
     private final EventContextMetadata contextMetadata = EventContextMetadata.builder().build();
 

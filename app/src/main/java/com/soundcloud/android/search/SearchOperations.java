@@ -3,7 +3,7 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.PropertySets;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
@@ -76,7 +76,7 @@ class SearchOperations {
         @Override
         public Observable<SearchResult> call(SearchResult searchResult) {
             addPremiumItem(searchResult.getPremiumContent());
-            allUrns.addAll(PropertySets.extractUrns(removeFirstUpsellItemIfAny(searchResult.getItems())));
+            allUrns.addAll(Urns.extractUrns(removeFirstUpsellItemIfAny(searchResult.getItems())));
 
             final Optional<Urn> queryUrn = searchResult.queryUrn;
             if (queryUrn.isPresent()) {

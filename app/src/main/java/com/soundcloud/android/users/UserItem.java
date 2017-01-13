@@ -19,7 +19,7 @@ public abstract class UserItem implements ListItem, FollowableItem, SearchableIt
                       source.get(UserProperty.IMAGE_URL_TEMPLATE),
                       Optional.fromNullable(source.getOrElseNull(UserProperty.COUNTRY)),
                       source.get(UserProperty.FOLLOWERS_COUNT),
-                      source.get(UserProperty.IS_FOLLOWED_BY_ME));
+                      source.getOrElse(UserProperty.IS_FOLLOWED_BY_ME, false));
     }
 
     public static UserItem create(Urn urn, String name, Optional<String> imageUrlTemplate, Optional<String> country, int followersCount, boolean isFollowedByMe) {

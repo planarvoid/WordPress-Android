@@ -34,7 +34,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -301,8 +300,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeActionShouldEmitLikeUIEventForTrackInPromotedPlaylist() {
-        final PropertySet promotedPlaylist = expectedPromotedPlaylist();
-        final PromotedPlaylistItem promotedPlaylistItem = PromotedPlaylistItem.from(promotedPlaylist);
+        final PromotedPlaylistItem promotedPlaylistItem = expectedPromotedPlaylist();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedPlaylistItem);
 
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
@@ -322,8 +320,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeActionShouldEmitLikeUIEventForTrackNotInButPlayedWithPromotedPlaylist() {
-        final PropertySet promotedPlaylist = expectedPromotedPlaylist();
-        final PromotedPlaylistItem promotedPlaylistItem = PromotedPlaylistItem.from(promotedPlaylist);
+        final PromotedPlaylistItem promotedPlaylistItem = expectedPromotedPlaylist();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedPlaylistItem);
 
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);

@@ -11,13 +11,10 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.users.UserAssociation;
-import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func0;
 import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
@@ -40,9 +37,9 @@ public class MyProfileOperations {
     private final PostsStorage postsStorage;
     private final Scheduler scheduler;
 
-    private final Func1<Object, Observable<List<PropertySet>>> loadInitialFollowings = new Func1<Object, Observable<List<PropertySet>>>() {
+    private final Func1<Object, Observable<List<Following>>> loadInitialFollowings = new Func1<Object, Observable<List<Following>>>() {
         @Override
-        public Observable<List<PropertySet>> call(Object ignored) {
+        public Observable<List<Following>> call(Object ignored) {
             return pagedFollowingsFromPosition(Consts.NOT_SET).subscribeOn(scheduler);
         }
     };
@@ -62,25 +59,25 @@ public class MyProfileOperations {
         this.scheduler = scheduler;
     }
 
-    Observable<List<PropertySet>> pagedFollowings() {
+    Observable<List<Following>> pagedFollowings() {
         return pagedFollowingsFromPosition(Consts.NOT_SET)
                 .subscribeOn(scheduler)
                 .filter(IS_NOT_EMPTY_LIST)
                 .switchIfEmpty(updatedFollowings());
     }
 
-    Pager.PagingFunction<List<PropertySet>> followingsPagingFunction() {
+    Pager.PagingFunction<List<Following>> followingsPagingFunction() {
         return result -> {
             if (result.size() < PAGE_SIZE) {
                 return Pager.finish();
             } else {
-                return pagedFollowingsFromPosition(getLast(result).get(UserAssociationProperty.POSITION))
+                return pagedFollowingsFromPosition(getLast(result).userAssociation().position())
                         .subscribeOn(scheduler);
             }
         };
     }
 
-    Observable<List<PropertySet>> updatedFollowings() {
+    Observable<List<Following>> updatedFollowings() {
         return syncInitiatorBridge.refreshFollowings()
                                   .flatMap(loadInitialFollowings);
     }
@@ -97,18 +94,18 @@ public class MyProfileOperations {
         return userAssociationStorage.followedUserAssociations().subscribeOn(scheduler);
     }
 
-    private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {
+    private Observable<List<Following>> pagedFollowingsFromPosition(long fromPosition) {
         return userAssociationStorage
                 .followedUserUrns(PAGE_SIZE, fromPosition)
                 .flatMap(syncAndReloadFollowings(PAGE_SIZE, fromPosition));
     }
 
     @NonNull
-    private Func1<List<Urn>, Observable<List<PropertySet>>> syncAndReloadFollowings(final int pageSize,
+    private Func1<List<Urn>, Observable<List<Following>>> syncAndReloadFollowings(final int pageSize,
                                                                                     final long fromPosition) {
         return urns -> {
             if (urns.isEmpty()) {
-                return Observable.just(Collections.<PropertySet>emptyList());
+                return Observable.just(Collections.emptyList());
             } else {
                 return syncInitiator.batchSyncUsers(urns)
                                     .flatMap(loadFollowings(pageSize, fromPosition));
@@ -117,12 +114,12 @@ public class MyProfileOperations {
     }
 
     @NonNull
-    private Func1<SyncJobResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize,
+    private Func1<SyncJobResult, Observable<List<Following>>> loadFollowings(final int pageSize,
                                                                                final long fromPosition) {
         return syncJobResult -> userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler);
     }
 
-    public Observable<PropertySet> lastPublicPostedTrack() {
+    public Observable<LastPostedTrack> lastPublicPostedTrack() {
         return postsStorage.loadLastPublicPostedTrack()
                            .subscribeOn(scheduler);
     }

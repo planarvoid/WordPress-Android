@@ -11,8 +11,6 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
@@ -37,7 +35,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<PropertySet> observer = new TestSubscriber<>();
+    private TestSubscriber<Integer> observer = new TestSubscriber<>();
     private Urn targetUrn = Urn.forTrack(123);
 
     @Before
@@ -58,7 +56,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
         verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isTrue();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(TestPropertySets.likedEntityChangeSet(targetUrn, 5));
+        assertThat(observer.getOnNextEvents()).containsExactly(5);
     }
 
     @Test
@@ -68,7 +66,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
         verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isFalse();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(TestPropertySets.unlikedEntityChangeSet(targetUrn, 5));
+        assertThat(observer.getOnNextEvents()).containsExactly(5);
     }
 
     @Test

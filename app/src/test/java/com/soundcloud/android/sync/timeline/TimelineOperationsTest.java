@@ -14,7 +14,6 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -223,16 +222,16 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
         subscriber.assertNoValues();
     }
 
-    protected List<PropertySet> createPropertySets(int length, long lastItemTimestamp) {
-        final List<PropertySet> headList = Collections.nCopies(length - 1, createTimelineItem(FIRST_ITEM_TIMESTAMP));
-        final ArrayList<PropertySet> propertySets = new ArrayList<>(headList);
+    protected List<StorageModel> createStorageModels(int length, long lastItemTimestamp) {
+        final List<StorageModel> headList = Collections.nCopies(length - 1, createTimelineItem(FIRST_ITEM_TIMESTAMP));
+        final ArrayList<StorageModel> propertySets = new ArrayList<>(headList);
         propertySets.add(createTimelineItem(lastItemTimestamp));
         return propertySets;
     }
 
     protected abstract List<StorageModel> createItems(int length, long lastItemTimestamp);
 
-    protected abstract PropertySet createTimelineItem(long timestamp);
+    protected abstract StorageModel createTimelineItem(long timestamp);
 
     protected abstract List<ViewModel> viewModelsFromStorageModel(List<StorageModel> items);
 

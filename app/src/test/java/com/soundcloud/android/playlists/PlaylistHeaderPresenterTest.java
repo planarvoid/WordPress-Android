@@ -53,7 +53,6 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -214,7 +213,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldPublishUIEventWhenLikingAPlaylist() {
         setPlaylistInfo();
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleLike(true);
@@ -228,7 +227,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenUnlikingPlaylist() {
         setPlaylistInfo();
         when(likeOperations.toggleLike(playlistWithTracks.getUrn(),
-                                       false)).thenReturn(Observable.just(PropertySet.create()));
+                                       false)).thenReturn(Observable.just(0));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleLike(false);
@@ -294,7 +293,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldLikePlaylistWhenCheckingLikeButton() {
         setPlaylistInfo();
         when(likeOperations.toggleLike(playlistWithTracks.getUrn(),
-                                       true)).thenReturn(Observable.just(PropertySet.create()));
+                                       true)).thenReturn(Observable.just(0));
 
         presenter.onToggleLike(true);
 

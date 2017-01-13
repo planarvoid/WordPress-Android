@@ -13,7 +13,8 @@ import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.users.UserItem;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -42,7 +43,7 @@ public class FollowingOperationsTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+    private TestSubscriber<UserItem> subscriber = new TestSubscriber<>();
     private TestSubscriber<FollowingStatusEvent> followingStatusTestSubscriber = new TestSubscriber<>();
     private Urn targetUrn = Urn.forUser(123);
 
@@ -87,7 +88,7 @@ public class FollowingOperationsTest extends AndroidUnitTest {
         operations.populatedOnUserFollowed().subscribe(subscriber);
 
         final FollowingStatusEvent event = FollowingStatusEvent.createFollowed(targetUrn, FOLLOWER_COUNT);
-        final PropertySet following = PropertySet.create();
+        final UserItem following = UserItem.create(Urn.NOT_SET, "", Optional.absent(), Optional.absent(), 0, false);
         when(userAssociationStorage.followedUser(targetUrn)).thenReturn(Observable.just(following));
 
         eventBus.publish(EventQueue.FOLLOWING_CHANGED, event);

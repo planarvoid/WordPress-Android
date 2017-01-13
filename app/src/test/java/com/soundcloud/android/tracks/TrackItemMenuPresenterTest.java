@@ -112,7 +112,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesAddTrackLike() {
-        final PublishSubject<PropertySet> likeObservable = PublishSubject.create();
+        final PublishSubject<Integer> likeObservable = PublishSubject.create();
         when(likeOperations.toggleLike(trackItem.getUrn(), !trackItem.isLikedByCurrentUser())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 

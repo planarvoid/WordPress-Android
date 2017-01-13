@@ -5,12 +5,12 @@ import static com.soundcloud.android.storage.Tables.UserAssociations.ASSOCIATION
 import static com.soundcloud.android.storage.Tables.UserAssociations.POSITION;
 import static com.soundcloud.android.storage.Tables.UserAssociations.REMOVED_AT;
 import static com.soundcloud.android.storage.Tables.UserAssociations.TARGET_ID;
-import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_FOLLOWER;
 import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_FOLLOWING;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.storage.Tables.UserAssociations;
 import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.collections.Lists;
@@ -38,7 +38,6 @@ import java.util.Set;
 
 public class UserAssociationStorage {
 
-    private static final String FOLLOWINGS_ALIAS = "Followings";
     private static final int BATCH_SIZE = 500;
 
     private final PropellerDatabase propeller;
@@ -85,16 +84,16 @@ public class UserAssociationStorage {
     //TODO: this is business logic and belongs in the syncer. Let's move this once we migrate
     // affiliations to api-mobile and rewrite the syncer
     public void updateFollowingFromPendingState(Urn followedUser) {
-        final PropertySet following = loadFollowedUser(followedUser);
+        final Optional<UserAssociation> following = loadFollowedUser(followedUser);
         final Where filter = filter()
                 .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
                 .whereEq(TARGET_ID, followedUser.getNumericId());
-        if (following.contains(UserAssociationProperty.ADDED_AT)) {
+        if (following.isPresent() && following.get().addedAt().isPresent()) {
             // following is pending addition; clear the timestamp
             final ContentValues contentValues = new ContentValues(1);
             contentValues.putNull(ADDED_AT.name());
             propeller.update(UserAssociations.TABLE, contentValues, filter);
-        } else if (following.contains(UserAssociationProperty.REMOVED_AT)) {
+        } else if (following.isPresent() && following.get().removedAt().isPresent()) {
             // following is pending removal; delete it
             propeller.delete(UserAssociations.TABLE, filter);
         }
@@ -109,24 +108,19 @@ public class UserAssociationStorage {
         return new HashSet<>(propeller.query(followingIds).toList(ScalarMapper.create(Long.class)));
     }
 
-    public Observable<List<PropertySet>> followers(int limit, long fromPosition) {
-        final Query query = buildFollowersQuery(limit, fromPosition);
-        return propellerRx.query(query).map(new FollowersMapper()).toList();
-    }
-
-    public Observable<List<PropertySet>> followedUsers(int limit, long fromPosition) {
+    public Observable<List<Following>> followedUsers(int limit, long fromPosition) {
         final Query query = buildFollowingsQuery(limit, fromPosition);
         return propellerRx.query(query).map(new FollowingsMapper()).toList();
     }
 
-    public Observable<PropertySet> followedUser(Urn urn) {
+    public Observable<UserItem> followedUser(Urn urn) {
         final Query query = buildFollowingsBaseQuery().whereEq(TARGET_ID, urn.getNumericId());
-        return propellerRx.query(query).map(new FollowingsMapper());
+        return propellerRx.query(query).map(new FollowingsMapper()).map(Following::userItem);
     }
 
-    private PropertySet loadFollowedUser(Urn urn) {
+    private Optional<UserAssociation> loadFollowedUser(Urn urn) {
         final Query query = buildFollowingsBaseQuery().whereEq(TARGET_ID, urn.getNumericId());
-        return propeller.query(query).firstOrDefault(new FollowingsMapper(), PropertySet.create());
+        return Optional.fromNullable(propeller.query(query).firstOrDefault(new FollowingsMapper(), null)).transform(Following::userAssociation);
     }
 
     public Observable<List<Urn>> followedUserUrns(int limit, long fromPosition) {
@@ -159,7 +153,7 @@ public class UserAssociationStorage {
                         .firstOrDefault(Integer.class, 0) > 0;
     }
 
-    public List<PropertySet> loadStaleFollowings() {
+    public List<Following> loadStaleFollowings() {
         return propeller.query(buildFollowingsBaseQuery()
                                        .where(staleFollowingsFilter()))
                         .toList(new FollowingsMapper());
@@ -170,31 +164,6 @@ public class UserAssociationStorage {
                 .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
                 .whereNotNull(ADDED_AT)
                 .orWhereNotNull(REMOVED_AT);
-    }
-
-    protected Query buildFollowersQuery(int limit, long fromPosition) {
-        return Query.from(Users.TABLE)
-                    .select(
-                            Users._ID,
-                            Users.USERNAME,
-                            Users.COUNTRY,
-                            Users.FOLLOWERS_COUNT,
-                            Users.AVATAR_URL,
-                            POSITION,
-                            ADDED_AT,
-                            REMOVED_AT,
-                            FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE.name())
-                    .innerJoin(UserAssociations.TABLE,
-                               filter()
-                                       .whereEq(TARGET_ID, Users._ID)
-                                       .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWER))
-                    .leftJoin(UserAssociations.TABLE.name() + " as " + FOLLOWINGS_ALIAS,
-                              filter()
-                                      .whereEq(FOLLOWINGS_ALIAS + "." + TARGET_ID.name(), Users._ID)
-                                      .whereEq(FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE.name(), TYPE_FOLLOWING))
-                    .whereGt(POSITION, fromPosition)
-                    .order(POSITION, ASC)
-                    .limit(limit);
     }
 
     protected Query buildFollowingsQuery(int limit, long fromPosition) {
@@ -213,9 +182,11 @@ public class UserAssociationStorage {
                             Users.COUNTRY,
                             Users.FOLLOWERS_COUNT,
                             Users.AVATAR_URL,
+                            TARGET_ID.as(BaseColumns._ID),
                             POSITION,
                             ADDED_AT,
-                            REMOVED_AT)
+                            REMOVED_AT,
+                            ASSOCIATION_TYPE)
                     .innerJoin(UserAssociations.TABLE,
                                filter()
                                        .whereEq(TARGET_ID, Users._ID)
@@ -229,28 +200,19 @@ public class UserAssociationStorage {
         }
     }
 
-    private class FollowersMapper extends UserAssociationMapper {
-        @Override
-        public PropertySet map(CursorReader reader) {
-            final PropertySet map = super.map(reader);
-            map.put(UserProperty.IS_FOLLOWED_BY_ME, reader.isNotNull(FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE));
-            return map;
-        }
-    }
-
     private class FollowingsMapper extends UserAssociationMapper {
         @Override
-        public PropertySet map(CursorReader reader) {
-            final PropertySet map = super.map(reader);
-            map.put(UserProperty.IS_FOLLOWED_BY_ME, true);
-            return map;
+        public Following map(CursorReader reader) {
+            final Following following = super.map(reader);
+            UserItem followed = following.userItem().copyWithFollowing(true);
+            return Following.from(followed, following.userAssociation());
         }
     }
 
-    private class UserAssociationMapper extends RxResultMapper<PropertySet> {
+    private class UserAssociationMapper extends RxResultMapper<Following> {
 
         @Override
-        public PropertySet map(CursorReader reader) {
+        public Following map(CursorReader reader) {
             final PropertySet propertySet = PropertySet.create(reader.getColumnCount() + 1);
             propertySet.put(UserProperty.URN, Urn.forUser(reader.getLong(Users._ID)));
             propertySet.put(UserProperty.USERNAME, reader.getString(Users.USERNAME));
@@ -259,14 +221,8 @@ public class UserAssociationStorage {
                 propertySet.put(UserProperty.COUNTRY, reader.getString(Users.COUNTRY));
             }
             propertySet.put(UserProperty.FOLLOWERS_COUNT, reader.getInt(Users.FOLLOWERS_COUNT));
-            propertySet.put(UserAssociationProperty.POSITION, reader.getLong(POSITION));
-            if (reader.isNotNull(ADDED_AT)) {
-                propertySet.put(UserAssociationProperty.ADDED_AT, reader.getDateFromTimestamp(ADDED_AT));
-            }
-            if (reader.isNotNull(REMOVED_AT)) {
-                propertySet.put(UserAssociationProperty.REMOVED_AT, reader.getDateFromTimestamp(REMOVED_AT));
-            }
-            return propertySet;
+
+            return Following.from(UserItem.from(propertySet), UserAssociation.create(reader));
         }
     }
 

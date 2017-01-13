@@ -4,19 +4,16 @@ import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PostProperty;
+import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class FacebookInvitesOperations {
@@ -35,11 +32,11 @@ public class FacebookInvitesOperations {
     private final DateProvider dateProvider;
     private final MyProfileOperations myProfileOperations;
 
-    private final Func1<PropertySet, Observable<StreamItem>> toCreatorInvitesItem =
+    private final Func1<LastPostedTrack, Observable<StreamItem>> toCreatorInvitesItem =
             track -> {
                 if (isPostRecentlyCreated(track)) {
-                    return Observable.just(StreamItem.forFacebookCreatorInvites(track.get(PlayableProperty.URN),
-                                                                                track.get(PlayableProperty.PERMALINK_URL)));
+                    return Observable.just(StreamItem.forFacebookCreatorInvites(track.urn(),
+                                                                                track.permalinkUrl()));
                 } else {
                     return Observable.empty();
                 }
@@ -120,12 +117,12 @@ public class FacebookInvitesOperations {
         return facebookInvitesStorage.getMillisSinceLastCreatorDismiss() >= CREATOR_DISMISS_INTERVAL_MS;
     }
 
-    private boolean isPostRecentlyCreated(PropertySet track) {
+    private boolean isPostRecentlyCreated(LastPostedTrack track) {
         return getMillisSincePosted(track) < LAST_POST_INTERVAL_MS;
     }
 
-    private long getMillisSincePosted(PropertySet track) {
-        return dateProvider.getCurrentTime() - track.get(PostProperty.CREATED_AT).getTime();
+    private long getMillisSincePosted(LastPostedTrack track) {
+        return dateProvider.getCurrentTime() - track.createdAt().getTime();
     }
 
 }

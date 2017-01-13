@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -28,9 +28,9 @@ public class FollowingOperations {
     private final UserAssociationStorage userAssociationStorage;
     private final SyncOperations syncOperations;
 
-    private final Func1<Urn, Observable<PropertySet>> loadFollowedUser = new Func1<Urn, Observable<PropertySet>>() {
+    private final Func1<Urn, Observable<UserItem>> loadFollowedUser = new Func1<Urn, Observable<UserItem>>() {
         @Override
-        public Observable<PropertySet> call(Urn urn) {
+        public Observable<UserItem> call(Urn urn) {
             return userAssociationStorage.followedUser(urn).subscribeOn(scheduler);
         }
     };
@@ -48,7 +48,7 @@ public class FollowingOperations {
         this.syncOperations = syncOperations;
     }
 
-    public Observable<PropertySet> populatedOnUserFollowed() {
+    public Observable<UserItem> populatedOnUserFollowed() {
         return onUserFollowed().flatMap(loadFollowedUser);
     }
 

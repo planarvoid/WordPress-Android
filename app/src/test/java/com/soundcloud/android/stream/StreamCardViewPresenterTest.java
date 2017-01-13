@@ -261,11 +261,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private PromotedPlaylistItem promotedPlaylistItem() {
-        return PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        return TestPropertySets.expectedPromotedPlaylist();
     }
 
     private PromotedPlaylistItem promotedPlaylistWithoutPromoter() {
-        return PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylistWithoutPromoter());
+        return TestPropertySets.expectedPromotedPlaylistWithoutPromoter();
     }
 
     private PlaylistItem postedPlaylist() {

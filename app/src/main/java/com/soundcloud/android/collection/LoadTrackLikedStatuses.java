@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection;
 
-import static com.soundcloud.android.utils.PropertySets.extractIds;
+import static com.soundcloud.android.utils.Urns.extractIds;
 import static com.soundcloud.android.utils.Urns.trackPredicate;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 

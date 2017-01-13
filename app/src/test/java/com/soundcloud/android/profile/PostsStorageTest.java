@@ -5,10 +5,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +22,8 @@ public class PostsStorageTest extends StorageIntegrationTest {
 
     private PostsStorage storage;
     private ApiUser user;
-    private PropertySet post1;
-    private PropertySet post2;
+    private LastPostedTrack post1;
+    private LastPostedTrack post2;
 
     final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
 
@@ -45,7 +42,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
     public void shouldLoadLastPublicPostedTrackWithDatePostedAndPermalink() throws Exception {
         post1 = createTrackPostForLastPostedAt(POSTED_DATE_2);
         createTrackPostForLastPostedAt(POSTED_DATE_1);
-        TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+        TestSubscriber<LastPostedTrack> subscriber = new TestSubscriber<>();
 
         storage.loadLastPublicPostedTrack().subscribe(subscriber);
 
@@ -56,7 +53,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
     public void shouldLoadLastPublicPostedTrackExcludingPrivateTracks() throws Exception {
         createPrivateTrackPostForLastPostedAt(POSTED_DATE_2);
         post2 = createTrackPostForLastPostedAt(POSTED_DATE_1);
-        TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+        TestSubscriber<LastPostedTrack> subscriber = new TestSubscriber<>();
 
         storage.loadLastPublicPostedTrack().subscribe(subscriber);
 
@@ -71,24 +68,21 @@ public class PostsStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrackPost(trackId, postedAt.getTime(), false);
     }
 
-    private PropertySet createTrackPostForLastPostedAt(Date postedAt) {
+    private LastPostedTrack createTrackPostForLastPostedAt(Date postedAt) {
         ApiTrack track = createTrackAt(postedAt);
         createTrackPostWithId(track.getUrn().getNumericId(), postedAt);
         return createTrackPostForLastPostedPropertySet(track);
     }
 
-    private PropertySet createTrackPostForLastPostedPropertySet(ApiTrack track) {
-        return TrackItem.from(track).slice(
-                TrackProperty.URN,
-                TrackProperty.PERMALINK_URL
-        ).put(PostProperty.CREATED_AT, track.getCreatedAt());
+    private LastPostedTrack createTrackPostForLastPostedPropertySet(ApiTrack track) {
+        return LastPostedTrack.create(track.getUrn(), track.getCreatedAt(), track.getPermalinkUrl());
     }
 
     private ApiTrack createPrivateTrackAt(Date creationDate) {
         return testFixtures().insertPrivateTrackWithCreationDate(user, creationDate);
     }
 
-    private PropertySet createPrivateTrackPostForLastPostedAt(Date postedAt) {
+    private LastPostedTrack createPrivateTrackPostForLastPostedAt(Date postedAt) {
         ApiTrack track = createPrivateTrackAt(postedAt);
         createTrackPostWithId(track.getUrn().getNumericId(), postedAt);
         return createTrackPostForLastPostedPropertySet(track);

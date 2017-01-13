@@ -59,7 +59,6 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsSourceInfo;
@@ -632,7 +631,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEventForPromotedItem() throws ApiMapperException {
-        final PromotedListItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        final PromotedListItem item = TestPropertySets.expectedPromotedPlaylist();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
         final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist(PAGE_NAME,
                                                                                                 PLAYLIST_URN,

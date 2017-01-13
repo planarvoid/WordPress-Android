@@ -13,15 +13,14 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.users.UserAssociationProperty;
+import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.reflect.TypeToken;
 
 import android.app.Notification;
@@ -77,9 +76,9 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
 
     private boolean pushUserAssociations() throws IOException, ApiRequestException {
         if (userAssociationStorage.hasStaleFollowings()) {
-            List<PropertySet> associationsNeedingSync = userAssociationStorage.loadStaleFollowings();
-            for (PropertySet userAssociation : associationsNeedingSync) {
-                pushUserAssociation(userAssociation);
+            List<Following> followings = userAssociationStorage.loadStaleFollowings();
+            for (Following following : followings) {
+                pushFollowing(following);
             }
         }
         return true;
@@ -110,23 +109,24 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
         return Lists.transform(apiFollowings.getCollection(), ApiFollowing.TO_USER_IDS);
     }
 
-    private void pushUserAssociation(PropertySet userAssociation) throws IOException, ApiRequestException {
-        final Urn userUrn = userAssociation.get(UserProperty.URN);
-        final String userName = userAssociation.get(UserProperty.USERNAME);
+    private void pushFollowing(Following following) throws IOException, ApiRequestException {
+        final UserAssociation userAssociation = following.userAssociation();
+        final Urn userUrn = userAssociation.userUrn();
+        final String userName = following.userItem().name();
 
-        if (userAssociation.contains(UserAssociationProperty.ADDED_AT)) {
+        if (userAssociation.addedAt().isPresent()) {
             pushUserAssociationAddition(userUrn,
                                         userName,
                                         ApiRequest.post(ApiEndpoints.USER_FOLLOWS.path(userUrn))
                                                   .forPrivateApi()
                                                   .build());
-        } else if (userAssociation.contains(UserAssociationProperty.REMOVED_AT)) {
+        } else if (userAssociation.removedAt().isPresent()) {
             pushUserAssociationRemoval(userUrn,
                                        ApiRequest.delete(ApiEndpoints.USER_FOLLOWS.path(userUrn))
                                                  .forPrivateApi()
                                                  .build());
         } else {
-            throw new IllegalArgumentException("Following does not need syncing: " + userAssociation);
+            throw new IllegalArgumentException("Following does not need syncing: " + following);
         }
     }
 

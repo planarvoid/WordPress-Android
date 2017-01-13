@@ -17,7 +17,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,8 +31,6 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     private static final TrackItem PLAYER_TRACK = expectedTrackForPlayer();
     private static final TrackItem WIDGET_TRACK = expectedTrackForWidget();
     private static final User FOLLOWED_USER = ModelFixtures.user(true);
-
-    private final TestEventBus eventBus = new TestEventBus();
 
     private EngagementsTracking engagementsTracking;
     private TestSubscriber<UIEvent> testSubscriber;

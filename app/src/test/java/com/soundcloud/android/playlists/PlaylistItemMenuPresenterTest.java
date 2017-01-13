@@ -35,7 +35,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +92,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
-                .thenReturn(Observable.<PropertySet>empty());
+                .thenReturn(Observable.empty());
 
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         presenter = new PlaylistItemMenuPresenter(context,
@@ -127,7 +126,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesAddPlaylistLike() {
-        final PublishSubject<PropertySet> likeObservable = PublishSubject.create();
+        final PublishSubject<Integer> likeObservable = PublishSubject.create();
         when(likeOperations.toggleLike(playlist.getUrn(), !playlist.isLikedByCurrentUser())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
@@ -259,7 +258,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, false);
+        PlaylistItem likedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false);
 
         playlist = likedPlaylist;
         presenter.show(button, playlist, menuOptions);
@@ -275,7 +274,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, true);
+        PlaylistItem likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false);
         playlist = likedAndPostedPlaylist;
 
         when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);

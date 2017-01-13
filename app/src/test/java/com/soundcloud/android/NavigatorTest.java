@@ -198,7 +198,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensPlaylist() {
-        PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PromotedPlaylistItem playlist = TestPropertySets.expectedPromotedPlaylist();
         Urn playlistUrn = playlist.getUrn();
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
@@ -220,7 +220,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensPlaylistWithoutSearchQuerySourceInfo() {
-        PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PromotedPlaylistItem playlist = TestPropertySets.expectedPromotedPlaylist();
         Urn playlistUrn = playlist.getUrn();
 
         final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
@@ -237,7 +237,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensLegacyPlaylist() {
-        PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PromotedPlaylistItem playlist = TestPropertySets.expectedPromotedPlaylist();
         Urn playlistUrn = playlist.getUrn();
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);

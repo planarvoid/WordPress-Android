@@ -23,14 +23,15 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer.ForbiddenFollowNotificationBuilder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.users.UserAssociationProperty;
+import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,7 +111,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
         );
         mockApiFollowingsResponse(followings);
 
-        assertThat(myFollowingsSyncer.call()).isTrue();
+            assertThat(myFollowingsSyncer.call()).isTrue();
 
         verify(userAssociationStorage).insertFollowedUserIds(toUserIds(followings));
     }
@@ -233,19 +234,13 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
                                            any(TypeToken.class))).thenReturn(new ModelCollection<>(collection));
     }
 
-    private PropertySet getNewFollowingAddition(Urn urn, String username) {
-        return PropertySet.from(
-                UserProperty.URN.bind(urn),
-                UserProperty.USERNAME.bind(username),
-                UserAssociationProperty.ADDED_AT.bind(new Date())
-        );
+    private Following getNewFollowingAddition(Urn urn, String username) {
+        return Following.from(UserItem.create(urn, username, Optional.absent(), Optional.absent(), 0, false),
+                              UserAssociation.create(urn, -1, -1, Optional.of(new Date()), Optional.absent()));
     }
 
-    private PropertySet getNewFollowingRemoval(Urn urn, String username) {
-        return PropertySet.from(
-                UserProperty.URN.bind(urn),
-                UserProperty.USERNAME.bind(username),
-                UserAssociationProperty.REMOVED_AT.bind(new Date())
-        );
+    private Following getNewFollowingRemoval(Urn urn, String username) {
+        return Following.from(UserItem.create(urn, username, Optional.absent(), Optional.absent(), 0, false),
+                              UserAssociation.create(urn, -1, -1, Optional.absent(), Optional.of(new Date())));
     }
 }

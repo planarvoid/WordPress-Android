@@ -13,11 +13,9 @@ import static rx.Observable.empty;
 import static rx.Observable.from;
 
 import com.soundcloud.android.ads.StreamAdsController;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.presentation.PromotedListItem;
@@ -30,10 +28,8 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -455,19 +451,12 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Override
     protected List<StreamPlayable> createItems(int length, long lastItemTimestamp) {
-        final List<PropertySet> items = super.createPropertySets(length, lastItemTimestamp);
-        final List<StreamPlayable> result = Lists.newArrayList();
-        for (PropertySet item : items) {
-            result.add(StreamPlayable.createFromPropertySet(item.get(PlayableProperty.CREATED_AT), item));
-        }
-        return result;
+        return super.createStorageModels(length, lastItemTimestamp);
     }
 
     @Override
-    protected PropertySet createTimelineItem(long timestamp) {
-        return PropertySet.from(
-                PlayableProperty.URN.bind(ModelFixtures.create(ApiTrack.class).getUrn()),
-                PlayableProperty.CREATED_AT.bind(new Date(timestamp)));
+    protected StreamPlayable createTimelineItem(long timestamp) {
+        return TestPropertySets.timelineItem(new Date(timestamp));
     }
 
     @Override

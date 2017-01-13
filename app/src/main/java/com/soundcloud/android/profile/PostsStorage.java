@@ -6,13 +6,10 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.api.model.Sharing;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Posts;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -22,6 +19,7 @@ import rx.Observable;
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
+import java.util.Date;
 
 public class PostsStorage {
 
@@ -32,7 +30,7 @@ public class PostsStorage {
         this.propellerRx = propellerRx;
     }
 
-    public Observable<PropertySet> loadLastPublicPostedTrack() {
+    public Observable<LastPostedTrack> loadLastPublicPostedTrack() {
         return propellerRx.query(buildQueryForLastPublicPostedTrack()).map(new LastPostedTrackMapper());
     }
 
@@ -55,14 +53,13 @@ public class PostsStorage {
                     .limit(1);
     }
 
-    private class LastPostedTrackMapper extends RxResultMapper<PropertySet> {
+    private class LastPostedTrackMapper extends RxResultMapper<LastPostedTrack> {
         @Override
-        public PropertySet map(CursorReader cursorReader) {
-            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-            propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getLong(BaseColumns._ID)));
-            propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(Tables.Posts.CREATED_AT));
-            propertySet.put(TrackProperty.PERMALINK_URL, cursorReader.getString(TableColumns.SoundView.PERMALINK_URL));
-            return propertySet;
+        public LastPostedTrack map(CursorReader cursorReader) {
+            final Urn urn = Urn.forTrack(cursorReader.getLong(BaseColumns._ID));
+            final Date createdAt = cursorReader.getDateFromTimestamp(Posts.CREATED_AT);
+            final String permalinkUrl = cursorReader.getString(TableColumns.SoundView.PERMALINK_URL);
+            return LastPostedTrack.create(urn, createdAt, permalinkUrl);
         }
     }
 

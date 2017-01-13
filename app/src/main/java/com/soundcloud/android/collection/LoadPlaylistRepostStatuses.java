@@ -1,7 +1,7 @@
 package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.android.utils.PropertySets.extractIds;
+import static com.soundcloud.android.utils.Urns.extractIds;
 import static com.soundcloud.android.utils.Urns.playlistPredicate;
 import static com.soundcloud.propeller.query.Filter.filter;
 
