@@ -129,7 +129,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         PolicyUpdateFailureEvent failureEvent =
                 eventBus.lastEventOn(EventQueue.TRACKING, PolicyUpdateFailureEvent.class);
-        assertThat(failureEvent.getKind()).isEqualTo(PolicyUpdateFailureEvent.KIND_POLICY_FETCH_FAILED);
+        assertThat(failureEvent.reason()).isEqualTo(PolicyUpdateFailureEvent.Reason.KIND_POLICY_FETCH_FAILED);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         PolicyUpdateFailureEvent failureEvent =
                 eventBus.lastEventOn(EventQueue.TRACKING, PolicyUpdateFailureEvent.class);
-        assertThat(failureEvent.getKind()).isEqualTo(PolicyUpdateFailureEvent.KIND_POLICY_WRITE_FAILED);
+        assertThat(failureEvent.reason()).isEqualTo(PolicyUpdateFailureEvent.Reason.KIND_POLICY_WRITE_FAILED);
     }
 
     @Test

@@ -1,36 +1,68 @@
 package com.soundcloud.android.events;
 
+
+import static com.soundcloud.android.events.PolicyUpdateFailureEvent.Context.CONTEXT_BACKGROUND;
+import static com.soundcloud.android.events.PolicyUpdateFailureEvent.Context.CONTEXT_UPSELL;
+import static com.soundcloud.android.events.PolicyUpdateFailureEvent.Reason.KIND_POLICY_FETCH_FAILED;
+import static com.soundcloud.android.events.PolicyUpdateFailureEvent.Reason.KIND_POLICY_WRITE_FAILED;
+
+import com.google.auto.value.AutoValue;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
-import org.jetbrains.annotations.NotNull;
 
-public class PolicyUpdateFailureEvent extends LegacyTrackingEvent implements MetricEvent {
+@AutoValue
+public abstract class PolicyUpdateFailureEvent extends NewTrackingEvent implements MetricEvent {
+    public enum Reason {
 
-    public static final String KIND_POLICY_FETCH_FAILED = "PolicyFetch";
-    public static final String KIND_POLICY_WRITE_FAILED = "PolicyWrite";
-    public static final String CONTEXT_BACKGROUND = "Background";
-    public static final String CONTEXT_UPSELL = "Upsell";
-    private final String context;
+        KIND_POLICY_FETCH_FAILED("PolicyFetch"),
+        KIND_POLICY_WRITE_FAILED("PolicyWrite");
+        private final String key;
+
+        Reason(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+    enum Context {
+
+        CONTEXT_BACKGROUND("Background"),
+        CONTEXT_UPSELL("Upsell");
+        private final String key;
+
+        Context(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+    public abstract Reason reason();
+    abstract Context context();
 
     public static PolicyUpdateFailureEvent fetchFailed(boolean inBackground) {
-        return new PolicyUpdateFailureEvent(KIND_POLICY_FETCH_FAILED,
-                                            inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
+        return PolicyUpdateFailureEvent.create(KIND_POLICY_FETCH_FAILED, inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
     }
 
     public static PolicyUpdateFailureEvent insertFailed(boolean inBackground) {
-        return new PolicyUpdateFailureEvent(KIND_POLICY_WRITE_FAILED,
-                                            inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
+        return PolicyUpdateFailureEvent.create(KIND_POLICY_WRITE_FAILED, inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
     }
 
-    protected PolicyUpdateFailureEvent(@NotNull String reason, String context) {
-        super(reason);
-        this.context = context;
+    private static PolicyUpdateFailureEvent create(Reason reason, Context context) {
+        return new AutoValue_PolicyUpdateFailureEvent(defaultId(), defaultTimestamp(), Optional.absent(), reason, context);
+    }
+
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_PolicyUpdateFailureEvent(id(), timestamp(), Optional.of(referringEvent), reason(), context());
     }
 
     @Override
     public Metric toMetric() {
-        return Metric.create("PolicyUpdateFailure",
-                             DataPoint.string("Reason", kind),
-                             DataPoint.string("Context", context));
+        return Metric.create("PolicyUpdateFailure", DataPoint.string("Reason", reason().toString()), DataPoint.string("Context", context().toString()));
     }
 }

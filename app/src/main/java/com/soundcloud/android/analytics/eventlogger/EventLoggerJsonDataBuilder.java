@@ -126,38 +126,30 @@ public class EventLoggerJsonDataBuilder {
     }
 
     public String build(PromotedTrackingEvent event) {
-        switch (event.getKind()) {
-            case PromotedTrackingEvent.KIND_CLICK:
-                return transform(getPromotedClickEvent(event));
-            case PromotedTrackingEvent.KIND_IMPRESSION:
-                return transform(getPromotedImpressionEvent(event));
-
-            default:
-                throw new IllegalStateException("Unexpected PromotedTrackingEvent type: " + event);
+        final EventLoggerEventData eventData = buildBaseEvent(event.kind().toString(), event)
+                .adUrn(event.adUrn())
+                .pageName(event.originScreen())
+                .monetizationType(event.monetizationType());
+        if (event.promoterUrn().isPresent()) {
+            eventData.promotedBy(event.promoterUrn().get().toString());
         }
-    }
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get().toString());
+        }
+        if (event.clickTarget().isPresent()) {
+            eventData.clickTarget(event.clickTarget().get().toString());
+        }
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get());
+        }
+        if (event.impressionObject().isPresent()) {
+            eventData.impressionObject(event.impressionObject().get().toString());
+        }
+        if (event.impressionName().isPresent()) {
+            eventData.impressionName(event.impressionName().get().toString());
+        }
 
-    private EventLoggerEventData getPromotedClickEvent(PromotedTrackingEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
-                .clickName("item_navigation")
-                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
-                .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_TARGET_URN));
-    }
-
-    private EventLoggerEventData getPromotedImpressionEvent(PromotedTrackingEvent event) {
-        String impressionObject = event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN);
-        String impressionName = new Urn(impressionObject).isPlaylist() ? "promoted_playlist" : "promoted_track";
-        return buildBaseEvent(IMPRESSION_EVENT, event)
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
-                .impressionName(impressionName)
-                .impressionObject(impressionObject);
+        return transform(eventData);
     }
 
     public String build(PlaybackPerformanceEvent event) {
