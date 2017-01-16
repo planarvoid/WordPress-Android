@@ -437,12 +437,15 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onShare() {
-        if (playlistWithTracks != null && !playlistWithTracks.isPrivate()) {
-            shareOperations.share(activity,
-                                  playlistWithTracks.getPermalinkUrl(),
-                                  getEventContext(),
-                                  playSessionSource.getPromotedSourceInfo(),
-                                  EntityMetadata.from(playlistWithTracks));
+        if (playlistWithTracks != null) {
+            final Optional<String> permalinkUrl = playlistWithTracks.getPermalinkUrl();
+            if (!playlistWithTracks.isPrivate() && permalinkUrl.isPresent()) {
+                shareOperations.share(activity,
+                                      permalinkUrl.get(),
+                                      getEventContext(),
+                                      playSessionSource.getPromotedSourceInfo(),
+                                      EntityMetadata.from(playlistWithTracks));
+            }
         }
     }
 

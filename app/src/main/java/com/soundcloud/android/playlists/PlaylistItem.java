@@ -103,7 +103,7 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
                 PlaylistProperty.TAGS.bind(playlist.tags()),
                 PlaylistProperty.LIKES_COUNT.bind(playlist.likesCount()),
                 PlaylistProperty.REPOSTS_COUNT.bind(playlist.repostCount()),
-                PlaylistProperty.PERMALINK_URL.bind(playlist.permalinkUrl())
+                PlaylistProperty.PERMALINK_URL.bind(playlist.permalinkUrl().or(Strings.EMPTY))
         ));
     }
 

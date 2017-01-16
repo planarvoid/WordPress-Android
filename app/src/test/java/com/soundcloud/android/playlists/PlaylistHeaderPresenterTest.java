@@ -276,7 +276,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                                         .pageUrn(playlistWithTracks.getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl(), eventContextMetadata, null,
+        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl().get(), eventContextMetadata, null,
                                       EntityMetadata.from(playlistWithTracks));
     }
 
@@ -375,7 +375,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                                         .pageUrn(playlistWithTracks.getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl(), eventContextMetadata, null,
+        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl().get(), eventContextMetadata, null,
                                       EntityMetadata.from(playlistWithTracks));
     }
 

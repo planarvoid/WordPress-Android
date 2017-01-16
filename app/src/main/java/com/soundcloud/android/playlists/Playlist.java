@@ -26,7 +26,7 @@ public abstract class Playlist {
                 .likesCount(playlist.getLikesCount())
                 .repostCount(playlist.getRepostsCount())
                 .setType(playlist.getSetType())
-                .permalinkUrl(playlist.getPermalinkUrl())
+                .permalinkUrl(Optional.of(playlist.getPermalinkUrl()))
                 .isAlbum(playlist.isAlbum())
                 .releaseDate(playlist.getReleaseDate())
                 .tags(playlist.getTags())
@@ -54,7 +54,7 @@ public abstract class Playlist {
 
     public abstract int repostCount();
 
-    public abstract String permalinkUrl();
+    public abstract Optional<String> permalinkUrl(); // local playlists do not have permalinks (not synced yet)
 
     public abstract String setType();
 
@@ -80,6 +80,7 @@ public abstract class Playlist {
 
     public static Builder builder() {
         return new AutoValue_Playlist.Builder()
+                .permalinkUrl(Optional.absent())
                 .tags(Optional.absent())
                 .isMarkedForOffline(Optional.absent())
                 .isLikedByCurrentUser(Optional.absent())
@@ -122,7 +123,7 @@ public abstract class Playlist {
             return isMarkedForOffline(Optional.of(isMarkedForOffline));
         }
 
-        public abstract Builder permalinkUrl(String value);
+        public abstract Builder permalinkUrl(Optional<String> value);
 
         public abstract Builder setType(String setType);
 

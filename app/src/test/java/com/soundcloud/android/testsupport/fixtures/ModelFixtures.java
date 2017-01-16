@@ -48,6 +48,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItemBlueprint;
+import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
@@ -114,7 +115,7 @@ public class ModelFixtures {
 
     public static Playlist.Builder playlistBuilder(ApiPlaylist apiPlaylist) {
         return Playlist.builder()
-                       .permalinkUrl(apiPlaylist.getPermalinkUrl())
+                       .permalinkUrl(Optional.of(apiPlaylist.getPermalinkUrl()))
                        .repostCount(apiPlaylist.getRepostsCount())
                        .likesCount(apiPlaylist.getLikesCount())
                        .creatorName(apiPlaylist.getUsername())

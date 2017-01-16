@@ -37,9 +37,7 @@ public class NewPlaylistMapper extends RxResultMapper<Playlist> {
                                                  .isLikedByCurrentUser(cursorReader.getBoolean(Tables.PlaylistView.IS_USER_LIKE.name()))
                                                  .isRepostedByCurrentUser(cursorReader.getBoolean(Tables.PlaylistView.IS_USER_REPOST.name()));
 
-        if (cursorReader.isNotNull(Tables.PlaylistView.PERMALINK_URL.name())) { // local playlists (not synced yet)
-            builder.permalinkUrl(cursorReader.getString(Tables.PlaylistView.PERMALINK_URL.name()));
-        }
+        builder.permalinkUrl(Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.PERMALINK_URL.name())));
 
         final boolean isMarkedForOffline = cursorReader.getBoolean(Tables.PlaylistView.IS_MARKED_FOR_OFFLINE.name());
         builder.isMarkedForOffline(isMarkedForOffline);

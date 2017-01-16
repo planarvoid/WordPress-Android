@@ -122,7 +122,7 @@ public class PlaylistWithTracks implements ImageResource, UpdatablePlaylistItem 
         return !isPrivate();
     }
 
-    public String getPermalinkUrl() {
+    public Optional<String> getPermalinkUrl() {
         return playlist.permalinkUrl();
     }
 
