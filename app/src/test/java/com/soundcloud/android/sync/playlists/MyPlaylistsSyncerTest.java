@@ -1,6 +1,8 @@
 package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static com.soundcloud.java.collections.Sets.newHashSet;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -27,6 +29,7 @@ import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
@@ -48,6 +51,7 @@ import android.util.Pair;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -67,13 +71,15 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private SinglePlaylistSyncer singlePlaylistSyncer;
     @Mock private EventBus eventBus;
+    @Mock private PlaylistStorage playlistStorage;
 
     private Urn localPlaylistUrn;
 
     @Before
     public void setUp() throws Exception {
         when(singlePlaylistSyncerFactory.create(any(Urn.class))).thenReturn(null);
-        when(loadOfflinePlaylistsCommand.call(any(Void.class))).thenReturn(Collections.<Urn>emptyList());
+        when(loadOfflinePlaylistsCommand.call(any(Void.class))).thenReturn(Collections.emptyList());
+        when(playlistStorage.playlistWithTrackChanges()).thenReturn(new HashSet<>());
 
         syncer = new MyPlaylistsSyncer(
                 postsSyncer,
@@ -85,6 +91,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
                 apiClient,
                 loadOfflinePlaylistsCommand,
                 singlePlaylistSyncerFactory,
+                playlistStorage,
                 eventBus,
                 false
         );
@@ -115,12 +122,12 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(loadLocalPlaylists.call()).thenReturn(playlists);
         when(loadPlaylistTrackUrns.call()).thenReturn(playlist1Tracks, playlist2Tracks);
         when(apiClient
-                .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                                                                     .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))), eq(ApiPlaylistWrapper.class)))
+                     .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
+                                                          .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))), eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist1));
         when(apiClient
-                .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                                                                     .withContent(createPushRequestBody(playlists.get(1), playlist2Tracks))), eq(ApiPlaylistWrapper.class)))
+                     .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
+                                                          .withContent(createPushRequestBody(playlists.get(1), playlist2Tracks))), eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist2));
 
         syncer.call();
@@ -196,11 +203,39 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void syncLocalTrackChanges() throws Exception {
+        final Urn playlist = Urn.forPlaylist(123L);
+        when(playlistStorage.playlistWithTrackChanges()).thenReturn(singleton(playlist));
+        when(singlePlaylistSyncerFactory.create(playlist)).thenReturn(singlePlaylistSyncer);
+        when(singlePlaylistSyncer.call()).thenReturn(true);
+
+        final Boolean syncResult = syncer.call();
+
+        verify(singlePlaylistSyncer).call();
+        assertThat(syncResult).isTrue();
+    }
+
+    @Test
     public void syncsOfflinePlaylists() throws Exception {
         final Urn offlinePlaylist = Urn.forPlaylist(1);
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
         when(loadOfflinePlaylistsCommand.call(null)).thenReturn(singletonList(offlinePlaylist));
         when(singlePlaylistSyncerFactory.create(offlinePlaylist)).thenReturn(singlePlaylistSyncer);
+        when(singlePlaylistSyncer.call()).thenReturn(true);
+
+        final Boolean syncResult = syncer.call();
+
+        verify(singlePlaylistSyncer).call();
+        assertThat(syncResult).isTrue();
+    }
+
+    @Test
+    public void doesNotDoubleSyncOfflinePlaylistWithTrackChanges() throws Exception {
+        final Urn playlist = Urn.forPlaylist(1);
+        when(playlistStorage.playlistWithTrackChanges()).thenReturn(newHashSet(playlist));
+        when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
+        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(singletonList(playlist));
+        when(singlePlaylistSyncerFactory.create(playlist)).thenReturn(singlePlaylistSyncer);
         when(singlePlaylistSyncer.call()).thenReturn(true);
 
         final Boolean syncResult = syncer.call();
@@ -269,8 +304,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(loadLocalPlaylists.call()).thenReturn(playlists);
         when(loadPlaylistTrackUrns.call()).thenReturn(playlistTracks);
         when(apiClient
-                .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                                                                     .withContent(createPushRequestBody(playlists.get(0), playlistTracks))), eq(ApiPlaylistWrapper.class)))
+                     .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
+                                                          .withContent(createPushRequestBody(playlists.get(0), playlistTracks))), eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist));
         return newPlaylist;
     }

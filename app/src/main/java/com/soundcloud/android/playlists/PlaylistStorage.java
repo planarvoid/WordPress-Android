@@ -48,16 +48,25 @@ public class PlaylistStorage {
     }
 
     public boolean hasLocalChanges() {
-        final QueryResult queryResult =
-                propeller.query(apply(exists(from(Tables.Sounds.TABLE)
-                                                     .select(TableColumns.SoundView._ID, Tables.Sounds.REMOVED_AT)
-                                                     .whereEq(_TYPE, Tables.Sounds.TYPE_PLAYLIST)
-                                                     .whereLt(Tables.Sounds._ID, 0)).as("has_local_playlists")
-                                                                                    .orWhereNotNull(Tables.Sounds.REMOVED_AT)));
-        return queryResult.first(Boolean.class);
+        return hasLocalPlaylistChange() || hasLocalTrackChanges();
     }
 
-    Set<Urn> getPlaylistsDueForSync() {
+    private Boolean hasLocalPlaylistChange() {
+        return propeller.query(apply(exists(from(Tables.Sounds.TABLE)
+                                                     .select(Tables.PlaylistView.ID, Tables.Sounds.REMOVED_AT)
+                                                     .whereEq(_TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                                                     .whereLt(Tables.Sounds._ID, 0)).as("has_local_playlists")
+                                                                                    .orWhereNotNull(Tables.Sounds.REMOVED_AT))).first(Boolean.class);
+    }
+
+    private Boolean hasLocalTrackChanges() {
+        return propeller.query(apply(exists(from(Table.PlaylistTracks.name())
+                                                          .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
+                                                          .where(hasLocalTracks())
+                                                          .where(isNotLocal())))).first(Boolean.class);
+    }
+
+    public Set<Urn> playlistWithTrackChanges() {
         final QueryResult queryResult = propeller.query(from(Table.PlaylistTracks.name())
                                                                 .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
                                                                 .where(hasLocalTracks())

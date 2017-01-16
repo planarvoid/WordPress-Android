@@ -50,6 +50,20 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void hasLocalChangesIsTrueWithLocalTrackAddition() {
+        testFixtures().insertPlaylistTrackPendingAddition(testFixtures().insertPlaylist(), 0, new Date());
+
+        assertThat(storage.hasLocalChanges()).isTrue();
+    }
+
+    @Test
+    public void hasLocalChangesIsTrueWithLocalTrackRemoval() {
+        testFixtures().insertPlaylistTrackPendingRemoval(testFixtures().insertPlaylist(), 0, new Date());
+
+        assertThat(storage.hasLocalChanges()).isTrue();
+    }
+
+    @Test
     public void hasPlaylistDueForSyncReturnsOnlyRemotePlaylistWithUnpushedTracks() {
         testFixtures().insertPlaylist();
         final ApiPlaylist localPlaylist = testFixtures().insertLocalPlaylist();
@@ -60,7 +74,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrackPendingAddition(playlistWithAddition, 0, new Date());
         testFixtures().insertPlaylistTrackPendingRemoval(playlistWithRemoval, 1, new Date());
 
-        assertThat(storage.getPlaylistsDueForSync()).contains(playlistWithAddition.getUrn(), playlistWithRemoval.getUrn());
+        assertThat(storage.playlistWithTrackChanges()).contains(playlistWithAddition.getUrn(), playlistWithRemoval.getUrn());
     }
 
     @Test
