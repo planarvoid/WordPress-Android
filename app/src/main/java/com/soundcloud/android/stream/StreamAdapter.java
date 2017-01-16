@@ -10,10 +10,13 @@ import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsItemRenderer;
 import com.soundcloud.android.upsell.StreamUpsellItemRenderer;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.checks.Preconditions;
+import com.soundcloud.java.collections.Iterables;
 
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -72,11 +75,13 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     @Override
     public void addItem(StreamItem item) {
+        ErrorUtils.log(Log.INFO, "StreamAdapter", "Add item = [" + item + "]");
         checkMainThread();
         super.addItem(item);
     }
 
     public void addItem(int position, StreamItem item) {
+        ErrorUtils.log(Log.INFO, "StreamAdapter", "Add item at " + "position = [" + position + "], item = [" + item + "]");
         checkMainThread();
         if (position < getItemCount()) {
             items.add(position, item);
@@ -86,20 +91,30 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     @Override
     public void clear() {
+        ErrorUtils.log(Log.INFO, "StreamAdapter", "Clear");
         checkMainThread();
         super.clear();
     }
 
     @Override
     public void prependItem(StreamItem item) {
+        ErrorUtils.log(Log.INFO, "StreamAdapter", "Prepend item = [" + item + "]");
         checkMainThread();
         super.prependItem(item);
     }
 
     @Override
     public void removeItem(int position) {
+        ErrorUtils.log(Log.INFO, "StreamAdapter", "Remove position = [" + position + "]");
         checkMainThread();
         super.removeItem(position);
+    }
+
+    @Override
+    public void onNext(Iterable<StreamItem> items) {
+        ErrorUtils.log(Log.INFO, "StreamAdapter", "On Next= [" + Iterables.size(items) + " items]");
+        checkMainThread();
+        super.onNext(items);
     }
 
     // debugging https://github.com/soundcloud/android/issues/6323
