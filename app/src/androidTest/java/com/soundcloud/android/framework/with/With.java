@@ -53,11 +53,34 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithClassSimpleName(classStringName);
     }
 
+    public static With either(With first, With second) {
+        return new WithEither(first, second);
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                           .add("selector", getSelector())
                           .toString();
+    }
+
+    static class WithEither extends With {
+        private final With first;
+        private final With second;
+
+        WithEither(With first, With second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            return first.apply(viewElement) || second.apply(viewElement);
+        }
+
+        public String getSelector() {
+            return String.format("With either: [%s] or [%s]", first.getSelector(), second.getSelector());
+        }
     }
 
     static class WithId extends With {

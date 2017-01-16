@@ -76,6 +76,11 @@ public class TestUserRecord implements UserRecord {
     }
 
     @Override
+    public int getFollowingsCount() {
+        return apiUser.getFollowingsCount();
+    }
+
+    @Override
     public Optional<String> getDescription() {
         return Optional.of("description");
     }

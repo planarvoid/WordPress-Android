@@ -34,7 +34,8 @@ public enum Flag {
     FLIPPER(BuildConfig.FLIPPER),
     APPBOY(BuildConfig.APPBOY),
     WELCOME_USER(BuildConfig.WELCOME_USER),
-    FORCE_SHOW_WELCOME_USER(BuildConfig.FORCE_SHOW_WELCOME_USER);
+    FORCE_SHOW_WELCOME_USER(BuildConfig.FORCE_SHOW_WELCOME_USER),
+    ALIGNED_USER_INFO(BuildConfig.ALIGNED_USER_INFO);
 
     private final State state;
 

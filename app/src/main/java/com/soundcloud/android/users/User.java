@@ -31,6 +31,8 @@ public abstract class User {
 
     public abstract int followersCount();
 
+    public abstract int followingsCount();
+
     public abstract Optional<String> description();
 
     public abstract Optional<String> avatarUrl();
@@ -59,6 +61,7 @@ public abstract class User {
                 .country(Optional.fromNullable(cursorReader.getString(UsersView.COUNTRY.name())))
                 .city(Optional.fromNullable(cursorReader.getString(UsersView.CITY.name())))
                 .followersCount(cursorReader.getInt(UsersView.FOLLOWERS_COUNT.name()))
+                .followingsCount(cursorReader.getInt(UsersView.FOLLOWINGS_COUNT.name()))
                 .description(Optional.fromNullable(cursorReader.getString(UsersView.DESCRIPTION.name())))
                 .avatarUrl(Optional.fromNullable(cursorReader.getString(UsersView.AVATAR_URL.name())))
                 .visualUrl(Optional.fromNullable(cursorReader.getString(UsersView.VISUAL_URL.name())))
@@ -81,6 +84,7 @@ public abstract class User {
                 .country(Optional.fromNullable(apiUser.getCountry()))
                 .city(Optional.fromNullable(apiUser.getCity()))
                 .followersCount(apiUser.getFollowersCount())
+                .followingsCount(apiUser.getFollowersCount())
                 .description(apiUser.getDescription())
                 .avatarUrl(apiUser.getAvatarUrlTemplate())
                 .visualUrl(apiUser.getVisualUrlTemplate())
@@ -130,6 +134,8 @@ public abstract class User {
         public abstract Builder city(Optional<String> city);
 
         public abstract Builder followersCount(int followerCount);
+
+        public abstract Builder followingsCount(int followingsCount);
 
         public abstract Builder description(Optional<String> description);
 

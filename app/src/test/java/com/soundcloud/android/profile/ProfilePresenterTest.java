@@ -22,6 +22,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.ScreenStateProvider;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
@@ -70,6 +71,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private Optional<ReferringEvent> referringEvent;
     @Mock private EnterScreenDispatcher enterScreenDispatcher;
     @Mock private ScreenProvider screenProvider;
+    @Mock private FeatureFlags featureFlags;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
     @Captor private ArgumentCaptor<ScreenEvent> screenEventArgumentCaptor;
 
@@ -88,7 +90,8 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getResources()).thenReturn(resources);
-        when(activity.findViewById(R.id.tab_indicator)).thenReturn(tabLayout);
+        when(activity.findViewById(R.id.tab_indicator_fixed)).thenReturn(tabLayout);
+        when(activity.findViewById(R.id.tab_indicator_scrollable)).thenReturn(tabLayout);
         when(activity.findViewById(R.id.pager)).thenReturn(viewPager);
         when(activity.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(activity.findViewById(R.id.profile_header)).thenReturn(headerView);
@@ -102,7 +105,8 @@ public class ProfilePresenterTest extends AndroidUnitTest {
                                                 eventBus,
                                                 accountOperations,
                                                 eventTracker,
-                                                enterScreenDispatcher
+                                                enterScreenDispatcher,
+                                                featureFlags
         );
     }
 
@@ -159,7 +163,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Test
     public void profilePresenterShouldTrackUserPageViewWhenTabSelected() throws Exception {
         profilePresenter.onCreate(activity, null);
-        when(viewPager.getCurrentItem()).thenReturn(ProfilePagerAdapter.TAB_SOUNDS);
+        when(viewPager.getCurrentItem()).thenReturn(OldProfilePagerAdapter.TAB_SOUNDS);
         profilePresenter.onEnterScreen(activity);
 
         verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
@@ -172,7 +176,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(accountOperations.isLoggedInUser(USER_URN)).thenReturn(true);
 
         profilePresenter.onCreate(activity, null);
-        when(viewPager.getCurrentItem()).thenReturn(ProfilePagerAdapter.TAB_SOUNDS);
+        when(viewPager.getCurrentItem()).thenReturn(OldProfilePagerAdapter.TAB_SOUNDS);
         profilePresenter.onEnterScreen(activity);
 
         verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
