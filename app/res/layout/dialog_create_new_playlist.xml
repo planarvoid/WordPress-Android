@@ -19,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_new_playlist_hint"
+        android:maxLength="255"
         android:maxLines="1" />
 
     <com.soundcloud.android.view.CustomFontCheckBox
