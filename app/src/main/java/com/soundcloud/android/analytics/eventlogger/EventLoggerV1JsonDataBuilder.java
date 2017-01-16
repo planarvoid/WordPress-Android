@@ -452,21 +452,35 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForOfflineInteractionEvent(OfflineInteractionEvent event) {
-        if (OfflineInteractionEvent.KIND_LIMIT_BELOW_USAGE.equals(event.getKind())) {
-            return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                                     .impressionCategory("consumer_subs")
-                                     .impressionName(event.getKind())
-                                     .pageName(event.getPageName()));
-        } else {
-            return transform(buildBaseEvent(CLICK_EVENT, event)
-                                     .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                                     .clickName(event.getKind())
-                                     .pageName(event.getPageName())
-                                     .clickObject(event.getClickObject())
-                                     .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                                     .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                                     .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN)));
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event);
+        if (event.pageName().isPresent()) {
+            eventData.pageName(event.pageName().get());
         }
+        if (event.clickCategory().isPresent()) {
+            eventData.clickCategory(event.clickCategory().get());
+        }
+        if (event.impressionCategory().isPresent()) {
+            eventData.impressionCategory(event.impressionCategory().get());
+        }
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get().toString());
+        }
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get().toString());
+        }
+        if (event.impressionName().isPresent()) {
+            eventData.impressionName(event.impressionName().get().toString());
+        }
+        if (event.adUrn().isPresent()) {
+            eventData.adUrn(event.adUrn().get());
+        }
+        if (event.monetizationType().isPresent()) {
+            eventData.monetizationType(event.monetizationType().get().toString());
+        }
+        if (event.promoterUrn().isPresent()) {
+            eventData.promotedBy(event.promoterUrn().get().toString());
+        }
+        return transform(eventData);
     }
 
     String buildForOfflinePerformanceEvent(OfflinePerformanceEvent event) {

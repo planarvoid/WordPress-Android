@@ -268,7 +268,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openOnboarding(context, Urn.forTrack(123), Screen.DEEPLINK);
 
         DeeplinkReportEvent reportEvent = (DeeplinkReportEvent) captor.getAllValues().get(1);
-        assertThat(reportEvent.getKind()).isEqualTo(DeeplinkReportEvent.forResolvedDeeplink(Referrer.OTHER.toString()).getKind());
+        assertThat(reportEvent.kind()).isEqualTo(DeeplinkReportEvent.forResolvedDeeplink(Referrer.OTHER.toString()).kind());
     }
 
     @Test

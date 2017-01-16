@@ -1,31 +1,47 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
-import org.jetbrains.annotations.NotNull;
 
-public class DeeplinkReportEvent extends LegacyTrackingEvent implements MetricEvent {
+@AutoValue
+public abstract class DeeplinkReportEvent extends NewTrackingEvent implements MetricEvent {
 
-    private static final String KIND_SUCCESS = "Success";
-    private static final String KIND_FAILURE = "Failed";
-    private final String referrer;
+    enum Kind {
+        SUCCESS("Success"),
+        FAILURE("Failed");
+
+        private final String key;
+        Kind(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public abstract Kind kind();
+
+    public abstract String referrer();
 
     public static DeeplinkReportEvent forResolvedDeeplink(String referrer) {
-        return new DeeplinkReportEvent(KIND_SUCCESS, referrer);
+        return new AutoValue_DeeplinkReportEvent(defaultId(), defaultTimestamp(), Optional.absent(), Kind.SUCCESS, referrer);
     }
 
     public static DeeplinkReportEvent forResolutionFailure(String referrer) {
-        return new DeeplinkReportEvent(KIND_FAILURE,referrer);
+        return new AutoValue_DeeplinkReportEvent(defaultId(), defaultTimestamp(), Optional.absent(), Kind.FAILURE, referrer);
     }
 
-    private DeeplinkReportEvent(@NotNull String kind, String referrer) {
-        super(kind);
-        this.referrer = referrer;
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_DeeplinkReportEvent(id(), timestamp(), Optional.of(referringEvent), kind(), referrer());
     }
 
     @Override
     public Metric toMetric() {
-        return Metric.create("DeeplinksReport", DataPoint.string(referrer, getKind()));
+        return Metric.create("DeeplinksReport", DataPoint.string(referrer(), kind().toString()));
     }
 
 }

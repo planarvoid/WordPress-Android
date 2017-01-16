@@ -145,13 +145,13 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private void sendFileAccessEvent(Skippy.Configuration configuration) {
         final String cachePath = configuration.getCachePath();
         if (cachePath == null) {
-            eventBus.publish(EventQueue.TRACKING, new FileAccessEvent(false, false, false));
+            eventBus.publish(EventQueue.TRACKING, FileAccessEvent.create(false, false, false));
         } else {
             File file = new File(cachePath);
             boolean exists = file.exists();
             boolean canWrite = file.canWrite();
             boolean canRead = file.canRead();
-            eventBus.publish(EventQueue.TRACKING, new FileAccessEvent(exists, canWrite, canRead));
+            eventBus.publish(EventQueue.TRACKING, FileAccessEvent.create(exists, canWrite, canRead));
         }
 
     }

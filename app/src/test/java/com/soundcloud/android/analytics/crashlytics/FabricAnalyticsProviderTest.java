@@ -23,8 +23,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.Context;
 
-import java.util.concurrent.Executor;
-
 @RunWith(MockitoJUnitRunner.class)
 public class FabricAnalyticsProviderTest {
 
@@ -117,7 +115,7 @@ public class FabricAnalyticsProviderTest {
 
     @Test
     public void shouldPostFileAccessEvent() {
-        final FileAccessEvent fileAccessEvent = new FileAccessEvent(true, true, false);
+        final FileAccessEvent fileAccessEvent = FileAccessEvent.create(true, true, false);
         when(fabricProvider.isInitialized()).thenReturn(true);
 
         provider.handleTrackingEvent(fileAccessEvent);

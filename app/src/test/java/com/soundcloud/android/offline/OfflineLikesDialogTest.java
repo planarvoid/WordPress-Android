@@ -18,6 +18,7 @@ import android.content.DialogInterface;
 
 public class OfflineLikesDialogTest extends AndroidUnitTest {
 
+    public static final String PAGE_NAME = "page_name";
     @Mock OfflineContentOperations operations;
     @Mock ScreenProvider screenProvider;
 
@@ -33,14 +34,15 @@ public class OfflineLikesDialogTest extends AndroidUnitTest {
     @Test
     public void sendsTrackingEventWhenAddingOfflineLikes() {
         when(operations.enableOfflineLikedTracks()).thenReturn(Observable.<Void>empty());
-        when(screenProvider.getLastScreenTag()).thenReturn("page_name");
+        when(screenProvider.getLastScreenTag()).thenReturn(PAGE_NAME);
         dialog.onClick(mock(DialogInterface.class), 0);
 
         OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
                                                                      OfflineInteractionEvent.class);
-        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_LIKES_ADD);
-        assertThat(trackingEvent.getAttributes()
-                                .containsValue("page_name")).isTrue();
+        assertThat(trackingEvent.context().get()).isEqualTo(OfflineInteractionEvent.Context.LIKES_CONTEXT);
+        assertThat(trackingEvent.isEnabled().get()).isEqualTo(true);
+        assertThat(trackingEvent.clickName().get()).isEqualTo(OfflineInteractionEvent.Kind.KIND_OFFLINE_LIKES_ADD);
+        assertThat(trackingEvent.pageName().get()).isEqualTo(PAGE_NAME);
     }
 
 }

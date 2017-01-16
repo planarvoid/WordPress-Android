@@ -66,8 +66,8 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).getKind())
-                .isEqualTo(OfflineInteractionEvent.KIND_ONBOARDING_START);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).clickName().get())
+                .isEqualTo(OfflineInteractionEvent.Kind.KIND_ONBOARDING_START);
     }
 
     @Test

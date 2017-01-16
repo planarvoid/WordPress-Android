@@ -78,27 +78,8 @@ class AppboyEventHandler {
     }
 
     void handleEvent(OfflineInteractionEvent event) {
-        switch (event.getKind()) {
-            case OfflineInteractionEvent.KIND_OFFLINE_LIKES_ADD:
-                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(LIKES_CONTEXT, true));
-                break;
-            case OfflineInteractionEvent.KIND_OFFLINE_LIKES_REMOVE:
-                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(LIKES_CONTEXT, false));
-                break;
-            case OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_ADD:
-                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(PLAYLIST_CONTEXT, true));
-                break;
-            case OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
-                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(PLAYLIST_CONTEXT, false));
-                break;
-            case OfflineInteractionEvent.KIND_COLLECTION_SYNC_ENABLE:
-                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(ALL_CONTEXT, true));
-                break;
-            case OfflineInteractionEvent.KIND_COLLECTION_SYNC_DISABLE:
-                tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(ALL_CONTEXT, false));
-                break;
-            default:
-                break;
+        if (event.context().isPresent() && event.isEnabled().isPresent()) {
+            tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(event.context().get().toString(), event.isEnabled().get()));
         }
     }
 
@@ -150,6 +131,7 @@ class AppboyEventHandler {
     private AppboyProperties buildPlayableProperties(TrackingEvent event) {
         return buildProperties(PLAYABLE_ATTRIBUTES, event);
     }
+
     private AppboyProperties buildPlayableProperties(UIEvent event) {
         AppboyProperties properties = new AppboyProperties();
         if (event.creatorName().isPresent()) {
