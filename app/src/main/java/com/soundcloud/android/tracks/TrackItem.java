@@ -108,9 +108,7 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
                 EntityProperty.IMAGE_URL_TEMPLATE.bind(apiTrack.getImageUrlTemplate())
         );
 
-        if (apiTrack.getGenre() != null) {
-            propertySet.put(TrackProperty.GENRE, apiTrack.getGenre());
-        }
+        propertySet.put(TrackProperty.GENRE, Optional.fromNullable(apiTrack.getGenre()));
 
         if (apiTrack.isSubMidTier().isPresent()) {
             propertySet.put(TrackProperty.SUB_MID_TIER, apiTrack.isSubMidTier().get());

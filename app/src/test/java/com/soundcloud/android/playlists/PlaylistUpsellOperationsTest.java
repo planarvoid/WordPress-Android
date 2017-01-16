@@ -83,13 +83,13 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
     }
 
     private PlaylistWithTracks defaultPlaylist() {
-        return new PlaylistWithTracks(ModelFixtures.playlistItem(), Arrays.asList(
+        return new PlaylistWithTracks(ModelFixtures.playlist(), Arrays.asList(
                 TestPropertySets.expectedTrackForListItem(Urn.forTrack(425L)),
                 TestPropertySets.expectedTrackForListItem(Urn.forTrack(752L))));
     }
 
     private PlaylistWithTracks upsellablePlaylist() {
-        return new PlaylistWithTracks(ModelFixtures.playlistItem(), Arrays.asList(track1, track2, track3));
+        return new PlaylistWithTracks(ModelFixtures.playlist(), Arrays.asList(track1, track2, track3));
     }
 
     void assertOriginalTracks(List<PlaylistDetailItem> items) {

@@ -33,4 +33,11 @@ class PlaylistDetailOtherPlaylistsItem extends PlaylistDetailItem {
     public int hashCode() {
         return MoreObjects.hashCode(otherPlaylists);
     }
+
+    @Override
+    public String toString() {
+        return "PlaylistDetailOtherPlaylistsItem{" + "creatorName='" + creatorName + '\'' +
+                ", otherPlaylists=" + otherPlaylists +
+                '}';
+    }
 }

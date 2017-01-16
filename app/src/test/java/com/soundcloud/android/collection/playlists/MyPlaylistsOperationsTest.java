@@ -11,14 +11,13 @@ import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,14 +40,13 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     @Mock private PlaylistLikesStorage playlistLikesStorage;
     @Mock private PlaylistPostStorage playlistPostStorage;
 
-    private TestSubscriber<List<PlaylistItem>> subscriber = new TestSubscriber<>();
+    private TestSubscriber<List<Playlist>> subscriber = new TestSubscriber<>();
 
-    private PlaylistItem postedPlaylist1;
-    private PlaylistItem postedPlaylist2;
-    private PlaylistItem likedPlaylist1;
-    private PlaylistItem likedPlaylist2;
-    private PlaylistItem likedPlaylist3Offline;
-
+    private Playlist postedPlaylist1;
+    private Playlist postedPlaylist2;
+    private Playlist likedPlaylist1;
+    private Playlist likedPlaylist2;
+    private Playlist likedPlaylist3Offline;
     private PlaylistAssociation postedPlaylistAssociation1;
     private PlaylistAssociation postedPlaylistAssociation2;
     private PlaylistAssociation likedPlaylistAssociation1;
@@ -139,7 +137,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void myPlaylistsReturnsUniquePostedAndLikedPlaylists() throws Exception {
-        final PlaylistItem likedPlaylist3 = getPlaylistItem(postedPlaylist1.getUrn(), "pepper");
+        final Playlist likedPlaylist3 = getPlaylistItem(postedPlaylist1.urn(), "pepper");
         PlaylistAssociation likedPlaylistAssociation3 = getAssociatedPlaylist(likedPlaylist3, new Date(6));
         final Observable<List<PlaylistAssociation>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylistAssociation1,
                                                                                                    likedPlaylistAssociation2,
@@ -252,19 +250,19 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
         ));
     }
 
-    private PlaylistItem getPlaylistItem(Urn urn, String title) {
-        return PlaylistItem.from(PropertySet.from(
-                PlaylistProperty.URN.bind(urn),
-                PlaylistProperty.TITLE.bind(title)));
+    private Playlist getPlaylistItem(Urn urn, String title) {
+        return getPlaylistBuilder(urn, title).build();
     }
 
-    private PlaylistAssociation getAssociatedPlaylist(PlaylistItem playlistItem, Date postedAt) {
+    private Playlist.Builder getPlaylistBuilder(Urn urn, String title) {
+        return ModelFixtures.playlistBuilder().urn(urn).title(title);
+    }
+
+    private PlaylistAssociation getAssociatedPlaylist(Playlist playlistItem, Date postedAt) {
         return PlaylistAssociation.create(playlistItem, postedAt);
     }
 
-    private PlaylistItem getLikedPlaylistOffline(Urn urn, String title, OfflineState state) {
-        final PlaylistItem playlist = getPlaylistItem(urn, title);
-        playlist.setOfflineState(state);
-        return playlist;
+    private Playlist getLikedPlaylistOffline(Urn urn, String title, OfflineState state) {
+        return getPlaylistBuilder(urn, title).offlineState(state).build();
     }
 }

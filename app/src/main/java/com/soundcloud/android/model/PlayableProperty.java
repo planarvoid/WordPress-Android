@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.java.collections.Property;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
@@ -15,5 +16,5 @@ public class PlayableProperty extends EntityProperty {
     public static final Property<Boolean> IS_USER_REPOST = Property.of(PlayableProperty.class, Boolean.class);
     public static final Property<Boolean> IS_PRIVATE = Property.of(PlayableProperty.class, Boolean.class);
     public static final Property<String> PERMALINK_URL = Property.of(PlayableProperty.class, String.class);
-    public static final Property<String> GENRE = Property.of(PlayableProperty.class, String.class);
+    public static final Property<Optional<String>> GENRE = Property.ofOptional(PlayableProperty.class, String.class);
 }

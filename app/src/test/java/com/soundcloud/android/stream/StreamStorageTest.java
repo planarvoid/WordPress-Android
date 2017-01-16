@@ -371,7 +371,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
                 TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()),
                 TrackProperty.SNIPPED.bind(track.isSnipped()),
-                PlayableProperty.GENRE.bind(track.getGenre()),
+                PlayableProperty.GENRE.bind(Optional.of(track.getGenre())),
                 PlayableProperty.PERMALINK_URL.bind(track.getPermalinkUrl())));
     }
 
@@ -408,7 +408,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.IS_ALBUM.bind(false),
                 PlaylistProperty.SET_TYPE.bind(""),
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()),
-                PlayableProperty.GENRE.bind(playlist.getGenre()),
+                PlayableProperty.GENRE.bind(Optional.of(playlist.getGenre())),
                 PlayableProperty.PERMALINK_URL.bind(playlist.getPermalinkUrl()));
     }
 

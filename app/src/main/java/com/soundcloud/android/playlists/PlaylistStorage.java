@@ -88,17 +88,17 @@ public class PlaylistStorage {
                 .toList();
     }
 
-    Observable<List<PlaylistItem>> loadPlaylists(final Collection<Urn> playlistUrns) {
+    Observable<List<Playlist>> loadPlaylists(final Collection<Urn> playlistUrns) {
         return propellerRx.queryResult(buildPlaylistQuery(Sets.newHashSet(playlistUrns)))
                           .map(this::toPlaylistItems)
                           .firstOrDefault(Collections.emptyList());
     }
 
-    private List<PlaylistItem> toPlaylistItems(QueryResult cursorReaders) {
-        final List<PlaylistItem> playlists = new ArrayList<>(cursorReaders.getResultCount());
+    private List<Playlist> toPlaylistItems(QueryResult cursorReaders) {
+        final List<Playlist> playlists = new ArrayList<>(cursorReaders.getResultCount());
 
         for (CursorReader cursorReader : cursorReaders) {
-            final PlaylistItem playlist = playlistMapper.map(cursorReader);
+            final Playlist playlist = playlistMapper.map(cursorReader);
             playlists.add(playlist);
         }
         return playlists;

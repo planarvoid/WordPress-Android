@@ -33,7 +33,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.android.view.dragdrop.OnStartDragListener;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.Queue;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -87,7 +86,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
     private PlaylistPresenter presenter;
-    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(PlaylistItem.from(apiPlaylist), Arrays.asList(track1, track2));
+    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2));
     private List<PlaylistDetailItem> itemList;
 
 
@@ -146,8 +145,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     public void shouldReplaceUrnWhenPlaylistPushed() {
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
-        playlistItem.setUrn(UPDATED_PLAYLIST_URN);
+        final Playlist playlistItem = ModelFixtures.playlistBuilder().urn(UPDATED_PLAYLIST_URN).build();
 
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(PLAYLIST_URN, playlistItem));
 
@@ -206,7 +204,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void savePlaylist() {
-        final PublishSubject<PlaylistItem> editPlaylistOperation = PublishSubject.create();
+        final PublishSubject<Playlist> editPlaylistOperation = PublishSubject.create();
         final List<Urn> tracks = Arrays.asList(track1.getUrn(), track2.getUrn());
         final List<TrackItem> trackItems = Arrays.asList(track1, track2);
         when(adapter.getTracks()).thenReturn(trackItems);
@@ -295,7 +293,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         apiPlaylist.setSetType(type);
         apiPlaylist.setReleaseDate(releaseDate);
 
-        return new PlaylistDetailsViewModel(new PlaylistWithTracks(PlaylistItem.from(apiPlaylist), Arrays.asList(track1, track2)), Collections.emptyList());
+        return new PlaylistDetailsViewModel(new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2)), Collections.emptyList());
     }
 
 }

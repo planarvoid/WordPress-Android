@@ -15,16 +15,15 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -322,7 +321,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         return mock(ExpectedOfflineContent.class);
     }
 
-    public PlaylistItem createPlaylistItem(Urn urn) {
-        return new PlaylistItem(PropertySet.from(PlayableProperty.URN.bind(urn)));
+    public Playlist createPlaylistItem(Urn urn) {
+        return ModelFixtures.playlistBuilder().urn(urn).build();
     }
 }

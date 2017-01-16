@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
@@ -46,8 +47,8 @@ public abstract class PlaylistStreamItem extends StreamItem implements LikeableI
     }
 
     @Override
-    public PlaylistStreamItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
-        return create(playlistItem);
+    public PlaylistStreamItem updatedWithPlaylist(Playlist playlist) {
+        return create(PlaylistItem.from(playlist));
     }
 
     @Override

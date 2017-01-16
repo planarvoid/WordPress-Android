@@ -9,6 +9,7 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.ListItem;
@@ -17,7 +18,6 @@ import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
@@ -170,9 +170,9 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
     }
 
     @Override
-    public UpdatablePlaylistItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
+    public UpdatablePlaylistItem updatedWithPlaylist(Playlist playlist) {
         if (isPlaylist()) {
-            return copyWithPlaylistItem(playlistItem);
+            return copyWithPlaylistItem(PlaylistItem.from(playlist));
         }
         return this;
     }

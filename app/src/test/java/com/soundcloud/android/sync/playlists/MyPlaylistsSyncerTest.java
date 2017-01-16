@@ -163,7 +163,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
         PlaylistChangedEvent event = captor.getValue();
         assertThat(event.kind()).isEqualTo(PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER);
-        assertThat(((PlaylistEntityChangedEvent)event).changeMap().get(localPlaylistUrn).getUrn()).isEqualTo(newPlaylist.getUrn());
+        assertThat(((PlaylistEntityChangedEvent)event).changeMap().get(localPlaylistUrn).urn()).isEqualTo(newPlaylist.getUrn());
     }
 
     @Test

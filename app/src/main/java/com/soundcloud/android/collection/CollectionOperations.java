@@ -17,6 +17,7 @@ import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
@@ -24,6 +25,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Notification;
 import rx.Observable;
@@ -31,6 +33,8 @@ import rx.Scheduler;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.functions.Func5;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -152,7 +156,7 @@ public class CollectionOperations {
 
     public Observable<MyCollection> collections() {
         return Observable.zip(
-                myPlaylists().materialize(),
+                myPlaylists().map(toPlaylistsItems()).materialize(),
                 likesItem().materialize(),
                 loadStations().materialize(),
                 playHistoryItems().materialize(),
@@ -169,7 +173,7 @@ public class CollectionOperations {
         return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
     }
 
-    public Observable<List<PlaylistItem>> myPlaylists() {
+    public Observable<List<Playlist>> myPlaylists() {
         return myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL);
     }
 
@@ -207,7 +211,7 @@ public class CollectionOperations {
 
     Observable<MyCollection> updatedCollections() {
         return Observable.zip(
-                myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL),
+                myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL).map(toPlaylistsItems()),
                 Observable.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
                                TO_LIKES_ITEM),
@@ -216,6 +220,11 @@ public class CollectionOperations {
                 refreshRecentlyPlayedItems(),
                 TO_MY_COLLECTIONS
         );
+    }
+
+    @NonNull
+    private Func1<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
+        return playlists -> Lists.transform(playlists, PlaylistItem::from);
     }
 
     private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {

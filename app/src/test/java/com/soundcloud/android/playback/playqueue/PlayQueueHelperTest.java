@@ -74,7 +74,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     @Test
     public void shouldInsertIntoPlayQueue() {
         final List<TrackItem> trackItemsList = ModelFixtures.trackItems(2);
-        final PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(ModelFixtures.playlistItem(), trackItemsList);
+        final PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(ModelFixtures.playlist(), trackItemsList);
         when(playlistOperations.playlist(eq(playlistWithTracks.getUrn()))).thenReturn(Observable.just(playlistWithTracks));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 

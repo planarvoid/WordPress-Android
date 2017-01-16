@@ -118,7 +118,9 @@ public class StreamItemMapper {
     private static void addGenre(CursorReader cursorReader, PropertySet propertySet) {
         final String genre = cursorReader.getString(SoundView.GENRE);
         if (isNotBlank(genre)) {
-            propertySet.put(PlayableProperty.GENRE, genre);
+            propertySet.put(PlayableProperty.GENRE, Optional.of(genre));
+        } else {
+            propertySet.put(PlayableProperty.GENRE, Optional.absent());
         }
     }
 

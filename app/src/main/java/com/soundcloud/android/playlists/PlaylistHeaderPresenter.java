@@ -85,7 +85,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private Activity activity;
     private PlaylistPresenter playlistPresenter;
     private boolean isEditMode = false;
-    private PlaylistWithTracks headerItem;
+    private PlaylistWithTracks playlistWithTracks;
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
     private Optional<View> headerView = Optional.absent();
     private String screen;
@@ -164,9 +164,9 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
         foregroundSubscription = new CompositeSubscription(eventBus.queue(EventQueue.PLAYLIST_CHANGED)
-                                                                   .filter(event -> headerItem != null && event.changeMap().containsKey(headerItem.getUrn()))
+                                                                   .filter(event -> playlistWithTracks != null && event.changeMap().containsKey(playlistWithTracks.getUrn()))
                                                                    .subscribe(event -> {
-                                                                       headerItem = (PlaylistWithTracks) event.apply(headerItem);
+                                                                       playlistWithTracks = (PlaylistWithTracks) event.apply(playlistWithTracks);
                                                                    }),
                                                            eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()),
                                                            eventBus.subscribe(EventQueue.REPOST_CHANGED, new PlaylistRepostsSubscriber()));
@@ -204,7 +204,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     void setPlaylist(PlaylistWithTracks headerItem, PlaySessionSource playSessionSource) {
-        this.headerItem = headerItem;
+        this.playlistWithTracks = headerItem;
         this.playSessionSource = playSessionSource;
         bindItemView();
     }
@@ -215,7 +215,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void bindItemView() {
-        if (headerView.isPresent() && headerItem != null) {
+        if (headerView.isPresent() && playlistWithTracks != null) {
             bindPlaylistHeader();
             bingEngagementBars();
         }
@@ -226,16 +226,18 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             PlaylistHeaderView playlistDetailsView = playlistDetailsViewFactory.create(headerView.get());
             playlistDetailsView.setOnPlayButtonClickListener(v -> onHeaderPlay());
             playlistDetailsView.setOnCreatorButtonClickListener(view -> {
-                if (headerItem != null) {
-                    onGoToCreator(view, headerItem.getCreatorUrn());
+                if (playlistWithTracks != null) {
+                    onGoToCreator(view, playlistWithTracks.getCreatorUrn());
                 }
             });
-            playlistDetailsView.setPlaylist(headerItem.getPlaylistItem(), shouldShowPlayButton(isEditMode));
+
+            final Playlist playlist = playlistWithTracks.getPlaylist();
+            playlistDetailsView.setPlaylist(PlaylistItem.from(playlist), shouldShowPlayButton(isEditMode));
         }
     }
 
     private boolean shouldShowPlayButton(boolean isEditMode) {
-        return !isEditMode && !headerItem.getTracks().isEmpty();
+        return !isEditMode && !playlistWithTracks.getTracks().isEmpty();
     }
 
     private void onHeaderPlay() {
@@ -263,8 +265,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private void updateEngagementBar() {
         if (headerView.isPresent()) {
-            playlistEngagementsView.bindView(headerView.get(), headerItem, isEditMode);
-            playlistEngagementsView.updateLikeItem(Optional.of(headerItem.getLikesCount()), headerItem.isLikedByUser());
+            playlistEngagementsView.bindView(headerView.get(), playlistWithTracks, isEditMode);
+            playlistEngagementsView.updateLikeItem(Optional.of(playlistWithTracks.getLikesCount()), playlistWithTracks.isLikedByUser());
             playlistEngagementsView.setOnEngagementListener(this);
         }
     }
@@ -272,14 +274,14 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private void subscribeForOfflineContentUpdates() {
         offlineStateSubscription.unsubscribe();
         offlineStateSubscription = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                                           .filter(event -> event.entities.contains(headerItem.getUrn()))
+                                           .filter(event -> event.entities.contains(playlistWithTracks.getUrn()))
                                            .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .subscribe(new OfflineStateSubscriber());
     }
 
     private void toggleShuffleOption() {
-        if (headerItem.getTrackCount() > 1) {
+        if (playlistWithTracks.getTrackCount() > 1) {
             playlistEngagementsView.enableShuffle();
         } else {
             playlistEngagementsView.disableShuffle();
@@ -287,7 +289,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void toggleMyOptions() {
-        if (isOwned(headerItem)) {
+        if (isOwned(playlistWithTracks)) {
             playlistEngagementsView.showMyOptions();
         } else {
             playlistEngagementsView.hideMyOptions();
@@ -295,8 +297,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void togglePublicOptions() {
-        if (headerItem.isPublic()) {
-            playlistEngagementsView.showPublicOptions(headerItem.isRepostedByUser());
+        if (playlistWithTracks.isPublic()) {
+            playlistEngagementsView.showPublicOptions(playlistWithTracks.isRepostedByUser());
         } else {
             playlistEngagementsView.hidePublicOptions();
         }
@@ -307,8 +309,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void updateOfflineAvailability() {
-        updateOfflineAvailability(headerItem.isMarkedForOffline().or(false));
-        playlistEngagementsView.showOfflineState(headerItem.getDownloadState());
+        updateOfflineAvailability(playlistWithTracks.isMarkedForOffline().or(false));
+        playlistEngagementsView.showOfflineState(playlistWithTracks.getDownloadState());
     }
 
     private void updateOfflineAvailability(boolean isPlaylistOfflineAvailable) {
@@ -322,20 +324,20 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private boolean isEligibleForOfflineContent() {
-        return accountOperations.isLoggedInUser(headerItem.getCreatorUrn()) || headerItem.isLikedByUser();
+        return accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn()) || playlistWithTracks.isLikedByUser();
     }
 
     @Override
     public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
         if (isMarkedForOffline) {
-            fireAndForget(offlineOperations.makePlaylistAvailableOffline(headerItem.getUrn()));
+            fireAndForget(offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn()));
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
         } else if (offlineOperations.isOfflineCollectionEnabled()) {
             playlistEngagementsView.setOfflineAvailability(true);
-            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, headerItem.getUrn(),
+            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlistWithTracks.getUrn(),
                                                                playSessionSource.getPromotedSourceInfo());
         } else {
-            fireAndForget(offlineOperations.makePlaylistUnavailableOffline(headerItem.getUrn()));
+            fireAndForget(offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn()));
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(false));
         }
     }
@@ -344,35 +346,35 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         return isMarkedForOffline ?
                OfflineInteractionEvent.fromAddOfflinePlaylist(
                        Screen.PLAYLIST_DETAILS.get(),
-                       headerItem.getUrn(),
+                       playlistWithTracks.getUrn(),
                        playSessionSource.getPromotedSourceInfo()) :
                OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                        Screen.PLAYLIST_DETAILS.get(),
-                       headerItem.getUrn(),
+                       playlistWithTracks.getUrn(),
                        playSessionSource.getPromotedSourceInfo());
     }
 
     @Override
     public void onUpsell(Context context) {
         navigator.openUpgrade(context);
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(headerItem.getUrn()));
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(playlistWithTracks.getUrn()));
     }
 
     @Override
     public void onOverflowUpsell(Context context) {
         navigator.openUpgrade(context);
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(headerItem.getUrn()));
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(playlistWithTracks.getUrn()));
     }
 
     @Override
     public void onOverflowUpsellImpression() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(headerItem.getUrn()));
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(playlistWithTracks.getUrn()));
     }
 
     @Override
     public void onPlayShuffled() {
-        if (headerItem != null) {
-            final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(headerItem.getUrn());
+        if (playlistWithTracks != null) {
+            final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn());
             playbackInitiator
                     .playTracksShuffled(tracks, playSessionSource)
                     .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext())))
@@ -382,7 +384,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onDeletePlaylist() {
-        DeletePlaylistDialogFragment.show(fragmentManager, headerItem.getUrn());
+        DeletePlaylistDialogFragment.show(fragmentManager, playlistWithTracks.getUrn());
     }
 
     @Override
@@ -392,34 +394,34 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onToggleLike(boolean addLike) {
-        if (headerItem != null) {
+        if (playlistWithTracks != null) {
             eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike,
-                                                                headerItem.getUrn(),
+                                                                playlistWithTracks.getUrn(),
                                                                 getEventContext(),
                                                                 playSessionSource
                                                                         .getPromotedSourceInfo(),
-                                                                EntityMetadata.from(headerItem)));
+                                                                EntityMetadata.from(playlistWithTracks)));
 
-            fireAndForget(likeOperations.toggleLike(headerItem.getUrn(), addLike));
+            fireAndForget(likeOperations.toggleLike(playlistWithTracks.getUrn(), addLike));
         }
     }
 
     @Override
     public void onToggleRepost(boolean isReposted, boolean showResultToast) {
-        if (headerItem != null) {
+        if (playlistWithTracks != null) {
             eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
-                                                                  headerItem.getUrn(),
+                                                                  playlistWithTracks.getUrn(),
                                                                   getEventContext(),
                                                                   playSessionSource
                                                                           .getPromotedSourceInfo(),
-                                                                  EntityMetadata.from(headerItem)));
+                                                                  EntityMetadata.from(playlistWithTracks)));
 
             if (showResultToast) {
-                repostOperations.toggleRepost(headerItem.getUrn(), isReposted)
+                repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new RepostResultSubscriber(activity, isReposted));
             } else {
-                fireAndForget(repostOperations.toggleRepost(headerItem.getUrn(), isReposted));
+                fireAndForget(repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted));
             }
         }
     }
@@ -429,18 +431,18 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                                    .contextScreen(screen)
                                    .pageName(Screen.PLAYLIST_DETAILS.get())
                                    .invokerScreen(Screen.PLAYLIST_DETAILS.get())
-                                   .pageUrn(headerItem.getUrn())
+                                   .pageUrn(playlistWithTracks.getUrn())
                                    .build();
     }
 
     @Override
     public void onShare() {
-        if (headerItem != null && !headerItem.isPrivate()) {
+        if (playlistWithTracks != null && !playlistWithTracks.isPrivate()) {
             shareOperations.share(activity,
-                                  headerItem.getPermalinkUrl(),
+                                  playlistWithTracks.getPermalinkUrl(),
                                   getEventContext(),
                                   playSessionSource.getPromotedSourceInfo(),
-                                  EntityMetadata.from(headerItem));
+                                  EntityMetadata.from(playlistWithTracks));
         }
     }
 
@@ -467,10 +469,10 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private class PlaylistLikesSubscriber extends DefaultSubscriber<LikesStatusEvent> {
         @Override
         public void onNext(LikesStatusEvent event) {
-            if (headerItem != null) {
-                final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(headerItem.getUrn());
+            if (playlistWithTracks != null) {
+                final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(playlistWithTracks.getUrn());
                 if (likeStatus.isPresent()) {
-                    headerItem = headerItem.updatedWithLikeStatus(likeStatus.get());
+                    playlistWithTracks = playlistWithTracks.updatedWithLikeStatus(likeStatus.get());
                     playlistEngagementsView.updateLikeItem(likeStatus.get().likeCount(), likeStatus.get().isUserLike());
                     updateOfflineAvailability();
                 }
@@ -481,10 +483,10 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private class PlaylistRepostsSubscriber extends DefaultSubscriber<RepostsStatusEvent> {
         @Override
         public void onNext(RepostsStatusEvent event) {
-            if (headerItem != null) {
-                final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(headerItem.getUrn());
+            if (playlistWithTracks != null) {
+                final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(playlistWithTracks.getUrn());
                 if (repostStatus.isPresent()) {
-                    headerItem = headerItem.updatedWithRepostStatus(repostStatus.get());
+                    playlistWithTracks = playlistWithTracks.updatedWithRepostStatus(repostStatus.get());
                     playlistEngagementsView.showPublicOptions(repostStatus.get().isReposted());
                 }
             }

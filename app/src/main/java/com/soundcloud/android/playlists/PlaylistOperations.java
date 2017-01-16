@@ -12,6 +12,7 @@ import static rx.Observable.just;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.events.EventQueue;
@@ -28,13 +29,12 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
-
-import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -122,7 +122,7 @@ public class PlaylistOperations {
                                     .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
-    Observable<PlaylistItem> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
+    Observable<Playlist> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
         return editPlaylistCommand.toObservable(new EditPlaylistCommandParams(playlistUrn,
                                                                               title,
                                                                               isPrivate,
@@ -195,11 +195,10 @@ public class PlaylistOperations {
         return updatedPlaylist(playlistUrn).flatMap(addOtherPlaylists(addInlineHeader));
     }
 
-    @NonNull
     private Func1<PlaylistWithTracks, Observable<PlaylistDetailsViewModel>> addOtherPlaylists(final boolean addInlineHeader) {
         return playlistWithTracks -> {
-            if (playlistWithTracks.needsTracks() || featureFlags.isDisabled(Flag.OTHER_PLAYLISTS_BY_CREATOR)) {
-                return just(Collections.<PlaylistItem>emptyList())
+            if (playlistWithTracks.getTracks().isEmpty() || featureFlags.isDisabled(Flag.OTHER_PLAYLISTS_BY_CREATOR)) {
+                return just(Collections.<Playlist>emptyList())
                         .map(toViewModel(addInlineHeader, playlistWithTracks));
 
             } else if (accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())) {
@@ -208,7 +207,7 @@ public class PlaylistOperations {
                         .map(toViewModel(addInlineHeader, playlistWithTracks));
             } else {
 
-                Observable<PlaylistDetailsViewModel> withoutOtherPlaylists = just(Collections.<PlaylistItem>emptyList())
+                Observable<PlaylistDetailsViewModel> withoutOtherPlaylists = just(Collections.<Playlist>emptyList())
                         .map(toViewModel(addInlineHeader, playlistWithTracks));
                 Observable<PlaylistDetailsViewModel> withOtherPlaylists = playlistsForOtherUser(playlistWithTracks.getCreatorUrn())
                         .map(playlistsWithExclusion(playlistWithTracks))
@@ -219,36 +218,34 @@ public class PlaylistOperations {
         };
     }
 
-    @NonNull
-    private Func1<List<PlaylistItem>, List<PlaylistItem>> playlistsWithExclusion(PlaylistWithTracks playlistWithTracks) {
+    private Func1<List<Playlist>, List<Playlist>> playlistsWithExclusion(PlaylistWithTracks playlistWithTracks) {
         return playlistItems -> newArrayList(filter(playlistItems,
-                                                    input -> !input.getUrn().equals(playlistWithTracks.getUrn())));
+                                                    input -> !input.urn().equals(playlistWithTracks.getUrn())));
     }
 
-    @NonNull
-    private Func1<List<PlaylistItem>, PlaylistDetailsViewModel> toViewModel(boolean addInlineHeader,
-                                                                            PlaylistWithTracks playlistWithTracks) {
-        return playlistItems -> {
+    private Func1<List<Playlist>, PlaylistDetailsViewModel> toViewModel(boolean addInlineHeader,
+                                                                        PlaylistWithTracks playlistWithTracks) {
+        return playlists -> {
             List<PlaylistDetailItem> playlistDetailItems = upsellOperations.toListItems(playlistWithTracks);
             if (addInlineHeader) {
                 playlistDetailItems.add(0, new PlaylistDetailHeaderItem());
             }
-            if (!playlistItems.isEmpty()) {
+            if (!playlists.isEmpty()) {
+                final List<PlaylistItem> playlistsItems = Lists.transform(playlists, PlaylistItem::from);
                 playlistDetailItems.add(new PlaylistDetailOtherPlaylistsItem(playlistWithTracks.getCreatorName(),
-                                                                             playlistItems));
+                                                                             playlistsItems));
             }
             return new PlaylistDetailsViewModel(playlistWithTracks, playlistDetailItems);
         };
     }
 
-    @NonNull
-    private Observable<List<PlaylistItem>> playlistsForOtherUser(Urn userUrn) {
+    private Observable<List<Playlist>> playlistsForOtherUser(Urn userUrn) {
         return profileApiMobile.userPlaylists(userUrn)
-                               .map(apiPlaylistPosts -> transform(apiPlaylistPosts.getCollection(),
-                                                                  input -> PlaylistItem.from(input.getApiPlaylist())));
+                               .map(apiPlaylistPosts -> transform(apiPlaylistPosts.getCollection(), ApiPlaylistPost::getApiPlaylist))
+                               .map(input -> Lists.transform(input, Playlist::from));
     }
 
-    private Observable<List<PlaylistItem>> myOtherPlaylists() {
+    private Observable<List<Playlist>> myOtherPlaylists() {
         return myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build());
     }
 
@@ -276,11 +273,12 @@ public class PlaylistOperations {
     private Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>> syncIfNecessary(final Urn playlistUrn) {
         return playlistWithTracks -> {
 
-            if (playlistWithTracks.isLocalPlaylist()) {
+            final boolean isLocalPlaylist = playlistWithTracks.getUrn().getNumericId() < 0;
+            if (isLocalPlaylist) {
                 fireAndForget(syncInitiatorBridge.refreshMyPlaylists());
                 return just(playlistWithTracks);
 
-            } else if (playlistWithTracks.needsTracks()) {
+            } else if (playlistWithTracks.getTracks().isEmpty()) {
                 return concat(just(playlistWithTracks), updatedPlaylist(playlistUrn));
 
             } else {

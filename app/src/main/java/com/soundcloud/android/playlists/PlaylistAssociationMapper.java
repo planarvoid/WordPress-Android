@@ -22,7 +22,7 @@ public class PlaylistAssociationMapper extends RxResultMapper<PlaylistAssociatio
 
     @Override
     public PlaylistAssociation map(CursorReader cursorReader) {
-        final PlaylistItem playlistItem = newPlaylistMapper.map(cursorReader);
+        final Playlist playlistItem = newPlaylistMapper.map(cursorReader);
         return PlaylistAssociation.create(playlistItem, cursorReader.getDateFromTimestamp(createdAtField));
     }
 }

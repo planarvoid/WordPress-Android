@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Table;
@@ -67,10 +66,10 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
 
-        storage.markPendingRemoval(playlist1.getPlaylistItem().getUrn()).subscribe();
+        storage.markPendingRemoval(playlist1.getPlaylist().urn()).subscribe();
         storage.loadPostedPlaylists(10, Long.MAX_VALUE, Strings.EMPTY).subscribe(subscriber);
 
-        databaseAssertions().assertPlaylistInserted(playlist1.getPlaylistItem().getUrn());
+        databaseAssertions().assertPlaylistInserted(playlist1.getPlaylist().urn());
         subscriber.assertValue(Collections.singletonList(playlist2));
     }
 
@@ -78,9 +77,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     public void shouldReturnTrackCountAsMaximumOfRemoteAndLocalCounts() throws Exception {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         createPlaylistPostAt(POSTED_DATE_2);
-        assertThat(playlist1.getPlaylistItem().getTrackCount()).isEqualTo(2);
+        assertThat(playlist1.getPlaylist().trackCount()).isEqualTo(2);
 
-        final Urn playlistUrn = playlist1.getPlaylistItem().getUrn();
+        final Urn playlistUrn = playlist1.getPlaylist().urn();
         testFixtures().insertPlaylistTrack(playlistUrn, 0);
         testFixtures().insertPlaylistTrack(playlistUrn, 1);
         testFixtures().insertPlaylistTrack(playlistUrn, 2);
@@ -88,8 +87,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         storage.loadPostedPlaylists(10, Long.MAX_VALUE, Strings.EMPTY).subscribe(subscriber);
 
         final List<PlaylistAssociation> result = subscriber.getOnNextEvents().get(0);
-        assertThat(result.get(1).getPlaylistItem().getUrn()).isEqualTo(playlistUrn);
-        assertThat(result.get(1).getPlaylistItem().getTrackCount()).isEqualTo(3);
+        assertThat(result.get(1).getPlaylist().urn()).isEqualTo(playlistUrn);
+        assertThat(result.get(1).getPlaylist().trackCount()).isEqualTo(3);
     }
 
     @Test
@@ -116,7 +115,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         createPlaylistPostAt(POSTED_DATE_2);
 
-        storage.loadPostedPlaylists(2, Long.MAX_VALUE, playlist1.getPlaylistItem().getTitle()).subscribe(subscriber);
+        storage.loadPostedPlaylists(2, Long.MAX_VALUE, playlist1.getPlaylist().title()).subscribe(subscriber);
 
         subscriber.assertValue(Collections.singletonList(playlist1));
     }
@@ -126,7 +125,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         createPlaylistPostAt(POSTED_DATE_2);
 
-        storage.loadPostedPlaylists(2, Long.MAX_VALUE, playlist1.getPlaylistItem().getCreatorName()).subscribe(subscriber);
+        storage.loadPostedPlaylists(2, Long.MAX_VALUE, playlist1.getPlaylist().creatorName()).subscribe(subscriber);
 
         subscriber.assertValue(Collections.singletonList(playlist1));
     }
@@ -134,7 +133,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldAdhereToPlaylistTrackTitleFilter() throws Exception {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getPlaylistItem().getUrn(), 0);
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getPlaylist().urn(), 0);
         createPlaylistPostAt(POSTED_DATE_2);
 
         storage.loadPostedPlaylists(2, Long.MAX_VALUE, apiTrack.getTitle()).subscribe(subscriber);
@@ -146,9 +145,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldAdhereToPlaylistTrackTitleFilterWithSingleResult() throws Exception {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getPlaylistItem().getUrn(), 0);
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getPlaylist().urn(), 0);
         final ApiTrack apiTrack2 = testFixtures().insertTrackWithTitle(apiTrack.getTitle());
-        testFixtures().insertPlaylistTrack(playlist1.getPlaylistItem().getUrn(), apiTrack2.getUrn(), 1);
+        testFixtures().insertPlaylistTrack(playlist1.getPlaylist().urn(), apiTrack2.getUrn(), 1);
 
         storage.loadPostedPlaylists(2, Long.MAX_VALUE, apiTrack.getTitle()).subscribe(subscriber);
 
@@ -158,7 +157,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldAdhereToPlaylistTrackUserFilter() throws Exception {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getPlaylistItem().getUrn(), 0);
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1.getPlaylist().urn(), 0);
         createPlaylistPostAt(POSTED_DATE_2);
 
         storage.loadPostedPlaylists(2, Long.MAX_VALUE, apiTrack.getUserName()).subscribe(subscriber);
@@ -168,24 +167,36 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldIncludeLikedStatus() throws Exception {
-        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        testFixtures().insertLike(ApiLike.create(playlist1.getPlaylistItem().getUrn(), new Date()));
-        playlist1.getPlaylistItem().setLikedByCurrentUser(true);
+        final PlaylistAssociation playlistAssociation = createPlaylistPostAt(POSTED_DATE_1);
+        testFixtures().insertLike(ApiLike.create(playlistAssociation.getPlaylist().urn(), new Date()));
+        final PlaylistAssociation expected = PlaylistAssociation.create(playlistBuilder(playlistAssociation)
+                                                                                .isMarkedForOffline(false)
+                                                                                .isLikedByCurrentUser(true)
+                                                                                .isRepostedByCurrentUser(false)
+                                                                                .build(),
+                                                                        playlistAssociation.getCreatedAt());
+
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE, Strings.EMPTY).subscribe(subscriber);
 
-        subscriber.assertValue(Collections.singletonList(playlist1));
+        subscriber.assertValue(Collections.singletonList(expected));
     }
 
-
     @Test
-    public void shouldIncludeUnlikedStatus() throws Exception {
-        final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        playlist1.getPlaylistItem().setLikedByCurrentUser(false);
+    public void shouldIncludeRepostedStatus() throws Exception {
+        final PlaylistAssociation playlistAssociation = createPlaylistPostAt(POSTED_DATE_1);
+        testFixtures().insertPlaylistRepost(playlistAssociation.getPlaylist().urn().getNumericId(), new Date().getTime());
+        final PlaylistAssociation expected = PlaylistAssociation.create(playlistBuilder(playlistAssociation)
+                                                                                .isMarkedForOffline(false)
+                                                                                .isLikedByCurrentUser(false)
+                                                                                .isRepostedByCurrentUser(true)
+                                                                                .build(),
+                                                                        playlistAssociation.getCreatedAt());
+
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE, Strings.EMPTY).subscribe(subscriber);
 
-        subscriber.assertValue(Collections.singletonList(playlist1));
+        subscriber.assertValue(Collections.singletonList(expected));
     }
 
     @Test
@@ -264,12 +275,12 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                                                                                        123L,
                                                                                        System.currentTimeMillis());
         final PlaylistAssociation downloadedPlaylist = createPostedPlaylist(postedPlaylistDownloaded,
-                                                                    OfflineState.DOWNLOADED);
+                                                                            OfflineState.DOWNLOADED);
 
         final ApiPlaylist postedPlaylistRequested = insertPlaylistWithRequestedDownload(POSTED_DATE_2,
                                                                                         System.currentTimeMillis());
         final PlaylistAssociation requestedPlaylist = createPostedPlaylist(postedPlaylistRequested,
-                                                                   OfflineState.REQUESTED);
+                                                                           OfflineState.REQUESTED);
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE, Strings.EMPTY).subscribe(subscriber);
 
@@ -305,12 +316,19 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         QueryAssertions.assertThat(select(query)).isEmpty();
     }
 
+    private Playlist.Builder playlistBuilder(PlaylistAssociation playlistAssociation) {
+        return ModelFixtures.playlistBuilder(playlistAssociation.getPlaylist());
+    }
+
     private PlaylistAssociation createPostedPlaylist(ApiPlaylist apiPlaylist, OfflineState offlineState) {
         final PlaylistAssociation postedPlaylist = createPostedPlaylist(apiPlaylist);
-        final PlaylistItem playlistItem = postedPlaylist.getPlaylistItem();
-        playlistItem.setMarkedForOffline(true);
-        playlistItem.setOfflineState(offlineState);
-        return postedPlaylist;
+        return PlaylistAssociation.create(playlistBuilder(postedPlaylist)
+                                                  .isMarkedForOffline(true)
+                                                  .offlineState(offlineState)
+                                                  .isLikedByCurrentUser(false)
+                                                  .isRepostedByCurrentUser(false)
+                                                  .build(),
+                                          postedPlaylist.getCreatedAt());
     }
 
     private ApiPlaylist insertPlaylistWithRequestedDownload(Date postedDate, long requestedAt) {
@@ -349,31 +367,26 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     }
 
     private PlaylistAssociation createPlaylistRepostAt(Date postedAt, Date createdAt) {
-        ApiPlaylist playlist = createPlaylistAt(createdAt);
-        createPlaylistCollectionWithId(playlist.getUrn().getNumericId(), postedAt);
-        final PlaylistAssociation playlistAssociation = createPostedPlaylist(playlist);
-        playlistAssociation.getPlaylistItem().setMarkedForOffline(false);
-        return playlistAssociation;
+        final ApiPlaylist apiPlaylist = createPlaylistAt(createdAt);
+        final Playlist.Builder playlist = ModelFixtures.playlistBuilder(apiPlaylist)
+                                                       .isLikedByCurrentUser(false)
+                                                       .isRepostedByCurrentUser(false)
+                                                       .isMarkedForOffline(false);
+
+        createPlaylistCollectionWithId(apiPlaylist.getUrn().getNumericId(), postedAt);
+        return createPostedPlaylist(playlist, createdAt);
     }
 
-    private PlaylistAssociation createPostedPlaylist(ApiPlaylist playlist) {
-        final PlaylistItem slice = PlaylistItem.from(PlaylistItem.from(playlist).slice(
-                PlaylistProperty.URN,
-                PlaylistProperty.TITLE,
-                EntityProperty.IMAGE_URL_TEMPLATE,
-                PlaylistProperty.CREATOR_URN,
-                PlaylistProperty.CREATOR_NAME,
-                PlaylistProperty.TRACK_COUNT,
-                PlaylistProperty.CREATED_AT,
-                PlaylistProperty.REPOSTS_COUNT,
-                PlaylistProperty.PLAYLIST_DURATION,
-                PlaylistProperty.IS_ALBUM,
-                PlaylistProperty.LIKES_COUNT,
-                PlaylistProperty.IS_PRIVATE,
-                PlaylistProperty.PERMALINK_URL
-        ));
-        slice.setLikedByCurrentUser(false);
-        return PlaylistAssociation.create(slice, playlist.getCreatedAt());
+    private PlaylistAssociation createPostedPlaylist(ApiPlaylist apiPlaylist) {
+        final Playlist.Builder builder = ModelFixtures.playlistBuilder(apiPlaylist);
+        return createPostedPlaylist(builder, apiPlaylist.getCreatedAt());
+    }
+
+    private PlaylistAssociation createPostedPlaylist(Playlist.Builder builder, Date createdAt) {
+        final Playlist playlist = builder
+                .isLikedByCurrentUser(false)
+                .build();
+        return PlaylistAssociation.create(playlist, createdAt);
     }
 
     private ApiPlaylist createPlaylistAt(Date creationDate) {

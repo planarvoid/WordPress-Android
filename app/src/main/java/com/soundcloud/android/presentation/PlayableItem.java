@@ -140,7 +140,7 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Likeab
     abstract public long getDuration();
 
     public String getGenre() {
-        return source.getOrElse(PlayableProperty.GENRE, Strings.EMPTY);
+        return source.getOrElse(PlayableProperty.GENRE, Optional.absent()).or(Strings.EMPTY);
     }
 
     public String getTitle() {

@@ -91,31 +91,31 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     public void loadPlaylistEntities() {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
-        TestSubscriber<List<PlaylistItem>> testSubscriber = new TestSubscriber<>();
+        TestSubscriber<List<Playlist>> testSubscriber = new TestSubscriber<>();
         storage.loadPlaylists(Sets.newHashSet(apiPlaylist.getUrn())).subscribe(testSubscriber);
 
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertValueCount(1);
-        List<PlaylistItem> playlistEntities = testSubscriber.getOnNextEvents().get(0);
+        List<Playlist> playlistEntities = testSubscriber.getOnNextEvents().get(0);
         assertThat(playlistEntities.size()).isEqualTo(1);
 
         assertPlaylistsMatch(apiPlaylist, playlistEntities.get(0));
     }
 
-    private void assertPlaylistsMatch(ApiPlaylist apiPlaylist, PlaylistItem entity) {
-        assertThat(entity.getUrn()).isEqualTo(apiPlaylist.getUrn());
-        assertThat(entity.getTitle()).isEqualTo(apiPlaylist.getTitle());
-        assertThat(entity.getCreatorName()).isEqualTo(apiPlaylist.getUsername());
-        assertThat(entity.getUserUrn()).isEqualTo(apiPlaylist.getUser().getUrn());
-        assertThat(entity.getDuration()).isEqualTo(apiPlaylist.getDuration());
-        assertThat(entity.getTrackCount()).isEqualTo(apiPlaylist.getTrackCount());
-        assertThat(entity.getLikesCount()).isEqualTo(apiPlaylist.getLikesCount());
-        assertThat(entity.getRepostCount()).isEqualTo(apiPlaylist.getRepostsCount());
-        assertThat(entity.getCreatedAt()).isEqualTo(apiPlaylist.getCreatedAt());
-        assertThat(entity.getImageUrlTemplate()).isEqualTo(apiPlaylist.getImageUrlTemplate());
+    private void assertPlaylistsMatch(ApiPlaylist apiPlaylist, Playlist entity) {
+        assertThat(entity.urn()).isEqualTo(apiPlaylist.getUrn());
+        assertThat(entity.title()).isEqualTo(apiPlaylist.getTitle());
+        assertThat(entity.creatorName()).isEqualTo(apiPlaylist.getUsername());
+        assertThat(entity.creatorUrn()).isEqualTo(apiPlaylist.getUser().getUrn());
+        assertThat(entity.duration()).isEqualTo(apiPlaylist.getDuration());
+        assertThat(entity.trackCount()).isEqualTo(apiPlaylist.getTrackCount());
+        assertThat(entity.likesCount()).isEqualTo(apiPlaylist.getLikesCount());
+        assertThat(entity.repostCount()).isEqualTo(apiPlaylist.getRepostsCount());
+        assertThat(entity.createdAt()).isEqualTo(apiPlaylist.getCreatedAt());
+        assertThat(entity.imageUrlTemplate()).isEqualTo(apiPlaylist.getImageUrlTemplate());
         assertThat(entity.isAlbum()).isEqualTo(apiPlaylist.isAlbum());
         assertThat(entity.isMarkedForOffline()).isEqualTo(Optional.of(false));
-        assertThat(entity.getPermalinkUrl()).isEqualTo(apiPlaylist.getPermalinkUrl());
+        assertThat(entity.permalinkUrl()).isEqualTo(apiPlaylist.getPermalinkUrl());
     }
 
     @Test

@@ -10,8 +10,8 @@ import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
@@ -114,7 +114,7 @@ public class OfflineContentOperations {
 
     private Observable<TxnResult> setMyPlaylistsAsOfflinePlaylists() {
         return collectionOperations.myPlaylists()
-                                   .map(playlistItems -> Lists.transform(playlistItems, PlayableItem.TO_URN))
+                                   .map(playlists -> Lists.transform(playlists, Playlist::urn))
                                    .flatMap(offlineContentStorage::resetOfflinePlaylists);
     }
 

@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
@@ -17,14 +18,12 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import rx.functions.Func1;
 
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -81,6 +80,33 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
         return playlistItem;
     }
 
+
+    public static PlaylistItem from(Playlist playlist) {
+        return new PlaylistItem(PropertySet.from(
+                PlaylistProperty.URN.bind(playlist.urn()),
+                PlaylistProperty.TITLE.bind(playlist.title()),
+                PlaylistProperty.CREATED_AT.bind(playlist.createdAt()),
+                PlaylistProperty.CREATOR_URN.bind(playlist.creatorUrn()),
+                PlaylistProperty.CREATOR_NAME.bind(playlist.creatorName()),
+                PlaylistProperty.PLAYLIST_DURATION.bind(playlist.duration()),
+                PlaylistProperty.TRACK_COUNT.bind(playlist.trackCount()),
+                PlaylistProperty.IS_PRIVATE.bind(playlist.isPrivate()),
+                PlaylistProperty.GENRE.bind(playlist.genre()),
+                PlaylistProperty.SET_TYPE.bind(playlist.setType()),
+                PlaylistProperty.IS_USER_LIKE.bind(playlist.isLikedByCurrentUser().or(false)),
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(playlist.isMarkedForOffline().or(false)),
+                OfflineProperty.OFFLINE_STATE.bind(playlist.offlineState().or(OfflineState.NOT_OFFLINE)),
+                PlayableProperty.IS_USER_REPOST.bind(playlist.isRepostedByCurrentUser().or(false)),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(playlist.imageUrlTemplate()),
+                PlaylistProperty.IS_ALBUM.bind(playlist.isAlbum()),
+                PlaylistProperty.RELEASE_DATE.bind(playlist.releaseDate()),
+                PlaylistProperty.TAGS.bind(playlist.tags()),
+                PlaylistProperty.LIKES_COUNT.bind(playlist.likesCount()),
+                PlaylistProperty.REPOSTS_COUNT.bind(playlist.repostCount()),
+                PlaylistProperty.PERMALINK_URL.bind(playlist.permalinkUrl())
+        ));
+    }
+
     public static PlaylistItem from(ApiPlaylist apiPlaylist) {
         return new PlaylistItem(PropertySet.from(
                 PlaylistProperty.URN.bind(apiPlaylist.getUrn()),
@@ -95,22 +121,17 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
                 PlaylistProperty.CREATOR_NAME.bind(apiPlaylist.getUsername()),
                 PlaylistProperty.CREATOR_URN.bind(apiPlaylist.getUser() != null ? apiPlaylist.getUser().getUrn() : Urn.NOT_SET),
                 PlaylistProperty.TAGS.bind(Optional.fromNullable(apiPlaylist.getTags())),
-                PlaylistProperty.GENRE.bind(Optional.fromNullable(apiPlaylist.getGenre()).or("")),
+                PlaylistProperty.GENRE.bind(Optional.fromNullable(apiPlaylist.getGenre())),
                 EntityProperty.IMAGE_URL_TEMPLATE.bind(apiPlaylist.getImageUrlTemplate()),
                 PlaylistProperty.IS_ALBUM.bind(apiPlaylist.isAlbum()),
                 PlaylistProperty.SET_TYPE.bind(apiPlaylist.getSetType()),
-                PlaylistProperty.RELEASE_DATE.bind(apiPlaylist.getReleaseDate())
+                PlaylistProperty.RELEASE_DATE.bind(apiPlaylist.getReleaseDate()),
+                // TODO : These properties should be removed from our domain entities, and only appear in view models
+                PlaylistProperty.IS_USER_LIKE.bind(false),
+                PlaylistProperty.IS_USER_REPOST.bind(false),
+                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE),
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(false)
         ));
-    }
-
-    public static Func1<List<PropertySet>, List<PlaylistItem>> fromPropertySets() {
-        return bindings -> {
-            List<PlaylistItem> playlistItems = new ArrayList<>(bindings.size());
-            for (PropertySet source1 : bindings) {
-                playlistItems.add(from(source1));
-            }
-            return playlistItems;
-        };
     }
 
     public PlaylistItem(PropertySet source) {
@@ -146,8 +167,8 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
     }
 
     @Override
-    public PlaylistItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
-        return playlistItem;
+    public PlaylistItem updatedWithPlaylist(Playlist playlist) {
+        return from(playlist);
     }
 
     @Override
@@ -187,10 +208,6 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
     @Override
     public long getDuration() {
         return source.get(PlaylistProperty.PLAYLIST_DURATION);
-    }
-
-    public boolean isLocalPlaylist() {
-        return getUrn().getNumericId() < 0;
     }
 
     public boolean isPublic() {

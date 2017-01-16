@@ -6,17 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.NewPlaylistMapper;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistAssociationMapperFactory;
-import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
@@ -184,29 +180,22 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         testListSubscriber.assertValue(propertySets);
     }
 
-    private static PlaylistAssociation expectedLikedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
-        return PlaylistAssociation.create(PlaylistItem.from(PropertySet.from(
-                PlaylistProperty.URN.bind(playlist.getUrn()),
-                PlaylistProperty.TITLE.bind(playlist.getTitle()),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(playlist.getImageUrlTemplate()),
-                PlaylistProperty.CREATED_AT.bind(playlist.getCreatedAt()),
-                PlaylistProperty.CREATOR_URN.bind(playlist.getUser().getUrn()),
-                PlaylistProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
-                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()),
-                PlaylistProperty.LIKES_COUNT.bind(playlist.getLikesCount()),
-                PlaylistProperty.IS_ALBUM.bind(playlist.isAlbum()),
-                PlaylistProperty.REPOSTS_COUNT.bind(playlist.getRepostsCount()),
-                PlaylistProperty.PLAYLIST_DURATION.bind(playlist.getDuration()),
-                PlaylistProperty.IS_PRIVATE.bind(!playlist.isPublic()),
-                PlaylistProperty.IS_USER_LIKE.bind(true),
-                PlaylistProperty.PERMALINK_URL.bind(playlist.getPermalinkUrl()),
-                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(false))), likedAt);
+    private static PlaylistAssociation expectedLikedPlaylistFor(ApiPlaylist apiPlaylist, Date likedAt) {
+        final Playlist playlist = ModelFixtures.playlistBuilder(apiPlaylist)
+                                               .isLikedByCurrentUser(true)
+                                               .isRepostedByCurrentUser(false)
+                                               .isMarkedForOffline(false)
+                                               .build();
+        return PlaylistAssociation.create(playlist, likedAt);
     }
 
-    private PlaylistAssociation expectedLikedPlaylistWithOfflineState(ApiPlaylist playlist, Date likedAt, OfflineState state) {
-        final PlaylistAssociation playlistAssociation = expectedLikedPlaylistFor(playlist, likedAt);
-        playlistAssociation.getPlaylistItem().setMarkedForOffline(true);
-        playlistAssociation.getPlaylistItem().setOfflineState(state);
-        return playlistAssociation;
+    private PlaylistAssociation expectedLikedPlaylistWithOfflineState(ApiPlaylist apiPlaylist, Date likedAt, OfflineState state) {
+        final Playlist playlist = ModelFixtures.playlistBuilder(apiPlaylist)
+                                               .isLikedByCurrentUser(true)
+                                               .isRepostedByCurrentUser(false)
+                                               .isMarkedForOffline(true)
+                                               .offlineState(state)
+                                               .build();
+        return PlaylistAssociation.create(playlist, likedAt);
     }
 }

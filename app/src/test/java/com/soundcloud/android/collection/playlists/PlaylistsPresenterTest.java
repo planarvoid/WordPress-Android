@@ -6,9 +6,10 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -33,10 +34,12 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     private static final int PLAYLIST_COUNT = 2;
     private static final int ZERO_PLAYLIST_COUNT = 0;
 
-    private static final List<PlaylistItem> PLAYLISTS = Arrays.asList(
-            PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)),
-            PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class))
+    private static final List<Playlist> PLAYLISTS = Arrays.asList(
+            ModelFixtures.playlist(),
+            ModelFixtures.playlist()
     );
+
+    private static final List<PlaylistItem> PLAYLISTS_ITEMS = Lists.transform(PLAYLISTS, PlaylistItem::from);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
@@ -57,7 +60,7 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.<List<PlaylistItem>>empty());
+        when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.empty());
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
         when(filterHeaderPresenterFactory.create(any(FilterHeaderPresenter.Listener.class), anyInt())).thenReturn(
@@ -96,10 +99,10 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     public void addsFilterRemovalWhenFilterAppliedForLikes() {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).build());
 
-        assertThat(presenter.playlistCollectionItems(PLAYLISTS)).containsExactly(
+        assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(0)),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
                 PlaylistCollectionRemoveFilterItem.create()
         );
     }
@@ -108,10 +111,10 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     public void addsFilterRemovalWhenFilterAppliedForPosts() {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).build());
 
-        assertThat(presenter.playlistCollectionItems(PLAYLISTS)).containsExactly(
+        assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(0)),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
                 PlaylistCollectionRemoveFilterItem.create()
         );
     }
@@ -120,10 +123,10 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     public void addsFilterRemovalWhenFilterAppliedForOfflineOnly() {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showOfflineOnly(true).build());
 
-        assertThat(presenter.playlistCollectionItems(PLAYLISTS)).containsExactly(
+        assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(0)),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
                 PlaylistCollectionRemoveFilterItem.create()
         );
     }
@@ -132,10 +135,10 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     public void doesNotAddFilterRemovalWhenBothFiltersApplied() {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).showLikes(true).build());
 
-        assertThat(presenter.playlistCollectionItems(PLAYLISTS)).containsExactly(
+        assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(0)),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(1))
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1))
         );
     }
 
@@ -143,10 +146,10 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     public void doesNotAddFilterRemovalWhenNoFiltersApplied() {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
-        assertThat(presenter.playlistCollectionItems(PLAYLISTS)).containsExactly(
+        assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(0)),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS.get(1))
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1))
         );
     }
 

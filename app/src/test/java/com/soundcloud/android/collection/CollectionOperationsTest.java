@@ -18,7 +18,7 @@ import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
-import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
@@ -109,7 +109,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
                 .thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
-                .thenReturn(Observable.just(singletonList(PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)))));
+                .thenReturn(Observable.just(singletonList(Playlist.from(ModelFixtures.create(ApiPlaylist.class)))));
         when(playHistoryOperations.playHistory(3)).thenReturn(Observable.just(playHistory));
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS))
                 .thenReturn(Observable.just(recentlyPlayed));
@@ -165,8 +165,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistPushedEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), PlaylistItem.from(playlist)));
+        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), Playlist.from(apiPlaylist)));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }

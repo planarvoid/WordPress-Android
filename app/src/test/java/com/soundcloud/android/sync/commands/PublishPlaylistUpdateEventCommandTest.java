@@ -10,7 +10,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
-import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -43,7 +43,7 @@ public class PublishPlaylistUpdateEventCommandTest extends AndroidUnitTest {
         verify(eventBus).publish(eq(EventQueue.PLAYLIST_CHANGED), playlistEntityChangedEventArgumentCaptor.capture());
         final PlaylistEntityChangedEvent changedEvent = playlistEntityChangedEventArgumentCaptor.getValue();
         assertThat(changedEvent.kind()).isEqualTo(PlaylistChangedEvent.Kind.PLAYLIST_UPDATED);
-        assertThat(changedEvent.changeMap().values()).containsExactly(PlaylistItem.from(apiPlaylist));
+        assertThat(changedEvent.changeMap().values()).containsExactly(Playlist.from(apiPlaylist));
     }
 
     @Test

@@ -16,6 +16,7 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -25,6 +26,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -143,11 +145,15 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private Observable<List<PlaylistItem>> playlists() {
-        return myPlaylistsOperations.myPlaylists(currentOptions);
+        return myPlaylistsOperations.myPlaylists(currentOptions).map(toPlaylistsItems());
     }
 
     private Observable<List<PlaylistItem>> updatedPlaylists() {
-        return myPlaylistsOperations.refreshAndLoadPlaylists(currentOptions);
+        return myPlaylistsOperations.refreshAndLoadPlaylists(currentOptions).map(toPlaylistsItems());
+    }
+
+    private Func1<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
+        return playlists -> Lists.transform(playlists, PlaylistItem::from);
     }
 
     @Override

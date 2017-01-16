@@ -1,55 +1,55 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.api.model.Sharing;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
 import javax.inject.Inject;
 
-public class NewPlaylistMapper extends RxResultMapper<PlaylistItem> {
+public class NewPlaylistMapper extends RxResultMapper<Playlist> {
 
     @Inject
     public NewPlaylistMapper() {
     }
 
     @Override
-    public PlaylistItem map(CursorReader cursorReader) {
-        final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-        propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID.name())));
-        propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(Tables.PlaylistView.TITLE.name()));
-        propertySet.put(PlaylistProperty.PLAYLIST_DURATION, cursorReader.getLong(Tables.PlaylistView.DURATION.name()));
-        propertySet.put(PlaylistProperty.REPOSTS_COUNT, cursorReader.getInt(Tables.PlaylistView.REPOSTS_COUNT.name()));
-        propertySet.put(PlaylistProperty.CREATED_AT, cursorReader.getDateFromTimestamp(Tables.PlaylistView.CREATED_AT.name()));
-        propertySet.put(PlaylistProperty.IS_ALBUM, cursorReader.getBoolean(Tables.PlaylistView.IS_ALBUM.name()));
-        propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.ARTWORK_URL.name())));
-        propertySet.put(PlaylistProperty.CREATOR_URN, Urn.forUser(cursorReader.getLong(Tables.PlaylistView.USER_ID.name())));
-        propertySet.put(PlaylistProperty.CREATOR_NAME, cursorReader.getString(Tables.PlaylistView.USERNAME.name()));
-        propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
-        propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(Tables.PlaylistView.LIKES_COUNT.name()));
-        propertySet.put(PlaylistProperty.IS_PRIVATE, readIsPrivate(cursorReader));
-        propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(Tables.PlaylistView.IS_USER_LIKE.name()));
+    public Playlist map(CursorReader cursorReader) {
+        final Playlist.Builder builder = Playlist.builder()
+                                                 .urn(Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID.name())))
+                                                 .title(cursorReader.getString(Tables.PlaylistView.TITLE.name()))
+                                                 .duration(cursorReader.getLong(Tables.PlaylistView.DURATION.name()))
+                                                 .repostCount(cursorReader.getInt(Tables.PlaylistView.REPOSTS_COUNT.name()))
+                                                 .createdAt(cursorReader.getDateFromTimestamp(Tables.PlaylistView.CREATED_AT.name()))
+                                                 .isAlbum(cursorReader.getBoolean(Tables.PlaylistView.IS_ALBUM.name()))
+                                                 .imageUrlTemplate(Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.ARTWORK_URL.name())))
+                                                 .creatorUrn(Urn.forUser(cursorReader.getLong(Tables.PlaylistView.USER_ID.name())))
+                                                 .creatorName(cursorReader.getString(Tables.PlaylistView.USERNAME.name()))
+                                                 .trackCount(readTrackCount(cursorReader))
+                                                 .likesCount(cursorReader.getInt(Tables.PlaylistView.LIKES_COUNT.name()))
+                                                 .genre(cursorReader.getString(Tables.PlaylistView.GENRE.name()))
+                                                 .setType(cursorReader.getString(Tables.PlaylistView.SET_TYPE.name()))
+                                                 .releaseDate(cursorReader.getString(Tables.PlaylistView.RELEASE_DATE.name()))
+                                                 .isPrivate(readIsPrivate(cursorReader))
+                                                 .isLikedByCurrentUser(cursorReader.getBoolean(Tables.PlaylistView.IS_USER_LIKE.name()))
+                                                 .isRepostedByCurrentUser(cursorReader.getBoolean(Tables.PlaylistView.IS_USER_REPOST.name()));
 
         if (cursorReader.isNotNull(Tables.PlaylistView.PERMALINK_URL.name())) { // local playlists (not synced yet)
-            propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(Tables.PlaylistView.PERMALINK_URL.name()));
+            builder.permalinkUrl(cursorReader.getString(Tables.PlaylistView.PERMALINK_URL.name()));
         }
 
         final boolean isMarkedForOffline = cursorReader.getBoolean(Tables.PlaylistView.IS_MARKED_FOR_OFFLINE.name());
-        propertySet.put(OfflineProperty.IS_MARKED_FOR_OFFLINE, isMarkedForOffline);
+        builder.isMarkedForOffline(isMarkedForOffline);
         if (isMarkedForOffline) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.getOfflineState(
+            builder.offlineState(OfflineState.getOfflineState(
                     cursorReader.getBoolean(Tables.PlaylistView.HAS_PENDING_DOWNLOAD_REQUEST.name()),
                     cursorReader.getBoolean(Tables.PlaylistView.HAS_DOWNLOADED_TRACKS.name()),
                     cursorReader.getBoolean(Tables.PlaylistView.HAS_UNAVAILABLE_TRACKS.name())));
         }
-        return new PlaylistItem(propertySet);
+        return builder.build();
     }
 
     private boolean readIsPrivate(CursorReader cursorReader) {

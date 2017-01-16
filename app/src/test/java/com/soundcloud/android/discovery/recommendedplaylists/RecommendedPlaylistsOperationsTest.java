@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.sync.SyncOperations;
@@ -16,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestSubscriber;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +29,6 @@ public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
     @Mock private PlaylistRepository playlistRepository;
 
     private RecommendedPlaylistsOperations operations;
-    private TestSubscriber<DiscoveryItem> testSubscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -42,29 +41,29 @@ public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_PLAYLISTS)).thenReturn(Observable.just(SyncOperations.Result.SYNCED));
         when(playlistsStorage.recommendedPlaylists()).thenReturn(Observable.just(singletonList(RecommendedPlaylistsFixtures.createEmptyEntity())));
 
-        operations.recommendedPlaylists().subscribe(testSubscriber);
-
-        testSubscriber.assertCompleted();
-        testSubscriber.assertNoErrors();
-        testSubscriber.assertNoValues();
+        operations.recommendedPlaylists()
+                  .test()
+                  .assertCompleted()
+                  .assertNoErrors()
+                  .assertNoValues();
     }
 
     @Test
     public void loadRecommendedPlaylists() throws Exception {
-        PlaylistItem item = ModelFixtures.create(PlaylistItem.class);
-        List<Urn> urns = singletonList(item.getUrn());
+        Playlist playlist = ModelFixtures.playlist();
+        List<Urn> urns = singletonList(playlist.urn());
         RecommendedPlaylistsEntity recommendedPlaylistEntity = RecommendedPlaylistsFixtures.createEntity(urns);
 
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_PLAYLISTS)).thenReturn(Observable.just(SyncOperations.Result.SYNCED));
         when(playlistsStorage.recommendedPlaylists()).thenReturn(Observable.just(singletonList(recommendedPlaylistEntity)));
-        when(playlistRepository.withUrns(new HashSet<>(urns))).thenReturn(Observable.just(singletonMap(item.getUrn(), item)));
+        when(playlistRepository.withUrns(new HashSet<>(urns))).thenReturn(Observable.just(singletonMap(playlist.urn(), playlist)));
 
-        operations.recommendedPlaylists().subscribe(testSubscriber);
-
-        testSubscriber.assertCompleted();
-        testSubscriber.assertNoErrors();
-        testSubscriber.assertReceivedOnNext(Collections.<DiscoveryItem>singletonList(
-                RecommendedPlaylistsBucketItem.create(recommendedPlaylistEntity, singletonList(item))
-        ));
+        operations.recommendedPlaylists()
+                  .test()
+                  .assertCompleted()
+                  .assertNoErrors()
+                  .assertReceivedOnNext(Collections.<DiscoveryItem>singletonList(
+                          RecommendedPlaylistsBucketItem.create(recommendedPlaylistEntity, singletonList(PlaylistItem.from(playlist)))
+                  ));
     }
 }

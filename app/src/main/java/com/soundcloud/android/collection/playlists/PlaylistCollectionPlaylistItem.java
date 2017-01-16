@@ -5,6 +5,7 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.OfflineItem;
@@ -50,8 +51,8 @@ public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionI
     }
 
     @Override
-    public UpdatablePlaylistItem updatedWithPlaylistItem(PlaylistItem playlistItem) {
-        return create(playlistItem);
+    public UpdatablePlaylistItem updatedWithPlaylist(Playlist playlist) {
+        return create(PlaylistItem.from(playlist));
     }
 
     @Override

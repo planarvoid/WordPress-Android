@@ -7,8 +7,8 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.collections.Lists;
@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +33,7 @@ public class MyPlaylistsOperations {
     private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> REMOVE_DUPLICATE_PLAYLISTS = playlistAssociations -> {
         Set<Urn> uniquePlaylists = Sets.newHashSetWithExpectedSize(playlistAssociations.size());
         for (Iterator<PlaylistAssociation> iterator = playlistAssociations.iterator(); iterator.hasNext(); ) {
-            final Urn urn = iterator.next().getPlaylistItem().getUrn();
+            final Urn urn = iterator.next().getPlaylist().urn();
             if (uniquePlaylists.contains(urn)) {
                 iterator.remove();
             } else {
@@ -53,7 +52,7 @@ public class MyPlaylistsOperations {
     };
 
     private static final Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> SORT_BY_TITLE = propertySets -> {
-        Collections.sort(propertySets, (lhs, rhs) -> lhs.getPlaylistItem().getTitle().compareTo(rhs.getPlaylistItem().getTitle()));
+        Collections.sort(propertySets, (lhs, rhs) -> lhs.getPlaylist().title().compareTo(rhs.getPlaylist().title()));
         return propertySets;
     };
 
@@ -65,7 +64,7 @@ public class MyPlaylistsOperations {
         return all;
     };
 
-    private static final Func1<List<PlaylistAssociation>, List<PlaylistItem>> EXTRACT_PLAYLIST_ITEMS = playlistAssociations -> Lists.transform(playlistAssociations, PlaylistAssociation.GET_PLAYLIST_ITEM);
+    private static final Func1<List<PlaylistAssociation>, List<Playlist>> EXTRACT_PLAYLIST_ITEMS = playlistAssociations -> Lists.transform(playlistAssociations, PlaylistAssociation.GET_PLAYLIST_ITEM);
 
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final PlaylistLikesStorage playlistLikesStorage;
@@ -83,12 +82,12 @@ public class MyPlaylistsOperations {
         this.scheduler = scheduler;
     }
 
-    public Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
+    public Observable<List<Playlist>> myPlaylists(final PlaylistsOptions options) {
         return syncInitiatorBridge
                 .hasSyncedLikedAndPostedPlaylistsBefore()
-                .flatMap(new Func1<Boolean, Observable<List<PlaylistItem>>>() {
+                .flatMap(new Func1<Boolean, Observable<List<Playlist>>>() {
                     @Override
-                    public Observable<List<PlaylistItem>> call(Boolean hasSynced) {
+                    public Observable<List<Playlist>> call(Boolean hasSynced) {
                         if (hasSynced) {
                             return loadPlaylists(options);
                         } else {
@@ -98,13 +97,13 @@ public class MyPlaylistsOperations {
                 }).subscribeOn(scheduler);
     }
 
-    public Observable<List<PlaylistItem>> refreshAndLoadPlaylists(final PlaylistsOptions options) {
+    public Observable<List<Playlist>> refreshAndLoadPlaylists(final PlaylistsOptions options) {
         return syncInitiatorBridge
                 .refreshMyPostedAndLikedPlaylists()
                 .flatMap(continueWith(loadPlaylists(options)));
     }
 
-    private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {
+    private Observable<List<Playlist>> loadPlaylists(PlaylistsOptions options) {
         return unsortedPlaylists(options)
                 .map(offlineOnly(options.showOfflineOnly()))
                 .map(options.sortByTitle() ? SORT_BY_TITLE : SORT_BY_CREATION)
@@ -117,7 +116,7 @@ public class MyPlaylistsOperations {
         return propertySets -> {
             if (offlineOnly) {
                 for (Iterator<PlaylistAssociation> iterator = propertySets.iterator(); iterator.hasNext(); ) {
-                    OfflineState offlineState = iterator.next().getPlaylistItem().getDownloadState();
+                    OfflineState offlineState = iterator.next().getPlaylist().offlineState().or(NOT_OFFLINE);
 
                     if (offlineState.equals(NOT_OFFLINE)) {
                         iterator.remove();

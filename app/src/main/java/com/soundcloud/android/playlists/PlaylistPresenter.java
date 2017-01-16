@@ -333,10 +333,10 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
             // remove when https://github.com/soundcloud/android/issues/6715 is confirmed fixed
             checkNotNull(activity, "Unexpected null activity in playlist details");
             PlaylistPresenter.this.playlistWithTracks = Optional.of(playlistDetailsViewModel.getPlaylistWithTracks());
-            PlaylistItem playlistItem = playlistDetailsViewModel.getPlaylistWithTracks().getPlaylistItem();
+            PlaylistItem playlistItem = PlaylistItem.from(playlistDetailsViewModel.getPlaylistWithTracks().getPlaylist());
             playSessionSource = createPlaySessionSource(playlistDetailsViewModel.getPlaylistWithTracks());
             headerPresenter.setPlaylist(playlistDetailsViewModel.getPlaylistWithTracks(), playSessionSource);
-            fragment.getActivity().setTitle(playlistDetailsViewModel.getPlaylistWithTracks().getPlaylistItem().getLabel(fragment.getContext()));
+            fragment.getActivity().setTitle(playlistItem.getLabel(fragment.getContext()));
             trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlistItem.getUrn(), playlistItem.getCreatorUrn());
         }
     }
@@ -363,10 +363,10 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         @Override
         public void onNext(PlaylistChangedEvent args) {
             if (args.isEntityChangeEvent()) {
-                final Map<Urn, PlaylistItem> urnPlaylistItemMap = ((PlaylistEntityChangedEvent) args).changeMap();
+                final Map<Urn, Playlist> urnPlaylistItemMap = ((PlaylistEntityChangedEvent) args).changeMap();
                 if (urnPlaylistItemMap.containsKey(getPlaylistUrn())) {
-                    final PlaylistItem updatedPlaylist = urnPlaylistItemMap.get(getPlaylistUrn());
-                    fragment.getArguments().putParcelable(EXTRA_URN, updatedPlaylist.getUrn());
+                    final Playlist updatedPlaylist = urnPlaylistItemMap.get(getPlaylistUrn());
+                    fragment.getArguments().putParcelable(EXTRA_URN, updatedPlaylist.urn());
                 }
             }
         }

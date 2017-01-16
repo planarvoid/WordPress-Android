@@ -28,6 +28,7 @@ import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackingMetadata;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
@@ -60,6 +61,7 @@ public class ModelFixtures {
     public static long runningUserId = 1L;
 
     private static final ModelFactory modelFactory = new ModelFactory();
+
     static {
         try {
             modelFactory.registerBlueprint(PublicApiUserBlueprint.class);
@@ -102,13 +104,61 @@ public class ModelFixtures {
         return models;
     }
 
+    public static Playlist playlist() {
+        return playlistBuilder().build();
+    }
+
+    public static Playlist.Builder playlistBuilder() {
+        return playlistBuilder(ModelFixtures.create(ApiPlaylist.class));
+    }
+
+    public static Playlist.Builder playlistBuilder(ApiPlaylist apiPlaylist) {
+        return Playlist.builder()
+                       .permalinkUrl(apiPlaylist.getPermalinkUrl())
+                       .repostCount(apiPlaylist.getRepostsCount())
+                       .likesCount(apiPlaylist.getLikesCount())
+                       .creatorName(apiPlaylist.getUsername())
+                       .creatorUrn(apiPlaylist.getUser().getUrn())
+                       .duration(apiPlaylist.getDuration())
+                       .imageUrlTemplate(apiPlaylist.getImageUrlTemplate())
+                       .isPrivate(apiPlaylist.getSharing().isPrivate())
+                       .title(apiPlaylist.getTitle())
+                       .trackCount(apiPlaylist.getTrackCount())
+                       .urn(apiPlaylist.getUrn())
+                       .createdAt(apiPlaylist.getCreatedAt())
+                       .isAlbum(apiPlaylist.isAlbum())
+                       .setType(apiPlaylist.getSetType())
+                       .genre(apiPlaylist.getGenre())
+                       .releaseDate(apiPlaylist.getReleaseDate());
+    }
+
+    public static Playlist.Builder playlistBuilder(Playlist apiPlaylist) {
+        return Playlist.builder()
+                       .permalinkUrl(apiPlaylist.permalinkUrl())
+                       .repostCount(apiPlaylist.repostCount())
+                       .likesCount(apiPlaylist.likesCount())
+                       .creatorName(apiPlaylist.creatorName())
+                       .creatorUrn(apiPlaylist.creatorUrn())
+                       .duration(apiPlaylist.duration())
+                       .imageUrlTemplate(apiPlaylist.imageUrlTemplate())
+                       .isPrivate(apiPlaylist.isPrivate())
+                       .title(apiPlaylist.title())
+                       .trackCount(apiPlaylist.trackCount())
+                       .urn(apiPlaylist.urn())
+                       .createdAt(apiPlaylist.createdAt())
+                       .isAlbum(apiPlaylist.isAlbum())
+                       .setType(apiPlaylist.setType())
+                       .genre(apiPlaylist.genre())
+                       .releaseDate(apiPlaylist.releaseDate());
+    }
+
     public static User user() {
         return user(false);
     }
 
     public static User user(boolean isFollowing) {
         return userBuilder(isFollowing)
-                   .build();
+                .build();
     }
 
     public static User.Builder userBuilder(boolean isFollowing) {
@@ -177,7 +227,7 @@ public class ModelFixtures {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }
 
-    public static PlaylistItem playlistItem(){
+    public static PlaylistItem playlistItem() {
         return create(PlaylistItem.class);
     }
 
@@ -261,12 +311,12 @@ public class ModelFixtures {
     public static DownloadRequest snippetRequest(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), false, true);
         return DownloadRequest.create(track,
-                of("http://artwork.url"),
-                1234,
-                "http://waveform.url",
-                false,
-                true,
-                trackContext);
+                                      of("http://artwork.url"),
+                                      1234,
+                                      "http://waveform.url",
+                                      false,
+                                      true,
+                                      trackContext);
     }
 
     public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {

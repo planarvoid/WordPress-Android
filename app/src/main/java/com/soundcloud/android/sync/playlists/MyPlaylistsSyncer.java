@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
@@ -170,7 +171,7 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
     private void publishPlaylistCreated(Urn localPlaylistUrn, ApiPlaylist newPlaylist) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromCreatePlaylist(EntityMetadata.from(newPlaylist)));
 
-        final PlaylistEntityChangedEvent event = PlaylistEntityChangedEvent.fromPlaylistPushedToServer(localPlaylistUrn, PlaylistItem.from(newPlaylist));
+        final PlaylistEntityChangedEvent event = PlaylistEntityChangedEvent.fromPlaylistPushedToServer(localPlaylistUrn, Playlist.from(newPlaylist));
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, event);
     }
 

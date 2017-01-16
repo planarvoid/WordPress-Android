@@ -21,75 +21,63 @@ import java.util.concurrent.TimeUnit;
 
 public class PlaylistWithTracks implements ImageResource, UpdatablePlaylistItem {
 
-    @NotNull private final PlaylistItem playlistItem;
+    @NotNull private final Playlist playlist;
     @NotNull private final List<TrackItem> tracks;
 
-    public PlaylistWithTracks(@NotNull PlaylistItem playlistItem, @NotNull List<TrackItem> tracks) {
-        this.playlistItem = playlistItem;
+    public PlaylistWithTracks(@NotNull Playlist playlist, @NotNull List<TrackItem> tracks) {
+        this.playlist = playlist;
         this.tracks = tracks;
     }
 
     @NonNull
-    public PlaylistItem getPlaylistItem() {
-        return playlistItem;
+    public Playlist getPlaylist() {
+        return playlist;
     }
 
     public boolean isLikedByUser() {
-        return playlistItem.isLikedByCurrentUser();
+        return playlist.isLikedByCurrentUser().or(false);
     }
 
     public Optional<Boolean> isMarkedForOffline() {
-        return playlistItem.isMarkedForOffline();
+        return playlist.isMarkedForOffline();
     }
 
     public OfflineState getDownloadState() {
-        return playlistItem.getDownloadState();
-    }
-
-    public void setOfflineState(OfflineState offlineState) {
-        playlistItem.setOfflineState(offlineState);
+        return playlist.offlineState().or(OfflineState.NOT_OFFLINE);
     }
 
     public boolean isRepostedByUser() {
-        return playlistItem.isRepostedByCurrentUser();
-    }
-
-    boolean isLocalPlaylist() {
-        return playlistItem.isLocalPlaylist();
-    }
-
-    boolean needsTracks() {
-        return getTracks().isEmpty();
+        return playlist.isRepostedByCurrentUser().or(false);
     }
 
     @Override
     public Urn getUrn() {
-        return playlistItem.getUrn();
+        return playlist.urn();
     }
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return playlistItem.getImageUrlTemplate();
+        return playlist.imageUrlTemplate();
     }
 
     public Urn getCreatorUrn() {
-        return playlistItem.getCreatorUrn();
+        return playlist.creatorUrn();
     }
 
     public String getCreatorName() {
-        return playlistItem.getCreatorName();
+        return playlist.creatorName();
     }
 
     public String getTitle() {
-        return playlistItem.getTitle();
+        return playlist.title();
     }
 
     public int getLikesCount() {
-        return playlistItem.getLikesCount();
+        return playlist.likesCount();
     }
 
     public int getRepostsCount() {
-        return playlistItem.getRepostCount();
+        return playlist.repostCount();
     }
 
     boolean isOwnedBy(Urn userUrn) {
@@ -107,7 +95,7 @@ public class PlaylistWithTracks implements ImageResource, UpdatablePlaylistItem 
 
     public String getDuration() {
         final long duration = tracks.isEmpty() ?
-                              playlistItem.getDuration() :
+                              playlist.duration() :
                               getCombinedTrackDurations();
         return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
     }
@@ -122,12 +110,12 @@ public class PlaylistWithTracks implements ImageResource, UpdatablePlaylistItem 
 
     public int getTrackCount() {
         return tracks.isEmpty()
-               ? playlistItem.getTrackCount()
+               ? playlist.trackCount()
                : tracks.size();
     }
 
     public boolean isPrivate() {
-        return playlistItem.isPrivate();
+        return playlist.isPrivate();
     }
 
     public boolean isPublic() {
@@ -135,30 +123,38 @@ public class PlaylistWithTracks implements ImageResource, UpdatablePlaylistItem 
     }
 
     public String getPermalinkUrl() {
-        return playlistItem.getPermalinkUrl();
+        return playlist.permalinkUrl();
     }
 
     @Override
     public PlaylistWithTracks updatedWithTrackCount(int trackCount) {
-        return new PlaylistWithTracks(this.playlistItem.updatedWithTrackCount(trackCount), tracks);
+        return new PlaylistWithTracks(this.playlist.toBuilder().trackCount(trackCount).build(), tracks);
     }
 
     @Override
     public PlaylistWithTracks updatedWithMarkedForOffline(boolean markedForOffline) {
-        return new PlaylistWithTracks(this.playlistItem.updatedWithMarkedForOffline(markedForOffline), tracks);
+        return new PlaylistWithTracks(this.playlist.toBuilder().isMarkedForOffline(markedForOffline).build(), tracks);
     }
 
     @Override
-    public PlaylistWithTracks updatedWithPlaylistItem(PlaylistItem newItem) {
-        return new PlaylistWithTracks(this.playlistItem.updatedWithPlaylistItem(newItem), tracks);
+    public PlaylistWithTracks updatedWithPlaylist(Playlist playlist) {
+        return new PlaylistWithTracks(playlist, tracks);
     }
 
-    public PlaylistWithTracks updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
-        return new PlaylistWithTracks(this.playlistItem.updatedWithLike(likeStatus), tracks);
+    PlaylistWithTracks updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
+        final Playlist.Builder builder = this.playlist.toBuilder().isLikedByCurrentUser(likeStatus.isUserLike());
+        if (likeStatus.likeCount().isPresent()) {
+            builder.likesCount(likeStatus.likeCount().get());
+        }
+        return new PlaylistWithTracks(builder.build(), tracks);
     }
 
-    public PlaylistWithTracks updatedWithRepostStatus(RepostsStatusEvent.RepostStatus repostStatus) {
-        return new PlaylistWithTracks(this.playlistItem.updatedWithRepost(repostStatus), tracks);
+    PlaylistWithTracks updatedWithRepostStatus(RepostsStatusEvent.RepostStatus repostStatus) {
+        final Playlist.Builder builder = this.playlist.toBuilder().isRepostedByCurrentUser(repostStatus.isReposted());
+        if (repostStatus.repostCount().isPresent()) {
+            builder.repostCount(repostStatus.repostCount().get());
+        }
+        return new PlaylistWithTracks(builder.build(), tracks);
     }
 
     @Override
@@ -171,18 +167,18 @@ public class PlaylistWithTracks implements ImageResource, UpdatablePlaylistItem 
         }
 
         PlaylistWithTracks that = (PlaylistWithTracks) o;
-        return playlistItem.equals(that.playlistItem) && tracks.equals(that.tracks);
+        return playlist.equals(that.playlist) && tracks.equals(that.tracks);
     }
 
     @Override
     public final int hashCode() {
-        return MoreObjects.hashCode(playlistItem, tracks);
+        return MoreObjects.hashCode(playlist, tracks);
     }
 
     @Override
     public String toString() {
         return "PlaylistWithTracks{" +
-                "playlistItem=" + playlistItem +
+                "playlist=" + playlist +
                 ", tracks=" + tracks +
                 '}';
     }

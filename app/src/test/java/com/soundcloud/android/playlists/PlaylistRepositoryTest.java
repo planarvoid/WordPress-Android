@@ -10,7 +10,6 @@ import static rx.Observable.just;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -19,7 +18,7 @@ import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestSubscriber;
+import rx.observers.AssertableSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
@@ -34,8 +33,6 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncinitiator;
     @Mock private PlaylistStorage playlistStorage;
 
-    private TestSubscriber<Map<Urn,PlaylistItem>> subscriber =new TestSubscriber<>();
-    private TestSubscriber<PlaylistItem> singleSubscriber =new TestSubscriber<>();
     private PublishSubject<SyncJobResult> syncSubject = PublishSubject.create();
 
     @Before
@@ -45,108 +42,107 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void withUrnLoadsPlaylistFromStorage() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
-        final List<Urn> urns = singletonList(playlistItem.getUrn());
-        final List<PlaylistItem> playlists = singletonList(playlistItem);
+        final Playlist playlist = ModelFixtures.playlist();
+        final List<Urn> urns = singletonList(playlist.urn());
+        final List<Playlist> playlists = singletonList(playlist);
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(urns));
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(playlists));
 
-        playlistRepository.withUrn(playlistItem.getUrn()).subscribe(singleSubscriber);
-
-        singleSubscriber.assertValue(playlistItem);
+        playlistRepository.withUrn(playlist.urn())
+                          .test()
+                          .assertValue(playlist);
     }
 
     @Test
     public void withUrnBackfillsFromApi() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
-        final List<Urn> urns = singletonList(playlistItem.getUrn());
-        final List<PlaylistItem> playlists = singletonList(playlistItem);
+        final Playlist playlist = ModelFixtures.playlist();
+        final List<Urn> urns = singletonList(playlist.urn());
+        final List<Playlist> playlists = singletonList(playlist);
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(playlists));
-        when(syncinitiator.batchSyncPlaylists(singletonList(playlistItem.getUrn()))).thenReturn(syncSubject);
+        when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
 
-        playlistRepository.withUrn(playlistItem.getUrn()).subscribe(singleSubscriber);
+        final AssertableSubscriber<Playlist> test = playlistRepository.withUrn(playlist.urn()).test();
 
-        singleSubscriber.assertNoValues();
+        test.assertNoValues();
         syncSubject.onNext(TestSyncJobResults.successWithChange());
         syncSubject.onCompleted();
 
-        singleSubscriber.assertValue(playlistItem);
+        test.assertValue(playlist);
     }
 
     @Test
     public void withUrnEmitsErrorForSyncError() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
-        final List<Urn> urns = singletonList(playlistItem.getUrn());
+        final Playlist playlist = ModelFixtures.playlist();
+        final List<Urn> urns = singletonList(playlist.urn());
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
-        when(syncinitiator.batchSyncPlaylists(singletonList(playlistItem.getUrn()))).thenReturn(syncSubject);
+        when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
 
-        playlistRepository.withUrn(playlistItem.getUrn()).subscribe(singleSubscriber);
-
-        singleSubscriber.assertNoValues();
+        final AssertableSubscriber<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
+        subscriber.assertNoValues();
 
         ApiRequestException exception = ApiRequestException.notFound(null, status(404));
         syncSubject.onError(exception);
 
-        singleSubscriber.assertError(exception);
+        subscriber.assertError(exception);
     }
 
     @Test
     public void withUrnsLoadsPlaylistFromStorage() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
-        final List<Urn> urns = singletonList(playlistItem.getUrn());
-        final List<PlaylistItem> playlists = singletonList(playlistItem);
+        final Playlist playlist = ModelFixtures.playlist();
+        final List<Urn> urns = singletonList(playlist.urn());
+        final List<Playlist> playlists = singletonList(playlist);
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(urns));
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(playlists));
 
-        playlistRepository.withUrns(urns).subscribe(subscriber);
-
-        subscriber.assertValue(asMap(playlists, PlayableItem::getUrn));
+        playlistRepository.withUrns(urns)
+                          .test()
+                          .assertValue(asMap(playlists, Playlist::urn));
     }
 
     @Test
     public void withUrnsBackfillMissingPlaylists() {
-        final PlaylistItem playlistItemPresent = ModelFixtures.playlistItem();
-        final PlaylistItem playlistItemToFetch = ModelFixtures.playlistItem();
-        final List<Urn> urns = asList(playlistItemPresent.getUrn(), playlistItemToFetch.getUrn());
-        final List<PlaylistItem> expectedPlaylists = asList(playlistItemPresent, playlistItemToFetch);
+        final Playlist playlistPresent = ModelFixtures.playlist();
+        final Playlist playlistToFetch = ModelFixtures.playlist();
+        final List<Urn> urns = asList(playlistPresent.urn(), playlistToFetch.urn());
+        final List<Playlist> expectedPlaylists = asList(playlistPresent, playlistToFetch);
 
-        when(playlistStorage.availablePlaylists(urns)).thenReturn(just(singletonList(playlistItemPresent.getUrn())));
+        when(playlistStorage.availablePlaylists(urns)).thenReturn(just(singletonList(playlistPresent.urn())));
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(expectedPlaylists));
-        when(syncinitiator.batchSyncPlaylists(singletonList(playlistItemToFetch.getUrn()))).thenReturn(syncSubject);
+        when(syncinitiator.batchSyncPlaylists(singletonList(playlistToFetch.urn()))).thenReturn(syncSubject);
 
-        playlistRepository.withUrns(urns).subscribe(subscriber);
+        final AssertableSubscriber<Map<Urn, Playlist>> subscriber = playlistRepository.withUrns(urns).test();
 
         subscriber.assertNoValues();
 
         syncSubject.onNext(TestSyncJobResults.successWithChange());
         syncSubject.onCompleted();
 
-        subscriber.assertValue(asMap(expectedPlaylists, PlayableItem::getUrn));
+        subscriber.assertValue(asMap(expectedPlaylists, Playlist::urn));
     }
 
     @Test
     public void withUrnsReturnsAvailablePlaylistForSyncError() {
-        final PlaylistItem playlistItemPresent = ModelFixtures.playlistItem();
-        final PlaylistItem playlistItemToFetch = ModelFixtures.playlistItem();
-        final List<Urn> urns = asList(playlistItemPresent.getUrn(), playlistItemToFetch.getUrn());
-        final List<PlaylistItem> expectedPlaylists = asList(playlistItemPresent);
+        final Playlist playlistPresent = ModelFixtures.playlist();
+        final Playlist playlistToFetch = ModelFixtures.playlist();
+        final List<Urn> urns = asList(playlistPresent.urn(), playlistToFetch.urn());
+        final List<Playlist> expectedPlaylists = asList(playlistPresent);
 
-        when(playlistStorage.availablePlaylists(urns)).thenReturn(just(singletonList(playlistItemPresent.getUrn())));
+        when(playlistStorage.availablePlaylists(urns)).thenReturn(just(singletonList(playlistPresent.urn())));
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(expectedPlaylists));
-        when(syncinitiator.batchSyncPlaylists(singletonList(playlistItemToFetch.getUrn()))).thenReturn(syncSubject);
+        when(syncinitiator.batchSyncPlaylists(singletonList(playlistToFetch.urn()))).thenReturn(syncSubject);
 
-        playlistRepository.withUrns(urns).subscribe(subscriber);
+        final AssertableSubscriber<Map<Urn, Playlist>> subscriber = playlistRepository.withUrns(urns).test();
 
         subscriber.assertNoValues();
 
         syncSubject.onError(ApiRequestException.notFound(null, status(404)));
         syncSubject.onCompleted();
 
-        subscriber.assertValue(asMap(expectedPlaylists, PlayableItem::getUrn));
+        subscriber.assertValue(asMap(expectedPlaylists, Playlist::urn));
     }
 }
