@@ -10,16 +10,13 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.PlayHistory;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMapper;
-import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import rx.Observable;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -103,6 +100,8 @@ public class PlayHistoryStorage {
     private Query loadForPlaybackQuery() {
         return Query.from(PlayHistory.TABLE.name())
                     .select("DISTINCT " + PlayHistory.TRACK_ID.name())
+                    .innerJoin(Tables.Sounds.TABLE, Tables.Sounds._ID, PlayHistory.TRACK_ID)
+                    .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_TRACK)
                     .order(PlayHistory.TIMESTAMP, Query.Order.DESC);
     }
 

@@ -167,17 +167,27 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadPlayHistoryForPlaybackGetsOnlyUrnsWithoutDuplicates() {
-        final Urn urn1 = Urn.forTrack(123);
-        final Urn urn2 = Urn.forTrack(234);
-        insertPlayHistory(urn1, 1000L);
-        insertPlayHistory(urn2, 2000L);
+        final Urn urn1 = insertTrackWithPlayHistory(1000L).getUrn();
+        final Urn urn2 = insertTrackWithPlayHistory(2000L).getUrn();
+
         insertPlayHistory(urn1, 3000L);
-        // from syncer
-        insertPlayHistory(urn1, 1500L);
 
         final List<Urn> urns = storage.loadPlayHistoryForPlayback().toList().toBlocking().single();
 
         assertThat(urns).containsExactly(urn1, urn2);
+    }
+
+    @Test
+    public void loadPlayHistoryForPlaybackGetsOnlyUrnsThatExist() {
+        final Urn urn1 = insertTrackWithPlayHistory(2000L).getUrn();
+        final Urn urn2 = insertTrackWithPlayHistory(3000L).getUrn();
+        final Urn urn3 = Urn.forTrack(123);
+
+        insertPlayHistory(urn3, 4000L);
+
+        final List<Urn> urns = storage.loadPlayHistoryForPlayback().toList().toBlocking().single();
+
+        assertThat(urns).containsExactly(urn2, urn1);
     }
 
     @Test
