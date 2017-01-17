@@ -21,7 +21,9 @@ import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.java.strings.Strings;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -105,7 +107,8 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.MY_FOLLOWINGS.path())
                                              .forPrivateApi()
                                              .build();
-        ModelCollection<ApiFollowing> apiFollowings = apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiFollowing>>() { });
+        ModelCollection<ApiFollowing> apiFollowings = apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiFollowing>>() {
+        });
         return Lists.transform(apiFollowings.getCollection(), ApiFollowing.TO_USER_IDS);
     }
 
@@ -158,6 +161,8 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
 
     @Nullable
     private FollowError extractApiError(String responseBody) throws IOException {
+        if (Strings.isBlank(responseBody)) return null;
+
         try {
             return jsonTransformer.fromJson(responseBody, TypeToken.of(FollowError.class));
         } catch (ApiMapperException e) {
@@ -166,21 +171,27 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     }
 
     private void forbiddenUserPushHandler(Urn userUrn, String userName, FollowError error) {
-        Notification notification = getForbiddenNotification(userUrn, userName, error);
-        notificationManager.notify(userUrn.toString(),
-                                   NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
-                                   notification);
+        Optional<Notification> notification = getForbiddenNotification(userUrn, userName, error);
+        if (notification.isPresent()) {
+            notificationManager.notify(userUrn.toString(),
+                                       NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
+                                       notification.get());
+        }
         DefaultSubscriber.fireAndForget(followingOperations.toggleFollowing(userUrn, false));
     }
 
-    private Notification getForbiddenNotification(Urn userUrn, String userName, FollowError error) {
+    private Optional<Notification> getForbiddenNotification(Urn userUrn, String userName, FollowError error) {
+        if (error == null) return Optional.absent();
+
         if (error.isAgeRestricted()) {
-            return notificationBuilder.buildUnderAgeNotification(userUrn, error.age, userName);
+            return Optional.of(notificationBuilder.buildUnderAgeNotification(userUrn, error.age, userName));
         } else if (error.isAgeUnknown()) {
-            return notificationBuilder.buildUnknownAgeNotification(userUrn, userName);
-        } else {
-            return notificationBuilder.buildBlockedFollowNotification(userUrn, userName);
+            return Optional.of(notificationBuilder.buildUnknownAgeNotification(userUrn, userName));
+        } else if (error.isBlocked()) {
+            return Optional.of(notificationBuilder.buildBlockedFollowNotification(userUrn, userName));
         }
+
+        return Optional.absent();
     }
 
     @VisibleForTesting

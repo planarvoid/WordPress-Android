@@ -3,6 +3,8 @@ package com.soundcloud.android.sync.affiliations;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.never;
@@ -57,6 +59,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
     private static final String AGE_RESTRICTED_BODY = "{\"error_key\":\"age_restricted\",\"age\":19}";
     private static final String AGE_UNKNOWN_BODY = "{\"error_key\":\"age_unknown\"}";
     private static final String BLOCKED_BODY = "{\"error_key\":\"blocked\"}";
+    private static final String UNKNOWN_BODY = "{\"error_key\":\"unknown\"}";
 
 
     private MyFollowingsSyncer myFollowingsSyncer;
@@ -92,8 +95,8 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
         mockApiFollowingRemoval(USER_2, TestApiResponses.ok());
         mockApiFollowingsResponse(
                 Arrays.asList(
-                    getApiFollowing(USER_1),
-                    getApiFollowing(USER_2)
+                        getApiFollowing(USER_1),
+                        getApiFollowing(USER_2)
                 )
         );
 
@@ -111,7 +114,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
         );
         mockApiFollowingsResponse(followings);
 
-            assertThat(myFollowingsSyncer.call()).isTrue();
+        assertThat(myFollowingsSyncer.call()).isTrue();
 
         verify(userAssociationStorage).insertFollowedUserIds(toUserIds(followings));
     }
@@ -131,7 +134,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
 
         assertThat(myFollowingsSyncer.call()).isFalse();
 
-        verify(userAssociationStorage,never()).insertFollowedUserIds(anyList());
+        verify(userAssociationStorage, never()).insertFollowedUserIds(anyList());
     }
 
     @Test(expected = ApiRequestException.class)
@@ -149,7 +152,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
 
     @Test
     public void pushFollowingsRevertsAndNotifiesOnUnderage() throws Exception {
-        setupFailedPush(AGE_RESTRICTED_BODY);
+        setupFailedPush(HttpStatus.BAD_REQUEST, Optional.of(AGE_RESTRICTED_BODY));
         Notification notification = new Notification();
         when(notificationBuilder.buildUnderAgeNotification(USER_1, 19, USERNAME_1)).thenReturn(notification);
 
@@ -164,7 +167,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
 
     @Test
     public void pushFollowingsRevertsAndNotifiesOnUnknownAge() throws Exception {
-        setupFailedPush(AGE_UNKNOWN_BODY);
+        setupFailedPush(HttpStatus.BAD_REQUEST, Optional.of(AGE_UNKNOWN_BODY));
         Notification notification = new Notification();
         when(notificationBuilder.buildUnknownAgeNotification(USER_1, USERNAME_1)).thenReturn(notification);
 
@@ -179,7 +182,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
 
     @Test
     public void pushFollowingsRevertsAndNotifiesOnBlocked() throws Exception {
-        setupFailedPush(BLOCKED_BODY);
+        setupFailedPush(HttpStatus.BAD_REQUEST, Optional.of(BLOCKED_BODY));
         Notification notification = new Notification();
         when(notificationBuilder.buildBlockedFollowNotification(USER_1, USERNAME_1)).thenReturn(notification);
 
@@ -192,8 +195,37 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
         assertThat(followingStatusPublishSubject.hasObservers()).isTrue();
     }
 
-    @NonNull
-    private void setupFailedPush(String body) throws Exception {
+    @Test
+    public void pushFollowingsRevertsOnUnknownError() throws Exception {
+        setupFailedPush(HttpStatus.BAD_REQUEST, Optional.of(UNKNOWN_BODY));
+
+        myFollowingsSyncer.call();
+
+        assertThat(followingStatusPublishSubject.hasObservers()).isTrue();
+
+        verify(notificationManger, never()).notify(anyString(),
+                                                   anyInt(),
+                                                   any(Notification.class));
+    }
+
+    @Test
+    public void pushFollowingsRevertsOnForbiddenError() throws Exception {
+        setupFailedPush(HttpStatus.FORBIDDEN);
+
+        myFollowingsSyncer.call();
+
+        assertThat(followingStatusPublishSubject.hasObservers()).isTrue();
+
+        verify(notificationManger, never()).notify(anyString(),
+                                                   anyInt(),
+                                                   any(Notification.class));
+    }
+
+    private void setupFailedPush(int status) throws Exception {
+        setupFailedPush(status, Optional.absent());
+    }
+
+    private void setupFailedPush(int status, Optional<String> body) throws Exception {
         mockApiFollowingsResponse(Collections.<ApiFollowing>emptyList());
         when(userAssociationStorage.loadFollowedUserIds()).thenReturn(Collections.<Long>emptySet());
         when(userAssociationStorage.hasStaleFollowings()).thenReturn(true);
@@ -206,7 +238,11 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
         followingStatusPublishSubject = PublishSubject.create();
         when(followingOperations.toggleFollowing(USER_1, false)).thenReturn(followingStatusPublishSubject);
 
-        mockApiFollowingAddition(USER_1, TestApiResponses.status(HttpStatus.FORBIDDEN,  body));
+        if (body.isPresent()) {
+            mockApiFollowingAddition(USER_1, TestApiResponses.status(status, body.get()));
+        } else {
+            mockApiFollowingAddition(USER_1, TestApiResponses.status(status));
+        }
     }
 
     @NonNull
