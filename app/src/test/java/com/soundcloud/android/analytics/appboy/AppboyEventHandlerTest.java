@@ -19,6 +19,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -134,7 +135,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
                                                                               UUID,
                                                                               PLAY_ID);
         PlaybackSessionEvent event = PlaybackSessionEvent.forStop(NON_MARKETABLE_PLAY_EVENT,
-                                                                  PlaybackSessionEvent.STOP_REASON_PAUSE,
+                                                                  StopReasonProvider.StopReason.STOP_REASON_PAUSE,
                                                                   args);
 
         eventHandler.handleEvent(event);

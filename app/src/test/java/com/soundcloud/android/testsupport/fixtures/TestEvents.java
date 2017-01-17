@@ -26,19 +26,6 @@ public class TestEvents {
                         new TrackSourceInfo("screen", false), playbackProgress, "hls", "playa", false, false, "uuid", "play-id"));
     }
 
-    public static PlaybackSessionEvent playbackSessionTrackFinishedEvent() {
-        return playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, Urn.forTrack(1L));
-    }
-
-    private static PlaybackSessionEvent playbackSessionStopEventWithReason(int stopReason, Urn trackUrn) {
-        PlaybackSessionEvent previousPlayEvent = playbackSessionPlayEvent();
-        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(
-                TestPropertySets.expectedTrackForAnalytics(trackUrn, Urn.forUser(2L)),
-                new TrackSourceInfo("screen", false), 0L, "hls", "playa", false, false, "uuid", "play-id");
-
-        return PlaybackSessionEvent.forStop(previousPlayEvent, stopReason, args);
-    }
-
     public static TrackingEvent unspecifiedTrackingEvent() {
         return new LegacyTrackingEvent("test", 123L, UUID.randomUUID().toString()) {
         };

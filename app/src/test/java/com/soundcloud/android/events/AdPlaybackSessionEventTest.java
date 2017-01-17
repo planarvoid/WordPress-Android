@@ -1,5 +1,7 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdFixtures;
@@ -9,7 +11,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -145,7 +146,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                 args,
-                                                                                PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+                                                                                STOP_REASON_TRACK_FINISHED);
 
         assertThat(stopEvent.getKind()).isEqualTo("stop");
         assertThat(stopEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L)
@@ -161,7 +162,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                 args,
-                                                                                PlaybackSessionEvent.STOP_REASON_PAUSE);
+                                                                                STOP_REASON_PAUSE);
 
         assertThat(stopEvent.getKind()).isEqualTo("stop");
         assertThat(stopEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L)

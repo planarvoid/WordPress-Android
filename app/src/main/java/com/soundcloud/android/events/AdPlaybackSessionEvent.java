@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
 import android.support.annotation.Nullable;
@@ -26,7 +27,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
 
     public final TrackSourceInfo trackSourceInfo;
 
-    private int stopReason;
+    private StopReasonProvider.StopReason stopReason;
     private boolean shouldReportStartWithPlay;
     private AdPlaybackSessionEventArgs eventArgs;
     private List<String> trackingUrls = Collections.emptyList();
@@ -56,7 +57,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
                 .setEventArgs(eventArgs);
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs, int stopReason) {
+    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
         return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, eventArgs.getTrackSourceInfo())
                 .setStopReason(stopReason)
                 .setEventArgs(eventArgs)
@@ -78,7 +79,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
     }
 
     public boolean hasAdFinished() {
-        return isKind(EVENT_KIND_STOP) && this.stopReason == PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED;
+        return isKind(EVENT_KIND_STOP) && this.stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
     }
 
     public boolean shouldReportStart() {
@@ -86,14 +87,14 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
     }
 
     private boolean wasAdPaused() {
-        return isKind(EVENT_KIND_STOP) && this.stopReason == PlaybackSessionEvent.STOP_REASON_PAUSE;
+        return isKind(EVENT_KIND_STOP) && this.stopReason == StopReasonProvider.StopReason.STOP_REASON_PAUSE;
     }
 
     private boolean isKind(String kind) {
         return this.kind.equals(kind);
     }
 
-    private AdPlaybackSessionEvent setStopReason(int stopReason) {
+    private AdPlaybackSessionEvent setStopReason(StopReasonProvider.StopReason stopReason) {
         this.stopReason = stopReason;
         return this;
     }
@@ -155,7 +156,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
         return eventArgs;
     }
 
-    public int getStopReason() {
+    public StopReasonProvider.StopReason getStopReason() {
         return stopReason;
     }
 

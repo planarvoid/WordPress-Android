@@ -3,6 +3,10 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.FOLLOW_ADD;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.PLAY_NEXT;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_BUFFERING;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_CONCURRENT_STREAMING;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_ERROR;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Matchers.eq;
@@ -151,7 +155,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -187,7 +191,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -223,7 +227,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -260,7 +264,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -292,13 +296,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 createArgs(track, trackSourceInfo, 0L, false));
         final PlaybackSessionEventArgs args = createArgs(track, trackSourceInfo, 123L, false);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playEvent,
-                                                                        PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING,
+                                                                        STOP_REASON_CONCURRENT_STREAMING,
                                                                         args);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -334,7 +338,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -368,13 +372,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 createArgs(track, trackSourceInfo, 0L, false));
         final PlaybackSessionEventArgs args = createArgs(track, trackSourceInfo, 123L, false);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playEvent,
-                                                                        PlaybackSessionEvent.STOP_REASON_ERROR,
+                                                                        STOP_REASON_ERROR,
                                                                         args);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -408,13 +412,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 createArgs(track, trackSourceInfo, 0L, false));
         final PlaybackSessionEventArgs args = createArgs(track, trackSourceInfo, 123L, false);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playEvent,
-                                                                        PlaybackSessionEvent.STOP_REASON_ERROR,
+                                                                        STOP_REASON_ERROR,
                                                                         args);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -448,10 +452,10 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
 
-        jsonDataBuilder.buildForAudioEvent(event.withPromotedTrack(promotedSource));
+        jsonDataBuilder.buildForAudioEvent(PlaybackSessionEvent.copyWithPromotedTrack(event, promotedSource));
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
                                                .trackLength(track.getFullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.getCreatorUrn())
@@ -809,7 +813,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                                        CLIENT_EVENT_ID);
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(audioAd,
                                                                             eventArgs,
-                                                                            PlaybackSessionEvent.STOP_REASON_BUFFERING);
+                                                                            STOP_REASON_BUFFERING);
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
 
@@ -1099,7 +1103,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                                   "123");
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(AdFixtures.getVideoAd(TRACK_URN),
                                                                             args,
-                                                                            PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+                                                                            STOP_REASON_TRACK_FINISHED);
 
         jsonDataBuilder.buildForAdFinished(event);
 

@@ -73,8 +73,8 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
-        if (event.isPromotedTrack() && event.shouldReportAdStart()) {
-            trackAllUrls(event.getTimestamp(), event.getPromotedPlayUrls());
+        if (event.isPromotedTrack() && event.isPlayAdShouldReportAdStart() && event.promotedPlayUrls().isPresent()) {
+            trackAllUrls(event.getTimestamp(), event.promotedPlayUrls().get());
         }
     }
 

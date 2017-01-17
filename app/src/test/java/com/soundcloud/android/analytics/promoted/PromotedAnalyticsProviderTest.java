@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics.promoted;
 
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -30,6 +32,7 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -191,9 +194,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksPromotedTrackPlayUrls() {
         PlaybackSessionEvent playbackEvent = mock(PlaybackSessionEvent.class);
         when(playbackEvent.isPromotedTrack()).thenReturn(true);
-        when(playbackEvent.shouldReportAdStart()).thenReturn(true);
+        when(playbackEvent.isPlayAdShouldReportAdStart()).thenReturn(true);
         when(playbackEvent.getTimestamp()).thenReturn(12345L);
-        when(playbackEvent.getPromotedPlayUrls()).thenReturn(asList("promoPlay1", "promoPlay2"));
+        when(playbackEvent.promotedPlayUrls()).thenReturn(Optional.of(asList("promoPlay1", "promoPlay2")));
 
         analyticsProvider.handleTrackingEvent(playbackEvent);
 
@@ -393,7 +396,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                            args,
-                                                                                           PlaybackSessionEvent.STOP_REASON_PAUSE);
+                                                                                           STOP_REASON_PAUSE);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -412,7 +415,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                            args,
-                                                                                           PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+                                                                                           STOP_REASON_TRACK_FINISHED);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 

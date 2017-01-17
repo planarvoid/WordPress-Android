@@ -4,7 +4,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTI
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY_START;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
@@ -208,7 +207,7 @@ class EventLoggerV1JsonDataBuilder {
                 break;
             case EVENT_KIND_STOP:
                 data.action(AUDIO_ACTION_PAUSE);
-                data.reason(getStopReason(eventData.getStopReason()));
+                data.reason(eventData.getStopReason().toString());
                 break;
             case EVENT_KIND_CHECKPOINT:
                 data.action(AUDIO_ACTION_CHECKPOINT);
@@ -651,43 +650,40 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
-        final Urn urn = event.getTrackUrn();
+        final Urn urn = event.trackUrn();
         EventLoggerEventData data = buildBaseEvent(AUDIO_EVENT, event)
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .playheadPosition(event.getProgress())
-                .trackLength(event.getDuration())
+                .action(event.kind().toString())
+                .pageName(event.trackSourceInfo().getOriginScreen())
+                .playheadPosition(event.progress())
+                .trackLength(event.duration())
                 .track(urn)
-                .trackOwner(event.getCreatorUrn())
-                .clientEventId(event.getClientEventId())
+                .trackOwner(event.creatorUrn())
+                .clientEventId(event.clientEventId())
                 .localStoragePlayback(event.isOfflineTrack())
                 .consumerSubsPlan(featureOperations.getCurrentPlan())
-                .trigger(getTrigger(event.getTrackSourceInfo()))
-                .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
-                .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .policy(event.get(PlaybackSessionEvent.KEY_POLICY))
-                .monetizationModel(event.getMonetizationModel())
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN));
-
-        if (event.isPlayEvent()) {
-            data.action(AUDIO_ACTION_PLAY);
-            data.playId(event.getPlayId());
-        } else if (event.isPlayStartEvent()) {
-            data.action(AUDIO_ACTION_PLAY_START);
-        } else if (event.isStopEvent()) {
-            data.action(AUDIO_ACTION_PAUSE);
-            data.reason(getStopReason(event.getStopReason()));
-            data.playId(event.getPlayId());
-        } else if (event.isCheckpointEvent()) {
-            data.action(AUDIO_ACTION_CHECKPOINT);
-            data.playId(event.getPlayId());
-        } else {
-            throw new IllegalArgumentException("Unexpected audio event:" + event.getKind());
+                .trigger(getTrigger(event.trackSourceInfo()))
+                .protocol(event.protocol())
+                .playerType(event.playerType())
+                .monetizationModel(event.monetizationModel());
+        if (event.adUrn().isPresent()) {
+            data.adUrn(event.adUrn().get());
         }
-
-        addTrackSourceInfoToSessionEvent(data, event.getTrackSourceInfo(), urn);
+        if (event.policy().isPresent()) {
+            data.policy(event.policy().get());
+        }
+        if (event.monetizationType().isPresent()) {
+            data.monetizationType(event.monetizationType().get());
+        }
+        if (event.promoterUrn().isPresent()) {
+            data.promotedBy(event.promoterUrn().get().toString());
+        }
+        if (event.stopReason().isPresent()) {
+            data.reason(event.stopReason().get().toString());
+        }
+        if (event.playId().isPresent()) {
+            data.playId(event.playId().get());
+        }
+        addTrackSourceInfoToSessionEvent(data, event.trackSourceInfo(), urn);
 
         return data;
     }
@@ -783,28 +779,5 @@ class EventLoggerV1JsonDataBuilder {
         }
 
         return data;
-    }
-
-    private String getStopReason(int stopReason) {
-        switch (stopReason) {
-            case PlaybackSessionEvent.STOP_REASON_PAUSE:
-                return "pause";
-            case PlaybackSessionEvent.STOP_REASON_BUFFERING:
-                return "buffer_underrun";
-            case PlaybackSessionEvent.STOP_REASON_SKIP:
-                return "skip";
-            case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:
-                return "track_finished";
-            case PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE:
-                return "end_of_content";
-            case PlaybackSessionEvent.STOP_REASON_NEW_QUEUE:
-                return "context_change";
-            case PlaybackSessionEvent.STOP_REASON_ERROR:
-                return "playback_error";
-            case PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING:
-                return "concurrent_streaming";
-            default:
-                throw new IllegalArgumentException("Unexpected stop reason : " + stopReason);
-        }
     }
 }

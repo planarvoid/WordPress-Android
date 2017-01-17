@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -523,7 +525,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                               "123");
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                         adArgs,
-                                                                        PlaybackSessionEvent.STOP_REASON_PAUSE);
+                                                                        STOP_REASON_PAUSE);
         when(dataBuilderv1.buildForRichMediaSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -541,7 +543,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                               "123");
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                         adArgs,
-                                                                        PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+                                                                        STOP_REASON_TRACK_FINISHED);
         when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdFinishedEvent");
         when(dataBuilderv1.buildForRichMediaSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);

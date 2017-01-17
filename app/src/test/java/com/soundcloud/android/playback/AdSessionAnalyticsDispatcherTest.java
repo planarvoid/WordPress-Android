@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.*;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -13,9 +14,9 @@ import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.StopReasonProvider.StopReason;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -135,14 +136,14 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         playTransition();
         final PlaybackStateTransition stateTransition = stopTransition(PlaybackState.IDLE,
                                                                        PlayStateReason.PLAYBACK_COMPLETE,
-                                                                       PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+                                                                       STOP_REASON_TRACK_FINISHED);
 
-        when(stopReasonProvider.fromTransition(stateTransition)).thenReturn(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        when(stopReasonProvider.fromTransition(stateTransition)).thenReturn(STOP_REASON_TRACK_FINISHED);
 
         AdPlaybackSessionEvent event = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
 
         assertCommonEventData(stateTransition, event);
-        assertThat(event.getStopReason()).isEqualTo(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        assertThat(event.getStopReason()).isEqualTo(STOP_REASON_TRACK_FINISHED);
         assertThat(event.hasAdFinished()).isTrue();
         assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
@@ -242,7 +243,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         return stopEvent;
     }
 
-    private PlaybackStateTransition stopTransition(PlaybackState newState, PlayStateReason reason, int stopReason) {
+    private PlaybackStateTransition stopTransition(PlaybackState newState, PlayStateReason reason, StopReason stopReason) {
         final PlaybackStateTransition stopEvent = new PlaybackStateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
         stopEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");

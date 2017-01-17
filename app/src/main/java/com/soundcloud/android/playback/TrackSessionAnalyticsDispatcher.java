@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.*;
+
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
@@ -72,7 +74,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @Override
     public void onSkipTransition(PlayStateEvent playStateEvent) {
-        publishStopEvent(playStateEvent, PlaybackSessionEvent.STOP_REASON_SKIP);
+        publishStopEvent(playStateEvent, STOP_REASON_SKIP);
     }
 
     @Override
@@ -124,7 +126,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                     && playQueueManager.isTrackFromCurrentPromotedItem(currentPlayQueueItem.getUrn())
                     && !playSource.getPromotedSourceInfo().isPlaybackStarted()) {
                 PromotedSourceInfo promotedSourceInfo = playSource.getPromotedSourceInfo();
-                playSessionEvent = playSessionEvent.withPromotedTrack(promotedSourceInfo);
+                playSessionEvent = PlaybackSessionEvent.copyWithPromotedTrack(playSessionEvent, promotedSourceInfo);
                 promotedSourceInfo.setPlaybackStarted();
             }
 
@@ -133,7 +135,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         };
     }
 
-    private void publishStopEvent(final PlayStateEvent playStateEvent, final int stopReason) {
+    private void publishStopEvent(final PlayStateEvent playStateEvent, final StopReasonProvider.StopReason stopReason) {
         // note that we only want to publish a stop event if we have a corresponding play event. This value
         // will be nulled out after it is used, and we will not publish another stop event until a play event
         // creates a new value for lastSessionEventData
@@ -162,7 +164,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private boolean isForPlayingTrack(PlaybackProgressEvent progressEvent) {
         return lastPlaySessionEvent.isPresent() && lastPlaySessionEvent.get()
-                                                                       .getTrackUrn()
+                                                                       .trackUrn()
                                                                        .equals(progressEvent.getUrn());
     }
 

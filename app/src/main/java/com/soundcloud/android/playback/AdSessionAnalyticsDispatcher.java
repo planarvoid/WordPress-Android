@@ -7,7 +7,6 @@ import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
@@ -91,7 +90,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @Override
     public void onSkipTransition(PlayStateEvent playStateEvent) {
-        publishStopEvent(playStateEvent.getTransition(), PlaybackSessionEvent.STOP_REASON_SKIP);
+        publishStopEvent(playStateEvent.getTransition(), StopReasonProvider.StopReason.STOP_REASON_SKIP);
     }
 
     @Override
@@ -102,7 +101,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         }
     }
 
-    private void publishStopEvent(final PlaybackStateTransition stateTransition, final int stopReason) {
+    private void publishStopEvent(final PlaybackStateTransition stateTransition, final StopReasonProvider.StopReason stopReason) {
         // Note that we only want to publish a stop event if we have a corresponding play event.
         if (currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
             eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop(currentPlayingAd.get(), buildEventArgs(stateTransition), stopReason));

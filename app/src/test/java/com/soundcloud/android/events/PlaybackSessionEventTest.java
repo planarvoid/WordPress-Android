@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_BUFFERING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -41,9 +42,9 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
         final PlaybackSessionEventArgs args = createArgs();
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(playEvent,
-                                                                      PlaybackSessionEvent.STOP_REASON_BUFFERING,
+                                                                      STOP_REASON_BUFFERING,
                                                                       args);
-        assertThat(stopEvent.getListenTime()).isEqualTo(stopEvent.getTimestamp() - playEvent.getTimestamp());
+        assertThat(stopEvent.listenTime().get()).isEqualTo(stopEvent.getTimestamp() - playEvent.getTimestamp());
     }
 
     @Test
@@ -51,9 +52,9 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs());
         final PlaybackSessionEventArgs args = createArgs();
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(playEvent,
-                                                                      PlaybackSessionEvent.STOP_REASON_BUFFERING,
+                                                                      STOP_REASON_BUFFERING,
                                                                       args);
-        assertThat(stopEvent.getStopReason()).isEqualTo(PlaybackSessionEvent.STOP_REASON_BUFFERING);
+        assertThat(stopEvent.stopReason().get()).isEqualTo(STOP_REASON_BUFFERING);
     }
 
     @Test
@@ -65,7 +66,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void checkpointEventHasTrackProperties() {
         PlaybackSessionEvent checkpointEvent = PlaybackSessionEvent.forCheckpoint(createArgs());
-        assertThat(checkpointEvent.getTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(checkpointEvent.trackUrn()).isEqualTo(TRACK_URN);
     }
 
     @Test
@@ -78,11 +79,10 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     public void eventWithPromotedMonetizationTypeIndicatesAPromotedTrack() {
         PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123",
                                                                  Urn.forTrack(123L),
-                                                                 Optional.<Urn>absent(),
+                                                                 Optional.absent(),
                                                                  Arrays.asList("url"));
 
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, PROMOTED_TRACK_DATA)).withPromotedTrack(promotedInfo);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.copyWithPromotedTrack(PlaybackSessionEvent.forPlay(createArgs(0L, PROMOTED_TRACK_DATA)), promotedInfo);
 
         assertThat(playEvent.isPromotedTrack()).isTrue();
     }
@@ -91,27 +91,25 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     public void eventForPromotedTrackReportsAdStartBasedOnSource() {
         PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123",
                                                                  Urn.forTrack(123L),
-                                                                 Optional.<Urn>absent(),
+                                                                 Optional.absent(),
                                                                  Arrays.asList("url"));
 
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, PROMOTED_TRACK_DATA)).withPromotedTrack(promotedInfo);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.copyWithPromotedTrack(PlaybackSessionEvent.forPlay(createArgs(0L, PROMOTED_TRACK_DATA)), promotedInfo);
 
-        assertThat(playEvent.shouldReportAdStart()).isTrue();
+        assertThat(playEvent.shouldReportAdStart().get()).isTrue();
     }
 
     @Test
     public void eventForPromotedTrackDoesNotReportAdStartOnMultiplePlayEventsInSameSession() {
         PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123",
                                                                  Urn.forTrack(123L),
-                                                                 Optional.<Urn>absent(),
+                                                                 Optional.absent(),
                                                                  Arrays.asList("url"));
         promotedInfo.setPlaybackStarted();
 
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, PROMOTED_TRACK_DATA)).withPromotedTrack(promotedInfo);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.copyWithPromotedTrack(PlaybackSessionEvent.forPlay(createArgs(0L, PROMOTED_TRACK_DATA)), promotedInfo);
 
-        assertThat(playEvent.shouldReportAdStart()).isFalse();
+        assertThat(playEvent.shouldReportAdStart().get()).isFalse();
     }
 
     @Test
@@ -125,7 +123,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                                                                                                       true,
                                                                                                       UUID,
                                                                                                       PLAY_ID));
-        assertThat(playEvent.isMarketablePlay()).isTrue();
+        assertThat(playEvent.marketablePlay()).isTrue();
     }
 
     @NonNull

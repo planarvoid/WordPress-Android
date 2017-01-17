@@ -107,7 +107,7 @@ class AppboyEventHandler {
     void handleEvent(PlaybackSessionEvent event) {
         boolean sessionPlayed = appboyPlaySessionState.isSessionPlayed();
 
-        if (!sessionPlayed && event.isPlayOrPlayStartEvent() && event.isMarketablePlay()) {
+        if (!sessionPlayed && event.isPlayOrPlayStartEvent() && event.marketablePlay()) {
             appboyPlaySessionState.setSessionPlayed();
             tagEvent(AppboyEvents.PLAY, buildPlaybackProperties(event));
             appboy.requestInAppMessageRefresh();
@@ -117,7 +117,7 @@ class AppboyEventHandler {
 
     private AppboyProperties buildPlaybackProperties(PlaybackSessionEvent event) {
         final AppboyProperties properties = buildPlayableProperties(event);
-        final String monetizationModel = event.getMonetizationModel();
+        final String monetizationModel = event.monetizationModel();
         if (Strings.isNotBlank(monetizationModel)) {
             properties.addProperty(MONETIZATION_MODEL_PROPERTY, monetizationModel);
         }
@@ -128,8 +128,14 @@ class AppboyEventHandler {
         tagEvent(AppboyEvents.EXPLORE, buildProperties(event));
     }
 
-    private AppboyProperties buildPlayableProperties(TrackingEvent event) {
-        return buildProperties(PLAYABLE_ATTRIBUTES, event);
+    private AppboyProperties buildPlayableProperties(PlaybackSessionEvent event) {
+        AppboyProperties properties = new AppboyProperties();
+        properties.addProperty(CREATOR_DISPLAY_NAME.getAppBoyKey(), event.creatorName());
+        properties.addProperty(CREATOR_URN.getAppBoyKey(), event.creatorUrn().toString());
+        properties.addProperty(PLAYABLE_TITLE.getAppBoyKey(), event.playableTitle());
+        properties.addProperty(PLAYABLE_URN.getAppBoyKey(), event.playableUrn().toString());
+        properties.addProperty(PLAYABLE_TYPE.getAppBoyKey(), event.playableType());
+        return properties;
     }
 
     private AppboyProperties buildPlayableProperties(UIEvent event) {
