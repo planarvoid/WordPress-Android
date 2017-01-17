@@ -48,7 +48,7 @@ public class MoatViewabilityController {
         this.videoSurfaceProvider = videoSurfaceProvider;
     }
 
-    public void startVideoTracking(Activity currentActivity, MediaPlayer mediaPlayer, Urn urn) {
+    void startVideoTracking(Activity currentActivity, MediaPlayer mediaPlayer, Urn urn) {
         final Optional<TextureView> videoView = videoSurfaceProvider.getTextureView(urn);
         final Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
         if (videoView.isPresent() && adData.isPresent() && adData.get() instanceof VideoAd) {
@@ -63,26 +63,26 @@ public class MoatViewabilityController {
         }
     }
 
-    public void updateActivityIfTrackingVideo(Activity activity) {
+    void updateActivityIfTrackingVideo(Activity activity) {
         if (videoTracker.isPresent()) {
             videoTracker.get().setActivity(activity);
         }
     }
 
-    public void updateViewIfTrackingVideo(Urn urn, TextureView textureView) {
+    void updateViewIfTrackingVideo(Urn urn, TextureView textureView) {
         if (videoTracker.isPresent() && urn.equals(currentAdUrn)) {
             videoTracker.get().changeTargetView(textureView);
         }
     }
 
-    public void onVideoCompletion() {
+    void onVideoCompletion() {
         if (videoTracker.isPresent()) {
             final MoatAdEvent completionEvent = new MoatAdEvent(MoatAdEventType.AD_EVT_COMPLETE);
             videoTracker.get().dispatchEvent(completionEvent);
         }
     }
 
-    public void stopVideoTracking() {
+    void stopVideoTracking() {
         if (videoTracker.isPresent()) {
             videoTracker.get().stopTracking();
 
@@ -91,7 +91,7 @@ public class MoatViewabilityController {
         }
     }
 
-    public void startOverlayTracking(Activity currentActivity, View imageView, OverlayAdData overlayAdData) {
+    void startOverlayTracking(Activity currentActivity, View imageView, OverlayAdData overlayAdData) {
         if (overlayAdData instanceof InterstitialAd) {
             createMoatFactoryIfNeeded();
 
@@ -105,7 +105,7 @@ public class MoatViewabilityController {
         }
     }
 
-    public void stopOverlayTracking() {
+    void stopOverlayTracking() {
         if (displayTracker.isPresent()) {
             displayTracker.get().stopTracking();
             displayTracker = Optional.absent();
@@ -119,16 +119,33 @@ public class MoatViewabilityController {
     }
 
     private HashMap<String, String> getMoatSlicers(AdData adData) {
-        final HashMap<String, String> adIds = new HashMap<>();
         final String[] urnComponents = adData.getAdUrn().getStringId().split("-");
-
+        final String appVersion = "android-" + String.valueOf(deviceHelper.getAppVersionCode());
         if (urnComponents.length == 2) {
-            adIds.put("moatClientLevel1", urnComponents[0]);
-            adIds.put("moatClientLevel2", urnComponents[1]);
-            adIds.put("moatClientSlicer1", "android-" + String.valueOf(deviceHelper.getAppVersionCode()));
-            adIds.put("moatClientSlicer2", adData instanceof VideoAd ? "video" : "interstitial");
+            if (adData instanceof VideoAd) {
+                return slicersForVideo(urnComponents[0], urnComponents[1], appVersion);
+            } else {
+                return slicersForInterstitial(urnComponents[0], urnComponents[1], appVersion);
+            }
         }
+        return new HashMap<>(4);
+    }
 
-        return adIds;
+    private HashMap<String, String> slicersForVideo(String levelOne, String levelTwo, String slicerOne) {
+        final HashMap<String, String> slicers = new HashMap<>(4);
+        slicers.put("level1", levelOne);
+        slicers.put("level2", levelTwo);
+        slicers.put("slicer1", slicerOne);
+        slicers.put("slicer2", "video");
+        return slicers;
+    }
+
+    private HashMap<String, String> slicersForInterstitial(String levelOne, String levelTwo, String slicerOne) {
+        final HashMap<String, String> slicers = new HashMap<>(4);
+        slicers.put("moatClientLevel1", levelOne);
+        slicers.put("moatClientLevel2", levelTwo);
+        slicers.put("moatClientSlicer1", slicerOne);
+        slicers.put("moatClientSlicer2", "interstitial");
+        return slicers;
     }
 }
