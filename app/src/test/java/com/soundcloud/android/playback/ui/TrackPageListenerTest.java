@@ -10,10 +10,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -145,9 +143,9 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         listener.onUpsell(context(), track);
 
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
-        assertThat(event.get(PlayableTrackingKeys.KEY_PAGE_URN)).isEqualTo(track.toString());
+        final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
+        assertThat(event.kind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK);
+        assertThat(event.pageUrn().get()).isEqualTo(track.toString());
     }
 
     @Test

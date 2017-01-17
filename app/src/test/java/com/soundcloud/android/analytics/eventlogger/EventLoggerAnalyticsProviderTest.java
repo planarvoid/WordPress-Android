@@ -335,7 +335,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)),
+        VisualAdImpressionEvent event = VisualAdImpressionEvent.create(AdFixtures.getAudioAd(Urn.forTrack(123L)),
                                                                     Urn.forUser(456L),
                                                                     sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");

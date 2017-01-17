@@ -2,7 +2,6 @@ package com.soundcloud.android.payments;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
@@ -58,8 +57,8 @@ public class PlayerUpsellImpressionControllerTest extends AndroidUnitTest {
 
     private void assertImpressionFired() {
         UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
-        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_PLAYER);
-        assertThat(event.get(PlayableTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(event.kind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION);
+        assertThat(event.adjustToken().get()).isEqualTo(UpgradeFunnelEvent.AdjustToken.HIGH_TIER_TRACK_PLAYED);
+        assertThat(event.pageUrn().get()).isEqualTo(Urn.forTrack(123).toString());
     }
 }

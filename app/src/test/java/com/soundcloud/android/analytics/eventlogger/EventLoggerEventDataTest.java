@@ -62,10 +62,10 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     public void excludesEmptyParamsFromPayload() {
         EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
 
-        data.adUrn(null);
+        data.action(null);
         data.clickObject("");
 
-        assertThat(data.payload.containsKey(EventLoggerParam.AD_URN)).isFalse();
+        assertThat(data.payload.containsKey(EventLoggerParam.ACTION)).isFalse();
         assertThat(data.payload.containsKey(EventLoggerParam.CLICK_OBJECT)).isFalse();
     }
 

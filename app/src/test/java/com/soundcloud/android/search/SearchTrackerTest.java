@@ -60,7 +60,7 @@ public class SearchTrackerTest {
 
     @Before
     public void setUp() {
-        when(trackingStateProvider.getLastEvent()).thenReturn(Optional.<ReferringEvent>absent());
+        when(trackingStateProvider.getLastEvent()).thenReturn(Optional.absent());
         tracker = new SearchTracker(eventTracker, featureOperations, trackingStateProvider);
     }
 
@@ -295,7 +295,7 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
-        assertThat(upgradeFunnelEventCaptor.getValue().getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(upgradeFunnelEventCaptor.getValue().kind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK);
     }
 
     @Test
@@ -305,7 +305,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
         final TrackingEvent event = upgradeFunnelEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
     }
 
     @Test
@@ -315,7 +315,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
         final TrackingEvent event = upgradeFunnelEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
     }
 
     @Test

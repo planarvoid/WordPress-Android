@@ -28,7 +28,6 @@ import java.util.ArrayList;
 
 public class EventLoggerJsonDataBuilder {
 
-    private static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
     // event types
     private static final String PAGEVIEW_EVENT = "pageview";
     private static final String CLICK_EVENT = "click";
@@ -46,9 +45,9 @@ public class EventLoggerJsonDataBuilder {
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
     @Inject
-    public EventLoggerJsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
-                                      DeviceHelper deviceHelper, AccountOperations accountOperations,
-                                      JsonTransformer jsonTransformer, FeatureFlags featureFlags) {
+    EventLoggerJsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
+                               DeviceHelper deviceHelper, AccountOperations accountOperations,
+                               JsonTransformer jsonTransformer, FeatureFlags featureFlags) {
         this.accountOperations = accountOperations;
         this.appId = resources.getInteger(R.integer.app_id);
         this.experimentOperations = experimentOperations;
@@ -111,18 +110,15 @@ public class EventLoggerJsonDataBuilder {
     }
 
     public String build(VisualAdImpressionEvent event) {
-        return transform(getVisualAdImpressionData(event));
-    }
+        final EventLoggerEventData eventData = buildBaseEvent(IMPRESSION_EVENT, event)
+                .adUrn(event.adUrn())
+                .pageName(event.originScreen())
+                .impressionName(event.impressionName().toString())
+                .monetizedObject(event.trackUrn())
+                .monetizationType(event.monetizationType().toString())
+                .externalMedia(event.adArtworkUrl());
 
-    private EventLoggerEventData getVisualAdImpressionData(VisualAdImpressionEvent event) {
-        return buildBaseEvent(IMPRESSION_EVENT, event)
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .impressionName("companion_display")
-                .impressionObject(event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN))
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL));
+        return transform(eventData);
     }
 
     public String build(PromotedTrackingEvent event) {

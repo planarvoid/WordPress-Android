@@ -1,35 +1,89 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.java.optional.Optional;
 
-import android.support.annotation.VisibleForTesting;
+import android.net.Uri;
 
 import java.util.List;
 
-public class VisualAdImpressionEvent extends LegacyTrackingEvent {
-    private List<String> impressionUrls;
+@AutoValue
+public abstract class VisualAdImpressionEvent extends NewTrackingEvent {
+    public enum ImpressionName {
+        COMPANION_DISPLAY("companion_display");
 
-    public VisualAdImpressionEvent(AudioAd adData, Urn userUrn, TrackSourceInfo sessionSource) {
-        this(adData, userUrn, sessionSource, System.currentTimeMillis());
+        private final String name;
+
+        ImpressionName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
-    @VisibleForTesting
-    public VisualAdImpressionEvent(AudioAd adData,
-                                   Urn userUrn,
-                                   TrackSourceInfo sessionSource,
-                                   long timeStamp) {
-        super(KIND_DEFAULT, timeStamp);
-        put(PlayableTrackingKeys.KEY_USER_URN, userUrn.toString());
-        put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
-        put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, sessionSource.getOriginScreen());
-        put(PlayableTrackingKeys.KEY_AD_URN, adData.getCompanionAdUrn());
-        put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, adData.getCompanionImageUrl());
-        this.impressionUrls = adData.getCompanionImpressionUrls();
+    public enum MonetizationType {
+        AUDIO_AD("audio_ad");
+
+        private final String type;
+
+        MonetizationType(String type) {
+            this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return type;
+        }
     }
 
-    public List<String> getImpressionUrls() {
-        return impressionUrls;
+    public static VisualAdImpressionEvent create(AudioAd adData, Urn userUrn, TrackSourceInfo sessionSource) {
+        return new AutoValue_VisualAdImpressionEvent(defaultId(),
+                                                     defaultTimestamp(),
+                                                     Optional.absent(),
+                                                     userUrn.toString(),
+                                                     adData.getMonetizableTrackUrn().toString(),
+                                                     sessionSource.getOriginScreen(),
+                                                     adData.getCompanionAdUrn(),
+                                                     adData.getCompanionImageUrl(),
+                                                     adData.getCompanionImpressionUrls(),
+                                                     ImpressionName.COMPANION_DISPLAY,
+                                                     MonetizationType.AUDIO_AD);
+    }
+
+    public abstract String userUrn();
+
+    public abstract String trackUrn();
+
+    public abstract String originScreen();
+
+    public abstract Optional<Urn> adUrn();
+
+    public abstract Optional<Uri> adArtworkUrl();
+
+    public abstract List<String> impressionUrls();
+
+    public abstract ImpressionName impressionName();
+
+    public abstract MonetizationType monetizationType();
+
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_VisualAdImpressionEvent(id(),
+                                                     timestamp(),
+                                                     Optional.of(referringEvent),
+                                                     userUrn(),
+                                                     trackUrn(),
+                                                     originScreen(),
+                                                     adUrn(),
+                                                     adArtworkUrl(),
+                                                     impressionUrls(),
+                                                     impressionName(),
+                                                     monetizationType());
     }
 }

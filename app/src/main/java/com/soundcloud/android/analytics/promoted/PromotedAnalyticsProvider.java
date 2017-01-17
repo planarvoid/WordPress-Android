@@ -57,7 +57,7 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
-        trackAllUrls(event.getTimestamp(), event.getImpressionUrls());
+        trackAllUrls(event.getTimestamp(), event.impressionUrls());
     }
 
     private void handleInlayAdImpression(InlayAdImpressionEvent event) {

@@ -265,7 +265,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
@@ -278,7 +277,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     private List<PlaylistDetailItem> listItems() {

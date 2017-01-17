@@ -87,6 +87,7 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
+import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.HashMap;
@@ -94,12 +95,12 @@ import java.util.Locale;
 import java.util.Map;
 
 class EventLoggerEventData {
-    static final String PAGEVIEW_EVENT = "pageview";
-    static final String FOREGROUND_EVENT = "foreground";
+    private static final String PAGEVIEW_EVENT = "pageview";
+    private static final String FOREGROUND_EVENT = "foreground";
     static final String ITEM_INTERACTION = "item_interaction";
 
     @JsonProperty("event") final String event;
-    @JsonProperty("version") final String version;
+    @JsonProperty("version") private final String version;
     @JsonProperty("payload") final HashMap<String, Object> payload;
 
     public EventLoggerEventData(String event,
@@ -129,6 +130,14 @@ class EventLoggerEventData {
 
     public EventLoggerEventData adUrn(String adUrn) {
         addToPayload(AD_URN, adUrn);
+        return this;
+    }
+
+    public EventLoggerEventData adUrn(Optional<Urn> adUrn) {
+        if (adUrn.isPresent()) {
+            addToPayload(AD_URN, adUrn.get().toString());
+        }
+
         return this;
     }
 
@@ -165,6 +174,14 @@ class EventLoggerEventData {
 
     public EventLoggerEventData externalMedia(String externalMedia) {
         addToPayload(EXTERNAL_MEDIA, externalMedia);
+        return this;
+    }
+
+    public EventLoggerEventData externalMedia(Optional<Uri> externalMedia) {
+        if (externalMedia.isPresent()) {
+            addToPayload(EXTERNAL_MEDIA, externalMedia.get().toString());
+        }
+
         return this;
     }
 
