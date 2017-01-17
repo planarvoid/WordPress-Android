@@ -23,6 +23,7 @@ import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.performance.PerformanceEngineFactory;
@@ -121,6 +122,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject StationsOperations stationsOperations;
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
     @Inject PerformanceEngineFactory performanceEngineFactory;
+    @Inject LikesStateProvider likesStateProvider;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -213,6 +215,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         streamPreloader.subscribe();
 
         configurationFeatureController.subscribe();
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
+            likesStateProvider.subscribe();
+        }
         FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 

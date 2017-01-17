@@ -31,7 +31,7 @@ import android.support.annotation.VisibleForTesting;
 
 import java.util.Date;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, SearchableItem, RepostableItem  {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, SearchableItem, RepostableItem {
 
     protected final PropertySet source;
 
@@ -114,10 +114,15 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Likeab
     }
 
     public PlayableItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-        this.source.put(PlayableProperty.IS_USER_LIKE, likeStatus.isUserLike());
+        updateLikeState(likeStatus.isUserLike());
         if (likeStatus.likeCount().isPresent()) {
             this.source.put(PlayableProperty.LIKES_COUNT, likeStatus.likeCount().get());
         }
+        return this;
+    }
+
+    public PlayableItem updateLikeState(boolean isLiked) {
+        this.source.put(PlayableProperty.IS_USER_LIKE, isLiked);
         return this;
     }
 

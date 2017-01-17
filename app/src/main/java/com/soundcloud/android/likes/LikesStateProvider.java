@@ -13,12 +13,14 @@ import rx.subjects.BehaviorSubject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Singleton
 public class LikesStateProvider {
 
     private final LikesStorage likesStorage;
@@ -37,6 +39,7 @@ public class LikesStateProvider {
     }
 
     public void subscribe() {
+        publishSnapshot();
         likesStorage.loadLikes()
                 .subscribeOn(scheduler)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -62,7 +65,7 @@ public class LikesStateProvider {
         likes = new HashSet<>(likesList);
     }
 
-    void updateLikes(LikesStatusEvent args) {
+    private void updateLikes(LikesStatusEvent args) {
         for (Map.Entry<Urn, LikesStatusEvent.LikeStatus> entry : args.likes().entrySet()) {
             if (entry.getValue().isUserLike()) {
                 likes.add(entry.getKey());

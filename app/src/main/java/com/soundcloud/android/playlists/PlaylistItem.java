@@ -149,6 +149,12 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
         return this;
     }
 
+    public PlaylistItem updateLikeState(boolean isLiked) {
+        super.updateLikeState(isLiked);
+        return this;
+    }
+
+
     public PlaylistItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
         super.updatedWithRepost(repostStatus);
         return this;

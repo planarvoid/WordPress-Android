@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="new_playlist_details_fragment" type="layout">@layout/playlist_details_fragment</item>
+</resources>

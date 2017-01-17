@@ -8,6 +8,7 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 
+import javax.inject.Inject;
 import java.util.List;
 
 class LikesStorage {
@@ -20,6 +21,7 @@ class LikesStorage {
         }
     };
 
+    @Inject
     LikesStorage(PropellerRx propellerRx) {
         this.propellerRx = propellerRx;
     }

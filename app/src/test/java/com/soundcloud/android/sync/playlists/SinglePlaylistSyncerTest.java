@@ -1,6 +1,9 @@
 package com.soundcloud.android.sync.playlists;
 
+import static com.soundcloud.android.events.PlaylistEntityChangedEvent.forUpdate;
+import static com.soundcloud.android.playlists.Playlist.from;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -20,6 +23,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
@@ -33,6 +37,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -56,6 +61,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     @Mock private ApiRequest apiRequest;
     @Mock private ApiClient apiClient;
     @Mock private PlaylistStorage playlistStorage;
+    private TestEventBus eventBus = new TestEventBus();
 
     private SinglePlaylistSyncer singlePlaylistSyncer;
     private ApiPlaylist updatedPlaylist;
@@ -65,7 +71,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         updatedPlaylist = ModelFixtures.create(ApiPlaylist.class);
         singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks,
                                                         apiClient, storeTracksCommand,
-                                                        storePlaylistCommand, replacePlaylistTracks, playlistStorage);
+                                                        storePlaylistCommand, replacePlaylistTracks, playlistStorage, eventBus);
     }
 
     @Test
@@ -100,6 +106,17 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         verifyPlaylistStored(apiPlaylistWithTracks.getPlaylist());
         verifyTracksStored(apiTrack);
         verifyPlaylistTrackStored(apiTrack.getUrn());
+    }
+
+    @Test
+    public void sendsPlaylistChangedEventAfterSyncingPlaylistThatDoesNotExistLocally() throws Exception {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(apiTrack);
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), PropertySet.create());
+
+        singlePlaylistSyncer.call();
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYLIST_CHANGED)).isEqualTo(forUpdate(singleton(from(apiPlaylistWithTracks.getPlaylist()))));
     }
 
     @Test
@@ -141,6 +158,8 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         verifyPlaylistStored(updatedPlaylist);
         verifyNoTracksStored();
         verifyEmptyTrackListStored();
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYLIST_CHANGED)).isEqualTo(forUpdate(singleton(from(updatedPlaylist))));
     }
 
     @Test
@@ -284,7 +303,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void verifyPlaylistStored(PlaylistRecord playlistRecord) throws PropellerWriteException {
-        verify(storePlaylistCommand).call(Collections.singleton(playlistRecord));
+        verify(storePlaylistCommand).call(singleton(playlistRecord));
     }
 
     private void verifyPlaylistTrackStored(Urn... urns) throws PropellerWriteException {

@@ -96,7 +96,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(args);
 
         itemList = Arrays.asList(new PlaylistDetailHeaderItem(), new PlaylistDetailTrackItem(track1), new PlaylistDetailTrackItem(track2));
-        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(new PlaylistDetailsViewModel(playlistWithTracks,
+        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(PlaylistDetailsViewModel.create(playlistWithTracks,
                                                                                                                                           itemList)));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
         when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
@@ -293,7 +293,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         apiPlaylist.setSetType(type);
         apiPlaylist.setReleaseDate(releaseDate);
 
-        return new PlaylistDetailsViewModel(new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2)), Collections.emptyList());
+        return PlaylistDetailsViewModel.create(new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2)), Collections.emptyList());
     }
 
 }

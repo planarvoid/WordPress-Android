@@ -252,7 +252,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     @Override
     protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)),
-                                      PlaylistDetailsViewModel::getPlaylistDetailItems)
+                                      PlaylistDetailsViewModel::playlistDetailItems)
                                 .withAdapter(adapter).build();
     }
 
@@ -293,7 +293,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onRefreshBinding() {
         final Urn playlistUrn = getPlaylistUrn(fragment.getArguments());
         return CollectionBinding.from(playlistOperations.updatedPlaylistWithTracksAndRecommendations(playlistUrn, addInlineHeader),
-                                      PlaylistDetailsViewModel::getPlaylistDetailItems)
+                                      PlaylistDetailsViewModel::playlistDetailItems)
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -310,7 +310,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     void reloadPlaylist() {
         retryWith(CollectionBinding
                           .from(loadPlaylistObservable(getPlaylistUrn()),
-                                PlaylistDetailsViewModel::getPlaylistDetailItems)
+                                PlaylistDetailsViewModel::playlistDetailItems)
                           .withAdapter(adapter).build());
     }
 
@@ -332,10 +332,10 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
             FragmentActivity activity = fragment.getActivity();
             // remove when https://github.com/soundcloud/android/issues/6715 is confirmed fixed
             checkNotNull(activity, "Unexpected null activity in playlist details");
-            PlaylistPresenter.this.playlistWithTracks = Optional.of(playlistDetailsViewModel.getPlaylistWithTracks());
-            PlaylistItem playlistItem = PlaylistItem.from(playlistDetailsViewModel.getPlaylistWithTracks().getPlaylist());
-            playSessionSource = createPlaySessionSource(playlistDetailsViewModel.getPlaylistWithTracks());
-            headerPresenter.setPlaylist(playlistDetailsViewModel.getPlaylistWithTracks(), playSessionSource);
+            PlaylistPresenter.this.playlistWithTracks = Optional.of(playlistDetailsViewModel.playlistWithTracks());
+            PlaylistItem playlistItem = PlaylistItem.from(playlistDetailsViewModel.playlistWithTracks().getPlaylist());
+            playSessionSource = createPlaySessionSource(playlistDetailsViewModel.playlistWithTracks());
+            headerPresenter.setPlaylist(playlistDetailsViewModel.playlistWithTracks(), playSessionSource);
             fragment.getActivity().setTitle(playlistItem.getLabel(fragment.getContext()));
             trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlistItem.getUrn(), playlistItem.getCreatorUrn());
         }

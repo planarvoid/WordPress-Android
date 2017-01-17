@@ -1,45 +1,25 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.java.objects.MoreObjects;
+import com.google.auto.value.AutoValue;
 
-class PlaylistDetailsViewModel {
+@AutoValue
+abstract class PlaylistDetailsViewModel {
 
-    private final PlaylistWithTracks playlistWithTracks;
-    private final Iterable<PlaylistDetailItem> playlistDetailItems;
-
-    PlaylistDetailsViewModel(PlaylistWithTracks playlistWithTracks,
+    @Deprecated
+    static PlaylistDetailsViewModel create(PlaylistWithTracks playlistWithTracks,
                              Iterable<PlaylistDetailItem> playlistDetailItems) {
-        this.playlistWithTracks = playlistWithTracks;
-        this.playlistDetailItems = playlistDetailItems;
+        return create(playlistWithTracks, playlistDetailItems, playlistWithTracks.isLikedByUser());
     }
 
-    public PlaylistWithTracks getPlaylistWithTracks() {
-        return playlistWithTracks;
+    static PlaylistDetailsViewModel create(PlaylistWithTracks playlistWithTracks,
+                             Iterable<PlaylistDetailItem> playlistDetailItems,
+                             boolean isLiked) {
+        return new AutoValue_PlaylistDetailsViewModel(playlistWithTracks, playlistDetailItems, isLiked);
     }
 
-    public Iterable<PlaylistDetailItem> getPlaylistDetailItems() {
-        return playlistDetailItems;
-    }
+    abstract PlaylistWithTracks playlistWithTracks();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PlaylistDetailsViewModel)) return false;
-        PlaylistDetailsViewModel that = (PlaylistDetailsViewModel) o;
-        return MoreObjects.equal(playlistWithTracks, that.playlistWithTracks) &&
-                MoreObjects.equal(playlistDetailItems, that.playlistDetailItems);
-    }
+    abstract Iterable<PlaylistDetailItem> playlistDetailItems();
 
-    @Override
-    public int hashCode() {
-        return MoreObjects.hashCode(playlistWithTracks, playlistDetailItems);
-    }
-
-    @Override
-    public String toString() {
-        return "PlaylistDetailsViewModel{" +
-                "playlistWithTracks=" + playlistWithTracks +
-                ", playlistDetailItems=" + playlistDetailItems +
-                '}';
-    }
+    abstract boolean isLiked();
 }

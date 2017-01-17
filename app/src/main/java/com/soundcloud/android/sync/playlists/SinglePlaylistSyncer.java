@@ -10,12 +10,16 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.annotation.NonNull;
 
@@ -38,6 +42,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
     private final ReplacePlaylistTracksCommand replacePlaylistTracks;
     private final RemovePlaylistCommand removePlaylist;
     private final PlaylistStorage playlistStorage;
+    private final EventBus eventBus;
 
     SinglePlaylistSyncer(FetchPlaylistWithTracksCommand fetchPlaylistWithTracks,
                          RemovePlaylistCommand removePlaylist,
@@ -45,7 +50,8 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
                          ApiClient apiClient, StoreTracksCommand storeTracks,
                          StorePlaylistsCommand storePlaylists,
                          ReplacePlaylistTracksCommand replacePlaylistTracks,
-                         PlaylistStorage playlistStorage) {
+                         PlaylistStorage playlistStorage,
+                         EventBus eventBus) {
 
         this.loadPlaylistTracks = loadPlaylistTracks;
         this.apiClient = apiClient;
@@ -55,6 +61,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         this.removePlaylist = removePlaylist;
         this.replacePlaylistTracks = replacePlaylistTracks;
         this.playlistStorage = playlistStorage;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -79,6 +86,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         final PropertySet playlistModifications = playlistStorage.loadPlaylistModifications(playlistUrn);
         compileLocalPlaylistState(fullLocalTracklist, localRemovals, localAdditions);
 
+        ApiPlaylist updatedPlaylist;
         if (hasChangesToPush(playlistModifications, localRemovals, localAdditions)) {
             final boolean trustLocalState = !playlistModifications.isEmpty();
             final List<Urn> finalTracklist = compileFinalTrackList(trustLocalState,
@@ -86,13 +94,15 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
                                                                    fullLocalTracklist,
                                                                    localRemovals,
                                                                    localAdditions);
-            final PlaylistRecord playlistRecord = pushPlaylistChangesToApi(finalTracklist,
-                                                                           playlistUrn,
-                                                                           playlistModifications);
-            resolveLocalState(playlistRecord, apiPlaylistWithTracks, finalTracklist);
+            updatedPlaylist = pushPlaylistChangesToApi(finalTracklist,
+                                                       playlistUrn,
+                                                       playlistModifications);
+            resolveLocalState(updatedPlaylist, apiPlaylistWithTracks, finalTracklist);
         } else {
-            resolveLocalState(apiPlaylistWithTracks.getPlaylist(), apiPlaylistWithTracks, remoteTracks);
+            updatedPlaylist = apiPlaylistWithTracks.getPlaylist();
+            resolveLocalState(updatedPlaylist, apiPlaylistWithTracks, remoteTracks);
         }
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.forUpdate(Collections.singletonList(Playlist.from(updatedPlaylist))));
         return true;
     }
 

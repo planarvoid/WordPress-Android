@@ -172,7 +172,7 @@ public class PlaylistOperations {
                 .switchIfEmpty(updatedPlaylist(playlistUrn));
     }
 
-    private Observable<PlaylistWithTracks> updatedPlaylist(final Urn playlistUrn) {
+    public Observable<PlaylistWithTracks> updatedPlaylist(final Urn playlistUrn) {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
                 .observeOn(scheduler)
@@ -235,7 +235,7 @@ public class PlaylistOperations {
                 playlistDetailItems.add(new PlaylistDetailOtherPlaylistsItem(playlistWithTracks.getCreatorName(),
                                                                              playlistsItems));
             }
-            return new PlaylistDetailsViewModel(playlistWithTracks, playlistDetailItems);
+            return PlaylistDetailsViewModel.create(playlistWithTracks, playlistDetailItems);
         };
     }
 

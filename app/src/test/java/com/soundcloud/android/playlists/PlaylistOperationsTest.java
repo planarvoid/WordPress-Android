@@ -521,7 +521,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @NonNull
     PlaylistDetailsViewModel createViewModel(PlaylistWithTracks playlistWithTracks,
                                              List<PlaylistDetailItem> playlistDetailItems) {
-        return new PlaylistDetailsViewModel(playlistWithTracks, playlistDetailItems);
+        return PlaylistDetailsViewModel.create(playlistWithTracks, playlistDetailItems);
     }
 
     @NonNull
