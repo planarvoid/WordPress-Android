@@ -117,7 +117,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
 
-        trackItemSubscriber.assertValue(null);
+        trackItemSubscriber.assertNoValues();
     }
 
     @Test

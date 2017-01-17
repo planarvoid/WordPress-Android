@@ -25,13 +25,6 @@ import java.util.Map;
 
 public class TrackRepository {
 
-    private static final Func1<Map<Urn, TrackItem>, TrackItem> TO_MAP_VALUE_OR_EMPTY = track -> {
-        if (track.isEmpty()) {
-            return null;
-        } else {
-            return track.values().iterator().next();
-        }
-    };
 
     private final TrackStorage trackStorage;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
@@ -50,7 +43,12 @@ public class TrackRepository {
     }
 
     public Observable<TrackItem> track(final Urn trackUrn) {
-        return fromUrns(singletonList(trackUrn)).map(TO_MAP_VALUE_OR_EMPTY);
+        return fromUrns(singletonList(trackUrn)).flatMap(new Func1<Map<Urn, TrackItem>, Observable<TrackItem>>() {
+            @Override
+            public Observable<TrackItem> call(Map<Urn, TrackItem> urnTrackItemMap) {
+                return urnTrackItemMap.isEmpty() ? Observable.empty() : Observable.just(urnTrackItemMap.values().iterator().next());
+            }
+        });
     }
 
     // TODO : should we return a Map<Urn, TrackItem>
