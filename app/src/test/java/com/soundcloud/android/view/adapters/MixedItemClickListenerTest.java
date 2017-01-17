@@ -35,6 +35,7 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -56,6 +57,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     private final Screen screen = Screen.ACTIVITIES;
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123), "query");
+    private EventBus eventBus = new TestEventBus();
     private MixedItemClickListener listener;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
@@ -63,7 +65,6 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Mock private View view;
     @Mock private Navigator navigator;
     @Mock private Context context;
-    @Mock private EventBus eventBus;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
     @Spy private ExpandPlayerSubscriber expandPlayerSubscriber =

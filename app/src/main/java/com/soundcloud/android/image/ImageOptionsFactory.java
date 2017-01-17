@@ -20,7 +20,7 @@ import android.widget.ImageView;
 
 final class ImageOptionsFactory {
 
-    static final int DELAY_BEFORE_LOADING = 200;
+    static final int DELAY_BEFORE_LOADING = 500;
 
     static DisplayImageOptions adapterViewCircular(@Nullable Drawable placeholderDrawable,
                                                    ApiImageSize apiImageSize,

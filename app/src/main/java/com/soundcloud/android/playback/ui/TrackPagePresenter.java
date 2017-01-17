@@ -178,9 +178,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         updatePlayQueueButton(trackView);
 
-        holder.artworkController.loadArtwork(trackState, trackState.isCurrentTrack(),
-                                             trackState.getViewVisibilityProvider());
-
+        holder.artworkController.loadArtwork(trackState, false, trackState.getViewVisibilityProvider());
         holder.timestamp.setInitialProgress(trackState.getPlayableDuration(), trackState.getFullDuration());
         holder.menuController.setTrack(trackState);
         holder.waveformController.setWaveform(waveformOperations.waveformDataFor(trackState.getUrn(),
@@ -702,7 +700,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         View.OnClickListener shareClickListener = view -> holder.menuController.handleShare(view.getContext());
 
         holder.shareButton.setOnClickListener(shareClickListener);
-        holder.likeToggle.setOnClickListener(view -> updateLikeStatus(view));
+        holder.likeToggle.setOnClickListener(this::updateLikeStatus);
 
         holder.populateViewSets(playQueueConfiguration);
         trackView.setTag(holder);

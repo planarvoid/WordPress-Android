@@ -168,7 +168,9 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     }
 
     void setCurrentItem(int position, boolean smoothscroll) {
-        trackPager.setCurrentItem(position, smoothscroll);
+        if (position >= 0 && getCurrentItemPosition() != position) {
+            trackPager.setCurrentItem(position, smoothscroll);
+        }
     }
 
     PlayQueueItem getCurrentItem() {

@@ -11,17 +11,13 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
 public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
-    // https://github.com/soundcloud/android/issues/4503
-    private static final String TAG_BUG_4503 = "BUG_4503";
     private final PlayQueueManager playQueueManager;
     private final PlaybackServiceController serviceController;
     private final TrackRepository trackRepository;
@@ -87,7 +83,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     public void togglePlayback() {
         eventBus.queue(EventQueue.PLAYER_LIFE_CYCLE).first()
                 .flatMap(togglePlayback)
-                .subscribe(new DefaultSubscriber<Void>());
+                .subscribe(new DefaultSubscriber<>());
 
     }
 
@@ -95,7 +91,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     public void resume() {
         eventBus.queue(EventQueue.PLAYER_LIFE_CYCLE).first()
                 .flatMap(resume)
-                .subscribe(new DefaultSubscriber<Void>());
+                .subscribe(new DefaultSubscriber<>());
     }
 
     @Override
@@ -135,35 +131,15 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                                                   final Urn initialTrackUrn,
                                                   final int initialTrackPosition,
                                                   final PlaySessionSource playSessionSource) {
-        return Observable
-                .create(new Observable.OnSubscribe<PlaybackResult>() {
-                    @Override
-                    public void call(Subscriber<? super PlaybackResult> subscriber) {
-                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue,
-                                                                                                         initialTrackPosition,
-                                                                                                         initialTrackUrn,
-                                                                                                         playSessionSource);
-                        String message = "setNewQueue -> " +
-                                "playQueue = [" + playQueue + "], " +
-                                "initialTrackUrn = [" + initialTrackUrn + "], " +
-                                "initialTrackPosition = [" + initialTrackPosition + "], " +
-                                "playSessionSource = [" + playSessionSource + "]" +
-                                "updatedPosition = [" + updatedPosition + "]" +
-                                "updated PlayQueueItem = [" + playQueue.getPlayQueueItem(updatedPosition) + "]";
-                        if (initialTrackPosition < playQueue.size()) {
-                            message += "initial PlayQueueItem = [" + playQueue.getPlayQueueItem(initialTrackPosition) + "]";
-                        }
+        return Observable.defer(() -> {
+            int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue,
+                                                                                       initialTrackPosition,
+                                                                                       initialTrackUrn,
+                                                                                       playSessionSource);
+            playQueueManager.setNewPlayQueue(playQueue, playSessionSource, updatedPosition);
 
-                        Log.d(TAG_BUG_4503,
-                              message
-                        );
-
-                        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, updatedPosition);
-                        subscriber.onNext(PlaybackResult.success());
-                        subscriber.onCompleted();
-                    }
-                })
-                .subscribeOn(AndroidSchedulers.mainThread());
+            return Observable.just(PlaybackResult.success());
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
