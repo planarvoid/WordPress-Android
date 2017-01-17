@@ -17,7 +17,8 @@ public class PlayQueueFragment extends LightCycleSupportFragment<PlayQueueFragme
 
     public static final String TAG = "play_queue";
 
-    @LightCycle @Inject PlayQueuePresenter playQueuePresenter;
+    @LightCycle @Inject ArtworkView artworkView;
+    @LightCycle @Inject PlayQueueView playQueueView;
 
     public PlayQueueFragment() {
         setRetainInstance(true);

@@ -1,18 +1,10 @@
 package com.soundcloud.android.playback.playqueue;
 
-
 import static com.soundcloud.android.playback.playqueue.TrackPlayQueueUIItem.ONLY_TRACKS;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
-import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -24,10 +16,7 @@ import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -35,116 +24,98 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
-import android.content.Context;
-import android.graphics.Rect;
-import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
+class PlayQueuePresenter {
 
     private static final Func1<TrackPlayQueueUIItem, TrackAndPlayQueueItem> TO_TRACK_AND_PLAY_QUEUE_ITEM = item ->
             new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
 
-    private final PlayQueueAdapter adapter;
     private final PlayQueueManager playQueueManager;
     private final PlaybackStateProvider playbackStateProvider;
     private final PlaySessionController playSessionController;
     private final PlayQueueOperations playQueueOperations;
-    private final PlayQueueArtworkController artworkController;
 
     private final EventBus eventBus;
-    private final Context context;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
-    private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
-    private final FeedbackController feedbackController;
+
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
 
     private Subscription updateSubscription = RxUtils.invalidSubscription();
-
-    @BindView(R.id.recycler_view) RecyclerView recyclerView;
-    @BindView(R.id.loading_indicator) View loadingIndicator;
-    @BindView(R.id.player_strip) View playerStrip;
+    private Optional<PlayQueueView> playQueueView = Optional.absent();
     private Observable<List<TrackAndPlayQueueItem>> cachedTracks = Observable.empty();
     private Observable<Map<Urn, String>> cachedTitles = Observable.empty();
-    private boolean initialized = false;
-    private Unbinder unbinder;
+    private Optional<UndoHolder> undoHolder = Optional.absent();
 
     @Inject
-    PlayQueuePresenter(PlayQueueAdapter adapter,
-                       PlayQueueManager playQueueManager,
+    PlayQueuePresenter(PlayQueueManager playQueueManager,
                        PlaybackStateProvider playbackStateProvider,
                        PlaySessionController playSessionController,
                        PlayQueueOperations playQueueOperations,
-                       PlayQueueArtworkController playerArtworkController,
-                       PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                        EventBus eventBus,
-                       Context context,
-                       FeedbackController feedbackController,
                        PlayQueueUIItemMapper playQueueUIItemMapper) {
-        this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playbackStateProvider = playbackStateProvider;
         this.playSessionController = playSessionController;
         this.playQueueOperations = playQueueOperations;
-        this.artworkController = playerArtworkController;
         this.eventBus = eventBus;
-        this.context = context;
-        this.playQueueSwipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
-        this.feedbackController = feedbackController;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
     }
 
-    @Override
-    public void onViewCreated(final Fragment fragment, final View view, Bundle savedInstanceState) {
-        super.onViewCreated(fragment, view, savedInstanceState);
-        unbinder = ButterKnife.bind(this, view);
-        initRecyclerView();
-        artworkController.bind(ButterKnife.findById(view, R.id.artwork_view));
+    public void trackClicked(int listPosition) {
+        if (playQueueView.get().getItem(listPosition).isTrack()) {
+            playQueueView.get().updateNowPlaying(listPosition, true, playbackStateProvider.isSupposedToBePlaying());
+            playQueueManager.setCurrentPlayQueueItem(((TrackPlayQueueUIItem) playQueueView.get().getItem(listPosition)).getPlayQueueItem());
+            if (!playSessionController.isPlayingCurrentPlayQueueItem()) {
+                playSessionController.play();
+            } else {
+                playSessionController.togglePlayback();
+            }
+        }
     }
 
-    private void initRecyclerView() {
-        recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(context));
-        recyclerView.setAdapter(adapter);
-        recyclerView.setHasFixedSize(false);
-        recyclerView.addItemDecoration(new TopPaddingDecorator(), 0);
-        recyclerView.setItemAnimator(buildItemAnimator());
+    public void undoClicked() {
+        if (playQueueView.isPresent() && undoHolder.isPresent()) {
+            UndoHolder undoHolder = this.undoHolder.get();
+            playQueueManager.insertItemAtPosition(undoHolder.playQueuePosition, undoHolder.playQueueItem);
+            playQueueView.get().addItem(undoHolder.adapterPosition, undoHolder.playQueueUIItem);
 
-        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(playQueueSwipeToRemoveCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-        adapter.setDragListener(itemTouchHelper::startDrag);
-        adapter.addNowPlayingChangedListener(artworkController);
-        adapter.setTrackClickListener(new TrackClickListener());
-        adapter.addNowPlayingChangedListener(trackItem -> {
-            int stripBackground = trackItem.isGoTrack() ? R.drawable.go_gradient : R.color.ak_sc_orange;
-            playerStrip.setBackgroundResource(stripBackground);
-        });
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemoveUndo(Screen.PLAY_QUEUE));
+        }
     }
 
-    private DefaultItemAnimator buildItemAnimator() {
-        final DefaultItemAnimator animator = new DefaultItemAnimator();
-        animator.setRemoveDuration(150);
-        return animator;
+    public void nowPlayingChanged(TrackPlayQueueUIItem trackItem) {
+        if (playQueueView.isPresent()) {
+            if (trackItem.isGoTrack()) {
+                playQueueView.get().setGoPlayerStrip();
+            } else {
+                playQueueView.get().setDefaultPlayerStrip();
+            }
+        }
     }
 
-    @VisibleForTesting
-    void subscribeToEvents() {
-        setAdapterStreams();
-        setArtworkStreams();
+    void attachView(PlayQueueView playQueueView) {
+        this.playQueueView = Optional.of(playQueueView);
+        if (this.playQueueView.isPresent()) {
+            this.playQueueView.get().setRepeatMode(playQueueManager.getRepeatMode());
+            this.playQueueView.get().setShuffledState(playQueueManager.isShuffled());
+            loadPlayQueueUIItems();
+            subscribeToEvents();
+        }
     }
 
-    private void setAdapterStreams() {
+    void detachContract() {
+        playQueueView = Optional.absent();
+        eventSubscriptions.clear();
+        updateSubscription.unsubscribe();
+    }
+
+    private void subscribeToEvents() {
         eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                                        .filter(currentPlayQueueItemEvent -> !isPlayingCurrent())
                                        .flatMap(event -> fetchPlayQueueUIItems())
@@ -154,52 +125,20 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
                                        .filter(playQueueEvent -> !playQueueEvent.itemChanged())
                                        .observeOn(AndroidSchedulers.mainThread())
                                        .subscribe(new ChangePlayQueueSubscriber()));
-
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                                        .observeOn(AndroidSchedulers.mainThread())
                                        .subscribe(e -> setNowPlaying(false)));
     }
 
-    private void setArtworkStreams() {
-        eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                                       .map(PlaybackProgressEvent::getPlaybackProgress)
-                                       .observeOn(AndroidSchedulers.mainThread())
-                                       .subscribe(artworkController::setProgress));
-        eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                                       .observeOn(AndroidSchedulers.mainThread())
-                                       .subscribe(artworkController::setPlayState));
-    }
-
-    @Override
-    public void onResume(Fragment fragment) {
-        final View view = fragment.getView();
-        super.onResume(fragment);
-
-        if (!initialized) {
-            initialized = true;
-            loadPlayQueueUIItems();
-        }
-
-        setupRepeatButton(view);
-        setupShuffleButton(view);
-        subscribeToEvents();
-    }
-
-    @Override
-    public void onPause(Fragment fragment) {
-        eventSubscriptions.clear();
-        super.onPause(fragment);
-    }
-
-    @OnClick(R.id.close_play_queue)
     void closePlayQueue() {
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
     }
 
-    @OnClick(R.id.up_next)
-    void scrollToNowPlaying() {
-        recyclerView.smoothScrollToPosition(getScrollPosition());
+    void onNextClick() {
+        if (playQueueView.isPresent()) {
+            playQueueView.get().scrollTo(getScrollPosition());
+        }
     }
 
     private void loadPlayQueueUIItems() {
@@ -207,8 +146,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         updateSubscription = fetchPlayQueueUIItems().subscribe(new PlayQueueSubscriber());
     }
 
-    @VisibleForTesting
-    void setCachedObservables() {
+
+    private void setCachedObservables() {
         cachedTracks = playQueueOperations.getTracks().cache();
         cachedTitles = playQueueOperations.getContextTitles().cache();
     }
@@ -220,7 +159,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private int getScrollPosition() {
-        int currentPlayQueuePosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
+
+        int currentPlayQueuePosition = playQueueView.get().getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
 
         if (currentPlayQueuePosition > 0) {
             currentPlayQueuePosition -= 1;
@@ -233,61 +173,18 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         return currentPlayQueuePosition;
     }
 
-    @Override
-    public void onDestroyView(Fragment fragment) {
-        eventSubscriptions.clear();
-        updateSubscription.unsubscribe();
-        adapter.removeListeners();
-        unbinder.unbind();
-        super.onDestroyView(fragment);
-    }
-
-    private void setupRepeatButton(View view) {
-        final ImageView button = ButterKnife.findById(view, R.id.repeat_button);
-        switch (playQueueManager.getRepeatMode()) {
-            case REPEAT_ONE:
-                button.setImageResource(R.drawable.ic_repeat_one);
-                break;
-            case REPEAT_ALL:
-                button.setImageResource(R.drawable.ic_repeat_all);
-                break;
-            case REPEAT_NONE:
-            default:
-                button.setImageResource(R.drawable.ic_repeat_off);
+    void repeatClicked() {
+        if (playQueueView.isPresent()) {
+            final RepeatMode nextRepeatMode = getNextRepeatMode();
+            playQueueManager.setRepeatMode(nextRepeatMode);
+            if (playQueueView.isPresent()) {
+                playQueueView.get().setRepeatMode(nextRepeatMode);
+            }
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRepeat(Screen.PLAY_QUEUE, nextRepeatMode));
         }
     }
 
-    private void setupShuffleButton(View view) {
-        ToggleButton button = ButterKnife.findById(view, R.id.shuffle_button);
-        button.setChecked(playQueueManager.isShuffled());
-    }
-
-    @OnClick(R.id.repeat_button)
-    void repeatClicked(ImageView view) {
-        final RepeatMode nextRepeatMode = getNextRepeatMode();
-
-        playQueueManager.setRepeatMode(nextRepeatMode);
-        adapter.updateInRepeatMode(nextRepeatMode);
-
-        switch (nextRepeatMode) {
-            case REPEAT_ONE:
-                view.setImageResource(R.drawable.ic_repeat_one);
-                break;
-            case REPEAT_ALL:
-                view.setImageResource(R.drawable.ic_repeat_all);
-                break;
-            case REPEAT_NONE:
-            default:
-                view.setImageResource(R.drawable.ic_repeat_off);
-        }
-
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRepeat(Screen.PLAY_QUEUE, nextRepeatMode));
-    }
-
-    @OnClick(R.id.shuffle_button)
-    void shuffleClicked(ToggleButton toggle) {
-        final boolean isShuffled = toggle.isChecked();
-
+    void shuffleClicked(boolean isShuffled) {
         if (isShuffled) {
             playQueueManager.shuffle();
         } else {
@@ -304,59 +201,54 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     boolean isRemovable(int adapterPosition) {
-        if (adapterPosition >= 0 && adapterPosition < adapter.getItemCount()) {
-            final PlayQueueUIItem item = adapter.getItem(adapterPosition);
-            return item.isTrack() && PlayState.COMING_UP.equals(item.getPlayState());
-        } else {
-            return false;
+        if (playQueueView.isPresent()) {
+            if (adapterPosition >= 0 && adapterPosition < playQueueView.get().getItemCount()) {
+                final PlayQueueUIItem item = playQueueView.get().getItem(adapterPosition);
+                return item.isTrack() && PlayState.COMING_UP.equals(item.getPlayState());
+            }
         }
+        return false;
     }
 
     public void remove(int adapterPosition) {
-        final PlayQueueUIItem adapterItem = adapter.getItem(adapterPosition);
+        if (playQueueView.isPresent()) {
+            final PlayQueueUIItem adapterItem = playQueueView.get().getItem(adapterPosition);
 
-        if (adapterItem.isTrack()) {
-            final PlayQueueItem playQueueItem = ((TrackPlayQueueUIItem) adapterItem).getPlayQueueItem();
-            final int playQueuePosition = playQueueManager.indexOfPlayQueueItem(playQueueItem);
+            if (adapterItem.isTrack()) {
+                final PlayQueueItem playQueueItem = ((TrackPlayQueueUIItem) adapterItem).getPlayQueueItem();
+                final int playQueuePosition = playQueueManager.indexOfPlayQueueItem(playQueueItem);
 
-            adapter.removeItem(adapterPosition);
+                playQueueView.get().removeItem(adapterPosition);
+                undoHolder = Optional.of(new UndoHolder(playQueueItem, playQueuePosition, adapterItem, adapterPosition));
+                if (playQueuePosition >= 0) {
+                    playQueueManager.removeItem(playQueueItem);
+                    playQueueView.get().showUndo();
+                    setCachedObservables();
+                }
 
-            if (playQueuePosition >= 0) {
-                playQueueManager.removeItem(playQueueItem);
-                showFeedback(adapterPosition, adapterItem, playQueueItem, playQueuePosition);
-                setCachedObservables();
+                rebuildLabels();
+                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemove(Screen.PLAY_QUEUE));
             }
-
-            rebuildLabels();
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemove(Screen.PLAY_QUEUE));
         }
     }
 
-    private void showFeedback(int adapterPosition,
-                              PlayQueueUIItem adapterItem,
-                              PlayQueueItem playQueueItem,
-                              int playQueuePosition) {
-        final Feedback feedback = Feedback.create(R.string.track_removed, R.string.undo,
-                                                  new UndoOnClickListener(playQueueItem,
-                                                                          playQueuePosition,
-                                                                          adapterItem,
-                                                                          adapterPosition));
-        feedbackController.showFeedback(feedback);
-    }
-
     void switchItems(int fromPosition, int toPosition) {
-        adapter.switchItems(fromPosition, toPosition);
+        if (playQueueView.isPresent()) {
+            playQueueView.get().switchItems(fromPosition, toPosition);
+        }
     }
 
     void moveItems(int fromAdapterPosition, int toAdapterPosition) {
-        playQueueManager.moveItem(adapter.getQueuePosition(fromAdapterPosition),
-                                  adapter.getQueuePosition(toAdapterPosition));
-        rebuildLabels();
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE));
+        if (playQueueView.isPresent()) {
+            playQueueManager.moveItem(playQueueView.get().getQueuePosition(fromAdapterPosition),
+                                      playQueueView.get().getQueuePosition(toAdapterPosition));
+            rebuildLabels();
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE));
+        }
     }
 
     private void rebuildLabels() {
-        rebuildPlayQueueUIItemsObservable(adapter.getItems())
+        rebuildPlayQueueUIItemsObservable(playQueueView.get().getItems())
                 .subscribe(new RebuildSubscriber());
     }
 
@@ -403,29 +295,33 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private void rebuildAdapter(List<PlayQueueUIItem> items) {
-        adapter.clear();
+        if (playQueueView.isPresent()) {
+            playQueueView.get().clear();
 
-        for (PlayQueueUIItem item : items) {
-            adapter.addItem(item);
+            for (PlayQueueUIItem item : items) {
+                playQueueView.get().addItem(item);
+            }
+
+            playQueueView.get().notifyDataSetChanged();
         }
-
-        adapter.notifyDataSetChanged();
     }
 
     private boolean isPlayingCurrent() {
-        final int adapterPosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
-        final boolean isWithinRange = adapterPosition < adapter.getItems().size() && adapterPosition >= 0;
-        return isWithinRange && adapter.getItem(adapterPosition).isPlayingOrPaused();
+        final int adapterPosition = playQueueView.get().getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
+        final boolean isWithinRange = adapterPosition < playQueueView.get().getItems().size() && adapterPosition >= 0;
+        return isWithinRange && playQueueView.get().getItem(adapterPosition).isPlayingOrPaused();
     }
 
     private class UpdateNowPlayingSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
 
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
-            if (items.size() != adapter.getItemCount()) {
+            if (items.size() != playQueueView.get().getItemCount()) {
                 rebuildAdapter(items);
             }
-            setNowPlaying(true);
+            if (playQueueView.isPresent()) {
+                setNowPlaying(true);
+            }
         }
     }
 
@@ -433,31 +329,34 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
-            boolean wasEmpty = adapter.isEmpty();
-
-            loadingIndicator.setVisibility(View.GONE);
-            rebuildAdapter(items);
-
-            if (wasEmpty) {
-                recyclerView.scrollToPosition(getScrollPosition());
+            if (playQueueView.isPresent()) {
+                playQueueView.get().removeLoadingIndicator();
+                boolean wasEmpty = playQueueView.get().isEmpty();
+                rebuildAdapter(items);
+                if (wasEmpty) {
+                    playQueueView.get().scrollTo(getScrollPosition());
+                }
+                setNowPlaying(true);
             }
-
-            setNowPlaying(true);
         }
 
     }
 
     private void setNowPlaying(boolean notifyListener) {
-        final int adapterPosition = adapter.getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
-        adapter.updateNowPlaying(adapterPosition, notifyListener, playbackStateProvider.isSupposedToBePlaying());
+        if (playQueueView.isPresent()) {
+            final int adapterPosition = playQueueView.get().getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
+            playQueueView.get().updateNowPlaying(adapterPosition, notifyListener, playbackStateProvider.isSupposedToBePlaying());
+        }
     }
 
     private class RebuildSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
 
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
-            rebuildAdapter(items);
-            setNowPlaying(false);
+            if (playQueueView.isPresent()) {
+                rebuildAdapter(items);
+                setNowPlaying(false);
+            }
         }
     }
 
@@ -465,8 +364,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
         @Override
         public void onNext(PlayQueueEvent playQueueEvent) {
-            if (!adapter.isEmpty() && playQueueEvent.isQueueReorder()) {
-                rebuildPlayQueueUIItemsObservable(adapter.getItems(), playQueueOperations.getQueueTracks())
+            if (!playQueueView.get().isEmpty() && playQueueEvent.isQueueReorder()) {
+                rebuildPlayQueueUIItemsObservable(playQueueView.get().getItems(), playQueueOperations.getQueueTracks())
                         .subscribe(new RebuildSubscriber());
             } else {
                 updateSubscription.unsubscribe();
@@ -475,67 +374,19 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         }
     }
 
-    interface DragListener {
-
-        void startDrag(RecyclerView.ViewHolder viewHolder);
-
-    }
-
-    private class TrackClickListener implements TrackPlayQueueItemRenderer.TrackClickListener {
-
-        @Override
-        public void trackClicked(final int listPosition) {
-            final PlayQueueUIItem item = adapter.getItem(listPosition);
-            if (item.isTrack()) {
-                adapter.updateNowPlaying(listPosition, true, playbackStateProvider.isSupposedToBePlaying());
-                playQueueManager.setCurrentPlayQueueItem(((TrackPlayQueueUIItem) item).getPlayQueueItem());
-
-                if (!playSessionController.isPlayingCurrentPlayQueueItem()) {
-                    playSessionController.play();
-                } else if (item.isPlayingOrPaused()) {
-                    playSessionController.togglePlayback();
-                }
-            }
-        }
-    }
-
-    private static class TopPaddingDecorator extends RecyclerView.ItemDecoration {
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            int position = parent.getChildAdapterPosition(view);
-            if (position == 0) {
-                outRect.top = ViewUtils.dpToPx(view.getContext(), 72);
-                outRect.left = 0;
-                outRect.right = 0;
-                outRect.bottom = 0;
-            }
-        }
-    }
-
-    private class UndoOnClickListener implements View.OnClickListener {
-
+    private class UndoHolder {
         private final PlayQueueItem playQueueItem;
         private final int playQueuePosition;
         private final PlayQueueUIItem playQueueUIItem;
         private final int adapterPosition;
 
-        UndoOnClickListener(PlayQueueItem playQueueItem,
-                            int playQueuePosition,
-                            PlayQueueUIItem playQueueUIItem,
-                            int adapterPosition) {
+        public UndoHolder(PlayQueueItem playQueueItem, int playQueuePosition, PlayQueueUIItem playQueueUIItem, int adapterPosition) {
             this.playQueueItem = playQueueItem;
             this.playQueuePosition = playQueuePosition;
             this.playQueueUIItem = playQueueUIItem;
             this.adapterPosition = adapterPosition;
         }
 
-        @Override
-        public void onClick(View view) {
-            playQueueManager.insertItemAtPosition(playQueuePosition, playQueueItem);
-            adapter.addItem(adapterPosition, playQueueUIItem);
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemoveUndo(Screen.PLAY_QUEUE));
-        }
     }
 
 }

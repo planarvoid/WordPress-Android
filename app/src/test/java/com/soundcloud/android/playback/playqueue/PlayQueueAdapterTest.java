@@ -91,17 +91,6 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void notifyMulitipleListeners() {
-        adapter.addNowPlayingChangedListener(nowPlayingListener1);
-        adapter.addNowPlayingChangedListener(nowPlayingListener2);
-
-        adapter.updateNowPlaying(1, true, true);
-
-        verify(nowPlayingListener1).onNowPlayingChanged(playQueueItem1);
-        verify(nowPlayingListener2).onNowPlayingChanged(playQueueItem1);
-    }
-
-    @Test
     public void doNotUpdateWhenUpdatingTheSameTrack() {
         adapter.addNowPlayingChangedListener(nowPlayingListener1);
 

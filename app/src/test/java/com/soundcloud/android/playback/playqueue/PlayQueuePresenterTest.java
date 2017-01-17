@@ -7,69 +7,51 @@ import static com.soundcloud.android.playback.playqueue.PlayState.COMING_UP;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem.createTrackWithContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackContext;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateProvider;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ToggleButton;
-
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class PlayQueuePresenterTest extends AndroidUnitTest {
 
+    @Mock private PlayQueueView playQueueViewContract;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlayQueueAdapter adapter;
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PlaySessionController playSessionController;
-    @Mock private PlayQueueArtworkController playerArtworkController;
     @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
     @Mock private PlaybackStateProvider playbackStateProvider;
-
     @Mock private PlayQueueUIItem item;
-    @Mock private FeedbackController feedbackController;
-    @Mock private View view;
-
-    @Captor private ArgumentCaptor<Feedback> feedbackCaptor;
 
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
@@ -81,29 +63,45 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         final PlayQueueUIItemMapper playQueueUIItemMapper = new PlayQueueUIItemMapper(context(), playQueueManager);
 
         presenter = new PlayQueuePresenter(
-                adapter,
                 playQueueManager,
                 playbackStateProvider,
                 playSessionController,
                 playQueueOperations,
-                playerArtworkController,
-                swipeToRemoveCallbackFactory,
                 eventBus,
-                context(),
-                feedbackController,
-                playQueueUIItemMapper
-                );
-        when(adapter.getItem(anyInt())).thenReturn(item);
+                playQueueUIItemMapper);
+        setCachedObservables();
+        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
+        when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(item.isTrack()).thenReturn(true);
         when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
+        presenter.attachView(playQueueViewContract);
+    }
+
+    @Test
+    public void shouldNotCallToContractWhenDetached() {
+        presenter.detachContract();
+
+        reset(playQueueViewContract);
+
+        presenter.repeatClicked();
+        presenter.shuffleClicked(true);
+
+        verifyZeroInteractions(playQueueViewContract);
+    }
+
+    @Test
+    public void shouldScrollToPositionOnNext() {
+        presenter.onNextClick();
+
+        verify(playQueueViewContract).scrollTo(0);
     }
 
     @Test
     public void returnTrueWhenUpcomingTrack() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        when(adapter.getItemCount()).thenReturn(10);
-        when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueViewContract.getItemCount()).thenReturn(10);
+        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isTrue();
     }
@@ -111,8 +109,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void returnFalseWhenCurrentTrack() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(PlayState.PLAYING);
-        when(adapter.getItemCount()).thenReturn(10);
-        when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueViewContract.getItemCount()).thenReturn(10);
+        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isFalse();
     }
@@ -120,8 +118,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void returnFalseWhenPlayedTrack() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(PlayState.PLAYED);
-        when(adapter.getItemCount()).thenReturn(10);
-        when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueViewContract.getItemCount()).thenReturn(10);
+        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
 
         assertThat(presenter.isRemovable(2)).isFalse();
     }
@@ -130,14 +128,14 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     public void shouldRemoveItemAtPosition() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
         final PlayQueueItem playQueueItem = upcomingTrack.getPlayQueueItem();
-        when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
         when(playQueueManager.indexOfPlayQueueItem(playQueueItem)).thenReturn(1);
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
         presenter.remove(2);
 
-        verify(adapter).removeItem(2);
+        verify(playQueueViewContract).removeItem(2);
         verify(playQueueManager).removeItem(playQueueItem);
     }
 
@@ -145,49 +143,28 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     public void shouldSubscribeToCurrentPlayQueueItem() {
         setCachedObservables();
 
-        presenter.setCachedObservables();
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
         final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
         final CurrentPlayQueueItemEvent event = fromNewQueue(queueItem, Urn.NOT_SET, 0);
-        when(adapter.getAdapterPosition(queueItem)).thenReturn(0);
+        when(playQueueViewContract.getAdapterPosition(queueItem)).thenReturn(0);
 
-        presenter.subscribeToEvents();
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(adapter).updateNowPlaying(0, true, true);
+        verify(playQueueViewContract, times(2)).updateNowPlaying(0, true, true);
     }
 
     @Test
     public void shouldSubscribeToCurrentPlayQueueItemForPositionChanged() {
         setCachedObservables();
 
-        presenter.setCachedObservables();
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
         final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
         final CurrentPlayQueueItemEvent event = fromPositionChanged(queueItem, Urn.NOT_SET, 0);
-        when(adapter.getAdapterPosition(queueItem)).thenReturn(0);
+        when(playQueueViewContract.getAdapterPosition(queueItem)).thenReturn(0);
 
-        presenter.subscribeToEvents();
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(adapter).updateNowPlaying(0, true, true);
-    }
-
-    @Test
-    public void shouldSetPausedStateWhenNotPlayingCurrent() {
-        setCachedObservables();
-        when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(false);
-
-        presenter.setCachedObservables();
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
-        final CurrentPlayQueueItemEvent event = fromNewQueue(queueItem, Urn.NOT_SET, 0);
-        when(adapter.getAdapterPosition(queueItem)).thenReturn(0);
-
-        presenter.subscribeToEvents();
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
-
-        verify(adapter).updateNowPlaying(0, true, false);
+        verify(playQueueViewContract, times(2)).updateNowPlaying(0, true, true);
     }
 
     @Test
@@ -196,7 +173,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
         final PlayQueueEvent event = PlayQueueEvent.fromNewQueue(Urn.NOT_SET);
 
-        presenter.subscribeToEvents();
         eventBus.publish(EventQueue.PLAY_QUEUE, event);
 
         assertThat(tracksSubject.hasObservers()).isTrue();
@@ -208,38 +184,16 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
         final PlayQueueEvent event = PlayQueueEvent.fromQueueUpdateMoved(Urn.NOT_SET);
 
-        presenter.subscribeToEvents();
         eventBus.publish(EventQueue.PLAY_QUEUE, event);
 
         assertThat(tracksSubject.hasObservers()).isFalse();
     }
 
     @Test
-    public void shouldSetProgressForArtwork() {
-        final PlaybackProgress progress = new PlaybackProgress(0, 1000L, Urn.NOT_SET);
-        final PlaybackProgressEvent event = PlaybackProgressEvent.create(progress, Urn.NOT_SET);
-
-        presenter.subscribeToEvents();
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
-
-        verify(playerArtworkController).setProgress(progress);
-    }
-
-    @Test
-    public void shouldSetPlaybackStateForArtwork() {
-        final PlayStateEvent event = PlayStateEvent.create(PlaybackStateTransition.DEFAULT, 1000L, true, "");
-
-        presenter.subscribeToEvents();
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, event);
-
-        verify(playerArtworkController).setPlayState(event);
-    }
-
-    @Test
     public void shouldCycleRepeatModeToRepatOneFromRepeatNoneOnClick() {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
 
-        presenter.repeatClicked(new ImageView(context()));
+        presenter.repeatClicked();
 
         verifyRepeatModeChanged(RepeatMode.REPEAT_ONE);
     }
@@ -248,7 +202,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     public void shouldCycleRepeatModeToRepeatAllFromRepeatOneOnClick() {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_ONE);
 
-        presenter.repeatClicked(new ImageView(context()));
+        presenter.repeatClicked();
 
         verifyRepeatModeChanged(RepeatMode.REPEAT_ALL);
     }
@@ -257,16 +211,17 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     public void shouldCycleRepeatModeOnClickOnLastMode() {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_ALL);
 
-        presenter.repeatClicked(new ImageView(context()));
+        presenter.repeatClicked();
 
-        verifyRepeatModeChanged(RepeatMode.REPEAT_NONE);
+        verify(playQueueManager).setRepeatMode(RepeatMode.REPEAT_NONE);
+        verify(playQueueViewContract, times(2)).setRepeatMode(RepeatMode.REPEAT_NONE);
     }
-
+    
     @Test
     public void shouldTrackRepeatModeChanges() {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
 
-        presenter.repeatClicked(new ImageView(context()));
+        presenter.repeatClicked();
 
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_REPEAT);
@@ -275,20 +230,14 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldToggleShuffleModeOn() {
-        final ToggleButton toggle = new ToggleButton(context());
-        toggle.setChecked(true);
-
-        presenter.shuffleClicked(toggle);
+        presenter.shuffleClicked(true);
 
         verify(playQueueManager).shuffle();
     }
 
     @Test
     public void shouldToggleShuffleModeOff() {
-        final ToggleButton toggle = new ToggleButton(context());
-        toggle.setChecked(false);
-
-        presenter.shuffleClicked(toggle);
+        presenter.shuffleClicked(false);
 
         verify(playQueueManager).unshuffle();
     }
@@ -299,30 +248,30 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         final PlayQueueItem playQueueItem = trackPlayQueueUIItem.getPlayQueueItem();
         final int position = 0;
 
-        when(adapter.getItems()).thenReturn(Collections.<PlayQueueUIItem>emptyList());
-        when(adapter.getItem(position)).thenReturn(trackPlayQueueUIItem);
-        when(adapter.getAdapterPosition(playQueueItem)).thenReturn(position);
+        when(playQueueViewContract.getItems()).thenReturn(Collections.<PlayQueueUIItem>emptyList());
+        when(playQueueViewContract.getItem(position)).thenReturn(trackPlayQueueUIItem);
+        when(playQueueViewContract.getAdapterPosition(playQueueItem)).thenReturn(position);
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
         presenter.remove(position);
 
-        verify(adapter).removeItem(position);
+        verify(playQueueViewContract).removeItem(position);
         verify(playQueueManager).removeItem(playQueueItem);
-        verify(feedbackController).showFeedback(any(Feedback.class));
+        verify(playQueueViewContract).showUndo();
     }
 
     @Test
     public void shouldNotRemoveAHeader() {
         final int position = 0;
 
-        when(adapter.getItem(position)).thenReturn(headerItem);
+        when(playQueueViewContract.getItem(position)).thenReturn(headerItem);
 
         presenter.remove(position);
 
-        verify(adapter, never()).removeItem(position);
+        verify(playQueueViewContract, never()).removeItem(position);
         verify(playQueueManager, never()).removeItem(any(PlayQueueItem.class));
-        verify(feedbackController, never()).showFeedback(any(Feedback.class));
+        verify(playQueueViewContract, never()).showUndo();
     }
 
     @Test
@@ -357,10 +306,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackShufflingOn() {
-        ToggleButton toggleButton = mock(ToggleButton.class);
-        when(toggleButton.isChecked()).thenReturn(true);
-
-        presenter.shuffleClicked(toggleButton);
+        presenter.shuffleClicked(true); // TODO: 15/12/16
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_SHUFFLE);
@@ -369,10 +315,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackShufflingOff() {
-        ToggleButton toggleButton = mock(ToggleButton.class);
-        when(toggleButton.isChecked()).thenReturn(false);
-
-        presenter.shuffleClicked(toggleButton);
+        presenter.shuffleClicked(false); // TODO: 15/12/16
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_SHUFFLE);
@@ -390,7 +333,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldTrackRemoval() {
         final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        when(adapter.getItem(2)).thenReturn(upcomingTrack);
+        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
@@ -402,29 +345,21 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRemovalUndo() {
-        when(adapter.getItem(2)).thenReturn(trackPlayQueueUIItemWithPlayState(COMING_UP));
+        when(playQueueViewContract.getItem(2)).thenReturn(trackPlayQueueUIItemWithPlayState(COMING_UP));
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
         presenter.remove(2);
-        feedbackUndo();
+        presenter.undoClicked();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
                 .isEqualTo(UIEvent.Kind.PLAY_QUEUE_TRACK_REMOVE_UNDO.toString());
     }
 
-    private void feedbackUndo() {
-        verify(feedbackController).showFeedback(feedbackCaptor.capture());
-        final WeakReference<View.OnClickListener> actionListener = feedbackCaptor.getValue().getActionListener();
-
-        if (actionListener != null) {
-            actionListener.get().onClick(mock(View.class));
-        }
-    }
 
     private void verifyRepeatModeChanged(RepeatMode mode) {
         verify(playQueueManager).setRepeatMode(mode);
-        verify(adapter).updateInRepeatMode(mode);
+        verify(playQueueViewContract).setRepeatMode(mode);
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState) {
