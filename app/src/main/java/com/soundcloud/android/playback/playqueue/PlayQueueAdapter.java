@@ -15,7 +15,9 @@ import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItemAdapter.ViewHolder> {
 
@@ -25,7 +27,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
 
     private final TrackPlayQueueItemRenderer trackRenderer;
     private PlayQueuePresenter.DragListener dragListener;
-    private NowPlayingListener nowPlayingListener;
+    private List<NowPlayingListener> nowPlayingListeners = new ArrayList<>();
 
     @Inject
     PlayQueueAdapter(TrackPlayQueueItemRenderer trackRenderer,
@@ -118,8 +120,8 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     private void setPlayState(int currentlyPlayingPosition, int itemPosition, TrackPlayQueueUIItem item, boolean notifyListener, boolean isPlaying) {
         if (currentlyPlayingPosition == itemPosition) {
             item.setPlayState(isPlaying ? PlayState.PLAYING : PlayState.PAUSED);
-            if (notifyListener && nowPlayingListener != null) {
-                nowPlayingListener.onNowPlayingChanged(item);
+            if (notifyListener) {
+                notifyListeners(item);
             }
         } else if (itemPosition > currentlyPlayingPosition) {
             item.setPlayState(PlayState.COMING_UP);
@@ -128,12 +130,22 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
         }
     }
 
+    private void notifyListeners(TrackPlayQueueUIItem item) {
+        for (NowPlayingListener nowPlayingListener : nowPlayingListeners) {
+            nowPlayingListener.onNowPlayingChanged(item);
+        }
+    }
+
     private boolean shouldAddHeader(TrackPlayQueueUIItem trackItem) {
         return trackItem.isPlayingOrPaused() || PlayState.COMING_UP.equals(trackItem.getPlayState());
     }
 
-    void setNowPlayingChangedListener(NowPlayingListener nowPlayingListener) {
-        this.nowPlayingListener = nowPlayingListener;
+    void addNowPlayingChangedListener(NowPlayingListener nowPlayingListener) {
+        nowPlayingListeners.add(nowPlayingListener);
+    }
+
+    void removeListeners() {
+        nowPlayingListeners.clear();
     }
 
     void setDragListener(PlayQueuePresenter.DragListener dragListener) {

@@ -19,7 +19,8 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
     @Mock private TrackPlayQueueItemRenderer trackRenderer;
     @Mock private HeaderPlayQueueItemRenderer headerRenderer;
     @Mock private MagicBoxPlayQueueItemRenderer magicBoxRenderer;
-    @Mock private PlayQueueAdapter.NowPlayingListener nowPlayingListener;
+    @Mock private PlayQueueAdapter.NowPlayingListener nowPlayingListener1;
+    @Mock private PlayQueueAdapter.NowPlayingListener nowPlayingListener2;
 
     private final HeaderPlayQueueUIItem headerPlayQueueItem1 = getHeaderPlayQueueUiItem();
     private final HeaderPlayQueueUIItem headerPlayQueueItem2 = getHeaderPlayQueueUiItem();
@@ -64,29 +65,49 @@ public class PlayQueueAdapterTest extends AndroidUnitTest {
 
     @Test
     public void notifyNowPlayingListenerWhenPlayStateChangedToPlaying() {
-        adapter.setNowPlayingChangedListener(nowPlayingListener);
+        adapter.addNowPlayingChangedListener(nowPlayingListener1);
 
         adapter.updateNowPlaying(1, true, true);
 
-        verify(nowPlayingListener).onNowPlayingChanged(playQueueItem1);
+        verify(nowPlayingListener1).onNowPlayingChanged(playQueueItem1);
     }
 
     @Test
     public void doNotNotifyNowPlayingListenerWhenPlayStateChangedToPlayingAndNotifyFlagSetToFalse() {
-        adapter.setNowPlayingChangedListener(nowPlayingListener);
+        adapter.addNowPlayingChangedListener(nowPlayingListener1);
 
         adapter.updateNowPlaying(1, false, true);
 
-        verify(nowPlayingListener, never()).onNowPlayingChanged(playQueueItem1);
+        verify(nowPlayingListener1, never()).onNowPlayingChanged(playQueueItem1);
+    }
+
+    @Test
+    public void doNotNotifyListenerOnceRemoved() {
+        adapter.addNowPlayingChangedListener(nowPlayingListener1);
+        adapter.removeListeners();
+        adapter.updateNowPlaying(1, true, true);
+
+        verify(nowPlayingListener1, never()).onNowPlayingChanged(playQueueItem1);
+    }
+
+    @Test
+    public void notifyMulitipleListeners() {
+        adapter.addNowPlayingChangedListener(nowPlayingListener1);
+        adapter.addNowPlayingChangedListener(nowPlayingListener2);
+
+        adapter.updateNowPlaying(1, true, true);
+
+        verify(nowPlayingListener1).onNowPlayingChanged(playQueueItem1);
+        verify(nowPlayingListener2).onNowPlayingChanged(playQueueItem1);
     }
 
     @Test
     public void doNotUpdateWhenUpdatingTheSameTrack() {
-        adapter.setNowPlayingChangedListener(nowPlayingListener);
+        adapter.addNowPlayingChangedListener(nowPlayingListener1);
 
         adapter.updateNowPlaying(2, true, true);
 
-        verify(nowPlayingListener, never()).onNowPlayingChanged(playQueueItem1);
+        verify(nowPlayingListener1, never()).onNowPlayingChanged(playQueueItem1);
     }
 
     @Test

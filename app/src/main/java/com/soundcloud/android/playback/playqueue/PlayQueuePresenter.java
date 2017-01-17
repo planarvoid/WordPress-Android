@@ -75,6 +75,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
     @BindView(R.id.loading_indicator) View loadingIndicator;
+    @BindView(R.id.player_strip) View playerStrip;
     private Observable<List<TrackAndPlayQueueItem>> cachedTracks = Observable.empty();
     private Observable<Map<Urn, String>> cachedTitles = Observable.empty();
     private boolean initialized = false;
@@ -123,8 +124,12 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(playQueueSwipeToRemoveCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
         adapter.setDragListener(itemTouchHelper::startDrag);
-        adapter.setNowPlayingChangedListener(artworkController);
+        adapter.addNowPlayingChangedListener(artworkController);
         adapter.setTrackClickListener(new TrackClickListener());
+        adapter.addNowPlayingChangedListener(trackItem -> {
+            int stripBackground = trackItem.isGoTrack() ? R.drawable.go_gradient : R.color.ak_sc_orange;
+            playerStrip.setBackgroundResource(stripBackground);
+        });
     }
 
     private DefaultItemAnimator buildItemAnimator() {
@@ -232,6 +237,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     public void onDestroyView(Fragment fragment) {
         eventSubscriptions.clear();
         updateSubscription.unsubscribe();
+        adapter.removeListeners();
         unbinder.unbind();
         super.onDestroyView(fragment);
     }
