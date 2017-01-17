@@ -8,7 +8,7 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -176,7 +176,7 @@ public class PlaySessionController {
 
     private boolean shouldDisableSkipping() {
         if (adsOperations.isCurrentItemAd()) {
-            final PlayerAdData ad = (PlayerAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
+            final PlayableAdData ad = (PlayableAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
             final boolean adIsNotSkippable = !ad.isSkippable();
             final boolean waitingForAdToStart = !isPlayingCurrentPlayQueueItem();
             final boolean haveNotReachedSkippableCheckpoint = playSessionStateProvider.getLastProgressEvent()
@@ -213,7 +213,7 @@ public class PlaySessionController {
         final Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
         if (adsOperations.isCurrentItemAd()) {
             eventBus.publish(EventQueue.TRACKING,
-                             UIEvent.fromSkipAdClick((PlayerAdData) adData.get(),
+                             UIEvent.fromSkipAdClick((PlayableAdData) adData.get(),
                                                      playQueueManager.getCurrentTrackSourceInfo()));
         }
     }

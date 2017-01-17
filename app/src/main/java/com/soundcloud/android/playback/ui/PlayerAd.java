@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
 
@@ -10,9 +10,9 @@ import android.graphics.Color;
 
 abstract class PlayerAd extends PlayerItem {
 
-    private final PlayerAdData adData;
+    private final PlayableAdData adData;
 
-    PlayerAd(PlayerAdData adData, TrackItem trackItem) {
+    PlayerAd(PlayableAdData adData, TrackItem trackItem) {
         super(trackItem);
         this.adData = adData;
     }
@@ -61,7 +61,7 @@ abstract class PlayerAd extends PlayerItem {
         return Color.parseColor(adData.getDisplayProperties().get().getFocusedBackgroundColor());
     }
 
-    PlayerAdData getAdData() {
+    PlayableAdData getAdData() {
         return adData;
     }
 }

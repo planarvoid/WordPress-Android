@@ -5,7 +5,7 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -65,7 +65,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final Func1<PlaybackProgressEvent, Boolean> isBecomingSkippable = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
         public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
-            boolean isSkippableAd = ((PlayerAdData) adsOperations.getCurrentTrackAdData().get()).isSkippable();
+            boolean isSkippableAd = ((PlayableAdData) adsOperations.getCurrentTrackAdData().get()).isSkippable();
             PlaybackProgress progress = playbackProgressEvent.getPlaybackProgress();
             return (isSkippableAd && progress.isPastPosition(AdConstants.UNSKIPPABLE_TIME_MS))
                     || progress.isPastPosition(progress.getDuration() - UNSKIPPABLE_UNLOCK);

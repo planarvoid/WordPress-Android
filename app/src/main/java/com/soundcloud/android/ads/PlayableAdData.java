@@ -4,7 +4,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
-public abstract class PlayerAdData extends AdData {
+public abstract class PlayableAdData extends AdData {
 
     private boolean startEventsReported;
     private boolean firstQuartileReported;

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @AutoValue
-public abstract class AudioAd extends PlayerAdData {
+public abstract class AudioAd extends PlayableAdData {
 
     private static AudioAd create(ApiAudioAd apiAudioAd) {
         final ApiAdTracking adTracking = apiAudioAd.getApiAdTracking();

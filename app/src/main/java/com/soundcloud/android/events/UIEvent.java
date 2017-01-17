@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.main.Screen;
@@ -319,11 +319,11 @@ public abstract class UIEvent extends NewTrackingEvent {
         return event(Kind.VIDEO_AD_SHRINK, ClickName.VIDEO_AD_SHRINK).playerAdAttributes(videoAd, trackSourceInfo).videoSizeChangeUrls(Optional.of(videoAd.getExitFullScreenUrls())).build();
     }
 
-    public static UIEvent fromSkipAdClick(PlayerAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {
+    public static UIEvent fromSkipAdClick(PlayableAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {
         return event(Kind.SKIP_AD_CLICK, ClickName.SKIP_AD_CLICK).playerAdAttributes(adData, trackSourceInfo).adSkipUrls(Optional.of(adData.getSkipUrls())).build();
     }
 
-    public static UIEvent fromPlayerAdClickThrough(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+    public static UIEvent fromPlayerAdClickThrough(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
         final String clickthroughKind = "clickthrough::" + MonetizationType.fromAdData(adData).key;
         final Builder builder = event(Kind.AD_CLICKTHROUGH).playerAdAttributes(adData, trackSourceInfo)
                                                            .adClickthroughUrls(Optional.of(adData.getClickUrls()))
@@ -591,7 +591,7 @@ public abstract class UIEvent extends NewTrackingEvent {
             return this;
         }
 
-        Builder playerAdAttributes(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        Builder playerAdAttributes(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
             basicAdAttributes(adData);
             monetizableTrackUrn(Optional.of(adData.getMonetizableTrackUrn()));
             if (trackSourceInfo != null) {

@@ -6,7 +6,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.deeplinks.DeepLink;
@@ -70,7 +70,7 @@ class AdPageListener extends PageListener {
     }
 
     public void onClickThrough(Context activityContext) {
-        adClickThrough(activityContext, (PlayerAdData) adsOperations.getCurrentTrackAdData().get());
+        adClickThrough(activityContext, (PlayableAdData) adsOperations.getCurrentTrackAdData().get());
 
         final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
         if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
@@ -78,7 +78,7 @@ class AdPageListener extends PageListener {
         }
     }
 
-    private void adClickThrough(Context activityContext, PlayerAdData adData) {
+    private void adClickThrough(Context activityContext, PlayableAdData adData) {
         final Uri clickThrough = Uri.parse(adData instanceof AudioAd
                                      ? ((AudioAd) adData).getClickThroughUrl().get()
                                      : ((VideoAd) adData).getClickThroughUrl());

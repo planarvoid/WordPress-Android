@@ -8,7 +8,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-public abstract class VideoAd extends PlayerAdData {
+public abstract class VideoAd extends PlayableAdData {
 
     private static VideoAd create(ApiVideoAd apiVideoAd) {
         final ApiAdTracking videoTracking = apiVideoAd.getVideoTracking();
