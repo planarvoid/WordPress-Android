@@ -19,7 +19,7 @@ ext {
   findBugsVersion = '3.0.0'
   networkManager = '29'
   skippyVersion = '6.2.5'
-  flipperVersion = '0.0.73'
+  flipperVersion = '0.0.75'
 
   libraries = [
           // Annotation processors / Annotations
