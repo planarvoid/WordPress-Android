@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.OtherPlaylistsByUserTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.CollectionScreen;
@@ -79,6 +80,8 @@ public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> 
         assertThat(playlistDetailsScreen.getTrackCount(), is(initialTrackCount - 1));
     }
 
+
+    @OtherPlaylistsByUserTest
     public void testGoToMorePlaylistsByUser() throws Exception {
         startEventTracking();
 
