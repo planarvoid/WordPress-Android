@@ -36,7 +36,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     private final FetchPostsCommand fetchRemotePosts;
     private final StorePostsCommand storePostsCommand;
     private final RemovePostsCommand removePostsCommand;
-    private final BulkFetchCommand<ApiModel> fetchPostResources;
+    private final BulkFetchCommand<ApiModel, ApiModel> fetchPostResources;
     private final WriteStorageCommand storePostResources;
     private final EventBus eventBus;
 
@@ -44,7 +44,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
                        FetchPostsCommand fetchRemotePosts,
                        StorePostsCommand storePostsCommand,
                        RemovePostsCommand removePostsCommand,
-                       BulkFetchCommand<ApiModel> fetchPostResources,
+                       BulkFetchCommand<ApiModel, ApiModel> fetchPostResources,
                        WriteStorageCommand storePostResources,
                        EventBus eventBus) {
         this.loadLocalPosts = loadLocalPosts;

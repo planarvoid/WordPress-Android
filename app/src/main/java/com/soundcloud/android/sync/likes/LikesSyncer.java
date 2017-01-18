@@ -25,7 +25,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     private static final Comparator<LikeRecord> LIKES_COMPARATOR = FetchLikesCommand.LIKES_COMPARATOR;
 
     private final FetchLikesCommand fetchLikes;
-    private final BulkFetchCommand<ApiModel> fetchLikedResources;
+    private final BulkFetchCommand<ApiModel, ApiModel> fetchLikedResources;
     private final PushLikesCommand<ApiLike> pushLikeAdditions;
     private final PushLikesCommand<ApiDeletedLike> pushLikeDeletions;
     private final LoadLikesCommand loadLikes;
@@ -39,7 +39,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
 
     @SuppressWarnings("PMD.ExcessiveParameterList")
     LikesSyncer(FetchLikesCommand fetchLikes,
-                BulkFetchCommand<ApiModel> fetchLikedResources,
+                BulkFetchCommand<ApiModel, ApiModel> fetchLikedResources,
                 PushLikesCommand<ApiLike> pushLikeAdditions,
                 PushLikesCommand<ApiDeletedLike> pushLikeDeletions,
                 LoadLikesCommand loadLikes,

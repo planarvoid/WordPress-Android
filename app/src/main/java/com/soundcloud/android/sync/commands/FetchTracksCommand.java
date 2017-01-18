@@ -14,9 +14,10 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
-public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
+public class FetchTracksCommand extends BulkFetchCommand<ApiTrack, ApiTrack> {
 
     @Inject
     public FetchTracksCommand(ApiClient apiClient) {
@@ -26,6 +27,11 @@ public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
     @VisibleForTesting
     FetchTracksCommand(ApiClient apiClient, int pageSize) {
         super(apiClient, pageSize);
+    }
+
+    @Override
+    protected Collection<ApiTrack> transformResults(Collection results) {
+        return results;
     }
 
     @Override
