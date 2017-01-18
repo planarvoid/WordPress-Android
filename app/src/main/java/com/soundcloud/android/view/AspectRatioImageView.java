@@ -4,6 +4,9 @@ import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 /*
@@ -23,6 +26,7 @@ public class AspectRatioImageView extends OptimisedImageView {
     private float aspectRatio;
     private boolean aspectRatioEnabled;
     private int dominantMeasurement;
+    private Drawable foregroundDrawable;
 
     public AspectRatioImageView(Context context) {
         this(context, null);
@@ -37,6 +41,10 @@ public class AspectRatioImageView extends OptimisedImageView {
                                           DEFAULT_ASPECT_RATIO_ENABLED);
         dominantMeasurement = a.getInt(R.styleable.AspectRatioImageView_ariv_dominantMeasurement,
                                        DEFAULT_DOMINANT_MEASUREMENT);
+        if (a.hasValue(R.styleable.AspectRatioImageView_foreground)) {
+            int resourceId = a.getResourceId(R.styleable.AspectRatioImageView_foreground, -1);
+            foregroundDrawable = ContextCompat.getDrawable(context, resourceId);
+        }
         a.recycle();
     }
 
@@ -65,6 +73,22 @@ public class AspectRatioImageView extends OptimisedImageView {
         }
 
         setMeasuredDimension(newWidth, newHeight);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (foregroundDrawable != null) {
+            foregroundDrawable.setBounds(0, 0, right - left, bottom - top);
+        }
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (foregroundDrawable != null) {
+            foregroundDrawable.draw(canvas);
+        }
     }
 
     /**

@@ -33,7 +33,7 @@
 
         </RelativeLayout>
 
-        <com.soundcloud.android.view.ParallaxImageView
+        <com.soundcloud.android.view.AspectRatioImageView
             android:id="@+id/image"
             sc:foreground="@drawable/artwork_border"
             style="@style/Stream.Image.AppInstall" />

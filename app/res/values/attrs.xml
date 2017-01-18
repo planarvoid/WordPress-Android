@@ -19,6 +19,7 @@
             <enum name="width" value="0" />
             <enum name="height" value="1" />
         </attr>
+        <attr name="foreground" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="SquareFrameLayout">
@@ -31,7 +32,6 @@
     <declare-styleable name="ParallaxImageView">
         <attr name="movement" format="dimension" />
         <attr name="focalPoint" format="float" />
-        <attr name="foreground" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="OptimisedImageView">
