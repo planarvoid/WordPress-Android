@@ -21,7 +21,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -29,7 +28,6 @@ import dagger.Lazy;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 import android.util.Log;
 
@@ -42,15 +40,7 @@ import java.util.UUID;
 
 public class AdsOperations {
 
-    private final Func1<ApiAdsForStream, List<AppInstallAd>> GET_APP_INSTALLS = new Func1<ApiAdsForStream, List<AppInstallAd>>() {
-        @Override
-        public List<AppInstallAd> call(ApiAdsForStream adsForStream) {
-            return adsForStream.getAppInstalls(dateProvider);
-        }
-    };
-
     private final FeatureOperations featureOperations;
-    private final FeatureFlags featureFlags;
     private final Lazy<KruxSegmentProvider> kruxSegmentProvider;
     private final PlayQueueManager playQueueManager;
     private final ApiClientRx apiClientRx;
@@ -59,12 +49,11 @@ public class AdsOperations {
     private final CurrentDateProvider dateProvider;
 
     @Inject
-    AdsOperations(PlayQueueManager playQueueManager, FeatureOperations featureOperations, FeatureFlags featureFlags,
+    AdsOperations(PlayQueueManager playQueueManager, FeatureOperations featureOperations,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                   EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider, CurrentDateProvider dateProvider) {
         this.playQueueManager = playQueueManager;
         this.featureOperations = featureOperations;
-        this.featureFlags = featureFlags;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
@@ -72,7 +61,7 @@ public class AdsOperations {
         this.dateProvider = dateProvider;
     }
 
-    public Observable<Optional<String>> kruxSegments() {
+    Observable<Optional<String>> kruxSegments() {
         if (featureOperations.shouldUseKruxForAdTargeting()) {
             return Observable.just(kruxSegmentProvider.get().getSegments());
         }
@@ -88,17 +77,14 @@ public class AdsOperations {
                           .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
     }
 
-    public Observable<List<AppInstallAd>> inlaysAds(AdRequestData requestData) {
-        if (featureFlags.isEnabled(Flag.APP_INSTALLS)) {
-            final String endpoint = ApiEndpoints.INLAY_ADS.path();
-            final ApiRequest request = buildApiRequest(endpoint, requestData);
-            return apiClientRx.mappedResponse(request, ApiAdsForStream.class)
-                              .subscribeOn(scheduler)
-                              .doOnError(onRequestFailure(requestData, endpoint, false, true))
-                              .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
-                              .map(GET_APP_INSTALLS);
-        }
-        return Observable.just(Collections.<AppInstallAd>emptyList());
+    Observable<List<AppInstallAd>> inlaysAds(AdRequestData requestData) {
+        final String endpoint = ApiEndpoints.INLAY_ADS.path();
+        final ApiRequest request = buildApiRequest(endpoint, requestData);
+        return apiClientRx.mappedResponse(request, ApiAdsForStream.class)
+                .subscribeOn(scheduler)
+                .doOnError(onRequestFailure(requestData, endpoint, false, true))
+                .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
+                .map(adsForStream -> adsForStream.getAppInstalls(dateProvider));
     }
 
     private ApiRequest buildApiRequest(String endpoint, AdRequestData requestData) {

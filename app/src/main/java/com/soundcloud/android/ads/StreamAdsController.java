@@ -6,8 +6,6 @@ import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamAdapter;
@@ -41,7 +39,6 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private final AdsOperations adsOperations;
     private final InlayAdOperations inlayAdOperations;
     private final InlayAdHelperFactory inlayAdHelperFactory;
-    private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
@@ -69,14 +66,12 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     public StreamAdsController(AdsOperations adsOperations,
                                InlayAdOperations inlayAdOperations,
                                InlayAdHelperFactory inlayAdHelperFactory,
-                               FeatureFlags featureFlags,
                                FeatureOperations featureOperations,
                                CurrentDateProvider dateProvider,
                                EventBus eventBus) {
         this.adsOperations = adsOperations;
         this.inlayAdOperations = inlayAdOperations;
         this.inlayAdHelperFactory = inlayAdHelperFactory;
-        this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
@@ -104,13 +99,13 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         wasScrollingUp = dy < 0;
-        if (shouldInsertStreamAds() && inlayAdHelper.isPresent()) {
+        if (streamAdsEnabled() && inlayAdHelper.isPresent()) {
             inlayAdHelper.get().onScroll();
         }
     }
 
     public void insertAds() {
-        if (shouldInsertStreamAds()) {
+        if (streamAdsEnabled()) {
             clearExpiredAds();
 
             if (impressionsSubscription.isUnsubscribed() && inlayAdHelper.isPresent()) {
@@ -129,8 +124,8 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         }
     }
 
-    private boolean shouldInsertStreamAds() {
-        return featureFlags.isEnabled(Flag.APP_INSTALLS) && featureOperations.shouldRequestAds();
+    private boolean streamAdsEnabled() {
+        return featureOperations.shouldRequestAds();
     }
 
     private void clearExpiredAds() {

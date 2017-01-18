@@ -16,8 +16,6 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -47,7 +45,6 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private InlayAdHelperFactory inlayAdHelperFactory;
     @Mock private InlayAdOperations inlayAdOperations;
-    @Mock private FeatureFlags featureFlags;
     @Mock private FeatureOperations featureOperations;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private InlayAdHelper inlayAdHelper;
@@ -60,10 +57,9 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        controller = spy(new StreamAdsController(adsOperations, inlayAdOperations, inlayAdHelperFactory, featureFlags, featureOperations, dateProvider, eventBus));
+        controller = spy(new StreamAdsController(adsOperations, inlayAdOperations, inlayAdHelperFactory, featureOperations, dateProvider, eventBus));
 
         when(recycler.getLayoutManager()).thenReturn(layoutManager);
-        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(true);
         when(featureOperations.shouldRequestAds()).thenReturn(true);
         when(adsOperations.kruxSegments()).thenReturn(Observable.just(Optional.absent()));
         when(inlayAdOperations.trackImpressions(inlayAdHelper)).thenReturn(Observable.empty());
@@ -102,13 +98,6 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onScrolledDosNotCallInlayAdHelperOnScrollWithoutAppInstallFlag() {
-        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(false);
-        controller.onScrolled(recycler, 9000, 42);
-        verifyZeroInteractions(eventBus);
-    }
-
-    @Test
     public void insertAdsDoesNotFetchInlayAdsIfUserHasShouldntFetchAdsFeature() {
         when(featureOperations.shouldRequestAds()).thenReturn(false);
 
@@ -140,15 +129,6 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
         verify(adsOperations).inlaysAds(captor.capture());
         assertThat(captor.getValue().getKruxSegments()).isEqualTo(segments);
-    }
-
-    @Test
-    public void insertAdsDoesNotFetchInlayAdsIfFeatureDisabled() {
-        when(featureFlags.isEnabled(Flag.APP_INSTALLS)).thenReturn(false);
-
-        controller.insertAds();
-
-        verify(adsOperations, never()).inlaysAds(any(AdRequestData.class));
     }
 
     @Test
