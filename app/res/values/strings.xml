@@ -693,11 +693,10 @@
     <string name="stream_promoted_playable">Promoted %s</string>
     <string name="stream_sponsored_item">Sponsored %s</string>
     <string name="stream_highlights">Stream Highlights</string>
-    <plurals name="stream_highlights_description">
-        <item quantity="one">With a track from %s</item>
-        <item quantity="two">With tracks from %1$s and %2$s</item>
-        <item quantity="other">With tracks from %1$s, %2$s and %3$s</item>
-    </plurals>
+
+    <string name="stream_highlights_description_one">With a track from %s</string>
+    <string name="stream_highlights_description_two">With tracks from %1$s and %2$s</string>
+    <string name="stream_highlights_description_other">With tracks from %1$s, %2$s and %3$s</string>
 
     <!-- __NOTIFICATIONS (prev. ACTIVITIES) -->
     <!--

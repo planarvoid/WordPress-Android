@@ -60,11 +60,20 @@ class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
         setHighlightsDescription(itemView, streamHighlights);
     }
 
-    void setHighlightsDescription(View itemView, StreamItem.StreamHighlights streamHighlights) {
+    private void setHighlightsDescription(View itemView, StreamItem.StreamHighlights streamHighlights) {
         List<String> topCreators = getTopCreators(streamHighlights.suggestedTrackItems());
-        ((TextView) ButterKnife.findById(itemView, R.id.stream_highlights_description)).setText(
-                itemView.getResources().getQuantityString(R.plurals.stream_highlights_description,topCreators.size(), topCreators.toArray())
-        );
+        ButterKnife.<TextView>findById(itemView, R.id.stream_highlights_description)
+                .setText(resources.getString(getDescriptionResource(topCreators.size()), topCreators.toArray()));
+    }
+
+    private int getDescriptionResource(int count) {
+        if (count == 1) {
+            return R.string.stream_highlights_description_one;
+        } else if (count == 2) {
+            return R.string.stream_highlights_description_two;
+        } else {
+            return R.string.stream_highlights_description_other;
+        }
     }
 
     private List<String> getTopCreators(List<TrackItem> trackItems) {
