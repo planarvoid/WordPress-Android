@@ -8,8 +8,6 @@ import android.view.View;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import java.lang.ref.WeakReference;
@@ -22,22 +20,19 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
 
     private final ApplicationProperties applicationProperties;
     private final MoatViewabilityController moatViewabilityController;
-    private final FeatureFlags featureFlags;
 
     private WeakReference<Activity> currentActivity;
 
     @Inject
     public AdViewabilityController(ApplicationProperties applicationProperties,
-                                   MoatViewabilityController moatViewabilityController,
-                                   FeatureFlags featureFlags) {
+                                   MoatViewabilityController moatViewabilityController) {
         this.applicationProperties = applicationProperties;
         this.moatViewabilityController = moatViewabilityController;
-        this.featureFlags = featureFlags;
     }
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        currentActivity = new WeakReference<Activity>(activity);
+        currentActivity = new WeakReference<>(activity);
         if (shouldTrackWithMoat()) {
             moatViewabilityController.updateActivityIfTrackingVideo(activity);
         }
@@ -68,13 +63,13 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
         }
     }
 
-    public void startOverlayTracking(View imageView, OverlayAdData overlayAdData) {
+    void startOverlayTracking(View imageView, OverlayAdData overlayAdData) {
         if (shouldTrackWithMoat()) {
             moatViewabilityController.startOverlayTracking(currentActivity.get(), imageView, overlayAdData);
         }
     }
 
-    public void stopOverlayTracking() {
+    void stopOverlayTracking() {
         if (shouldTrackWithMoat()) {
             moatViewabilityController.stopOverlayTracking();
         }
@@ -82,7 +77,6 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
 
     private boolean shouldTrackWithMoat() {
          return applicationProperties.canUseMoatForAdViewability()
-                 && featureFlags.isEnabled(Flag.MOAT_ADS_VIEWABILITY)
                  && currentActivity != null
                  && currentActivity.get() != null;
     }

@@ -246,7 +246,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void setupMoatAnalytics() {
-        if (applicationProperties.canUseMoatForAdViewability() && featureFlags.isEnabled(Flag.MOAT_ADS_VIEWABILITY)) {
+        if (applicationProperties.canUseMoatForAdViewability()) {
             final MoatOptions options = new MoatOptions();
             options.disableAdIdCollection = true;
             MoatAnalytics.getInstance().start(options, this);
