@@ -129,13 +129,19 @@ class UserDetailsView {
 
     interface UserDetailsListener {
         void onViewUri(Uri uri);
+
+        void onViewFollowersClicked();
+
+        void onViewFollowingClicked();
     }
 
     @OnClick(R.id.view_followers)
     void onViewFollowersClicked(View item) {
+        listener.onViewFollowersClicked();
     }
 
     @OnClick(R.id.view_following)
     void onViewFollowingClicked(View item) {
+        listener.onViewFollowingClicked();
     }
 }

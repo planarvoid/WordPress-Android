@@ -1,9 +1,11 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -40,6 +42,8 @@ import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.profile.FollowersActivity;
+import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -666,4 +670,34 @@ public class NavigatorTest extends AndroidUnitTest {
 
         verify(eventTracker).trackNavigation(navigationEvent);
     }
+
+    @Test
+    public void openActivities() {
+        navigator.openActivities(activityContext);
+        assertThat(activityContext).nextStartedIntent().opensActivity(ActivitiesActivity.class);
+    }
+
+    @Test
+    public void openFollowers() {
+        Urn userUrn = Urn.forUser(123L);
+        SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
+        navigator.openFollowers(activityContext, userUrn, searchQuerySourceInfo);
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(FollowersActivity.class)
+                                   .containsExtra(FollowersActivity.EXTRA_USER_URN, userUrn)
+                                   .containsExtra(FollowersActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+    }
+
+
+    @Test
+    public void openFollowings() {
+        Urn userUrn = Urn.forUser(123L);
+        SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
+        navigator.openFollowings(activityContext, userUrn, searchQuerySourceInfo);
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(FollowingsActivity.class)
+                                   .containsExtra(FollowingsActivity.EXTRA_USER_URN, userUrn)
+                                   .containsExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+    }
+
 }
