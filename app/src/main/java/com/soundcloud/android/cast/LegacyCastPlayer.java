@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_U
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPositionLegacy;
 
 import com.google.android.gms.cast.MediaStatus;
-import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
@@ -87,17 +86,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     }
 
     @Override
-    public void onConnected(RemoteMediaClient remoteMediaClient) {
-        //no-op
-    }
-
-    @Override
-    public void pullRemotePlayQueueAndUpdateLocalState() {
-        //no-op
-    }
-
-    @Override
-    public void playLocalPlayQueueOnRemote() {
+    public void onConnected() {
         //no-op
     }
 

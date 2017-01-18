@@ -45,20 +45,23 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
         this.connectionChangeListeners = new HashSet<>();
     }
 
+    @Override
     public void addOnConnectionChangeListener(OnConnectionChangeListener listener) {
         connectionChangeListeners.add(listener);
         notifyListeners(isCastableDeviceAvailable);
     }
 
+    @Override
     public void removeOnConnectionChangeListener(OnConnectionChangeListener listener) {
         connectionChangeListeners.remove(listener);
     }
 
+    @Override
     public void notifyConnectionChange(boolean castAvailable, Optional<String> optionalDeviceName) {
         this.deviceName = optionalDeviceName.or(StringUtils.EMPTY_STRING);
         this.isCastableDeviceAvailable = castAvailable;
+        updateMediaRouteButtonsVisibility();
         notifyListeners(castAvailable);
-        updateMediaRouteButtons();
     }
 
     private void notifyListeners(boolean castAvailable) {
@@ -68,6 +71,16 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
             } else {
                 listener.onCastUnavailable();
             }
+        }
+    }
+
+    private void updateMediaRouteButtonsVisibility() {
+        for (MediaRouteButton mediaRouteButton : mediaRouteButtons) {
+            mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
+        }
+
+        for (MenuItem mediaRouteButton : mediaRouteMenuItems) {
+            mediaRouteButton.setVisible(isCastableDeviceAvailable);
         }
     }
 
@@ -127,16 +140,5 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     public String getDeviceName() {
         return deviceName;
     }
-
-    private void updateMediaRouteButtons() {
-        for (MediaRouteButton mediaRouteButton : mediaRouteButtons) {
-            mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
-        }
-
-        for (MenuItem mediaRouteButton : mediaRouteMenuItems) {
-            mediaRouteButton.setVisible(isCastableDeviceAvailable);
-        }
-    }
-
 }
 

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,12 +14,13 @@ import org.mockito.Mock;
 public class CastConfigStorageTest extends AndroidUnitTest {
 
     @Mock private ApplicationProperties appProperties;
+    @Mock private FeatureFlags featureFlags;
 
     private CastConfigStorage castConfigStorage;
 
     @Before
     public void setUp() throws Exception {
-        castConfigStorage = new CastConfigStorage(context(), sharedPreferences(), appProperties);
+        castConfigStorage = new CastConfigStorage(context(), sharedPreferences(), appProperties, featureFlags);
     }
 
     @Test

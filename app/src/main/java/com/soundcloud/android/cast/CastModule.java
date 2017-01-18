@@ -4,7 +4,6 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStatePublisher;
@@ -20,7 +19,6 @@ import dagger.Provides;
 
 import android.content.Context;
 
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Module
@@ -86,21 +84,22 @@ public class CastModule {
                                         Lazy<DefaultCastOperations> castOperations,
                                         Lazy<LegacyCastOperations> legacyCastOperations,
                                         Lazy<VideoCastManager> videoCastManager,
-                                        ProgressReporter progressReporter,
+                                        Lazy<ProgressReporter> progressReporter,
                                         PlayQueueManager playQueueManager,
                                         EventBus eventBus,
                                         PlayStatePublisher playStatePublisher,
                                         CurrentDateProvider dateProvider,
                                         CastProtocol castProtocol,
                                         PlaySessionStateProvider playSessionStateProvider,
-                                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriber) {
+                                        CastQueueController castQueueController,
+                                        CastPlayStateReporter castPlayStateReporter) {
         if (featureFlags.isDisabled(Flag.CAST_V3)) {
-            return new LegacyCastPlayer(legacyCastOperations.get(), videoCastManager.get(), progressReporter,
+            return new LegacyCastPlayer(legacyCastOperations.get(), videoCastManager.get(), progressReporter.get(),
                                         playQueueManager, eventBus, playStatePublisher, dateProvider);
         } else {
-            return new DefaultCastPlayer(castOperations.get(), progressReporter, playQueueManager, eventBus,
-                                         playStatePublisher, dateProvider, castProtocol, playSessionStateProvider,
-                                         expandPlayerSubscriber);
+            return new DefaultCastPlayer(castOperations.get(), playQueueManager, eventBus,
+                                         castProtocol, playSessionStateProvider,
+                                         castQueueController, castPlayStateReporter);
         }
     }
 

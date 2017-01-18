@@ -132,6 +132,10 @@ public class PlaybackStateTransition {
         return newState == PlaybackState.IDLE && reason == PlayStateReason.NONE;
     }
 
+    public boolean isCastDisconnection() {
+        return newState == PlaybackState.IDLE && reason == PlayStateReason.CAST_DISCONNECTED;
+    }
+
     public String getExtraAttribute(int key) {
         return extraAttributes.get(key);
     }

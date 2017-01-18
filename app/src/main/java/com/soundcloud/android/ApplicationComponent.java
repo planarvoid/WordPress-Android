@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
+import com.soundcloud.android.cast.CastMediaIntentReceiver;
 import com.soundcloud.android.cast.CastOptionsProvider;
 import com.soundcloud.android.cast.CastRedirectActivity;
 import com.soundcloud.android.collection.CollectionFragment;
@@ -194,6 +195,7 @@ public interface ApplicationComponent {
     //Cast
     void inject(CastRedirectActivity castRedirectActivity);
     void inject(CastOptionsProvider castOptionsProvider);
+    void inject(CastMediaIntentReceiver castMediaIntentReceiver);
 
     //PlayerModule
     void inject(PlayerFragment playerFragment);

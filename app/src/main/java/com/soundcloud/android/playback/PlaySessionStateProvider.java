@@ -53,7 +53,7 @@ public class PlaySessionStateProvider {
     }
 
     @NonNull
-    public PlayStateEvent getPlayStateEvent(PlaybackStateTransition stateTransition, long duration) {
+    private PlayStateEvent getPlayStateEvent(PlaybackStateTransition stateTransition, long duration) {
         final boolean isFirstPlay = stateTransition.isPlayerPlaying() && !playSessionStateStorage.hasPlayId();
         final String playId = isFirstPlay ? uuidProvider.getRandomUuid() : playSessionStateStorage.getLastPlayId();
         return PlayStateEvent.create(stateTransition, duration, isFirstPlay, playId);
@@ -99,8 +99,8 @@ public class PlaySessionStateProvider {
         return playSessionStateStorage.getLastStoredProgress();
     }
 
-    public String getCurrentPlayId() {
-        return playSessionStateStorage.getLastPlayId();
+    public boolean wasLastStateACastDisconnection() {
+        return lastStateEvent.isCastDisconnection();
     }
 
     public boolean isPlaying() {

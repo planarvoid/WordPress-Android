@@ -428,6 +428,8 @@
             android:exported="false">
         </service>
 
+        <receiver android:name=".cast.CastMediaIntentReceiver"/>
+
         <!-- Legacy Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">
             <intent-filter>

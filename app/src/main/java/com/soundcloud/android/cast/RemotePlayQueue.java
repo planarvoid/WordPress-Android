@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@AutoValue
+@Deprecated @AutoValue
 public abstract class RemotePlayQueue {
 
     public static RemotePlayQueue create(List<Urn> trackList, Urn currentTrackUrn) {

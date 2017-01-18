@@ -98,6 +98,13 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void wasLastStateACastDisconnectionReturnsTrueIfLastTransitionWasThat() {
+        provider.onPlayStateTransition(TestPlayerTransitions.idle(PlayStateReason.CAST_DISCONNECTED), DURATION);
+
+        assertThat(provider.wasLastStateACastDisconnection()).isTrue();
+    }
+
+    @Test
     public void isCurrentlyPlayingTrueIfReceivedEventForTrack() {
         provider.onPlayStateTransition(TestPlayerTransitions.buffering(), DURATION);
 

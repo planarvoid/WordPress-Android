@@ -280,6 +280,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void togglePlaybackShouldPlayCurrentOnPlaybackStrategyIfJustDisconnectedFromCastSession() {
+        when(playSessionStateProvider.wasLastStateACastDisconnection()).thenReturn(true);
+
+        controller.togglePlayback();
+
+        assertThat(playCurrentSubject.hasObservers()).isTrue();
+        verify(playbackStrategy, never()).togglePlayback();
+    }
+
+    @Test
     public void playCurrentCallsPlayCurrentOnPlaybackStrategy() {
         controller.playCurrent();
 

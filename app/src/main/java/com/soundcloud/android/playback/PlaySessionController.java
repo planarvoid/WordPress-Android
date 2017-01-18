@@ -24,9 +24,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -55,24 +52,6 @@ public class PlaySessionController {
     private final PlaybackServiceController playbackServiceController;
 
     private Subscription subscription = RxUtils.invalidSubscription();
-
-    private final Action0 stopLoadingPreviousTrack = () -> subscription.unsubscribe();
-
-    private final Action1<PlaybackResult> playCurrentTrack = playbackResult -> playCurrent();
-
-    private final Func1<PlayQueue, Observable<Void>> toPlayCurrent = new Func1<PlayQueue, Observable<Void>>() {
-        @Override
-        public Observable<Void> call(PlayQueue playQueueItems) {
-            return playbackStrategyProvider.get().playCurrent();
-        }
-    };
-
-    private final Action1<PlayQueue> showPlayer = new Action1<PlayQueue>() {
-        @Override
-        public void call(PlayQueue ignore) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
-        }
-    };
 
     @Inject
     public PlaySessionController(EventBus eventBus,
@@ -103,13 +82,15 @@ public class PlaySessionController {
         if (playQueueManager.isQueueEmpty()) {
             subscription.unsubscribe();
             subscription = playQueueManager.loadPlayQueueAsync()
-                                           .doOnNext(showPlayer)
-                                           .subscribe(new DefaultSubscriber<PlayQueue>());
+                                           .doOnNext(playQueue -> eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer()))
+                                           .subscribe(new DefaultSubscriber<>());
         }
     }
 
     public void togglePlayback() {
-        if (isPlayingCurrentPlayQueueItem()) {
+        if (playSessionStateProvider.wasLastStateACastDisconnection()) {
+            playCurrent();
+        } else if (isPlayingCurrentPlayQueueItem()) {
             if (playSessionStateProvider.isInErrorState()) {
                 playCurrent();
             } else {
@@ -204,8 +185,8 @@ public class PlaySessionController {
         } else {
             return playbackStrategyProvider.get()
                                            .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
-                                           .doOnSubscribe(stopLoadingPreviousTrack)
-                                           .doOnNext(playCurrentTrack);
+                                           .doOnSubscribe(() -> subscription.unsubscribe())
+                                           .doOnNext(playbackResult -> playCurrent());
         }
     }
 
@@ -221,7 +202,7 @@ public class PlaySessionController {
     void playCurrent() {
         subscription.unsubscribe();
         Observable<Void> playCurrentObservable = playQueueManager.isQueueEmpty()
-                                                 ? playQueueManager.loadPlayQueueAsync().flatMap(toPlayCurrent)
+                                                 ? playQueueManager.loadPlayQueueAsync().flatMap(playQueueItems -> playbackStrategyProvider.get().playCurrent())
                                                  : playbackStrategyProvider.get().playCurrent();
 
         subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
