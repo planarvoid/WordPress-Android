@@ -14,9 +14,10 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
-public class FetchPlaylistsCommand extends BulkFetchCommand<ApiPlaylist> {
+public class FetchPlaylistsCommand extends BulkFetchCommand<ApiPlaylist, ApiPlaylist> {
 
     @Inject
     public FetchPlaylistsCommand(ApiClient apiClient) {
@@ -26,6 +27,11 @@ public class FetchPlaylistsCommand extends BulkFetchCommand<ApiPlaylist> {
     @VisibleForTesting
     FetchPlaylistsCommand(ApiClient apiClient, int pageSize) {
         super(apiClient, pageSize);
+    }
+
+    @Override
+    protected Collection<ApiPlaylist> transformResults(Collection<ApiPlaylist> results) {
+        return results;
     }
 
     @Override

@@ -18,7 +18,7 @@ import java.util.List;
 
 public class EntitySyncJob implements SyncJob {
 
-    private final BulkFetchCommand<? extends ApiSyncable> fetchResources;
+    private final BulkFetchCommand<? extends ApiSyncable, ? extends ApiSyncable> fetchResources;
     private final WriteStorageCommand storeResources;
     private final Command<Collection<? extends ApiSyncable>, Boolean> publishSyncEvent;
 
@@ -27,7 +27,7 @@ public class EntitySyncJob implements SyncJob {
     private Exception exception;
 
     @Inject
-    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable> fetchResources, WriteStorageCommand storeResources, PublishUpdateEventCommand publishSyncEvent) {
+    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable, ? extends ApiSyncable> fetchResources, WriteStorageCommand storeResources, PublishUpdateEventCommand publishSyncEvent) {
         this.fetchResources = fetchResources;
         this.storeResources = storeResources;
         this.publishSyncEvent = publishSyncEvent;

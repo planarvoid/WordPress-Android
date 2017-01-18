@@ -1,14 +1,16 @@
 package com.soundcloud.android.sync.commands;
 
-import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
@@ -23,9 +25,7 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FetchUsersCommandTest extends AndroidUnitTest {
 
@@ -39,39 +39,41 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldResolveUrnsToFullUsersViaApiMobile() throws Exception {
-        final List<ApiUser> users = ModelFixtures.create(ApiUser.class, 2);
+    public void shouldResolveUrnsToFullUsersViaPublicApi() throws Exception {
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         final List<Urn> urns = Arrays.asList(users.get(0).getUrn(), users.get(1).getUrn());
 
-        setupRequest(urns, users);
+        setupLegacyRequest(urns, users);
 
         Collection<ApiUser> result = command.with(urns).call();
-        assertThat(result).isEqualTo(users);
+
+        assertThat(result.toArray()).isEqualTo(transformUsers(users).toArray());
     }
 
     @Test
     public void shouldResolveUrnsToFullUsersViaApiMobileInPages() throws Exception {
-        final List<ApiUser> users = ModelFixtures.create(ApiUser.class, 3);
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
         final List<Urn> urns = Arrays.asList(users.get(0).getUrn(), users.get(1).getUrn(), users.get(2).getUrn());
 
-        setupRequest(urns.subList(0, 2), users.subList(0, 2));
-        setupRequest(urns.subList(2, 3), users.subList(2, 3));
+        setupLegacyRequest(urns.subList(0, 2), users.subList(0, 2));
+        setupLegacyRequest(urns.subList(2, 3), users.subList(2, 3));
 
         Collection<ApiUser> result = command.with(urns).call();
-        assertThat(result).isEqualTo(users);
+        assertThat(result.toArray()).isEqualTo(transformUsers(users).toArray());
     }
 
     @Test
     public void shouldIgnoreUrnsWithNegativeId() throws Exception {
-        final List<ApiUser> users = ModelFixtures.create(ApiUser.class, 2);
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         final List<Urn> urns = Collections.singletonList(users.get(0).getUrn());
 
-        setupRequest(urns, users);
+        setupLegacyRequest(urns, users);
 
         Collection<ApiUser> result = command
                 .with(Arrays.asList(users.get(0).getUrn(), Urn.forUser(-10)))
                 .call();
-        assertThat(result).isEqualTo(users);
+
+        assertThat(result.toArray()).isEqualTo(transformUsers(users).toArray());
     }
 
     @Test
@@ -83,11 +85,15 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
         verifyZeroInteractions(apiClient);
     }
 
-    private void setupRequest(List<Urn> urns, List<ApiUser> users) throws Exception {
-        Map<String, List<String>> body = new HashMap<>();
-        body.put("urns", Urns.toString(urns));
-
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.USERS_FETCH.path()).withContent(body)), isA(TypeToken.class)))
+    private void setupLegacyRequest(List<Urn> urns, List<PublicApiUser> users) throws Exception {
+        final String joinedIds = Urns.toJoinedIds(urns, ",");
+        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_USERS.path())
+                                                           .withQueryParam("ids", joinedIds)
+                                                           .withQueryParam("linked_partitioning", "1")), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(users));
+    }
+
+    private List<ApiUser> transformUsers(List<PublicApiUser> users) {
+        return Lists.transform(users, PublicApiUser::toApiMobileUser);
     }
 }

@@ -40,7 +40,7 @@ public class PostsSyncerTest extends AndroidUnitTest {
     @Mock private FetchPostsCommand fetcyMyPlaylists;
     @Mock private StorePostsCommand storePlaylistPosts;
     @Mock private RemovePostsCommand removePlaylistPosts;
-    @Mock private BulkFetchCommand<ApiPlaylist> fetchPostResources;
+    @Mock private BulkFetchCommand<ApiPlaylist, ApiPlaylist> fetchPostResources;
     @Mock private StorePlaylistsCommand storePostResources;
     private TestEventBus eventBus = new TestEventBus();
 

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class BulkFetchCommand<ApiModel>
-        extends LegacyCommand<List<Urn>, Collection<ApiModel>, BulkFetchCommand<ApiModel>> {
+public abstract class BulkFetchCommand<ApiModel, OutputModel>
+        extends LegacyCommand<List<Urn>, Collection<OutputModel>, BulkFetchCommand<ApiModel, OutputModel>> {
 
     private static final int DEFAULT_PAGE_SIZE = 100;
 
@@ -38,7 +38,7 @@ public abstract class BulkFetchCommand<ApiModel>
     }
 
     @Override
-    public Collection<ApiModel> call() throws ApiRequestException, IOException, ApiMapperException {
+    public Collection<OutputModel> call() throws ApiRequestException, IOException, ApiMapperException {
         final List<Urn> validUrns = newArrayList(filter(input, VALID_URN_PREDICATE));
         final Collection<ApiModel> results = new ArrayList<>(validUrns.size());
         final List<List<Urn>> batchesOfUrns = partition(validUrns, pageSize);
@@ -48,11 +48,14 @@ public abstract class BulkFetchCommand<ApiModel>
             Iterables.addAll(results, apiClient.fetchMappedResponse(request, provideResourceType()));
         }
 
-        return results;
+        return transformResults(results);
     }
 
+    // TODO : Remove this when we are returning all Api-Mobile entities and don't have to transform
+    protected abstract Collection<OutputModel> transformResults(Collection<ApiModel> results);
+
     @Override
-    public Observable<Collection<ApiModel>> toObservable() {
+    public Observable<Collection<OutputModel>> toObservable() {
         return super.toObservable().subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
