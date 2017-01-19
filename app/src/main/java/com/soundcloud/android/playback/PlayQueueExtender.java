@@ -37,7 +37,7 @@ public class PlayQueueExtender {
     private final StationsOperations stationsOperations;
     private final SharedPreferences sharedPreferences;
     private final EventBus eventBus;
-    private CastConnectionHelper castConnectionHelper;
+    private final CastConnectionHelper castConnectionHelper;
     private final FeatureFlags featureFlags;
 
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();

@@ -25,7 +25,7 @@ public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivi
 
     MenuItem addMediaRouterButton(Context context, Menu menu, int itemId);
 
-    void removeMediaRouterButton(MenuItem castMenu);
+    void removeMediaRouterButton(Context context, MenuItem castMenu);
 
     void addMediaRouterButton(MediaRouteButton mediaRouteButton);
 

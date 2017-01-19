@@ -6,7 +6,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.LoggedInController;
 import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.cast.CastIntroductoryOverlayPresenter;
 import com.soundcloud.android.policies.PolicyUpdateController;
+import com.soundcloud.android.cast.CastIntroductoryOverlayPresenter;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.stream.StreamRefreshController;
 import com.soundcloud.java.optional.Optional;
@@ -23,7 +25,7 @@ import javax.inject.Inject;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class LoggedInActivity extends RootActivity {
+public abstract class LoggedInActivity extends RootActivity implements CastConnectionHelper.OnConnectionChangeListener {
 
     @Inject @LightCycle CastConnectionHelper castConnectionHelper;
     @Inject @LightCycle UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
@@ -31,6 +33,7 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle LoggedInController loggedInController;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
+    @Inject @LightCycle CastIntroductoryOverlayPresenter castIntroductoryOverlayPresenter;
 
     private Optional<MenuItem> castMenu = Optional.absent();
 
@@ -55,7 +58,8 @@ public abstract class LoggedInActivity extends RootActivity {
     @Override
     protected void onPause() {
         if (castMenu.isPresent()) {
-            castConnectionHelper.removeMediaRouterButton(castMenu.get());
+            castConnectionHelper.removeMediaRouterButton(this, castMenu.get());
+            castMenu = Optional.absent();
         }
         super.onPause();
     }
@@ -114,5 +118,13 @@ public abstract class LoggedInActivity extends RootActivity {
         return super.dispatchKeyEvent(event);
     }
 
+    @Override
+    public void onCastAvailable() {
+        castIntroductoryOverlayPresenter.showIntroductoryOverlayForCastIfNeeded();
+    }
 
+    @Override
+    public void onCastUnavailable() {
+        // default impl.: no-op
+    }
 }

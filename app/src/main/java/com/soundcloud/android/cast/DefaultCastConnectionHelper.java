@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 @Singleton
 class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
@@ -29,7 +30,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     private static final int EXPECTED_MEDIA_BUTTON_CAPACITY = 6;
 
     private final Set<MediaRouteButton> mediaRouteButtons;
-    private final Set<MenuItem> mediaRouteMenuItems;
+    private final WeakHashMap<Context, MenuItem> mediaRouteMenuItems;
 
     private final Set<OnConnectionChangeListener> connectionChangeListeners;
     private final CastContextWrapper castContextWrapper;
@@ -40,9 +41,26 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     @Inject
     DefaultCastConnectionHelper(CastContextWrapper castContextWrapper) {
         this.castContextWrapper = castContextWrapper;
-        this.mediaRouteMenuItems = new HashSet<>();
+        this.mediaRouteMenuItems = new WeakHashMap<>();
         this.mediaRouteButtons = new HashSet<>(EXPECTED_MEDIA_BUTTON_CAPACITY);
         this.connectionChangeListeners = new HashSet<>();
+    }
+
+    @Override
+    public void onPause(AppCompatActivity activity) {
+        if (activity instanceof OnConnectionChangeListener) {
+            removeOnConnectionChangeListener((OnConnectionChangeListener) activity);
+        }
+        super.onPause(activity);
+    }
+
+    @Override
+    public void onResume(AppCompatActivity activity) {
+        super.onResume(activity);
+        if (activity instanceof OnConnectionChangeListener) {
+            addOnConnectionChangeListener((OnConnectionChangeListener) activity);
+            activity.invalidateOptionsMenu();
+        }
     }
 
     @Override
@@ -79,7 +97,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
             mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
         }
 
-        for (MenuItem mediaRouteButton : mediaRouteMenuItems) {
+        for (MenuItem mediaRouteButton : mediaRouteMenuItems.values()) {
             mediaRouteButton.setVisible(isCastableDeviceAvailable);
         }
     }
@@ -90,7 +108,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
             final MenuItem menuItem = CastButtonFactory.setUpMediaRouteButton(context, menu, itemId);
             Log.d(TAG, "AddMediaRouterButton called for " + menuItem + " vis : " + isCastableDeviceAvailable);
 
-            mediaRouteMenuItems.add(menuItem);
+            mediaRouteMenuItems.put(context, menuItem);
             menuItem.setVisible(isCastableDeviceAvailable);
             return menuItem;
 
@@ -101,8 +119,8 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     }
 
     @Override
-    public void removeMediaRouterButton(MenuItem castMenu) {
-        mediaRouteMenuItems.remove(castMenu);
+    public void removeMediaRouterButton(Context context, MenuItem castMenu) {
+        mediaRouteMenuItems.remove(context);
     }
 
     @Override

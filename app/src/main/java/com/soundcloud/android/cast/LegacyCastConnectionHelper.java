@@ -78,7 +78,7 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
     }
 
     @Override
-    public void removeMediaRouterButton(MenuItem castMenu) {
+    public void removeMediaRouterButton(Context context, MenuItem castMenu) {
         // no-op
     }
 
