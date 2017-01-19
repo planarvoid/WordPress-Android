@@ -1,7 +1,6 @@
 package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.cast.CastProtocol.TAG;
-import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST;
 
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
@@ -195,18 +194,14 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     public Observable<PlaybackResult> setNewQueue(List<Urn> trackItemUrns,
                                                   final Urn initialTrackUrn,
                                                   final PlaySessionSource playSessionSource) {
-        return castOperations.validateTracksToPlay(initialTrackUrn, trackItemUrns)
-                             .observeOn(AndroidSchedulers.mainThread())
-                             .map(filteredTrackUrns -> {
-                                 if (filteredTrackUrns.isEmpty()) {
-                                     return PlaybackResult.error(TRACK_UNAVAILABLE_CAST);
-                                 } else {
-                                     playStateReporter.reportPlayingReset(initialTrackUrn);
-                                     castOperations.setNewPlayQueue(filteredTrackUrns, initialTrackUrn, playSessionSource);
-                                     return PlaybackResult.success();
-                                 }
-                             })
-                             .doOnError(throwable -> playStateReporter.reportPlayingError(initialTrackUrn));
+        return Observable.just(trackItemUrns)
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .map(urns -> {
+                             playStateReporter.reportPlayingReset(initialTrackUrn);
+                             castOperations.setNewPlayQueue(urns, initialTrackUrn, playSessionSource);
+                             return PlaybackResult.success();
+                         })
+                         .doOnError(throwable -> playStateReporter.reportPlayingError(initialTrackUrn));
     }
 
     @Override

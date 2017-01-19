@@ -284,37 +284,16 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setNewQueueWhenTracksAreNotFilteredOut() {
-        final List<Urn> filteredUrns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
-        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.validateTracksToPlay(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(filteredUrns));
+    public void setNewQueueWithSelectedTracks() {
+        final List<Urn> urns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
 
-        castPlayer.setNewQueue(filteredUrns, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(urns, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
-        verify(castOperations).setNewPlayQueue(filteredUrns, TRACK_URN1, PlaySessionSource.EMPTY);
-    }
-
-    @Test
-    public void reportErrorToBusOnUnsuccessfulFilteringOfTracksWhenTryingToSetNewQueue() {
-        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(castOperations.validateTracksToPlay(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.error(new Throwable("loading error")));
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-
-        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
-
-        verify(castPlayStateReporter).reportPlayingError(TRACK_URN1);
+        verify(castOperations).setNewPlayQueue(urns, TRACK_URN1, PlaySessionSource.EMPTY);
     }
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
-        final List<Urn> filteredUrns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
-        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(castOperations.validateTracksToPlay(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(filteredUrns));
-
         castPlayer.setNewQueue(singletonList(TRACK_URN1), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
@@ -323,27 +302,12 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotFilteredOut() {
-        final List<Urn> filteredUrns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
-        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(castOperations.validateTracksToPlay(any(Urn.class), anyListOf(Urn.class)))
-                .thenReturn(Observable.just(filteredUrns));
+        final List<Urn> urns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
 
-        castPlayer.setNewQueue(singletonList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(urns, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
-    }
-
-    @Test
-    public void setNewQueueEmitsTrackUnavailablePlaybackResultWhenInitialTrackIsFilteredOut() {
-        final List<Urn> unfilteredTracks = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
-        when(castOperations.validateTracksToPlay(TRACK_URN1, unfilteredTracks)).thenReturn(Observable.just(emptyList()));
-
-        castPlayer.setNewQueue(unfilteredTracks, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
-        assertThat(observer.getOnNextEvents().get(0).getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
     }
 
     @Test

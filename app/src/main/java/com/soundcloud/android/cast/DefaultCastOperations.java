@@ -36,24 +36,12 @@ public class DefaultCastOperations {
     }
 
     Observable<LoadMessageParameters> createLoadMessageParameters(final Urn currentTrackUrn, final boolean autoplay, final long playPosition, final List<Urn> queueTracks) {
-        if (!queueTracks.contains(currentTrackUrn)) {
-            return Observable.error(new IllegalStateException("Cannot play track " + currentTrackUrn + " as it was filtered out of the list of tracks"));
-        } else {
-            return Observable.zip(trackRepository.track(currentTrackUrn), Observable.just(queueTracks),
-                                  (trackItem, tracks) -> {
-                                      CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, tracks);
-                                      castPlayQueue.setCredentials(getCastCredentials());
-                                      return new LoadMessageParameters(autoplay, playPosition, jsonHandler.toJson(castPlayQueue));
-                                  });
-        }
-    }
-
-    Observable<List<Urn>> validateTracksToPlay(Urn currentTrackUrn, List<Urn> trackList) {
-        if (trackList.contains(currentTrackUrn)) {
-            return Observable.just(trackList);
-        } else {
-            return Observable.just(Collections.emptyList());
-        }
+        return Observable.just(queueTracks)
+                         .zipWith(trackRepository.track(currentTrackUrn), (tracks, currentTrackItem) -> {
+                             CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, tracks);
+                             castPlayQueue.setCredentials(getCastCredentials());
+                             return new LoadMessageParameters(autoplay, playPosition, jsonHandler.toJson(castPlayQueue));
+                         });
     }
 
     public void setNewPlayQueue(List<Urn> urns, Urn initialTrackUrn, PlaySessionSource playSessionSource) {
