@@ -289,7 +289,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.filterTracksToBePlayedRemotely(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(filteredUrns));
+        when(castOperations.validateTracksToPlay(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(filteredUrns));
 
         castPlayer.setNewQueue(filteredUrns, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
@@ -299,7 +299,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     @Test
     public void reportErrorToBusOnUnsuccessfulFilteringOfTracksWhenTryingToSetNewQueue() {
         when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(castOperations.filterTracksToBePlayedRemotely(any(Urn.class), anyListOf(Urn.class)))
+        when(castOperations.validateTracksToPlay(any(Urn.class), anyListOf(Urn.class)))
                 .thenReturn(Observable.error(new Throwable("loading error")));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
 
@@ -312,7 +312,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
         final List<Urn> filteredUrns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
         when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(castOperations.filterTracksToBePlayedRemotely(any(Urn.class), anyListOf(Urn.class)))
+        when(castOperations.validateTracksToPlay(any(Urn.class), anyListOf(Urn.class)))
                 .thenReturn(Observable.just(filteredUrns));
 
         castPlayer.setNewQueue(singletonList(TRACK_URN1), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
@@ -325,7 +325,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotFilteredOut() {
         final List<Urn> filteredUrns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
         when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(castOperations.filterTracksToBePlayedRemotely(any(Urn.class), anyListOf(Urn.class)))
+        when(castOperations.validateTracksToPlay(any(Urn.class), anyListOf(Urn.class)))
                 .thenReturn(Observable.just(filteredUrns));
 
         castPlayer.setNewQueue(singletonList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
@@ -337,7 +337,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     @Test
     public void setNewQueueEmitsTrackUnavailablePlaybackResultWhenInitialTrackIsFilteredOut() {
         final List<Urn> unfilteredTracks = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
-        when(castOperations.filterTracksToBePlayedRemotely(TRACK_URN1, unfilteredTracks)).thenReturn(Observable.just(emptyList()));
+        when(castOperations.validateTracksToPlay(TRACK_URN1, unfilteredTracks)).thenReturn(Observable.just(emptyList()));
 
         castPlayer.setNewQueue(unfilteredTracks, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 

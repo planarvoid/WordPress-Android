@@ -133,7 +133,7 @@ public class AdsOperations {
                                                                               inForeground));
     }
 
-    public void applyAdToUpcomingTrack(ApiAdsForTrack ads) {
+    void applyAdToUpcomingTrack(ApiAdsForTrack ads) {
         final PlayQueueItem monetizableItem = playQueueManager.getNextPlayQueueItem();
 
         if (monetizableItem instanceof TrackQueueItem) {
@@ -148,7 +148,7 @@ public class AdsOperations {
         }
     }
 
-    public void applyInterstitialToTrack(PlayQueueItem playQueueItem, ApiAdsForTrack ads) {
+    void applyInterstitialToTrack(PlayQueueItem playQueueItem, ApiAdsForTrack ads) {
         if (playQueueItem instanceof TrackQueueItem && ads.interstitialAd().isPresent()) {
             applyInterstitialAd(ads.interstitialAd().get(), (TrackQueueItem) playQueueItem);
         }
@@ -230,7 +230,7 @@ public class AdsOperations {
         return isCurrentItemVideoAd() && !((VideoAdQueueItem) playQueueManager.getCurrentPlayQueueItem()).isVerticalVideo();
     }
 
-    void clearAllAdsFromQueue() {
+    public void clearAllAdsFromQueue() {
         if (playQueueManager.removeItems(AdUtils.IS_PLAYER_AD_ITEM)) {
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAdsRemoved(playQueueManager.getCollectionUrn()));
         }

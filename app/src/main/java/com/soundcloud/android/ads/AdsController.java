@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.soundcloud.android.ads.AdsOperations.AdRequestData;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
@@ -61,6 +62,7 @@ public class AdsController {
     private final PlayQueueManager playQueueManager;
     private final TrackRepository trackRepository;
     private final Scheduler scheduler;
+    private final CastConnectionHelper castConnectionHelper;
     private final long fetchOperationStaleTime;
 
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
@@ -72,10 +74,6 @@ public class AdsController {
     private boolean isForeground;
     private boolean isPlayerVisible;
 
-    private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = playQueueEvent -> playQueueEvent.isQueueUpdate();
-
-    private static final Func1<TrackItem, Boolean> IS_MONETIZABLE = trackItem -> trackItem.isMonetizable();
-
     private static final Func2<TrackItem, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
             (track, kruxSegments) -> AdRequestData.forPlayerAd(track.getUrn(), kruxSegments);
 
@@ -83,6 +81,7 @@ public class AdsController {
         @Override
         public Boolean call(Object event) {
             return featureOperations.shouldRequestAds()
+                    && !castConnectionHelper.isCasting()
                     && playQueueManager.hasTrackAsNextItem()
                     && !adsOperations.isNextItemAd()
                     && !adsOperations.isCurrentItemAd()
@@ -94,6 +93,7 @@ public class AdsController {
         @Override
         public Boolean call(Object event) {
             return featureOperations.shouldRequestAds()
+                    && !castConnectionHelper.isCasting()
                     && playQueueManager.getCurrentPlayQueueItem().isTrack()
                     && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getCurrentPlayQueueItem());
@@ -135,9 +135,9 @@ public class AdsController {
                          AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
-                         TrackRepository trackRepository) {
+                         TrackRepository trackRepository, CastConnectionHelper castConnectionHelper) {
         this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, AndroidSchedulers.mainThread());
+             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
@@ -148,10 +148,11 @@ public class AdsController {
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
+                         CastConnectionHelper castConnectionHelper,
                          Scheduler scheduler) {
 
         this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, scheduler,
+             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, scheduler,
              DEFAULT_OPERATION_STALE_TIME);
     }
 
@@ -163,6 +164,7 @@ public class AdsController {
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
+                         CastConnectionHelper castConnectionHelper,
                          Scheduler scheduler,
                          long fetchOperationStaleTime) {
         this.eventBus = eventBus;
@@ -176,6 +178,7 @@ public class AdsController {
         this.trackRepository = trackRepository;
         this.scheduler = scheduler;
         this.fetchOperationStaleTime = fetchOperationStaleTime;
+        this.castConnectionHelper = castConnectionHelper;
     }
 
     public void subscribe() {
@@ -184,7 +187,7 @@ public class AdsController {
 
         final Observable<Object> queueChangeForAd = Observable.merge(
                 eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
-                eventBus.queue(EventQueue.PLAY_QUEUE).filter(IS_QUEUE_UPDATE)
+                eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent::isQueueUpdate)
         );
 
         queueChangeForAd
@@ -279,7 +282,7 @@ public class AdsController {
 
     private void createAdsFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
         final Observable<ApiAdsForTrack> apiAdsForTrack = Observable.zip(trackRepository.track(playQueueItem.getUrn())
-                                                                                        .filter(IS_MONETIZABLE),
+                                                                                        .filter(TrackItem::isMonetizable),
                                                                          adsOperations.kruxSegments(),
                                                                          TO_AD_REQUEST_DATA)
                                                                     .flatMap(fetchAds)

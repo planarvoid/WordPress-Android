@@ -33,7 +33,7 @@ public class CastJsonHandler {
         }
     }
 
-    public CastPlayQueue parseCastPlayQueue(JSONObject jsonObj) throws IOException, ApiMapperException, JSONException {
+    CastPlayQueue parseCastPlayQueue(JSONObject jsonObj) throws IOException, ApiMapperException, JSONException {
         String json = jsonObj.get(KEY_QUEUE_STATUS).toString();
         return jsonTransformer.fromJson(json, TypeToken.of(CastPlayQueue.class));
     }

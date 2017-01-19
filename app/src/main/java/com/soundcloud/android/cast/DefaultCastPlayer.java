@@ -192,10 +192,10 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     @Override
-    public Observable<PlaybackResult> setNewQueue(List<Urn> unfilteredLocalPlayQueueTracks,
+    public Observable<PlaybackResult> setNewQueue(List<Urn> trackItemUrns,
                                                   final Urn initialTrackUrn,
                                                   final PlaySessionSource playSessionSource) {
-        return castOperations.filterTracksToBePlayedRemotely(initialTrackUrn, unfilteredLocalPlayQueueTracks)
+        return castOperations.validateTracksToPlay(initialTrackUrn, trackItemUrns)
                              .observeOn(AndroidSchedulers.mainThread())
                              .map(filteredTrackUrns -> {
                                  if (filteredTrackUrns.isEmpty()) {

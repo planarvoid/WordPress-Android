@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastSession;
 import com.soundcloud.android.PlaybackServiceController;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,11 +27,12 @@ public class CastSessionControllerTest extends AndroidUnitTest {
     @Mock private CastDevice castDevice;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private CastProtocol castProtocol;
+    @Mock private AdsOperations adsOperations;
 
     @Before
     public void setUp() throws Exception {
         castSessionController = new DefaultCastSessionController(serviceInitiator,
-                                                                 castPlayer,
+                                                                 adsOperations, castPlayer,
                                                                  castContext,
                                                                  castConnectionHelper,
                                                                  castProtocol);
@@ -68,6 +70,13 @@ public class CastSessionControllerTest extends AndroidUnitTest {
         callOnConnectedToReceiverApp();
 
         verify(castProtocol).registerCastSession(castSession);
+    }
+
+    @Test
+    public void onSessionStartedClearsAllAdsFromQueue() {
+        callOnConnectedToReceiverApp();
+
+        verify(adsOperations).clearAllAdsFromQueue();
     }
 
     private void callOnConnectedToReceiverApp() {

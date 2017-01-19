@@ -6,6 +6,7 @@ import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.cast.framework.CastStateListener;
 import com.soundcloud.android.PlaybackServiceController;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 
@@ -18,20 +19,22 @@ import javax.inject.Singleton;
 public class DefaultCastSessionController extends SimpleCastSessionManagerListener implements CastStateListener {
 
     private final PlaybackServiceController serviceController;
+    private final AdsOperations adsOperations;
     private final DefaultCastPlayer castPlayer;
     private final CastContextWrapper castContext;
     private final CastConnectionHelper castConnectionHelper;
-    private CastProtocol castProtocol;
+    private final CastProtocol castProtocol;
 
     private Optional<CastSession> currentCastSession;
 
     @Inject
     public DefaultCastSessionController(PlaybackServiceController serviceController,
-                                        DefaultCastPlayer castPlayer,
+                                        AdsOperations adsOperations, DefaultCastPlayer castPlayer,
                                         CastContextWrapper castContext,
                                         CastConnectionHelper castConnectionHelper,
                                         CastProtocol castProtocol) {
         this.serviceController = serviceController;
+        this.adsOperations = adsOperations;
         this.castPlayer = castPlayer;
         this.castContext = castContext;
 
@@ -57,6 +60,7 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
     public void onSessionStarted(CastSession castSession, String sessionId) {
         Log.d(TAG, "DefaultCastSessionController::onSessionStarted() for id " + sessionId);
         serviceController.stopPlaybackService();
+        adsOperations.clearAllAdsFromQueue();
 
         onSessionUpdated(castSession);
     }
