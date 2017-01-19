@@ -60,7 +60,6 @@ import org.jetbrains.annotations.NotNull;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -333,7 +332,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
-    public void onSubmitUserDetails(String username, File avatarFile) {
+    public void onSubmitUserDetails(String username, @Nullable File avatarFile) {
         if (userUrn == Urn.NOT_SET) {
             return;
         }

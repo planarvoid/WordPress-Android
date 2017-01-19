@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import java.io.File;
 
@@ -15,7 +16,7 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     private static final String USERNAME_EXTRA = "username";
     private static final String AVATAR_EXTRA = "avatar";
 
-    public static AddUserInfoTaskFragment create(String username, File avatarFile) {
+    public static AddUserInfoTaskFragment create(String username, @Nullable File avatarFile) {
         final Bundle param = new Bundle();
         param.putString(USERNAME_EXTRA, username);
         if (avatarFile != null && avatarFile.exists() && avatarFile.length() > 0) {
@@ -34,9 +35,9 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
         final Account account = accountOperations.getSoundCloudAccount();
         final String username = getArguments().getString(USERNAME_EXTRA);
         final String permalink = account != null ? account.name : username;
-        final File avatarFile = getArguments().containsKey(AVATAR_EXTRA) ?
-                                new File(getArguments().getString(AVATAR_EXTRA)) :
-                                null;
+        final String avatarFilename = getArguments().getString(AVATAR_EXTRA, null);
+        final File avatarFile = avatarFilename != null ? new File(avatarFilename) : null;
+
         return new AddUserInfoTask(application,
                                    permalink,
                                    username,

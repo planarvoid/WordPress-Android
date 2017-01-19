@@ -18,6 +18,7 @@ import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.strings.Strings;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,13 +28,13 @@ public class AddUserInfoTask extends AuthTask {
     private final ApiClient apiClient;
     private final String username;
     private final String permalink;
-    private final File avatarFile;
+    @Nullable private final File avatarFile;
     private final AccountOperations accountOperations;
 
     public AddUserInfoTask(SoundCloudApplication app,
                            String permalink,
                            String username,
-                           File avatarFile,
+                           @Nullable File avatarFile,
                            StoreUsersCommand storeUsersCommand,
                            ApiClient apiClient,
                            AccountOperations accountOperations,
