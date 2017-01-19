@@ -1,6 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastIntroductoryOverlayPresenter;
 import com.soundcloud.android.comments.AddCommentArguments;
@@ -16,6 +17,7 @@ public abstract class PlayerActivity extends LoggedInActivity implements CastCon
     @Inject @LightCycle CommentController commentController;
     @Inject @LightCycle CastIntroductoryOverlayPresenter castIntroductoryOverlayPresenter;
     @Inject @LightCycle StatusBarColorController statusBarColorController;
+    @Inject AccountOperations accountOperations;
 
     public PlayerActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

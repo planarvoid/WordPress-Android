@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LoggedInController;
 import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -32,7 +31,6 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle LoggedInController loggedInController;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
-    @Inject AccountOperations accountOperations;
 
     private Optional<MenuItem> castMenu = Optional.absent();
 
