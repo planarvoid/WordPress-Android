@@ -26,7 +26,6 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.Following;
-import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer.ForbiddenFollowNotificationBuilder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -64,7 +63,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
 
     private MyFollowingsSyncer myFollowingsSyncer;
 
-    @Mock private ForbiddenFollowNotificationBuilder notificationBuilder;
+    @Mock private MyFollowingsSyncer.FollowErrorNotificationBuilder notificationBuilder;
     @Mock private ApiClient apiClient;
     @Mock private FollowingOperations followingOperations;
     @Mock private NotificationManager notificationManger;
@@ -211,6 +210,19 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
     @Test
     public void pushFollowingsRevertsOnForbiddenError() throws Exception {
         setupFailedPush(HttpStatus.FORBIDDEN);
+
+        myFollowingsSyncer.call();
+
+        assertThat(followingStatusPublishSubject.hasObservers()).isTrue();
+
+        verify(notificationManger, never()).notify(anyString(),
+                                                   anyInt(),
+                                                   any(Notification.class));
+    }
+
+    @Test
+    public void pushFollowingsRevertsOnNotFoundError() throws Exception {
+        setupFailedPush(HttpStatus.NOT_FOUND);
 
         myFollowingsSyncer.call();
 

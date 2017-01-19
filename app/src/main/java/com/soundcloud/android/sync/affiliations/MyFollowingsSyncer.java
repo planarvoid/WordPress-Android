@@ -47,7 +47,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
 
     private static final String TAG = "MyFollowingsSyncer";
 
-    private final ForbiddenFollowNotificationBuilder notificationBuilder;
+    private final FollowErrorNotificationBuilder notificationBuilder;
     private final ApiClient apiClient;
     private final UserAssociationStorage userAssociationStorage;
     private final FollowingOperations followingOperations;
@@ -55,7 +55,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     private final JsonTransformer jsonTransformer;
 
     @Inject
-    MyFollowingsSyncer(ForbiddenFollowNotificationBuilder notificationBuilder,
+    MyFollowingsSyncer(FollowErrorNotificationBuilder notificationBuilder,
                        ApiClient apiClient,
                        FollowingOperations followingOperations,
                        NotificationManager notificationManager,
@@ -136,14 +136,18 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     private void pushUserAssociationAddition(Urn userUrn, String userName, ApiRequest request) throws IOException, ApiRequestException {
         final ApiResponse response = apiClient.fetchResponse(request);
         int status = response.getStatusCode();
-        if (status == HttpStatus.FORBIDDEN || status == HttpStatus.BAD_REQUEST) {
-            forbiddenUserPushHandler(userUrn, userName, extractApiError(response.getResponseBody()));
+        if (shouldHandleError(status)) {
+            handleError(userUrn, userName, extractApiError(response.getResponseBody()));
         } else if (response.isSuccess()) {
             userAssociationStorage.updateFollowingFromPendingState(userUrn);
         } else {
             Log.w(TAG, "failure " + status + " in user association addition of " + userUrn);
             throw response.getFailure();
         }
+    }
+
+    private boolean shouldHandleError(int status) {
+        return status == HttpStatus.FORBIDDEN || status == HttpStatus.BAD_REQUEST || status == HttpStatus.NOT_FOUND;
     }
 
     private void pushUserAssociationRemoval(Urn userUrn, ApiRequest request) throws ApiRequestException {
@@ -161,7 +165,9 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
 
     @Nullable
     private FollowError extractApiError(String responseBody) throws IOException {
-        if (Strings.isBlank(responseBody)) return null;
+        if (Strings.isBlank(responseBody)) {
+            return null;
+        }
 
         try {
             return jsonTransformer.fromJson(responseBody, TypeToken.of(FollowError.class));
@@ -170,8 +176,8 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
         }
     }
 
-    private void forbiddenUserPushHandler(Urn userUrn, String userName, FollowError error) {
-        Optional<Notification> notification = getForbiddenNotification(userUrn, userName, error);
+    private void handleError(Urn userUrn, String userName, FollowError error) {
+        Optional<Notification> notification = getNotificationForError(userUrn, userName, error);
         if (notification.isPresent()) {
             notificationManager.notify(userUrn.toString(),
                                        NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
@@ -180,7 +186,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
         DefaultSubscriber.fireAndForget(followingOperations.toggleFollowing(userUrn, false));
     }
 
-    private Optional<Notification> getForbiddenNotification(Urn userUrn, String userName, FollowError error) {
+    private Optional<Notification> getNotificationForError(Urn userUrn, String userName, FollowError error) {
         if (error == null) return Optional.absent();
 
         if (error.isAgeRestricted()) {
@@ -195,12 +201,12 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     }
 
     @VisibleForTesting
-    static class ForbiddenFollowNotificationBuilder {
+    static class FollowErrorNotificationBuilder {
         private final Context context;
         private final Navigator navigator;
 
         @Inject
-        ForbiddenFollowNotificationBuilder(Context context, Navigator navigator) {
+        FollowErrorNotificationBuilder(Context context, Navigator navigator) {
             this.context = context;
             this.navigator = navigator;
         }
