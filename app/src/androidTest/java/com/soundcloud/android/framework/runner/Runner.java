@@ -22,7 +22,10 @@ public class Runner extends RandomizingRunner {
 
     public static void createDirs(Context context) {
         File testDir = IOUtils.getExternalStorageDir(context, TEST_DIR);
-        IOUtils.cleanDir(IOUtils.getExternalStorageDir(context));
+        File externalStorageDir = IOUtils.getExternalStorageDir(context);
+        if (externalStorageDir != null) {
+            IOUtils.cleanDir(externalStorageDir);
+        }
 
         if (!IOUtils.mkdirs(testDir)) {
             throw new AssertionError("Could not create " + testDir);

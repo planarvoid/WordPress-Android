@@ -14,7 +14,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -25,6 +24,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -274,7 +274,7 @@ public class IOUtils {
         return false;
     }
 
-    public static void cleanDir(File dir) {
+    public static void cleanDir(@NonNull File dir) {
         if (dir.isDirectory()) {
             File[] files = dir.listFiles();
             if (files != null && files.length > 0) {
@@ -291,7 +291,9 @@ public class IOUtils {
 
     public static void cleanDirs(File... dirs) {
         for (File d : dirs) {
-            cleanDir(d);
+            if (d != null) {
+                cleanDir(d);
+            }
         }
     }
 
