@@ -73,7 +73,7 @@ ext {
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
           tSnackBar                   : "com.androidadvance:topsnackbar:0.0.9",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
-          tapTargetView               : "com.getkeepsafe.taptargetview:taptargetview:1.6.1",
+          tapTargetView               : "com.getkeepsafe.taptargetview:taptargetview:1.7.0",
 
           // Android libraries
           androidMultidex                 : "com.android.support:multidex:$androidMultiDex",
