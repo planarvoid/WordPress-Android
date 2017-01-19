@@ -109,7 +109,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final TrackItem track = onlineTrack();
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        when(trackRepository.trackItem(trackUrn)).thenReturn(Observable.just(track));
 
         defaultPlaybackStrategy.resume();
 
@@ -138,7 +138,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final TrackItem track = onlineTrack();
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        when(trackRepository.trackItem(trackUrn)).thenReturn(Observable.just(track));
 
         defaultPlaybackStrategy.togglePlayback();
 
@@ -150,7 +150,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final TrackItem track = onlineTrack();
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        when(trackRepository.trackItem(trackUrn)).thenReturn(Observable.just(track));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
@@ -164,7 +164,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
+        when(trackRepository.trackItem(trackUrn)).thenReturn(Observable.just(offlineTrack));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
@@ -178,7 +178,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(false);
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
+        when(trackRepository.trackItem(trackUrn)).thenReturn(Observable.just(offlineTrack));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
@@ -204,7 +204,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         final TrackItem track = onlineTrack();
         track.setBlocked(true);
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        when(trackRepository.trackItem(trackUrn)).thenReturn(Observable.just(track));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 

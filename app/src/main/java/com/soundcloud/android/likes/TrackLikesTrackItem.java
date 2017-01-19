@@ -11,6 +11,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 import com.soundcloud.java.optional.Optional;
@@ -39,8 +40,8 @@ class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, Li
     }
 
     @Override
-    public TrackLikesTrackItem updatedWithTrackItem(TrackItem trackItem) {
-        return new TrackLikesTrackItem(trackItem);
+    public TrackLikesTrackItem updatedWithTrackItem(Track track) {
+        return new TrackLikesTrackItem(TrackItem.from(track));
     }
 
     @Override

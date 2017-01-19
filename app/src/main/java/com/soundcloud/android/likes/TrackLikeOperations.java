@@ -57,7 +57,7 @@ public class TrackLikeOperations {
     private final Func1<Urn, Observable<TrackItem>> loadLikedTrack = new Func1<Urn, Observable<TrackItem>>() {
         @Override
         public Observable<TrackItem> call(Urn urn) {
-            return trackRepo.track(urn);
+            return trackRepo.trackItem(urn);
         }
     };
 
@@ -114,7 +114,7 @@ public class TrackLikeOperations {
         return loadLikedTracksCommand.toObservable(Optional.of(params))
                                      .doOnNext(requestTracksSyncAction)
                                      .flatMap(source -> enrich(source,
-                                                               trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
+                                                               trackRepo.trackItemsFromUrns(transform(source, UrnHolder::urn)), COMBINER))
                                      .subscribeOn(scheduler);
     }
 

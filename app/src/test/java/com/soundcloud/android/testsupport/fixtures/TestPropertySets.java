@@ -225,14 +225,14 @@ public abstract class TestPropertySets {
 
     public static PromotedPlaylistItem expectedPromotedPlaylist() {
         return PromotedPlaylistItem.from(basePromotedPlaylist()
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud")));
+                                                 .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
+                                                 .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud")));
     }
 
     public static PromotedPlaylistItem expectedPromotedPlaylistWithoutPromoter() {
         return PromotedPlaylistItem.from(basePromotedPlaylist()
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent()));
+                                                 .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
+                                                 .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent()));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,9 +298,9 @@ public abstract class TestPropertySets {
     }
 
     public static PlaylistItem fromApiPlaylist(ApiPlaylist apiPlaylist,
-                                              boolean isLiked,
-                                              boolean isReposted,
-                                              boolean markedForOffline) {
+                                               boolean isLiked,
+                                               boolean isReposted,
+                                               boolean markedForOffline) {
         return PlaylistItem.from(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
@@ -353,25 +353,25 @@ public abstract class TestPropertySets {
 
     public static ActivityItem activityPlaylistLike() {
         return ActivityItem.fromPropertySet(basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_LIKE)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+                                                    .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_LIKE)
+                                                    .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
     }
 
     public static ActivityItem activityPlaylistRepost() {
         return ActivityItem.fromPropertySet(basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_REPOST)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+                                                    .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_REPOST)
+                                                    .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
     }
 
     public static ActivityItem activityUserFollow() {
         return ActivityItem.fromPropertySet(basicActivity().put(ActivityProperty.KIND, ActivityKind.USER_FOLLOW));
     }
 
-    public static ActivityItem activityTrackComment() {
+    public static ActivityItem activityTrackComment(Urn trackUrn) {
         return ActivityItem.fromPropertySet(basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_COMMENT)
-                .put(ActivityProperty.COMMENTED_TRACK_URN, Urn.forTrack(123))
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+                                                    .put(ActivityProperty.KIND, ActivityKind.TRACK_COMMENT)
+                                                    .put(ActivityProperty.COMMENTED_TRACK_URN, trackUrn)
+                                                    .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
     }
 
     private static PropertySet basicActivity() {

@@ -89,7 +89,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private void loadTrackIfChanged(PlayStateEvent playStateEvent, boolean isNewItem) {
         if (isNewItem) {
             trackObservable = ReplaySubject.createWithSize(1);
-            trackRepository.track(playStateEvent.getPlayingItemUrn()).filter(track -> track != null).subscribe(trackObservable);
+            trackRepository.trackItem(playStateEvent.getPlayingItemUrn()).filter(track -> track != null).subscribe(trackObservable);
         }
     }
 

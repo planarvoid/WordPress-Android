@@ -9,7 +9,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -96,9 +96,9 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
         if (commentedTrackUrn.isPresent()) {
             // for track comments we go to the comments screen
             final Urn trackUrn = commentedTrackUrn.get();
-            trackSubscription = trackRepository.track(trackUrn).subscribe(new DefaultSubscriber<TrackItem>() {
+            trackSubscription = trackRepository.track(trackUrn).subscribe(new DefaultSubscriber<Track>() {
                 @Override
-                public void onNext(TrackItem track) {
+                public void onNext(Track track) {
                     navigator.openTrackComments(view.getContext(), trackUrn);
                 }
             });

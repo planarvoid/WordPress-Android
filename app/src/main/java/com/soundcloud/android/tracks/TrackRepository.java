@@ -11,8 +11,7 @@ import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Iterators;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.rx.PropertySetFunctions;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -20,6 +19,7 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,23 +42,36 @@ public class TrackRepository {
         this.scheduler = scheduler;
     }
 
-    public Observable<TrackItem> track(final Urn trackUrn) {
-        return fromUrns(singletonList(trackUrn)).flatMap(new Func1<Map<Urn, TrackItem>, Observable<TrackItem>>() {
+    public Observable<Track> track(final Urn trackUrn) {
+        return fromUrns(singletonList(trackUrn)).flatMap(new Func1<Map<Urn, Track>, Observable<Track>>() {
             @Override
-            public Observable<TrackItem> call(Map<Urn, TrackItem> urnTrackItemMap) {
-                return urnTrackItemMap.isEmpty() ? Observable.empty() : Observable.just(urnTrackItemMap.values().iterator().next());
+            public Observable<Track> call(Map<Urn, Track> urnTrackMap) {
+                return urnTrackMap.isEmpty() ? Observable.empty() : Observable.just(urnTrackMap.values().iterator().next());
             }
         });
     }
 
+    public Observable<TrackItem> trackItem(final Urn trackUrn) {
+        return track(trackUrn).map(TrackItem::from);
+    }
+
     // TODO : should we return a Map<Urn, TrackItem>
-    public Observable<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {
+    public Observable<Map<Urn, Track>> fromUrns(final List<Urn> requestedTracks) {
         checkTracksUrn(requestedTracks);
         return trackStorage
                 .availableTracks(requestedTracks)
                 .flatMap(syncMissingTracks(requestedTracks))
                 .flatMap(continueWith(trackStorage.loadTracks(requestedTracks)))
                 .subscribeOn(scheduler);
+    }
+    public Observable<Map<Urn, TrackItem>> trackItemsFromUrns(final List<Urn> requestedTracks) {
+        return fromUrns(requestedTracks).map(map -> {
+            final Map<Urn, TrackItem> result = new HashMap<>(map.size());
+            for (Track track : map.values()) {
+                result.put(track.urn(), TrackItem.from(track));
+            }
+            return result;
+        });
     }
 
     public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn) {
@@ -78,7 +91,7 @@ public class TrackRepository {
         };
     }
 
-    Observable<PropertySet> fullTrackWithUpdate(final Urn trackUrn) {
+    Observable<Track> fullTrackWithUpdate(final Urn trackUrn) {
         checkTrackUrn(trackUrn);
         return Observable.concat(
                 fullTrackFromStorage(trackUrn),
@@ -95,18 +108,19 @@ public class TrackRepository {
         checkArgument(hasOnlyTracks, "Trying to sync track without a valid track urn. trackUrns = [" + trackUrns + "]");
     }
 
-    private Observable<PropertySet> trackFromStorage(Urn trackUrn) {
+    private Observable<Optional<Track>> trackFromStorage(Urn trackUrn) {
         return trackStorage.loadTrack(trackUrn).subscribeOn(scheduler);
     }
 
-    private Observable<PropertySet> fullTrackFromStorage(Urn trackUrn) {
-        return trackFromStorage(trackUrn)
-                .zipWith(trackStorage.loadTrackDescription(trackUrn), PropertySetFunctions.mergeLeft())
-                .subscribeOn(scheduler);
+    private Observable<Track> fullTrackFromStorage(Urn trackUrn) {
+        return trackFromStorage(trackUrn).filter(Optional::isPresent)
+                                         .map(Optional::get)
+                                         .zipWith(trackStorage.loadTrackDescription(trackUrn), Track::copyWithDescription)
+                                         .subscribeOn(scheduler);
     }
 
-    private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn,
-                                                      final Observable<PropertySet> loadObservable) {
+    private Observable<Track> syncThenLoadTrack(final Urn trackUrn,
+                                                      final Observable<Track> loadObservable) {
         return syncInitiator.syncTrack(trackUrn).flatMap(continueWith(loadObservable));
     }
 

@@ -13,11 +13,10 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,18 +80,14 @@ public class DefaultCastOperationsTest extends AndroidUnitTest {
         List<Urn> filteredTracks = Arrays.asList(TRACK1, TRACK2);
         when(castQueueController.buildCastPlayQueue(any(Urn.class), anyList())).thenReturn(castPlayQueue);
 
-        castOperations.createLoadMessageParameters(createAndSetupPublicTrack(TRACK1).getUrn(), false, 0L, filteredTracks).subscribe(loadMessageParametersTestSubscriber);
+        castOperations.createLoadMessageParameters(createAndSetupPublicTrack(TRACK1).urn(), false, 0L, filteredTracks).subscribe(loadMessageParametersTestSubscriber);
 
         verify(accountOperations).getSoundCloudToken();
         verify(castPlayQueue).setCredentials(isA(CastCredentials.class));
     }
 
-    private TrackItem createAndSetupPublicTrack(Urn urn) {
-        TrackItem track = TestPropertySets.trackWith(PropertySet.from(
-                TrackProperty.URN.bind(urn),
-                TrackProperty.TITLE.bind("Title " + urn),
-                TrackProperty.CREATOR_NAME.bind("Creator " + urn),
-                TrackProperty.IS_PRIVATE.bind(false)));
+    private Track createAndSetupPublicTrack(Urn urn) {
+        Track track = ModelFixtures.trackBuilder().urn(urn).title("Title " + urn).creatorName(Optional.of("Creator " + urn)).isPrivate(false).build();
         when(trackRepository.track(urn)).thenReturn(Observable.just(track));
         return track;
     }

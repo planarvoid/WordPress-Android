@@ -102,7 +102,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsNotAudioAd() {
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
         controller.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -119,7 +119,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         final PlayQueueItem playQueueItem = TestPlayQueueItem.createAudioAd(audioAd);
 
         widgetTrackItem.setAd(true);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
         controller.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -130,7 +130,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForPositionChange() throws CreateModelException {
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
         controller.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -147,7 +147,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
         when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(WIDGET_TRACK_URN));
-        when(trackRepository.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrackItem));
         LikesStatusEvent event = LikesStatusEvent.create(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
@@ -212,7 +212,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
 
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
 
         controller.update();
 
@@ -224,7 +224,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
         widgetTrackItem.setAd(true);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
 
         controller.update();
 
@@ -235,7 +235,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     public void shouldUpdatePresenterWithCurrentPlayStateIfIsPlayingOnUpdate() {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.empty());
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.empty());
 
         controller.update();
 
@@ -246,7 +246,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     public void shouldUpdatePresenterWithCurrentPlayStateIfIsNotPlayingOnUpdate() {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.empty());
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.empty());
 
         controller.update();
 
@@ -256,7 +256,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void toggleLikeActionTriggersToggleLikeOperations() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
@@ -269,7 +269,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
@@ -286,7 +286,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.getCurrentPromotedSourceInfo(promotedTrackItem.getUrn())).thenReturn(promotedSourceInfo);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(promotedTrackItem.getUrn()));
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(promotedTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(promotedTrackItem));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
@@ -307,7 +307,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.getCurrentPromotedSourceInfo(WIDGET_TRACK_URN)).thenReturn(promotedSourceInfo);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.just(widgetTrackItem));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);

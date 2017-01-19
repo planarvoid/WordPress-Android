@@ -544,7 +544,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
             trackRepository
-                    .track(urn)
+                    .trackItem(urn)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackSubject);
             trackObservableCache.put(urn, trackSubject);

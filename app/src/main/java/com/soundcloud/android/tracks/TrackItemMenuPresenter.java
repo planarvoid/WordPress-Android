@@ -195,7 +195,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private void loadTrack(PopupMenuWrapper menu) {
         trackSubscription.unsubscribe();
         trackSubscription = trackRepository
-                .track(track.getUrn())
+                .trackItem(track.getUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackSubscriber(track, menu));
     }

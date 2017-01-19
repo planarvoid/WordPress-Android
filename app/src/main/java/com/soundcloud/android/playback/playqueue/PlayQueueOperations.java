@@ -9,6 +9,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueStorage;
 import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.DiffUtils;
@@ -59,7 +60,7 @@ public class PlayQueueOperations {
     private Observable<List<TrackAndPlayQueueItem>> loadTracks() {
         final List<TrackQueueItem> playQueueItems = Lists.transform(playQueueManager.getPlayQueueItems(IS_TRACK), cast(TrackQueueItem.class));
 
-        final Func1<Map<Urn, TrackItem>, List<TrackAndPlayQueueItem>> fulfillWithKnownProperties = urnPropertySetMap -> toTrackAndPlayQueueItem(playQueueItems, urnPropertySetMap);
+        final Func1<Map<Urn, Track>, List<TrackAndPlayQueueItem>> fulfillWithKnownProperties = urnPropertySetMap -> toTrackAndPlayQueueItem(playQueueItems, urnPropertySetMap);
 
         final List<Urn> uniqueTrackUrns = DiffUtils.deduplicate(transform(playQueueItems, PlayQueueItem.TO_URN));
         return trackRepository
@@ -69,7 +70,7 @@ public class PlayQueueOperations {
     }
 
     private ArrayList<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<TrackQueueItem> playQueueItems,
-                                                                     Map<Urn, TrackItem> knownProperties) {
+                                                                     Map<Urn, Track> knownProperties) {
         final ArrayList<TrackAndPlayQueueItem> trackItems = new ArrayList<>(playQueueItems.size());
 
         for (TrackQueueItem item : playQueueItems) {
@@ -78,12 +79,12 @@ public class PlayQueueOperations {
         return trackItems;
     }
 
-    private void addTrackAndPlayQueueItemIfPresent(Map<Urn, TrackItem> urnPropertySetMap,
+    private void addTrackAndPlayQueueItemIfPresent(Map<Urn, Track> urnPropertySetMap,
                                                    ArrayList<TrackAndPlayQueueItem> trackItems,
                                                    TrackQueueItem item) {
         final Urn urn = item.getUrn();
         if (urnPropertySetMap.containsKey(urn)) {
-            trackItems.add(new TrackAndPlayQueueItem(urnPropertySetMap.get(urn), item));
+            trackItems.add(new TrackAndPlayQueueItem(TrackItem.from(urnPropertySetMap.get(urn)), item));
         }
     }
 

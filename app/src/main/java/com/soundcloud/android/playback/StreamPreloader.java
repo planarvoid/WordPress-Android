@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -49,9 +49,9 @@ public class StreamPreloader {
         }
     };
 
-    private final Func1<TrackItem, Boolean> isNotOfflineTrack = new Func1<TrackItem, Boolean>() {
+    private final Func1<Track, Boolean> isNotOfflineTrack = new Func1<Track, Boolean>() {
         @Override
-        public Boolean call(TrackItem track) {
+        public Boolean call(Track track) {
             return !offlinePlaybackOperations.shouldPlayOffline(track);
         }
     };
@@ -76,9 +76,9 @@ public class StreamPreloader {
 
     };
 
-    private final Func1<TrackItem, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<TrackItem, Observable<PreloadItem>>() {
+    private final Func1<Track, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<Track, Observable<PreloadItem>>() {
         @Override
-        public Observable<PreloadItem> call(final TrackItem nextItem) {
+        public Observable<PreloadItem> call(final Track nextItem) {
             return Observable.combineLatest(
                     eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
                     eventBus.queue(EventQueue.NETWORK_CONNECTION_CHANGED),
@@ -92,12 +92,12 @@ public class StreamPreloader {
     };
 
     @NonNull
-    private Func1<Object, PreloadItem> toPreloadItem(final TrackItem propertyBindings) {
+    private Func1<Object, PreloadItem> toPreloadItem(final Track propertyBindings) {
         return ignored -> {
-            final PlaybackType playbackType = propertyBindings.isSnipped() ?
+            final PlaybackType playbackType = propertyBindings.snipped() ?
                                               PlaybackType.AUDIO_SNIPPET :
                                               PlaybackType.AUDIO_DEFAULT;
-            return new AutoParcel_PreloadItem(propertyBindings.getUrn(), playbackType);
+            return new AutoParcel_PreloadItem(propertyBindings.urn(), playbackType);
         };
     }
 

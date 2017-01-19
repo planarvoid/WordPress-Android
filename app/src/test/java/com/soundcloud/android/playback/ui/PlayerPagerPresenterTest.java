@@ -164,7 +164,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                                             PlayableProperty.CREATOR_NAME.bind("artist"),
                                                             PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))));
 
-        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
+        when(trackRepository.trackItem(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
                 TestPropertySets.trackWith(PropertySet.from(
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
@@ -172,7 +172,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                         PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))))
         ));
 
-        when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
+        when(trackRepository.trackItem(TRACK2_RELATED_URN)).thenReturn(Observable.just(
                 TestPropertySets.trackWith(PropertySet.from(
                         TrackProperty.URN.bind(TRACK2_RELATED_URN),
                         PlayableProperty.TITLE.bind("related title"),
@@ -439,7 +439,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void getViewUsesCachedObservableIfAlreadyInCache() {
         getPageView();
-        verify(trackRepository).track(TRACK1_URN);
+        verify(trackRepository).trackItem(TRACK1_URN);
     }
 
     @Test
@@ -831,7 +831,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupGetCurrentViewPreconditions(int position) {
-        when(trackRepository.track(playQueue.get(position).getUrn())).thenReturn(Observable.just(track));
+        when(trackRepository.trackItem(playQueue.get(position).getUrn())).thenReturn(Observable.just(track));
     }
 
     private void setCurrentTrackState(int position, boolean isCurrentTrack) {

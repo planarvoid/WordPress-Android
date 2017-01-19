@@ -44,6 +44,7 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
 import com.soundcloud.android.users.User;
@@ -415,5 +416,13 @@ public class ModelFixtures {
         trackItem.setSubMidTier(false);
         trackItem.setSubHighTier(true);
         return trackItem;
+    }
+
+    public static Track.Builder trackBuilder() {
+        return Track.builder(Track.from(create(ApiTrack.class)));
+    }
+
+    public static Track trackWithUrnAndMonetizable(Urn currentTrackUrn, boolean monetizable) {
+        return trackBuilder().urn(currentTrackUrn).monetizable(monetizable).build();
     }
 }

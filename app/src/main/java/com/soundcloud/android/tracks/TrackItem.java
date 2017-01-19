@@ -63,6 +63,44 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
 
     private boolean isPlaying;
 
+    public static TrackItem from(Track track) {
+        final PropertySet propertySet = PropertySet.from(
+                TrackProperty.URN.bind(track.urn()),
+                TrackProperty.TITLE.bind(track.title()),
+                TrackProperty.CREATED_AT.bind(track.createdAt()),
+                TrackProperty.SNIPPET_DURATION.bind(track.snippetDuration()),
+                TrackProperty.FULL_DURATION.bind(track.fullDuration()),
+                TrackProperty.IS_PRIVATE.bind(track.isPrivate()),
+                TrackProperty.WAVEFORM_URL.bind(track.waveformUrl().or(Strings.EMPTY)),
+                TrackProperty.PERMALINK_URL.bind(track.permalinkUrl()),
+                TrackProperty.MONETIZABLE.bind(track.monetizable()),
+                TrackProperty.BLOCKED.bind(track.blocked()),
+                TrackProperty.SNIPPED.bind(track.snipped()),
+                TrackProperty.POLICY.bind(track.policy().or(Strings.EMPTY)),
+                TrackProperty.SUB_HIGH_TIER.bind(track.subHighTier()),
+                TrackProperty.PLAY_COUNT.bind(track.playCount()),
+                TrackProperty.COMMENTS_COUNT.bind(track.commentsCount()),
+                TrackProperty.LIKES_COUNT.bind(track.likesCount()),
+                TrackProperty.REPOSTS_COUNT.bind(track.repostsCount()),
+                TrackProperty.CREATOR_NAME.bind(track.creatorName().or(Strings.EMPTY)),
+                TrackProperty.CREATOR_URN.bind(track.creatorUrn().or(Urn.NOT_SET)),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(track.imageUrlTemplate()),
+                TrackProperty.SUB_MID_TIER.bind(track.subMidTier()),
+                TrackProperty.MONETIZATION_MODEL.bind(track.monetizationModel()),
+                TrackProperty.IS_COMMENTABLE.bind(track.commentable()),
+                TrackProperty.IS_USER_LIKE.bind(track.userLike()),
+                TrackProperty.IS_USER_REPOST.bind(track.userRepost()),
+                OfflineProperty.OFFLINE_STATE.bind(track.offlineState())
+        );
+
+
+        if (track.description().isPresent()) {
+            propertySet.put(TrackProperty.DESCRIPTION, track.description().get());
+        }
+
+        return new TrackItem(propertySet);
+    }
+
     public static TrackItem from(PropertySet trackState) {
         checkProperties(trackState);
 
@@ -96,7 +134,6 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
                 TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
                 TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
                 TrackProperty.SNIPPED.bind(apiTrack.isSnipped()),
-                TrackProperty.SYNCABLE.bind(apiTrack.isSyncable()),
                 TrackProperty.POLICY.bind(apiTrack.getPolicy()),
                 TrackProperty.SUB_HIGH_TIER.bind(subHighTier.isPresent() ? subHighTier.get() : false),
                 TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
@@ -147,8 +184,8 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
     }
 
     @Override
-    public TrackItem updatedWithTrackItem(TrackItem trackItem) {
-        return trackItem;
+    public TrackItem updatedWithTrackItem(Track track) {
+        return TrackItem.from(track);
     }
 
     @Override
@@ -325,6 +362,10 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
 
     public String getDescription() {
         return source.getOrElse(TrackProperty.DESCRIPTION, Strings.EMPTY);
+    }
+
+    public boolean hasDescription() {
+        return source.contains(TrackProperty.DESCRIPTION);
     }
 
     public void setDescription(String description) {

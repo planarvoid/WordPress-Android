@@ -6,14 +6,12 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import org.junit.Before;
@@ -42,9 +40,9 @@ public class TrackStorageTest extends StorageIntegrationTest {
     public void loadsTrack() {
         ApiTrack apiTrack = testFixtures().insertTrack();
 
-        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(TestPropertySets.trackWith(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(track.get()).isEqualTo(Track.from(apiTrack));
     }
 
     @Test
@@ -52,11 +50,11 @@ public class TrackStorageTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 1000L);
 
-        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        final TrackItem expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.setOfflineState(OfflineState.DOWNLOADED);
-        assertThat(TestPropertySets.trackWith(track)).isEqualTo(expected);
+        final Track.Builder expected = Track.builder(Track.from(apiTrack));
+        expected.offlineState(OfflineState.DOWNLOADED);
+        assertThat(track.get()).isEqualTo(expected.build());
     }
 
     @Test
@@ -64,11 +62,11 @@ public class TrackStorageTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 2000L);
 
-        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        final TrackItem expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.setOfflineState(OfflineState.NOT_OFFLINE);
-        assertThat(TestPropertySets.trackWith(track)).isEqualTo(expected);
+        final Track.Builder expected = Track.builder(Track.from(apiTrack));
+        expected.offlineState(OfflineState.NOT_OFFLINE);
+        assertThat(track.get()).isEqualTo(expected.build());
     }
 
     @Test
@@ -77,20 +75,22 @@ public class TrackStorageTest extends StorageIntegrationTest {
         apiTrack.setBlocked(true);
         testFixtures().insertTrack(apiTrack);
 
-        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(TestPropertySets.trackWith(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(track.get()).isEqualTo(Track.from(apiTrack));
     }
 
     @Test
     public void loadsSnippedTrack() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         apiTrack.setSnipped(true);
+        apiTrack.setSyncable(false);
+        apiTrack.setGenre(null);
         testFixtures().insertTrack(apiTrack);
 
-        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(TestPropertySets.trackWith(track)).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+        assertThat(track.get()).isEqualTo(Track.from(apiTrack));
     }
 
     @Test
@@ -106,25 +106,25 @@ public class TrackStorageTest extends StorageIntegrationTest {
     public void loadLikedTrack() {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date());
 
-        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(track.get(PlayableProperty.IS_USER_LIKE)).isTrue();
+        assertThat(track.get().userLike()).isTrue();
     }
 
     @Test
     public void loadUnlikedTrack() {
         ApiTrack apiTrack = testFixtures().insertTrack();
 
-        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(track.get(PlayableProperty.IS_USER_LIKE)).isFalse();
+        assertThat(track.get().userLike()).isFalse();
     }
 
     @Test
     public void shouldReturnEmptyPropertySetIfTrackNotFound() {
-        PropertySet track = storage.loadTrack(Urn.forTrack(123)).toBlocking().single();
+        Optional<Track> track = storage.loadTrack(Urn.forTrack(123)).toBlocking().single();
 
-        assertThat(track).isEqualTo(PropertySet.create());
+        assertThat(track.isPresent()).isFalse();
     }
 
     @Test
@@ -132,9 +132,9 @@ public class TrackStorageTest extends StorageIntegrationTest {
         ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertDescription(track.getUrn(), "description123");
 
-        PropertySet description = storage.loadTrackDescription(track.getUrn()).toBlocking().single();
+        Optional<String> description = storage.loadTrackDescription(track.getUrn()).toBlocking().single();
 
-        assertThat(description).isEqualTo(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123")));
+        assertThat(description.get()).isEqualTo("description123");
     }
 
     @Test
@@ -143,7 +143,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         storage.availableTracks(singletonList(Urn.forTrack(133L))).subscribe(subscriber);
 
-        subscriber.assertValue(Collections.<Urn>emptyList());
+        subscriber.assertValue(Collections.emptyList());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         storage.availableTracks(singletonList(Urn.forTrack(731982L))).subscribe(subscriber);
 
-        subscriber.assertValue(Collections.<Urn>emptyList());
+        subscriber.assertValue(Collections.emptyList());
     }
 
     @Test
@@ -168,33 +168,33 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadTracksSetsUserLikeIndividually() {
-        final TestSubscriber<Map<Urn, TrackItem>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Map<Urn, Track>> subscriber = new TestSubscriber<>();
         ApiTrack likedApiTrack = testFixtures().insertLikedTrack(new Date());
         ApiTrack apiTrack = testFixtures().insertTrack();
 
         storage.loadTracks(asList(likedApiTrack.getUrn(), apiTrack.getUrn())).subscribe(subscriber);
-        Map<Urn, TrackItem> map = subscriber.getOnNextEvents().get(0);
+        Map<Urn, Track> map = subscriber.getOnNextEvents().get(0);
 
-        assertThat(map.get(likedApiTrack.getUrn()).isLikedByCurrentUser()).isTrue();
-        assertThat(map.get(apiTrack.getUrn()).isLikedByCurrentUser()).isFalse();
+        assertThat(map.get(likedApiTrack.getUrn()).userLike()).isTrue();
+        assertThat(map.get(apiTrack.getUrn()).userLike()).isFalse();
     }
 
     @Test
     public void loadTracksSetsUserRepostsIndividually() {
-        final TestSubscriber<Map<Urn, TrackItem>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Map<Urn, Track>> subscriber = new TestSubscriber<>();
         ApiTrack postedApiTrack = testFixtures().insertPostedTrack(new Date(), true);
         ApiTrack apiTrack = testFixtures().insertTrack();
 
         storage.loadTracks(asList(postedApiTrack.getUrn(), apiTrack.getUrn())).subscribe(subscriber);
-        Map<Urn, TrackItem> map = subscriber.getOnNextEvents().get(0);
+        Map<Urn, Track> map = subscriber.getOnNextEvents().get(0);
 
-        assertThat(map.get(postedApiTrack.getUrn()).isRepostedByCurrentUser()).isTrue();
-        assertThat(map.get(apiTrack.getUrn()).isRepostedByCurrentUser()).isFalse();
+        assertThat(map.get(postedApiTrack.getUrn()).userRepost()).isTrue();
+        assertThat(map.get(apiTrack.getUrn()).userRepost()).isFalse();
     }
 
     @Test
     public void loadTracksInBatches() {
-        final TestSubscriber<Map<Urn, TrackItem>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Map<Urn, Track>> subscriber = new TestSubscriber<>();
         List<Urn> trackUrns = insertBulkTracks(BATCH_TRACKS_COUNT);
 
         storage.loadTracks(trackUrns).subscribe(subscriber);

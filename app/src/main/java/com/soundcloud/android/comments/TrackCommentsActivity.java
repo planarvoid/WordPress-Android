@@ -52,7 +52,7 @@ public class TrackCommentsActivity extends PlayerActivity {
         ButterKnife.bind(this);
 
         final Urn trackUrn = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK_URN);
-        trackSubscription = trackRepository.track(trackUrn)
+        trackSubscription = trackRepository.trackItem(trackUrn)
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .subscribe(new TrackSubscriber());
 

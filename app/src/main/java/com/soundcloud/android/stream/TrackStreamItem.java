@@ -9,6 +9,7 @@ import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 
@@ -40,8 +41,8 @@ abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, U
     }
 
     @Override
-    public TrackStreamItem updatedWithTrackItem(TrackItem trackItem) {
-        return create(trackItem);
+    public TrackStreamItem updatedWithTrackItem(Track track) {
+        return create(TrackItem.from(track));
     }
 
     @Override

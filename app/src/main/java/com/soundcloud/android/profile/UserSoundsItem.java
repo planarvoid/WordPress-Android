@@ -17,6 +17,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
@@ -114,9 +115,9 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
     }
 
     @Override
-    public UserSoundsItem updatedWithTrackItem(TrackItem trackItem) {
+    public UserSoundsItem updatedWithTrackItem(Track trackItem) {
         if (isTrack()) {
-            return copyWithTrackItem(trackItem);
+            return copyWithTrackItem(TrackItem.from(trackItem));
         }
         return this;
     }

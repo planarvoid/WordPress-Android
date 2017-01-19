@@ -10,6 +10,7 @@ import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 import com.soundcloud.java.objects.MoreObjects;
@@ -32,8 +33,8 @@ class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListIte
     }
 
     @Override
-    public PlaylistDetailTrackItem updatedWithTrackItem(TrackItem trackItem) {
-        return new PlaylistDetailTrackItem(trackItem);
+    public PlaylistDetailTrackItem updatedWithTrackItem(Track track) {
+        return new PlaylistDetailTrackItem(TrackItem.from(track));
     }
 
     @Override

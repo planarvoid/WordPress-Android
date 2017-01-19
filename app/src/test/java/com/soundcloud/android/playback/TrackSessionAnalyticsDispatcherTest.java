@@ -54,7 +54,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         TrackItem track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
+        when(trackRepository.trackItem(TRACK_URN)).thenReturn(Observable.just(track));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));

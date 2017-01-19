@@ -47,7 +47,7 @@ public class EngagementsTracking {
     public void likeTrackUrn(Urn trackUrn, boolean addLike, EventContextMetadata eventMetadata,
                              PromotedSourceInfo promotedSourceInfo) {
 
-        trackRepository.track(trackUrn)
+        trackRepository.trackItem(trackUrn)
                        .map(LIKE_EVENT_FROM_TRACK(trackUrn, addLike, eventMetadata, promotedSourceInfo))
                        .subscribe(eventTracker.trackEngagementSubscriber());
     }

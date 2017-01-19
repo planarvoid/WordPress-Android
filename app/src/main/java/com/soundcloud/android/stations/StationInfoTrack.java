@@ -5,6 +5,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -27,8 +28,8 @@ abstract class StationInfoTrack implements ListItem, UpdatableTrackItem {
     public abstract TrackItem getTrack();
 
     @Override
-    public StationInfoTrack updatedWithTrackItem(TrackItem trackItem) {
-        return new AutoValue_StationInfoTrack(trackItem);
+    public StationInfoTrack updatedWithTrackItem(Track track) {
+        return new AutoValue_StationInfoTrack(TrackItem.from(track));
     }
 
     @Override

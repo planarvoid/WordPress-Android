@@ -100,7 +100,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void syncAndLoadTrackLikesWhenHasNotSyncedBefore() {
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(false));
-        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Observable.just(urnToTrackMap(trackItems)));
 
         operations.likedTracks().subscribe(observer);
@@ -117,7 +117,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void loadTrackLikesWhenHasSyncedBefore() {
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
-        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Observable.just(urnToTrackMap(trackItems)));
 
         operations.likedTracks().subscribe(observer);
@@ -146,7 +146,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void loadTrackLikesRequestsUpdatesFromSyncerOnWifi() {
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
-        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Observable.just(urnToTrackMap(trackItems)));
 
         operations.likedTracks().subscribe(observer);
@@ -157,7 +157,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void loadTrackLikesDoesNotRequestUpdatesFromSyncerOffWifi() {
         when(networkConnectionHelper.isWifiConnected()).thenReturn(false);
-        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Observable.just(urnToTrackMap(trackItems)));
 
         operations.likedTracks().subscribe(observer);
@@ -178,7 +178,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
-        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Observable.just(urnToTrackMap(trackItems)));
 
         operations.updatedLikedTracks().subscribe(observer);
@@ -213,7 +213,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void onTrackLikedEventReturnsTrackInfoFromLike() throws Exception {
         TrackItem trackItem = TestPropertySets.expectedLikedTrackForLikesScreen();
-        when(trackRepository.track(trackItem.getUrn())).thenReturn(Observable.just(trackItem));
+        when(trackRepository.trackItem(trackItem.getUrn())).thenReturn(Observable.just(trackItem));
 
         final TestSubscriber<TrackItem> observer = new TestSubscriber<>();
         operations.onTrackLiked().subscribe(observer);

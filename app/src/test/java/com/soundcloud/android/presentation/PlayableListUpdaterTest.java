@@ -20,8 +20,10 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -142,12 +144,12 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     @Test
     public void entityChangedEventDoesNotNotifyWithNoMatchingUrns() throws Exception {
 
-        TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        Track track1 = Track.from(ModelFixtures.create(ApiTrack.class));
+        Track track2 = Track.from(ModelFixtures.create(ApiTrack.class));
 
-        TrackItem changeSet = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        Track changeSet = Track.from(ModelFixtures.create(ApiTrack.class));
 
-        when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
+        when(adapter.getItems()).thenReturn(Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
 
         final TrackChangedEvent event = TrackChangedEvent.forUpdate(changeSet);
         eventBus.publish(EventQueue.TRACK_CHANGED, event);
@@ -230,11 +232,11 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     }
 
     private TrackChangedEvent getTrackChangedEvent(Urn updatedItemUrn, List<PlayableItem> trackItems) {
-        final TrackItem updatedTrack = ModelFixtures.trackItem();
-        updatedTrack.setUrn(updatedItemUrn);
-        updatedTrack.setCreatorName(UPDATED_CREATOR);
+        final Track.Builder updatedTrack = ModelFixtures.trackBuilder();
+        updatedTrack.urn(updatedItemUrn);
+        updatedTrack.creatorName(Optional.of(UPDATED_CREATOR));
         when(adapter.getItems()).thenReturn(trackItems);
-        return TrackChangedEvent.forUpdate(updatedTrack);
+        return TrackChangedEvent.forUpdate(updatedTrack.build());
     }
 
     private PlaylistChangedEvent getPlaylistChangedEvent(PlaylistItem playlist1, PlaylistItem playlist2) {

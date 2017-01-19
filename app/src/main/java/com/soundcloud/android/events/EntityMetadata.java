@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerTrackState;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
@@ -116,6 +117,18 @@ public class EntityMetadata {
                 playable.getCreatorUrn(),
                 playable.getTitle(),
                 playable.getUrn());
+    }
+
+    public static EntityMetadata from(@Nullable Track track) {
+        if (track == null) {
+            return EMPTY;
+        }
+
+        return new EntityMetadata(
+                track.creatorName().or(Strings.EMPTY),
+                track.creatorUrn().or(Urn.NOT_SET),
+                track.title(),
+                track.urn());
     }
 
     public static EntityMetadata from(@Nullable PlayerTrackState track) {

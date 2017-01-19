@@ -34,7 +34,6 @@ import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +85,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(view.getContext()).thenReturn(context());
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.empty());
+        when(trackRepository.trackItem(any(Urn.class))).thenReturn(Observable.empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         when(playQueueConfiguration.isEnabled()).thenReturn(true);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))

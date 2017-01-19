@@ -51,7 +51,7 @@ class MetadataOperations {
                                              Optional<MediaMetadataCompat> existingMetadata) {
         if (urn.isTrack()) {
             return trackRepository
-                    .track(urn)
+                    .trackItem(urn)
                     .filter(track -> track != null)
                     .doOnNext(trackItem -> trackItem.setAd(isAd))
                     .flatMap(toTrackWithBitmap(existingMetadata))

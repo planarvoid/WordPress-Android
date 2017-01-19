@@ -13,12 +13,11 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,7 +67,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsLocalPlayQueue() throws JSONException {
-        TrackItem currentTrack = createAndSetupPublicTrack(TRACK1);
+        Track currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> playQueueTracks = Arrays.asList(TRACK1, TRACK2);
 
         castOperations.loadLocalPlayQueue(TRACK1, playQueueTracks).subscribe(observer);
@@ -80,7 +79,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
     @Test
     public void loadsLocalPlayQueueWithoutMonetizableTracks() throws JSONException {
         createAndSetupPublicTrack(TRACK2);
-        TrackItem currentTrack = createAndSetupPublicTrack(TRACK1);
+        Track currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
         List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1);
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
@@ -96,7 +95,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
     @Test
     public void loadsLocalPlayQueueWithoutPrivateTracks() throws JSONException {
         createAndSetupPrivateTrack(TRACK2);
-        TrackItem currentTrack = createAndSetupPublicTrack(TRACK1);
+        Track currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
                 unfilteredPlayQueueTracks));
@@ -112,14 +111,14 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
     @Test
     public void loadLocalPlayQueueWithoutMonetizableTracksCorrectsCurrentTrackWhenItIsFilteredOut() throws JSONException {
         createAndSetupPublicTrack(TRACK2);
-        TrackItem currentTrackBeforeFiltering = createAndSetupPublicTrack(TRACK3);
-        TrackItem currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
+        Track currentTrackBeforeFiltering = createAndSetupPublicTrack(TRACK3);
+        Track currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2, TRACK3);
         List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
                 filteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.getUrn(),
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.urn(),
                                                                             unfilteredPlayQueueTracks).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
@@ -128,14 +127,14 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadLocalPlayQueueWithoutPrivateTracksCorrectsCurrentTrackWhenItIsFilteredOut() throws JSONException {
-        TrackItem currentTrackBeforeFiltering = createAndSetupPrivateTrack(TRACK3);
+        Track currentTrackBeforeFiltering = createAndSetupPrivateTrack(TRACK3);
         createAndSetupPublicTrack(TRACK2);
-        TrackItem currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
+        Track currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2, TRACK3);
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
                 unfilteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.getUrn(),
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.urn(),
                                                                             unfilteredPlayQueueTracks).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
@@ -204,26 +203,24 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
                 .build();
     }
 
-    private TrackItem createAndSetupPrivateTrack(Urn urn) {
-        TrackItem track = createAndSetupPublicTrack(urn);
-        track.setPrivate(true);
-        return track;
+    private Track createAndSetupPrivateTrack(Urn urn) {
+        return createTrack(urn, true);
     }
 
-    private TrackItem createAndSetupPublicTrack(Urn urn) {
-        TrackItem track = TestPropertySets.trackWith(PropertySet.from(
-                TrackProperty.URN.bind(urn),
-                TrackProperty.TITLE.bind("Title " + urn),
-                TrackProperty.CREATOR_NAME.bind("Creator " + urn),
-                TrackProperty.IS_PRIVATE.bind(false)));
+    private Track createAndSetupPublicTrack(Urn urn) {
+        return createTrack(urn, false);
+    }
+
+    private Track createTrack(Urn urn, boolean isPrivate) {
+        Track track = ModelFixtures.trackBuilder().urn(urn).title("Title " + urn).creatorName(Optional.of("Creator " + urn)).isPrivate(isPrivate).build();
         when(trackRepository.track(urn)).thenReturn(Observable.just(track));
         return track;
     }
 
     private void expectLocalPlayQueue(LocalPlayQueue localPlayQueue,
-                                      TrackItem currentTrack,
+                                      Track currentTrack,
                                       List<Urn> playQueueTracks) throws JSONException {
-        assertThat(localPlayQueue.currentTrackUrn).isEqualTo(currentTrack.getUrn());
+        assertThat(localPlayQueue.currentTrackUrn).isEqualTo(currentTrack.urn());
         assertThat(localPlayQueue.playQueueTrackUrns).isEqualTo(playQueueTracks);
         assertThat(localPlayQueue.playQueueTracksJSON.get("play_queue").toString())
                 .isEqualTo(new JSONArray(Urns.toString(playQueueTracks)).toString());
@@ -234,9 +231,9 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
 
         MediaMetadata metadata = mediaInfo.getMetadata();
         assertThat(metadata.getMediaType()).isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-        assertThat(metadata.getString(MediaMetadata.KEY_TITLE)).isEqualTo(currentTrack.getTitle());
-        assertThat(metadata.getString(MediaMetadata.KEY_ARTIST)).isEqualTo(currentTrack.getCreatorName());
-        assertThat(metadata.getString("urn")).isEqualTo(currentTrack.getUrn().toString());
+        assertThat(metadata.getString(MediaMetadata.KEY_TITLE)).isEqualTo(currentTrack.title());
+        assertThat(metadata.getString(MediaMetadata.KEY_ARTIST)).isEqualTo(currentTrack.creatorName().get());
+        assertThat(metadata.getString("urn")).isEqualTo(currentTrack.urn().toString());
         assertThat(metadata.getImages().get(0).getUrl().toString()).isEqualTo(IMAGE_URL);
     }
 }

@@ -56,7 +56,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
         operations = new MetadataOperations(context().getResources(), trackRepository,
                                             imageOperations, Schedulers.immediate());
 
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
+        when(trackRepository.trackItem(TRACK_URN)).thenReturn(Observable.just(TRACK));
         when(imageOperations.artwork(eq(SimpleImageResource.create(TRACK)),
                                      any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.decodeResource(context().getResources(), R.drawable.notification_loading))
@@ -137,7 +137,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     public void metadataDoesNotLoadTrackWhenIsVideoAd() throws Exception {
         operations.metadata(VIDEO_URN, true, EMPTY_METADATA).subscribe(subscriber);
 
-        verify(trackRepository, never()).track(VIDEO_URN);
+        verify(trackRepository, never()).trackItem(VIDEO_URN);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     public void metadataLoadsTrackWhenIsAnAudioAd() throws Exception {
         operations.metadata(TRACK_URN, true, EMPTY_METADATA).subscribe(subscriber);
 
-        verify(trackRepository).track(TRACK_URN);
+        verify(trackRepository).trackItem(TRACK_URN);
     }
 
     @Test

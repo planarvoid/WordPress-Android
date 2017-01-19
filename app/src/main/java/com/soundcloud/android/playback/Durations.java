@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -16,6 +17,12 @@ public final class Durations {
         return track.isSnipped() ?
                track.getSnippetDuration() :
                track.getFullDuration();
+    }
+
+    public static long getTrackPlayDuration(Track track) {
+        return track.snipped() ?
+               track.snippetDuration() :
+               track.fullDuration();
     }
 
 }

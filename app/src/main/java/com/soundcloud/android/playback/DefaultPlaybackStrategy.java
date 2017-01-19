@@ -103,7 +103,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     public Observable<Void> playCurrent() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
-            return trackRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
+            return trackRepository.trackItem(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
         } else if (currentPlayQueueItem.isAd()) {
             return playCurrentAd(currentPlayQueueItem);
         } else {

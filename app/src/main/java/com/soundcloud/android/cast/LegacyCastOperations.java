@@ -13,17 +13,17 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.java.strings.Strings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.schedulers.TimeInterval;
 
 import android.content.res.Resources;
@@ -43,8 +43,8 @@ public class LegacyCastOperations {
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";
 
-    private static final Func1<TrackItem, Boolean> FILTER_PRIVATE_TRACKS = track -> !track.isPrivate();
-    private static final Func1<TrackItem, Urn> TO_URNS = track -> track.getUrn();
+    private static final Func1<Track, Boolean> FILTER_PRIVATE_TRACKS = track -> !track.isPrivate();
+    private static final Func1<Track, Urn> TO_URNS = Track::urn;
 
     private final VideoCastManager videoCastManager;
     private final TrackRepository trackRepository;
@@ -53,9 +53,9 @@ public class LegacyCastOperations {
     private final Resources resources;
     private final Scheduler progressPullIntervalScheduler;
 
-    private final Func1<Urn, Observable<TrackItem>> loadTracks = new Func1<Urn, Observable<TrackItem>>() {
+    private final Func1<Urn, Observable<Track>> loadTracks = new Func1<Urn, Observable<Track>>() {
         @Override
-        public Observable<TrackItem> call(Urn urn) {
+        public Observable<Track> call(Urn urn) {
             return trackRepository.track(urn);
         }
     };
@@ -109,12 +109,12 @@ public class LegacyCastOperations {
                                       createPlayQueueJSON(filteredLocalPlayQueueTracks1),
                                       filteredLocalPlayQueueTracks1,
                                       createMediaInfo(track),
-                                      track.getUrn()));
+                                      track.urn()));
     }
 
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
-                               .flatMap(RxUtils.<Urn>iterableToObservable())
+                               .flatMap(RxUtils.iterableToObservable())
                                .flatMap(loadTracks)
                                .filter(FILTER_PRIVATE_TRACKS)
                                .map(TO_URNS);
@@ -130,12 +130,12 @@ public class LegacyCastOperations {
         return playQueue;
     }
 
-    private MediaInfo createMediaInfo(TrackItem track) {
-        final Urn trackUrn = track.getUrn();
+    private MediaInfo createMediaInfo(Track track) {
+        final Urn trackUrn = track.urn();
         final String artworkUrl = imageOperations.getUrlForLargestImage(resources, trackUrn);
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-        mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.getTitle());
-        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.getCreatorName());
+        mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.title());
+        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.creatorName().or(Strings.EMPTY));
         mediaMetadata.putString(KEY_URN, trackUrn.toString());
 
         if (artworkUrl != null) {
@@ -156,7 +156,7 @@ public class LegacyCastOperations {
             return parseMediaInfoToRemotePlayQueue(remoteMediaInformation);
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(TAG, "Unable to retrieve remote media information", e);
-            return RemotePlayQueue.create(Collections.<Urn>emptyList(), Urn.NOT_SET);
+            return RemotePlayQueue.create(Collections.emptyList(), Urn.NOT_SET);
         }
     }
 

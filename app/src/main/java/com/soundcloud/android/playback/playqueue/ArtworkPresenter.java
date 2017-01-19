@@ -1,13 +1,15 @@
 package com.soundcloud.android.playback.playqueue;
 
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -57,13 +59,13 @@ public class ArtworkPresenter {
                                   .subscribe(new ProgressSubscriber()));
         subscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .filter(event -> event.isPlayerPlaying())
+                                  .filter(PlayStateEvent::isPlayerPlaying)
                                   .filter(event -> artworkViewContract.isPresent())
                                   .subscribe(new PlaybackStateSubscriber()));
         subscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                                   .filter(event -> artworkViewContract.isPresent())
-                                  .map(event -> event.getCurrentPlayQueueItem())
-                                  .filter(playQueueItem -> playQueueItem.isTrack())
+                                  .map(CurrentPlayQueueItemEvent::getCurrentPlayQueueItem)
+                                  .filter(PlayQueueItem::isTrack)
                                   .flatMap(playQueueItem -> trackRepository.track(playQueueItem.getUrn()))
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .subscribe(new ImageSetterSubscriber()));
@@ -96,12 +98,12 @@ public class ArtworkPresenter {
         }
     }
 
-    private class ImageSetterSubscriber extends DefaultSubscriber<TrackItem> {
+    private class ImageSetterSubscriber extends DefaultSubscriber<Track> {
 
         @Override
-        public void onNext(TrackItem trackItem) {
-            artworkViewContract.get().setImage(SimpleImageResource.create(trackItem.getUrn(), trackItem.getImageUrlTemplate()));
-            lastItem = Optional.of(trackItem.getUrn());
+        public void onNext(Track track) {
+            artworkViewContract.get().setImage(SimpleImageResource.create(track.urn(), track.imageUrlTemplate()));
+            lastItem = Optional.of(track.urn());
 
         }
     }

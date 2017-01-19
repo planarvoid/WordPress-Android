@@ -23,7 +23,7 @@ import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -74,8 +74,8 @@ public class AdsController {
     private boolean isForeground;
     private boolean isPlayerVisible;
 
-    private static final Func2<TrackItem, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
-            (track, kruxSegments) -> AdRequestData.forPlayerAd(track.getUrn(), kruxSegments);
+    private static final Func2<Track, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
+            (track, kruxSegments) -> AdRequestData.forPlayerAd(track.urn(), kruxSegments);
 
     private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
         @Override
@@ -282,7 +282,7 @@ public class AdsController {
 
     private void createAdsFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
         final Observable<ApiAdsForTrack> apiAdsForTrack = Observable.zip(trackRepository.track(playQueueItem.getUrn())
-                                                                                        .filter(TrackItem::isMonetizable),
+                                                                                        .filter(Track::monetizable),
                                                                          adsOperations.kruxSegments(),
                                                                          TO_AD_REQUEST_DATA)
                                                                     .flatMap(fetchAds)
