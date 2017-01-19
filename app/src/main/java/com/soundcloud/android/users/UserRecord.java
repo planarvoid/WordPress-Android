@@ -24,6 +24,8 @@ public interface UserRecord extends ImageResource {
 
     int getFollowersCount();
 
+    int getFollowingsCount();
+
     Optional<String> getDescription();
 
     Optional<String> getWebsiteUrl();

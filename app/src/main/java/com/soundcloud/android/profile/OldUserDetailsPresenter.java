@@ -5,7 +5,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
-import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -18,30 +19,28 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
-class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
+class OldUserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollableProfileFragment>
         implements SwipeRefreshLayout.OnRefreshListener {
 
+    private boolean isNotEmpty;
+    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private MultiSwipeRefreshLayout refreshLayout;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private final UserProfileOperations profileOperations;
-    private final UserDetailsView userDetailsView;
-    private final CondensedNumberFormatter numberFormatter;
+    private final OldUserDetailsView oldUserDetailsView;
 
     private Urn userUrn;
     private Observable<User> userDetailsObservable;
     private User profileUser;
 
-    UserDetailsPresenter(UserProfileOperations profileOperations,
-                         UserDetailsView userDetailsView,
-                         CondensedNumberFormatter numberFormatter) {
+    OldUserDetailsPresenter(UserProfileOperations profileOperations, OldUserDetailsView oldUserDetailsView) {
         this.profileOperations = profileOperations;
-        this.userDetailsView = userDetailsView;
-        this.numberFormatter = numberFormatter;
+        this.oldUserDetailsView = oldUserDetailsView;
     }
 
     @Override
-    public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
+    public void onCreate(ScrollableProfileFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
 
@@ -50,12 +49,13 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     @Override
-    public void onViewCreated(final UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
+    public void onViewCreated(final ScrollableProfileFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        userDetailsView.setView(view);
-        userDetailsView.setListener(uri -> fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri)));
+        oldUserDetailsView.setView(view);
+        oldUserDetailsView.setListener(uri -> fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri)));
 
+        configureEmptyView();
         configureRefreshLayout(view);
 
         if (profileUser != null) {
@@ -80,10 +80,10 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     @Override
-    public void onDestroyView(UserDetailsFragment fragment) {
+    public void onDestroyView(ScrollableProfileFragment fragment) {
         refreshLayout = null;
-        userDetailsView.setListener(null);
-        userDetailsView.clearViews();
+        oldUserDetailsView.setListener(null);
+        oldUserDetailsView.clearViews();
         subscription.unsubscribe();
         super.onDestroyView(fragment);
     }
@@ -95,61 +95,58 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         loadUser();
     }
 
+    private void configureEmptyView() {
+        if (!isNotEmpty) {
+            oldUserDetailsView.showEmptyView(emptyViewStatus);
+        } else {
+            oldUserDetailsView.hideEmptyView();
+        }
+    }
+
     private void updateViews(User user) {
-        setupFollows(user);
-        setupBio(user);
-        setupLinks(user);
-    }
-
-    private void setupFollows(User user) {
-        userDetailsView.setFollowersCount(numberFormatter.format(user.followersCount()));
-        userDetailsView.setFollowingsCount(numberFormatter.format(user.followingsCount()));
-    }
-
-    private boolean hasLinks(User user) {
-        return hasDiscogs(user) || hasWebsite(user) || hasMyspace(user);
-    }
-
-    private void setupBio(User user) {
-        if (hasDescription(user)) {
-            userDetailsView.showBio(user.description().get());
-        } else {
-            userDetailsView.hideBio();
-        }
-    }
-
-    private void setupLinks(User user) {
-        if (hasLinks(user)) {
-            userDetailsView.showLinksSection();
-        } else {
-            userDetailsView.hideLinksSection();
-        }
+        isNotEmpty = hasDetails(user);
         setupWebsite(user);
         setupDiscogs(user);
         setupMyspace(user);
+        setupDescription(user);
+    }
+
+    public boolean hasDetails(User user) {
+        return hasDescription(user)
+                || hasDiscogs(user)
+                || hasWebsite(user)
+                || hasMyspace(user);
+    }
+
+    private void setupDescription(User user) {
+        if (hasDescription(user)) {
+            oldUserDetailsView.showDescription(user.description().get());
+        } else {
+            oldUserDetailsView.hideDescription();
+        }
     }
 
     private void setupWebsite(final User user) {
         if (hasWebsite(user)) {
-            userDetailsView.showWebsite(user.websiteUrl().get(), user.websiteName().get());
+            oldUserDetailsView.showWebsite(user.websiteUrl().get(), user.websiteName().get());
         } else {
-            userDetailsView.hideWebsite();
+            oldUserDetailsView.hideWebsite();
         }
     }
 
     private void setupDiscogs(final User user) {
         if (hasDiscogs(user)) {
-            userDetailsView.showDiscogs(user.discogsName().get());
+            oldUserDetailsView.showDiscogs(user.discogsName().get());
         } else {
-            userDetailsView.hideDiscogs();
+            oldUserDetailsView.hideDiscogs();
         }
     }
 
     private void setupMyspace(final User user) {
         if (hasMyspace(user)) {
-            userDetailsView.showMyspace(user.mySpaceName().get());
+            oldUserDetailsView.showMyspace(user.mySpaceName().get());
         } else {
-            userDetailsView.hideMyspace();
+            oldUserDetailsView.hideMyspace();
         }
     }
 
@@ -172,6 +169,9 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     private class ProfileUserSubscriber extends DefaultSubscriber<User> {
         @Override
         public void onCompleted() {
+            emptyViewStatus = EmptyView.Status.OK;
+            configureEmptyView();
+
             if (refreshLayout != null) {
                 refreshLayout.setRefreshing(false);
             }
@@ -181,6 +181,9 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         public void onError(Throwable e) {
             super.onError(e);
 
+            emptyViewStatus = ErrorUtils.emptyViewStatusFromError(e);
+            configureEmptyView();
+
             if (refreshLayout != null) {
                 refreshLayout.setRefreshing(false);
             }
@@ -188,8 +191,9 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
         @Override
         public void onNext(User profileUser) {
-            UserDetailsPresenter.this.profileUser = profileUser;
+            OldUserDetailsPresenter.this.profileUser = profileUser;
             updateViews(profileUser);
+            configureEmptyView();
         }
     }
 }

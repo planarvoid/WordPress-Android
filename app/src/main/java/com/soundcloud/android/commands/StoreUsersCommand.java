@@ -45,6 +45,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                 Users.COUNTRY,
                 Users.CITY,
                 Users.FOLLOWERS_COUNT,
+                Users.FOLLOWINGS_COUNT,
                 Users.DESCRIPTION,
                 Users.AVATAR_URL,
                 Users.VISUAL_URL,
@@ -66,6 +67,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                     user.getCountry(),
                     user.getCity(),
                     user.getFollowersCount(),
+                    user.getFollowingsCount(),
                     user.getDescription().orNull(),
                     user.getImageUrlTemplate().orNull(),
                     user.getVisualUrlTemplate().orNull(),
@@ -105,6 +107,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                                    .put(Users.COUNTRY, user.getCountry())
                                    .put(Users.CITY, user.getCity())
                                    .put(Users.FOLLOWERS_COUNT, user.getFollowersCount())
+                                   .put(Users.FOLLOWINGS_COUNT, user.getFollowingsCount())
                                    .put(Users.SIGNUP_DATE, user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null);
     }
 

@@ -314,6 +314,10 @@
     <string name="tab_title_user_followers">FOLLOWERS</string>
     <string name="tab_title_user_followings">FOLLOWING</string>
     <string name="tab_title_user_sounds">SOUNDS</string>
+    <string name="profile_bio">Bio</string>
+    <string name="profile_followers">Followers</string>
+    <string name="profile_following">Following</string>
+    <string name="profile_links">Links</string>
     <!-- @Todo from l10n: can we get rid of these Discogs and Myspace strings? -->
    <string name="discogs">Discogs</string>
    <string name="myspace">Myspace</string>

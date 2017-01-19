@@ -115,6 +115,7 @@ public class UserStorageTest extends StorageIntegrationTest {
                             .firstName(apiUser.getFirstName())
                             .lastName(apiUser.getLastName())
                             .followersCount(apiUser.getFollowersCount())
+                            .followingsCount(apiUser.getFollowingsCount())
                             .avatarUrl(apiUser.getImageUrlTemplate())
                             .visualUrl(apiUser.getVisualUrlTemplate());
     }

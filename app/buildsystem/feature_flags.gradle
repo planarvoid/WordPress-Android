@@ -28,7 +28,8 @@ enum Feature {
   FLIPPER,
   APPBOY,
   WELCOME_USER,
-  FORCE_SHOW_WELCOME_USER;
+  FORCE_SHOW_WELCOME_USER,
+  ALIGNED_USER_INFO;
 }
 
 android {
@@ -54,6 +55,7 @@ android {
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APPBOY.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {

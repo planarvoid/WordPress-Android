@@ -17,6 +17,7 @@ public class ApiUserBlueprint {
         public Object createInstance() {
             final ApiUser apiUser = new ApiUser(Urn.forUser(ModelFixtures.runningUserId++));
             apiUser.setFollowersCount(100);
+            apiUser.setFollowingsCount(200);
             apiUser.setAvatarUrlTemplate("https://i1.sndcdn.com/avatars-" + ModelFixtures.runningUserId + "-{size}.jpg");
             apiUser.setVisualUrlTemplate("https://i1.sndcdn.com/visuals-" + ModelFixtures.runningUserId + "-{size}.jpg");
             apiUser.setFirstName("sound");

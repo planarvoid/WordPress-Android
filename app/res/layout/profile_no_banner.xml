@@ -36,7 +36,7 @@
                     app:layout_scrollFlags="scroll" />
 
                 <com.soundcloud.android.view.CustomFontTabLayout
-                    android:id="@+id/tab_indicator"
+                    android:id="@+id/tab_indicator_scrollable"
                     style="@style/TabsTheme.Scrollable"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -44,7 +44,20 @@
                     android:background="@color/white"
                     app:layout_collapseMode="pin"
                     android:paddingLeft="@dimen/profile_tabs_padding"
-                    android:clipToPadding="false" />
+                    android:clipToPadding="false"
+                    android:visibility="gone"/>
+
+                <com.soundcloud.android.view.CustomFontTabLayout
+                    android:id="@+id/tab_indicator_fixed"
+                    style="@style/TabsTheme.Fixed.Elevated"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:foregroundGravity="bottom"
+                    android:background="@color/white"
+                    app:layout_collapseMode="pin"
+                    android:clipToPadding="false"
+                    android:visibility="gone" />
+
             </android.support.design.widget.AppBarLayout>
 
             <FrameLayout

@@ -177,4 +177,46 @@
         <item name="android:background">@android:color/white</item>
     </style>
 
+    <style name="Profile.InfoTab" />
+
+    <style name="Profile.InfoTab.ViewFollows">
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="Profile.InfoTab.ViewFollowsText" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">16dp</item>
+    </style>
+
+    <style name="Profile.InfoTab.ViewFollowsNumber" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/ak_medium_dark_gray</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:drawableRight">@drawable/inset_chevron</item>
+        <item name="android:drawablePadding">@dimen/view_all_chevron_padding</item>
+    </style>
+
+    <style name="Profile.InfoTab.HeadingText" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Profile.InfoTab.ContentText" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:textColor">@color/ak_almost_black</item>
+    </style>
+
+    <style name="Profile.InfoTab.Link">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
 </resources>

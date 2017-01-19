@@ -169,6 +169,7 @@ public class ModelFixtures {
                    .country(of("country"))
                    .city(of("city"))
                    .followersCount(2)
+                   .followingsCount(6)
                    .isFollowing(isFollowing)
                    .avatarUrl(of("avatar-url"))
                    .visualUrl(of("visual-url"));

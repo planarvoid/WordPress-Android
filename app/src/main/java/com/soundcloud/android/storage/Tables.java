@@ -996,6 +996,7 @@ public interface Tables {
         public static final Column COUNTRY = Column.create(TABLE, "uv_country", String.class);
         public static final Column CITY = Column.create(TABLE, "uv_city", String.class);
         public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "uv_followers_count", Long.class);
+        public static final Column FOLLOWINGS_COUNT = Column.create(TABLE, "uv_followings_count", Long.class);
         public static final Column DESCRIPTION = Column.create(TABLE, "uv_description", String.class);
         public static final Column AVATAR_URL = Column.create(TABLE, "uv_avatar_url", String.class);
         public static final Column VISUAL_URL = Column.create(TABLE, "uv_visual_url", String.class);
@@ -1018,6 +1019,7 @@ public interface Tables {
                              Users.COUNTRY.as(COUNTRY.name()),
                              Users.CITY.as(CITY.name()),
                              Users.FOLLOWERS_COUNT.as(FOLLOWERS_COUNT.name()),
+                             Users.FOLLOWINGS_COUNT.as(FOLLOWINGS_COUNT.name()),
                              Users.DESCRIPTION.as(DESCRIPTION.name()),
                              Users.AVATAR_URL.as(AVATAR_URL.name()),
                              Users.VISUAL_URL.as(VISUAL_URL.name()),
