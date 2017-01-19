@@ -2,6 +2,8 @@ package com.soundcloud.android.users;
 
 import static com.soundcloud.android.model.Urn.STRING_TO_URN;
 import static com.soundcloud.android.model.Urn.forUser;
+import static com.soundcloud.java.collections.Iterables.concat;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiUser;
@@ -11,6 +13,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 
 import java.util.Date;
+import java.util.List;
 
 @AutoValue
 public abstract class User {
@@ -46,6 +49,14 @@ public abstract class User {
     public abstract Optional<String> mySpaceName();
 
     public abstract Optional<String> discogsName();
+
+    @SuppressWarnings("unchecked")
+    public List<SocialMediaLink> socialMediaLinks() {
+        Optional<SocialMediaLink> website = websiteUrl().transform(url -> SocialMediaLink.create(websiteName(), "website", url));
+        Optional<SocialMediaLink> myspace = mySpaceName().transform(url -> SocialMediaLink.create(Optional.absent(), "myspace", url));
+        Optional<SocialMediaLink> discogs = discogsName().transform(url -> SocialMediaLink.create(Optional.absent(), "discogs", url));
+        return newArrayList(concat(website.asSet(), myspace.asSet(), discogs.asSet()));
+    }
 
     public abstract Optional<Urn> artistStation();
 

@@ -102,7 +102,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/links_section"
+                android:id="@+id/links_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -117,44 +117,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
                     android:text="@string/profile_links" />
-
-                <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/website"
-                    style="@style/Profile.InfoTab.Link"
-                    android:drawableLeft="@drawable/favicon_website"
-                    android:text="@string/website"
-                    android:visibility="gone" />
-
-                <View
-                    android:id="@+id/website_divider"
-                    style="@style/Divider.Section"
-                    android:visibility="gone" />
-
-                <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/discogs_name"
-                    style="@style/Profile.InfoTab.Link"
-                    android:drawableLeft="@drawable/favicon_discogs"
-                    android:text="@string/discogs"
-                    android:visibility="gone" />
-
-                <View
-                    android:id="@+id/discogs_divider"
-                    style="@style/Divider.Section"
-                    android:visibility="gone" />
-
-                <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/myspace_name"
-                    style="@style/Profile.InfoTab.Link"
-                    android:drawableLeft="@drawable/favicon_myspace"
-                    android:text="@string/myspace"
-                    android:visibility="gone" />
-
-                <View
-                    android:id="@+id/myspace_divider"
-                    style="@style/Divider.Section"
-                    android:visibility="gone" />
-
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/links_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@drawable/ak_list_divider_section_with_height"
+                android:orientation="vertical"
+                android:showDividers="middle|end"
+                android:visibility="gone" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </com.soundcloud.android.view.MultiSwipeRefreshLayout>

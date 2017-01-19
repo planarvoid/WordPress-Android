@@ -81,22 +81,21 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedSetsFullUserDetailsOnView() throws Exception {
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithFullDetails()));
+        final User user = userWithFullDetails();
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(user));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
         verify(userDetailsView).setFollowersCount(numberFormatter.format(FOLLOWERS_COUNT));
         verify(userDetailsView).setFollowingsCount(numberFormatter.format(FOLLOWINGS_COUNT));
         verify(userDetailsView).showBio(BIO);
-        verify(userDetailsView).showLinksSection();
-        verify(userDetailsView).showWebsite(WEBSITE_URL, WEBSITE_NAME);
-        verify(userDetailsView).showMyspace(MYSPACE_NAME);
-        verify(userDetailsView).showDiscogs(DISCOGS_NAME);
+        verify(userDetailsView).showLinks(user.socialMediaLinks());
     }
 
     @Test
     public void onViewCreatedSetsFullUserDetailsOnViewAfterOrientationChange() throws Exception {
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithFullDetails()));
+        final User user = userWithFullDetails();
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(user));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
@@ -109,10 +108,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         verify(userDetailsView, times(2)).setFollowersCount(numberFormatter.format(FOLLOWERS_COUNT));
         verify(userDetailsView, times(2)).setFollowingsCount(numberFormatter.format(FOLLOWINGS_COUNT));
         verify(userDetailsView, times(2)).showBio(BIO);
-        verify(userDetailsView, times(2)).showLinksSection();
-        verify(userDetailsView, times(2)).showWebsite(WEBSITE_URL, WEBSITE_NAME);
-        verify(userDetailsView, times(2)).showMyspace(MYSPACE_NAME);
-        verify(userDetailsView, times(2)).showDiscogs(DISCOGS_NAME);
+        verify(userDetailsView, times(2)).showLinks(user.socialMediaLinks());
     }
 
     @Test
@@ -123,27 +119,23 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         verify(userDetailsView).hideBio();
-        verify(userDetailsView).hideLinksSection();
-        verify(userDetailsView).hideWebsite();
-        verify(userDetailsView).hideMyspace();
-        verify(userDetailsView).hideDiscogs();
+        verify(userDetailsView).hideLinks();
+        verify(userDetailsView).hideLinks();
     }
 
     @Test
     public void swipeToRefreshSetsFullUserDetailsOnView() throws Exception {
+        final User user = userWithFullDetails();
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithFullDetails()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(user));
 
         swipeToRefresh();
 
         verify(userDetailsView).setFollowersCount(numberFormatter.format(FOLLOWERS_COUNT));
         verify(userDetailsView).setFollowingsCount(numberFormatter.format(FOLLOWINGS_COUNT));
         verify(userDetailsView).showBio(BIO);
-        verify(userDetailsView).showLinksSection();
-        verify(userDetailsView).showWebsite(WEBSITE_URL, WEBSITE_NAME);
-        verify(userDetailsView).showMyspace(MYSPACE_NAME);
-        verify(userDetailsView).showDiscogs(DISCOGS_NAME);
+        verify(userDetailsView).showLinks(user.socialMediaLinks());
     }
 
     @Test
@@ -155,10 +147,8 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         swipeToRefresh();
 
         verify(userDetailsView).hideBio();
-        verify(userDetailsView).hideLinksSection();
-        verify(userDetailsView).hideWebsite();
-        verify(userDetailsView).hideMyspace();
-        verify(userDetailsView).hideDiscogs();
+        verify(userDetailsView).hideLinks();
+        verify(userDetailsView).hideLinks();
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import static com.soundcloud.java.optional.Optional.fromNullable;
+import static com.soundcloud.java.strings.Strings.isBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -198,7 +199,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
 
     @Override
     public Optional<String> getWebsiteName() {
-        return fromNullable(websiteTitle);
+        return isBlank(websiteTitle) ? Optional.absent() : Optional.of(websiteTitle);
     }
 
     @Override

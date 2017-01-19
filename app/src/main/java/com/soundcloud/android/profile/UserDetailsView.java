@@ -1,37 +1,40 @@
 package com.soundcloud.android.profile;
 
+import static android.support.v4.content.ContextCompat.getDrawable;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
+import com.soundcloud.android.users.SocialMediaLink;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.strings.Strings;
+import com.soundcloud.android.view.CustomFontTextView;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.util.Locale;
+import java.util.List;
 
 class UserDetailsView {
 
     private static final String DISCOGS_PATH = "http://www.discogs.com/artist/%s";
     private static final String MYSPACE_PATH = "http://www.myspace.com/%s";
 
-    @BindView(R.id.bio_section) View bioSection;
-    @BindView(R.id.links_section) View linksSection;
-    @BindView(R.id.bio_text) TextView bioText;
-    @BindView(R.id.website) TextView websiteText;
-    @BindView(R.id.website_divider) View websiteDivider;
-    @BindView(R.id.discogs_name) TextView discogsText;
-    @BindView(R.id.discogs_divider) View discogsDivider;
-    @BindView(R.id.myspace_name) TextView myspaceText;
-    @BindView(R.id.myspace_divider) View myspaceDivider;
     @BindView(R.id.followers_count) TextView followersCount;
     @BindView(R.id.followings_count) TextView followingsCount;
+    @BindView(R.id.bio_section) View bioSection;
+    @BindView(R.id.bio_text) TextView bioText;
+    @BindView(R.id.links_header) LinearLayout linksHeader;
+    @BindView(R.id.links_container) LinearLayout linksContainer;
 
     private UserDetailsListener listener;
     private Unbinder unbinder;
@@ -53,12 +56,47 @@ class UserDetailsView {
         unbinder.unbind();
     }
 
-    public void showLinksSection() {
-        linksSection.setVisibility(View.VISIBLE);
+    public void hideLinks() {
+        linksHeader.setVisibility(View.GONE);
+        linksContainer.setVisibility(View.GONE);
     }
 
-    public void hideLinksSection() {
-        linksSection.setVisibility(View.GONE);
+    public void showLinks(List<SocialMediaLink> socialMediaLinks) {
+        linksContainer.removeAllViews();
+        final Context context = linksHeader.getContext();
+        final LayoutInflater layoutInflater = LayoutInflater.from(context);
+        for (SocialMediaLink socialMediaLink : socialMediaLinks) {
+            final View link = layoutInflater.inflate(R.layout.user_info_social_media_link, null);
+            final CustomFontTextView linkText = (CustomFontTextView) link.findViewById(R.id.social_link);
+            linkText.setMovementMethod(LinkMovementMethod.getInstance());
+            linkText.setText(textFor(socialMediaLink, context));
+            linkText.setCompoundDrawablesWithIntrinsicBounds(drawableFor(socialMediaLink, context), null, null, null);
+            linkText.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onViewUri(Uri.parse(socialMediaLink.url()));
+                }
+            });
+            linksContainer.addView(link);
+        }
+        linksHeader.setVisibility(View.VISIBLE);
+        linksContainer.setVisibility(View.VISIBLE);
+    }
+
+    private String textFor(SocialMediaLink socialMediaLink, Context context) {
+        if (socialMediaLink.title().isPresent()) {
+            return socialMediaLink.title().get();
+        } else {
+            final Resources resources = context.getResources();
+            final int resourceId = resources.getIdentifier(socialMediaLink.network(), "string", context.getPackageName());
+            return (resourceId != 0) ? resources.getString(resourceId) : socialMediaLink.url();
+        }
+    }
+
+    private Drawable drawableFor(SocialMediaLink socialMediaLink, Context context) {
+        final Resources resources = context.getResources();
+        final int resourceId = resources.getIdentifier(String.format("favicon_%s", socialMediaLink.network()), "drawable", context.getPackageName());
+        final int fallbackId = resources.getIdentifier("favicon_website", "drawable", context.getPackageName());
+        return (resourceId != 0) ? getDrawable(context, resourceId) : getDrawable(context, fallbackId);
     }
 
     void showBio(String contents) {
@@ -69,54 +107,6 @@ class UserDetailsView {
 
     void hideBio() {
         bioSection.setVisibility(View.GONE);
-    }
-
-    void showWebsite(final String websiteUrl, String websiteName) {
-        websiteDivider.setVisibility(View.VISIBLE);
-        websiteText.setVisibility(View.VISIBLE);
-        websiteText.setText(Strings.isBlank(websiteName) ? websiteUrl : websiteName);
-        websiteText.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onViewUri(Uri.parse(websiteUrl));
-            }
-        });
-    }
-
-    void hideWebsite() {
-        websiteDivider.setVisibility(View.GONE);
-        websiteText.setVisibility(View.GONE);
-    }
-
-    void showDiscogs(final String discogsName) {
-        discogsDivider.setVisibility(View.VISIBLE);
-        discogsText.setVisibility(View.VISIBLE);
-        discogsText.setMovementMethod(LinkMovementMethod.getInstance());
-        discogsText.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onViewUri(Uri.parse(String.format(Locale.US, DISCOGS_PATH, discogsName)));
-            }
-        });
-    }
-
-    void hideDiscogs() {
-        discogsDivider.setVisibility(View.GONE);
-        discogsText.setVisibility(View.GONE);
-    }
-
-    void showMyspace(final String myspaceName) {
-        myspaceDivider.setVisibility(View.VISIBLE);
-        myspaceText.setVisibility(View.VISIBLE);
-        myspaceText.setMovementMethod(LinkMovementMethod.getInstance());
-        myspaceText.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onViewUri(Uri.parse(String.format(Locale.US, MYSPACE_PATH, myspaceName)));
-            }
-        });
-    }
-
-    void hideMyspace() {
-        myspaceDivider.setVisibility(View.GONE);
-        myspaceText.setVisibility(View.GONE);
     }
 
     public void setFollowersCount(String count) {
