@@ -89,8 +89,10 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     private void bindEditBar(View view, String playlistInfoText, boolean isEditMode) {
         // No inflated in the legacy playlist screen
         final TextView editInfo = (TextView) view.findViewById(R.id.playlist_edit_bar);
-        editInfo.setText(playlistInfoText);
-        editInfo.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+        if (editInfo != null) {
+            editInfo.setText(playlistInfoText);
+            editInfo.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+        }
     }
 
     private String getPlaylistInfoText(PlaylistWithTracks item) {

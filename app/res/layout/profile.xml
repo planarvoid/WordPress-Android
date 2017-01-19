@@ -44,16 +44,7 @@
                     android:background="@color/white"
                     android:fitsSystemWindows="true" />
 
-                <View
-                    android:id="@+id/top_gradient"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/profile_banner_gradient_height"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/player_gradient_top"
-                    android:fitsSystemWindows="true"
-                    app:layout_collapseMode="pin" />
-
-                <include layout="@layout/toolbar_transparent" />
+                <include layout="@layout/transparent_toolbar_with_gradient" />
 
             </android.support.design.widget.CollapsingToolbarLayout>
 

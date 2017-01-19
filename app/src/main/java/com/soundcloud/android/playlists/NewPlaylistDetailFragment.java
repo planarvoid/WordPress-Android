@@ -16,6 +16,7 @@ import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.lightcycle.LightCycle;
 import rx.Observable;
@@ -23,6 +24,7 @@ import rx.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +46,10 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     @Inject PlaylistTrackItemRendererFactory trackItemRendererFactory;
     @Inject PlaylistDetailTrackItemRendererFactory detailTrackItemRendererFactory;
 
+    @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
     @Inject @LightCycle PlaylistHeaderPresenter playlistHeaderPresenter;
+
+    @Inject BaseLayoutHelper baseLayoutHelper;
 
     private NewPlaylistDetailsPresenter presenter;
 
@@ -58,6 +63,12 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         super.onCreate(savedInstanceState);
         presenter = playlistPresenterFactory.create(getArguments().getParcelable(EXTRA_URN));
         presenter.connect();
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        baseLayoutHelper.setupActionBar(((AppCompatActivity) getActivity()));
     }
 
     @Override
