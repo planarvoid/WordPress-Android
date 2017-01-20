@@ -40,7 +40,7 @@ public class ArtworkPresenter {
 
     void detachView() {
         artworkViewContract = Optional.absent();
-        subscriptions.unsubscribe();
+        subscriptions.clear();
     }
 
     public void artworkSizeChanged(int width, int imageViewWidth) {

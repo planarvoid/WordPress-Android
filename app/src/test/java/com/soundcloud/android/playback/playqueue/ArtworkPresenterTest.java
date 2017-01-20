@@ -126,4 +126,18 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
         verify(artworkView).cancelProgressAnimation();
     }
 
+    @Test
+    public void setImageOnDettachAndAttach() { //this mimics a screen rotation
+        PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(1L))
+                .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
+                .build();
+
+        artworkPresenter.detachView();
+        artworkPresenter.attachView(artworkView);
+
+        eventBus.publish(CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.forPlaylist(2L), 0));
+
+        verify(artworkView).setImage(any());
+    }
+
 }
