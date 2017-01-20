@@ -56,13 +56,13 @@ public abstract class Playlist {
 
     public abstract Optional<String> permalinkUrl(); // local playlists do not have permalinks (not synced yet)
 
-    public abstract String setType();
+    public abstract Optional<String> setType();
 
     public abstract Date createdAt();
 
     public abstract boolean isAlbum();
 
-    public abstract String releaseDate();
+    public abstract Optional<String> releaseDate();
 
     public abstract Optional<List<String>> tags();
 
@@ -125,7 +125,11 @@ public abstract class Playlist {
 
         public abstract Builder permalinkUrl(Optional<String> value);
 
-        public abstract Builder setType(String setType);
+        public Builder setType(String setType) {
+            return setType(Optional.fromNullable(setType));
+        }
+
+        public abstract Builder setType(Optional<String> setType);
 
         public abstract Builder createdAt(Date date);
 
@@ -135,7 +139,11 @@ public abstract class Playlist {
 
         public abstract Builder isAlbum(boolean value);
 
-        public abstract Builder releaseDate(String releaseDate);
+        public Builder releaseDate(String releaseDate) {
+            return releaseDate(Optional.fromNullable(releaseDate));
+        }
+
+        public abstract Builder releaseDate(Optional<String> releaseDate);
 
         public Builder tags(List<String> value) {
             return tags(Optional.of(value));
@@ -146,7 +154,7 @@ public abstract class Playlist {
         public abstract Builder isLikedByCurrentUser(Optional<Boolean> value);
 
         public Builder isRepostedByCurrentUser(boolean value) {
-            return isRepostedByCurrentUser(Optional.of(value));
+            return isRepostedByCurrentUser(Optional.fromNullable(value));
         }
 
         public abstract Builder isMarkedForOffline(Optional<Boolean> value);
