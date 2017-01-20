@@ -17,6 +17,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackContext;
@@ -45,14 +46,18 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
 
     @Mock private ArtworkView artworkView;
     @Mock private TrackRepository trackRepository;
+    @Mock private PlayQueueManager playQueueManager;
 
     private ArtworkPresenter artworkPresenter;
 
     @Before
     public void setUp() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(new TrackQueueItem.Builder(Urn.forTrack(1L))
+                                                                            .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY))
+                                                                            .build());
         when(trackRepository.track(any())).thenReturn(Observable.just(track));
 
-        artworkPresenter = new ArtworkPresenter(eventBus, trackRepository);
+        artworkPresenter = new ArtworkPresenter(eventBus, trackRepository, playQueueManager);
         artworkPresenter.attachView(artworkView);
     }
 
@@ -69,6 +74,11 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void retrieveImageResourceFromPlayQueueManagerWhenFirstAttached() {
+        verify(artworkView).setImage(any());
+    }
+
+    @Test
     public void callSetImageOnNewQueueEvent() {
         PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(1L))
                 .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
@@ -76,7 +86,7 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.forPlaylist(2L), 0));
 
-        verify(artworkView, times(1)).setImage(SimpleImageResource.create(track.urn(), track.imageUrlTemplate()));
+        verify(artworkView, times(2)).setImage(SimpleImageResource.create(track.urn(), track.imageUrlTemplate()));
     }
 
     @Test
@@ -128,16 +138,10 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setImageOnDettachAndAttach() { //this mimics a screen rotation
-        PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(1L))
-                .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
-                .build();
-
         artworkPresenter.detachView();
         artworkPresenter.attachView(artworkView);
 
-        eventBus.publish(CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.forPlaylist(2L), 0));
-
-        verify(artworkView).setImage(any());
+        verify(artworkView, times(2)).setImage(any());
     }
 
 }
