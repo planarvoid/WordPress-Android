@@ -20,6 +20,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
+import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
@@ -66,12 +67,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.ActionMode;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -80,10 +76,9 @@ import java.util.List;
 import java.util.Map;
 
 class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, PlaylistDetailItem>
-        implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener {
+        implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener, PlaylistDetailsViewListener {
 
     @LightCycle final PlaylistHeaderPresenter headerPresenter;
-    @LightCycle final PlaylistContentPresenter playlistContentPresenter;
 
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
@@ -102,14 +97,13 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     private Subscription subscription = RxUtils.invalidSubscription();
     private String screen;
     private ItemTouchHelper itemTouchHelper;
-    private Optional<PlaylistDetailHeaderItem> item;
+    private Optional<PlaylistDetailsMetadata> headerItemOpt;
 
     @Inject
     public PlaylistPresenter(PlaylistOperations playlistOperations,
                              PlaylistUpsellOperations upsellOperations,
                              SwipeRefreshAttacher swipeRefreshAttacher,
                              PlaylistHeaderPresenter headerPresenter,
-                             PlaylistContentPresenter playlistContentPresenter,
                              PlaylistAdapterFactory adapterFactory,
                              PlaybackInitiator playbackInitiator,
                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
@@ -126,18 +120,16 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
         this.headerPresenter = headerPresenter;
-        this.playlistContentPresenter = playlistContentPresenter;
         this.navigator = navigator;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.trackRenderer = trackRendererFactory.create(this);
         this.adapter = adapterFactory.create(this, headerPresenter, trackRenderer);
-        headerPresenter.setPlaylistPresenter(this);
+        headerPresenter.setPlaylistDetailsViewListener(this);
         addInlineHeader = !resources.getBoolean(R.bool.split_screen_details_pages);
 
         adapter.setOnUpsellClickListener(this);
 
-        setEditMode(false);
     }
 
     @Override
@@ -153,6 +145,26 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         checkState(position >= 0, "Track could not be found in adapter.");
         adapter.removeItem(position);
         adapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onHeaderPlayButtonClicked() {
+        playFromBeginning();
+    }
+
+    @Override
+    public void onCreatorClicked() {
+        navigator.legacyOpenProfile(fragment.getActivity(), headerItemOpt.get().creatorUrn());
+    }
+
+    @Override
+    public void onEnterEditMode() {
+        // no-op
+    }
+
+    @Override
+    public void onExitEditMode() {
+        // no-op
     }
 
     private int findTrackPosition(Urn track) {
@@ -184,6 +196,10 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
                 eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
                 eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
                 eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
+                eventBus.queue(PLAYLIST_CHANGED)
+                        .filter(event -> event.kind() == PlaylistTrackCountChangedEvent.Kind.TRACK_ADDED)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(event -> reloadPlaylist()),
                 subscribeToOfflineContent()
         );
     }
@@ -209,46 +225,10 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         itemTouchHelper.startDrag(viewHolder);
     }
 
-    void showEditMode() {
-        fragment.getActivity().startActionMode(new ActionMode.Callback() {
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                if (mode != null) {
-                    TextView title = (TextView) LayoutInflater.from(fragment.getContext())
-                                                              .inflate(R.layout.toolbar_title, null);
-                    title.setText(R.string.edit_playlist);
-                    mode.setCustomView(title);
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
-                return false;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                setEditMode(false);
-            }
-        });
-    }
-
-    void setEditMode(boolean isEditMode) {
-        playlistContentPresenter.setEditMode(this, isEditMode);
-        headerPresenter.setEditMode(isEditMode);
-        adapter.setEditMode(isEditMode);
-    }
-
     void savePlaylist() {
-        checkState(item.isPresent(), "The playlist must be loaded to be saved");
+        checkState(headerItemOpt.isPresent(), "The playlist must be loaded to be saved");
 
-        final PlaylistDetailHeaderItem playlist = item.get();
+        final PlaylistDetailsMetadata playlist = headerItemOpt.get();
         final List<Urn> tracks = Lists.transform(adapter.getTracks(), TrackItem.TO_URN);
         fireAndForget(playlistOperations.editPlaylist(playlist.getUrn(),
                                                       playlist.title(),
@@ -259,9 +239,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     @Override
     protected void onItemClicked(View view, int position) {
         if (adapter.getItem(position) instanceof PlaylistDetailTrackItem) {
-            playlistContentPresenter.onItemClicked(position);
+            handleItemClick(position);
         }
-
     }
 
     @Override
@@ -276,11 +255,11 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
                                 .withAdapter(adapter).build();
     }
 
-    void playFromBegninning() {
-        handlItemClick(addInlineHeader ? 1 : 0);
+    private void playFromBeginning() {
+        handleItemClick(addInlineHeader ? 1 : 0);
     }
 
-    void handlItemClick(int position) {
+    private void handleItemClick(int position) {
         playbackInitiator.playTracks(
                 playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
                 ((PlaylistDetailTrackItem) adapter.getItem(position)).getUrn(), position - (addInlineHeader ? 1 : 0), playSessionSource)
@@ -327,7 +306,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         headerPresenter.setScreen(screen);
     }
 
-    void reloadPlaylist() {
+    private void reloadPlaylist() {
         retryWith(CollectionBinding
                           .from(loadPlaylistObservable(getPlaylistUrn()), PlaylistDetailsViewModel::itemsWithHeader)
                           .withAdapter(adapter).build());
@@ -352,8 +331,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
             // Note: This subscriber might get called after the activity has been detached
             // and it should be safe to discard it
             if (activity != null) {
-                final PlaylistDetailHeaderItem headerItem = playlistDetailsViewModel.header();
-                PlaylistPresenter.this.item = Optional.of(headerItem);
+                final PlaylistDetailsMetadata headerItem = playlistDetailsViewModel.metadata();
+                PlaylistPresenter.this.headerItemOpt = Optional.of(headerItem);
                 playSessionSource = createPlaySessionSource(headerItem);
                 headerPresenter.setPlaylist(headerItem, playSessionSource);
                 fragment.getActivity().setTitle(headerItem.label());
@@ -362,7 +341,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         }
     }
 
-    private PlaySessionSource createPlaySessionSource(PlaylistDetailHeaderItem item) {
+    private PlaySessionSource createPlaySessionSource(PlaylistDetailsMetadata item) {
         PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
                 screen,
                 item.getUrn(),
@@ -403,17 +382,17 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     @Override
     public void onUpsellItemClicked(Context context) {
         navigator.openUpgrade(context);
-        if (item.isPresent()) {
+        if (headerItemOpt.isPresent()) {
             eventBus.publish(EventQueue.TRACKING,
-                             UpgradeFunnelEvent.forPlaylistTracksClick(item.get().getUrn()));
+                             UpgradeFunnelEvent.forPlaylistTracksClick(headerItemOpt.get().getUrn()));
         }
     }
 
     @Override
     public void onUpsellItemCreated() {
-        if (item.isPresent()) {
+        if (headerItemOpt.isPresent()) {
             eventBus.publish(EventQueue.TRACKING,
-                             UpgradeFunnelEvent.forPlaylistTracksImpression(item.get().getUrn()));
+                             UpgradeFunnelEvent.forPlaylistTracksImpression(headerItemOpt.get().getUrn()));
         }
     }
 }

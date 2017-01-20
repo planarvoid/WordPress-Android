@@ -27,6 +27,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -48,6 +50,8 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
     @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
     @Inject @LightCycle PlaylistHeaderPresenter playlistHeaderPresenter;
+    @Inject PlaylistDetailToolbarViewFactory toolbarViewFactory;
+    private PlaylistDetailToolbarView toolbarView;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
@@ -62,13 +66,30 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         presenter = playlistPresenterFactory.create(getArguments().getParcelable(EXTRA_URN));
+        playlistHeaderPresenter.setPlaylistDetailsViewListener(presenter);
+
         presenter.connect();
+        setHasOptionsMenu(true);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         baseLayoutHelper.setupActionBar(((AppCompatActivity) getActivity()));
+        toolbarView = toolbarViewFactory.create(presenter);
+        bind(toolbarView);
+    }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.playlist_details_edit_actions, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        toolbarView.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -98,9 +119,9 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         return modelUpdates()
                 .doOnNext(playlistDetailsViewModelAsyncViewModel -> {
                     final PlaylistDetailsViewModel data = playlistDetailsViewModelAsyncViewModel.data();
-                    playlistHeaderPresenter.setPlaylist(data.header(), PlaySessionSource.EMPTY);
+                    playlistHeaderPresenter.setPlaylist(data.metadata(), PlaySessionSource.EMPTY);
+                    toolbarView.setPlaylist(data.metadata());
                 })
-                // TODO : handle upsells
                 .map(viewModel -> viewModel.data().tracks());
     }
 
@@ -114,6 +135,12 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     protected Observable<Boolean> isRefreshing() {
         return modelUpdates()
                 .map(AsyncViewModel::isRefreshing);
+    }
+
+    @Override
+    public void onDestroyView() {
+        toolbarView = null;
+        super.onDestroyView();
     }
 
     @Override

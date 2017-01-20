@@ -57,22 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/artwork_container"
-        android:layout_toRightOf="@id/artwork_container"
-        android:visibility="gone" />
-
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/playlist_edit_bar"
-        style="@style/TextAppearance.SoundCloudLightFont"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="@dimen/playlist_action_bar_padding"
-        android:layout_marginLeft="@dimen/playlist_edit_info_left_margin"
-        android:layout_marginTop="@dimen/playlist_action_bar_padding"
-        android:layout_alignBottom="@id/artwork_container"
-        android:layout_toRightOf="@id/artwork_container"
-        android:gravity="center_vertical"
-        android:maxLines="1"
-        android:visibility="gone" />
+        android:layout_toRightOf="@id/artwork_container" />
 
     <View
         style="@style/Divider.Section"

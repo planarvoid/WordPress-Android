@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @AutoValue
-abstract class PlaylistDetailHeaderItem extends PlaylistDetailItem implements UpdatablePlaylistItem, ImageResource {
+abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements UpdatablePlaylistItem, ImageResource {
 
-    PlaylistDetailHeaderItem() {
+    PlaylistDetailsMetadata() {
         super(PlaylistDetailItem.Kind.HeaderItem);
     }
 
-    public static PlaylistDetailHeaderItem from(Playlist playlist, List<TrackItem> tracks, boolean isLiked, Resources resources) {
+    public static PlaylistDetailsMetadata from(Playlist playlist, List<TrackItem> tracks, boolean isLiked, boolean isInEditMode, Resources resources) {
         return builder()
                 .urn(playlist.urn())
                 .title(playlist.title())
@@ -41,6 +41,7 @@ abstract class PlaylistDetailHeaderItem extends PlaylistDetailItem implements Up
                 .offlineState(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
                 .label(PlaylistUtils.formatPlaylistTitle(resources, playlist.setType(), playlist.isAlbum(), playlist.releaseDate()))
                 .imageUrlTemplate(playlist.imageUrlTemplate())
+                .isInEditMode(isInEditMode)
                 .build();
     }
 
@@ -96,6 +97,8 @@ abstract class PlaylistDetailHeaderItem extends PlaylistDetailItem implements Up
 
     abstract Optional<String> imageUrlTemplate();
 
+    abstract boolean isInEditMode();
+
     public abstract Builder toBuilder();
 
     @Override
@@ -130,7 +133,7 @@ abstract class PlaylistDetailHeaderItem extends PlaylistDetailItem implements Up
                 .build();
     }
 
-    PlaylistDetailHeaderItem updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
+    PlaylistDetailsMetadata updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
         final Builder builder = toBuilder().isLikedByUser(likeStatus.isUserLike());
         if (likeStatus.likeCount().isPresent()) {
             builder.likesCount(likeStatus.likeCount().get());
@@ -138,12 +141,12 @@ abstract class PlaylistDetailHeaderItem extends PlaylistDetailItem implements Up
         return builder.build();
     }
 
-    PlaylistDetailHeaderItem updatedWithRepostStatus(RepostsStatusEvent.RepostStatus repostStatus) {
+    PlaylistDetailsMetadata updatedWithRepostStatus(RepostsStatusEvent.RepostStatus repostStatus) {
         return toBuilder().isRepostedByUser(repostStatus.isReposted()).build();
     }
 
     static Builder builder() {
-        return new AutoValue_PlaylistDetailHeaderItem.Builder();
+        return new AutoValue_PlaylistDetailsMetadata.Builder();
     }
 
     @AutoValue.Builder
@@ -180,6 +183,8 @@ abstract class PlaylistDetailHeaderItem extends PlaylistDetailItem implements Up
 
         abstract Builder imageUrlTemplate(Optional<String> value);
 
-        abstract PlaylistDetailHeaderItem build();
+        abstract Builder isInEditMode(boolean value);
+
+        abstract PlaylistDetailsMetadata build();
     }
 }

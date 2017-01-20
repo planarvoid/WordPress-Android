@@ -251,7 +251,7 @@ public class PlaylistOperations {
         return playlists -> {
             final PlaylistDetailsViewModel.Builder builder = PlaylistDetailsViewModel
                     .builder()
-                    .header(PlaylistDetailHeaderItem.from(playlist, tracks, playlist.isLikedByCurrentUser().or(false), resources))
+                    .metadata(PlaylistDetailsMetadata.from(playlist, tracks, playlist.isLikedByCurrentUser().or(false), false, resources))
                     .tracks(transform(tracks, PlaylistDetailTrackItem::new))
                     .upsell(upsellOperations.getUpsell(playlist, tracks));
 

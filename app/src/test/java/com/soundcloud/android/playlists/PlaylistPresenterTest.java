@@ -77,7 +77,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeAttacher;
     @Mock private CollapsingScrollHelper profileScrollHelper;
     @Mock private PlaylistHeaderPresenter headerPresenter;
-    @Mock private PlaylistContentPresenter playlistContentPresenter;
     @Mock private PlaylistAdapterFactory adapterFactory;
     @Mock private PlaylistAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
@@ -101,7 +100,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        final PlaylistDetailsViewModel model = PlaylistDetailsViewModel.from(playlist, tracks, false, resources());
+        final PlaylistDetailsViewModel model = PlaylistDetailsViewModel.from(playlist, tracks, false, false, resources());
         when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(model));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
         when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
@@ -115,7 +114,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
                                           upsellOperations,
                                           swipeAttacher,
                                           headerPresenter,
-                                          playlistContentPresenter,
                                           adapterFactory,
                                           playbackInitiator,
                                           expandPlayerSubscriberProvider,
@@ -133,7 +131,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         verify(adapter).onNext(trackItemCaptor.capture());
         List<PlaylistDetailItem> itemList = trackItemCaptor.getValue();
-        assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailHeaderItem.class);
+        assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailsMetadata.class);
         assertThat(((PlaylistDetailTrackItem) itemList.get(1)).getTrackItem()).isEqualTo(track1);
         assertThat(((PlaylistDetailTrackItem) itemList.get(2)).getTrackItem()).isEqualTo(track2);
     }
@@ -321,7 +319,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
                 .releaseDate(releaseDate)
                 .build();
         // TODO liked?
-        return PlaylistDetailsViewModel.from(playlist, tracks, false, resources());
+        return PlaylistDetailsViewModel.from(playlist, tracks, false, false, resources());
     }
 
 }

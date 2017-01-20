@@ -98,7 +98,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private ShareOperations shareOperations;
     @Mock private PlaylistHeaderView playlistHeaderView;
-    @Mock private PlaylistHeaderListener headerListener;
+    @Mock private PlaylistDetailsViewListener headerListener;
     @Mock private PlaylistHeaderView headerView;
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private ScreenProvider screenProvider;
@@ -111,7 +111,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
     private Observable<List<Urn>> playlistTrackurns;
-    private PlaylistDetailHeaderItem headerItem;
+    private PlaylistDetailsMetadata headerItem;
     private PlaylistHeaderPresenter presenter;
 
     private static Bundle fragmentArgs() {
@@ -675,12 +675,12 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo(createPlaylistHeaderItem(playlistItem, isLiked), getPlaySessionSource());
     }
 
-    private void setPlaylistInfo(PlaylistDetailHeaderItem playlistDetailHeaderItem, PlaySessionSource playSessionSource) {
+    private void setPlaylistInfo(PlaylistDetailsMetadata playlistDetailsMetadata, PlaySessionSource playSessionSource) {
         presenter.onAttach(fragmentRule.getFragment(), fragmentRule.getActivity());
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onResume(fragmentRule.getFragment());
         presenter.setScreen(SCREEN.get());
-        presenter.setPlaylist(playlistDetailHeaderItem, playSessionSource);
+        presenter.setPlaylist(playlistDetailsMetadata, playSessionSource);
     }
 
 
@@ -688,21 +688,21 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         headerItem = headerItem.toBuilder().offlineState(offlineState).build();
     }
 
-    private PlaylistDetailHeaderItem createPlaylistInfoWithSharing(Sharing sharing) {
+    private PlaylistDetailsMetadata createPlaylistInfoWithSharing(Sharing sharing) {
         final Playlist.Builder playlistBuilder = createPlaylistBuilder(sharing);
         return createPlaylistHeaderItem(playlistBuilder.build());
     }
 
-    private PlaylistDetailHeaderItem createPlaylistHeaderItem(Playlist playlistItem) {
+    private PlaylistDetailsMetadata createPlaylistHeaderItem(Playlist playlistItem) {
         return createPlaylistHeaderItem(playlistItem, playlistItem.isLikedByCurrentUser().or(false));
     }
 
-    private PlaylistDetailHeaderItem createPlaylistHeaderItem(Playlist playlistItem, boolean isLiked) {
-        return PlaylistDetailHeaderItem.from(playlistItem, emptyList(),isLiked, resources());
+    private PlaylistDetailsMetadata createPlaylistHeaderItem(Playlist playlistItem, boolean isLiked) {
+        return PlaylistDetailsMetadata.from(playlistItem, emptyList(), isLiked, false, resources());
     }
 
-    private PlaylistDetailHeaderItem createPlaylistWithSingleTrack(Playlist playlistItem) {
-        return PlaylistDetailHeaderItem.from(playlistItem, ModelFixtures.trackItems(1), false, resources());
+    private PlaylistDetailsMetadata createPlaylistWithSingleTrack(Playlist playlistItem) {
+        return PlaylistDetailsMetadata.from(playlistItem, ModelFixtures.trackItems(1), false, false, resources());
     }
 
     private Playlist createPlaylist(Sharing sharing) {

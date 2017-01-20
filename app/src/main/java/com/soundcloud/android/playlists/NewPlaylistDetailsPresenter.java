@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 @AutoFactory
-class NewPlaylistDetailsPresenter {
+class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
 
     private final PlaylistOperations playlistOperations;
     private final LikesStateProvider likesStateProvider;
@@ -34,6 +34,7 @@ class NewPlaylistDetailsPresenter {
     private final Urn playlistUrn;
     private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
     private final BehaviorSubject<Boolean> refreshSubject = BehaviorSubject.create(false);
+    private final BehaviorSubject<Boolean> editModeSubject = BehaviorSubject.create(false);
     private final Resources resources;
     private Subscription subscription = RxUtils.invalidSubscription();
 
@@ -56,9 +57,32 @@ class NewPlaylistDetailsPresenter {
     public void connect() {
         subscription.unsubscribe();
         subscription = Observable
-                .combineLatest(refreshSubject, playlist(), tracks(), likedStatus(), this::combine)
+                .combineLatest(refreshSubject, editModeSubject, playlist(), tracks(), likedStatus(), this::combine)
                 .doOnNext(viewModelSubject::onNext)
                 .subscribe(new DefaultSubscriber<>());
+    }
+
+    @Override
+    public void onHeaderPlayButtonClicked() {
+//        playbackInitiator.playTracks(
+//                playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
+//                ((PlaylistDetailTrackItem) adapter.getItem(position)).getUrn(), position - (addInlineHeader ? 1 : 0), playSessionSource)
+//                         .subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    @Override
+    public void onCreatorClicked() {
+//        navigator.legacyOpenProfile(fragment.getActivity(), headerItemOpt.get().creatorUrn());
+    }
+
+    @Override
+    public void onEnterEditMode() {
+        editModeSubject.onNext(true);
+    }
+
+    @Override
+    public void onExitEditMode() {
+        editModeSubject.onNext(false);
     }
 
     private Observable<List<TrackItem>> tracks() {
@@ -97,11 +121,12 @@ class NewPlaylistDetailsPresenter {
     }
 
     private AsyncViewModel<PlaylistDetailsViewModel> combine(Boolean isRefreshing,
+                                                             Boolean isEditMode,
                                                              Playlist playlist,
                                                              List<TrackItem> tracks,
                                                              LikedStatuses likedStatuses) {
         final boolean isLiked = likedStatuses.isLiked(playlist.urn());
-        final PlaylistDetailsViewModel model = PlaylistDetailsViewModel.from(playlist, tracks, isLiked, resources);
+        final PlaylistDetailsViewModel model = PlaylistDetailsViewModel.from(playlist, tracks, isLiked, isEditMode, resources);
         return AsyncViewModel.create(model, isRefreshing);
     }
 

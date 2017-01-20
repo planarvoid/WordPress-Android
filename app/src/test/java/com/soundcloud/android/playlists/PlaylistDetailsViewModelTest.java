@@ -23,7 +23,7 @@ public class PlaylistDetailsViewModelTest extends AndroidUnitTest {
 
     private final PlaylistDetailsViewModel model = PlaylistDetailsViewModel
             .builder()
-            .header(PlaylistDetailHeaderItem.from(playlist, trackItems, false, resources()))
+            .metadata(PlaylistDetailsMetadata.from(playlist, trackItems, false, false, resources()))
             .tracks(transform(trackItems, PlaylistDetailTrackItem::new))
             .upsell(new PlaylistDetailUpsellItem(new PlaylistDetailTrackItem(upsellableTrack).getTrackItem())).build();
 

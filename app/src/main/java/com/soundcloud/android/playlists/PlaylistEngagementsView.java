@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Checkable;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -65,34 +64,23 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         this.downloadStateView = downloadStateView;
     }
 
-    void bindView(View view, PlaylistDetailHeaderItem item, boolean isEditMode) {
+    void bindView(View view, PlaylistDetailsMetadata item) {
         this.playlistUrn = item.getUrn();
         final String playlistInfoText = getPlaylistInfoText(item.trackCount(), item.duration());
-        bindEngagementBar(view, isEditMode);
+        bindEngagementBar(view, item.isInEditMode());
         setInfoText(playlistInfoText);
-        bindEditBar(view, playlistInfoText, isEditMode);
     }
 
     private void bindEngagementBar(View view, boolean isEditMode) {
         final View bar = view.findViewById(R.id.playlist_engagement_bar);
 
         unbinder = ButterKnife.bind(this, bar);
-        bar.setVisibility(View.VISIBLE);
         menu = popupMenuWrapperFactory.build(view.getContext(), overflowButton);
         menu.inflate(R.menu.playlist_details_actions);
         menu.setOnMenuItemClickListener(this);
         downloadStateView.onViewCreated(bar);
         bar.setVisibility(isEditMode ? View.GONE : View.VISIBLE);
         configurePlayNext();
-    }
-
-    private void bindEditBar(View view, String playlistInfoText, boolean isEditMode) {
-        // No inflated in the legacy playlist screen
-        final TextView editInfo = (TextView) view.findViewById(R.id.playlist_edit_bar);
-        if (editInfo != null) {
-            editInfo.setText(playlistInfoText);
-            editInfo.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
-        }
     }
 
     private String getPlaylistInfoText(int trackCount, String duration) {

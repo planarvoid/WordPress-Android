@@ -14,9 +14,9 @@ import java.util.List;
 @AutoValue
 abstract class PlaylistDetailsViewModel {
 
-    public static PlaylistDetailsViewModel from(Playlist playlist, List<TrackItem> trackItems, boolean isLiked, Resources resources) {
+    public static PlaylistDetailsViewModel from(Playlist playlist, List<TrackItem> trackItems, boolean isLiked, boolean isEditMode, Resources resources) {
         return builder()
-                .header(PlaylistDetailHeaderItem.from(playlist, trackItems, isLiked, resources))
+                .metadata(PlaylistDetailsMetadata.from(playlist, trackItems, isLiked, isEditMode, resources))
                 .tracks(transform(trackItems, PlaylistDetailTrackItem::new))
                 .build();
     }
@@ -25,7 +25,7 @@ abstract class PlaylistDetailsViewModel {
         return new AutoValue_PlaylistDetailsViewModel.Builder();
     }
 
-    abstract PlaylistDetailHeaderItem header();
+    abstract PlaylistDetailsMetadata metadata();
 
     abstract List<PlaylistDetailTrackItem> tracks();
 
@@ -70,7 +70,7 @@ abstract class PlaylistDetailsViewModel {
     }
 
     private static void addHeader(PlaylistDetailsViewModel playlistDetailsViewModel, ArrayList<PlaylistDetailItem> items) {
-        items.add(playlistDetailsViewModel.header());
+        items.add(playlistDetailsViewModel.metadata());
     }
 
     @AutoValue.Builder
@@ -81,7 +81,7 @@ abstract class PlaylistDetailsViewModel {
             otherPlaylists(Optional.absent());
         }
 
-        abstract Builder header(PlaylistDetailHeaderItem value);
+        abstract Builder metadata(PlaylistDetailsMetadata value);
 
         abstract Builder tracks(List<PlaylistDetailTrackItem> value);
 

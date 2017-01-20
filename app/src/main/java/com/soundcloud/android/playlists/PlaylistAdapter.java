@@ -18,8 +18,6 @@ import java.util.List;
 public class PlaylistAdapter
         extends RecyclerDragDropAdapter<PlaylistDetailItem, RecyclerDragDropAdapter.ViewHolder> {
 
-    private boolean isEditMode;
-
     private final PlaylistUpsellItemRenderer upsellItemRenderer;
 
     PlaylistAdapter(OnStartDragListener dragListener,
@@ -36,17 +34,11 @@ public class PlaylistAdapter
               new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistHeaderPresenter),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.OtherPlaylists.ordinal(), recommendationsItemRenderer));
         this.upsellItemRenderer = upsellItemRenderer;
-        isEditMode = false;
     }
 
     @Override
     public int getBasicItemViewType(int position) {
-        PlaylistDetailItem item = getItem(position);
-        if (item.getPlaylistItemKind().equals(PlaylistDetailItem.Kind.TrackItem)) {
-            return isEditMode ? PlaylistDetailItem.Kind.EditItem.ordinal() : PlaylistDetailItem.Kind.TrackItem.ordinal();
-        } else  {
-            return item.getPlaylistItemKind().ordinal();
-        }
+        return getItem(position).getPlaylistItemKind().ordinal();
     }
 
     @Override
@@ -68,11 +60,6 @@ public class PlaylistAdapter
             }
         }
         return tracks;
-    }
-
-    void setEditMode(boolean editMode) {
-        this.isEditMode = editMode;
-        notifyDataSetChanged();
     }
 
     void setOnUpsellClickListener(PlaylistUpsellItemRenderer.Listener listener) {

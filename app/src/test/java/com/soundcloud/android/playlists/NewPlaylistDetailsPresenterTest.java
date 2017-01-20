@@ -56,9 +56,9 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         playlistUrn = initialPlaylist.urn();
-        initialModel = PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, resources());
+        initialModel = PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, false, resources());
         updatedModel = initialModel.toBuilder()
-                                   .header(PlaylistDetailHeaderItem.from(updatedPlaylist, trackItems, false, resources()))
+                                   .metadata(PlaylistDetailsMetadata.from(updatedPlaylist, trackItems, false, false, resources()))
                                    .build();
 
         newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistOperations,
@@ -81,13 +81,13 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void emitsPlaylistFromStorage() {
         newPlaylistPresenter.viewModel()
                             .test()
-                            .assertValue(fromIdle(PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, resources())));
+                            .assertValue(fromIdle(PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, false, resources())));
     }
 
     @Test
     public void emitsUpdatedPlaylistAfterLike() {
-        final PlaylistDetailHeaderItem likedHeader = initialModel.header().toBuilder().isLikedByUser(true).build();
-        final PlaylistDetailsViewModel likedPlaylist = initialModel.toBuilder().header(likedHeader).build();
+        final PlaylistDetailsMetadata likedHeader = initialModel.metadata().toBuilder().isLikedByUser(true).build();
+        final PlaylistDetailsViewModel likedPlaylist = initialModel.toBuilder().metadata(likedHeader).build();
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(fromIdle(initialModel));

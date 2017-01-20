@@ -156,7 +156,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
-        final PlaylistDetailsViewModel initialModel = PlaylistDetailsViewModel.from(playlist, asList(track1, track2), false, resources());
+        final PlaylistDetailsViewModel initialModel = PlaylistDetailsViewModel.from(playlist, asList(track1, track2), false, false, resources());
         final PlaylistDetailsViewModel updatedModel = initialModel.toBuilder().otherPlaylists(createOtherPlaylistItem()).build();
         viewModelSubscriber.assertValues(initialModel, updatedModel);
         viewModelSubscriber.assertCompleted();
@@ -178,7 +178,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
         final PlaylistDetailsViewModel expected = PlaylistDetailsViewModel.builder()
-                                                                          .header(PlaylistDetailHeaderItem.from(playlist, tracks, false, resources()))
+                                                                          .metadata(PlaylistDetailsMetadata.from(playlist, tracks, false, false, resources()))
                                                                           .tracks(transform(asList(track1, track2), PlaylistDetailTrackItem::new))
                                                                           .otherPlaylists(createOtherPlaylistItem())
                                                                           .build();
@@ -214,7 +214,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
         playlistSyncSubject.onCompleted();
 
-        final PlaylistDetailsViewModel initialModel = PlaylistDetailsViewModel.from(playlist, tracks, false, resources());
+        final PlaylistDetailsViewModel initialModel = PlaylistDetailsViewModel.from(playlist, (List<TrackItem>) tracks, false, false, resources());
         final PlaylistDetailsViewModel updatedModel = initialModel.toBuilder().otherPlaylists(createOtherPlaylistItem()).build();
 
         viewModelSubscriber.assertValues(initialModel, updatedModel);

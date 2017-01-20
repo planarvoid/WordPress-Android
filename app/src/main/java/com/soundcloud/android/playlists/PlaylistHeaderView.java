@@ -24,7 +24,7 @@ class PlaylistHeaderView {
     @BindView(R.id.artwork) ImageView artworkView;
     @BindView(R.id.btn_play) View playButton;
 
-    private PlaylistDetailHeaderItem item;
+    private PlaylistDetailsMetadata item;
     private ApiImageSize artworkSize = ApiImageSize.Unknown;
 
     public PlaylistHeaderView(@Provided ImageOperations imageOperations, View headerView) {
@@ -42,7 +42,7 @@ class PlaylistHeaderView {
         usernameView.setOnClickListener(creatorClickListener);
     }
 
-    public void setPlaylist(PlaylistDetailHeaderItem item, boolean showPlayButton) {
+    public void setPlaylist(PlaylistDetailsMetadata item, boolean showPlayButton) {
         this.item = item;
         getTitleView().setText(this.item.title());
         getTitleView().setVisibility(View.VISIBLE);
