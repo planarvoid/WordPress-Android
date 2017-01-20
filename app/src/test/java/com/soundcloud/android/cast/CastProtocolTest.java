@@ -12,6 +12,7 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -30,8 +31,8 @@ public class CastProtocolTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final String TOKEN = "fakeToken";
 
-    private CastCredentials castCredentials;
     @Mock private CastJsonHandler castJsonHandler;
+    @Mock private AccountOperations accountOperations;
     @Mock private Token token;
     @Mock private CastSession castSession;
     @Mock private CastProtocol.Listener listener;
@@ -39,6 +40,7 @@ public class CastProtocolTest extends AndroidUnitTest {
     @Mock private CastPlayQueue castPlayQueue;
     @Captor private ArgumentCaptor<String> jsonCaptor;
     @Captor private ArgumentCaptor<MediaInfo> mediaInfoCaptor;
+    @Captor private ArgumentCaptor<CastCredentials> credentialsCaptor;
 
     private CastProtocol castProtocol;
 
@@ -48,19 +50,20 @@ public class CastProtocolTest extends AndroidUnitTest {
         when(token.valid()).thenReturn(true);
         when(castSession.getRemoteMediaClient()).thenReturn(remoteMediaClient);
         when(castSession.isConnected()).thenReturn(true);
+        when(accountOperations.getSoundCloudToken()).thenReturn(token);
 
-        castCredentials = new CastCredentials(token);
-
-        castProtocol = new CastProtocol(castJsonHandler);
+        castProtocol = new CastProtocol(castJsonHandler, accountOperations);
         castProtocol.registerCastSession(castSession);
-        castProtocol.attachCredentials(castCredentials);
     }
 
     @Test
     public void updateQueueMessageIsSentWithAttachedCredentials() {
         castProtocol.sendUpdateQueue(castPlayQueue);
 
-        verify(castPlayQueue).setCredentials(eq(castCredentials));
+        verify(castPlayQueue).setCredentials(credentialsCaptor.capture());
+
+        CastCredentials castCredentials = credentialsCaptor.getValue();
+        assertThat(castCredentials.getAuthorization()).contains(TOKEN);
     }
 
     @Test
@@ -96,8 +99,9 @@ public class CastProtocolTest extends AndroidUnitTest {
         String contentId = "fakeId";
         long position = 123L;
         JSONObject customData = new JSONObject();
+        when(castJsonHandler.toJson(castPlayQueue)).thenReturn(customData);
 
-        castProtocol.sendLoad(contentId, true, position, customData);
+        castProtocol.sendLoad(contentId, true, position, castPlayQueue);
 
         verify(remoteMediaClient).load(mediaInfoCaptor.capture(), eq(true), eq(position), eq(customData));
         MediaInfo mediaInfo = mediaInfoCaptor.getValue();

@@ -81,7 +81,6 @@ public class CastModule {
     @Provides
     @Singleton
     public CastPlayer provideCastPlayer(FeatureFlags featureFlags,
-                                        Lazy<DefaultCastOperations> castOperations,
                                         Lazy<LegacyCastOperations> legacyCastOperations,
                                         Lazy<VideoCastManager> videoCastManager,
                                         Lazy<ProgressReporter> progressReporter,
@@ -97,7 +96,7 @@ public class CastModule {
             return new LegacyCastPlayer(legacyCastOperations.get(), videoCastManager.get(), progressReporter.get(),
                                         playQueueManager, eventBus, playStatePublisher, dateProvider);
         } else {
-            return new DefaultCastPlayer(castOperations.get(), playQueueManager, eventBus,
+            return new DefaultCastPlayer(playQueueManager, eventBus,
                                          castProtocol, playSessionStateProvider,
                                          castQueueController, castPlayStateReporter);
         }

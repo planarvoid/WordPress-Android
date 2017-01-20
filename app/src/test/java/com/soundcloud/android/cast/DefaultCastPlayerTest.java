@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,13 +35,11 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
@@ -65,7 +62,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private TestObserver<PlaybackResult> observer;
 
-    @Mock private DefaultCastOperations castOperations;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private GoogleApiClient googleApiClient;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
@@ -90,16 +86,9 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     private DefaultCastPlayer getCastPlayer() {
         when(castProtocol.getRemoteMediaClient()).thenReturn(remoteMediaClient);
 
-        return new DefaultCastPlayer(castOperations, playQueueManager, eventBus,
+        return new DefaultCastPlayer(playQueueManager, eventBus,
                                      castProtocol, playSessionStateProvider,
                                      castQueueController, castPlayStateReporter);
-    }
-
-    @Test
-    public void credentialsAreAttachedToProtocolOnConnection() {
-        // onConnected called in setUp
-
-        verify(castProtocol).attachCredentials(castOperations.getCastCredentials());
     }
 
     @Test
@@ -201,12 +190,10 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         long playPosition = 123L;
         boolean autoplay = true;
         List<Urn> tracks = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
-        final LoadMessageParameters loadMessageParameters = new LoadMessageParameters(autoplay, playPosition, new JSONObject());
         when(castQueueController.getCurrentQueue()).thenReturn(new CastPlayQueue(Urn.NOT_SET, emptyList()));
         when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(tracks);
-        when(castOperations.createLoadMessageParameters(TRACK_URN1, autoplay, playPosition, tracks))
-                .thenReturn(Observable.just(loadMessageParameters));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN1));
+        when(castQueueController.buildCastPlayQueue(any(Urn.class), any())).thenReturn(new CastPlayQueue());
         mockProgressAndDuration(123L, 124L);
 
         castPlayer.playCurrent();
@@ -214,7 +201,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         verify(castProtocol).sendLoad(eq(TRACK_URN1.toString()),
                                       eq(autoplay),
                                       eq(playPosition),
-                                      eq(loadMessageParameters.jsonData));
+                                      any(CastPlayQueue.class));
     }
 
     @Test
@@ -286,10 +273,12 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     @Test
     public void setNewQueueWithSelectedTracks() {
         final List<Urn> urns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
+        ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
 
         castPlayer.setNewQueue(urns, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
-        verify(castOperations).setNewPlayQueue(urns, TRACK_URN1, PlaySessionSource.EMPTY);
+        verify(playQueueManager).setNewPlayQueue(playQueueCaptor.capture(), eq(PlaySessionSource.EMPTY), anyInt());
+        assertThat(playQueueCaptor.getValue().getTrackItemUrns()).isEqualTo(urns);
     }
 
     @Test
@@ -308,20 +297,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
-    }
-
-    @Test
-    public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() {
-        Urn currentTrackUrn = TRACK_URN1;
-        when(castQueueController.getCurrentQueue()).thenReturn(null);
-        mockProgressAndDuration(2345L, 3456789L);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(currentTrackUrn));
-        when(castOperations.createLoadMessageParameters(eq(currentTrackUrn), anyBoolean(), anyLong(), anyListOf(Urn.class)))
-                .thenReturn(Observable.error(new Throwable("loading error")));
-
-        castPlayer.playCurrent();
-
-        verify(castPlayStateReporter).reportPlayingError(currentTrackUrn);
     }
 
     @Test
@@ -436,8 +411,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(castProtocol.isConnected()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-        when(castOperations.createLoadMessageParameters(any(Urn.class), anyBoolean(), anyLong(), anyListOf(Urn.class)))
-                .thenReturn(Observable.empty());
     }
 
     @Test
@@ -450,17 +423,15 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     @Test
     public void loadLocalQueueWhenFetchedRemotePlayQueueIsEmpty() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN1));
+        when(castQueueController.buildCastPlayQueue(any(Urn.class), any())).thenReturn(new CastPlayQueue());
         mockProgressAndDuration(0L, 1234L);
-        final LoadMessageParameters loadMessageParameters = new LoadMessageParameters(true, 0L, new JSONObject());
-        when(castOperations.createLoadMessageParameters(eq(TRACK_URN1), anyBoolean(), anyLong(), any()))
-                .thenReturn(Observable.just(loadMessageParameters));
 
         castPlayer.onRemoteEmptyStateFetched();
 
         verify(castProtocol).sendLoad(eq(TRACK_URN1.toString()),
                                       anyBoolean(),
                                       anyLong(),
-                                      any(JSONObject.class));
+                                      any(CastPlayQueue.class));
     }
 
     private void mockProgressAndDuration(long progress, long duration) {

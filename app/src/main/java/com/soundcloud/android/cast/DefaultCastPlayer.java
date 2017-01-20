@@ -1,6 +1,7 @@
 package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.cast.CastProtocol.TAG;
+import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPosition;
 
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
@@ -16,7 +17,6 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -35,7 +35,6 @@ import java.util.List;
 @Singleton
 class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
-    private final DefaultCastOperations castOperations;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final CastProtocol castProtocol;
@@ -46,14 +45,12 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
 
     @Inject
-    DefaultCastPlayer(DefaultCastOperations castOperations,
-                      PlayQueueManager playQueueManager,
+    DefaultCastPlayer(PlayQueueManager playQueueManager,
                       EventBus eventBus,
                       CastProtocol castProtocol,
                       PlaySessionStateProvider playSessionStateProvider,
                       CastQueueController castQueueController,
                       CastPlayStateReporter playStateReporter) {
-        this.castOperations = castOperations;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.castProtocol = castProtocol;
@@ -64,7 +61,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
     @Override
     public void onConnected() {
-        castProtocol.attachCredentials(castOperations.getCastCredentials());
+        // no-op
     }
 
     @Override
@@ -150,14 +147,13 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     private void loadLocalOnRemote() {
         final Urn currentTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
         PlaybackProgress lastProgress = playSessionStateProvider.getLastProgressEvent();
+        long playPosition = lastProgress.getPosition();
 
-        playStateReporter.reportIdle(PlayStateReason.NONE, currentTrackUrn, lastProgress.getPosition(), lastProgress.getDuration());
+        playStateReporter.reportIdle(PlayStateReason.NONE, currentTrackUrn, playPosition, lastProgress.getDuration());
         playCurrentSubscription.unsubscribe();
 
-        playCurrentSubscription = castOperations
-                .createLoadMessageParameters(currentTrackUrn, true, lastProgress.getPosition(), playQueueManager.getCurrentQueueTrackUrns())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn));
+        CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
+        castProtocol.sendLoad(currentTrackUrn.toString(), true, playPosition, castPlayQueue);
     }
 
     private void updateRemoteQueue(Urn currentLocalTrackUrn) {
@@ -172,24 +168,6 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         castProtocol.sendUpdateQueue(castPlayQueue);
     }
 
-    private class PlayCurrentLocalQueueOnRemote extends DefaultSubscriber<LoadMessageParameters> {
-        private final Urn currentTrackUrn;
-
-        private PlayCurrentLocalQueueOnRemote(Urn currentTrackUrn) {
-            this.currentTrackUrn = currentTrackUrn;
-        }
-
-        @Override
-        public void onNext(LoadMessageParameters loadMessageParameters) {
-            castProtocol.sendLoad(currentTrackUrn.toString(), loadMessageParameters.autoplay, loadMessageParameters.playPosition, loadMessageParameters.jsonData);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            playStateReporter.reportPlayingError(currentTrackUrn);
-        }
-    }
-
     @Override
     public Observable<PlaybackResult> setNewQueue(List<Urn> trackItemUrns,
                                                   final Urn initialTrackUrn,
@@ -198,7 +176,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
                          .observeOn(AndroidSchedulers.mainThread())
                          .map(urns -> {
                              playStateReporter.reportPlayingReset(initialTrackUrn);
-                             castOperations.setNewPlayQueue(urns, initialTrackUrn, playSessionSource);
+                             PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, Collections.emptyMap());
+                             playQueueManager.setNewPlayQueue(playQueue, playSessionSource, correctInitialPosition(playQueue, 0, initialTrackUrn));
                              return PlaybackResult.success();
                          })
                          .doOnError(throwable -> playStateReporter.reportPlayingError(initialTrackUrn));

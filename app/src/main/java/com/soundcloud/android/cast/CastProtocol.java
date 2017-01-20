@@ -4,6 +4,7 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.utils.Log;
@@ -30,7 +31,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     private Optional<CastSession> castSession = Optional.absent();
     private Listener listener;
     private final CastJsonHandler jsonHandler;
-    private CastCredentials credentials;
+    private final AccountOperations accountOperations;
 
     public interface Listener extends RemoteMediaClient.ProgressListener {
         void onStatusUpdated();
@@ -41,8 +42,10 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     }
 
     @Inject
-    CastProtocol(CastJsonHandler castJsonHandler) {
+    CastProtocol(CastJsonHandler castJsonHandler,
+                 AccountOperations accountOperations) {
         this.jsonHandler = castJsonHandler;
+        this.accountOperations = accountOperations;
     }
 
     public void registerCastSession(CastSession castSession) {
@@ -55,18 +58,18 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         this.castSession = Optional.absent();
     }
 
-    public void attachCredentials(CastCredentials credentials) {
-        Log.d(TAG, "CastProtocol::attachCredentials for token " + credentials);
-        this.credentials = credentials;
+    private CastCredentials getCredentials() {
+        return new CastCredentials(accountOperations.getSoundCloudToken());
     }
 
-    public void sendLoad(String contentId, boolean autoplay, long playPosition, JSONObject customData) {
-        Log.d(TAG, "CastProtocol::sendLoad" + (autoplay ? " in autoplay" : "") + " with customData = " + customData);
+    public void sendLoad(String contentId, boolean autoplay, long playPosition, CastPlayQueue playQueue) {
         MediaInfo mediaInfo = new MediaInfo.Builder(contentId)
                 .setContentType(MIME_TYPE_AUDIO_MPEG)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .build();
-        getRemoteMediaClient().load(mediaInfo, autoplay, playPosition, customData);
+        playQueue.setCredentials(getCredentials());
+        getRemoteMediaClient().load(mediaInfo, autoplay, playPosition, jsonHandler.toJson(playQueue));
+        Log.d(TAG, "CastProtocol::sendLoad" + (autoplay ? " in autoplay" : "") + " with playQueue = " + playQueue);
     }
 
     public void setListener(Listener listener) {
@@ -99,7 +102,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     private void attachCredentialsToMessage(CastMessage castMessage) {
         CastPlayQueue castPlayQueue = castMessage.payload();
         if (castPlayQueue != null) {
-            castPlayQueue.setCredentials(credentials);
+            castPlayQueue.setCredentials(getCredentials());
         } else {
             Log.e(TAG, "CastProtocol::attachCredentialsToMessage - Tried to attach credentials to null payload message: " + castMessage);
         }
