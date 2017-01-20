@@ -15,7 +15,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -142,14 +141,14 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         return renderer.createItemView(new FrameLayout(context()));
     }
 
-    private PropertySet createSeed() {
-        return PropertySet.from(
-                RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(SEED_ID),
-                RecommendationProperty.SEED_TRACK_URN.bind(SEED_TRACK.getUrn()),
-                RecommendationProperty.SEED_TRACK_TITLE.bind(SEED_TRACK.getTitle()),
-                RecommendationProperty.REASON.bind(REASON),
-                RecommendationProperty.QUERY_POSITION.bind(QUERY_POSITION),
-                RecommendationProperty.QUERY_URN.bind(Urn.NOT_SET)
+    private RecommendationSeed createSeed() {
+        return RecommendationSeed.create(
+                SEED_ID,
+                SEED_TRACK.getUrn(),
+                SEED_TRACK.getTitle(),
+                REASON,
+                QUERY_POSITION,
+                Urn.NOT_SET
         );
     }
 

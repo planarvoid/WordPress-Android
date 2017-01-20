@@ -13,37 +13,31 @@ import java.util.List;
 @AutoValue
 public abstract class RecommendedTracksBucketItem extends DiscoveryItem implements PlayableViewItem {
 
-    static RecommendedTracksBucketItem create(PropertySet source, List<Recommendation> recommendations) {
-        return new AutoValue_RecommendedTracksBucketItem(Kind.RecommendedTracksItem, source, recommendations);
+    static RecommendedTracksBucketItem create(RecommendationSeed seed, List<Recommendation> recommendations) {
+
+        return new AutoValue_RecommendedTracksBucketItem(Kind.RecommendedTracksItem,
+                                                         seed.seedTrackTitle(),
+                                                         seed.seedTrackUrn(),
+                                                         seed.queryPosition(),
+                                                         seed.queryUrn(),
+                                                         seed.reason(),
+                                                         seed.seedTrackLocalId(),
+                                                         recommendations);
     }
 
-    String getSeedTrackTitle() {
-        return getSource().get(RecommendationProperty.SEED_TRACK_TITLE);
-    }
+    abstract String getSeedTrackTitle();
 
-    Urn getSeedTrackUrn() {
-        return getSource().get(RecommendationProperty.SEED_TRACK_URN);
-    }
+    abstract Urn getSeedTrackUrn();
 
-    int getSeedTrackQueryPosition() {
-        return getSource().get(RecommendationProperty.QUERY_POSITION);
-    }
+    abstract int getSeedTrackQueryPosition();
 
-    Urn getQueryUrn() {
-        return getSource().get(RecommendationProperty.QUERY_URN);
-    }
+    abstract Urn getQueryUrn();
 
-    abstract PropertySet getSource();
+    abstract RecommendationReason getRecommendationReason();
+
+    abstract long getSeedTrackLocalId();
 
     abstract List<Recommendation> getRecommendations();
-
-    RecommendationReason getRecommendationReason() {
-        return getSource().get(RecommendationProperty.REASON);
-    }
-
-    long getSeedTrackLocalId() {
-        return getSource().get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
-    }
 
     public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
         final Urn nowPlayingUrn = event.getCurrentPlayQueueItem().getUrnOrNotSet();
