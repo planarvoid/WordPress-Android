@@ -6,6 +6,7 @@ class FollowError {
 
     private static final String AGE_RESTRICTED = "age_restricted";
     private static final String AGE_UNKNOWN = "age_unknown";
+    private static final String BLOCKED = "blocked";
 
     public final String error;
     public final Integer age;
@@ -21,6 +22,10 @@ class FollowError {
 
     boolean isAgeUnknown() {
         return AGE_UNKNOWN.equals(error);
+    }
+
+    boolean isBlocked() {
+        return BLOCKED.equals(error);
     }
 
     @Override
