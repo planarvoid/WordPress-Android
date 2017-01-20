@@ -115,8 +115,7 @@
                     android:id="@+id/playlist_engagement_bar"
                     layout="@layout/playlist_engagement_bar"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:elevation="@dimen/toolbar_elevation" />
+                    android:layout_height="wrap_content" />
 
             </android.support.design.widget.AppBarLayout>
 
