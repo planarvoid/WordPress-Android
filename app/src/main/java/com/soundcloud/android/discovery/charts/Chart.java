@@ -19,7 +19,7 @@ public abstract class Chart {
                         String displayName,
                         Urn genre,
                         ChartBucketType bucketType) {
-        return create(localId, type, category, displayName, genre, bucketType, Collections.<TrackArtwork>emptyList());
+        return create(localId, type, category, displayName, genre, bucketType, Collections.emptyList());
     }
 
     public static Chart create(Long localId,

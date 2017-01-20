@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery.charts;
 
 import static com.soundcloud.java.collections.Iterables.transform;
 
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.model.Urn;
@@ -20,8 +21,10 @@ import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -76,6 +79,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final ChartsTracker chartsTracker;
+    private final PublishSubject<Throwable> errorSubject = PublishSubject.create();
 
     @Inject
     ChartTracksPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -131,6 +135,12 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
                 .build();
     }
 
+    Observable<ApiRequestException> invalidGenreError() {
+        return errorSubject.filter(throwable -> throwable instanceof ApiRequestException)
+                           .cast(ApiRequestException.class)
+                           .filter(error -> error.reason().equals(ApiRequestException.Reason.NOT_FOUND));
+    }
+
     private List<Urn> getPlayQueue() {
         final List<Urn> playQueue = new ArrayList<>();
         for (ChartTrackListItem chartTrackListItem : chartTracksAdapter.getItems()) {
@@ -144,6 +154,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
 
     @Override
     protected EmptyView.Status handleError(Throwable error) {
+        errorSubject.onNext(error);
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 }

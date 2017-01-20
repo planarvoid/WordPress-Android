@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery.charts;
 
 import static com.soundcloud.android.discovery.charts.ChartTracksFragment.EXTRA_CATEGORY;
 import static com.soundcloud.android.discovery.charts.ChartTracksFragment.EXTRA_GENRE_URN;
+import static com.soundcloud.android.discovery.charts.ChartTracksFragment.EXTRA_HEADER;
 import static com.soundcloud.android.discovery.charts.ChartTracksFragment.EXTRA_TYPE;
 
 import com.soundcloud.android.R;
@@ -10,6 +11,7 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -30,7 +32,9 @@ class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implemen
     @LightCycle EnterScreenDispatcher enterScreenDispatcher;
 
     @Inject
-    ChartPresenter(Resources resources, ChartsTracker chartsTracker, EnterScreenDispatcher enterScreenDispatcher) {
+    ChartPresenter(Resources resources,
+                   ChartsTracker chartsTracker,
+                   EnterScreenDispatcher enterScreenDispatcher) {
         this.resources = resources;
         this.chartsTracker = chartsTracker;
         this.enterScreenDispatcher = enterScreenDispatcher;
@@ -45,6 +49,13 @@ class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implemen
         final ChartType chartType = (ChartType) intent.getSerializableExtra(EXTRA_TYPE);
         final ChartCategory chartCategory = (ChartCategory) intent.getSerializableExtra(EXTRA_CATEGORY);
         final Urn chartGenreUrn = intent.getParcelableExtra(EXTRA_GENRE_URN);
+        final String title = intent.getStringExtra(EXTRA_HEADER);
+        if (Strings.isNullOrEmpty(title)) {
+            activity.setTitle(R.string.charts_header);
+        } else {
+            activity.setTitle(title);
+        }
+
         adapter = new ChartPagerAdapter(activity.getSupportFragmentManager(), resources, chartGenreUrn);
         pager = (ViewPager) activity.findViewById(R.id.pager);
         pager.setAdapter(adapter);

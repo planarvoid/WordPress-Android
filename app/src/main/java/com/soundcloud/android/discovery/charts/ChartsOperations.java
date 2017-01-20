@@ -51,7 +51,7 @@ public class ChartsOperations {
                                 .filter(HAS_EXPECTED_CONTENT)
                                 .subscribeOn(scheduler)
                                 .switchIfEmpty(SyncOperations.<ChartBucket>emptyResult(result))
-                                .map(toDiscoveryItem());
+                                .map(ChartsBucketItem::from);
         }
     };
 
@@ -76,10 +76,6 @@ public class ChartsOperations {
 
     private Observable<DiscoveryItem> load(Observable<SyncOperations.Result> source) {
         return source.flatMap(loadCharts);
-    }
-
-    private Func1<ChartBucket, DiscoveryItem> toDiscoveryItem() {
-        return chartBucket -> ChartsBucketItem.from(chartBucket);
     }
 
     private Func1<List<Chart>, List<Chart>> filterGenresByCategory(final ChartCategory chartCategory) {

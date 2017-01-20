@@ -143,6 +143,25 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://m.soundcloud.com/soundcloudgo");
     }
 
+    @Test
+    public void shouldHandleChartsDeeplinks() throws Exception {
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/top");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:top:all");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/new?genre=all-music");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:new:all");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/top?genre=electronic");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:top:electronic");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/new?genre=electronic");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:new:electronic");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/top?genre=hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:top:hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/new?genre=hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:new:hiphoprap");
+
+        assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:music");
+        assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:audio");
+    }
+
     private void assertDeeplink(DeepLink deepLink, String url) {
         assertThat(DeepLink.fromUri(Uri.parse(url))).isEqualTo(deepLink);
     }

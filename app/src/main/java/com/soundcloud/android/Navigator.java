@@ -20,7 +20,6 @@ import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.ChartActivity;
-import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
@@ -82,6 +81,7 @@ public class Navigator {
             | Intent.FLAG_ACTIVITY_TASK_ON_HOME
             | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
+    public static final String EXTRA_CHARTS_INTENT = "charts_intent";
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
 
@@ -368,15 +368,15 @@ public class Navigator {
     }
 
     public void openChart(Context context, Urn genre, ChartType type, ChartCategory category, String header) {
-        context.startActivity(new Intent(context, ChartActivity.class)
-                                      .putExtra(ChartTracksFragment.EXTRA_GENRE_URN, genre)
-                                      .putExtra(ChartTracksFragment.EXTRA_TYPE, type)
-                                      .putExtra(ChartTracksFragment.EXTRA_CATEGORY, category)
-                                      .putExtra(ChartActivity.EXTRA_HEADER, header));
+        context.startActivity(ChartActivity.createIntent(context, genre, type, category, header));
     }
 
     public void openAllGenres(Context context) {
         context.startActivity(new Intent(context, AllGenresActivity.class));
+    }
+
+    public void openAllGenres(Context context, ChartCategory category) {
+        context.startActivity(AllGenresActivity.createIntent(context, category));
     }
 
     public void openLikedStations(Context context) {

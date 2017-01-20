@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -58,6 +59,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private FeatureOperations featureOperations;
     @Mock private Resources resources;
+    @Mock private ChartsUriResolver chartsUriResolver;
 
     @InjectMocks private IntentResolver resolver;
 
@@ -473,7 +475,9 @@ public class IntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenChartsFromWebLink() {
-        setupIntentForUrl("https://soundcloud.com/charts");
+        String url = "https://soundcloud.com/charts/top?genre=all";
+        when(chartsUriResolver.resolveUri(Uri.parse(url))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
+        setupIntentForUrl(url);
 
         resolver.handleIntent(intent, context);
 
@@ -486,7 +490,9 @@ public class IntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenChartsFromUri() {
-        setupIntentForUrl("soundcloud://charts");
+        String url = "soundcloud://charts:top:all";
+        when(chartsUriResolver.resolveUri(Uri.parse(url))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
+        setupIntentForUrl(url);
 
         resolver.handleIntent(intent, context);
 
@@ -494,7 +500,7 @@ public class IntentResolverTest extends AndroidUnitTest {
                                     Chart.GLOBAL_GENRE,
                                     ChartType.TOP,
                                     ChartCategory.MUSIC,
-                                    "Top 50");
+                                    TOP_FIFTY);
     }
 
     public void setupIntentForUrl(String url) {

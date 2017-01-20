@@ -19,6 +19,7 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
+import com.soundcloud.android.discovery.charts.AllGenresPresenter;
 import com.soundcloud.android.discovery.charts.ChartActivity;
 import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
@@ -617,7 +618,7 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn)
                                    .containsExtra(ChartTracksFragment.EXTRA_TYPE, chartType)
-                                   .containsExtra(ChartActivity.EXTRA_HEADER, header)
+                                   .containsExtra(ChartTracksFragment.EXTRA_HEADER, header)
                                    .opensActivity(ChartActivity.class);
     }
 
@@ -626,6 +627,15 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openAllGenres(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(AllGenresActivity.class);
+    }
+
+    @Test
+    public void opensAllGenresFromDeeplink() throws Exception {
+        navigator.openAllGenres(activityContext, ChartCategory.MUSIC);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(AllGenresPresenter.EXTRA_CATEGORY, ChartCategory.MUSIC)
                                    .opensActivity(AllGenresActivity.class);
     }
 

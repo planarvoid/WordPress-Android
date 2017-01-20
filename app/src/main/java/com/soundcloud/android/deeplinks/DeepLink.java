@@ -23,6 +23,7 @@ public enum DeepLink {
     COLLECTION,
     OFFLINE_SETTINGS,
     CHARTS,
+    CHARTS_ALL_GENRES,
     TRACK_ENTITY,
     PLAYLIST_ENTITY,
     USER_ENTITY,
@@ -93,7 +94,7 @@ public enum DeepLink {
         return false;
     }
 
-    private static boolean isSoundCloudScheme(Uri uri) {
+    public static boolean isSoundCloudScheme(Uri uri) {
         return uri.isHierarchical() && SOUNDCLOUD_SCHEME.equals(uri.getScheme());
     }
 
@@ -150,6 +151,10 @@ public enum DeepLink {
             case "notification_preferences":
                 return NOTIFICATION_PREFERENCES;
             case "charts":
+                String authority = uri.getAuthority();
+                if (authority.equals("charts:audio") || authority.equals("charts:music")) {
+                    return CHARTS_ALL_GENRES;
+                }
                 return CHARTS;
             case "tracks":
                 return TRACK_ENTITY;
@@ -171,7 +176,7 @@ public enum DeepLink {
         }
     }
 
-    private static boolean isWebScheme(Uri uri) {
+    public static boolean isWebScheme(Uri uri) {
         return uri.isHierarchical()
                 && ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()));
     }
@@ -221,11 +226,18 @@ public enum DeepLink {
             case "/open-notification-settings":
                 return SYSTEM_SETTINGS;
             default:
-                if (isWebViewUrl(uri)) {
+                if (isChartsUrl(uri)) {
+                    return CHARTS;
+                }
+                else if (isWebViewUrl(uri)) {
                     return WEB_VIEW;
                 } else {
                     return ENTITY;
                 }
         }
+    }
+
+    private static boolean isChartsUrl(Uri uri) {
+        return uri.getPath().startsWith("/charts");
     }
 }

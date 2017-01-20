@@ -6,10 +6,7 @@ import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -29,7 +26,6 @@ import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.provider.Settings;
 
@@ -46,7 +42,7 @@ public class IntentResolver {
     private final EventBus eventBus;
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
-    private final Resources resources;
+    private final ChartsUriResolver chartsUriResolver;
 
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
@@ -58,7 +54,7 @@ public class IntentResolver {
                    EventBus eventBus,
                    Navigator navigator,
                    FeatureOperations featureOperations,
-                   Resources resources) {
+                   ChartsUriResolver chartsUriResolver) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -68,7 +64,7 @@ public class IntentResolver {
         this.eventBus = eventBus;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
-        this.resources = resources;
+        this.chartsUriResolver = chartsUriResolver;
     }
 
     public void handleIntent(Intent intent, Context context) {
@@ -110,7 +106,10 @@ public class IntentResolver {
                 showTrackRecommendationsScreen(context, referrer);
                 break;
             case CHARTS:
-                showCharts(context, referrer);
+                showCharts(context, uri, referrer);
+                break;
+            case CHARTS_ALL_GENRES:
+                showAllGenresCharts(context, uri, referrer);
                 break;
             case SEARCH:
                 showSearchScreen(context, uri, referrer);
@@ -227,13 +226,15 @@ public class IntentResolver {
         navigator.openViewAllRecommendations(context);
     }
 
-    private void showCharts(Context context, String referrer) {
+    private void showCharts(Context context, Uri uri, String referrer) {
         trackForegroundEvent(referrer);
-        navigator.openChart(context,
-                            Chart.GLOBAL_GENRE,
-                            ChartType.TOP,
-                            ChartCategory.MUSIC,
-                            resources.getString(R.string.charts_top));
+        ChartDetails chartDetails = chartsUriResolver.resolveUri(uri);
+        navigator.openChart(context, chartDetails.genre(), chartDetails.type(), chartDetails.category(), chartDetails.title().or(""));
+    }
+
+    private void showAllGenresCharts(Context context, Uri uri, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openAllGenres(context, AllGenresUriResolver.resolveUri(uri));
     }
 
     private void showSearchScreen(Context context, Uri uri, String referrer) {

@@ -1,9 +1,11 @@
 package com.soundcloud.android.discovery.charts;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -12,15 +14,18 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class AllGenresPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+public class AllGenresPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+
+    public static final String EXTRA_CATEGORY = "extra_category";
 
     private final Resources resources;
-    private final ChartsTracker chartsTracker;
+    final ChartsTracker chartsTracker;
     private ViewPager pager;
     private GenresPagerAdapter adapter;
 
     @Inject
-    AllGenresPresenter(Resources resources, ChartsTracker chartsTracker) {
+    AllGenresPresenter(Resources resources,
+                       ChartsTracker chartsTracker) {
         this.resources = resources;
         this.chartsTracker = chartsTracker;
     }
@@ -42,6 +47,12 @@ class AllGenresPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
         TabLayout tabIndicator = (TabLayout) activity.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
+
+        Intent intent = activity.getIntent();
+        if (intent.hasExtra(EXTRA_CATEGORY)) {
+            ChartCategory category = (ChartCategory) intent.getSerializableExtra(EXTRA_CATEGORY);
+            pager.setCurrentItem(category.ordinal());
+        }
     }
 
     public Screen getScreen() {
