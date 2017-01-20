@@ -82,7 +82,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
+        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.empty());
         when(playlistOperations.trackUrnsForPlayback(any(Urn.class)))
                 .thenReturn(Observable.<List<Urn>>just(Lists.newArrayList(Urn.NOT_SET)));
 

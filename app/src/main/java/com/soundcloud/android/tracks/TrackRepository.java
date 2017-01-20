@@ -75,7 +75,14 @@ public class TrackRepository {
     }
 
     public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn) {
-        return loadPlaylistTracksCommand.toObservable(playlistUrn);
+        return loadPlaylistTracksCommand
+                .toObservable(playlistUrn)
+                .filter(tracks -> !tracks.isEmpty())
+                .switchIfEmpty(syncInitiator
+                                       .syncPlaylist(playlistUrn)
+                                       .observeOn(scheduler)
+                                       .flatMap(ignored -> loadPlaylistTracksCommand.toObservable(playlistUrn)))
+                .subscribeOn(scheduler);
     }
 
     private Func1<List<Urn>, Observable<?>> syncMissingTracks(final List<Urn> requestedTracks) {

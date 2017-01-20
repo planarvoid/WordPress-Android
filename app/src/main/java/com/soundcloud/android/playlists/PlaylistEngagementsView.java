@@ -42,12 +42,12 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
 
     private PopupMenuWrapper menu;
     private OnEngagementListener listener;
-    private PlaylistWithTracks playlistItem;
 
     @BindView(R.id.toggle_like) ToggleButton likeToggle;
     @BindView(R.id.toggle_download) IconToggleButton downloadToggle;
     @BindView(R.id.playlist_details_overflow_button) View overflowButton;
     private Unbinder unbinder;
+    private Urn playlistUrn;
 
     @Inject
     PlaylistEngagementsView(Context context,
@@ -65,9 +65,9 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         this.downloadStateView = downloadStateView;
     }
 
-    void bindView(View view, PlaylistWithTracks item, boolean isEditMode) {
-        this.playlistItem = item;
-        final String playlistInfoText = getPlaylistInfoText(item);
+    void bindView(View view, PlaylistDetailHeaderItem item, boolean isEditMode) {
+        this.playlistUrn = item.getUrn();
+        final String playlistInfoText = getPlaylistInfoText(item.trackCount(), item.duration());
         bindEngagementBar(view, isEditMode);
         setInfoText(playlistInfoText);
         bindEditBar(view, playlistInfoText, isEditMode);
@@ -95,13 +95,12 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
         }
     }
 
-    private String getPlaylistInfoText(PlaylistWithTracks item) {
-        final String trackCount = context.getResources().getQuantityString(
-                R.plurals.number_of_sounds, item.getTrackCount(),
-                item.getTrackCount());
+    private String getPlaylistInfoText(int trackCount, String duration) {
+        final String trackCountFormatted = context.getResources().getQuantityString(
+                R.plurals.number_of_sounds, trackCount, trackCount);
 
         return context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
-                                 trackCount, item.getDuration());
+                                 trackCountFormatted, duration);
     }
 
     void showOfflineState(OfflineState state) {
@@ -251,7 +250,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.play_next:
-                getListener().onPlayNext(playlistItem.getUrn());
+                getListener().onPlayNext(playlistUrn);
                 return true;
             case R.id.repost:
                 getListener().onToggleRepost(true, true);

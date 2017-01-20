@@ -4,6 +4,7 @@ import static com.soundcloud.android.presentation.TypedListItem.Kind.UPSELL;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.TypedListItem;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.java.optional.Optional;
 
@@ -12,10 +13,12 @@ import java.util.Date;
 class PlaylistDetailUpsellItem extends PlaylistDetailItem implements TypedListItem {
 
     private final Date createdAt;
+    private final TrackItem track;
 
-    PlaylistDetailUpsellItem() {
+    PlaylistDetailUpsellItem(TrackItem track) {
         super(PlaylistDetailItem.Kind.UpsellItem);
-        createdAt = new Date();
+        this.track = track;
+        this.createdAt = new Date();
     }
 
     @Override
@@ -36,5 +39,9 @@ class PlaylistDetailUpsellItem extends PlaylistDetailItem implements TypedListIt
     @Override
     public Date getCreatedAt() {
         return createdAt;
+    }
+
+    public TrackItem track() {
+        return track;
     }
 }

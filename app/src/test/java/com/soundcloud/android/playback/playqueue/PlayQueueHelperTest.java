@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -18,10 +19,10 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ScreenProvider screenProvider;
+    @Mock private TrackRepository trackRepository;
     private PlayQueueHelper playQueueHelper;
     private List<Urn> trackList;
     private Urn playlistUrn = Urn.forPlaylist(12345L);
@@ -51,7 +53,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
         Urn track2 = Urn.forTrack(2L);
         trackList = newArrayList(track1, track2);
         when(screenProvider.getLastScreenTag()).thenReturn(Screen.STREAM.get());
-        playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, playbackToastHelper, eventBus,
+        playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, trackRepository, playbackToastHelper, eventBus,
                                               playbackInitiator, screenProvider);
     }
 
@@ -74,13 +76,13 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     @Test
     public void shouldInsertIntoPlayQueue() {
         final List<TrackItem> trackItemsList = ModelFixtures.trackItems(2);
-        final PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(ModelFixtures.playlist(), trackItemsList);
-        when(playlistOperations.playlist(eq(playlistWithTracks.getUrn()))).thenReturn(Observable.just(playlistWithTracks));
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(Observable.just(trackItemsList));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
-        playQueueHelper.playNext(playlistWithTracks.getUrn());
+        playQueueHelper.playNext(playlistUrn);
 
-        verify(playQueueManager, times(1)).insertNext(playlistWithTracks.getTracksUrn());
+        verify(playQueueManager, times(1)).insertNext(transform(trackItemsList, TrackItem::getUrn));
     }
 
 }

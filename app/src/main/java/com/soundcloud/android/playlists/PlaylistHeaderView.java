@@ -1,9 +1,7 @@
 package com.soundcloud.android.playlists;
 
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
@@ -11,8 +9,9 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.util.AnimUtils;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
 class PlaylistHeaderView {
@@ -25,7 +24,7 @@ class PlaylistHeaderView {
     @BindView(R.id.artwork) ImageView artworkView;
     @BindView(R.id.btn_play) View playButton;
 
-    private PlaylistItem playlistInfo;
+    private PlaylistDetailHeaderItem item;
     private ApiImageSize artworkSize = ApiImageSize.Unknown;
 
     public PlaylistHeaderView(@Provided ImageOperations imageOperations, View headerView) {
@@ -43,15 +42,15 @@ class PlaylistHeaderView {
         usernameView.setOnClickListener(creatorClickListener);
     }
 
-    public void setPlaylist(PlaylistItem item, boolean showPlayButton) {
-        this.playlistInfo = item;
-        getTitleView().setText(playlistInfo.getTitle());
+    public void setPlaylist(PlaylistDetailHeaderItem item, boolean showPlayButton) {
+        this.item = item;
+        getTitleView().setText(this.item.title());
         getTitleView().setVisibility(View.VISIBLE);
         usernameView.setVisibility(View.VISIBLE);
-        usernameView.setText(playlistInfo.getCreatorName());
+        usernameView.setText(this.item.creatorName());
         usernameView.setEnabled(true);
 
-        imageOperations.displayWithPlaceholder(playlistInfo, artworkSize, artworkView);
+        imageOperations.displayWithPlaceholder(this.item, artworkSize, artworkView);
 
         if (showPlayButton) {
             AnimUtils.showView(playButton, true);
@@ -61,7 +60,7 @@ class PlaylistHeaderView {
     }
 
     private TextView getTitleView() {
-        if (playlistInfo != null && playlistInfo.isPrivate()) {
+        if (item != null && item.isPrivate()) {
             return privateTitleView;
         }
         return titleView;

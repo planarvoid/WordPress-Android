@@ -32,7 +32,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDetailItem>
+public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDetailTrackItem>
         implements TrackItemMenuPresenter.RemoveTrackListener, RefreshableScreen {
 
     public static final String EXTRA_URN = "urn";
@@ -87,17 +87,21 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     }
 
     @Override
-    protected RecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> createAdapter() {
+    protected RecyclerItemAdapter<PlaylistDetailTrackItem, RecyclerView.ViewHolder> createAdapter() {
         final PlaylistTrackItemRenderer trackItemRenderer = trackItemRendererFactory.create(this);
         final PlaylistDetailTrackItemRenderer playlistTrackItemRenderer = detailTrackItemRendererFactory.create(trackItemRenderer);
         return adapterFactory.create(playlistTrackItemRenderer);
     }
 
     @Override
-    protected Observable<Iterable<PlaylistDetailItem>> items() {
+    protected Observable<Iterable<PlaylistDetailTrackItem>> items() {
         return modelUpdates()
-                .doOnNext(playlistDetailsViewModelAsyncViewModel -> playlistHeaderPresenter.setPlaylist(playlistDetailsViewModelAsyncViewModel.data().playlistWithTracks(), PlaySessionSource.EMPTY))
-                .map(viewModel -> viewModel.data().playlistDetailItems());
+                .doOnNext(playlistDetailsViewModelAsyncViewModel -> {
+                    final PlaylistDetailsViewModel data = playlistDetailsViewModelAsyncViewModel.data();
+                    playlistHeaderPresenter.setPlaylist(data.header(), PlaySessionSource.EMPTY);
+                })
+                // TODO : handle upsells
+                .map(viewModel -> viewModel.data().tracks());
     }
 
     private Observable<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates() {

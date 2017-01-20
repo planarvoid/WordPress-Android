@@ -1,14 +1,13 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
-import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 class PlaylistUpsellOperations {
@@ -23,31 +22,24 @@ class PlaylistUpsellOperations {
         this.upsellOperations = upsellOperations;
     }
 
-    List<PlaylistDetailItem> toListItems(PlaylistWithTracks playlist) {
-        List<PlaylistDetailTrackItem> detailTrackItems = transform(playlist.getTracks(), PlaylistDetailTrackItem::new);
-        if (!isUpsellEnabled() || playlist.isOwnedBy(accountOperations.getLoggedInUserUrn())) {
-            return new ArrayList<>(detailTrackItems);
+    Optional<PlaylistDetailUpsellItem> getUpsell(Playlist playlist, List<TrackItem> tracks) {
+        final boolean isOwnedByLoggedInUser = playlist.creatorUrn().equals(accountOperations.getLoggedInUserUrn());
+        if (!isUpsellEnabled() || isOwnedByLoggedInUser) {
+            return Optional.absent();
         } else {
-            return withUpsell(detailTrackItems);
-        }
-    }
-
-    private List<PlaylistDetailItem> withUpsell(List<PlaylistDetailTrackItem> tracks) {
-        List<PlaylistDetailItem> items = new ArrayList<>(tracks);
-        if (isUpsellEnabled()) {
-            Optional<PlaylistDetailItem> upsellable = getFirstUpsellable(items);
+            final Optional<TrackItem> upsellable = getFirstUpsellableTrack(tracks);
             if (upsellable.isPresent()) {
-                items.add(items.indexOf(upsellable.get()) + 1, new PlaylistDetailUpsellItem());
+                return Optional.of(new PlaylistDetailUpsellItem(upsellable.get()));
+            } else {
+                return Optional.absent();
             }
         }
-        return items;
     }
 
-    private Optional<PlaylistDetailItem> getFirstUpsellable(List<PlaylistDetailItem> items) {
-        for (PlaylistDetailItem item : items) {
-            if (item instanceof PlaylistDetailTrackItem
-                    && isHighTierPreview(((PlaylistDetailTrackItem) item).getTrackItem())) {
-                return Optional.of(item);
+    private Optional<TrackItem> getFirstUpsellableTrack(List<TrackItem> tracks) {
+        for (TrackItem track : tracks) {
+            if (isHighTierPreview(track)) {
+                return Optional.of(track);
             }
         }
         return Optional.absent();

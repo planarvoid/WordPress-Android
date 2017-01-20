@@ -15,7 +15,6 @@ import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -41,7 +40,6 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     private static final Void SIGNAL = null;
 
     @Mock private OfflineSettingsStorage settingsStorage;
-    @Mock private PlaylistWithTracks playlistWithTracks;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private OfflineServiceInitiator serviceInitiator;
     @Mock private Action0 startServiceAction;

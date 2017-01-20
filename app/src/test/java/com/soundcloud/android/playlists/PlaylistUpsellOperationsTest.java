@@ -11,7 +11,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
-import com.soundcloud.android.upsell.UpsellListItem;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -21,6 +21,10 @@ import java.util.List;
 
 public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
 
+    private final List<TrackItem> defaultTracks = Arrays.asList(
+            TestPropertySets.expectedTrackForListItem(Urn.forTrack(425L)),
+            TestPropertySets.expectedTrackForListItem(Urn.forTrack(752L)));
+    private final Playlist playlist = ModelFixtures.playlist();
     @Mock private AccountOperations accountOperations;
     @Mock private InlineUpsellOperations upsellOperations;
 
@@ -29,6 +33,7 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
     private final TrackItem track1 = TestPropertySets.expectedTrackForListItem(Urn.forTrack(987L));
     private final TrackItem track2 = TestPropertySets.upsellableTrack();
     private final TrackItem track3 = TestPropertySets.upsellableTrack();
+    private final List<TrackItem> upsellableTracks = Arrays.asList(track1, track2, track3);
 
     @Before
     public void setUp() {
@@ -37,42 +42,33 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertsUpsellAfterFirstUpsellableTrack() {
+    public void returnUpsellForFirstUpsellableTrack() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
 
-        final List<PlaylistDetailItem> items = operations.toListItems(upsellablePlaylist());
-
-        assertThat(items.size()).isEqualTo(4);
-        assertThat(((PlaylistDetailUpsellItem) items.get(2)).getUrn()).isEqualTo(UpsellListItem.PLAYLIST_UPSELL_URN);
+        final Optional<PlaylistDetailUpsellItem> upsell = operations.getUpsell(playlist, upsellableTracks);
+        assertThat(upsell.get().track()).isEqualTo(track2);
     }
 
     @Test
-    public void doesNotInsertUpsellIfNoUpsellableTracksPresent() {
+    public void upsellIsAbsentWhenNoUpsellableTracksPresent() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
 
-        final List<PlaylistDetailItem> items = operations.toListItems(defaultPlaylist());
-
-        assertThat(items.size()).isEqualTo(2);
+        assertThat(operations.getUpsell(playlist, defaultTracks)).isEqualTo(Optional.absent());
     }
 
     @Test
-    public void doesNotInsertUpsellInOwnedPlaylist() {
-        final PlaylistWithTracks playlist = upsellablePlaylist();
+    public void upsellIsAbsentWhenPlaylistIsOwnedByUser() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlist.getCreatorUrn());
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlist.creatorUrn());
 
-        final List<PlaylistDetailItem> items = operations.toListItems(playlist);
-
-        assertOriginalTracks(items);
+        assertThat(operations.getUpsell(playlist, upsellableTracks)).isEqualTo(Optional.absent());
     }
 
     @Test
-    public void doesNotInsertUpsellIfDismissed() {
+    public void upsellIsAbsentWhenDismissed() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(false);
 
-        final List<PlaylistDetailItem> items = operations.toListItems(upsellablePlaylist());
-
-        assertOriginalTracks(items);
+        assertThat(operations.getUpsell(playlist, upsellableTracks)).isEqualTo(Optional.absent());
     }
 
     @Test
@@ -81,21 +77,4 @@ public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
 
         verify(upsellOperations).disableInPlaylist();
     }
-
-    private PlaylistWithTracks defaultPlaylist() {
-        return new PlaylistWithTracks(ModelFixtures.playlist(), Arrays.asList(
-                TestPropertySets.expectedTrackForListItem(Urn.forTrack(425L)),
-                TestPropertySets.expectedTrackForListItem(Urn.forTrack(752L))));
-    }
-
-    private PlaylistWithTracks upsellablePlaylist() {
-        return new PlaylistWithTracks(ModelFixtures.playlist(), Arrays.asList(track1, track2, track3));
-    }
-
-    void assertOriginalTracks(List<PlaylistDetailItem> items) {
-        assertThat(items).containsExactly(new PlaylistDetailTrackItem(track1),
-                                          new PlaylistDetailTrackItem(track2),
-                                          new PlaylistDetailTrackItem(track3));
-    }
-
 }

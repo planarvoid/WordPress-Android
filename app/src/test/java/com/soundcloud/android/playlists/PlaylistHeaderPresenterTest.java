@@ -4,6 +4,7 @@ import static com.soundcloud.android.offline.OfflineContentChangedEvent.download
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.removed;
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.requested;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -105,7 +106,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
     private Observable<List<Urn>> playlistTrackurns;
-    private PlaylistWithTracks playlistWithTracks;
+    private PlaylistDetailHeaderItem headerItem;
     private PlaylistHeaderPresenter presenter;
 
     private static Bundle fragmentArgs() {
@@ -118,8 +119,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void setup() {
         eventBus = new TestEventBus();
         playlistTrackurns = Observable.just(Collections.singletonList(Urn.forTrack(1)));
-        playlistWithTracks = createPlaylistInfoWithSharing(Sharing.PUBLIC);
-        when(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn())).thenReturn(playlistTrackurns);
+        headerItem = createPlaylistInfoWithSharing(Sharing.PUBLIC);
+        when(playlistOperations.trackUrnsForPlayback(headerItem.getUrn())).thenReturn(playlistTrackurns);
         when(playlistHeaderViewFactory.create(any(View.class))).thenReturn(headerView);
 
         presenter = new PlaylistHeaderPresenter(
@@ -147,18 +148,18 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowUsersOptions() {
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
 
-        presenter.setPlaylist(playlistWithTracks, getPlaySessionSource());
+        presenter.setPlaylist(headerItem, getPlaySessionSource());
 
         verify(engagementsView).showMyOptions();
     }
 
     @Test
     public void shouldHideUsersOptions() {
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(false);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(false);
 
-        presenter.setPlaylist(playlistWithTracks, getPlaySessionSource());
+        presenter.setPlaylist(headerItem, getPlaySessionSource());
 
         verify(engagementsView).hideMyOptions();
     }
@@ -168,11 +169,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
 
         eventBus.publish(EventQueue.LIKE_CHANGED,
-                         LikesStatusEvent.create(playlistWithTracks.getUrn(),
+                         LikesStatusEvent.create(headerItem.getUrn(),
                                                  true,
-                                                 playlistWithTracks.getLikesCount()));
+                                                 headerItem.likesCount()));
 
-        verify(engagementsView).updateLikeItem(Optional.of(playlistWithTracks.getLikesCount()), true);
+        verify(engagementsView).updateLikeItem(Optional.of(headerItem.likesCount()), true);
 
     }
 
@@ -181,12 +182,12 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
 
         eventBus.publish(EventQueue.LIKE_CHANGED,
-                         LikesStatusEvent.create(playlistWithTracks.getUrn(),
+                         LikesStatusEvent.create(headerItem.getUrn(),
                                                  true,
-                                                 playlistWithTracks.getLikesCount()));
-        verify(engagementsView).updateLikeItem(Optional.of(playlistWithTracks.getLikesCount()), true);
+                                                 headerItem.likesCount()));
+        verify(engagementsView).updateLikeItem(Optional.of(headerItem.likesCount()), true);
 
-        eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.createReposted(playlistWithTracks.getUrn()));
+        eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.createReposted(headerItem.getUrn()));
         verify(engagementsView).showPublicOptions(true);
     }
 
@@ -226,7 +227,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldPublishUIEventWhenUnlikingPlaylist() {
         setPlaylistInfo();
-        when(likeOperations.toggleLike(playlistWithTracks.getUrn(),
+        when(likeOperations.toggleLike(headerItem.getUrn(),
                                        false)).thenReturn(Observable.just(0));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
@@ -273,11 +274,10 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())
-                                                                        .pageUrn(playlistWithTracks.getUrn())
+                                                                        .pageUrn(headerItem.getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl().get(), eventContextMetadata, null,
-                                      EntityMetadata.from(playlistWithTracks));
+        verify(shareOperations).share(getContext(), headerItem.permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
     }
 
     @Test
@@ -292,12 +292,12 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldLikePlaylistWhenCheckingLikeButton() {
         setPlaylistInfo();
-        when(likeOperations.toggleLike(playlistWithTracks.getUrn(),
+        when(likeOperations.toggleLike(headerItem.getUrn(),
                                        true)).thenReturn(Observable.just(0));
 
         presenter.onToggleLike(true);
 
-        verify(likeOperations).toggleLike(playlistWithTracks.getUrn(), true);
+        verify(likeOperations).toggleLike(headerItem.getUrn(), true);
     }
 
     @Test
@@ -308,7 +308,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onToggleRepost(true, false);
 
-        verify(repostOperations).toggleRepost(eq(playlistWithTracks.getUrn()), eq(true));
+        verify(repostOperations).toggleRepost(eq(headerItem.getUrn()), eq(true));
     }
 
     @Test
@@ -345,10 +345,10 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldUpdateOfflineAvailabilityOnMarkedForOfflineChange() {
         setPlaylistInfo();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(playlistWithTracks.getUrn()), false));
+                         requested(singletonList(headerItem.getUrn()), false));
 
         verify(engagementsView).showOfflineOptions(true);
     }
@@ -357,9 +357,9 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldUpdateOfflineAvailabilityOnUnmarkedForOfflineChange() {
         setPlaylistInfo();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(headerItem.getUrn()));
 
         verify(engagementsView).showOfflineOptions(false);
     }
@@ -372,18 +372,21 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())
-                                                                        .pageUrn(playlistWithTracks.getUrn())
+                                                                        .pageUrn(headerItem.getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), playlistWithTracks.getPermalinkUrl().get(), eventContextMetadata, null,
-                                      EntityMetadata.from(playlistWithTracks));
+        verify(shareOperations).share(getContext(), headerItem.permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
+    }
+
+    private EntityMetadata entityMetadata() {
+        return EntityMetadata.from(headerItem.creatorName(), headerItem.creatorUrn(), headerItem.title(), headerItem.getUrn());
     }
 
     @Test
     public void makeOfflineAvailableUsesOfflineOperationsToMakeOfflineAvailable() {
         setPlaylistInfo();
         final PublishSubject<Void> makePlaylistAvailableOffline = PublishSubject.create();
-        when(offlineContentOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn())).thenReturn(
+        when(offlineContentOperations.makePlaylistAvailableOffline(headerItem.getUrn())).thenReturn(
                 makePlaylistAvailableOffline);
 
         presenter.onMakeOfflineAvailable(true);
@@ -395,7 +398,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void makeOfflineUnavailableUsesOfflineOperationsToMakeOfflineUnavailable() {
         setPlaylistInfo();
         final PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
-        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn())).thenReturn(
+        when(offlineContentOperations.makePlaylistUnavailableOffline(headerItem.getUrn())).thenReturn(
                 makePlaylistUnavailableOffline);
 
         presenter.onMakeOfflineAvailable(false);
@@ -431,7 +434,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsUpsellWhenOfflineContentIsNotEnabledAndAllowedToShowUpsell() {
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
         when(featureOperations.upsellOfflineContent()).thenReturn(true);
 
         Playlist playlistItem = createPlaylistBuilder(Sharing.PUBLIC).isMarkedForOffline(true).build();
@@ -442,7 +445,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void hidesOfflineOptionsWhenOfflineContentIsNotEnabledAndNotAllowedToShowUpsell() {
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
 
         Playlist playlistItem = createPlaylistBuilder(Sharing.PUBLIC).isMarkedForOffline(true).build();
         setPlaylistInfo(playlistItem);
@@ -463,8 +466,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void showsOfflineOptionsWhenPlaylistIsLikedByTheCurrentUser() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        final Playlist playlistItem = createPlaylistBuilder(Sharing.PUBLIC).isLikedByCurrentUser(true).build();
-        setPlaylistInfo(playlistItem);
+        setPlaylistInfo(createPlaylist(Sharing.PUBLIC), true);
 
         verify(engagementsView).showOfflineOptions(false);
     }
@@ -484,7 +486,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
         reset(engagementsView);
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(headerItem.getUrn()));
 
         verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
     }
@@ -495,7 +497,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(playlistWithTracks.getUrn()), false));
+                         requested(singletonList(headerItem.getUrn()), false));
 
         verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
     }
@@ -508,7 +510,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         downloading(Arrays.asList(track.getUrn(), playlistWithTracks.getUrn()), true));
+                         downloading(Arrays.asList(track.getUrn(), headerItem.getUrn()), true));
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
     }
@@ -519,7 +521,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         setPlaylistInfo();
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         downloaded(singletonList(playlistWithTracks.getUrn()), false));
+                         downloaded(singletonList(headerItem.getUrn()), false));
 
         final InOrder inOrder = inOrder(engagementsView);
         inOrder.verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
@@ -538,7 +540,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showDefaultDownloadStateWhenPlaylistDownloadStateIsDownloadNoOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpPlaylistWithTracks(OfflineState.NOT_OFFLINE);
+        setUpHeaderItem(OfflineState.NOT_OFFLINE);
         setPlaylistInfo();
 
         verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
@@ -547,7 +549,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showDefaultDownloadStateWhenPlaylistDownloadStateRequested() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpPlaylistWithTracks(OfflineState.REQUESTED);
+        setUpHeaderItem(OfflineState.REQUESTED);
         setPlaylistInfo();
 
         verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
@@ -556,7 +558,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void setDownloadingStateWhenPlaylistDownloadStateDownloading() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpPlaylistWithTracks(OfflineState.DOWNLOADING);
+        setUpHeaderItem(OfflineState.DOWNLOADING);
         setPlaylistInfo();
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
@@ -565,7 +567,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void setDownloadedStateWhenPlaylistDownloadStateDownloaded() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpPlaylistWithTracks(OfflineState.DOWNLOADED);
+        setUpHeaderItem(OfflineState.DOWNLOADED);
         setPlaylistInfo();
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
@@ -578,7 +580,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(playlistWithTracks.getUrn()), false));
+                         requested(singletonList(headerItem.getUrn()), false));
 
         verify(engagementsView).showNoConnection();
     }
@@ -591,7 +593,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(playlistWithTracks.getUrn()), false));
+                         requested(singletonList(headerItem.getUrn()), false));
 
         verify(engagementsView).showNoWifi();
     }
@@ -603,14 +605,14 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         downloaded(singletonList(playlistWithTracks.getUrn()), false));
+                         downloaded(singletonList(headerItem.getUrn()), false));
 
         verify(engagementsView, times(0)).showNoConnection();
     }
 
     @Test
     public void disablesShuffleWithOneTrack() throws Exception {
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
         final Playlist playlistItem = createPlaylistBuilder(Sharing.PUBLIC).trackCount(1).build();
 
         setPlaylistInfo(createPlaylistWithSingleTrack(playlistItem), getPlaySessionSource());
@@ -620,7 +622,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enablesShuffleWithMoreThanOneTrack() throws Exception {
-        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
         final Playlist playlistItem = createPlaylist(Sharing.PUBLIC);
 
         setPlaylistInfo(playlistItem);
@@ -655,38 +657,45 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private void setPlaylistInfo() {
-        setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+        setPlaylistInfo(headerItem, getPlaySessionSource());
     }
 
     private void setPlaylistInfo(Playlist playlistItem) {
-        setPlaylistInfo(createPlaylistWithTracks(playlistItem), getPlaySessionSource());
+        setPlaylistInfo(createPlaylistHeaderItem(playlistItem, playlistItem.isLikedByCurrentUser().or(false)), getPlaySessionSource());
     }
 
-    private void setPlaylistInfo(PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
+    private void setPlaylistInfo(Playlist playlistItem, boolean isLiked) {
+        setPlaylistInfo(createPlaylistHeaderItem(playlistItem, isLiked), getPlaySessionSource());
+    }
+
+    private void setPlaylistInfo(PlaylistDetailHeaderItem playlistDetailHeaderItem, PlaySessionSource playSessionSource) {
         presenter.onAttach(fragmentRule.getFragment(), fragmentRule.getActivity());
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onResume(fragmentRule.getFragment());
         presenter.setScreen(SCREEN.get());
-        presenter.setPlaylist(playlistWithTracks, playSessionSource);
+        presenter.setPlaylist(playlistDetailHeaderItem, playSessionSource);
     }
 
 
-    private void setUpPlaylistWithTracks(OfflineState offlineState) {
-        final Playlist playlist = ModelFixtures.playlistBuilder(playlistWithTracks.getPlaylist()).offlineState(offlineState).build();
-        playlistWithTracks = createPlaylistWithTracks(playlist);
+    private void setUpHeaderItem(OfflineState offlineState) {
+        headerItem = headerItem.toBuilder().offlineState(offlineState).build();
     }
 
-    private PlaylistWithTracks createPlaylistInfoWithSharing(Sharing sharing) {
+    private PlaylistDetailHeaderItem createPlaylistInfoWithSharing(Sharing sharing) {
         final Playlist.Builder playlistBuilder = createPlaylistBuilder(sharing);
-        return createPlaylistWithTracks(playlistBuilder.build());
+        return createPlaylistHeaderItem(playlistBuilder.build());
     }
 
-    private PlaylistWithTracks createPlaylistWithTracks(Playlist playlistItem) {
-        return new PlaylistWithTracks(playlistItem, ModelFixtures.trackItems(10));
+    private PlaylistDetailHeaderItem createPlaylistHeaderItem(Playlist playlistItem) {
+        return createPlaylistHeaderItem(playlistItem, playlistItem.isLikedByCurrentUser().or(false));
     }
 
-    private PlaylistWithTracks createPlaylistWithSingleTrack(Playlist playlistItem) {
-        return new PlaylistWithTracks(playlistItem, ModelFixtures.trackItems(1));
+    private PlaylistDetailHeaderItem createPlaylistHeaderItem(Playlist playlistItem, boolean isLiked) {
+        return PlaylistDetailHeaderItem.from(playlistItem, emptyList(),isLiked, resources());
+    }
+
+    private PlaylistDetailHeaderItem createPlaylistWithSingleTrack(Playlist playlistItem) {
+        return PlaylistDetailHeaderItem.from(playlistItem, ModelFixtures.trackItems(1), false, resources());
     }
 
     private Playlist createPlaylist(Sharing sharing) {

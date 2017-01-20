@@ -95,7 +95,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     private Subscription subscription = RxUtils.invalidSubscription();
     private String screen;
     private ItemTouchHelper itemTouchHelper;
-    private Optional<PlaylistWithTracks> playlistWithTracks;
+    private Optional<PlaylistDetailHeaderItem> item;
 
     @Inject
     public PlaylistPresenter(PlaylistOperations playlistOperations,
@@ -225,12 +225,12 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     }
 
     void savePlaylist() {
-        checkState(playlistWithTracks.isPresent(), "The playlist must be loaded to be saved");
+        checkState(item.isPresent(), "The playlist must be loaded to be saved");
 
-        final PlaylistWithTracks playlist = playlistWithTracks.get();
+        final PlaylistDetailHeaderItem playlist = item.get();
         final List<Urn> tracks = Lists.transform(adapter.getTracks(), TrackItem.TO_URN);
         fireAndForget(playlistOperations.editPlaylist(playlist.getUrn(),
-                                                      playlist.getTitle(),
+                                                      playlist.title(),
                                                       playlist.isPrivate(),
                                                       new ArrayList<>(tracks)));
     }
@@ -250,8 +250,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
 
     @Override
     protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)),
-                                      PlaylistDetailsViewModel::playlistDetailItems)
+        final Urn playlistUrn = getPlaylistUrn(fragmentArgs);
+        return CollectionBinding.from(loadPlaylistObservable(playlistUrn), PlaylistDetailsViewModel::itemsWithHeader)
                                 .withAdapter(adapter).build();
     }
 
@@ -267,7 +267,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     }
 
     private Observable<PlaylistDetailsViewModel> loadPlaylistObservable(Urn playlistUrn) {
-        return playlistOperations.playlistWithTracksAndRecommendations(playlistUrn, addInlineHeader);
+        return playlistOperations.playlistWithTracksAndRecommendations(playlistUrn);
     }
 
     private Urn getPlaylistUrn(Bundle fragmentArgs) {
@@ -291,8 +291,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     @Override
     protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onRefreshBinding() {
         final Urn playlistUrn = getPlaylistUrn(fragment.getArguments());
-        return CollectionBinding.from(playlistOperations.updatedPlaylistWithTracksAndRecommendations(playlistUrn, addInlineHeader),
-                                      PlaylistDetailsViewModel::playlistDetailItems)
+        return CollectionBinding.from(playlistOperations.updatedPlaylistWithTracksAndRecommendations(playlistUrn),
+                                      PlaylistDetailsViewModel::itemsWithHeader)
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -308,8 +308,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
 
     void reloadPlaylist() {
         retryWith(CollectionBinding
-                          .from(loadPlaylistObservable(getPlaylistUrn()),
-                                PlaylistDetailsViewModel::playlistDetailItems)
+                          .from(loadPlaylistObservable(getPlaylistUrn()), PlaylistDetailsViewModel::itemsWithHeader)
                           .withAdapter(adapter).build());
     }
 
@@ -329,26 +328,25 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         @Override
         public void onNext(PlaylistDetailsViewModel playlistDetailsViewModel) {
             FragmentActivity activity = fragment.getActivity();
-
             // Note: This subscriber might get called after the activity has been detached
             // and it should be safe to discard it
             if (activity != null) {
-                PlaylistPresenter.this.playlistWithTracks = Optional.of(playlistDetailsViewModel.playlistWithTracks());
-                PlaylistItem playlistItem = PlaylistItem.from(playlistDetailsViewModel.playlistWithTracks().getPlaylist());
-                playSessionSource = createPlaySessionSource(playlistDetailsViewModel.playlistWithTracks());
-                headerPresenter.setPlaylist(playlistDetailsViewModel.playlistWithTracks(), playSessionSource);
-                activity.setTitle(playlistItem.getLabel(fragment.getContext()));
-                trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlistItem.getUrn(), playlistItem.getCreatorUrn());
+                final PlaylistDetailHeaderItem headerItem = playlistDetailsViewModel.header();
+                PlaylistPresenter.this.item = Optional.of(headerItem);
+                playSessionSource = createPlaySessionSource(headerItem);
+                headerPresenter.setPlaylist(headerItem, playSessionSource);
+                fragment.getActivity().setTitle(headerItem.label());
+                trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), headerItem.getUrn(), headerItem.creatorUrn());
             }
         }
     }
 
-    private PlaySessionSource createPlaySessionSource(PlaylistWithTracks playlistWithTracks) {
+    private PlaySessionSource createPlaySessionSource(PlaylistDetailHeaderItem item) {
         PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
                 screen,
-                playlistWithTracks.getUrn(),
-                playlistWithTracks.getCreatorUrn(),
-                playlistWithTracks.getTrackCount());
+                item.getUrn(),
+                item.creatorUrn(),
+                item.trackCount());
 
         PromotedSourceInfo promotedSourceInfo = getPromotedSourceInfo();
         SearchQuerySourceInfo searchQuerySourceInfo = getSearchQuerySourceInfo();
@@ -384,17 +382,17 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     @Override
     public void onUpsellItemClicked(Context context) {
         navigator.openUpgrade(context);
-        if (playlistWithTracks.isPresent()) {
+        if (item.isPresent()) {
             eventBus.publish(EventQueue.TRACKING,
-                             UpgradeFunnelEvent.forPlaylistTracksClick(playlistWithTracks.get().getUrn()));
+                             UpgradeFunnelEvent.forPlaylistTracksClick(item.get().getUrn()));
         }
     }
 
     @Override
     public void onUpsellItemCreated() {
-        if (playlistWithTracks.isPresent()) {
+        if (item.isPresent()) {
             eventBus.publish(EventQueue.TRACKING,
-                             UpgradeFunnelEvent.forPlaylistTracksImpression(playlistWithTracks.get().getUrn()));
+                             UpgradeFunnelEvent.forPlaylistTracksImpression(item.get().getUrn()));
         }
     }
 }

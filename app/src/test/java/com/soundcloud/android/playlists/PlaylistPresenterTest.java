@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -61,7 +60,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private static final Urn UPDATED_PLAYLIST_URN = Urn.forPlaylist(456);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
-    private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     private final TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
     private final TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
@@ -86,8 +84,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
     private PlaylistPresenter presenter;
-    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2));
-    private List<PlaylistDetailItem> itemList;
+    private Playlist playlist = ModelFixtures.playlist();
+    private List<TrackItem> tracks = Arrays.asList(track1, track2);
 
 
     @Before
@@ -95,9 +93,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        itemList = Arrays.asList(new PlaylistDetailHeaderItem(), new PlaylistDetailTrackItem(track1), new PlaylistDetailTrackItem(track2));
-        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(PlaylistDetailsViewModel.create(playlistWithTracks,
-                                                                                                                                          itemList)));
+        final PlaylistDetailsViewModel model = PlaylistDetailsViewModel.from(playlist, tracks, false, resources());
+        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(model));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
         when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
 
@@ -106,16 +103,16 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     private void createPresenter() {
         presenter = new PlaylistPresenter(operations,
-                upsellOperations,
-                swipeAttacher,
-                headerPresenter,
-                playlistContentPresenter,
-                adapterFactory,
-                playbackInitiator,
-                expandPlayerSubscriberProvider,
-                navigator,
-                eventBus,
-                resources,
+                                          upsellOperations,
+                                          swipeAttacher,
+                                          headerPresenter,
+                                          playlistContentPresenter,
+                                          adapterFactory,
+                                          playbackInitiator,
+                                          expandPlayerSubscriberProvider,
+                                          navigator,
+                                          eventBus,
+                                          resources,
                                           trackRendererFactory);
     }
 
@@ -126,8 +123,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         verify(adapter).onNext(trackItemCaptor.capture());
         List<PlaylistDetailItem> itemList = trackItemCaptor.getValue();
         assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailHeaderItem.class);
-        assertThat(((PlaylistDetailTrackItem)  itemList.get(1)).getTrackItem()).isEqualTo(track1);
-        assertThat(((PlaylistDetailTrackItem)  itemList.get(2)).getTrackItem()).isEqualTo(track2);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(1)).getTrackItem()).isEqualTo(track1);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(2)).getTrackItem()).isEqualTo(track2);
     }
 
     @Test
@@ -205,13 +202,12 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Test
     public void savePlaylist() {
         final PublishSubject<Playlist> editPlaylistOperation = PublishSubject.create();
-        final List<Urn> tracks = Arrays.asList(track1.getUrn(), track2.getUrn());
-        final List<TrackItem> trackItems = Arrays.asList(track1, track2);
-        when(adapter.getTracks()).thenReturn(trackItems);
-        when(operations.editPlaylist(playlistWithTracks.getUrn(),
-                                     playlistWithTracks.getTitle(),
-                                     playlistWithTracks.isPrivate(),
-                                     tracks)).thenReturn(editPlaylistOperation);
+        final List<Urn> trackUrns = Arrays.asList(track1.getUrn(), track2.getUrn());
+        when(adapter.getTracks()).thenReturn(tracks);
+        when(operations.editPlaylist(playlist.urn(),
+                                     playlist.title(),
+                                     playlist.isPrivate(),
+                                     trackUrns)).thenReturn(editPlaylistOperation);
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -231,7 +227,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setsTitleForActivityAsAlbumTypeWithReleaseDateWhenPlaylistIsAnAlbumAndReleaseDateIsAvailable() {
-        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
+        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -257,7 +253,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemCreatedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(apiPlaylist.getUrn());
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(playlist.urn());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -269,7 +265,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemClickedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick(apiPlaylist.getUrn());
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick(playlist.urn());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -287,11 +283,14 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistDetailsViewModel createAlbumPlaylist(String type, String releaseDate) {
-        apiPlaylist.setIsAlbum(true);
-        apiPlaylist.setSetType(type);
-        apiPlaylist.setReleaseDate(releaseDate);
-
-        return PlaylistDetailsViewModel.create(new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2)), Collections.emptyList());
+        final Playlist playlist = this.playlist
+                .toBuilder()
+                .isAlbum(true)
+                .setType(type)
+                .releaseDate(releaseDate)
+                .build();
+        // TODO liked?
+        return PlaylistDetailsViewModel.from(playlist, tracks, false, resources());
     }
 
 }

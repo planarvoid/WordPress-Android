@@ -5,7 +5,6 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerTrackState;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.users.User;
@@ -15,7 +14,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 public class EntityMetadata {
@@ -142,17 +140,6 @@ public class EntityMetadata {
                 track.getTrackUrn());
     }
 
-    public static EntityMetadata from(@Nullable PlaylistWithTracks playlist) {
-        if (playlist == null) {
-            return EMPTY;
-        }
-        return new EntityMetadata(
-                playlist.getCreatorName(),
-                playlist.getCreatorUrn(),
-                playlist.getTitle(),
-                playlist.getUrn());
-    }
-
     public static EntityMetadata from(ApiPlaylist playlist) {
         if (playlist == null) {
             return EMPTY;
@@ -164,12 +151,8 @@ public class EntityMetadata {
                 playlist.getUrn());
     }
 
-    void addToTrackingEvent(@NonNull LegacyTrackingEvent event) {
-        event.put(KEY_CREATOR_NAME, creatorName)
-             .put(KEY_CREATOR_URN, creatorUrn.toString())
-             .put(KEY_PLAYABLE_TITLE, playableTitle)
-             .put(KEY_PLAYABLE_URN, playableUrn.toString())
-             .put(KEY_PLAYABLE_TYPE, getPlayableType());
+    public static EntityMetadata from(String creatorName, Urn creatorUrn, String title, Urn urn) {
+        return new EntityMetadata(creatorName, creatorUrn, title, urn);
     }
 
     String getPlayableType() {

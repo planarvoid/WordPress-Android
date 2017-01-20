@@ -86,4 +86,6 @@ class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListIte
     public int hashCode() {
         return MoreObjects.hashCode(trackItem);
     }
+
+
 }

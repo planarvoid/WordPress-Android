@@ -18,6 +18,7 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -34,14 +35,17 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
     private final TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final Playlist playlist = ModelFixtures.playlistBuilder().build();
-    private final Playlist updatedPlaylist = playlist.toBuilder().urn(playlist.urn()).title("new-title").build();
-    private PlaylistWithTracks initialPlaylistWithTracks;
-    private PlaylistWithTracks updatedPlaylistWithTracks;
+    private final List<TrackItem> trackItems = asList(track1, track2);
+
+    private final Playlist initialPlaylist = ModelFixtures.playlistBuilder().build();
+    private final Playlist updatedPlaylist = initialPlaylist.toBuilder().urn(initialPlaylist.urn()).title("new-title").build();
+    private PlaylistDetailsViewModel initialModel;
+    private PlaylistDetailsViewModel updatedModel;
 
     @Mock private PlaylistOperations playlistOperations;
     @Mock private LikesStateProvider likesStateProvider;
     @Mock private SyncInitiator syncInitiator;
+    @Mock private TrackRepository trackRepository;
     private EventBus eventBus = new TestEventBus();
 
     private Urn playlistUrn;
@@ -51,17 +55,24 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playlistUrn = playlist.urn();
-        initialPlaylistWithTracks = createPlaylistWithTracks(playlist, track1, track2);
-        updatedPlaylistWithTracks = createPlaylistWithTracks(updatedPlaylist, track1, track2);
+        playlistUrn = initialPlaylist.urn();
+        initialModel = PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, resources());
+        updatedModel = initialModel.toBuilder()
+                                   .header(PlaylistDetailHeaderItem.from(updatedPlaylist, trackItems, false, resources()))
+                                   .build();
 
-        newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistOperations, likesStateProvider,
+        newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistOperations,
+                                                               likesStateProvider,
                                                                syncInitiator,
-                                                               eventBus, playlistUrn);
-        when(playlistOperations.playlist(playlistUrn)).thenReturn(just(initialPlaylistWithTracks), just(updatedPlaylistWithTracks));
+                                                               eventBus,
+                                                               trackRepository,
+                                                               resources(),
+                                                               playlistUrn);
+        when(playlistOperations.playlist(playlistUrn)).thenReturn(just(initialPlaylist), just(updatedPlaylist));
         when(likesStateProvider.likedStatuses()).thenReturn(likeStates);
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(updateSubject);
 
+        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(just(trackItems));
         newPlaylistPresenter.connect();
         emitLikedEntities();
     }
@@ -70,13 +81,13 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void emitsPlaylistFromStorage() {
         newPlaylistPresenter.viewModel()
                             .test()
-                            .assertValue(fromIdle(createPlaylistViewModel(initialPlaylistWithTracks, false)));
+                            .assertValue(fromIdle(PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, resources())));
     }
 
     @Test
     public void emitsUpdatedPlaylistAfterLike() {
-        final PlaylistDetailsViewModel initialModel = createPlaylistViewModel(initialPlaylistWithTracks, false);
-        final PlaylistDetailsViewModel likedPlaylist = createPlaylistViewModel(initialPlaylistWithTracks, true);
+        final PlaylistDetailHeaderItem likedHeader = initialModel.header().toBuilder().isLikedByUser(true).build();
+        final PlaylistDetailsViewModel likedPlaylist = initialModel.toBuilder().header(likedHeader).build();
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(fromIdle(initialModel));
@@ -90,8 +101,6 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitsUpdatedPlaylistAfterRefresh() {
-        final PlaylistDetailsViewModel initialModel = createPlaylistViewModel(initialPlaylistWithTracks);
-        final PlaylistDetailsViewModel updatedModel = createPlaylistViewModel(updatedPlaylistWithTracks);
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         modelUpdates.assertValues(fromIdle(initialModel));
@@ -110,9 +119,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Test
     public void emitsUpdatedModelWhenPlaylistUpdated() {
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-        final PlaylistDetailsViewModel updatedModel = createPlaylistViewModel(updatedPlaylistWithTracks);
 
-        final PlaylistDetailsViewModel initialModel = createPlaylistViewModel(initialPlaylistWithTracks, false);
         modelUpdates.assertValues(fromIdle(initialModel));
 
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.forUpdate(singleton(updatedPlaylist)));
@@ -124,7 +131,6 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         final Playlist unrelatedPlaylist = ModelFixtures.playlist();
 
-        final PlaylistDetailsViewModel initialModel = createPlaylistViewModel(initialPlaylistWithTracks, false);
         modelUpdates.assertValues(fromIdle(initialModel));
 
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.forUpdate(singleton(unrelatedPlaylist)));
@@ -136,17 +142,4 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         likeStates.onNext(new LikedStatuses(likedEntities));
     }
 
-    private PlaylistDetailsViewModel createPlaylistViewModel(PlaylistWithTracks playlistWithTracks) {
-        return createPlaylistViewModel(playlistWithTracks, false);
-    }
-
-    private PlaylistWithTracks createPlaylistWithTracks(Playlist playlist, TrackItem... tracks) {
-        return new PlaylistWithTracks(playlist, asList(tracks));
-    }
-
-    private PlaylistDetailsViewModel createPlaylistViewModel(PlaylistWithTracks playlistWithTracks, boolean isLiked) {
-        final List<PlaylistDetailItem> itemList = asList(new PlaylistDetailTrackItem(track1),
-                                                         new PlaylistDetailTrackItem(track2));
-        return PlaylistDetailsViewModel.create(playlistWithTracks, itemList, isLiked);
-    }
 }

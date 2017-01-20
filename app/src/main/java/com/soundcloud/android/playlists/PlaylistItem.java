@@ -1,7 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.utils.DateUtils.yearFromDateString;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -19,11 +17,10 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
-import android.content.Context;
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -224,34 +221,14 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
         return source.getOrElse(PlaylistProperty.IS_ALBUM, false);
     }
 
-    public String getReleaseYear() {
-        String releaseDate = getReleaseDate();
-        if (releaseDate.isEmpty()) return Strings.EMPTY;
-
-        try {
-            return Integer.toString(yearFromDateString(releaseDate, "yyyy-MM-dd"));
-        } catch (ParseException e) {
-            return Strings.EMPTY;
-        }
-    }
-
     public String getReleaseDate() {
         return source.getOrElse(PlaylistProperty.RELEASE_DATE, Strings.EMPTY);
     }
 
-    public String getLabel(Context context) {
-        final String title = context.getString(getSetTypeTitle(getPlayableType()));
-
-        if (!isAlbum()) return title;
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(title);
-        String releaseYear = getReleaseYear();
-        if (!releaseYear.isEmpty()) {
-            builder.append(String.format(" · %s", releaseYear));
-        }
-        return builder.toString();
+    public String getLabel(Resources resources) {
+        return PlaylistUtils.formatPlaylistTitle(resources, getPlayableType(), isAlbum(), getReleaseDate());
     }
+
 
     @Override
     public boolean equals(Object o) {
