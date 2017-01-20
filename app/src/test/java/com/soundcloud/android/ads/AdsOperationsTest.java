@@ -133,7 +133,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(fullAdsForStream));
 
         final AdRequestData requestData = AdRequestData.forStreamAds(Optional.of("123,321"));
-        adsOperations.inlaysAds(requestData).subscribe();
+        adsOperations.inlayAds(requestData).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForStream.class));
@@ -148,7 +148,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(fullAdsForStream));
 
         final AdRequestData requestData = AdRequestData.forStreamAds(Optional.absent());
-        adsOperations.inlaysAds(requestData).subscribe();
+        adsOperations.inlayAds(requestData).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForStream.class));
@@ -157,13 +157,13 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void inlayAdsReturnsOnlyAppInstallsFromMobileApi() {
+    public void inlayAdsReturnsAdsFromMobileApi() {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
                 .thenReturn(Observable.just(fullAdsForStream));
 
         final AdRequestData requestData = AdRequestData.forStreamAds(Optional.absent());
-        final List<AppInstallAd> actual = adsOperations.inlaysAds(requestData).toBlocking().first();
-        final List<AppInstallAd> expected = fullAdsForStream.getAppInstalls(dateProvider);
+        final List<AdData> actual = adsOperations.inlayAds(requestData).toBlocking().first();
+        final List<AdData> expected = fullAdsForStream.getAds(dateProvider);
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -174,7 +174,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(fullAdsForStream));
 
         final AdRequestData requestData = AdRequestData.forStreamAds(Optional.absent());
-        adsOperations.inlaysAds(requestData).subscribe();
+        adsOperations.inlayAds(requestData).subscribe();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdRequestEvent.AD_REQUEST_SUCCESS_KIND);
     }
@@ -451,7 +451,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).replace(same(trackQueueItem), listCaptor.capture());
         final List value = listCaptor.getValue();
         assertPlayQueueItemsEqual(value,
-                                  Arrays.asList(new VideoAdQueueItem(VideoAd.create(videoAd, TRACK_URN)),
+                                  Arrays.asList(new VideoAdQueueItem(VideoAd.create(videoAd, CURRENT_DATE.getTime(), TRACK_URN)),
                                                 TestPlayQueueItem.createTrack(TRACK_URN)));
     }
 
@@ -493,7 +493,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     private void verifyVideoInserted(ApiVideoAd apiVideoAd) {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
-        final VideoAd videoAd = VideoAd.create(apiVideoAd, TRACK_URN);
+        final VideoAd videoAd = VideoAd.create(apiVideoAd, CURRENT_DATE.getTime(), TRACK_URN);
         final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(videoAd);
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(),
                                   Arrays.asList(videoItem, TestPlayQueueItem.createTrack(TRACK_URN)));

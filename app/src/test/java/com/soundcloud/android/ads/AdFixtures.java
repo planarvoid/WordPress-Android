@@ -11,9 +11,9 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 
 public class AdFixtures {
 
-    private static final boolean SKIPPABLE = true;
     private static final boolean NOT_SKIPPABLE = false;
     private static final int VIDEO_BIT_RATE = 1001;
+    private static final boolean SKIPPABLE = true;
 
     public static InterstitialAd getInterstitialAd(Urn monetizableUrn) {
         final InterstitialAd interstitial = InterstitialAd.create(getApiInterstitial(), monetizableUrn);
@@ -26,7 +26,7 @@ public class AdFixtures {
         return LeaveBehindAd.create(getApiLeaveBehind(), audioAdUrn);
     }
 
-    public static LeaveBehindAd getLeaveBehindAdWithDisplayMetaData(Urn audioAdUrn) {
+    static LeaveBehindAd getLeaveBehindAdWithDisplayMetaData(Urn audioAdUrn) {
         final LeaveBehindAd leaveBehind = LeaveBehindAd.create(getApiLeaveBehind(), audioAdUrn);
         leaveBehind.setMetaAdCompleted();
         return leaveBehind;
@@ -62,23 +62,27 @@ public class AdFixtures {
         return AudioAd.create(getCompanionlessAudioAd(), monetizableUrn);
     }
 
+    public static VideoAd getVideoAd(long createdAt) {
+        return VideoAd.create(getApiVideoAd(), createdAt);
+    }
+
     public static VideoAd getVideoAd(Urn monetizableUrn) {
-        return VideoAd.create(getApiVideoAd(), monetizableUrn);
+        return VideoAd.create(getApiVideoAd(), 0, monetizableUrn);
     }
 
     public static VideoAd getVideoAd(Urn monetizableUrn, ApiVideoSource videoSource) {
-        return VideoAd.create(getApiVideoAd(videoSource, SKIPPABLE), monetizableUrn);
+        return VideoAd.create(getApiVideoAd(videoSource, SKIPPABLE), 0, monetizableUrn);
     }
 
     public static VideoAd getVideoAd(Urn monetizableUrn, List<ApiVideoSource> videoSources) {
-        return VideoAd.create(getApiVideoAd(videoSources, SKIPPABLE), monetizableUrn);
+        return VideoAd.create(getApiVideoAd(videoSources, SKIPPABLE), 0, monetizableUrn);
     }
 
     public static VideoAd getNonskippableVideoAd(Urn monetizableUrn) {
-        return VideoAd.create(getApiVideoAd(NOT_SKIPPABLE), monetizableUrn);
+        return VideoAd.create(getApiVideoAd(NOT_SKIPPABLE), 0, monetizableUrn);
     }
 
-    public static ApiDisplayProperties getApiDisplayProperties() {
+    private static ApiDisplayProperties getApiDisplayProperties() {
         return new ApiDisplayProperties(
                 "#111111",
                 "#222222",
@@ -89,12 +93,12 @@ public class AdFixtures {
         );
     }
 
-    static ApiCompanionAd getApiCompanionAd() {
+    private static ApiCompanionAd getApiCompanionAd() {
         final String ctaText = null;
         return getApiCompanionAdWithCustomCTA(ctaText);
     }
 
-    static ApiCompanionAd getApiCompanionAdWithCustomClickthrough(String clickthrough) {
+    private static ApiCompanionAd getApiCompanionAdWithCustomClickthrough(String clickthrough) {
         return new ApiCompanionAd(
                 Urn.forAd("dfp", "746"),
                 "http://image.visualad.com",
@@ -106,7 +110,7 @@ public class AdFixtures {
         );
     }
 
-    static ApiCompanionAd getApiCompanionAdWithCustomCTA(String ctaText) {
+    private static ApiCompanionAd getApiCompanionAdWithCustomCTA(String ctaText) {
         return new ApiCompanionAd(
                 Urn.forAd("dfp", "746"),
                 "http://image.visualad.com",
@@ -128,7 +132,7 @@ public class AdFixtures {
         );
     }
 
-    static ApiLeaveBehind getApiLeaveBehind() {
+    private static ApiLeaveBehind getApiLeaveBehind() {
         return new ApiLeaveBehind(
                 Urn.forAd("dfp", "35"),
                 "http://image.visualad.com",
@@ -142,24 +146,24 @@ public class AdFixtures {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
     }
 
-    static ApiAudioAd getApiAudioAd(boolean skippable) {
+    private static ApiAudioAd getApiAudioAd(boolean skippable) {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), skippable);
     }
 
-    static ApiAudioAd getNonClickableApiAudioAd() {
+    private static ApiAudioAd getNonClickableApiAudioAd() {
         final ApiCompanionAd nonClickableCompanion = new ApiCompanionAd(
                 Urn.forAd("dfp", "companion"),
                 "imageurl",
                 "",
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 null,
                 getApiDisplayProperties()
         );
         return getApiAudioAdWithCompanion(nonClickableCompanion, SKIPPABLE);
     }
 
-    static ApiAudioAd getApiAudioAdWithCompanion(ApiCompanionAd companion, boolean skippable) {
+    private static ApiAudioAd getApiAudioAdWithCompanion(ApiCompanionAd companion, boolean skippable) {
         RelatedResources relatedResources = new RelatedResources(companion, getApiLeaveBehind());
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
@@ -192,7 +196,7 @@ public class AdFixtures {
         );
     }
 
-    public static List<ApiAudioAdSource> getApiAudioAdSources() {
+    private static List<ApiAudioAdSource> getApiAudioAdSources() {
         return Arrays.asList(ApiAudioAdSource.create("audio/mpeg", "http://audiourl.com/audio.mp3", false),
                              ApiAudioAdSource.create("application/x-mpegurl", "http://audiourl.com/audio.m3u", true));
     }
@@ -211,9 +215,9 @@ public class AdFixtures {
         );
     }
 
-    public static ApiAdTracking getApiAudioAdTracking() {
+    private static ApiAdTracking getApiAudioAdTracking() {
         return new ApiAdTracking(
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 Arrays.asList("audio_impression1", "audio_impression2"),
                 Arrays.asList("audio_skip1", "audio_skip2"),
                 Arrays.asList("audio_start_1", "audio_start_2"),
@@ -223,12 +227,12 @@ public class AdFixtures {
                 Arrays.asList("audio_finish1", "audio_finish2"),
                 Arrays.asList("audio_pause1", "audio_pause2"),
                 Arrays.asList("audio_resume1", "audio_resume2"),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList()
+                Collections.emptyList(),
+                Collections.emptyList()
         );
     }
 
-    public static ApiAdTracking getApiVideoAdTracking() {
+    private static ApiAdTracking getApiVideoAdTracking() {
         return new ApiAdTracking(
                 Arrays.asList("video_click1", "video_click2"),
                 Arrays.asList("video_impression1", "video_impression2"),
@@ -245,21 +249,22 @@ public class AdFixtures {
         );
     }
 
-    public static ApiVideoAd getApiVideoAd() {
+    static ApiVideoAd getApiVideoAd() {
         return getApiVideoAd(SKIPPABLE);
     }
 
-    public static ApiVideoAd getApiVideoAd(boolean skippable) {
+    private static ApiVideoAd getApiVideoAd(boolean skippable) {
         return getApiVideoAd(getApiVideoSource(608, 1080), skippable);
     }
 
-    public static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {
+    private static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {
         return getApiVideoAd(Collections.singletonList(apiVideoSource), skippable);
     }
 
-    public static ApiVideoAd getApiVideoAd(List<ApiVideoSource> apiVideoSources, boolean skippable) {
+    private static ApiVideoAd getApiVideoAd(List<ApiVideoSource> apiVideoSources, boolean skippable) {
         return ApiVideoAd.create(
                 Urn.forAd("dfp", "905"),
+                60,
                 "http://clickthrough.videoad.com",
                 getApiDisplayProperties(),
                 apiVideoSources,
@@ -268,29 +273,39 @@ public class AdFixtures {
         );
     }
 
+    static List<AdData> getInlays() {
+        return getInlays(424242);
+    }
+
+    private static List<AdData> getInlays(long createdAt) {
+        return Arrays.asList(getVideoAd(createdAt),
+                             AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "1")), createdAt),
+                             AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "2")), createdAt));
+    }
+
     public static List<AppInstallAd> getAppInstalls() {
         return getAppInstalls(42424242);
     }
 
-    public static List<AppInstallAd> getAppInstalls(long createdAt) {
+    private static List<AppInstallAd> getAppInstalls(long createdAt) {
         return Arrays.asList(AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "1")), createdAt),
                              AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "2")), createdAt));
     }
 
-    public static ApiAdTracking getApiAppInstallTracking() {
+    private static ApiAdTracking getApiAppInstallTracking() {
         return new ApiAdTracking(
                 Arrays.asList("app_click1", "app_click2"),
                 Arrays.asList("app_impression1", "app_impression2"),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList()
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList()
         );
     }
 
@@ -298,7 +313,7 @@ public class AdFixtures {
        return getApiAppInstall(Urn.forAd("dfp", "111"));
     }
 
-    public static ApiAppInstallAd getApiAppInstall(Urn urn) {
+    private static ApiAppInstallAd getApiAppInstall(Urn urn) {
         return ApiAppInstallAd.create(
                 urn,
                 60,
@@ -312,19 +327,19 @@ public class AdFixtures {
         );
     }
 
-    public static ApiAdsForTrack interstitialAdsForTrack() {
+    static ApiAdsForTrack interstitialAdsForTrack() {
         return new ApiAdsForTrack(newArrayList(
                 ApiAdWrapper.create(getApiInterstitial()))
         );
     }
 
-    public static ApiAdsForTrack audioAdsForTrack() {
+    static ApiAdsForTrack audioAdsForTrack() {
         return new ApiAdsForTrack(newArrayList(
                 ApiAdWrapper.create(getApiAudioAd()))
         );
     }
 
-    public static ApiAdsForTrack fullAdsForTrack() {
+    static ApiAdsForTrack fullAdsForTrack() {
         return new ApiAdsForTrack(newArrayList(
                 ApiAdWrapper.create(getApiAudioAd()),
                 ApiAdWrapper.create(getApiVideoAd()),
@@ -332,7 +347,7 @@ public class AdFixtures {
         );
     }
 
-    public static ApiAdsForStream fullAdsForStream() {
+    static ApiAdsForStream fullAdsForStream() {
         return new ApiAdsForStream(newArrayList(
                 ApiAdWrapper.create(getApiAppInstall()),
                 ApiAdWrapper.create(getApiVideoAd())

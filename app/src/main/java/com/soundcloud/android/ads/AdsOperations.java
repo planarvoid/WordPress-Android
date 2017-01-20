@@ -20,7 +20,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -77,14 +76,14 @@ public class AdsOperations {
                           .doOnNext(onRequestSuccess(requestData, endpoint, playerVisible, inForeground));
     }
 
-    Observable<List<AppInstallAd>> inlaysAds(AdRequestData requestData) {
+    Observable<List<AdData>> inlayAds(AdRequestData requestData) {
         final String endpoint = ApiEndpoints.INLAY_ADS.path();
         final ApiRequest request = buildApiRequest(endpoint, requestData);
         return apiClientRx.mappedResponse(request, ApiAdsForStream.class)
                 .subscribeOn(scheduler)
                 .doOnError(onRequestFailure(requestData, endpoint, false, true))
                 .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
-                .map(adsForStream -> adsForStream.getAppInstalls(dateProvider));
+                .map(adsForStream -> adsForStream.getAds(dateProvider));
     }
 
     private ApiRequest buildApiRequest(String endpoint, AdRequestData requestData) {
@@ -162,7 +161,7 @@ public class AdsOperations {
     }
 
     private void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
-        final VideoAd videoData = VideoAd.create(apiVideoAd, monetizableItem.getUrn());
+        final VideoAd videoData = VideoAd.create(apiVideoAd, dateProvider.getCurrentTime(), monetizableItem.getUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
         final VideoAdQueueItem videoItem = new VideoAdQueueItem(videoData);
         playQueueManager.replace(monetizableItem, Arrays.asList(videoItem, newMonetizableItem));

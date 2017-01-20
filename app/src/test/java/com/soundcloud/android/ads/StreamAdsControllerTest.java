@@ -16,6 +16,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -38,7 +40,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class StreamAdsControllerTest extends AndroidUnitTest {
 
-    private static final List<AppInstallAd> appInstalls = AdFixtures.getAppInstalls();
+    private static final List<AdData> inlays = AdFixtures.getInlays();
     private static final boolean SCROLLING_DOWN = false;
     private static final boolean SCROLLING_UP = true;
 
@@ -46,6 +48,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private InlayAdHelperFactory inlayAdHelperFactory;
     @Mock private InlayAdOperations inlayAdOperations;
     @Mock private FeatureOperations featureOperations;
+    @Mock private FeatureFlags featureFlags;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private InlayAdHelper inlayAdHelper;
     @Mock private RecyclerView recycler;
@@ -57,13 +60,14 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        controller = spy(new StreamAdsController(adsOperations, inlayAdOperations, inlayAdHelperFactory, featureOperations, dateProvider, eventBus));
+        controller = spy(new StreamAdsController(adsOperations, inlayAdOperations, inlayAdHelperFactory, featureFlags, featureOperations, dateProvider, eventBus));
 
         when(recycler.getLayoutManager()).thenReturn(layoutManager);
         when(featureOperations.shouldRequestAds()).thenReturn(true);
         when(adsOperations.kruxSegments()).thenReturn(Observable.just(Optional.absent()));
         when(inlayAdOperations.trackImpressions(inlayAdHelper)).thenReturn(Observable.empty());
         when(inlayAdHelperFactory.create(any(StaggeredGridLayoutManager.class), any(StreamAdapter.class))).thenReturn(inlayAdHelper);
+        when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(true);
 
         controller.onViewCreated(recycler, adapter);
     }
@@ -103,57 +107,57 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
         controller.insertAds();
 
-        verify(adsOperations, never()).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, never()).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsFetchesInlayAdsIfUserHasFetchAdsFeature() {
         when(featureOperations.shouldRequestAds()).thenReturn(true);
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
         controller.insertAds();
 
-        verify(adsOperations).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsFetchesInlayAdsWithKruxSegmentsIfSegmentsWereReturned() {
         final Optional<String> segments = Optional.of("123-321");
         when(featureOperations.shouldRequestAds()).thenReturn(true);
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
         when(adsOperations.kruxSegments()).thenReturn(Observable.just(segments));
 
         ArgumentCaptor<AdRequestData> captor = ArgumentCaptor.forClass(AdRequestData.class);
 
         controller.insertAds();
 
-        verify(adsOperations).inlaysAds(captor.capture());
+        verify(adsOperations).inlayAds(captor.capture());
         assertThat(captor.getValue().getKruxSegments()).isEqualTo(segments);
     }
 
     @Test
     public void insertAdsFetchesInlayAds() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
         controller.insertAds();
 
-        verify(adsOperations).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsDoesNotFetchInlayAdsIfItAlreadyHasAds() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
         controller.insertAds();
         controller.insertAds();
 
-        verify(adsOperations, times(1)).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, times(1)).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsSendsAdDeliveryEventForSuccessfullyInsertedAd() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
-        when(inlayAdHelper.insertAd(any(AppInstallAd.class), anyBoolean())).thenReturn(true);
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
+        when(inlayAdHelper.insertAd(any(AdData.class), anyBoolean())).thenReturn(true);
 
         controller.insertAds();
 
@@ -163,8 +167,8 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void insertAdsSendsAdDeliveryEventsWithSameRequestIdForSubsequentAdInserts() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
-        when(inlayAdHelper.insertAd(any(AppInstallAd.class), anyBoolean())).thenReturn(true);
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
+        when(inlayAdHelper.insertAd(any(AdData.class), anyBoolean())).thenReturn(true);
 
         controller.insertAds();
         controller.insertAds();
@@ -180,129 +184,130 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void insertAdsAttemptsToInsertAdAfterFetch() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
-        when(inlayAdHelper.insertAd(any(AppInstallAd.class), anyBoolean())).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(false);
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
+        when(inlayAdHelper.insertAd(any(AdData.class), anyBoolean())).thenReturn(true);
 
         controller.insertAds();
         controller.insertAds();
 
-        verify(inlayAdHelper).insertAd(appInstalls.get(0), SCROLLING_DOWN);
-        verify(inlayAdHelper).insertAd(appInstalls.get(1), SCROLLING_DOWN);
+        verify(inlayAdHelper).insertAd(inlays.get(1), SCROLLING_DOWN);
+        verify(inlayAdHelper).insertAd(inlays.get(2), SCROLLING_DOWN);
     }
 
     @Test
     public void insertAdsAttemptsToReinsertAdAfterFetchIfPreviousInsertFailed() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
-        when(inlayAdHelper.insertAd(any(AppInstallAd.class), anyBoolean())).thenReturn(false);
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
+        when(inlayAdHelper.insertAd(any(AdData.class), anyBoolean())).thenReturn(false);
 
         controller.insertAds();
         controller.insertAds();
 
-        verify(inlayAdHelper, times(2)).insertAd(appInstalls.get(0), SCROLLING_DOWN);
+        verify(inlayAdHelper, times(2)).insertAd(inlays.get(0), SCROLLING_DOWN);
     }
 
     @Test
     public void insertsAdsWithScrollingUpIfOnScrolledWasCalledWithNegativeDy() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
         controller.onScrolled(recycler, 0, -1);
         controller.insertAds();
 
-        verify(inlayAdHelper).insertAd(appInstalls.get(0), SCROLLING_UP);
+        verify(inlayAdHelper).insertAd(inlays.get(0), SCROLLING_UP);
     }
 
     @Test
     public void insertAdsWillNotRequestMoreAdsForBackoffDurationIfReceivedNoAds() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justEmpty());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justEmpty());
         when(dateProvider.getCurrentTime()).thenReturn(0L, 30 * 1000L);
 
         controller.insertAds();
         controller.insertAds();
-        verify(adsOperations, times(1)).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, times(1)).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsWillRequestMoreAdsAfterBackoffDurationIfReceivedNoAds() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justEmpty());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justEmpty());
         when(dateProvider.getCurrentTime()).thenReturn(0L, 61 * 1000L);
 
         controller.insertAds();
         controller.insertAds();
-        verify(adsOperations, times(2)).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, times(2)).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsWillNotRequestMoreAdsBeforeBackoffDurationIfReceivedError() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(Observable.error(new IllegalStateException("400")));
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(Observable.error(new IllegalStateException("400")));
         when(dateProvider.getCurrentTime()).thenReturn(0L, 30 * 1000L);
 
         controller.insertAds();
         controller.insertAds();
-        verify(adsOperations, times(1)).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, times(1)).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsWillRequestMoreAdsAfterBackoffDurationIfReceivedError() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(Observable.error(new IllegalStateException("400")));
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(Observable.error(new IllegalStateException("400")));
         when(dateProvider.getCurrentTime()).thenReturn(0L, 61 * 1000L);
 
         controller.insertAds();
         controller.insertAds();
-        verify(adsOperations, times(2)).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, times(2)).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void insertAdsWillNeverInsertAnExpiredAd() {
-        final long createdAtMs = appInstalls.get(1).getCreatedAt();
-        final long expiryTimeMs = appInstalls.get(1).getExpiryInMins() * 60 * 1000L;
+        final long createdAtMs = ((ExpirableAd) inlays.get(1)).getCreatedAt();
+        final long expiryTimeMs = ((ExpirableAd) inlays.get(1)).getExpiryInMins() * 60 * 1000L;
         when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + expiryTimeMs);
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
         controller.insertAds();
 
-        verify(inlayAdHelper, never()).insertAd(any(AppInstallAd.class), anyBoolean());
+        verify(inlayAdHelper, never()).insertAd(any(AdData.class), anyBoolean());
     }
 
     @Test
     public void insertAdsWillInsertAnAdIfNotExpired() {
-        final long createdAtMs = appInstalls.get(0).getCreatedAt();
-        final long justBeforeExpiryMs = appInstalls.get(0).getExpiryInMins() * 59 * 1000L;
+        final long createdAtMs = ((ExpirableAd) inlays.get(0)).getCreatedAt();
+        final long justBeforeExpiryMs = ((ExpirableAd) inlays.get(0)).getExpiryInMins() * 59 * 1000L;
         when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + justBeforeExpiryMs);
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
         controller.insertAds();
 
-        verify(inlayAdHelper).insertAd(appInstalls.get(0), SCROLLING_DOWN);
+        verify(inlayAdHelper).insertAd(inlays.get(0), SCROLLING_DOWN);
     }
 
     @Test
     public void fetchAdsDoesNotFetchInlayAdsIfItAlreadyHasAds() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
         controller.insertAds();
         controller.insertAds();
-        verify(adsOperations, times(1)).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, times(1)).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void fetchAdsDoesNotFetchInlayAdsWithoutFetchAdsFeature() {
         when(featureOperations.shouldRequestAds()).thenReturn(false);
         controller.insertAds();
-        verify(adsOperations, never()).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations, never()).inlayAds(any(AdRequestData.class));
     }
 
     @Test
     public void fetchAdsFetchesInlayAdsIfUserHasFetchAdsFeature() {
-        when(adsOperations.inlaysAds(any(AdRequestData.class))).thenReturn(justAppInstalls());
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
         controller.insertAds();
-        verify(adsOperations).inlaysAds(any(AdRequestData.class));
+        verify(adsOperations).inlayAds(any(AdRequestData.class));
     }
 
-    private Observable<List<AppInstallAd>> justAppInstalls() {
-        final List<AppInstallAd> installs = new ArrayList<>(appInstalls);
+    private Observable<List<AdData>> justInlays() {
+        final List<AdData> installs = new ArrayList<>(inlays);
         return Observable.just(installs);
     }
 
-    private Observable<List<AppInstallAd>> justEmpty() {
-        return Observable.just(Collections.<AppInstallAd>emptyList());
+    private Observable<List<AdData>> justEmpty() {
+        return Observable.just(Collections.<AdData>emptyList());
     }
 }

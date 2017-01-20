@@ -43,12 +43,14 @@ class InlayAdHelper {
         this.eventBus = eventBus;
     }
 
-    boolean insertAd(AppInstallAd ad, boolean wasScrollingUp) {
+    boolean insertAd(AdData ad, boolean wasScrollingUp) {
         final int position = wasScrollingUp ? findValidAdPosition(firstVisibleItemPosition(), -1)
                                             : findValidAdPosition(lastVisibleItemPosition(), 1);
         if (position != Consts.NOT_SET) {
-            adapter.addItem(position, StreamItem.forAppInstall(ad));
-            return true;
+            if (ad instanceof AppInstallAd) {
+                adapter.addItem(position, StreamItem.forAppInstall((AppInstallAd) ad));
+                return true;
+            }
         }
         return false;
     }

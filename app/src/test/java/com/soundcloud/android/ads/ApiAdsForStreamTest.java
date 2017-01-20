@@ -6,7 +6,6 @@ import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -27,17 +26,11 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
     @Test
     public void getAppInstallsReturnsEmptyListOnEmptyAdsForStream() throws Exception {
         final ApiAdsForStream adsForStream = new ApiAdsForStream(Collections.<ApiAdWrapper>emptyList());
-        assertThat(adsForStream.getAppInstalls(dateProvider)).isEmpty();
+        assertThat(adsForStream.getAds(dateProvider)).isEmpty();
     }
 
     @Test
-    public void getAppInstallsReturnsEmptyListWhenAdsForStreamHasOnlyVideoAd() throws Exception {
-        final ApiAdsForStream adsForStream = new ApiAdsForStream(Arrays.asList(ApiAdWrapper.create(videoAd)));
-        assertThat(adsForStream.getAppInstalls(dateProvider)).isEmpty();
-    }
-
-    @Test
-    public void getAppInstallsReturnsAppInstallsFromAdsForStream() throws Exception {
+    public void getAdsReturnsAdsFromAdsForStream() throws Exception {
         final ApiAppInstallAd apiAppInstall = AdFixtures.getApiAppInstall();
         final ApiAdsForStream adsForStream = new ApiAdsForStream(newArrayList(
                 ApiAdWrapper.create(apiAppInstall),
@@ -45,8 +38,9 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
         ));
 
 
-        final List<AppInstallAd> appInstalls = adsForStream.getAppInstalls(dateProvider);
-        assertThat(appInstalls.size()).isEqualTo(1);
+        final List<AdData> appInstalls = adsForStream.getAds(dateProvider);
+        assertThat(appInstalls.size()).isEqualTo(2);
         assertThat(appInstalls.get(0).getAdUrn()).isEqualTo(apiAppInstall.getAdUrn());
+        assertThat(appInstalls.get(1).getAdUrn()).isEqualTo(videoAd.getAdUrn());
     }
 }

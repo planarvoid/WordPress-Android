@@ -7,13 +7,9 @@ import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
-
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,20 +17,22 @@ import java.util.Map;
 
 class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollection {
 
-    private static final Predicate<ApiAdWrapper> IS_APP_INSTALL = input -> input != null && input.getAppInstall().isPresent();
-
-    private static final class ToAppInstall implements Function<ApiAdWrapper, AppInstallAd> {
+    private static final class ToAdData implements Function<ApiAdWrapper, AdData> {
         private final DateProvider dateProvider;
 
-        private ToAppInstall(DateProvider dateProvider) {
+        private ToAdData(DateProvider dateProvider) {
             this.dateProvider = dateProvider;
         }
 
         @Override
-        public AppInstallAd apply(ApiAdWrapper input) {
-            return AppInstallAd.create(input.getAppInstall().get(), dateProvider.getCurrentTime());
+        public AdData apply(ApiAdWrapper input) {
+            if (input.getAppInstall().isPresent()) {
+                return AppInstallAd.create(input.getAppInstall().get(), dateProvider.getCurrentTime());
+            } else {
+                return VideoAd.create(input.getVideoAd().get(), dateProvider.getCurrentTime());
+            }
         }
-    };
+    }
 
     public ApiAdsForStream(@JsonProperty("collection") List<ApiAdWrapper> collection,
                            @JsonProperty("_links") Map<String, Link> links,
@@ -47,11 +45,8 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
         super(collection);
     }
 
-    public List<AppInstallAd> getAppInstalls(DateProvider dateProvider) {
-        final ArrayList<ApiAdWrapper> appInstallWrappers =
-                Lists.newArrayList(Iterables.filter(getCollection(), IS_APP_INSTALL));
-
-        return Lists.transform(appInstallWrappers, new ToAppInstall(dateProvider));
+    List<AdData> getAds(DateProvider dateProvider) {
+        return Lists.transform(getCollection(), new ToAdData(dateProvider));
     }
 
     @Override

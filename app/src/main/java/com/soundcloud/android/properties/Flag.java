@@ -35,7 +35,8 @@ public enum Flag {
     APPBOY(BuildConfig.APPBOY),
     WELCOME_USER(BuildConfig.WELCOME_USER),
     FORCE_SHOW_WELCOME_USER(BuildConfig.FORCE_SHOW_WELCOME_USER),
-    ALIGNED_USER_INFO(BuildConfig.ALIGNED_USER_INFO);
+    ALIGNED_USER_INFO(BuildConfig.ALIGNED_USER_INFO),
+    VIDEO_INLAYS(BuildConfig.VIDEO_INLAYS);
 
     private final State state;
 
