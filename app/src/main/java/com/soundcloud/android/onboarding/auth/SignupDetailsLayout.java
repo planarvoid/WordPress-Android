@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -74,10 +73,17 @@ public class SignupDetailsLayout extends RelativeLayout {
     // suppressing, it's crazy that a view layout is messing with avatar files
     // let's revisit this when re re-do signup.
     @SuppressLint("SetWorldWritable")
+    @Nullable
     public File generateTempAvatarFile() {
         avatarFile = ImageUtils.createTempAvatarFile(getContext());
-        avatarFile.setWritable(true, false);
-        return avatarFile;
+
+        if (avatarFile != null) {
+            if (avatarFile.setWritable(true, false)) {
+                return avatarFile;
+            }
+        }
+
+        return null;
     }
 
     public void onImagePick(int resultCode, Intent result) {
@@ -176,9 +182,12 @@ public class SignupDetailsLayout extends RelativeLayout {
         saveButton.setOnClickListener(v -> onSave());
 
         avatarText.setOnClickListener(v -> {
-            final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
-            if (IOUtils.checkReadExternalStoragePermission(activity)) {
-                showImagePicker(activity);
+            if (userDetailsHandler != null) {
+                final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
+
+                if (IOUtils.checkReadExternalStoragePermission(activity)) {
+                    showImagePicker(activity);
+                }
             }
         });
 
@@ -201,13 +210,8 @@ public class SignupDetailsLayout extends RelativeLayout {
         avatarFile = null;
     }
 
-    @VisibleForTesting
-    void setAvatarTemporaryFile(File file) {
-        avatarFile = file;
-    }
-
     public interface UserDetailsHandler {
-        void onSubmitUserDetails(String username, File avatarFile);
+        void onSubmitUserDetails(String username, @Nullable File avatarFile);
 
         FragmentActivity getFragmentActivity();
     }

@@ -27,7 +27,10 @@ public class OfflineContentHelper {
         // remove metadata - not sure how to do it differently
         testsFixtures.clearOfflineContent(context);
         // remove actual files
-        IOUtils.cleanDir(IOUtils.getExternalStorageDir(context, OFFLINE_DIR));
+        File externalStorageDir = IOUtils.getExternalStorageDir(context, OFFLINE_DIR);
+        if (externalStorageDir != null) {
+            IOUtils.cleanDir(externalStorageDir);
+        }
     }
 
     public void addFakeOfflineTrack(Context context, Urn track, int sizeInMB) throws IOException {

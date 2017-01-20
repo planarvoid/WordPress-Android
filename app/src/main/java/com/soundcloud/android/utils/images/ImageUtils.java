@@ -1,10 +1,19 @@
 package com.soundcloud.android.utils.images;
 
 
+import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.crop.Crop;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.image.OneShotTransitionDrawable;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -31,16 +40,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.soundcloud.android.BuildConfig;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.dialog.CustomFontViewBuilder;
-import com.soundcloud.android.image.ImageListener;
-import com.soundcloud.android.image.OneShotTransitionDrawable;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
-
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -272,6 +272,7 @@ public final class ImageUtils {
         return (resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
+    @Nullable
     public static File createTempAvatarFile(Context context) {
         try {
             final File dir = IOUtils.getExternalStorageDir(context, Environment.DIRECTORY_PICTURES);
@@ -282,7 +283,7 @@ public final class ImageUtils {
         }
     }
 
-    public static void showImagePickerDialog(final Activity activity, final File newImageLocation) {
+    public static void showImagePickerDialog(final Activity activity, @Nullable final File newImageLocation) {
         new AlertDialog.Builder(activity)
                 .setView(new CustomFontViewBuilder(activity).setTitle(R.string.image_where).get())
                 .setPositiveButton(R.string.take_new_picture, (dialog, which) -> ImageUtils.startTakeNewPictureIntent(activity,
@@ -291,7 +292,7 @@ public final class ImageUtils {
                 .setNegativeButton(R.string.use_existing_image, (dialog, which) -> ImageUtils.startPickImageIntent(activity, Consts.RequestCodes.GALLERY_IMAGE_PICK)).show();
     }
 
-    private static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {
+    private static void startTakeNewPictureIntent(Activity activity, @Nullable File destinationFile, int requestCode) {
         if (destinationFile != null) {
             Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                     .putExtra(MediaStore.EXTRA_OUTPUT, getFileUri(activity, destinationFile));
@@ -303,7 +304,7 @@ public final class ImageUtils {
         }
     }
 
-    private static Uri getFileUri(Activity activity, File destinationFile) {
+    private static Uri getFileUri(Activity activity, @NonNull File destinationFile) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             return Uri.fromFile(destinationFile);
         } else {

@@ -115,7 +115,8 @@ task runLollipopTestsRelease(dependsOn: extractHtmlTemplates) {
             "com.soundcloud.android.framework.annotation.StationsTabTest",
             "com.soundcloud.android.framework.annotation.PaymentTest",
             "com.soundcloud.android.framework.annotation.LegacyStationTest",
-            "com.soundcloud.android.framework.annotation.PlayQueue"
+            "com.soundcloud.android.framework.annotation.PlayQueue",
+            "com.soundcloud.android.framework.annotation.OtherPlaylistsByUserTest"
     ] as String[]
 
     testRunner().runTests(lollipopLabel, null, excludeAnnotations, systemProperties, null, null, null)
