@@ -88,6 +88,7 @@ public class ProgressController {
     }
 
     private void startProgressAnimationInternal() {
+
         if (progressAnimator != null) {
             progressAnimator.cancel();
         }

@@ -6,6 +6,7 @@ import static com.soundcloud.android.events.EventQueue.PLAYBACK_STATE_CHANGED;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -57,6 +58,8 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotCallContractWhenNotAttached() {
+        reset(artworkView);
+
         artworkPresenter.detachView();
         eventBus.publish(PLAYBACK_PROGRESS, PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
         eventBus.publish(PLAYBACK_STATE_CHANGED, PlayStateEvent.create(PlaybackStateTransition.DEFAULT, 0L, true, "playId"));
@@ -111,6 +114,16 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
         artworkPresenter.artworkSizeChanged(0, 0);
 
         verify(artworkView, never()).setProgressControllerValues(anyInt(), anyInt());
+    }
+
+    @Test
+    public void cancelAnimationOnPlayerPause() {
+        reset(artworkView);
+
+        PlaybackStateTransition playbackStateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.NOT_SET, 0L, 0L);
+        eventBus.publish(PLAYBACK_STATE_CHANGED, PlayStateEvent.create(playbackStateTransition, 0L, true, "playId"));
+
+        verify(artworkView).cancelProgressAnimation();
     }
 
 }

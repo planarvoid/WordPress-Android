@@ -25,7 +25,7 @@ public class ArtworkPresenter {
     private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private Optional<ArtworkView> artworkViewContract = Optional.absent();
-    private Optional<Urn> lastItem = Optional.absent();
+    private Urn lastUrn = Urn.NOT_SET;
 
     @Inject
     public ArtworkPresenter(EventBus eventBus, TrackRepository trackRepository) {
@@ -59,29 +59,33 @@ public class ArtworkPresenter {
                                   .subscribe(new ProgressSubscriber()));
         subscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .filter(PlayStateEvent::isPlayerPlaying)
                                   .filter(event -> artworkViewContract.isPresent())
                                   .subscribe(new PlaybackStateSubscriber()));
         subscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                  .filter(event -> artworkViewContract.isPresent())
                                   .map(CurrentPlayQueueItemEvent::getCurrentPlayQueueItem)
                                   .filter(PlayQueueItem::isTrack)
                                   .flatMap(playQueueItem -> trackRepository.track(playQueueItem.getUrn()))
                                   .observeOn(AndroidSchedulers.mainThread())
+                                  .filter(event -> artworkViewContract.isPresent())
                                   .subscribe(new ImageSetterSubscriber()));
     }
 
     private boolean sameAsLast(Urn urn) {
-        return lastItem.isPresent() && urn.equals(lastItem.get());
+        return urn.equals(lastUrn);
     }
 
     private class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
 
         @Override
         public void onNext(PlayStateEvent stateEvent) {
+
             if (sameAsLast(stateEvent.getPlayingItemUrn())) {
-                artworkViewContract.get().startProgressAnimation(stateEvent.getProgress(),
-                                                                 stateEvent.getProgress().getDuration());
+                if (stateEvent.isPaused()) {
+                    artworkViewContract.get().cancelProgressAnimation();
+                } else {
+                    artworkViewContract.get().startProgressAnimation(stateEvent.getProgress(),
+                                                                     stateEvent.getProgress().getDuration());
+                }
             } else {
                 artworkViewContract.get().cancelProgressAnimation();
             }
@@ -103,8 +107,7 @@ public class ArtworkPresenter {
         @Override
         public void onNext(Track track) {
             artworkViewContract.get().setImage(SimpleImageResource.create(track.urn(), track.imageUrlTemplate()));
-            lastItem = Optional.of(track.urn());
-
+            lastUrn = track.urn();
         }
     }
 
