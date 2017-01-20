@@ -16,7 +16,6 @@ import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.java.strings.Strings;
@@ -171,7 +170,17 @@ class AppboyEventHandler {
     }
 
     private AppboyProperties buildCreatorProperties(UIEvent event) {
-        return buildProperties(CREATOR_ATTRIBUTES, event);
+        AppboyProperties properties = new AppboyProperties();
+
+        if (event.creatorName().isPresent()) {
+            properties.addProperty(CREATOR_DISPLAY_NAME.getAppBoyKey(), event.creatorName().get());
+        }
+
+        if (event.creatorUrn().isPresent()) {
+            properties.addProperty(CREATOR_URN.getAppBoyKey(), event.creatorUrn().get().toString());
+        }
+
+        return properties;
     }
 
     private AppboyProperties buildOfflineProperties(String context, boolean isEnabled) {
@@ -186,15 +195,6 @@ class AppboyEventHandler {
             properties.addProperty(GENRE.getAppBoyKey(), screenEvent.genre().get());
         }
         properties.addProperty(CATEGORY.getAppBoyKey(), screenEvent.screen());
-        return properties;
-    }
-
-    private AppboyProperties buildProperties(List<AppboyAttributeName> fields, TrackingEvent event) {
-        AppboyProperties properties = new AppboyProperties();
-
-        for (AppboyAttributeName attributeName : fields) {
-            properties.addProperty(attributeName.getAppBoyKey(), event.get(attributeName.getEventKey()));
-        }
         return properties;
     }
 
