@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 
 import com.soundcloud.android.activities.ActivityItem;
 import com.soundcloud.android.activities.ActivityKind;
-import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -330,56 +329,44 @@ public abstract class TestPropertySets {
     }
 
     public static ActivityItem activityTrackLike(Date createdAt) {
-        final PropertySet properties = basicActivity()
-                .put(ActivityProperty.DATE, createdAt)
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_LIKE)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
-        return ActivityItem.fromPropertySet(mandatoryTrackProperties().merge(properties));
+        return basicActivity().kind(ActivityKind.TRACK_LIKE).createdAt(createdAt).build();
     }
 
     public static ActivityItem activityTrackLike() {
-        final PropertySet properties = basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_LIKE)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
-        return ActivityItem.fromPropertySet(mandatoryTrackProperties().merge(properties));
+        return basicActivity().kind(ActivityKind.TRACK_LIKE).build();
     }
 
     public static ActivityItem activityTrackRepost() {
-        final PropertySet properties = basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_REPOST)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
-        return ActivityItem.fromPropertySet(mandatoryTrackProperties().merge(properties));
+        return basicActivity().kind(ActivityKind.TRACK_REPOST).build();
     }
 
     public static ActivityItem activityPlaylistLike() {
-        return ActivityItem.fromPropertySet(basicActivity()
-                                                    .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_LIKE)
-                                                    .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+        return basicActivity().kind(ActivityKind.PLAYLIST_LIKE).build();
     }
 
     public static ActivityItem activityPlaylistRepost() {
-        return ActivityItem.fromPropertySet(basicActivity()
-                                                    .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_REPOST)
-                                                    .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+        return basicActivity().kind(ActivityKind.PLAYLIST_REPOST).build();
     }
 
     public static ActivityItem activityUserFollow() {
-        return ActivityItem.fromPropertySet(basicActivity().put(ActivityProperty.KIND, ActivityKind.USER_FOLLOW));
+        return basicActivity().kind(ActivityKind.USER_FOLLOW).build();
     }
 
     public static ActivityItem activityTrackComment(Urn trackUrn) {
-        return ActivityItem.fromPropertySet(basicActivity()
-                                                    .put(ActivityProperty.KIND, ActivityKind.TRACK_COMMENT)
-                                                    .put(ActivityProperty.COMMENTED_TRACK_URN, trackUrn)
-                                                    .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+        return basicActivity()
+                .kind(ActivityKind.TRACK_COMMENT)
+                .commentedTrackUrn(Optional.of(trackUrn))
+                .playableTitle("sounds of ze forzz")
+                .build();
     }
 
-    private static PropertySet basicActivity() {
-        return PropertySet.from(
-                ActivityProperty.DATE.bind(new Date()),
-                ActivityProperty.USER_NAME.bind("forss"),
-                ActivityProperty.USER_URN.bind(Urn.forUser(2L))
-        );
+    private static ActivityItem.Builder basicActivity() {
+        return ActivityItem.builder()
+                           .createdAt(new Date())
+                           .userName("forss")
+                           .urn(Urn.forUser(2L))
+                           .playableTitle("sounds of ze forzz");
+
     }
 
     public static TrackItem highTierTrack() {
