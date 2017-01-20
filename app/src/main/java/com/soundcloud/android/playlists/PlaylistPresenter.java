@@ -11,7 +11,6 @@ import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROM
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Navigator;
@@ -325,19 +324,22 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         }
     }
 
-    protected class PlaylistSubscriber extends DefaultSubscriber<PlaylistDetailsViewModel> {
+    private class PlaylistSubscriber extends DefaultSubscriber<PlaylistDetailsViewModel> {
 
         @Override
         public void onNext(PlaylistDetailsViewModel playlistDetailsViewModel) {
             FragmentActivity activity = fragment.getActivity();
-            // remove when https://github.com/soundcloud/android/issues/6715 is confirmed fixed
-            checkNotNull(activity, "Unexpected null activity in playlist details");
-            PlaylistPresenter.this.playlistWithTracks = Optional.of(playlistDetailsViewModel.playlistWithTracks());
-            PlaylistItem playlistItem = PlaylistItem.from(playlistDetailsViewModel.playlistWithTracks().getPlaylist());
-            playSessionSource = createPlaySessionSource(playlistDetailsViewModel.playlistWithTracks());
-            headerPresenter.setPlaylist(playlistDetailsViewModel.playlistWithTracks(), playSessionSource);
-            fragment.getActivity().setTitle(playlistItem.getLabel(fragment.getContext()));
-            trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlistItem.getUrn(), playlistItem.getCreatorUrn());
+
+            // Note: This subscriber might get called after the activity has been detached
+            // and it should be safe to discard it
+            if (activity != null) {
+                PlaylistPresenter.this.playlistWithTracks = Optional.of(playlistDetailsViewModel.playlistWithTracks());
+                PlaylistItem playlistItem = PlaylistItem.from(playlistDetailsViewModel.playlistWithTracks().getPlaylist());
+                playSessionSource = createPlaySessionSource(playlistDetailsViewModel.playlistWithTracks());
+                headerPresenter.setPlaylist(playlistDetailsViewModel.playlistWithTracks(), playSessionSource);
+                activity.setTitle(playlistItem.getLabel(fragment.getContext()));
+                trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), playlistItem.getUrn(), playlistItem.getCreatorUrn());
+            }
         }
     }
 
