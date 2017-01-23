@@ -100,6 +100,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
         } else {
             subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                                      .filter(event -> event.state == OfflineState.DOWNLOADED)
+                                     .observeOn(AndroidSchedulers.mainThread())
                                      .subscribe(new CurrentDownloadSubscriber()));
         }
     }
