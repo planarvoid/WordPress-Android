@@ -2,11 +2,15 @@ package com.soundcloud.android.profile;
 
 import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import static com.soundcloud.java.optional.Optional.of;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -24,6 +28,7 @@ import rx.Observable;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
@@ -52,13 +57,19 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Mock private View userDetailsHolder;
     @Mock private EmptyView emptyView;
     @Mock private Intent intent;
+    @Mock private Navigator navigator;
+    @Mock private Uri uri;
+    @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshCaptor;
+    @Captor private ArgumentCaptor<UserDetailsView.UserDetailsListener> listenerCaptor;
+    @Captor private ArgumentCaptor<Intent> intentCaptor;
     private CondensedNumberFormatter numberFormatter;
 
     @Before
     public void setUp() throws Exception {
         final Bundle value = new Bundle();
         value.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
+        value.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         when(fragment.getArguments()).thenReturn(value);
         when(view.getResources()).thenReturn(resources);
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
@@ -68,7 +79,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
         when(resources.getStringArray(R.array.ak_number_suffixes)).thenReturn(new String[]{"", "K", "M", "B"});
         numberFormatter = CondensedNumberFormatter.create(Locale.GERMAN, resources);
-        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter);
+        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator);
     }
 
     @Test
@@ -179,6 +190,38 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragment);
 
         verify(userDetailsView).clearViews();
+    }
+
+    @Test
+    public void clickingSocialLinkNavigatesToWebView() {
+        presenter.onCreate(fragment, null);
+        doNothing().when(userDetailsView).setListener(listenerCaptor.capture());
+        doNothing().when(fragment).startActivity(intentCaptor.capture());
+        presenter.onViewCreated(fragment, view, null);
+
+        listenerCaptor.getValue().onViewUri(uri);
+        assertThat(intentCaptor.getValue().getAction()).isEqualTo(Intent.ACTION_VIEW);
+        assertThat(intentCaptor.getValue().getData()).isEqualTo(uri);
+    }
+
+    @Test
+    public void clickingViewFollowersNavigatorsToFollowers() {
+        presenter.onCreate(fragment, null);
+        doNothing().when(userDetailsView).setListener(listenerCaptor.capture());
+        presenter.onViewCreated(fragment, view, null);
+
+        listenerCaptor.getValue().onViewFollowersClicked();
+        verify(navigator).openFollowers(view.getContext(), USER_URN, searchQuerySourceInfo);
+    }
+
+    @Test
+    public void clickingViewFollowingNavigatorsToFollowings() {
+        presenter.onCreate(fragment, null);
+        doNothing().when(userDetailsView).setListener(listenerCaptor.capture());
+        presenter.onViewCreated(fragment, view, null);
+
+        listenerCaptor.getValue().onViewFollowingClicked();
+        verify(navigator).openFollowings(view.getContext(), USER_URN, searchQuerySourceInfo);
     }
 
     private void swipeToRefresh() {

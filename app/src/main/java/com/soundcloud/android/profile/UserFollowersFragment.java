@@ -2,13 +2,12 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,7 @@ public class UserFollowersFragment extends ScrollableProfileFragment {
         return fragment;
     }
 
-    public static Fragment createForCurrentUser(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySource) {
+    public static UserFollowersFragment createForCurrentUser(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySource) {
         UserFollowersFragment fragment = new UserFollowersFragment();
         Bundle bundle = ProfileArguments.from(userUrn, screen, searchQuerySource);
         bundle.putBoolean(IS_CURRENT_USER, true);

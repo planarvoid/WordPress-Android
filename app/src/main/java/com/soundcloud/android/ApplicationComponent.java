@@ -87,12 +87,14 @@ import com.soundcloud.android.playlists.NewPlaylistDetailFragment;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.policies.DailyUpdateService;
-import com.soundcloud.android.profile.UserDetailsFragment;
+import com.soundcloud.android.profile.FollowersActivity;
+import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.MyFollowingsFragment;
 import com.soundcloud.android.profile.OldUserDetailsFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserAlbumsFragment;
+import com.soundcloud.android.profile.UserDetailsFragment;
 import com.soundcloud.android.profile.UserFollowersFragment;
 import com.soundcloud.android.profile.UserFollowingsFragment;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -235,6 +237,8 @@ public interface ApplicationComponent {
     void inject(UserTracksFragment userTracksFragment);
     void inject(UserAlbumsActivity userAlbumsActivity);
     void inject(UserAlbumsFragment userAlbumsFragment);
+    void inject(FollowersActivity followersActivity);
+    void inject(FollowingsActivity followingsActivity);
 
     //StreamModule
     void inject(StreamFragment streamFragment);

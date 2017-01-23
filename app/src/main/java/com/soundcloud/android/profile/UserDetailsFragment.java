@@ -1,7 +1,9 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -22,12 +24,15 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
     @Inject UserDetailsView userDetailsView;
     @Inject UserProfileOperations profileOperations;
     @Inject CondensedNumberFormatter numberFormatter;
+    @Inject Navigator navigator;
     @LightCycle UserDetailsPresenter userDetailsPresenter;
 
-    public static UserDetailsFragment create(Urn userUrn) {
+    public static UserDetailsFragment create(Urn userUrn,
+                                             SearchQuerySourceInfo searchQuerySourceInfo) {
         final UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
         Bundle args = new Bundle();
         args.putParcelable(ProfileArguments.USER_URN_KEY, userUrn);
+        args.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         userDetailsFragment.setArguments(args);
         return userDetailsFragment;
     }
@@ -35,7 +40,7 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
     public UserDetailsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-        userDetailsPresenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter);
+        userDetailsPresenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator);
     }
 
     @Override

@@ -36,6 +36,8 @@ import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.profile.FollowersActivity;
+import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -271,6 +273,24 @@ public class Navigator {
 
     public void openActivities(Context context) {
         context.startActivity(new Intent(context, ActivitiesActivity.class));
+    }
+
+    public void openFollowers(Context context,
+                              Urn userUrn,
+                              SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(new Intent(context, FollowersActivity.class)
+                                      .putExtra(FollowersActivity.EXTRA_USER_URN, userUrn)
+                                      .putExtra(FollowersActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
+        );
+    }
+
+    public void openFollowings(Context context,
+                               Urn userUrn,
+                               SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(new Intent(context, FollowingsActivity.class)
+                                      .putExtra(FollowingsActivity.EXTRA_USER_URN, userUrn)
+                                      .putExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
+        );
     }
 
     public void openBasicSettings(Context context) {
