@@ -7,24 +7,29 @@ import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.RepoUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.OfflinePropertiesSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -43,6 +48,8 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
     private final StreamHighlightsAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final TrackRepository trackRepository;
+    private final OfflinePropertiesProvider offlinePropertiesProvider;
+    private final FeatureFlags featureFlags;
     private final EventBus eventBus;
 
     private CompositeSubscription viewLifeCycle;
@@ -53,13 +60,17 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
                               StreamHighlightsAdapter adapter,
                               Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
                               SwipeRefreshAttacher swipeRefreshAttacher,
-                              TrackRepository trackRepository) {
+                              TrackRepository trackRepository,
+                              OfflinePropertiesProvider offlinePropertiesProvider,
+                              FeatureFlags featureFlags) {
         super(swipeRefreshAttacher);
         this.playbackOperations = playbackInitiator;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -105,12 +116,22 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
                                    new UpdatePlayableAdapterSubscriber(adapter)),
 
-                eventBus.queue(OFFLINE_CONTENT_CHANGED)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
+                subscribeToOfflineContent(),
 
                 eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter))
         );
+    }
+
+    private Subscription subscribeToOfflineContent() {
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            return offlinePropertiesProvider.states()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(new OfflinePropertiesSubscriber<>(adapter));
+        } else {
+            return eventBus.queue(OFFLINE_CONTENT_CHANGED)
+                           .observeOn(AndroidSchedulers.mainThread())
+                           .subscribe(new UpdateCurrentDownloadSubscriber(adapter));
+        }
     }
 
     @Override
@@ -121,7 +142,7 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
 
     @Override
     public void onItemClicked(View view, int position) {
-        TrackItem trackItem = adapter.getItem (position);
+        TrackItem trackItem = adapter.getItem(position);
         Urn initialTrack = trackItem.getUrn();
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.STREAM_HIGHLIGHTS);
         playbackOperations
@@ -133,4 +154,5 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
+
 }

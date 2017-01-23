@@ -5,6 +5,7 @@ import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -45,6 +46,10 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
 
     public void update(OfflineContentChangedEvent event) {
         adapter.updateOfflineState(event);
+    }
+
+    public void update(OfflineProperties states) {
+        adapter.updateOfflineState(states);
     }
 
     public void detach() {

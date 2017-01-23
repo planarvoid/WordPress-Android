@@ -23,6 +23,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -31,6 +32,8 @@ import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -76,6 +79,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private final OfflineSettingsOperations offlineSettings;
     private final NetworkConnectionHelper connectionHelper;
     private final PlayQueueHelper playQueueHelper;
+    private final OfflinePropertiesProvider offlinePropertiesProvider;
+    private final FeatureFlags featureFlags;
 
     @LightCycle final PlaylistHeaderScrollHelper playlistHeaderScrollHelper;
 
@@ -108,7 +113,9 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             ShareOperations shareOperations,
                             OfflineSettingsOperations offlineSettings,
                             NetworkConnectionHelper connectionHelper,
-                            PlayQueueHelper playQueueHelper) {
+                            PlayQueueHelper playQueueHelper,
+                            OfflinePropertiesProvider offlinePropertiesProvider,
+                            FeatureFlags featureFlags) {
         this.eventBus = eventBus;
         this.eventTracker = eventTracker;
         this.playlistDetailsViewFactory = playlistDetailsViewFactory;
@@ -127,6 +134,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.offlineSettings = offlineSettings;
         this.connectionHelper = connectionHelper;
         this.playQueueHelper = playQueueHelper;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -271,11 +280,22 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private void subscribeForOfflineContentUpdates() {
         offlineStateSubscription.unsubscribe();
-        offlineStateSubscription = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                                           .filter(event -> event.entities.contains(playlistDetailHeaderItem.getUrn()))
-                                           .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
-                                           .observeOn(AndroidSchedulers.mainThread())
-                                           .subscribe(new OfflineStateSubscriber());
+        // todo
+        final Observable<OfflineState> offlineState;
+
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            offlineState = offlinePropertiesProvider
+                    .states()
+                    .map(properties -> properties.state(playlistDetailHeaderItem.getUrn()));
+        } else {
+            offlineState = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
+                                   .filter(event -> event.entities.contains(playlistDetailHeaderItem.getUrn()))
+                                   .map(OfflineContentChangedEvent.TO_OFFLINE_STATE);
+        }
+
+        offlineStateSubscription = offlineState
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new OfflineStateSubscriber());
     }
 
     private void toggleShuffleOption() {

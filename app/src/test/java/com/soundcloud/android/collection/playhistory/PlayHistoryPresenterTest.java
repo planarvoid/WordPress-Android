@@ -11,8 +11,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.tracks.TrackItem;
@@ -40,6 +42,8 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     @Mock private PlayHistoryAdapter adapter;
     @Mock private FeedbackController feedbackController;
     @Mock private Fragment fragment;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
@@ -50,9 +54,15 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(playHistoryOperations.playHistory()).thenReturn(Observable.<List<TrackItem>>empty());
 
-        playHistoryPresenter = new PlayHistoryPresenter(playHistoryOperations, offlineContentOperations,
-                                                        adapter, expandPlayerSubscriberProvider, eventBus,
-                                                        swipeRrefreshAttacher, feedbackController);
+        playHistoryPresenter = new PlayHistoryPresenter(playHistoryOperations,
+                                                        offlineContentOperations,
+                                                        adapter,
+                                                        expandPlayerSubscriberProvider,
+                                                        eventBus,
+                                                        swipeRrefreshAttacher,
+                                                        feedbackController,
+                                                        offlinePropertiesProvider,
+                                                        featureFlags);
     }
 
     @Test

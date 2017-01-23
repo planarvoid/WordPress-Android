@@ -9,9 +9,11 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -54,6 +56,8 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private CollapsingScrollHelper scrollHelper;
     @Mock private FilterHeaderPresenter myPlaylistHeaderPresenter;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private PlaylistsOptions options;
@@ -72,7 +76,9 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
                 adapter,
                 optionsPresenter,
                 resources(),
-                eventBus);
+                eventBus,
+                offlinePropertiesProvider,
+                featureFlags);
 
         when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.just(PLAYLISTS));
     }

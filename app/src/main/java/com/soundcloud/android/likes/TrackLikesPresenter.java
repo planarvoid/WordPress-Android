@@ -15,6 +15,7 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -22,6 +23,8 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -29,6 +32,7 @@ import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
+import com.soundcloud.android.view.adapters.OfflinePropertiesSubscriber;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
@@ -62,6 +66,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     @LightCycle final TrackLikesHeaderPresenter headerPresenter;
 
     private final DataSource dataSource;
+    private final OfflinePropertiesProvider offlinePropertiesProvider;
+    private final FeatureFlags featureFlags;
     private final TrackLikeOperations likeOperations;
     private final PlaybackInitiator playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
@@ -95,12 +101,16 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
                         SwipeRefreshAttacher swipeRefreshAttacher,
-                        DataSource dataSource) {
+                        DataSource dataSource,
+                        OfflinePropertiesProvider offlinePropertiesProvider,
+                        FeatureFlags featureFlags) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackInitiator;
         this.offlineContentOperations = offlineContentOperations;
         this.dataSource = dataSource;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
+        this.featureFlags = featureFlags;
         this.adapter = adapterFactory.create(headerPresenter);
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -156,9 +166,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
                                    new UpdatePlayableAdapterSubscriber(adapter)),
 
-                eventBus.queue(OFFLINE_CONTENT_CHANGED)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
+                subscribeToOfflineContent(),
 
                 eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
                 eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
@@ -182,6 +190,18 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                    .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
                                    .observeOn(AndroidSchedulers.mainThread())
                                    .subscribe(new AllLikedTracksSubscriber());
+    }
+
+    private Subscription subscribeToOfflineContent() {
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            return offlinePropertiesProvider.states()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(new OfflinePropertiesSubscriber<>(adapter));
+        } else {
+            return eventBus.queue(OFFLINE_CONTENT_CHANGED)
+                           .observeOn(AndroidSchedulers.mainThread())
+                           .subscribe(new UpdateCurrentDownloadSubscriber(adapter));
+        }
     }
 
     @Override

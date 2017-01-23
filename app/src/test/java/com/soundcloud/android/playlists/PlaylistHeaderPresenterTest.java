@@ -41,6 +41,7 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -48,6 +49,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -101,6 +103,9 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private ScreenProvider screenProvider;
     @Mock private EventTracker eventTracker;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
+
     @Captor private ArgumentCaptor<UIEvent> uiEventCaptor;
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
@@ -141,7 +146,9 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 shareOperations,
                 offlineSettings,
                 connectionHelper,
-                playQueueHelper);
+                playQueueHelper,
+                offlinePropertiesProvider,
+                featureFlags);
 
         presenter.bindItemView(0, View.inflate(activity(), com.soundcloud.android.R.layout.playlist_details_view, null), null);
     }

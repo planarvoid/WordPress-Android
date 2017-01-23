@@ -23,12 +23,15 @@ import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
@@ -40,6 +43,7 @@ import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
+import com.soundcloud.android.view.adapters.OfflinePropertiesSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
@@ -52,6 +56,7 @@ import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -85,6 +90,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     private final PlaylistOperations playlistOperations;
     private final PlaylistUpsellOperations upsellOperations;
     private final Navigator navigator;
+    private final OfflinePropertiesProvider offlinePropertiesProvider;
+    private final FeatureFlags featureFlags;
     private final EventBus eventBus;
     private final PlaylistAdapter adapter;
     private final boolean addInlineHeader;
@@ -109,7 +116,9 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
                              Navigator navigator,
                              EventBus eventBus,
                              Resources resources,
-                             PlaylistTrackItemRendererFactory trackRendererFactory) {
+                             PlaylistTrackItemRendererFactory trackRendererFactory,
+                             OfflinePropertiesProvider offlinePropertiesProvider,
+                             FeatureFlags featureFlags) {
         super(swipeRefreshAttacher);
         this.playlistOperations = playlistOperations;
         this.upsellOperations = upsellOperations;
@@ -119,6 +128,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         this.headerPresenter = headerPresenter;
         this.playlistContentPresenter = playlistContentPresenter;
         this.navigator = navigator;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
+        this.featureFlags = featureFlags;
         this.trackRenderer = trackRendererFactory.create(this);
         this.adapter = adapterFactory.create(this, headerPresenter, trackRenderer);
         headerPresenter.setPlaylistPresenter(this);
@@ -173,8 +184,18 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
                 eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
                 eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
                 eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
-                eventBus.subscribe(OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter))
+                subscribeToOfflineContent()
         );
+    }
+
+    private Subscription subscribeToOfflineContent() {
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            return offlinePropertiesProvider.states()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(new OfflinePropertiesSubscriber<>(adapter));
+        } else {
+            return eventBus.subscribe(OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter));
+        }
     }
 
     @Override

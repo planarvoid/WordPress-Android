@@ -23,6 +23,7 @@ import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -116,6 +117,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
+    @Inject OfflinePropertiesProvider offlinePropertiesProvider;
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;
     @Inject SyncInitiator syncInitiator;
@@ -202,6 +204,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         configureCast();
 
         trackOfflineStateProvider.subscribe();
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            offlinePropertiesProvider.subscribe();
+        }
         playQueueExtender.subscribe();
         playHistoryController.subscribe();
         playlistExploder.subscribe();

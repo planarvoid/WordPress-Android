@@ -21,9 +21,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -89,6 +91,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private Navigator navigator;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
 
     private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private TestEventBus eventBus = new TestEventBus();
@@ -107,7 +111,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             expandPlayerSubscriberProvider,
                                             playHistoryOperations,
                                             featureOperations,
-                                            navigator);
+                                            navigator,
+                                            offlinePropertiesProvider,
+                                            featureFlags);
     }
 
     @Test

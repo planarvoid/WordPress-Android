@@ -28,6 +28,7 @@ enum Feature {
   FLIPPER,
   APPBOY,
   WELCOME_USER,
+  OFFLINE_PROPERTIES_PROVIDER,
   FORCE_SHOW_WELCOME_USER,
   ALIGNED_USER_INFO,
   VIDEO_INLAYS;
@@ -57,6 +58,7 @@ android {
     buildConfigField FLAG, Feature.VIDEO_INLAYS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APPBOY.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
   }
 

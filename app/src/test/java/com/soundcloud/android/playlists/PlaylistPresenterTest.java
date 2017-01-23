@@ -19,10 +19,14 @@ import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.offline.OfflineProperties;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -54,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class PlaylistPresenterTest extends AndroidUnitTest {
 
@@ -64,6 +69,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private final TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_details_fragment, new Bundle());
+    private final PublishSubject<OfflineProperties> offlinePropertiesSubject = PublishSubject.create();
 
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = providerOf(mock(ExpandPlayerSubscriber.class));
     @Mock private PlaylistOperations operations;
@@ -79,6 +85,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private PlaylistTrackItemRendererFactory trackRendererFactory;
     @Mock private PlaylistTrackItemRenderer trackItemRenderer;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
     @Captor private ArgumentCaptor<List<PlaylistDetailItem>> trackItemCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -97,6 +105,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(model));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
         when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
+        when(offlinePropertiesProvider.states()).thenReturn(offlinePropertiesSubject);
 
         createPresenter();
     }
@@ -113,7 +122,9 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
                                           navigator,
                                           eventBus,
                                           resources,
-                                          trackRendererFactory);
+                                          trackRendererFactory,
+                                          offlinePropertiesProvider,
+                                          featureFlags);
     }
 
     @Test
@@ -151,13 +162,33 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdateCurrentDownloadWhenEventReceived() {
+    public void shouldUpdateCurrentDownloadWhenEventReceivedWhenOfflinePropertiesProviderIsEnabled() {
+        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(true);
+
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
         when(adapter.getItems()).thenReturn(listItems());
 
-        final Urn urn = track1.getUrn();
+        Urn urn = track1.getUrn();
+        final Map<Urn, OfflineState> states = Collections.singletonMap(urn, OfflineState.DOWNLOADING);
+        offlinePropertiesSubject.onNext(OfflineProperties.from(states, OfflineState.NOT_OFFLINE));
+
+        assertThat(track1.getOfflineState()).isEqualTo(OfflineState.DOWNLOADING);
+
+        verify(adapter).notifyItemChanged(0);
+    }
+
+    @Test
+    public void shouldUpdateCurrentDownloadWhenEventReceivedWhenOfflinePropertiesProviderIsDisabled() {
+        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(false);
+
+        presenter.onCreate(fragmentRule.getFragment(), args);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
+
+        when(adapter.getItems()).thenReturn(listItems());
+
+        Urn urn = track1.getUrn();
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          OfflineContentChangedEvent.downloading(Collections.singletonList(urn), false));
 

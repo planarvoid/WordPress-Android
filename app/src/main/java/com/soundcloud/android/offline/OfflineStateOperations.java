@@ -89,7 +89,7 @@ public class OfflineStateOperations {
     private Map<OfflineState, TrackCollections> determineState(Urn track) {
         final HashMap<OfflineState, TrackCollections> map = new HashMap<>();
         final boolean isTrackLiked = isTrackLiked(track);
-        final HashMap<OfflineState, Collection<Urn>> playlistsState = loadOfflinePlaylistsContainingTrack(track);
+        final Map<OfflineState, Collection<Urn>> playlistsState = loadOfflinePlaylistsContainingTrack(track);
 
         final OfflineState likedTrackState = loadLikedTrackState();
         for (OfflineState state : OfflineState.values()) {
@@ -124,9 +124,13 @@ public class OfflineStateOperations {
         }
     }
 
-    private HashMap<OfflineState, Collection<Urn>> loadOfflinePlaylistsContainingTrack(Urn track) {
-        final HashMap<OfflineState, Collection<Urn>> map = new HashMap<>();
+    private Map<OfflineState, Collection<Urn>> loadOfflinePlaylistsContainingTrack(Urn track) {
         final List<Urn> playlists = loadOfflinePlaylistsContainingTrackCommand.call(track);
+        return loadPlaylistsOfflineState(playlists);
+    }
+
+    Map<OfflineState, Collection<Urn>> loadPlaylistsOfflineState(List<Urn> playlists) {
+        final HashMap<OfflineState, Collection<Urn>> map = new HashMap<>();
         for (Urn playlist : playlists) {
             final OfflineState state = getState(playlist);
             getBucket(map, state).add(playlist);
@@ -144,7 +148,7 @@ public class OfflineStateOperations {
         }
     }
 
-    private OfflineState loadLikedTrackState() {
+    OfflineState loadLikedTrackState() {
         if (isOfflineLikedTracksEnabledCommand.call(null)) {
             return getCollectionOfflineState(loadLikedTracksOfflineStateCommand.call(null));
         } else {

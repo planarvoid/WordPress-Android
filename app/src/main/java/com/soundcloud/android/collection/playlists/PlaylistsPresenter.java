@@ -16,11 +16,18 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.offline.OfflineProperties;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -31,6 +38,7 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -59,6 +67,8 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private final PlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
+    private final OfflinePropertiesProvider offlinePropertiesProvider;
+    private final FeatureFlags featureFlags;
     private final CollectionOptionsStorage collectionOptionsStorage;
 
     private PlaylistsOptions currentOptions;
@@ -71,7 +81,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                               PlaylistsAdapter adapter,
                               PlaylistOptionsPresenter optionsPresenter,
                               Resources resources,
-                              EventBus eventBus) {
+                              EventBus eventBus,
+                              OfflinePropertiesProvider offlinePropertiesProvider,
+                              FeatureFlags featureFlags) {
         super(swipeRefreshAttacher);
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.myPlaylistsOperations = myPlaylistsOperations;
@@ -80,6 +92,8 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
+        this.featureFlags = featureFlags;
 
         adapter.setHasStableIds(true);
         adapter.setListener(this);
@@ -238,7 +252,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private void subscribeForUpdates() {
         eventSubscriptions.unsubscribe();
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdatePlaylistsDownloadSubscriber()),
+                subscribeToOfflineContent(),
                 eventBus.queue(PLAYLIST_CHANGED)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -269,6 +283,16 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostEntityListSubscriber(adapter))
         );
+    }
+
+    private Subscription subscribeToOfflineContent() {
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            return offlinePropertiesProvider.states()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(new OfflinePropertiesSubscriber(adapter));
+        } else {
+            return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdatePlaylistsDownloadSubscriber());
+        }
     }
 
     private void updateFromPlaylistChange(PlaylistChangedEvent event) {
@@ -323,4 +347,25 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         }
     }
 
+    private class OfflinePropertiesSubscriber extends DefaultSubscriber<OfflineProperties> {
+
+        private final PlaylistsAdapter adapter;
+
+        private OfflinePropertiesSubscriber(PlaylistsAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        public void onNext(OfflineProperties properties) {
+            for (int position = 0; position < adapter.getItems().size(); position++) {
+                PlaylistCollectionItem item = adapter.getItem(position);
+                if (item instanceof OfflineItem) {
+                    final OfflineItem offlineItem = (OfflineItem) item;
+                    final OfflineState offlineState = properties.state(item.getUrn());
+                    final ListItem updatedOfflineItem = offlineItem.updatedWithOfflineState(offlineState);
+                    adapter.setItem(position, (PlaylistCollectionItem) updatedOfflineItem);
+                }
+            }
+        }
+    }
 }
