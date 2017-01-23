@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -47,6 +48,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Mock private StartStationHandler stationHandler;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private RepostOperations repostOperations;
+    @Mock private AccountOperations accountOperations;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private TextView textView;
@@ -74,15 +76,16 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
                                                          repostOperations,
                                                          popupMenuWrapperFactory,
                                                          stationHandler,
+                                                         accountOperations,
                                                          eventBus,
                                                          shareOperations).create(textView);
-        controller.setTrack(track);
     }
 
     @Test
     public void clickingStartStationStartsStationForTrack() {
         MenuItem stationItem = mockMenuItem(R.id.start_station);
 
+        controller.setTrack(track);
         controller.onMenuItemClick(stationItem, activityContext);
 
         verify(stationHandler).startStationFromPlayer(activityContext, track.getUrn(), false);
@@ -93,6 +96,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         sourceTrack.setBlocked(true);
         MenuItem stationItem = mockMenuItem(R.id.start_station);
 
+        controller.setTrack(track);
         controller.onMenuItemClick(stationItem, activityContext);
 
         verify(stationHandler).startStationFromPlayer(activityContext, track.getUrn(), true);
@@ -101,15 +105,16 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Test
     public void clickingShareMenuItemSendsShareIntentWithAllData() {
         MenuItem share = mockMenuItem(R.id.share);
-
-        controller.onMenuItemClick(share, activityContext);
-
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .contextScreen("screen")
                                                                         .pageName(Screen.PLAYER_MAIN.get())
                                                                         .pageUrn(track.getUrn())
                                                                         .isFromOverflow(true)
                                                                         .build();
+
+        controller.setTrack(track);
+        controller.onMenuItemClick(share, activityContext);
+
         verify(shareOperations).share(activityContext, track.getSource(), eventContextMetadata, null);
     }
 
@@ -117,6 +122,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void clickingRepostMenuItemCallsOnRepostWithTrue() {
         MenuItem repost = mockMenuItem(R.id.repost);
 
+        controller.setTrack(track);
         controller.onMenuItemClick(repost, activityContext);
 
         verify(repostOperations).toggleRepost(track.getUrn(), true);
@@ -126,6 +132,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void clickingUnpostMenuItemCallsOnRepostWithFalse() {
         MenuItem unpost = mockMenuItem(R.id.unpost);
 
+        controller.setTrack(track);
         controller.onMenuItemClick(unpost, activityContext);
 
         verify(repostOperations).toggleRepost(track.getUrn(), false);
@@ -135,6 +142,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Test
     public void clickingRepostMenuItemEmitsRepostEvent() {
         MenuItem repost = mockMenuItem(R.id.repost);
+
+        controller.setTrack(track);
         controller.onMenuItemClick(repost, activityContext);
 
         UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -144,6 +153,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Test
     public void clickingUnpostMenuItemEmitsRepostEvent() {
         MenuItem unpost = mockMenuItem(R.id.unpost);
+
+        controller.setTrack(track);
         controller.onMenuItemClick(unpost, activityContext);
 
         UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -153,9 +164,12 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Test
     public void setPublicTrackEnablesShareAndRepostMenuItems() {
         // set track in setup uses public track
+        boolean isRepost = track.isUserRepost();
 
-        verify(popupMenuWrapper).setItemEnabled(R.id.unpost, true);
-        verify(popupMenuWrapper).setItemEnabled(R.id.repost, true);
+        controller.setTrack(track);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.unpost, isRepost);
+        verify(popupMenuWrapper).setItemVisible(R.id.repost, !isRepost);
         verify(popupMenuWrapper).setItemEnabled(R.id.share, true);
     }
 
@@ -163,13 +177,24 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void setPrivateTrackDisablesShareAndRepostMenuItems() {
         controller.setTrack(privateTrack);
 
-        verify(popupMenuWrapper).setItemEnabled(R.id.unpost, false);
-        verify(popupMenuWrapper).setItemEnabled(R.id.repost, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.unpost, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.repost, false);
         verify(popupMenuWrapper).setItemEnabled(R.id.share, false);
     }
 
     @Test
+    public void setOwnedTrackDisablesRepostMenuItems() {
+        when(accountOperations.isLoggedInUser(track.getUserUrn())).thenReturn(true);
+
+        controller.setTrack(track);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.unpost, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.repost, false);
+    }
+
+    @Test
     public void setProgressSetsCommentTimeInMenu() {
+        controller.setTrack(track);
         controller.setProgress(TestPlaybackProgress.getPlaybackProgress(20000, 40000));
 
         verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
@@ -177,7 +202,9 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void clearProgressSetsCommentTimeToZeroInMenu() {
+        controller.setTrack(track);
         controller.setProgress(TestPlaybackProgress.getPlaybackProgress(20000, 40000));
+
         controller.clearProgress();
 
         verify(popupMenuWrapper, times(2)).setItemText(R.id.comment, "Comment at 0:00");
@@ -185,6 +212,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void displayScrubPositionSetsCommentTimeInMenu() {
+        controller.setTrack(track);
         controller.setProgress(TestPlaybackProgress.getPlaybackProgress(20000, 40000));
 
         controller.displayScrubPosition(0.75f, 1.1f);
@@ -194,6 +222,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void displayFormattedCommentTimeWhenNoProgressWasSet() {
+        controller.setTrack(track);
         verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:00");
     }
 
@@ -208,6 +237,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideCommentOptionWhenTrackIsNotCommentable() {
+        controller.setTrack(track);
         verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
 
         final TrackItem notCommentable = TestPropertySets.expectedTrackForPlayer();
