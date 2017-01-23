@@ -171,7 +171,7 @@ class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListen
     }
 
     void showMyOptions() {
-        menu.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.EDIT_PLAYLIST));
+        menu.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2));
         menu.setItemVisible(R.id.delete_playlist, true);
     }
 

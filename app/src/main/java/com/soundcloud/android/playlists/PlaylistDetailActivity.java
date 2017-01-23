@@ -81,8 +81,8 @@ public class PlaylistDetailActivity extends PlayerActivity {
         boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = featureFlags.isEnabled(Flag.EDIT_PLAYLIST) ? NewPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay)
-                                                                       : PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+        Fragment fragment = featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2) ? NewPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay)
+                                                                          : PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
@@ -90,7 +90,7 @@ public class PlaylistDetailActivity extends PlayerActivity {
     @Override
     protected void setActivityContentView() {
         // TODO : This switch should take the config into account, as we will have no collapsing toolbar in certain configs
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2)) {
             baseLayoutHelper.setBaseNoToolbar(this);
         } else {
             baseLayoutHelper.setBaseLayout(this);

@@ -220,7 +220,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         streamPreloader.subscribe();
 
         configurationFeatureController.subscribe();
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2)) {
             likesStateProvider.subscribe();
         }
         FacebookSdk.sdkInitialize(getApplicationContext());
