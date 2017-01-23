@@ -29,4 +29,8 @@
 
     <!-- PLAYQUEUE PROTO -->
     <string name="playqueue_remove">Remove</string>
+
+    <!-- EDIT PLAYLIST -->
+    <string name="edit_validate">Validate</string>
+
 </resources>
