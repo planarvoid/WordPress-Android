@@ -102,7 +102,8 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     @Override
     public void preload(PreloadItem preloadItem) {
-        // Preload is not implemented, yet.
+        final String trackUrl = buildRemoteUrl(preloadItem.getUrn(), preloadItem.getPlaybackType());
+        flipper.prefetch(trackUrl);
     }
 
     @Override
@@ -474,7 +475,8 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     private ApiUrlBuilder getApiUrlBuilder(Urn trackUrn, ApiEndpoints endpoint) {
         Token token = accountOperations.getSoundCloudToken();
-        ApiUrlBuilder builder = urlBuilder.from(endpoint, trackUrn);
+        ApiUrlBuilder builder = urlBuilder.from(endpoint, trackUrn).withQueryParam("format", "hls_opus_64_url")
+                .withQueryParam("format", "hls_mp3_128_url");
         if (token.valid()) {
             builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
         }
@@ -495,7 +497,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
-                currentStreamUrl = currentStreamUrl + "&format=hls_opus_64_url&format=hls_mp3_128_url";
                 flipper.open(currentStreamUrl, fromPos);
                 break;
             case AUDIO_AD:
