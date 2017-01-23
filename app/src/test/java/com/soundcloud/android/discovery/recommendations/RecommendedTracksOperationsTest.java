@@ -64,7 +64,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         );
 
         // setup happy path
-        final PropertySet seed = createSeed();
+        final RecommendationSeed seed = createSeed();
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
@@ -118,7 +118,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
     @Test
     public void returnsNoDataWhenSyncerHasFinishedAndResultIsEmpty() {
-        when(recommendationsStorage.firstSeed()).thenReturn(Observable.<PropertySet>empty());
+        when(recommendationsStorage.firstSeed()).thenReturn(Observable.empty());
         operations.recommendedTracks().subscribe(subscriber);
 
         SYNC_SUBJECT.onNext(Result.SYNCING);
@@ -186,14 +186,14 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                 RECOMMENDED_TRACKS.get(0).getUserName());
     }
 
-    private PropertySet createSeed() {
-        return PropertySet.from(
-                RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(SEED_ID),
-                RecommendationProperty.SEED_TRACK_URN.bind(SEED_TRACK.getUrn()),
-                RecommendationProperty.SEED_TRACK_TITLE.bind(SEED_TRACK.getTitle()),
-                RecommendationProperty.REASON.bind(REASON),
-                RecommendationProperty.QUERY_POSITION.bind(QUERY_POSITION),
-                RecommendationProperty.QUERY_URN.bind(QUERY_URN)
+    private RecommendationSeed createSeed() {
+        return RecommendationSeed.create(
+                SEED_ID,
+                SEED_TRACK.getUrn(),
+                SEED_TRACK.getTitle(),
+                REASON,
+                QUERY_POSITION,
+                QUERY_URN
         );
     }
 

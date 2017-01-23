@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery.recommendations;
 
 import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.QUERY_POSITION;
 import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.QUERY_URN;
-import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.SEED_TRACK_LOCAL_ID;
 import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.SEED_TRACK_URN;
 import static com.soundcloud.android.sync.SyncOperations.emptyResult;
 import static com.soundcloud.android.sync.Syncable.RECOMMENDED_TRACKS;
@@ -70,10 +69,10 @@ public class RecommendedTracksOperations {
         storeRecommendationsCommand.clearTables();
     }
 
-    private List<Recommendation> toRecommendations(PropertySet seed, List<TrackItem> trackItems) {
-        Urn seedUrn = seed.get(SEED_TRACK_URN);
-        int queryPosition = seed.get(QUERY_POSITION);
-        Urn queryUrn = seed.get(QUERY_URN);
+    private List<Recommendation> toRecommendations(RecommendationSeed seed, List<TrackItem> trackItems) {
+        Urn seedUrn = seed.seedTrackUrn();
+        int queryPosition = seed.queryPosition();
+        Urn queryUrn = seed.queryUrn();
         List<Recommendation> recommendations = new ArrayList<>(trackItems.size());
         PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
 
@@ -106,8 +105,8 @@ public class RecommendedTracksOperations {
 
     }
 
-    private Observable<DiscoveryItem> loadDiscoveryItem(PropertySet seed) {
-        return tracksForSeed(seed.get(SEED_TRACK_LOCAL_ID))
+    private Observable<DiscoveryItem> loadDiscoveryItem(RecommendationSeed seed) {
+        return tracksForSeed(seed.seedTrackLocalId())
                 .map(trackItems -> RecommendedTracksBucketItem.create(seed, toRecommendations(seed, trackItems)));
     }
 }

@@ -26,15 +26,15 @@ class RecommendationsStorage {
         this.propellerRx = propellerRx;
     }
 
-    Observable<PropertySet> firstSeed() {
+    Observable<RecommendationSeed> firstSeed() {
         return loadSeeds(seedsQuery().limit(1));
     }
 
-    Observable<PropertySet> allSeeds() {
+    Observable<RecommendationSeed> allSeeds() {
         return loadSeeds(seedsQuery());
     }
 
-    private Observable<PropertySet> loadSeeds(Query query) {
+    private Observable<RecommendationSeed> loadSeeds(Query query) {
         return propellerRx.query(query).map(new RecommendationSeedMapper());
     }
 

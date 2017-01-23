@@ -28,7 +28,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     private static final int QUERY_POSITION = 1;
     private static final Urn QUERY_URN = Urn.NOT_SET;
 
-    private final TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+    private final TestSubscriber<RecommendationSeed> subscriber = new TestSubscriber<>();
     private RecommendationsStorage storage;
 
     @Before
@@ -39,9 +39,9 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadFirstSeed() {
         ApiUser user = testFixtures().insertUser();
-        PropertySet first = insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.LIKED);
+        RecommendationSeed first = insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.LIKED);
         insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.PLAYED);
-        TestSubscriber<PropertySet> firstSeedSubscriber = new TestSubscriber<>();
+        TestSubscriber<RecommendationSeed> firstSeedSubscriber = new TestSubscriber<>();
 
         storage.firstSeed().subscribe(firstSeedSubscriber);
 
@@ -52,8 +52,8 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     public void shouldLoadAllSeeds() {
         ApiUser user = testFixtures().insertUser();
         final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
-        PropertySet first = insertSeedTrack(tracks.get(0), user, RecommendationReason.LIKED);
-        PropertySet second = insertSeedTrack(tracks.get(1), user, RecommendationReason.PLAYED);
+        RecommendationSeed first = insertSeedTrack(tracks.get(0), user, RecommendationReason.LIKED);
+        RecommendationSeed second = insertSeedTrack(tracks.get(1), user, RecommendationReason.PLAYED);
 
         storage.allSeeds().subscribe(subscriber);
 
@@ -62,7 +62,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldReturnEmptyObservableWhenNoFirstSeed() {
-        TestSubscriber<PropertySet> firstSeedSubscriber = new TestSubscriber<>();
+        TestSubscriber<RecommendationSeed> firstSeedSubscriber = new TestSubscriber<>();
 
         storage.firstSeed().subscribe(firstSeedSubscriber);
 
@@ -73,11 +73,10 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllRecommendationsForSeedTrack() {
         final List<ApiTrack> recommendedTracks = ModelFixtures.create(ApiTrack.class, 1);
-        final PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class),
+        final long localSeedId = insertRecommendation(ModelFixtures.create(ApiTrack.class),
                                                                 RecommendationReason.LIKED,
                                                                 recommendedTracks);
         final TestSubscriber<List<PropertySet>> recommendedTracksSubscriber = new TestSubscriber<>();
-        final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
         final Urn seedUrn = Urn.forTrack(localSeedId);
         final List<PropertySet> recommendedTracksForSeed = singletonList(recommendedTrack(seedUrn,
                                                                                           recommendedTracks.get(0)));
@@ -88,28 +87,18 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         recommendedTracksSubscriber.assertCompleted();
     }
 
-    private PropertySet insertRecommendation(ApiTrack seedTrack,
+    private long insertRecommendation(ApiTrack seedTrack,
                                              RecommendationReason reason,
                                              List<ApiTrack> recommendedTracks) {
         ApiUser user = testFixtures().insertUser();
-        long seedId = insertSeedTrack(seedTrack, user, reason).get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
+        long seedId = insertSeedTrack(seedTrack, user, reason).seedTrackLocalId();
         for (ApiTrack track : recommendedTracks) {
             insertRecommendedTrack(track, user, seedId);
         }
-        return PropertySet.from(
-                RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(seedId),
-                RecommendationProperty.SEED_TRACK_URN.bind(seedTrack.getUrn()),
-                RecommendationProperty.SEED_TRACK_TITLE.bind(seedTrack.getTitle()),
-                RecommendationProperty.RECOMMENDED_TRACKS_COUNT.bind(recommendedTracks.size()),
-                RecommendationProperty.REASON.bind(reason),
-                RecommendedTrackProperty.URN.bind(recommendedTracks.get(0).getUrn()),
-                RecommendedTrackProperty.IMAGE_URL_TEMPLATE.bind(recommendedTracks.get(0).getImageUrlTemplate()),
-                RecommendedTrackProperty.TITLE.bind(recommendedTracks.get(0).getTitle()),
-                RecommendedTrackProperty.USERNAME.bind(recommendedTracks.get(0).getUserName())
-        );
+        return seedId;
     }
 
-    private PropertySet insertSeedTrack(ApiTrack seedTrack, ApiUser apiUser, RecommendationReason reason) {
+    private RecommendationSeed insertSeedTrack(ApiTrack seedTrack, ApiUser apiUser, RecommendationReason reason) {
         testFixtures().insertTrackWithUser(seedTrack, apiUser);
 
         ContentValues cv = new ContentValues();
@@ -120,13 +109,13 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         cv.put(RecommendationSeeds.QUERY_URN.name(), QUERY_URN.toString());
         long seedId = testFixtures().insertInto(RecommendationSeeds.TABLE, cv);
 
-        return PropertySet.from(
-                RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(seedId),
-                RecommendationProperty.SEED_TRACK_URN.bind(seedTrack.getUrn()),
-                RecommendationProperty.SEED_TRACK_TITLE.bind(seedTrack.getTitle()),
-                RecommendationProperty.REASON.bind(reason),
-                RecommendationProperty.QUERY_POSITION.bind(QUERY_POSITION),
-                RecommendationProperty.QUERY_URN.bind(QUERY_URN)
+        return RecommendationSeed.create(
+                seedId,
+                seedTrack.getUrn(),
+                seedTrack.getTitle(),
+                reason,
+                QUERY_POSITION,
+                QUERY_URN
         );
     }
 
