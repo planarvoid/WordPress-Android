@@ -3,7 +3,7 @@ package com.soundcloud.android.ads;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -50,7 +50,7 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
     }
 
     @Override
-    public AdRequestEvent.AdsReceived toAdsReceived() {
+    public AdsReceived toAdsReceived() {
         final List<Urn> appInstalls = new ArrayList<>();
         final List<Urn> videoAds = new ArrayList<>();
 
@@ -64,7 +64,7 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
             }
         }
 
-        return AdRequestEvent.AdsReceived.forStreamAds(appInstalls, videoAds);
+        return AdsReceived.forStreamAds(appInstalls, videoAds);
     }
 
     @Override

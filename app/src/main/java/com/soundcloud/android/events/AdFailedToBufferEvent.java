@@ -1,16 +1,23 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.java.optional.Optional;
 
-public class AdFailedToBufferEvent extends LegacyTrackingEvent {
-    public static final String PLAYBACK_POSITION = "playback_position";
-    public static final String WAIT_PERIOD = "wait_period_secs";
+@AutoValue
+public abstract class AdFailedToBufferEvent extends NewTrackingEvent {
 
-    public AdFailedToBufferEvent(Urn track, PlaybackProgress position, int failedAdWaitSecs) {
-        super(KIND_DEFAULT);
-        put(PlayableTrackingKeys.KEY_AD_URN, track.toString());
-        put(PLAYBACK_POSITION, Long.toString(position.getPosition()));
-        put(WAIT_PERIOD, Integer.toString(failedAdWaitSecs));
+    public abstract Urn adUrn();
+    public abstract long playbackPosition();
+    public abstract int waitPeriod();
+
+    public static AdFailedToBufferEvent create(Urn track, PlaybackProgress position, int failedAdWaitSecs) {
+        return new AutoValue_AdFailedToBufferEvent(defaultId(), defaultTimestamp(), Optional.absent(), track, position.getPosition(), failedAdWaitSecs);
+    }
+
+    @Override
+    public AdFailedToBufferEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_AdFailedToBufferEvent(id(), timestamp(), Optional.of(referringEvent), adUrn(), playbackPosition(), waitPeriod());
     }
 }

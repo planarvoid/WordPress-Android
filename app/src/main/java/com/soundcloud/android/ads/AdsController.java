@@ -380,9 +380,9 @@ public class AdsController {
                                                          state.getTransition(),
                                                          videoSourceProvider.getCurrentSource().get());
             } else {
-                return new AdFailedToBufferEvent(state.getPlayingItemUrn(),
-                                                 state.getProgress(),
-                                                 FAILED_AD_WAIT_SECS);
+                return AdFailedToBufferEvent.create(state.getPlayingItemUrn(),
+                                                    state.getProgress(),
+                                                    FAILED_AD_WAIT_SECS);
             }
         }
     }

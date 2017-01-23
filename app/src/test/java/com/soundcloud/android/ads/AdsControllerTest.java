@@ -22,7 +22,6 @@ import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -622,9 +621,9 @@ public class AdsControllerTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         final AdFailedToBufferEvent event = (AdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
-        assertThat(event.getAttributes().get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(trackUrn.toString());
-        assertThat(event.getAttributes().get(AdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
-        assertThat(event.getAttributes().get(AdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
+        assertThat(event.adUrn()).isEqualTo(trackUrn);
+        assertThat(event.playbackPosition()).isEqualTo(12);
+        assertThat(event.waitPeriod()).isEqualTo(6);
     }
 
     @Test
@@ -647,9 +646,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         final AdPlaybackErrorEvent event = (AdPlaybackErrorEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
-        assertThat(event.getKind()).isEqualTo(AdPlaybackErrorEvent.KIND_FAIL_TO_BUFFER);
-        assertThat(event.getBitrate()).isEqualTo(source.getBitRateKbps());
-        assertThat(event.getHost()).isEqualTo(source.getUrl());
+        assertThat(event.bitrate()).isEqualTo(source.getBitRateKbps());
+        assertThat(event.host()).isEqualTo(source.getUrl());
     }
 
     @Test

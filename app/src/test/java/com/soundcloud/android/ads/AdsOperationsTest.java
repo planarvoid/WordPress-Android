@@ -176,7 +176,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final AdRequestData requestData = AdRequestData.forStreamAds(Optional.absent());
         adsOperations.inlayAds(requestData).subscribe();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdRequestEvent.AD_REQUEST_SUCCESS_KIND);
+        final AdRequestEvent trackingEvent = (AdRequestEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.adsRequestSuccess()).isEqualTo(true);
     }
 
     @Test

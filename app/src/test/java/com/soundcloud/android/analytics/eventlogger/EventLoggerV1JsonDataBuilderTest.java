@@ -32,7 +32,7 @@ import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.AdRequestEvent;
-import com.soundcloud.android.events.AdRequestEvent.AdsReceived;
+import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;

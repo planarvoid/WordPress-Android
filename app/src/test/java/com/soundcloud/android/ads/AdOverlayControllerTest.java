@@ -182,7 +182,8 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         captureLeaveBehindListener().onImageClick();
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isSameAs(AdOverlayTrackingEvent.KIND_CLICK);
+        final AdOverlayTrackingEvent trackingEvent = (AdOverlayTrackingEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.eventName()).isSameAs(AdOverlayTrackingEvent.EventName.KIND_CLICK);
     }
 
     @Test

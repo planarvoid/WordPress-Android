@@ -1,17 +1,15 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.events.AdRequestEvent.AdsReceived;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
-
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdRequestEventTest extends AndroidUnitTest {
 
@@ -33,12 +31,12 @@ public class AdRequestEventTest extends AndroidUnitTest {
                                                                false,
                                                                true);
 
-        assertThat(event.getKind()).isEqualTo(AdRequestEvent.AD_REQUEST_SUCCESS_KIND);
-        assertThat(event.get("monetizable_track_urn")).isEqualTo(TRACK_URN.toString());
-        assertThat(event.get("request_endpoint")).isEqualTo(ADS_ENDPOINT);
-        assertThat(event.adsReceived).isEqualTo(Optional.of(ALL_ADS_RECEIVED));
-        assertThat(event.playerVisible).isFalse();
-        assertThat(event.inForeground).isTrue();
+        assertThat(event.adsRequestSuccess()).isTrue();
+        assertThat(event.monetizableTrackUrn().get()).isEqualTo(TRACK_URN);
+        assertThat(event.adsEndpoint()).isEqualTo(ADS_ENDPOINT);
+        assertThat(event.adsReceived()).isEqualTo(Optional.of(ALL_ADS_RECEIVED));
+        assertThat(event.playerVisible()).isFalse();
+        assertThat(event.inForeground()).isTrue();
     }
 
     @Test
@@ -49,11 +47,11 @@ public class AdRequestEventTest extends AndroidUnitTest {
                                                                false,
                                                                true);
 
-        assertThat(event.getKind()).isEqualTo(AdRequestEvent.AD_REQUEST_FAILURE_KIND);
-        assertThat(event.get("monetizable_track_urn")).isEqualTo(TRACK_URN.toString());
-        assertThat(event.get("request_endpoint")).isEqualTo(ADS_ENDPOINT);
-        assertThat(event.playerVisible).isFalse();
-        assertThat(event.inForeground).isTrue();
+        assertThat(event.adsRequestSuccess()).isFalse();
+        assertThat(event.monetizableTrackUrn().get()).isEqualTo(TRACK_URN);
+        assertThat(event.adsEndpoint()).isEqualTo(ADS_ENDPOINT);
+        assertThat(event.playerVisible()).isFalse();
+        assertThat(event.inForeground()).isTrue();
     }
 
     @Test
