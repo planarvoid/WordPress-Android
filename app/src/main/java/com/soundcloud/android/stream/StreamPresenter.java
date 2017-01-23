@@ -11,9 +11,11 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdItemRenderer;
 import com.soundcloud.android.ads.AppInstallAd;
-import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.StreamAdsController;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -69,7 +71,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         StationsOnboardingStreamItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
         UpsellItemRenderer.Listener,
-        AppInstallItemRenderer.Listener,
+        AdItemRenderer.Listener,
         NewItemsIndicator.Listener, StreamHighlightsItemRenderer.Listener {
 
     private final StreamOperations streamOperations;
@@ -132,6 +134,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         adapter.setOnStationsOnboardingStreamClickListener(this);
         adapter.setOnUpsellClickListener(this);
         adapter.setOnAppInstallClickListener(this);
+        adapter.setOnVideoAdClickListener(this);
         adapter.setOnStreamHighlightsClickListener(this);
     }
 
@@ -332,9 +335,14 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     }
 
     @Override
-    public void onAppInstallItemClicked(Context context, AppInstallAd appInstallAd) {
-        navigator.openAdClickthrough(context, Uri.parse(appInstallAd.getClickThroughUrl()));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAppInstallAdClickThrough(appInstallAd));
+    public void onAdItemClicked(Context context, AdData adData) {
+        final String clickthrough = adData instanceof AppInstallAd ? ((AppInstallAd) adData).getClickThroughUrl()
+                                                                   : ((VideoAd) adData).getClickThroughUrl();
+
+        navigator.openAdClickthrough(context, Uri.parse(clickthrough));
+        if (adData instanceof AppInstallAd) {
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData));
+        }
     }
 
     @Override

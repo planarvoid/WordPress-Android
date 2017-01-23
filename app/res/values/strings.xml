@@ -63,6 +63,7 @@
     <string name="ads_now_playing">Now playing</string>
     <string name="ads_now_playing_tracktitle_username">Now playing: %1$s (%2$s)</string>
     <string name="ads_app">app</string>
+    <string name="ads_video">video</string>
     <plurals name="ads_app_ratings">
         <item quantity="one">%s rating</item>
         <item quantity="other">%s ratings</item>

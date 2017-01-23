@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import android.support.annotation.NonNull;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -7,13 +9,17 @@ import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
 class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollection {
 
@@ -46,7 +52,11 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
     }
 
     List<AdData> getAds(DateProvider dateProvider) {
-        return Lists.transform(getCollection(), new ToAdData(dateProvider));
+        return Lists.transform(newArrayList(Iterables.filter(getCollection(), supportedInlayAds())), new ToAdData(dateProvider));
+    }
+
+    private Predicate<ApiAdWrapper> supportedInlayAds() {
+        return ad -> ad.getAppInstall().isPresent() || ad.getVideoAd().isPresent();
     }
 
     @Override

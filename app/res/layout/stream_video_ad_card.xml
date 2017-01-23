@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:sc="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/stream_video_ad"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        style="@style/Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+
+        <RelativeLayout
+            android:id="@+id/header_container"
+            style="@style/Cards.Header">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/ad_item"
+                style="@style/Cards.PrimaryHeaderText"
+                android:layout_marginLeft="0dp"
+                android:drawableLeft="@drawable/inset_promoted_icon"
+                android:drawablePadding="3dp"/>
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/why_ads"
+                style="@style/Stream.Button.WhyAds"
+                android:layout_alignParentRight="true"
+                android:text="@string/ads_why_ads" />
+
+        </RelativeLayout>
+
+        <!-- TODO: Replace with TextureView -->
+        <com.soundcloud.android.view.AspectRatioImageView
+            android:id="@+id/video"
+            sc:foreground="@drawable/artwork_border"
+            android:background="@color/black"
+            style="@style/Stream.Image.AppInstall" />
+
+        <RelativeLayout
+            android:paddingBottom="18dp"
+            style="@style/Cards.Footer">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/call_to_action"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
+                style="@style/Stream.Button.CallToAction"/>
+
+        </RelativeLayout>
+    </LinearLayout>
+</FrameLayout>

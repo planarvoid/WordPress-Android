@@ -12,6 +12,7 @@ import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import java.util.ArrayList;
@@ -47,12 +48,23 @@ class InlayAdHelper {
         final int position = wasScrollingUp ? findValidAdPosition(firstVisibleItemPosition(), -1)
                                             : findValidAdPosition(lastVisibleItemPosition(), 1);
         if (position != Consts.NOT_SET) {
-            if (ad instanceof AppInstallAd) {
-                adapter.addItem(position, StreamItem.forAppInstall((AppInstallAd) ad));
+            final Optional<StreamItem> streamItem = itemForAd(ad);
+            if (streamItem.isPresent()) {
+                adapter.addItem(position, streamItem.get());
                 return true;
             }
         }
         return false;
+    }
+
+    private Optional<StreamItem> itemForAd(AdData ad) {
+        if (ad instanceof AppInstallAd) {
+            return Optional.of(StreamItem.forAppInstall((AppInstallAd) ad));
+        } else if (ad instanceof VideoAd) {
+            return Optional.of(StreamItem.forVideoAd((VideoAd) ad));
+        } else {
+            return Optional.absent();
+        }
     }
 
     public void onScroll() {
@@ -84,8 +96,11 @@ class InlayAdHelper {
         final int endInclusive = Math.min(maxInclusive, getNumberOfStreamItems() - 1);
 
         for (int position = startInclusive; position <= endInclusive; position++) {
-            if (position != Consts.NOT_SET && adapter.getItem(position).isAd()) {
-                result.add(Pair.of(position, ((StreamItem.AppInstall) adapter.getItem(position)).appInstall()));
+            if (position != Consts.NOT_SET) {
+                final StreamItem item = adapter.getItem(position);
+                if (item.isAd() && item instanceof StreamItem.AppInstall) {
+                    result.add(Pair.of(position, ((StreamItem.AppInstall) item).appInstall()));
+                }
             }
         }
 

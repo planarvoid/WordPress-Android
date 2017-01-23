@@ -22,6 +22,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.StreamAdsController;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -494,10 +495,22 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        presenter.onAppInstallItemClicked(view.getContext(), appInstall);
+        presenter.onAdItemClicked(view.getContext(), appInstall);
 
         verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(appInstall.getClickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
+    }
+
+    @Test
+    public void shouldNavigateForVideoAdClickthroughs() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(32L);
+
+        when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        presenter.onAdItemClicked(view.getContext(), videoAd);
+
+        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(videoAd.getClickThroughUrl()));
     }
 }

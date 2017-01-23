@@ -7,19 +7,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.AppInstall;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,21 +26,13 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-
-public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
+public class AppInstallItemRenderer extends AdItemRenderer {
 
     private final Resources resources;
     private final CondensedNumberFormatter numberFormatter;
     private final ImageOperations imageOperations;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
-
-    public interface Listener {
-        void onAppInstallItemClicked(Context context, AppInstallAd appInstallAd);
-        void onWhyAdsClicked(Context context);
-    }
-
-    private Listener listener;
 
     @Inject
     public AppInstallItemRenderer(Resources resources,
@@ -56,10 +43,6 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
         this.imageOperations = imageOperations;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
-    }
-
-    public void setListener(Listener listener) {
-        this.listener = listener;
     }
 
     @Override
@@ -80,7 +63,7 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
                                           holder.image,
                                           new ImageLoadTimeListener(position, appInstall));
 
-        holder.headerText.setText(getSponsoredHeaderText());
+        holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_app)));
         holder.appNameText.setText(appInstall.getName());
         holder.ratingsCount.setText(resources.getQuantityString(R.plurals.ads_app_ratings,
                                                        appInstall.getRatersCount(),
@@ -88,39 +71,9 @@ public class AppInstallItemRenderer implements CellRenderer<StreamItem> {
         holder.callToAction.setText(appInstall.getCtaButtonText());
         holder.ratingBar.setRating(appInstall.getRating());
 
-        bindWhyAdsListener(holder);
-        bindClickthroughListener(holder, appInstall);
-    }
-
-    private void bindWhyAdsListener(Holder holder) {
-        holder.whyAds.setOnClickListener(view -> {
-            if (listener != null) {
-                listener.onWhyAdsClicked(view.getContext());
-            }
-        });
-    }
-
-    private void bindClickthroughListener(Holder holder, final AppInstallAd appInstallAd) {
-        final View.OnClickListener clickListener = view -> {
-            if (listener != null) {
-                listener.onAppInstallItemClicked(view.getContext(), appInstallAd);
-            }
-        };
-        holder.callToAction.setOnClickListener(clickListener);
-        holder.image.setOnClickListener(clickListener);
-    }
-
-    private SpannableString getSponsoredHeaderText() {
-        final String itemType = resources.getString(R.string.ads_app);
-        final String headerText = resources.getString(R.string.stream_sponsored_item, itemType);
-        final SpannableString spannedString = new SpannableString(headerText);
-
-        spannedString.setSpan(new ForegroundColorSpan(resources.getColor(R.color.list_secondary)),
-                              0,
-                              headerText.length() - itemType.length(),
-                              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        return spannedString;
+        bindWhyAdsListener(holder.whyAds);
+        bindClickthroughListener(holder.callToAction, appInstall);
+        bindClickthroughListener(holder.image, appInstall);
     }
 
     private Holder getHolder(View adView) {

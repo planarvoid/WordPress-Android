@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import com.soundcloud.android.ads.AppInstallItemRenderer;
+import com.soundcloud.android.ads.VideoAdItemRenderer;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
@@ -29,6 +30,7 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
     private final SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer;
     private final StreamUpsellItemRenderer upsellItemRenderer;
     private final AppInstallItemRenderer appInstallItemRenderer;
+    private final VideoAdItemRenderer videoAdItemRenderer;
     private final StreamHighlightsItemRenderer streamHighlightsItemRenderer;
 
     @Inject
@@ -40,6 +42,7 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
                          StreamUpsellItemRenderer upsellItemRenderer,
                          SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer,
                          AppInstallItemRenderer appInstallItemRenderer,
+                         VideoAdItemRenderer videoAdItemRenderer,
                          StreamHighlightsItemRenderer streamHighlightsItemRenderer) {
         super(new CellRendererBinding<>(StreamItem.Kind.TRACK.ordinal(), trackItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.PLAYLIST.ordinal(), playlistItemRenderer),
@@ -49,13 +52,15 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
               new CellRendererBinding<>(StreamItem.Kind.STREAM_UPSELL.ordinal(), upsellItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.SUGGESTED_CREATORS.ordinal(), suggestedCreatorsItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.STREAM_HIGHLIGHTS.ordinal(), streamHighlightsItemRenderer),
-              new CellRendererBinding<>(StreamItem.Kind.APP_INSTALL.ordinal(), appInstallItemRenderer));
+              new CellRendererBinding<>(StreamItem.Kind.APP_INSTALL.ordinal(), appInstallItemRenderer),
+              new CellRendererBinding<>(StreamItem.Kind.VIDEO_AD.ordinal(), videoAdItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
         this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;
         this.upsellItemRenderer = upsellItemRenderer;
         this.suggestedCreatorsItemRenderer = suggestedCreatorsItemRenderer;
         this.appInstallItemRenderer = appInstallItemRenderer;
+        this.videoAdItemRenderer = videoAdItemRenderer;
         this.streamHighlightsItemRenderer = streamHighlightsItemRenderer;
     }
 
@@ -145,6 +150,10 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     void setOnAppInstallClickListener(AppInstallItemRenderer.Listener listener) {
         this.appInstallItemRenderer.setListener(listener);
+    }
+
+    void setOnVideoAdClickListener(VideoAdItemRenderer.Listener listener) {
+        this.videoAdItemRenderer.setListener(listener);
     }
 
     void setOnStreamHighlightsClickListener(StreamHighlightsItemRenderer.Listener listener) {
