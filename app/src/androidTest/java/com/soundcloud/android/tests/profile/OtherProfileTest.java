@@ -74,7 +74,8 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
                 .scrollToPlaylists()
                 .get(0);
 
-        assertEquals(expectedPlaylist.click().getTitle(), expectedPlaylist.getTitle());
+        final String title = expectedPlaylist.getTitle(); // evaluate this before navigating to the next page
+        assertEquals(expectedPlaylist.click().getTitle(), title);
     }
 
     public void testClickFollowingsLoadsProfile() {
