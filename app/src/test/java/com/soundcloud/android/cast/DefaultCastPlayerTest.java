@@ -19,6 +19,7 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -28,8 +29,6 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
@@ -73,8 +72,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     @Mock private CastPlayStateReporter castPlayStateReporter;
     @Mock private PlaybackProgress playbackProgress;
 
-    @Captor private ArgumentCaptor<PlaybackStateTransition> transitionArgumentCaptor;
-    @Captor private ArgumentCaptor<ProgressReporter.ProgressPuller> progressPusherArgumentCaptor;
+    @Captor private ArgumentCaptor<PlaybackProgressEvent> playbackProgressEventArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -92,7 +90,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void pushProgressSendsProgressReportToListener() {
+    public void pushProgressUpdatesPlaySessionProvider() {
         final long progress = 123L;
         final long duration = 456L;
         final Urn urn = TRACK_URN1;
@@ -100,7 +98,8 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onProgressUpdated(progress, duration);
 
-        PlaybackProgress playbackProgress = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS).getPlaybackProgress();
+        verify(playSessionStateProvider).onProgressEvent(playbackProgressEventArgumentCaptor.capture());
+        PlaybackProgress playbackProgress = playbackProgressEventArgumentCaptor.getValue().getPlaybackProgress();
         assertThat(playbackProgress.getPosition()).isEqualTo(progress);
         assertThat(playbackProgress.getDuration()).isEqualTo(duration);
         assertThat(playbackProgress.getUrn()).isEqualTo(urn);

@@ -77,7 +77,9 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     @Override
     public void onProgressUpdated(long progressMs, long durationMs) {
         final Urn currentRemoteTrackUrn = castQueueController.getRemoteCurrentTrackUrn();
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(new PlaybackProgress(progressMs, durationMs, currentRemoteTrackUrn), currentRemoteTrackUrn));
+        PlaybackProgressEvent progressEvent = PlaybackProgressEvent.create(new PlaybackProgress(progressMs, durationMs, currentRemoteTrackUrn), currentRemoteTrackUrn);
+
+        playSessionStateProvider.onProgressEvent(progressEvent);
     }
 
     @VisibleForTesting

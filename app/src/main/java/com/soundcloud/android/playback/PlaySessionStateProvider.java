@@ -1,9 +1,11 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.UuidProvider;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.annotation.NonNull;
 
@@ -20,15 +22,17 @@ public class PlaySessionStateProvider {
 
     private final PlaySessionStateStorage playSessionStateStorage;
     private final UuidProvider uuidProvider;
+    private final EventBus eventBus;
 
     private PlaybackProgress lastProgress = PlaybackProgress.empty();
     private PlayStateEvent lastStateEvent = PlayStateEvent.DEFAULT;
     private Urn currentPlayingUrn = Urn.NOT_SET; // the urn of the item that is currently loaded in the playback service
 
     @Inject
-    public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage, UuidProvider uuidProvider) {
+    public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage, UuidProvider uuidProvider, EventBus eventBus) {
         this.playSessionStateStorage = playSessionStateStorage;
         this.uuidProvider = uuidProvider;
+        this.eventBus = eventBus;
     }
 
     public PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
@@ -63,9 +67,10 @@ public class PlaySessionStateProvider {
         return currentPlayingUrn.isTrack() ? getLastProgressForItem(currentPlayingUrn).getPosition() : 0;
     }
 
-    void onProgressEvent(PlaybackProgressEvent progress) {
+    public void onProgressEvent(PlaybackProgressEvent progress) {
         if (progress.getUrn().equals(currentPlayingUrn)) {
             lastProgress = progress.getPlaybackProgress();
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, progress);
         }
     }
 

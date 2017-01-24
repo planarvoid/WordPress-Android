@@ -69,7 +69,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
                 .build();
         playQueue.setCredentials(getCredentials());
         getRemoteMediaClient().load(mediaInfo, autoplay, playPosition, jsonHandler.toJson(playQueue));
-        Log.d(TAG, "CastProtocol::sendLoad" + (autoplay ? " in autoplay" : "") + " with playQueue = " + playQueue);
+        Log.d(TAG, "CastProtocol::sendLoad" + (autoplay ? " in autoplay" : "") + " for pos. " + playPosition + " with playQueue = " + playQueue);
     }
 
     public void setListener(Listener listener) {
