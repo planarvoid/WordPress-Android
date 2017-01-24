@@ -16,6 +16,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
@@ -33,13 +34,12 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
-
-import android.content.res.Resources;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -72,9 +72,8 @@ public class PlaylistOperations {
     private final ProfileApiMobile profileApiMobile;
     private final MyPlaylistsOperations myPlaylistsOperations;
     private final AccountOperations accountOperations;
-    private final PlaylistUpsellOperations upsellOperations;
     private final FeatureFlags featureFlags;
-    private final Resources resources;
+    private final PlaylistDetailsViewModelCreator viewModelCreator;
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
@@ -91,9 +90,9 @@ public class PlaylistOperations {
                        EventBus eventBus,
                        ProfileApiMobile profileApiMobile,
                        MyPlaylistsOperations myPlaylistsOperations,
-                       AccountOperations accountOperations, PlaylistUpsellOperations upsellOperations,
+                       AccountOperations accountOperations,
                        FeatureFlags featureFlags,
-                       Resources resources) {
+                       PlaylistDetailsViewModelCreator viewModelCreator) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistRepository = playlistRepository;
@@ -109,9 +108,8 @@ public class PlaylistOperations {
         this.profileApiMobile = profileApiMobile;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.accountOperations = accountOperations;
-        this.upsellOperations = upsellOperations;
         this.featureFlags = featureFlags;
-        this.resources = resources;
+        this.viewModelCreator = viewModelCreator;
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadPlaylistForAddingTrack(Urn trackUrn) {
@@ -246,20 +244,18 @@ public class PlaylistOperations {
         return playlistItems -> newArrayList(filter(playlistItems,
                                                     input -> !input.urn().equals(playlist.urn())));
     }
+    
+    
 
     private Func1<List<Playlist>, PlaylistDetailsViewModel> toViewModel(Playlist playlist, List<TrackItem> tracks) {
         return playlists -> {
-            final PlaylistDetailsViewModel.Builder builder = PlaylistDetailsViewModel
-                    .builder()
-                    .metadata(PlaylistDetailsMetadata.from(playlist, tracks, playlist.isLikedByCurrentUser().or(false), false, resources))
-                    .tracks(transform(tracks, PlaylistDetailTrackItem::new))
-                    .upsell(upsellOperations.getUpsell(playlist, tracks));
-
-            if (!playlists.isEmpty()) {
-                final List<PlaylistItem> playlistsItems = Lists.transform(playlists, PlaylistItem::from);
-                builder.otherPlaylists(new PlaylistDetailOtherPlaylistsItem(playlist.creatorName(), playlistsItems));
-            }
-            return builder.build();
+            final List<PlaylistItem> playlistsItems = Lists.transform(playlists, PlaylistItem::from);
+            return viewModelCreator.create(playlist,
+                                           tracks,
+                                           playlist.isLikedByCurrentUser().or(false),
+                                           false,
+                                           playlistsItems.isEmpty() ? Optional.absent() :
+                                           Optional.of(new PlaylistDetailOtherPlaylistsItem(playlist.creatorName(), playlistsItems)));
         };
     }
 

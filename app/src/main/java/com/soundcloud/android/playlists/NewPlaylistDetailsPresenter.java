@@ -13,12 +13,11 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.AsyncViewModel;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
 import rx.subjects.BehaviorSubject;
-
-import android.content.res.Resources;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.List;
 @AutoFactory
 class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
 
-    private final PlaylistOperations playlistOperations;
+    private final PlaylistRepository playlistRepo;
     private final LikesStateProvider likesStateProvider;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
@@ -35,23 +34,23 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
     private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
     private final BehaviorSubject<Boolean> refreshSubject = BehaviorSubject.create(false);
     private final BehaviorSubject<Boolean> editModeSubject = BehaviorSubject.create(false);
-    private final Resources resources;
+    private final PlaylistDetailsViewModelCreator viewModelCreator;
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    NewPlaylistDetailsPresenter(@Provided PlaylistOperations playlistOperations,
+    NewPlaylistDetailsPresenter(Urn playlistUrn,
+                                @Provided PlaylistRepository playlistRepository,
                                 @Provided LikesStateProvider likesStateProvider,
                                 @Provided SyncInitiator syncInitiator,
                                 @Provided EventBus eventBus,
                                 @Provided TrackRepository trackRepository,
-                                @Provided Resources resources,
-                                Urn playlistUrn) {
-        this.playlistOperations = playlistOperations;
+                                @Provided PlaylistDetailsViewModelCreator viewModelCreator) {
+        this.playlistRepo = playlistRepository;
         this.likesStateProvider = likesStateProvider;
         this.syncInitiator = syncInitiator;
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playlistUrn = playlistUrn;
-        this.resources = resources;
+        this.viewModelCreator = viewModelCreator;
     }
 
     public void connect() {
@@ -65,7 +64,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
     @Override
     public void onHeaderPlayButtonClicked() {
 //        playbackInitiator.playTracks(
-//                playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
+//                playlistRepo.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
 //                ((PlaylistDetailTrackItem) adapter.getItem(position)).getUrn(), position - (addInlineHeader ? 1 : 0), playSessionSource)
 //                         .subscribe(expandPlayerSubscriberProvider.get());
     }
@@ -100,8 +99,8 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
     Observable<Playlist> playlist() {
         return eventBus.queue(EventQueue.PLAYLIST_CHANGED)
                        .filter(event -> event.changeMap().containsKey(playlistUrn))
-                       .flatMap(ignored -> playlistOperations.playlist(playlistUrn))
-                       .startWith(playlistOperations.playlist(playlistUrn));
+                       .flatMap(ignored -> playlistRepo.withUrn(playlistUrn))
+                       .startWith(playlistRepo.withUrn(playlistUrn));
     }
 
     public void refresh() {
@@ -126,8 +125,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
                                                              List<TrackItem> tracks,
                                                              LikedStatuses likedStatuses) {
         final boolean isLiked = likedStatuses.isLiked(playlist.urn());
-        final PlaylistDetailsViewModel model = PlaylistDetailsViewModel.from(playlist, tracks, isLiked, isEditMode, resources);
-        return AsyncViewModel.create(model, isRefreshing);
+        return AsyncViewModel.create(viewModelCreator.create(playlist, tracks, isLiked, isEditMode, Optional.absent()), isRefreshing);
     }
 
     public void disconnect() {
@@ -144,5 +142,6 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
      * - Other playlists by user
      * - Local playlist pushed to server while viewing it
      * - missing playlists
+     * - offline logic
      */
 }

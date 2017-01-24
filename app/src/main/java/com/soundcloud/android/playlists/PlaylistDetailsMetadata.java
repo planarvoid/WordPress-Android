@@ -1,5 +1,7 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.playlists.PlaylistUtils.getDuration;
+
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -8,56 +10,53 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @AutoValue
 abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements UpdatablePlaylistItem, ImageResource {
 
-    PlaylistDetailsMetadata() {
-        super(PlaylistDetailItem.Kind.HeaderItem);
-    }
-
-    public static PlaylistDetailsMetadata from(Playlist playlist, List<TrackItem> tracks, boolean isLiked, boolean isInEditMode, Resources resources) {
+    static PlaylistDetailsMetadata from(Playlist playlist,
+                                        List<TrackItem> trackItems,
+                                        boolean isLiked,
+                                        boolean isEditMode,
+                                        int trackCount,
+                                        OfflineOptions offlineOptions,
+                                        Resources resources,
+                                        boolean isOwner) {
         return builder()
                 .urn(playlist.urn())
                 .title(playlist.title())
                 .permalinkUrl(playlist.permalinkUrl())
                 .creatorUrn(playlist.creatorUrn())
                 .creatorName(playlist.creatorName())
-                .canBePlayed(!tracks.isEmpty())
-                .trackCount(tracks.isEmpty() ? playlist.trackCount() : tracks.size())
-                .duration(getDuration(playlist, tracks))
+                .canBePlayed(!trackItems.isEmpty())
+                .canShuffle(trackItems.size() > 1)
+                .trackCount(trackCount)
                 .isPrivate(playlist.isPrivate())
                 .isRepostedByUser(playlist.isRepostedByCurrentUser().or(false))
                 .isLikedByUser(isLiked)
                 .likesCount(playlist.likesCount())
                 .isMarkedForOffline(playlist.isMarkedForOffline().or(false))
+                .showOwnerOptions(isOwner)
+                .headerText(PlaylistUtils.getPlaylistInfoLabel(resources, trackCount, getDuration(playlist, trackItems)))
+                .offlineOptions(offlineOptions)
                 .offlineState(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
                 .label(PlaylistUtils.formatPlaylistTitle(resources, playlist.setType(), playlist.isAlbum(), playlist.releaseDate()))
                 .imageUrlTemplate(playlist.imageUrlTemplate())
-                .isInEditMode(isInEditMode)
+                .isInEditMode(isEditMode)
                 .build();
     }
 
-    public static String getDuration(Playlist playlist, List<TrackItem> tracks) {
-        final long duration = tracks.isEmpty() ?
-                              playlist.duration() :
-                              getCombinedTrackDurations(tracks);
-        return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
+    enum OfflineOptions {
+        AVAILABLE, UPSELL, NONE
     }
 
-    private static long getCombinedTrackDurations(List<TrackItem> tracks) {
-        long duration = 0;
-        for (TrackItem track : tracks) {
-            duration += track.getDuration();
-        }
-        return duration;
+    PlaylistDetailsMetadata() {
+        super(PlaylistDetailItem.Kind.HeaderItem);
     }
 
     @Override
@@ -65,7 +64,7 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
         return urn();
     }
 
-    abstract Urn urn();
+    abstract public Urn urn();
 
     abstract public Urn creatorUrn();
 
@@ -73,9 +72,9 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
 
     abstract public boolean canBePlayed();
 
-    abstract public int trackCount();
+    abstract public boolean canShuffle();
 
-    abstract String duration();
+    abstract public int trackCount();
 
     abstract public int likesCount();
 
@@ -87,17 +86,23 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
 
     abstract public boolean isMarkedForOffline();
 
+    abstract public boolean showOwnerOptions();
+
     abstract public OfflineState offlineState();
+
+    abstract public OfflineOptions offlineOptions();
 
     abstract public Optional<String> permalinkUrl();
 
     abstract public String title();
 
-    abstract String label();
+    abstract public String label();
 
-    abstract Optional<String> imageUrlTemplate();
+    abstract public String headerText();
 
-    abstract boolean isInEditMode();
+    abstract public Optional<String> imageUrlTemplate();
+
+    abstract public boolean isInEditMode();
 
     public abstract Builder toBuilder();
 
@@ -151,15 +156,18 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
 
     @AutoValue.Builder
     abstract static class Builder {
+
         abstract Builder urn(Urn value);
 
         abstract Builder creatorUrn(Urn value);
 
+        abstract Builder creatorName(String value);
+
         abstract Builder canBePlayed(boolean value);
 
-        abstract Builder trackCount(int value);
+        abstract Builder canShuffle(boolean value);
 
-        abstract Builder duration(String value);
+        abstract Builder trackCount(int value);
 
         abstract Builder likesCount(int value);
 
@@ -171,15 +179,19 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
 
         abstract Builder isMarkedForOffline(boolean value);
 
+        abstract Builder showOwnerOptions(boolean value);
+
         abstract Builder offlineState(OfflineState value);
+
+        abstract Builder offlineOptions(OfflineOptions value);
 
         abstract Builder permalinkUrl(Optional<String> value);
 
         abstract Builder title(String value);
 
-        abstract Builder creatorName(String value);
-
         abstract Builder label(String value);
+
+        abstract Builder headerText(String value);
 
         abstract Builder imageUrlTemplate(Optional<String> value);
 
@@ -187,4 +199,6 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
 
         abstract PlaylistDetailsMetadata build();
     }
+
+
 }

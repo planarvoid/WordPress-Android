@@ -4,10 +4,14 @@ import static com.soundcloud.android.view.AsyncViewModel.fromIdle;
 import static com.soundcloud.android.view.AsyncViewModel.fromRefreshing;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.likes.LikedStatuses;
@@ -20,6 +24,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.AsyncViewModel;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -42,11 +47,17 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     private PlaylistDetailsViewModel initialModel;
     private PlaylistDetailsViewModel updatedModel;
 
-    @Mock private PlaylistOperations playlistOperations;
+    @Mock private PlaylistRepository playlistOperations;
     @Mock private LikesStateProvider likesStateProvider;
     @Mock private SyncInitiator syncInitiator;
     @Mock private TrackRepository trackRepository;
+
+    @Mock private FeatureOperations featureOperations;
+    @Mock private AccountOperations accountOperations;
+    @Mock private PlaylistUpsellOperations upsellOperations;
+
     private EventBus eventBus = new TestEventBus();
+    private PlaylistDetailsViewModelCreator viewModelCreator;
 
     private Urn playlistUrn;
     private NewPlaylistDetailsPresenter newPlaylistPresenter;
@@ -55,20 +66,23 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playlistUrn = initialPlaylist.urn();
-        initialModel = PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, false, resources());
-        updatedModel = initialModel.toBuilder()
-                                   .metadata(PlaylistDetailsMetadata.from(updatedPlaylist, trackItems, false, false, resources()))
-                                   .build();
 
-        newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistOperations,
+        viewModelCreator = new PlaylistDetailsViewModelCreator(resources(), featureOperations, accountOperations, upsellOperations);
+        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(Optional.absent());
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
+
+        playlistUrn = initialPlaylist.urn();
+        initialModel = PlaylistDetailFixtures.create(resources(), initialPlaylist, trackItems);
+        updatedModel = viewModelCreator.create(updatedPlaylist, trackItems, false, false, Optional.absent());
+
+        newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistUrn, playlistOperations,
                                                                likesStateProvider,
                                                                syncInitiator,
                                                                eventBus,
                                                                trackRepository,
-                                                               resources(),
-                                                               playlistUrn);
-        when(playlistOperations.playlist(playlistUrn)).thenReturn(just(initialPlaylist), just(updatedPlaylist));
+                                                               viewModelCreator);
+        when(playlistOperations.withUrn(playlistUrn)).thenReturn(just(initialPlaylist), just(updatedPlaylist));
         when(likesStateProvider.likedStatuses()).thenReturn(likeStates);
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(updateSubject);
 
@@ -81,7 +95,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void emitsPlaylistFromStorage() {
         newPlaylistPresenter.viewModel()
                             .test()
-                            .assertValue(fromIdle(PlaylistDetailsViewModel.from(initialPlaylist, trackItems, false, false, resources())));
+                            .assertValue(fromIdle(initialModel));
     }
 
     @Test

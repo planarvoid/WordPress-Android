@@ -14,50 +14,49 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.TextView;
 
-public class DownloadStateViewTest extends AndroidUnitTest {
+public class DownloadStateRendererTest extends AndroidUnitTest {
 
     private final String inProgressText = resources().getString(R.string.offline_update_in_progress);
-    private DownloadStateView downloadStateView;
+    private DownloadStateRenderer downloadStateRenderer;
 
     @Mock private Fragment fragment;
     @Mock private PlaybackInitiator playbackInitiator;
-    private View header;
+    private View view;
 
     @Before
     public void setUp() throws Exception {
-        header = View.inflate(context(), R.layout.track_likes_header, null);
-        downloadStateView = new DownloadStateView(resources());
-        downloadStateView.onViewCreated(header);
+        view = View.inflate(context(), R.layout.track_likes_header, null);
+        downloadStateRenderer = new DownloadStateRenderer(resources());
     }
 
     @Ignore("Blocks on AnimUtils")
     public void displayInProgressTextWhenDownloading() {
-        downloadStateView.setHeaderText("Header test text");
-        downloadStateView.show(OfflineState.DOWNLOADING);
+        downloadStateRenderer.setHeaderText("Header test text", view);
+        downloadStateRenderer.show(OfflineState.DOWNLOADING, view);
 
         assertThat(getHeaderText()).hasText(inProgressText);
-        assertThat(header.findViewById(R.id.header_download_state)).isVisible();
+        assertThat(view.findViewById(R.id.header_download_state)).isVisible();
     }
 
     @Test
     public void displayHeaderTextWhenDownloaded() {
-        downloadStateView.setHeaderText("Header test text");
-        downloadStateView.show(OfflineState.DOWNLOADED);
+        downloadStateRenderer.setHeaderText("Header test text", view);
+        downloadStateRenderer.show(OfflineState.DOWNLOADED, view);
 
         assertThat(getHeaderText()).hasText("Header test text");
-        assertThat(header.findViewById(R.id.header_download_state)).isVisible();
+        assertThat(view.findViewById(R.id.header_download_state)).isVisible();
     }
 
     @Test
     public void displayHeadTextWhenNoOffline() {
-        downloadStateView.setHeaderText("Header test text");
-        downloadStateView.show(OfflineState.NOT_OFFLINE);
+        downloadStateRenderer.setHeaderText("Header test text", view);
+        downloadStateRenderer.show(OfflineState.NOT_OFFLINE, view);
 
         assertThat(getHeaderText()).hasText("Header test text");
-        assertThat(header.findViewById(R.id.header_download_state)).isGone();
+        assertThat(view.findViewById(R.id.header_download_state)).isGone();
     }
 
     private TextView getHeaderText() {
-        return (TextView) header.findViewById(R.id.header_text);
+        return (TextView) view.findViewById(R.id.header_text);
     }
 }

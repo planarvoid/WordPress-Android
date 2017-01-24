@@ -1,25 +1,13 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.java.collections.Lists.transform;
-
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
-
-import android.content.res.Resources;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @AutoValue
 abstract class PlaylistDetailsViewModel {
-
-    public static PlaylistDetailsViewModel from(Playlist playlist, List<TrackItem> trackItems, boolean isLiked, boolean isEditMode, Resources resources) {
-        return builder()
-                .metadata(PlaylistDetailsMetadata.from(playlist, trackItems, isLiked, isEditMode, resources))
-                .tracks(transform(trackItems, PlaylistDetailTrackItem::new))
-                .build();
-    }
 
     public static PlaylistDetailsViewModel.Builder builder() {
         return new AutoValue_PlaylistDetailsViewModel.Builder();

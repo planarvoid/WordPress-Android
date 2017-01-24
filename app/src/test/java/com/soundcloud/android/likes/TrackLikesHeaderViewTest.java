@@ -3,7 +3,7 @@ package com.soundcloud.android.likes;
 import static org.assertj.android.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadStateView;
+import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         View view = View.inflate(context(), R.layout.track_likes_header, null);
         trackLikesHeaderView = new TrackLikesHeaderView(resources(),
-                                                        new DownloadStateView(resources()),
+                                                        new DownloadStateRenderer(resources()),
                                                         view,
                                                         listener);
     }

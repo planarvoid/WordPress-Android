@@ -4,10 +4,11 @@ import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrac
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
+import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -78,6 +80,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private MyPlaylistsOperations myPlaylistsOperations;
     @Mock private AccountOperations accountOperations;
+    @Mock private FeatureOperations featureOperations;
 
     @Captor private ArgumentCaptor<AddTrackToPlaylistParams> addTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;
@@ -98,8 +101,16 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
             newArrayList(playlistPost),
             "next-href");
 
+    private PlaylistDetailsViewModelCreator viewModelCreator;
+
+
     @Before
     public void setUp() {
+        viewModelCreator = new PlaylistDetailsViewModelCreator(resources(), featureOperations, accountOperations, upsellOperations);
+        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(Optional.absent());
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
+
         eventBus = new TestEventBus();
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
         operations = new PlaylistOperations(Schedulers.immediate(),
@@ -116,9 +127,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             profileApiMobile,
                                             myPlaylistsOperations,
                                             accountOperations,
-                                            upsellOperations,
                                             featureFlags,
-                                            resources());
+                                            viewModelCreator);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiator.syncPlaylist(any(Urn.class))).thenReturn(playlistSyncSubject);
     }
@@ -156,8 +166,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
-        final PlaylistDetailsViewModel initialModel = PlaylistDetailsViewModel.from(playlist, asList(track1, track2), false, false, resources());
+        final PlaylistDetailsViewModel initialModel = PlaylistDetailFixtures.create(resources(), playlist, asList(track1, track2));
         final PlaylistDetailsViewModel updatedModel = initialModel.toBuilder().otherPlaylists(createOtherPlaylistItem()).build();
+
         viewModelSubscriber.assertValues(initialModel, updatedModel);
         viewModelSubscriber.assertCompleted();
     }
@@ -177,11 +188,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
-        final PlaylistDetailsViewModel expected = PlaylistDetailsViewModel.builder()
-                                                                          .metadata(PlaylistDetailsMetadata.from(playlist, tracks, false, false, resources()))
-                                                                          .tracks(transform(asList(track1, track2), PlaylistDetailTrackItem::new))
-                                                                          .otherPlaylists(createOtherPlaylistItem())
-                                                                          .build();
+        PlaylistDetailsViewModel expected = PlaylistDetailFixtures
+                .createWithOtherMyPlaylists(resources(), playlist, asList(track1, track2), of(createOtherPlaylistItem()));
+
         viewModelSubscriber.assertValue(expected);
         viewModelSubscriber.assertCompleted();
     }
@@ -214,7 +223,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
         playlistSyncSubject.onCompleted();
 
-        final PlaylistDetailsViewModel initialModel = PlaylistDetailsViewModel.from(playlist, (List<TrackItem>) tracks, false, false, resources());
+        final PlaylistDetailsViewModel initialModel = PlaylistDetailFixtures.create(resources(), playlist, asList(track1, track2));
         final PlaylistDetailsViewModel updatedModel = initialModel.toBuilder().otherPlaylists(createOtherPlaylistItem()).build();
 
         viewModelSubscriber.assertValues(initialModel, updatedModel);

@@ -7,11 +7,11 @@ import static com.soundcloud.android.offline.OfflineContentChangedEvent.requeste
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -40,6 +40,7 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
@@ -56,7 +57,6 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,6 +65,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -73,7 +74,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
@@ -82,13 +82,12 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     private static final Screen SCREEN = Screen.SEARCH_MAIN;
 
     private TestEventBus eventBus;
-    @Mock private PlaylistHeaderViewFactory playlistHeaderViewFactory;
     @Mock private Navigator navigator;
     @Mock private PlaylistHeaderScrollHelper profileHeaderScrollHelper;
     @Mock private RepostOperations repostOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private LikeOperations likeOperations;
-    @Mock private PlaylistEngagementsView engagementsView;
+    @Mock private PlaylistEngagementsRenderer engagementsView;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaylistOperations playlistOperations;
@@ -97,9 +96,9 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private ShareOperations shareOperations;
-    @Mock private PlaylistHeaderView playlistHeaderView;
+    @Mock private PlaylistCoverRenderer playlistCoverRenderer;
     @Mock private PlaylistDetailsViewListener headerListener;
-    @Mock private PlaylistHeaderView headerView;
+    @Mock private PlaylistCoverRenderer coverRenderer;
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private ScreenProvider screenProvider;
     @Mock private EventTracker eventTracker;
@@ -113,6 +112,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     private Observable<List<Urn>> playlistTrackurns;
     private PlaylistDetailsMetadata headerItem;
     private PlaylistHeaderPresenter presenter;
+    private View view;
 
     private static Bundle fragmentArgs() {
         Bundle bundle = new Bundle();
@@ -123,20 +123,16 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Before
     public void setup() {
         eventBus = new TestEventBus();
-        playlistTrackurns = Observable.just(Collections.singletonList(Urn.forTrack(1)));
+        playlistTrackurns = Observable.just(singletonList(Urn.forTrack(1)));
         headerItem = createPlaylistInfoWithSharing(Sharing.PUBLIC);
         when(playlistOperations.trackUrnsForPlayback(headerItem.getUrn())).thenReturn(playlistTrackurns);
-        when(playlistHeaderViewFactory.create(any(View.class))).thenReturn(headerView);
 
         presenter = new PlaylistHeaderPresenter(
                 eventBus,
                 eventTracker,
-                playlistHeaderViewFactory,
                 navigator,
                 profileHeaderScrollHelper,
                 featureOperations,
-                engagementsView,
-                accountOperations,
                 offlineContentOperations,
                 playbackInitiator,
                 playlistOperations,
@@ -144,69 +140,54 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 likeOperations,
                 repostOperations,
                 shareOperations,
-                offlineSettings,
-                connectionHelper,
-                playQueueHelper,
                 offlinePropertiesProvider,
+                playQueueHelper,
+                coverRenderer,
+                engagementsView,
                 featureFlags);
 
-        presenter.bindItemView(0, View.inflate(activity(), com.soundcloud.android.R.layout.playlist_details_view, null), null);
+        view = View.inflate(activity(), R.layout.playlist_details_view, null);
+        presenter.bindItemView(0, view, null);
     }
 
     @Test
-    public void shouldShowUsersOptions() {
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
-
-        presenter.setPlaylist(headerItem, getPlaySessionSource());
-
-        verify(engagementsView).showMyOptions();
-    }
-
-    @Test
-    public void shouldHideUsersOptions() {
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(false);
-
-        presenter.setPlaylist(headerItem, getPlaySessionSource());
-
-        verify(engagementsView).hideMyOptions();
-    }
-
-    @Test
-    public void updatesLikeItemOnPresenterUpdate() {
+    public void updatesEngagementsForNewLike() {
         setPlaylistInfo();
 
+        LikesStatusEvent likesStatusEvent = LikesStatusEvent.create(headerItem.getUrn(),
+                                                         true,
+                                                         headerItem.likesCount());
         eventBus.publish(EventQueue.LIKE_CHANGED,
-                         LikesStatusEvent.create(headerItem.getUrn(),
-                                                 true,
-                                                 headerItem.likesCount()));
+                         likesStatusEvent);
 
-        verify(engagementsView).updateLikeItem(Optional.of(headerItem.likesCount()), true);
-
+        verify(engagementsView).bind(
+                same(view),
+                eq(headerItem.updatedWithLikeStatus(likesStatusEvent.likeStatusForUrn(headerItem.getUrn()).get())),
+                any());
     }
 
     @Test
-    public void shouldUpdateLikeOrRepostButtonWhenCurrentPlayableChanged() {
+    public void updatesEngagementsForNewRepost() {
         setPlaylistInfo();
 
-        eventBus.publish(EventQueue.LIKE_CHANGED,
-                         LikesStatusEvent.create(headerItem.getUrn(),
-                                                 true,
-                                                 headerItem.likesCount()));
-        verify(engagementsView).updateLikeItem(Optional.of(headerItem.likesCount()), true);
+        RepostsStatusEvent repostStatusEvent = RepostsStatusEvent.create(RepostStatus.createReposted(headerItem.getUrn()));
+        eventBus.publish(EventQueue.REPOST_CHANGED,
+                         repostStatusEvent);
 
-        eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.createReposted(headerItem.getUrn()));
-        verify(engagementsView).showPublicOptions(true);
+        verify(engagementsView).bind(
+                same(view),
+                eq(headerItem.updatedWithRepostStatus(repostStatusEvent.repostStatusForUrn(headerItem.getUrn()).get())),
+                any());
     }
 
     @Test
-    public void shouldNotUpdateLikeOrRepostButtonStateForOtherPlayables() {
+    public void shouldNotUpdateLikeOrRepostStatusStateForOtherPlayables() {
         setPlaylistInfo();
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forTrack(2L), true, 1));
         eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.createReposted(Urn.forTrack(2L)));
 
-        verify(engagementsView, never()).updateLikeItem(any(Optional.class), eq(true));
-        verify(engagementsView, never()).showPublicOptions(eq(true));
+        verify(engagementsView).bind(any(), any(), any());
     }
 
     @Test
@@ -354,21 +335,17 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(headerItem.getUrn()), false));
+        OfflineContentChangedEvent requested = requested(singletonList(headerItem.getUrn()), false);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested);
 
-        verify(engagementsView).showOfflineOptions(true);
-    }
+        PlaylistDetailsMetadata updated = headerItem.toBuilder()
+                                                    .offlineState(requested.state)
+                                                    .isMarkedForOffline(true)
+                                                    .build();
 
-    @Test
-    public void shouldUpdateOfflineAvailabilityOnUnmarkedForOfflineChange() {
-        setPlaylistInfo();
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
-
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(headerItem.getUrn()));
-
-        verify(engagementsView).showOfflineOptions(false);
+        verify(engagementsView).bind(same(view),
+                                     eq(updated),
+                                     any());
     }
 
     @Test
@@ -414,99 +391,32 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showsOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedAvailable() {
-        Playlist playlist = createPlaylistBuilder(Sharing.PUBLIC)
-                .isMarkedForOffline(true)
-                .build();
-
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
-
-        setPlaylistInfo(playlist);
-
-        verify(engagementsView).showOfflineOptions(true);
-    }
-
-    @Test
-    public void showsNotOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedUnavailable() {
-        Playlist playlistItem = createPlaylist(Sharing.PUBLIC);
-
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(accountOperations.isLoggedInUser(playlistItem.creatorUrn())).thenReturn(true);
-
-        setPlaylistInfo(playlistItem);
-
-        verify(engagementsView).showOfflineOptions(false);
-    }
-
-    @Test
-    public void showsUpsellWhenOfflineContentIsNotEnabledAndAllowedToShowUpsell() {
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
-        when(featureOperations.upsellOfflineContent()).thenReturn(true);
-
-        Playlist playlistItem = createPlaylistBuilder(Sharing.PUBLIC).isMarkedForOffline(true).build();
-        setPlaylistInfo(playlistItem);
-
-        verify(engagementsView).showUpsell();
-    }
-
-    @Test
-    public void hidesOfflineOptionsWhenOfflineContentIsNotEnabledAndNotAllowedToShowUpsell() {
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
-
-        Playlist playlistItem = createPlaylistBuilder(Sharing.PUBLIC).isMarkedForOffline(true).build();
-        setPlaylistInfo(playlistItem);
-
-        verify(engagementsView).hideOfflineOptions();
-    }
-
-    @Test
-    public void hidesOfflineOptionsWhenPlaylistIsNotPostedByTheCurrentUser() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        setPlaylistInfo(createPlaylist(Sharing.PUBLIC));
-
-        verify(engagementsView).hideOfflineOptions();
-    }
-
-    @Test
-    public void showsOfflineOptionsWhenPlaylistIsLikedByTheCurrentUser() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        setPlaylistInfo(createPlaylist(Sharing.PUBLIC), true);
-
-        verify(engagementsView).showOfflineOptions(false);
-    }
-
-    @Test
-    public void hidesOfflineOptionsWhenPlaylistIsNotLikedByTheCurrentUser() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        setPlaylistInfo(createPlaylist(Sharing.PUBLIC));
-
-        verify(engagementsView).hideOfflineOptions();
-    }
-
-    @Test
     public void showDefaultDownloadStateWhenCurrentDownloadEmitsDownloadRemoved() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         setPlaylistInfo();
         reset(engagementsView);
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(headerItem.getUrn()));
+        OfflineContentChangedEvent removed = removed(headerItem.getUrn());
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed);
 
-        verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
+        verify(engagementsView).bind(same(view), eq(headerItem.toBuilder().offlineState(removed.state).build()), any());
     }
 
     @Test
     public void showDefaultDownloadStateWhenCurrentDownloadEmitsRequested() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         setPlaylistInfo();
+        OfflineContentChangedEvent requested = requested(singletonList(headerItem.getUrn()), false);
+        reset(engagementsView);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(headerItem.getUrn()), false));
+                         requested);
 
-        verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
+        PlaylistDetailsMetadata updated = headerItem.toBuilder()
+                                                    .offlineState(requested.state)
+                                                    .isMarkedForOffline(true).build();
+
+        verify(engagementsView).bind(same(view), eq(updated), any());
     }
 
     @Test
@@ -515,11 +425,17 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
 
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        OfflineContentChangedEvent downloading = downloading(Arrays.asList(track.getUrn(), headerItem.getUrn()), true);
+        reset(engagementsView);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         downloading(Arrays.asList(track.getUrn(), headerItem.getUrn()), true));
+                         downloading);
 
-        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
+        PlaylistDetailsMetadata updated = headerItem.toBuilder()
+                                                    .offlineState(downloading.state)
+                                                    .isMarkedForOffline(true).build();
+
+        verify(engagementsView).bind(same(view), eq(updated), any());
     }
 
     @Test
@@ -527,114 +443,27 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         setPlaylistInfo();
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         downloaded(singletonList(headerItem.getUrn()), false));
+        OfflineContentChangedEvent downloaded = downloaded(singletonList(headerItem.getUrn()), false);
+        reset(engagementsView);
 
-        final InOrder inOrder = inOrder(engagementsView);
-        inOrder.verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
-        inOrder.verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                         downloaded);
+
+        PlaylistDetailsMetadata updated = headerItem.toBuilder()
+                                                    .offlineState(downloaded.state)
+                                                    .isMarkedForOffline(true).build();
+        verify(engagementsView).bind(same(view), eq(updated), any());
     }
 
     @Test
     public void ignoreDownloadStateWhenCurrentDownloadEmitsAnUnrelatedEvent() {
         setPlaylistInfo();
+        reset(engagementsView);
+
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          downloaded(singletonList(Urn.forPlaylist(12344443212L)), false));
 
-        verify(engagementsView, never()).showOfflineState(OfflineState.DOWNLOADED);
-    }
-
-    @Test
-    public void showDefaultDownloadStateWhenPlaylistDownloadStateIsDownloadNoOffline() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpHeaderItem(OfflineState.NOT_OFFLINE);
-        setPlaylistInfo();
-
-        verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
-    }
-
-    @Test
-    public void showDefaultDownloadStateWhenPlaylistDownloadStateRequested() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpHeaderItem(OfflineState.REQUESTED);
-        setPlaylistInfo();
-
-        verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
-    }
-
-    @Test
-    public void setDownloadingStateWhenPlaylistDownloadStateDownloading() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpHeaderItem(OfflineState.DOWNLOADING);
-        setPlaylistInfo();
-
-        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
-    }
-
-    @Test
-    public void setDownloadedStateWhenPlaylistDownloadStateDownloaded() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setUpHeaderItem(OfflineState.DOWNLOADED);
-        setPlaylistInfo();
-
-        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
-    }
-
-    @Test
-    public void showWarningTextWhenPendingDownloadAndOffline() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setPlaylistInfo();
-        when(connectionHelper.isNetworkConnected()).thenReturn(false);
-
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(headerItem.getUrn()), false));
-
-        verify(engagementsView).showNoConnection();
-    }
-
-    @Test
-    public void showWarningTextWhenPendingDownloadAndWifiOnly() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setPlaylistInfo();
-        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
-        when(connectionHelper.isWifiConnected()).thenReturn(false);
-
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         requested(singletonList(headerItem.getUrn()), false));
-
-        verify(engagementsView).showNoWifi();
-    }
-
-    @Test
-    public void doNotShowWarningTextForNonPendingStates() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        setPlaylistInfo();
-        when(connectionHelper.isNetworkConnected()).thenReturn(false);
-
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                         downloaded(singletonList(headerItem.getUrn()), false));
-
-        verify(engagementsView, times(0)).showNoConnection();
-    }
-
-    @Test
-    public void disablesShuffleWithOneTrack() throws Exception {
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
-        final Playlist playlistItem = createPlaylistBuilder(Sharing.PUBLIC).trackCount(1).build();
-
-        setPlaylistInfo(createPlaylistWithSingleTrack(playlistItem), getPlaySessionSource());
-
-        verify(engagementsView).disableShuffle();
-    }
-
-    @Test
-    public void enablesShuffleWithMoreThanOneTrack() throws Exception {
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
-        final Playlist playlistItem = createPlaylist(Sharing.PUBLIC);
-
-        setPlaylistInfo(playlistItem);
-
-        verify(engagementsView).enableShuffle();
+        verify(engagementsView, never()).bind(any(), any(), any());
     }
 
     @Test
@@ -667,25 +496,12 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo(headerItem, getPlaySessionSource());
     }
 
-    private void setPlaylistInfo(Playlist playlistItem) {
-        setPlaylistInfo(createPlaylistHeaderItem(playlistItem, playlistItem.isLikedByCurrentUser().or(false)), getPlaySessionSource());
-    }
-
-    private void setPlaylistInfo(Playlist playlistItem, boolean isLiked) {
-        setPlaylistInfo(createPlaylistHeaderItem(playlistItem, isLiked), getPlaySessionSource());
-    }
-
     private void setPlaylistInfo(PlaylistDetailsMetadata playlistDetailsMetadata, PlaySessionSource playSessionSource) {
         presenter.onAttach(fragmentRule.getFragment(), fragmentRule.getActivity());
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onResume(fragmentRule.getFragment());
         presenter.setScreen(SCREEN.get());
         presenter.setPlaylist(playlistDetailsMetadata, playSessionSource);
-    }
-
-
-    private void setUpHeaderItem(OfflineState offlineState) {
-        headerItem = headerItem.toBuilder().offlineState(offlineState).build();
     }
 
     private PlaylistDetailsMetadata createPlaylistInfoWithSharing(Sharing sharing) {
@@ -698,15 +514,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistDetailsMetadata createPlaylistHeaderItem(Playlist playlistItem, boolean isLiked) {
-        return PlaylistDetailsMetadata.from(playlistItem, emptyList(), isLiked, false, resources());
-    }
-
-    private PlaylistDetailsMetadata createPlaylistWithSingleTrack(Playlist playlistItem) {
-        return PlaylistDetailsMetadata.from(playlistItem, ModelFixtures.trackItems(1), false, false, resources());
-    }
-
-    private Playlist createPlaylist(Sharing sharing) {
-        return createPlaylistBuilder(sharing).build();
+        return PlaylistDetailsMetadata.from(playlistItem, emptyList(), isLiked, false, 0, PlaylistDetailsMetadata.OfflineOptions.AVAILABLE, resources(), false);
     }
 
     private Playlist.Builder createPlaylistBuilder(Sharing sharing) {

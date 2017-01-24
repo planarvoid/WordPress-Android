@@ -10,7 +10,9 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -86,6 +88,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistTrackItemRenderer trackItemRenderer;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
+    @Mock private FeatureOperations featureOperations;
+    @Mock private AccountOperations accountOperations;
     @Captor private ArgumentCaptor<List<PlaylistDetailItem>> trackItemCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -94,13 +98,12 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private Playlist playlist = ModelFixtures.playlist();
     private List<TrackItem> tracks = Arrays.asList(track1, track2);
 
-
     @Before
     public void setUp() throws Exception {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        final PlaylistDetailsViewModel model = PlaylistDetailsViewModel.from(playlist, tracks, false, false, resources());
+        final PlaylistDetailsViewModel model = PlaylistDetailFixtures.create(resources(), playlist, tracks);
         when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(model));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
         when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
@@ -318,8 +321,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
                 .setType(type)
                 .releaseDate(releaseDate)
                 .build();
-        // TODO liked?
-        return PlaylistDetailsViewModel.from(playlist, tracks, false, false, resources());
+
+        return PlaylistDetailFixtures.create(resources(), playlist, tracks);
     }
 
 }

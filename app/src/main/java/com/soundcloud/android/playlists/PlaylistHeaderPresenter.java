@@ -4,7 +4,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -24,7 +23,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
-import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -37,7 +35,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -60,15 +57,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragment>
-        implements PlaylistEngagementsView.OnEngagementListener, CellRenderer<PlaylistDetailsMetadata> {
+        implements PlaylistEngagementsRenderer.OnEngagementListener, CellRenderer<PlaylistDetailsMetadata> {
 
     private final EventBus eventBus;
     private final EventTracker eventTracker;
-    private final PlaylistHeaderViewFactory playlistDetailsViewFactory;
     private final Navigator navigator;
-    private final FeatureOperations featureOperations;
-    private final PlaylistEngagementsView playlistEngagementsView;
-    private final AccountOperations accountOperations;
+    private final PlaylistEngagementsRenderer playlistEngagementsRenderer;
     private final OfflineContentOperations offlineOperations;
     private final PlaybackInitiator playbackInitiator;
     private final PlaylistOperations playlistOperations;
@@ -76,11 +70,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
     private final ShareOperations shareOperations;
-    private final OfflineSettingsOperations offlineSettings;
-    private final NetworkConnectionHelper connectionHelper;
     private final PlayQueueHelper playQueueHelper;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
-    private final FeatureFlags featureFlags;
+    private FeatureFlags featureFlags;
+    private final PlaylistCoverRenderer playlistCoverRenderer;
+    private final FeatureOperations featureOperations;
 
     @LightCycle final PlaylistHeaderScrollHelper playlistHeaderScrollHelper;
 
@@ -97,12 +91,9 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Inject
     PlaylistHeaderPresenter(EventBus eventBus,
                             EventTracker eventTracker,
-                            PlaylistHeaderViewFactory playlistDetailsViewFactory,
                             Navigator navigator,
                             PlaylistHeaderScrollHelper playlistHeaderScrollHelper,
                             FeatureOperations featureOperations,
-                            PlaylistEngagementsView playlistEngagementsView,
-                            AccountOperations accountOperations,
                             OfflineContentOperations offlineOperations,
                             PlaybackInitiator playbackInitiator,
                             PlaylistOperations playlistOperations,
@@ -110,19 +101,18 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             LikeOperations likeOperations,
                             RepostOperations repostOperations,
                             ShareOperations shareOperations,
-                            OfflineSettingsOperations offlineSettings,
-                            NetworkConnectionHelper connectionHelper,
-                            PlayQueueHelper playQueueHelper,
                             OfflinePropertiesProvider offlinePropertiesProvider,
+                            PlayQueueHelper playQueueHelper,
+                            PlaylistCoverRenderer playlistCoverRenderer,
+                            PlaylistEngagementsRenderer playlistEngagementsRenderer,
                             FeatureFlags featureFlags) {
         this.eventBus = eventBus;
         this.eventTracker = eventTracker;
-        this.playlistDetailsViewFactory = playlistDetailsViewFactory;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.playlistHeaderScrollHelper = playlistHeaderScrollHelper;
-        this.playlistEngagementsView = playlistEngagementsView;
-        this.accountOperations = accountOperations;
+        this.playlistCoverRenderer = playlistCoverRenderer;
+        this.playlistEngagementsRenderer = playlistEngagementsRenderer;
         this.offlineOperations = offlineOperations;
         this.playbackInitiator = playbackInitiator;
         this.playlistOperations = playlistOperations;
@@ -130,8 +120,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
         this.shareOperations = shareOperations;
-        this.offlineSettings = offlineSettings;
-        this.connectionHelper = connectionHelper;
         this.playQueueHelper = playQueueHelper;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
@@ -176,6 +164,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                                                                    .subscribe(event -> playlistDetailsMetadata = (PlaylistDetailsMetadata) event.apply(playlistDetailsMetadata)),
                                                            eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()),
                                                            eventBus.subscribe(EventQueue.REPOST_CHANGED, new PlaylistRepostsSubscriber()));
+        subscribeForOfflineContentUpdates();
     }
 
     @Override
@@ -186,18 +175,13 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void onDestroyView(Fragment fragment) {
-        playlistEngagementsView.onDestroyView();
-    }
-
-    @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_details_view, parent, false);
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistDetailsMetadata> items) {
-        // todo : use this, instead of setPlaylist
+        // todo : use this, instead of bind
         headerView = Optional.of(itemView);
         bindItemView();
     }
@@ -218,22 +202,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private void bindItemView() {
         if (headerView.isPresent() && playlistDetailsMetadata != null) {
-            bindPlaylistHeader();
+            playlistCoverRenderer.bind(headerView.get(), playlistDetailsMetadata, this::onHeaderPlay, this::onGoToCreator);
             bingEngagementBars();
-        }
-    }
-
-    private void bindPlaylistHeader() {
-        if (headerView.isPresent()) {
-            PlaylistHeaderView playlistDetailsView = playlistDetailsViewFactory.create(headerView.get());
-            playlistDetailsView.setOnPlayButtonClickListener(v -> onHeaderPlay());
-            playlistDetailsView.setOnCreatorButtonClickListener(view -> {
-                if (playlistDetailsMetadata != null) {
-                    onGoToCreator();
-                }
-            });
-
-            playlistDetailsView.setPlaylist(playlistDetailsMetadata, playlistDetailsMetadata.canBePlayed());
         }
     }
 
@@ -251,21 +221,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void bingEngagementBars() {
-        updateEngagementBar();
-        toggleMyOptions();
-        togglePublicOptions();
-        toggleShuffleOption();
-
-        updateOfflineAvailability();
-        subscribeForOfflineContentUpdates();
-    }
-
-    private void updateEngagementBar() {
-        if (headerView.isPresent()) {
-            playlistEngagementsView.bindView(headerView.get(), playlistDetailsMetadata);
-            playlistEngagementsView.updateLikeItem(Optional.of(playlistDetailsMetadata.likesCount()), playlistDetailsMetadata.isLikedByUser());
-            playlistEngagementsView.setOnEngagementListener(this);
-        }
+        playlistEngagementsRenderer.bind(headerView.get(), playlistDetailsMetadata, this);
     }
 
     private void subscribeForOfflineContentUpdates() {
@@ -278,7 +234,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                     .map(properties -> properties.state(playlistDetailsMetadata.getUrn()));
         } else {
             offlineState = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                                   .filter(event -> event.entities.contains(playlistDetailsMetadata.getUrn()))
+                                   .filter(event -> playlistDetailsMetadata != null && event.entities.contains(playlistDetailsMetadata.getUrn()))
                                    .map(OfflineContentChangedEvent.TO_OFFLINE_STATE);
 
         }
@@ -288,52 +244,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                 .subscribe(new OfflineStateSubscriber());
     }
 
-    private void toggleShuffleOption() {
-        if (playlistDetailsMetadata.trackCount() > 1) {
-            playlistEngagementsView.enableShuffle();
-        } else {
-            playlistEngagementsView.disableShuffle();
-        }
-    }
 
-    private void toggleMyOptions() {
-        if (isOwned(playlistDetailsMetadata)) {
-            playlistEngagementsView.showMyOptions();
-        } else {
-            playlistEngagementsView.hideMyOptions();
-        }
-    }
-
-    private void togglePublicOptions() {
-        if (!playlistDetailsMetadata.isPrivate()) {
-            playlistEngagementsView.showPublicOptions(playlistDetailsMetadata.isRepostedByUser());
-        } else {
-            playlistEngagementsView.hidePublicOptions();
-        }
-    }
-
-    private boolean isOwned(PlaylistDetailsMetadata headerItem) {
-        return accountOperations.isLoggedInUser(headerItem.creatorUrn());
-    }
-
-    private void updateOfflineAvailability() {
-        updateOfflineAvailability(playlistDetailsMetadata.isMarkedForOffline());
-        playlistEngagementsView.showOfflineState(playlistDetailsMetadata.offlineState());
-    }
-
-    private void updateOfflineAvailability(boolean isPlaylistOfflineAvailable) {
-        if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
-            playlistEngagementsView.showOfflineOptions(isPlaylistOfflineAvailable);
-        } else if (featureOperations.upsellOfflineContent()) {
-            playlistEngagementsView.showUpsell();
-        } else {
-            playlistEngagementsView.hideOfflineOptions();
-        }
-    }
-
-    private boolean isEligibleForOfflineContent() {
-        return accountOperations.isLoggedInUser(playlistDetailsMetadata.creatorUrn()) || playlistDetailsMetadata.isLikedByUser();
-    }
 
     @Override
     public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
@@ -341,7 +252,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             fireAndForget(offlineOperations.makePlaylistAvailableOffline(playlistDetailsMetadata.getUrn()));
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
         } else if (offlineOperations.isOfflineCollectionEnabled()) {
-            playlistEngagementsView.setOfflineAvailability(true);
+//            playlistEngagementsRenderer.setOfflineAvailability(true);
             ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlistDetailsMetadata.getUrn(),
                                                                playSessionSource.getPromotedSourceInfo());
         } else {
@@ -464,20 +375,15 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private class OfflineStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState state) {
-            updateOfflineAvailability(state != OfflineState.NOT_OFFLINE);
-            playlistEngagementsView.showOfflineState(state);
+            if (playlistDetailsMetadata != null) {
+                playlistDetailsMetadata = playlistDetailsMetadata
+                        .toBuilder()
+                        .offlineState(state)
+                        .isMarkedForOffline(state != OfflineState.NOT_OFFLINE)
+                        .build();
 
-            if (state == OfflineState.REQUESTED) {
-                showConnectionWarningIfNecessary();
+                bindItemView();
             }
-        }
-    }
-
-    private void showConnectionWarningIfNecessary() {
-        if (offlineSettings.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected()) {
-            playlistEngagementsView.showNoWifi();
-        } else if (!connectionHelper.isNetworkConnected()) {
-            playlistEngagementsView.showNoConnection();
         }
     }
 
@@ -488,8 +394,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                 final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(playlistDetailsMetadata.getUrn());
                 if (likeStatus.isPresent()) {
                     playlistDetailsMetadata = playlistDetailsMetadata.updatedWithLikeStatus(likeStatus.get());
-                    playlistEngagementsView.updateLikeItem(likeStatus.get().likeCount(), likeStatus.get().isUserLike());
-                    updateOfflineAvailability();
+                    bindItemView();
                 }
             }
         }
@@ -502,7 +407,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                 final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(playlistDetailsMetadata.getUrn());
                 if (repostStatus.isPresent()) {
                     playlistDetailsMetadata = playlistDetailsMetadata.updatedWithRepostStatus(repostStatus.get());
-                    playlistEngagementsView.showPublicOptions(repostStatus.get().isReposted());
+                    bindItemView();
                 }
             }
         }

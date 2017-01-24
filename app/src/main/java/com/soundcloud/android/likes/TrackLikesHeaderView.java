@@ -6,10 +6,9 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadStateView;
+import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.view.IconToggleButton;
-import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
@@ -21,12 +20,12 @@ import android.widget.ImageButton;
 class TrackLikesHeaderView {
 
     private Resources resources;
-    private DownloadStateView downloadStateView;
+    private DownloadStateRenderer downloadStateRenderer;
 
     @BindView(R.id.shuffle_btn) ImageButton shuffleButton;
     @BindView(R.id.toggle_download) IconToggleButton downloadToggle;
 
-    private Optional<View> headerOpt;
+    private final View headerView;
 
     private int trackCount = Consts.NOT_SET;
     private final Listener listener;
@@ -40,26 +39,16 @@ class TrackLikesHeaderView {
     }
 
     TrackLikesHeaderView(@Provided Resources resources,
-                         @Provided DownloadStateView downloadStateView,
+                         @Provided DownloadStateRenderer downloadStateRenderer,
                          View view,
                          Listener listener) {
         this.resources = resources;
-        this.downloadStateView = downloadStateView;
+        this.downloadStateRenderer = downloadStateRenderer;
         this.listener = listener;
-
-        setupView(view, downloadStateView, listener);
-    }
-
-    private void setupView(View view,
-                           DownloadStateView downloadStateView,
-                           final TrackLikesHeaderView.Listener listener) {
-        final View headerView = view.findViewById(R.id.track_likes_header);
-        downloadStateView.onViewCreated(headerView);
-        headerOpt = Optional.of(headerView);
+        this.headerView = view.findViewById(R.id.track_likes_header);
 
         ButterKnife.bind(this, headerView);
         shuffleButton.setOnClickListener(v -> listener.onShuffle());
-
         if (trackCount >= 0) {
             updateTrackCount(trackCount);
         }
@@ -67,22 +56,22 @@ class TrackLikesHeaderView {
 
     @VisibleForTesting
     View getHeaderView() {
-        return headerOpt.get();
+        return headerView;
     }
 
     public void show(OfflineState state) {
-        downloadStateView.show(state);
+        downloadStateRenderer.show(state, headerView);
         if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
             updateTrackCount(trackCount);
         }
     }
 
     void showNoWifi() {
-        downloadStateView.setHeaderText(resources.getString(R.string.offline_no_wifi));
+        downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_wifi), headerView);
     }
 
     void showNoConnection() {
-        downloadStateView.setHeaderText(resources.getString(R.string.offline_no_connection));
+        downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_connection), headerView);
     }
 
     void setDownloadedButtonState(final boolean isOffline) {
@@ -106,11 +95,9 @@ class TrackLikesHeaderView {
 
     void updateTrackCount(int trackCount) {
         this.trackCount = trackCount;
-        if (headerOpt.isPresent()) {
-            headerOpt.get().setVisibility(trackCount == 0 ? View.GONE : View.VISIBLE);
-            downloadStateView.setHeaderText(getLikedTrackText(trackCount));
-            updateShuffleButton(trackCount);
-        }
+        headerView.setVisibility(trackCount == 0 ? View.GONE : View.VISIBLE);
+        downloadStateRenderer.setHeaderText(getLikedTrackText(trackCount), headerView);
+        updateShuffleButton(trackCount);
     }
 
     private String getLikedTrackText(int likedTracks) {
