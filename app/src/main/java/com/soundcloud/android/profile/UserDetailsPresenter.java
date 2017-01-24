@@ -128,10 +128,6 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userDetailsView.setFollowingsCount(numberFormatter.format(user.followingsCount()));
     }
 
-    private boolean hasLinks(User user) {
-        return hasDiscogs(user) || hasWebsite(user) || hasMyspace(user);
-    }
-
     private void setupBio(User user) {
         if (hasDescription(user)) {
             userDetailsView.showBio(user.description().get());
@@ -141,50 +137,11 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     private void setupLinks(User user) {
-        if (hasLinks(user)) {
-            userDetailsView.showLinksSection();
+        if (user.socialMediaLinks().isEmpty()) {
+            userDetailsView.hideLinks();
         } else {
-            userDetailsView.hideLinksSection();
+            userDetailsView.showLinks(user.socialMediaLinks());
         }
-        setupWebsite(user);
-        setupDiscogs(user);
-        setupMyspace(user);
-    }
-
-    private void setupWebsite(final User user) {
-        if (hasWebsite(user)) {
-            userDetailsView.showWebsite(user.websiteUrl().get(), user.websiteName().get());
-        } else {
-            userDetailsView.hideWebsite();
-        }
-    }
-
-    private void setupDiscogs(final User user) {
-        if (hasDiscogs(user)) {
-            userDetailsView.showDiscogs(user.discogsName().get());
-        } else {
-            userDetailsView.hideDiscogs();
-        }
-    }
-
-    private void setupMyspace(final User user) {
-        if (hasMyspace(user)) {
-            userDetailsView.showMyspace(user.mySpaceName().get());
-        } else {
-            userDetailsView.hideMyspace();
-        }
-    }
-
-    private boolean hasMyspace(User user) {
-        return user.mySpaceName().isPresent() && Strings.isNotBlank(user.mySpaceName().get());
-    }
-
-    private boolean hasWebsite(User user) {
-        return user.websiteUrl().isPresent() && Strings.isNotBlank(user.websiteUrl().get());
-    }
-
-    private boolean hasDiscogs(User user) {
-        return user.discogsName().isPresent() && Strings.isNotBlank(user.discogsName().get());
     }
 
     private boolean hasDescription(User user) {
