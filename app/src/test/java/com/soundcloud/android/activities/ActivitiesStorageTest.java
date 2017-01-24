@@ -13,7 +13,8 @@ import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestObserver;
@@ -180,32 +181,35 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     }
 
     private ActivityItem expectedPropertiesFor(ApiUserFollowActivity activity) {
-        return ActivityItem.fromPropertySet(PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.USER_FOLLOW),
-                ActivityProperty.DATE.bind(activity.getCreatedAt()),
-                ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
-                ActivityProperty.USER_URN.bind(activity.getUserUrn())
-        ));
+        return ActivityItem.create(
+                activity.getCreatedAt(),
+                ActivityKind.USER_FOLLOW,
+                activity.getUser().getUsername(),
+                Strings.EMPTY,
+                Optional.absent(),
+                activity.getUserUrn()
+        );
     }
 
     private ActivityItem expectedPropertiesFor(ApiTrackLikeActivity activity) {
-        return ActivityItem.fromPropertySet(PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.TRACK_LIKE),
-                ActivityProperty.DATE.bind(activity.getCreatedAt()),
-                ActivityProperty.PLAYABLE_TITLE.bind(activity.getTrack().getTitle()),
-                ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
-                ActivityProperty.USER_URN.bind(activity.getUserUrn())
-        ));
+        return ActivityItem.create(
+                activity.getCreatedAt(),
+                ActivityKind.TRACK_LIKE,
+                activity.getUser().getUsername(),
+                activity.getTrack().getTitle(),
+                Optional.absent(),
+                activity.getUserUrn()
+        );
     }
 
     private ActivityItem expectedPropertiesFor(ApiTrackCommentActivity activity) {
-        return ActivityItem.fromPropertySet(PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.TRACK_COMMENT),
-                ActivityProperty.DATE.bind(activity.getCreatedAt()),
-                ActivityProperty.COMMENTED_TRACK_URN.bind(activity.getTrack().getUrn()),
-                ActivityProperty.PLAYABLE_TITLE.bind(activity.getTrack().getTitle()),
-                ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
-                ActivityProperty.USER_URN.bind(activity.getUserUrn())
-        ));
+        return ActivityItem.create(
+                activity.getCreatedAt(),
+                ActivityKind.TRACK_COMMENT,
+                activity.getUser().getUsername(),
+                activity.getTrack().getTitle(),
+                Optional.of(activity.getTrack().getUrn()),
+                activity.getUserUrn()
+        );
     }
 }

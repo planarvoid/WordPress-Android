@@ -7,7 +7,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,12 +36,15 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindFollowActivity() {
         final Date oneHourAgo = new Date(System.currentTimeMillis() - 60 * 60 * 1000);
-        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.USER_FOLLOW),
-                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
-                ActivityProperty.USER_NAME.bind("follower"),
-                ActivityProperty.DATE.bind(oneHourAgo)
-        ));
+        final ActivityItem activityItem = ActivityItem.create(
+                oneHourAgo,
+                ActivityKind.USER_FOLLOW,
+                "follower",
+                Strings.EMPTY,
+                Optional.absent(),
+                Urn.forUser(123L)
+        );
+
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
         assertText(R.id.username, "follower");
@@ -51,13 +55,14 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindLikeActivity() {
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
-        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.TRACK_LIKE),
-                ActivityProperty.USER_NAME.bind("User name"),
-                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
-                ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
-                ActivityProperty.PLAYABLE_TITLE.bind("Sound title")
-        ));
+        final ActivityItem activityItem = ActivityItem.create(
+                fiftyTwoMinutesAgo,
+                ActivityKind.TRACK_LIKE,
+                "User name",
+                "Sound title",
+                Optional.absent(),
+                Urn.forUser(123L)
+        );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
         assertText(R.id.username, "User name");
@@ -68,13 +73,14 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindRepostActivity() {
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
-        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.TRACK_REPOST),
-                ActivityProperty.USER_NAME.bind("User name"),
-                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
-                ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
-                ActivityProperty.PLAYABLE_TITLE.bind("Sound title")
-        ));
+        final ActivityItem activityItem = ActivityItem.create(
+                fiftyTwoMinutesAgo,
+                ActivityKind.TRACK_REPOST,
+                "User name",
+                "Sound title",
+                Optional.absent(),
+                Urn.forUser(123L)
+        );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
         assertText(R.id.username, "User name");
@@ -85,13 +91,14 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindCommentActivity() {
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
-        final ActivityItem activityItem = ActivityItem.fromPropertySet(PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.TRACK_COMMENT),
-                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
-                ActivityProperty.USER_NAME.bind("User name"),
-                ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
-                ActivityProperty.PLAYABLE_TITLE.bind("Sound title")
-        ));
+        final ActivityItem activityItem = ActivityItem.create(
+                fiftyTwoMinutesAgo,
+                ActivityKind.TRACK_COMMENT,
+                "User name",
+                "Sound title",
+                Optional.absent(),
+                Urn.forUser(123L)
+        );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
         assertText(R.id.username, "User name");

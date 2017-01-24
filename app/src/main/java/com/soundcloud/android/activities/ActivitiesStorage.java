@@ -8,7 +8,8 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.TableColumns.ActivityView;
 import com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.sync.timeline.TimelineStorage;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
@@ -19,6 +20,7 @@ import rx.Observable;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
@@ -69,22 +71,22 @@ public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
     private static class ActivityRowMapper extends RxResultMapper<ActivityItem> {
         @Override
         public ActivityItem map(CursorReader reader) {
-            final PropertySet propertySet = PropertySet.create(reader.getRowCount());
-            final ActivityKind activityKind = ActivityKind.fromIdentifier(reader.getString(ActivityView.TYPE));
-            propertySet.put(ActivityProperty.KIND, activityKind);
-            propertySet.put(ActivityProperty.DATE, reader.getDateFromTimestamp(ActivityView.CREATED_AT));
-            propertySet.put(ActivityProperty.USER_URN, Urn.forUser(reader.getLong(ActivityView.USER_ID)));
-            propertySet.put(ActivityProperty.USER_NAME, reader.getString(ActivityView.USER_USERNAME));
+            final Date createdAt = reader.getDateFromTimestamp(ActivityView.CREATED_AT);
+            final ActivityKind kind = ActivityKind.fromIdentifier(reader.getString(ActivityView.TYPE));
+            final String userName = reader.getString(ActivityView.USER_USERNAME);
+            final Urn userUrn = Urn.forUser(reader.getLong(ActivityView.USER_ID));
 
-            if (ActivityKind.PLAYABLE_RELATED.contains(activityKind)) {
-                propertySet.put(ActivityProperty.PLAYABLE_TITLE, reader.getString(SoundView.TITLE));
-            }
+            final String title = ActivityKind.PLAYABLE_RELATED.contains(kind) ?
+                                 reader.getString(SoundView.TITLE) :
+                                 Strings.EMPTY;
+
             // we need to return the track URN for comments so that we can enter the comments screen
-            if (ActivityKind.TRACK_COMMENT.equals(activityKind)) {
-                final Urn trackUrn = Urn.forTrack(reader.getLong(ActivityView.SOUND_ID));
-                propertySet.put(ActivityProperty.COMMENTED_TRACK_URN, trackUrn);
-            }
-            return ActivityItem.fromPropertySet(propertySet);
+            final Optional<Urn> trackUrn = ActivityKind.TRACK_COMMENT.equals(kind) ?
+                                           Optional.of(Urn.forTrack(reader.getLong(ActivityView.SOUND_ID))) :
+                                           Optional.absent();
+
+
+            return ActivityItem.create(createdAt, kind, userName, title, trackUrn, userUrn);
         }
     }
 }
