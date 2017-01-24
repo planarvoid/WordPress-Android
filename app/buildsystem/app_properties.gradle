@@ -10,7 +10,6 @@ android {
     variant.resValue "bool", "verbose_logging", "false"
     variant.resValue "string", "public_api_base_url", "https://api.soundcloud.com"
     variant.resValue "string", "cast_receiver_app_id", "DCAC4134"
-    variant.resValue "string", "cast_v3_receiver_app_id", "4A41D106"
     variant.resValue "string", "comscore_c2", "16601931"
     variant.resValue "string", "comscore_secret", "e0579a59c522e051e0970b3279f1b077"
     variant.resValue "string", "krux_configuration_id", "Kn2GUF1O"
@@ -38,6 +37,8 @@ android {
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
       resValue "bool",   "log_queries", "true"
+
+      resValue "string", "cast_v3_receiver_app_id", "4A41D106"
     }
 
     alpha {
@@ -54,6 +55,8 @@ android {
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
       resValue "bool",   "log_queries", "true"
+
+      resValue "string", "cast_v3_receiver_app_id", "9A5289F5"
     }
 
     beta {
@@ -70,6 +73,8 @@ android {
       resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
       resValue "bool",   "log_queries", "true"
+
+      resValue "string", "cast_v3_receiver_app_id", "9A5289F5"
     }
 
     preRelease {
@@ -86,6 +91,8 @@ android {
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
       resValue "bool",   "log_queries", "false"
+
+      resValue "string", "cast_v3_receiver_app_id", "9A5289F5"
     }
 
     release {
@@ -102,6 +109,8 @@ android {
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
       resValue "bool",   "log_queries", "false"
+
+      resValue "string", "cast_v3_receiver_app_id", "9A5289F5"
     }
 
     releaseNonPlayStore {
@@ -118,6 +127,8 @@ android {
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
       resValue "bool",   "log_queries", "false"
+
+      resValue "string", "cast_v3_receiver_app_id", "9A5289F5"
     }
   }
 }
