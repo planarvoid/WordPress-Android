@@ -260,7 +260,7 @@
             </intent-filter>
         </activity>
         <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
-        <activity android:name=".playlists.PlaylistDetailActivity">
+        <activity android:name=".playlists.PlaylistDetailActivity" android:label="">
             <intent-filter>
                 <action android:name="${applicationId}.action.PLAYLIST"/>
                 <category android:name="android.intent.category.DEFAULT"/>
