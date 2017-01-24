@@ -49,13 +49,13 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Mock private SoundCloudApplication app;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private StoreUsersCommand storeUsersCommand;
-    @Mock private Bundle bundle;
     @Mock private AccountOperations accountOperations;
     @Mock private ApiClient apiClient;
     @Mock private Token token;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
 
+    private final Bundle bundle = new Bundle();
     private ApiUser user = ModelFixtures.create(ApiUser.class);
 
     private GooglePlusSignInTask task;
@@ -109,7 +109,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Test
     public void shouldRequestSpecificVisibleActivities() throws Exception {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
-        task.doInBackground(null);
+        task.doInBackground(bundle);
 
         ArgumentCaptor<Bundle> argumentCaptor = ArgumentCaptor.forClass(Bundle.class);
 
@@ -120,5 +120,4 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
                                    "http://schemas.google.com/ListenActivity");
 
     }
-
 }

@@ -15,7 +15,7 @@ import android.os.Looper;
 
 import java.util.Collections;
 
-public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskResult> {
+public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, LegacyAuthTaskResult> {
 
     private static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
@@ -45,7 +45,7 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
     }
 
     @Override
-    protected void onPostExecute(AuthTaskResult result) {
+    protected void onPostExecute(LegacyAuthTaskResult result) {
         if (fragment == null) {
             return;
         }

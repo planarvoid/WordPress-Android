@@ -1,10 +1,11 @@
 package com.soundcloud.android.api.oauth;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 
 import java.io.IOException;
@@ -31,12 +32,10 @@ public class Token implements Serializable {
     private static final String REFRESH_TOKEN = "refresh_token";
     private static final String SCOPE = "scope";
     private static final String EXPIRES_IN = "expires_in";
-
+    private final Map<String, String> customParameters = new ArrayMap<>();
     private String access, refresh;
     private long expiresAt;
     @Nullable private String scope;
-
-    private final Map<String, String> customParameters = new ArrayMap<>();
 
     /**
      * Constructs a new token with the given sub-tokens
@@ -55,8 +54,11 @@ public class Token implements Serializable {
         this.scope = scope;
     }
 
-    @VisibleForTesting
-    public Token(String access, String refresh, @Nullable String scope, long expiresAt) {
+    @JsonCreator
+    public Token(@JsonProperty(ACCESS_TOKEN) String access,
+                 @JsonProperty(REFRESH_TOKEN) @Nullable String refresh,
+                 @JsonProperty(SCOPE) @Nullable String scope,
+                 @JsonProperty(EXPIRES_IN) @Nullable long expiresAt) {
         this(access, refresh, scope);
         this.expiresAt = expiresAt;
     }
@@ -135,8 +137,14 @@ public class Token implements Serializable {
         return false;
     }
 
-    public boolean valid() {
+    // only use this one for public API. for api-mobile validation use #valid()
+    @Deprecated
+    public boolean legacyValid() {
         return access != null && (hasScope(SCOPE_NON_EXPIRING) || refresh != null);
+    }
+
+    public boolean valid() {
+        return access != null || refresh != null;
     }
 
     /**

@@ -11,6 +11,9 @@ import java.util.Locale;
 
 public enum ApiEndpoints {
 
+    // auth
+    SIGN_UP("/sign_up"),
+
     // gcm
     GCM_REGISTER("/push/register"),
     GCM_DEREGISTER("/push/deregister"),
@@ -79,6 +82,7 @@ public enum ApiEndpoints {
     MY_FOLLOWINGS("/you/followings"),
     FOLLOWINGS("/followings/%s/users"),
     FOLLOWERS("/followers/%s/users"),
+    USER_FOLLOWS("/follows/users/%s"),
 
     // profile
     MY_DOB("/you/profile/dob"),
@@ -147,11 +151,10 @@ public enum ApiEndpoints {
     LEGACY_USERS("/users"),
     TRACK_COMMENTS("/tracks/%s/comments"),
 
-    USER_FOLLOWS("/follows/users/%s"),
-
     OAUTH2_TOKEN("/oauth2/token"),
     RESET_PASSWORD("/passwords/reset-instructions");
 
+    private static final Function<Object, Object> encodingFunction = input -> Uri.encode(String.valueOf(input));
     private final String path;
 
     ApiEndpoints(String path) {
@@ -171,6 +174,4 @@ public enum ApiEndpoints {
         List encodedParams = Arrays.asList(pathParams);
         return String.format(Locale.US, path, encodedParams.toArray());
     }
-
-    private static final Function<Object, Object> encodingFunction = input -> Uri.encode(String.valueOf(input));
 }

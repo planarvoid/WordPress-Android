@@ -13,7 +13,8 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.auth.tasks.LegacyAuthTaskResult;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -33,7 +34,7 @@ import java.lang.ref.WeakReference;
 
 public abstract class AuthTaskFragment extends DialogFragment {
     private AuthTask task;
-    private AuthTaskResult result;
+    private LegacyAuthTaskResult result;
     private WeakReference<OnAuthResultListener> listenerRef;
 
     @Inject NetworkConnectionHelper networkConnectionHelper;
@@ -44,6 +45,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject ApiClient apiClient;
     @Inject StoreUsersCommand storeUsersCommand;
     @Inject SyncInitiatorBridge syncInitiatorBridge;
+    @Inject FeatureFlags featureFlags;
+    @Inject SignUpOperations signUpOperations;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(ApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
@@ -102,7 +105,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         try {
             listenerRef = new WeakReference<>((OnAuthResultListener) activity);
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnAuthResultListener");
+            throw new ClassCastException(activity + " must implement OnAuthResultListener");
         }
     }
 
@@ -135,7 +138,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         }
     }
 
-    public void onTaskResult(AuthTaskResult result) {
+    public void onTaskResult(LegacyAuthTaskResult result) {
         task = null;
         this.result = result;
         // Don't try to dismiss if we aren't in the foreground
@@ -144,7 +147,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         }
     }
 
-    protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
+    protected String getErrorFromResult(Activity activity, LegacyAuthTaskResult result) {
         final Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
         final boolean isNetworkUnavailable = !networkConnectionHelper.isNetworkConnected();
 
@@ -162,11 +165,10 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private void deliverResultAndDismiss() {
         final OnAuthResultListener listener = listenerRef.get();
         if (listener != null) {
-            log(INFO, ONBOARDING_TAG, "auth result will be sent to listener: " + result.toString());
+            log(INFO, ONBOARDING_TAG, "auth result will be sent to listener: " + result);
 
             if (result.wasSuccess()) {
-                listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
-                                            this instanceof SignupTaskFragment);
+                listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(), this instanceof SignupTaskFragment);
             } else if (result.wasEmailTaken()) {
                 listener.onEmailTaken();
             } else if (result.wasSpam()) {
@@ -190,7 +192,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         dismiss();
     }
 
-    private boolean shouldAllowFeedback(AuthTaskResult result) {
+    private boolean shouldAllowFeedback(LegacyAuthTaskResult result) {
         return networkConnectionHelper.isNetworkConnected() && result.wasUnexpectedError();
     }
 }

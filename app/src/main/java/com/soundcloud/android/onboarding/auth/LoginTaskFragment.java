@@ -3,7 +3,7 @@ package com.soundcloud.android.onboarding.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.auth.tasks.LegacyAuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.LoginTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +36,7 @@ public class LoginTaskFragment extends AuthTaskFragment {
     }
 
     @Override
-    protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
+    protected String getErrorFromResult(Activity activity, LegacyAuthTaskResult result) {
         if (result.wasUnauthorized()) {
             return activity.getString(R.string.authentication_login_error_password_message);
         } else {

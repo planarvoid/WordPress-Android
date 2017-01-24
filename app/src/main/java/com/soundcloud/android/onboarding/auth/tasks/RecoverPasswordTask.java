@@ -1,6 +1,6 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import static com.soundcloud.android.api.ApiRequestException.Reason.*;
+import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiClient;
@@ -14,6 +14,7 @@ import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 
 public class RecoverPasswordTask extends AsyncTask<String, Void, Boolean> {
     private final TokenInformationGenerator tokenInformationGenerator;
@@ -34,6 +35,12 @@ public class RecoverPasswordTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(String... params) {
+        return legacyRecoverPassword(params);
+    }
+
+    @NonNull
+    @Deprecated // this uses public API
+    private Boolean legacyRecoverPassword(String... params) {
         final String email = params[0];
 
         ApiRequestException failure;

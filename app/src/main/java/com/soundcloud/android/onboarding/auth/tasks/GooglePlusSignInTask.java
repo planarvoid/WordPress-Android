@@ -31,9 +31,9 @@ public class GooglePlusSignInTask extends LoginTask {
     private static final String LISTEN_ACTIVITY = "http://schemas.google.com/ListenActivity";
 
     private static final String[] REQUEST_ACTIVITIES = {ADD_ACTIVITY, CREATE_ACTIVITY, LISTEN_ACTIVITY};
-
+    protected String accountName;
+    protected String scope;
     private Bundle extras;
-    protected String accountName, scope;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
                                 TokenInformationGenerator tokenInformationGenerator, StoreUsersCommand userStorage,
@@ -54,8 +54,8 @@ public class GooglePlusSignInTask extends LoginTask {
     }
 
     @Override
-    protected AuthTaskResult doInBackground(Bundle... params) {
-        AuthTaskResult result = null;
+    protected LegacyAuthTaskResult doInBackground(Bundle... params) {
+        LegacyAuthTaskResult result = null;
         boolean googleTokenValid = false;
         for (int triesLeft = 2; triesLeft > 0 && !googleTokenValid; triesLeft--) {
             try {
@@ -69,18 +69,18 @@ public class GooglePlusSignInTask extends LoginTask {
                 }
             } catch (IOException e) {
                 Log.e(TAG, "error retrieving google token", e);
-                result = AuthTaskResult.networkError(e);
+                result = LegacyAuthTaskResult.networkError(e);
                 triesLeft = 0;
             } catch (Exception e) {
                 Log.e(TAG, "error retrieving google token", e);
-                result = AuthTaskResult.failure(e);
+                result = LegacyAuthTaskResult.failure(e);
                 triesLeft = 0;
             }
         }
         return result;
     }
 
-    protected AuthTaskResult login(String token) {
+    protected LegacyAuthTaskResult login(String token) {
         return login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_GOOGLE_PLUS, token));
     }
 }

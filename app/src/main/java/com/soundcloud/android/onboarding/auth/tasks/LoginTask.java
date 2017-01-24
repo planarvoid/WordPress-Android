@@ -54,11 +54,16 @@ public class LoginTask extends AuthTask {
     }
 
     @Override
-    protected AuthTaskResult doInBackground(Bundle... params) {
+    protected LegacyAuthTaskResult doInBackground(Bundle... params) {
         return login(params[0]);
     }
 
-    protected AuthTaskResult login(Bundle data) {
+    protected LegacyAuthTaskResult login(Bundle data) {
+        return legacyLogin(data);
+    }
+
+    @Deprecated
+    private LegacyAuthTaskResult legacyLogin(Bundle data) {
         try {
             Token token = tokenUtils.getToken(data);
             boolean isConflictingDevice = data.getBoolean(IS_CONFLICTING_DEVICE);
@@ -67,17 +72,17 @@ public class LoginTask extends AuthTask {
                 DeviceManagement deviceManagement = configurationOperations.forceRegisterDevice(token);
                 if (deviceManagement.isUnauthorized()) {
                     // Still unauthorized after force register. Fail with generic error to avoid looping.
-                    return AuthTaskResult.failure(getString(R.string.error_server_problems_message));
+                    return LegacyAuthTaskResult.failure(getString(R.string.error_server_problems_message));
                 }
             } else {
                 DeviceManagement deviceManagement = configurationOperations.registerDevice(token);
                 if (deviceManagement.isRecoverableBlock()) {
                     // 3 active device limit. Can be force registered by replacing conflicting device.
                     data.putBoolean(IS_CONFLICTING_DEVICE, true);
-                    return AuthTaskResult.deviceConflict(data);
+                    return LegacyAuthTaskResult.deviceConflict(data);
                 } else if (deviceManagement.isUnrecoverableBlock()) {
                     // 10 registered device limit. Cannot proceed until another device de-registers.
-                    return AuthTaskResult.deviceBlock();
+                    return LegacyAuthTaskResult.deviceBlock();
                 }
             }
 
@@ -86,23 +91,23 @@ public class LoginTask extends AuthTask {
             final Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {
             });
             if (me == null) {
-                return AuthTaskResult.failure(getString(R.string.authentication_error_no_connection_message));
+                return LegacyAuthTaskResult.failure(getString(R.string.authentication_error_no_connection_message));
             }
 
             SignupVia signupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
             if (!addAccount(me.getUser(), token, signupVia)) {
                 ErrorUtils.handleSilentException(new AddAccountException());
-                return AuthTaskResult.failure(getString(R.string.authentication_login_error_message));
+                return LegacyAuthTaskResult.failure(getString(R.string.authentication_login_error_message));
             }
 
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
-            return AuthTaskResult.success(me.getUser(), signupVia, tokenUtils.isFromFacebook(data));
+            return LegacyAuthTaskResult.success(me.getUser(), signupVia);
         } catch (ApiRequestException e) {
             log(INFO, ONBOARDING_TAG, "error logging in: " + e.getMessage());
-            return AuthTaskResult.failure(e);
+            return LegacyAuthTaskResult.failure(e);
         } catch (Exception e) {
             log(INFO, ONBOARDING_TAG, "error retrieving SC API token: " + e.getMessage());
-            return AuthTaskResult.failure(new TokenRetrievalException(e));
+            return LegacyAuthTaskResult.failure(new TokenRetrievalException(e));
         }
     }
 

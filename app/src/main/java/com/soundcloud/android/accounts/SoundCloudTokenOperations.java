@@ -15,11 +15,11 @@ class SoundCloudTokenOperations {
     private Token token = Token.EMPTY;
 
     @Inject
-    public SoundCloudTokenOperations(AccountManager accountManager) {
+    SoundCloudTokenOperations(AccountManager accountManager) {
         this.accountManager = accountManager;
     }
 
-    public void storeSoundCloudTokenData(@Nullable Account account, Token token) {
+    void storeSoundCloudTokenData(@Nullable Account account, Token token) {
         if (account != null) {
             accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), Long.toString(token.getExpiresAt()));
             accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.getScope());
@@ -28,7 +28,7 @@ class SoundCloudTokenOperations {
         }
     }
 
-    public Token getTokenFromAccount(@Nullable Account account) {
+    Token getTokenFromAccount(@Nullable Account account) {
         if (token == Token.EMPTY && account != null) {
             token = new Token(getAccessToken(account), getRefreshToken(account), getScope(account));
         }
@@ -39,7 +39,7 @@ class SoundCloudTokenOperations {
         this.token = token;
     }
 
-    public void invalidateToken(Token expired, @Nullable Account account) {
+    void invalidateToken(Token expired, @Nullable Account account) {
         if (account != null) {
             accountManager.invalidateAuthToken(
                     account.type,
@@ -55,7 +55,7 @@ class SoundCloudTokenOperations {
         }
     }
 
-    public void resetToken() {
+    void resetToken() {
         token = Token.EMPTY;
     }
 

@@ -85,7 +85,7 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Test
     public void shouldReturnAuthenticationFailureIfUserPersistenceFails() throws Exception {
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), any(TypeToken.class))).thenThrow(new IOException());
-        AuthTaskResult result = loginTask.doInBackground(bundle);
+        LegacyAuthTaskResult result = loginTask.doInBackground(bundle);
         assertThat(result.wasSuccess()).isFalse();
     }
 
@@ -134,7 +134,7 @@ public class LoginTaskTest extends AndroidUnitTest {
         setupMocksToReturnToken();
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, true));
 
-        AuthTaskResult result = loginTask.doInBackground(bundle);
+        LegacyAuthTaskResult result = loginTask.doInBackground(bundle);
 
         assertThat(result.wasDeviceConflict()).isTrue();
         assertThat(result.getLoginBundle()).isSameAs(bundle);
@@ -146,7 +146,7 @@ public class LoginTaskTest extends AndroidUnitTest {
         setupMocksToReturnToken();
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, false));
 
-        AuthTaskResult result = loginTask.doInBackground(bundle);
+        LegacyAuthTaskResult result = loginTask.doInBackground(bundle);
 
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.wasDeviceBlock()).isTrue();
@@ -158,7 +158,7 @@ public class LoginTaskTest extends AndroidUnitTest {
         when(configurationOperations.forceRegisterDevice(token)).thenReturn(new DeviceManagement(false, true));
         bundle.putBoolean(LoginTask.IS_CONFLICTING_DEVICE, true);
 
-        AuthTaskResult result = loginTask.doInBackground(bundle);
+        LegacyAuthTaskResult result = loginTask.doInBackground(bundle);
 
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.getException()).isInstanceOf(AuthTaskException.class);

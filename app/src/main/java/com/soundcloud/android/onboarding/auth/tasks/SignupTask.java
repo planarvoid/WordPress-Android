@@ -12,10 +12,13 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.onboarding.auth.SignUpOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 
 import android.os.Bundle;
@@ -33,37 +36,53 @@ public class SignupTask extends AuthTask {
 
     private TokenInformationGenerator tokenUtils;
     private ApiClient apiClient;
+    private final FeatureFlags featureFlags;
+    private final SignUpOperations signUpOperations;
 
     public SignupTask(SoundCloudApplication soundCloudApplication,
                       StoreUsersCommand storeUsersCommand,
                       TokenInformationGenerator tokenUtils,
                       ApiClient apiClient,
-                      SyncInitiatorBridge syncInitiatorBridge) {
+                      SyncInitiatorBridge syncInitiatorBridge,
+                      FeatureFlags featureFlags,
+                      SignUpOperations signUpOperations) {
         super(soundCloudApplication, storeUsersCommand, syncInitiatorBridge);
         this.tokenUtils = tokenUtils;
         this.apiClient = apiClient;
+        this.featureFlags = featureFlags;
+        this.signUpOperations = signUpOperations;
     }
 
     @Override
-    protected AuthTaskResult doInBackground(Bundle... params) {
+    protected LegacyAuthTaskResult doInBackground(Bundle... params) {
+        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
+            AuthTaskResult result = signUpOperations.signUp(params[0]);
+            return LegacyAuthTaskResult.fromAuthTaskResult(result);
+        } else {
+            return legacySignup(params[0]);
+        }
+    }
+
+    @Deprecated // this uses public API
+    private LegacyAuthTaskResult legacySignup(Bundle parameters) {
         final SoundCloudApplication app = getSoundCloudApplication();
-        final AuthTaskResult result = doSignup(params[0]);
+        final LegacyAuthTaskResult result = doSignup(parameters);
 
         if (result.wasSuccess()) {
             try {
-                final Token token = tokenUtils.getToken(params[0]);
+                final Token token = tokenUtils.getToken(parameters);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
-                    return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
+                    return LegacyAuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
             } catch (ApiRequestException e) {
-                return AuthTaskResult.signUpFailedToLogin(e);
+                return LegacyAuthTaskResult.signUpFailedToLogin(e);
             }
         }
         return result;
     }
 
     @VisibleForTesting
-    AuthTaskResult doSignup(Bundle parameters) {
+    LegacyAuthTaskResult doSignup(Bundle parameters) {
         try {
             final ApiRequest request = ApiRequest.post(ApiEndpoints.LEGACY_USERS.path())
                                                  .forPublicApi()
@@ -72,45 +91,45 @@ public class SignupTask extends AuthTask {
                                                  .build();
 
             ApiUser user = apiClient.fetchMappedResponse(request, PublicApiUser.class).toApiMobileUser();
-            return AuthTaskResult.success(user, SignupVia.API, false);
+            return LegacyAuthTaskResult.success(user, SignupVia.API);
         } catch (TokenRetrievalException e) {
-            return AuthTaskResult.failure(getString(R.string.signup_scope_revoked));
+            return LegacyAuthTaskResult.failure(getString(R.string.signup_scope_revoked));
         } catch (ApiMapperException e) {
-            return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message));
+            return LegacyAuthTaskResult.failure(getString(R.string.authentication_signup_error_message));
         } catch (ApiRequestException e) {
             return handleError(e);
         } catch (IOException e) {
-            return AuthTaskResult.failure(e);
+            return LegacyAuthTaskResult.failure(e);
         }
     }
 
-    private AuthTaskResult handleError(ApiRequestException exception) {
+    private LegacyAuthTaskResult handleError(ApiRequestException exception) {
         switch (exception.reason()) {
             case VALIDATION_ERROR:
                 return handleUnprocessableEntity(exception.errorCode(), exception);
             case NOT_ALLOWED:
-                return AuthTaskResult.denied(exception);
+                return LegacyAuthTaskResult.denied(exception);
             case SERVER_ERROR:
-                return AuthTaskResult.failure(getString(R.string.error_server_problems_message), exception);
+                return LegacyAuthTaskResult.failure(getString(R.string.error_server_problems_message), exception);
             default:
-                return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message), exception);
+                return LegacyAuthTaskResult.failure(getString(R.string.authentication_signup_error_message), exception);
         }
     }
 
-    private AuthTaskResult handleUnprocessableEntity(int errorCode, ApiRequestException exception) {
+    private LegacyAuthTaskResult handleUnprocessableEntity(int errorCode, ApiRequestException exception) {
         switch (errorCode) {
             case SignupResponseBody.ERROR_EMAIL_TAKEN:
-                return AuthTaskResult.emailTaken(exception);
+                return LegacyAuthTaskResult.emailTaken(exception);
             case SignupResponseBody.ERROR_DOMAIN_BLACKLISTED:
-                return AuthTaskResult.denied(exception);
+                return LegacyAuthTaskResult.denied(exception);
             case SignupResponseBody.ERROR_CAPTCHA_REQUIRED:
-                return AuthTaskResult.spam(exception);
+                return LegacyAuthTaskResult.spam(exception);
             case SignupResponseBody.ERROR_EMAIL_INVALID:
-                return AuthTaskResult.emailInvalid(exception);
+                return LegacyAuthTaskResult.emailInvalid(exception);
             case SignupResponseBody.ERROR_OTHER:
-                return AuthTaskResult.failure(getString(R.string.authentication_email_other_error_message), exception);
+                return LegacyAuthTaskResult.failure(getString(R.string.authentication_email_other_error_message), exception);
             default:
-                return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message), exception);
+                return LegacyAuthTaskResult.failure(getString(R.string.authentication_signup_error_message), exception);
         }
     }
 

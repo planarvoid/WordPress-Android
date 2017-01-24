@@ -24,7 +24,6 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageConfigurationStorage;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
@@ -50,7 +49,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private PlanChangeDetector planChangeDetector;
     @Mock private ForceUpdateHandler forceUpdateHandler;
     @Mock private PendingPlanOperations pendingPlanOperations;
-    @Mock private FeatureFlags featureFlags;
     @Mock private DeviceManagementStorage deviceManagementStorage;
     @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
     @Mock private ImageConfigurationStorage imageConfigurationStorage;

@@ -48,7 +48,7 @@ public class AddUserInfoTask extends AuthTask {
     }
 
     @Override
-    protected AuthTaskResult doInBackground(Bundle... params) {
+    protected LegacyAuthTaskResult doInBackground(Bundle... params) {
         try {
             ApiRequest.Builder request = ApiRequest.put(ApiEndpoints.CURRENT_USER.path())
                                                    .forPublicApi();
@@ -64,11 +64,11 @@ public class AddUserInfoTask extends AuthTask {
             }
             ApiUser updatedUser = apiClient.fetchMappedResponse(request.build(), PublicApiUser.class).toApiMobileUser();
             addAccount(updatedUser, accountOperations.getSoundCloudToken(), SignupVia.API);
-            return AuthTaskResult.success(updatedUser, SignupVia.API, false);
+            return LegacyAuthTaskResult.success(updatedUser, SignupVia.API);
         } catch (ApiRequestException e) {
-            return AuthTaskResult.failure(e);
+            return LegacyAuthTaskResult.failure(e);
         } catch (IOException | ApiMapperException e) {
-            return AuthTaskResult.failure(e);
+            return LegacyAuthTaskResult.failure(e);
         }
     }
 }

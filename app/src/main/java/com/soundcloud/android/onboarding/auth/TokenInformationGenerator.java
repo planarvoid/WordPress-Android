@@ -17,7 +17,10 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
 
-//TODO Move into TokenOperations
+/**
+ * User {@link SignInOperations} once public-API authentication is removed
+ */
+@Deprecated
 public class TokenInformationGenerator {
     private final ApiClient apiClient;
     private final OAuth oAuth;
