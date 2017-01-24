@@ -13,6 +13,7 @@ public enum ApiEndpoints {
 
     // auth
     SIGN_UP("/sign_up"),
+    RESET_PASSWORD("/users/passwords/reset"),
 
     // gcm
     GCM_REGISTER("/push/register"),
@@ -152,7 +153,7 @@ public enum ApiEndpoints {
     TRACK_COMMENTS("/tracks/%s/comments"),
 
     OAUTH2_TOKEN("/oauth2/token"),
-    RESET_PASSWORD("/passwords/reset-instructions");
+    LEGACY_RESET_PASSWORD("/passwords/reset-instructions");
 
     private static final Function<Object, Object> encodingFunction = input -> Uri.encode(String.valueOf(input));
     private final String path;

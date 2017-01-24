@@ -10,7 +10,10 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.onboarding.auth.RecoverPasswordOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -21,21 +24,31 @@ public class RecoverPasswordTask extends AsyncTask<String, Void, Boolean> {
     private final OAuth oAuth;
     private final ApiClient apiClient;
     private final Resources resources;
+    private final FeatureFlags featureFlags;
+    private final RecoverPasswordOperations recoverPasswordOperations;
     protected String reason;
 
     protected RecoverPasswordTask(TokenInformationGenerator tokenInformationGenerator,
                                   OAuth oAuth,
                                   ApiClient apiClient,
-                                  Resources resources) {
+                                  Resources resources,
+                                  FeatureFlags featureFlags,
+                                  RecoverPasswordOperations recoverPasswordOperations) {
         this.tokenInformationGenerator = tokenInformationGenerator;
         this.oAuth = oAuth;
         this.apiClient = apiClient;
         this.resources = resources;
+        this.featureFlags = featureFlags;
+        this.recoverPasswordOperations = recoverPasswordOperations;
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
-        return legacyRecoverPassword(params);
+        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
+            return recoverPasswordOperations.recoverPassword(params[0]);
+        } else {
+            return legacyRecoverPassword(params);
+        }
     }
 
     @NonNull
@@ -46,7 +59,7 @@ public class RecoverPasswordTask extends AsyncTask<String, Void, Boolean> {
         ApiRequestException failure;
         try {
             Token signup = tokenInformationGenerator.requestToken(oAuth.getTokenRequestParamsFromClientCredentials());
-            ApiResponse apiResponse = apiClient.fetchResponse(ApiRequest.post(ApiEndpoints.RESET_PASSWORD.path())
+            ApiResponse apiResponse = apiClient.fetchResponse(ApiRequest.post(ApiEndpoints.LEGACY_RESET_PASSWORD.path())
                                                                         .forPublicApi()
                                                                         .addQueryParam("email", email)
                                                                         .withToken(signup)

@@ -9,6 +9,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.onboarding.auth.tasks.RecoverPasswordTask;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -33,6 +34,8 @@ public class RecoverActivity extends RootActivity {
     @Inject TokenInformationGenerator tokenInformationGenerator;
     @Inject OAuth oAuth;
     @Inject ApiClient apiClient;
+    @Inject FeatureFlags featureFlags;
+    @Inject RecoverPasswordOperations recoverPasswordOperations;
 
     public RecoverActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -91,7 +94,7 @@ public class RecoverActivity extends RootActivity {
     }
 
     private void recoverPassword(final String email) {
-        new RecoverPasswordTask(tokenInformationGenerator, oAuth, apiClient, resources) {
+        new RecoverPasswordTask(tokenInformationGenerator, oAuth, apiClient, resources, featureFlags, recoverPasswordOperations) {
             private ProgressDialog progressDialog;
 
             @Override
