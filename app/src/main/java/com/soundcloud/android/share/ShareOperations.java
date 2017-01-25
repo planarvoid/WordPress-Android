@@ -3,27 +3,39 @@ package com.soundcloud.android.share;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.firebase.FirebaseDynamicLinksApi;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.strings.Strings;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 public class ShareOperations {
 
     private static final String SHARE_TYPE = "text/plain";
 
+    private final FeatureFlags featureFlags;
     private final EventTracker eventTracker;
+    private final FirebaseDynamicLinksApi firebaseDynamicLinksApi;
 
     @Inject
-    public ShareOperations(EventTracker eventTracker) {
+    public ShareOperations(FeatureFlags featureFlags, EventTracker eventTracker, FirebaseDynamicLinksApi firebaseDynamicLinksApi) {
+        this.featureFlags = featureFlags;
         this.eventTracker = eventTracker;
+        this.firebaseDynamicLinksApi = firebaseDynamicLinksApi;
     }
 
     public void share(Context context, PlayableItem playable, EventContextMetadata contextMetadata,
@@ -41,8 +53,33 @@ public class ShareOperations {
                       final EventContextMetadata contextMetadata,
                       final PromotedSourceInfo promotedSourceInfo,
                       final EntityMetadata entityMetadata) {
-            startShareActivity(context, entityMetadata.playableTitle, entityMetadata.creatorName, permalink);
-            publishShareTracking(contextMetadata, promotedSourceInfo, entityMetadata.playableUrn, entityMetadata);
+        if (featureFlags.isEnabled(Flag.DYNAMIC_LINKS)) {
+            firebaseDynamicLinksApi.createDynamicLink(permalink).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                    new DefaultSubscriber<String>() {
+                        @Override
+                        public void onNext(String dynamicLink) {
+                            String shortLink = dynamicLink + "?" + Uri.parse(permalink).getPath();
+                            shareAndTrack(context, shortLink, contextMetadata, promotedSourceInfo, entityMetadata);
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            if (throwable instanceof IOException) {
+                                Log.e("Failed to retrieve dynamic link. Falling back to original URL.", throwable);
+                                shareAndTrack(context, permalink, contextMetadata, promotedSourceInfo, entityMetadata);
+                            } else {
+                                super.onError(throwable);
+                            }
+                        }
+                    });
+        } else {
+            shareAndTrack(context, permalink, contextMetadata, promotedSourceInfo, entityMetadata);
+        }
+    }
+
+    private void shareAndTrack(Context context, String permalink, EventContextMetadata contextMetadata, PromotedSourceInfo promotedSourceInfo, EntityMetadata entityMetadata) {
+        startShareActivity(context, entityMetadata.playableTitle, entityMetadata.creatorName, permalink);
+        publishShareTracking(contextMetadata, promotedSourceInfo, entityMetadata.playableUrn, entityMetadata);
     }
 
     private void startShareActivity(Context context,

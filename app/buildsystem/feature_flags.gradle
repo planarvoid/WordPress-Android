@@ -32,7 +32,8 @@ enum Feature {
   FORCE_SHOW_WELCOME_USER,
   ALIGNED_USER_INFO,
   VIDEO_INLAYS,
-  AUTH_API_MOBILE;
+  AUTH_API_MOBILE,
+  DYNAMIC_LINKS;
 }
 
 android {
@@ -62,6 +63,7 @@ android {
     buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.DYNAMIC_LINKS.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {

@@ -38,7 +38,8 @@ public enum Flag {
     ALIGNED_USER_INFO(BuildConfig.ALIGNED_USER_INFO),
     OFFLINE_PROPERTIES_PROVIDER(BuildConfig.OFFLINE_PROPERTIES_PROVIDER),
     VIDEO_INLAYS(BuildConfig.VIDEO_INLAYS),
-    AUTH_API_MOBILE(BuildConfig.AUTH_API_MOBILE);
+    AUTH_API_MOBILE(BuildConfig.AUTH_API_MOBILE),
+    DYNAMIC_LINKS(BuildConfig.DYNAMIC_LINKS);
 
     private final State state;
 
