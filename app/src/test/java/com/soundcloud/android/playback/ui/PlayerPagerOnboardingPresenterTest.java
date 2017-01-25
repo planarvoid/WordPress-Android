@@ -5,7 +5,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.configuration.experiments.PlayerSwipeToSkipExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -20,7 +19,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class PlayerPagerOnboardingPresenterTest {
     private final TestEventBus eventBus = new TestEventBus();
 
-    @Mock private PlayerSwipeToSkipExperiment experiment;
     @Mock private PlayerPagerOnboardingStorage storage;
     @Mock private PlayerFragment fragment;
     @Mock private PlayerTrackPager pager;
@@ -32,25 +30,13 @@ public class PlayerPagerOnboardingPresenterTest {
         when(fragment.getPlayerPager()).thenReturn(pager);
         when(pager.getChildCount()).thenReturn(2);
         presenter = new PlayerPagerOnboardingPresenter(
-                experiment,
                 storage,
                 eventBus
         );
     }
 
     @Test
-    public void skipOnboardingIsInactiveWhenExperimentDisabled() {
-        when(experiment.isEnabled()).thenReturn(false);
-        presenter.onResume(fragment);
-
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-
-        verify(pager, never()).beginFakeDrag();
-    }
-
-    @Test
     public void showSkipOnboardingWhenPlayerExpends() {
-        when(experiment.isEnabled()).thenReturn(true);
         presenter.onResume(fragment);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
@@ -60,7 +46,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void doNotShowSkipOnboardingWhenPlayerCollasped() {
-        when(experiment.isEnabled()).thenReturn(true);
         presenter.onResume(fragment);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
@@ -70,7 +55,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void doNotShowSkipOnboardingWhenPlayedIsOffScreen() {
-        when(experiment.isEnabled()).thenReturn(true);
         presenter.onResume(fragment);
         presenter.onPause(fragment);
 
@@ -81,7 +65,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void showSkipOnboardingOnly3Times() {
-        when(experiment.isEnabled()).thenReturn(true);
         presenter.onResume(fragment);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());

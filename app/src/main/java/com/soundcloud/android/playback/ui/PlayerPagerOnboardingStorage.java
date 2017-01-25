@@ -7,9 +7,9 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-class PlayerPagerOnboardingStorage {
+public class PlayerPagerOnboardingStorage {
 
-    private static final String NUMBER_OF_ONBOARDING_RUN = "NUMBER_OF_ONBOARDING_RUN";
+    public static final String NUMBER_OF_ONBOARDING_RUN = "NUMBER_OF_ONBOARDING_RUN";
     private final SharedPreferences preferences;
 
     @Inject

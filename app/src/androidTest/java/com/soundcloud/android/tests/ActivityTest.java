@@ -64,6 +64,9 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         // the introductory overlay blocks interaction with the player, so disable it
         ConfigurationHelper.disableIntroductoryOverlays(getInstrumentation().getTargetContext());
 
+        // Player pager nudge onboarding interferes with player tests, so disable it
+        ConfigurationHelper.disablePagerOnboarding(getInstrumentation().getTargetContext());
+
         beforeLogIn();
         logIn();
         observeToasts();
