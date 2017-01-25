@@ -123,8 +123,8 @@ public class EntityMetadata {
         }
 
         return new EntityMetadata(
-                track.creatorName().or(Strings.EMPTY),
-                track.creatorUrn().or(Urn.NOT_SET),
+                track.creatorName(),
+                track.creatorUrn(),
                 track.title(),
                 track.urn());
     }

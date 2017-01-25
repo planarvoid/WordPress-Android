@@ -20,6 +20,10 @@ class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, Li
 
     private final TrackItem trackItem;
 
+    TrackLikesTrackItem(Track track) {
+        this(TrackItem.from(track));
+    }
+
     TrackLikesTrackItem(TrackItem trackItem) {
         super(Kind.TrackItem);
         this.trackItem = trackItem;

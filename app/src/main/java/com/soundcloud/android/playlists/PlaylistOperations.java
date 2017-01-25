@@ -30,6 +30,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
@@ -204,20 +205,20 @@ public class PlaylistOperations {
                             .subscribeOn(scheduler);
     }
 
-    private Observable<Pair<Playlist, List<TrackItem>>> playlistWithTracks(Urn playlistUrn) {
+    private Observable<Pair<Playlist, List<Track>>> playlistWithTracks(Urn playlistUrn) {
         return Observable.combineLatest(playlistRepository.withUrn(playlistUrn),
                               trackRepository
                                       .forPlaylist(playlistUrn)
-                                      .startWith(Collections.<TrackItem>emptyList())
+                                      .startWith(Collections.<Track>emptyList())
                                       .debounce(300, TimeUnit.MILLISECONDS)
                                       .onErrorResumeNext(throwable -> just(Collections.emptyList())),
                               Pair::of).switchIfEmpty(error(new PlaylistMissingException()));
     }
 
-    private Func1<Pair<Playlist, List<TrackItem>>, Observable<PlaylistDetailsViewModel>> addOtherPlaylists() {
+    private Func1<Pair<Playlist, List<Track>>, Observable<PlaylistDetailsViewModel>> addOtherPlaylists() {
         return playlistWithTracks -> {
             final Playlist playlist = playlistWithTracks.first();
-            final List<TrackItem> tracks = playlistWithTracks.second();
+            final List<Track> tracks = playlistWithTracks.second();
 
             if (tracks.isEmpty() || featureFlags.isDisabled(Flag.OTHER_PLAYLISTS_BY_CREATOR)) {
                 return just(Collections.<Playlist>emptyList())
@@ -244,14 +245,14 @@ public class PlaylistOperations {
         return playlistItems -> newArrayList(filter(playlistItems,
                                                     input -> !input.urn().equals(playlist.urn())));
     }
-    
-    
 
-    private Func1<List<Playlist>, PlaylistDetailsViewModel> toViewModel(Playlist playlist, List<TrackItem> tracks) {
+
+
+    private Func1<List<Playlist>, PlaylistDetailsViewModel> toViewModel(Playlist playlist, List<Track> tracks) {
         return playlists -> {
             final List<PlaylistItem> playlistsItems = Lists.transform(playlists, PlaylistItem::from);
             return viewModelCreator.create(playlist,
-                                           tracks,
+                                           Lists.transform(tracks, TrackItem::from),
                                            playlist.isLikedByCurrentUser().or(false),
                                            false,
                                            playlistsItems.isEmpty() ? Optional.absent() :

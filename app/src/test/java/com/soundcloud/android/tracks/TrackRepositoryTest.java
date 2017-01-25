@@ -68,7 +68,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.immediate());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
-        track = ModelFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(Optional.of(CREATOR)).build();
+        track = ModelFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(CREATOR).build();
         trackItem = TrackItem.from(track);
     }
 
@@ -128,7 +128,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
         final Track first = propSubscriber.getOnNextEvents().get(0);
         assertThat(first.title()).isEqualTo(trackItem.getTitle());
-        assertThat(first.creatorName().get()).isEqualTo(trackItem.getCreatorName());
+        assertThat(first.creatorName()).isEqualTo(trackItem.getCreatorName());
         assertThat(first.description().get()).isEqualTo(DESCRIPTION);
     }
 
@@ -180,7 +180,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Test
     public void fromPlaylistDoesNotBackfillWhenPlaylistHasTracks() {
         final Urn playlistUrn = Urn.forPlaylist(1);
-        final List<TrackItem> trackList = singletonList(trackItem);
+        final List<Track> trackList = singletonList(track);
 
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(error(new IOException()));
         when(loadPlaylistTracksCommand.toObservable(playlistUrn)).thenReturn(just(trackList));
@@ -194,12 +194,12 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void fromPlaylistBackfillsWithoutTracks() {
         final Urn playlistUrn = Urn.forPlaylist(1);
         final PublishSubject<SyncJobResult> syncPlaylistSubject = PublishSubject.create();
-        final List<TrackItem> trackList = singletonList(trackItem);
+        final List<Track> trackList = singletonList(track);
 
         when(loadPlaylistTracksCommand.toObservable(playlistUrn)).thenReturn(just(emptyList()), just(trackList));
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(syncPlaylistSubject);
 
-        final AssertableSubscriber<List<TrackItem>> testSubscriber = trackRepository.forPlaylist(playlistUrn).test();
+        final AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(playlistUrn).test();
 
         testSubscriber.assertNoValues();
 

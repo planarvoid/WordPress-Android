@@ -8,8 +8,8 @@ import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.PlayHistory;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemMapper;
+import com.soundcloud.android.tracks.Track;
+import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
@@ -34,10 +34,8 @@ public class PlayHistoryStorage {
         this.rxDatabase = new PropellerRx(database);
     }
 
-    Observable<TrackItem> loadTracks(int limit) {
-        return rxDatabase.query(loadTracksQuery(limit))
-                         .map(new TrackItemMapper())
-                         .map(TrackItem.fromPropertySet());
+    Observable<Track> loadTracks(int limit) {
+        return rxDatabase.query(loadTracksQuery(limit)).map(TrackStorage::trackFromCursorReader);
     }
 
     List<PlayHistoryRecord> loadUnSyncedPlayHistory() {

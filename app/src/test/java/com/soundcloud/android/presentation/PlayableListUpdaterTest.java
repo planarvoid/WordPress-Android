@@ -23,7 +23,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -234,7 +233,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     private TrackChangedEvent getTrackChangedEvent(Urn updatedItemUrn, List<PlayableItem> trackItems) {
         final Track.Builder updatedTrack = ModelFixtures.trackBuilder();
         updatedTrack.urn(updatedItemUrn);
-        updatedTrack.creatorName(Optional.of(UPDATED_CREATOR));
+        updatedTrack.creatorName(UPDATED_CREATOR);
         when(adapter.getItems()).thenReturn(trackItems);
         return TrackChangedEvent.forUpdate(updatedTrack.build());
     }

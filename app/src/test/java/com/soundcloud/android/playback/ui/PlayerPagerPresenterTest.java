@@ -25,7 +25,6 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.main.PlayerActivity;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -38,13 +37,11 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,7 +106,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus;
     private PlayerPagerPresenter presenter;
-    private TrackItem track;
+    private Track track;
     private PagerAdapter adapter;
 
     private List<PlayQueueItem> playQueue = Arrays.asList(
@@ -159,26 +156,14 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.setCurrentPlayQueue(playQueue, 0);
 
-        track = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
-                                                            PlayableProperty.TITLE.bind("title"),
-                                                            PlayableProperty.CREATOR_NAME.bind("artist"),
-                                                            PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))));
 
-        when(trackRepository.trackItem(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
-                TestPropertySets.trackWith(PropertySet.from(
-                        TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
-                        PlayableProperty.TITLE.bind("title"),
-                        PlayableProperty.CREATOR_NAME.bind("artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))))
-        ));
+        track = ModelFixtures.trackBuilder().urn(TRACK1_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build();
 
-        when(trackRepository.trackItem(TRACK2_RELATED_URN)).thenReturn(Observable.just(
-                TestPropertySets.trackWith(PropertySet.from(
-                        TrackProperty.URN.bind(TRACK2_RELATED_URN),
-                        PlayableProperty.TITLE.bind("related title"),
-                        PlayableProperty.CREATOR_NAME.bind("related artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(234L))))
-        ));
+        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
+                ModelFixtures.trackBuilder().urn(MONETIZABLE_TRACK_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build()));
+
+        when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
+                ModelFixtures.trackBuilder().urn(TRACK2_RELATED_URN).title("related title").creatorName("related artist").creatorUrn(Urn.forUser(234L)).build()));
     }
 
     @Test
@@ -439,7 +424,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void getViewUsesCachedObservableIfAlreadyInCache() {
         getPageView();
-        verify(trackRepository).trackItem(TRACK1_URN);
+        verify(trackRepository).track(TRACK1_URN);
     }
 
     @Test
@@ -831,7 +816,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupGetCurrentViewPreconditions(int position) {
-        when(trackRepository.trackItem(playQueue.get(position).getUrn())).thenReturn(Observable.just(track));
+        when(trackRepository.track(playQueue.get(position).getUrn())).thenReturn(Observable.just(track));
     }
 
     private void setCurrentTrackState(int position, boolean isCurrentTrack) {

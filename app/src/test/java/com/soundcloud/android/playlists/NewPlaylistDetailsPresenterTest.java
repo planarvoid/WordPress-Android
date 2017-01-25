@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -21,6 +20,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.AsyncViewModel;
@@ -38,9 +38,12 @@ import java.util.List;
 
 public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
-    private final TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final List<TrackItem> trackItems = asList(track1, track2);
+    private final Track track1 = ModelFixtures.trackBuilder().build();
+    private final TrackItem trackItem1 = TrackItem.from(track1);
+    private final Track track2 = ModelFixtures.trackBuilder().build();
+    private final TrackItem trackItem2 = TrackItem.from(track2);
+    private final List<TrackItem> trackItems = asList(trackItem1, trackItem2);
+    private final List<Track> tracks = asList(track1, track2);
 
     private final Playlist initialPlaylist = ModelFixtures.playlistBuilder().build();
     private final Playlist updatedPlaylist = initialPlaylist.toBuilder().urn(initialPlaylist.urn()).title("new-title").build();
@@ -86,7 +89,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(likesStateProvider.likedStatuses()).thenReturn(likeStates);
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(updateSubject);
 
-        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(just(trackItems));
+        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(just(tracks));
         newPlaylistPresenter.connect();
         emitLikedEntities();
     }

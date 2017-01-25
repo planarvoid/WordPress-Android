@@ -17,7 +17,7 @@ import com.soundcloud.android.likes.LoadLikedTracksCommand;
 import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -151,12 +151,12 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
         subscriber.assertValue(OfflineState.REQUESTED);
     }
 
-    private void setPlaylist(Urn track, Urn playlist, TrackItem... tracks) {
-        final List<TrackItem> tracksList = Arrays.asList(tracks);
+    private void setPlaylist(Urn track, Urn playlist, Track... tracks) {
+        final List<Track> tracksList = Arrays.asList(tracks);
         when(loadOfflinePlaylistsContainingTrackCommand.call(track)).thenReturn(singletonList(playlist));
         when(trackRepository.forPlaylist(playlist)).thenReturn(Observable.just(tracksList));
-        when(loadLikedTracksCommand.call(Optional.absent())).thenReturn(transform(tracksList, entity -> Like.create(entity.getUrn(), new Date())));
-        when(loadLikedTracksOfflineStateCommand.call(null)).thenReturn(transform(tracksList, TrackItem::getOfflineState));
+        when(loadLikedTracksCommand.call(Optional.absent())).thenReturn(transform(tracksList, entity -> Like.create(entity.urn(), new Date())));
+        when(loadLikedTracksOfflineStateCommand.call(null)).thenReturn(transform(tracksList, Track::offlineState));
     }
 
 }

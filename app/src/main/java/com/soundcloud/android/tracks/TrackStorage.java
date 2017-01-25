@@ -45,6 +45,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
@@ -61,7 +62,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class TrackStorage {
+public class TrackStorage {
 
     private static final int MAX_TRACKS_BATCH = 200;
     private static final String SHARING_PRIVATE = "private";
@@ -90,7 +91,7 @@ class TrackStorage {
 
     Observable<Optional<Track>> loadTrack(Urn urn) {
         return propeller.query(buildTrackQuery(urn))
-                        .map(TrackStorage::from)
+                        .map(TrackStorage::trackFromCursorReader)
                         .map(Optional::of)
                         .firstOrDefault(Optional.absent());
     }
@@ -114,7 +115,7 @@ class TrackStorage {
         final Map<Urn, Track> tracks = new HashMap<>(cursorReadersBatches.size() * MAX_TRACKS_BATCH);
         for (QueryResult cursorReaders : cursorReadersBatches) {
             for (CursorReader cursorReader : cursorReaders) {
-                final Track track = from(cursorReader);
+                final Track track = trackFromCursorReader(cursorReader);
                 tracks.put(track.urn(), track);
             }
         }
@@ -160,7 +161,7 @@ class TrackStorage {
     }
 
 
-    private static Track from(CursorReader cursorReader) {
+    public static Track trackFromCursorReader(CursorReader cursorReader) {
         final Track.Builder builder = Track.builder();
         builder.urn(Urn.forTrack(cursorReader.getLong(ID.name())));
         builder.title(cursorReader.getString(TITLE.name()));
@@ -194,13 +195,13 @@ class TrackStorage {
     }
 
     private static void putOptionalFields(CursorReader cursorReader, Track.Builder builder) {
-        builder.policy(Optional.fromNullable(cursorReader.getString(POLICY.name())));
-        builder.waveformUrl(Optional.fromNullable(cursorReader.getString(WAVEFORM_URL.name())));
+        builder.policy(Optional.of(cursorReader.getString(POLICY.name())).or(Strings.EMPTY));
+        builder.waveformUrl(Optional.fromNullable(cursorReader.getString(WAVEFORM_URL.name())).or(Strings.EMPTY));
 
         // synced tracks that might not have a user if they haven't been lazily updated yet
-        builder.creatorName(Optional.fromNullable(cursorReader.getString(CREATOR_NAME.name())));
+        builder.creatorName(Optional.fromNullable(cursorReader.getString(CREATOR_NAME.name())).or(Strings.EMPTY));
         final long creatorId = cursorReader.getLong(CREATOR_ID.name());
-        builder.creatorUrn(creatorId == Consts.NOT_SET ? Optional.absent() : Optional.of(Urn.forUser(creatorId)));
+        builder.creatorUrn(creatorId == Consts.NOT_SET ? Urn.NOT_SET : Urn.forUser(creatorId));
     }
 
     private static void putOptionalOfflineSyncDates(CursorReader cursorReader, Track.Builder builder) {

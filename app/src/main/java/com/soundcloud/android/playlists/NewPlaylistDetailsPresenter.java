@@ -14,6 +14,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -87,6 +88,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsViewListener {
     private Observable<List<TrackItem>> tracks() {
         return trackRepository
                 .forPlaylist(playlistUrn)
+                .map(tracks -> Lists.transform(tracks, TrackItem::from))
                 // TODO : It emits asap - how to handle the loading spinner?
                 .startWith(Collections.<TrackItem>emptyList());
     }

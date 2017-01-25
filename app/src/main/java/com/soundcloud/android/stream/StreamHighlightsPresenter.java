@@ -96,8 +96,9 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
 
     private Observable<List<TrackItem>> getTracklistFromUrns(List<Urn> urns) {
         return RepoUtils.enrich(Lists.transform(urns, urn -> () -> urn),
-                                trackRepository.trackItemsFromUrns(urns),
-                                (trackItem, urnHolder) -> trackItem);
+                                trackRepository.fromUrns(urns),
+                                (trackItem, urnHolder) -> trackItem)
+                        .map(tracks -> Lists.transform(tracks, TrackItem::from));
     }
 
     @Override

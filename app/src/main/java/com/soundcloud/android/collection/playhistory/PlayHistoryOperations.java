@@ -64,7 +64,7 @@ public class PlayHistoryOperations {
     }
 
     private Observable<List<TrackItem>> tracks(int limit) {
-        return playHistoryStorage.loadTracks(limit).toList();
+        return playHistoryStorage.loadTracks(limit).map(TrackItem::from).toList();
     }
 
     public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {

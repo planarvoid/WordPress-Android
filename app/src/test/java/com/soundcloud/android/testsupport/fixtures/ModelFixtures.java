@@ -229,6 +229,13 @@ public class ModelFixtures {
     public static List<TrackItem> trackItems(int count) {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }
+    public static List<Track> tracks(int count) {
+        final List<Track> result = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            result.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        }
+        return result;
+    }
 
     public static PlaylistItem playlistItem() {
         return create(PlaylistItem.class);
@@ -394,35 +401,48 @@ public class ModelFixtures {
                          .build();
     }
 
-    public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
-        final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        trackItem.setUrn(trackUrn);
-        trackItem.setOfflineState(state);
-        return trackItem;
+    public static Track trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
+        final Track.Builder builder = ModelFixtures.trackBuilder();
+        builder.urn(trackUrn);
+        builder.offlineState(state);
+        return builder.build();
     }
 
-    public static TrackItem trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
-        final TrackItem trackItem = TestPropertySets.fromApiTrack(apiTrack);
-        trackItem.setOfflineState(state);
-        return trackItem;
-    }
-
-    public static TrackItem trackItem(ApiTrack apiTrack) {
-        return TestPropertySets.fromApiTrack(apiTrack);
-    }
-
-    public static TrackItem highTierMonetizableTrack(ApiTrack track) {
-        final TrackItem trackItem = TestPropertySets.fromApiTrack(track);
-        trackItem.setSubMidTier(false);
-        trackItem.setSubHighTier(true);
-        return trackItem;
+    public static Track trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
+        final Track.Builder builder = ModelFixtures.trackBuilder(apiTrack);
+        builder.offlineState(state);
+        return builder.build();
     }
 
     public static Track.Builder trackBuilder() {
         return Track.builder(Track.from(create(ApiTrack.class)));
     }
 
+    public static Track.Builder trackBuilder(ApiTrack apiTrack) {
+        return Track.builder(Track.from(apiTrack));
+    }
+
     public static Track trackWithUrnAndMonetizable(Urn currentTrackUrn, boolean monetizable) {
         return trackBuilder().urn(currentTrackUrn).monetizable(monetizable).build();
+    }
+
+    public static Track expectedTrackEntityForWidget() {
+        return trackBuilder().imageUrlTemplate(of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build();
+    }
+
+    public static Track expectedLikedTrackForLikesScreen() {
+        return trackBuilder().likesCount(2).createdAt(new Date()).build();
+    }
+
+    public static Track expectedTrackEntityForAnalytics(Urn trackUrn, Urn creatorUrn, String policy, long duration) {
+        return trackBuilder()
+                .urn(trackUrn)
+                .creatorUrn(creatorUrn)
+                .policy(policy)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
+                .snippetDuration(duration)
+                .fullDuration(duration)
+                .snipped(false)
+                .build();
     }
 }

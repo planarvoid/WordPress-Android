@@ -17,7 +17,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.optional.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -212,7 +211,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
     }
 
     private Track createTrack(Urn urn, boolean isPrivate) {
-        Track track = ModelFixtures.trackBuilder().urn(urn).title("Title " + urn).creatorName(Optional.of("Creator " + urn)).isPrivate(isPrivate).build();
+        Track track = ModelFixtures.trackBuilder().urn(urn).title("Title " + urn).creatorName("Creator " + urn).isPrivate(isPrivate).build();
         when(trackRepository.track(urn)).thenReturn(Observable.just(track));
         return track;
     }
@@ -232,7 +231,7 @@ public class LegacyCastOperationsTest extends AndroidUnitTest {
         MediaMetadata metadata = mediaInfo.getMetadata();
         assertThat(metadata.getMediaType()).isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
         assertThat(metadata.getString(MediaMetadata.KEY_TITLE)).isEqualTo(currentTrack.title());
-        assertThat(metadata.getString(MediaMetadata.KEY_ARTIST)).isEqualTo(currentTrack.creatorName().get());
+        assertThat(metadata.getString(MediaMetadata.KEY_ARTIST)).isEqualTo(currentTrack.creatorName());
         assertThat(metadata.getString("urn")).isEqualTo(currentTrack.urn().toString());
         assertThat(metadata.getImages().get(0).getUrl().toString()).isEqualTo(IMAGE_URL);
     }

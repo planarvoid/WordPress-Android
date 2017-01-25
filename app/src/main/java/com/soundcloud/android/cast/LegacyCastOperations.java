@@ -17,7 +17,6 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.strings.Strings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -135,7 +134,7 @@ public class LegacyCastOperations {
         final String artworkUrl = imageOperations.getUrlForLargestImage(resources, trackUrn);
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
         mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.title());
-        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.creatorName().or(Strings.EMPTY));
+        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.creatorName());
         mediaMetadata.putString(KEY_URN, trackUrn.toString());
 
         if (artworkUrl != null) {

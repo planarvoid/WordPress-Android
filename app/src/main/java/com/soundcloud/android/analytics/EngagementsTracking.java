@@ -4,7 +4,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
@@ -18,9 +18,9 @@ public class EngagementsTracking {
     private final UserRepository userRepository;
     private final EventTracker eventTracker;
 
-    private static Func1<TrackItem, UIEvent> LIKE_EVENT_FROM_TRACK(final Urn trackUrn, final boolean addLike,
-                                                                     final EventContextMetadata eventMetadata,
-                                                                     final PromotedSourceInfo promotedSourceInfo) {
+    private static Func1<Track, UIEvent> LIKE_EVENT_FROM_TRACK(final Urn trackUrn, final boolean addLike,
+                                                               final EventContextMetadata eventMetadata,
+                                                               final PromotedSourceInfo promotedSourceInfo) {
         return track -> UIEvent.fromToggleLike(addLike,
                                        trackUrn,
                                        eventMetadata,
@@ -47,7 +47,7 @@ public class EngagementsTracking {
     public void likeTrackUrn(Urn trackUrn, boolean addLike, EventContextMetadata eventMetadata,
                              PromotedSourceInfo promotedSourceInfo) {
 
-        trackRepository.trackItem(trackUrn)
+        trackRepository.track(trackUrn)
                        .map(LIKE_EVENT_FROM_TRACK(trackUrn, addLike, eventMetadata, promotedSourceInfo))
                        .subscribe(eventTracker.trackEngagementSubscriber());
     }

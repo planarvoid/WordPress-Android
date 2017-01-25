@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -54,13 +55,6 @@ public class TrackLikeOperations {
         }
     };
 
-    private final Func1<Urn, Observable<TrackItem>> loadLikedTrack = new Func1<Urn, Observable<TrackItem>>() {
-        @Override
-        public Observable<TrackItem> call(Urn urn) {
-            return trackRepo.trackItem(urn);
-        }
-    };
-
     @Inject
     public TrackLikeOperations(LoadLikedTracksCommand loadLikedTracksCommand,
                                SyncInitiator syncInitiator,
@@ -78,8 +72,8 @@ public class TrackLikeOperations {
         this.trackRepo = trackRepository;
     }
 
-    Observable<TrackItem> onTrackLiked() {
-        return singleTrackLikeStatusChange(true).flatMap(loadLikedTrack);
+    Observable<Track> onTrackLiked() {
+        return singleTrackLikeStatusChange(true).flatMap(trackRepo::track);
     }
 
     Observable<Urn> onTrackUnliked() {
@@ -114,11 +108,9 @@ public class TrackLikeOperations {
         return loadLikedTracksCommand.toObservable(Optional.of(params))
                                      .doOnNext(requestTracksSyncAction)
                                      .flatMap(source -> enrich(source,
-                                                               trackRepo.trackItemsFromUrns(transform(source, UrnHolder::urn)), COMBINER))
+                                                               trackRepo.fromUrns(transform(source, UrnHolder::urn)).map(TrackItem::convertMap), COMBINER))
                                      .subscribeOn(scheduler);
     }
-
-
 
     Observable<List<LikeWithTrack>> updatedLikedTracks() {
         return syncInitiatorBridge

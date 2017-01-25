@@ -9,6 +9,7 @@ import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
@@ -159,6 +160,7 @@ public class OfflineStateOperations {
     private OfflineState getState(Urn playlist) {
         final List<TrackItem> playlistWithTracks = trackRepository
                 .forPlaylist(playlist)
+                .map(tracks -> Lists.transform(tracks, TrackItem::from))
                 .toBlocking()
                 .first();
         final Collection<OfflineState> tracksOfflineState = transform(playlistWithTracks, TrackItem::getOfflineState);

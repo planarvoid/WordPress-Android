@@ -1,6 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,18 +7,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
-import com.soundcloud.propeller.schema.BulkInsertValues;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -195,7 +189,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     @Test
     public void loadTracksInBatches() {
         final TestSubscriber<Map<Urn, Track>> subscriber = new TestSubscriber<>();
-        List<Urn> trackUrns = insertBulkTracks(BATCH_TRACKS_COUNT);
+        List<Urn> trackUrns = testFixtures().insertTracks(BATCH_TRACKS_COUNT);
 
         storage.loadTracks(trackUrns).subscribe(subscriber);
 
@@ -205,48 +199,10 @@ public class TrackStorageTest extends StorageIntegrationTest {
     @Test
     public void loadAvailableTracksInBatches() {
         final TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
-        List<Urn> trackUrns = insertBulkTracks(BATCH_TRACKS_COUNT);
+        List<Urn> trackUrns = testFixtures().insertTracks(BATCH_TRACKS_COUNT);
 
         storage.availableTracks(trackUrns).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(trackUrns);
     }
-
-    // TODO: move to DatabaseFixtures?
-    private List<Urn> insertBulkTracks(int count) {
-        List<Urn> trackUrns = new ArrayList<>(count);
-
-        BulkInsertValues.Builder trackBuilder = new BulkInsertValues.Builder(Arrays.asList(
-                Tables.Sounds._ID,
-                Tables.Sounds._TYPE,
-                Tables.Sounds.TITLE,
-                Tables.Sounds.PERMALINK_URL
-        ));
-
-        BulkInsertValues.Builder policyBuilder = new BulkInsertValues.Builder(Arrays.asList(
-                Tables.TrackPolicies.TRACK_ID,
-                Tables.TrackPolicies.MONETIZATION_MODEL
-        ));
-
-        for (int i = 1; i <= BATCH_TRACKS_COUNT; i++) {
-            trackBuilder.addRow(Arrays.asList(
-               i,
-               TYPE_TRACK,
-               "Track #" + i,
-               "track-" + i
-            ));
-
-            policyBuilder.addRow(Arrays.asList(
-                    i,
-                    Strings.EMPTY
-            ));
-            trackUrns.add(Urn.forTrack(i));
-        }
-
-        propeller().bulkInsert(Tables.Sounds.TABLE, trackBuilder.build());
-        propeller().bulkInsert(Tables.TrackPolicies.TABLE, policyBuilder.build());
-
-        return trackUrns;
-    }
-
 }

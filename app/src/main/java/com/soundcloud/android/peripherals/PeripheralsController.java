@@ -51,7 +51,7 @@ public class PeripheralsController {
         intent.putExtra("id", track.urn().getNumericId());
         intent.putExtra("track", ScTextUtils.getClippedString(track.title(), 40));
         intent.putExtra("duration", Durations.getTrackPlayDuration(track));
-        intent.putExtra("artist", getSafeClippedString(track.creatorName().or(Strings.EMPTY), 30));
+        intent.putExtra("artist", getSafeClippedString(track.creatorName(), 30));
         context.sendBroadcast(intent);
     }
 

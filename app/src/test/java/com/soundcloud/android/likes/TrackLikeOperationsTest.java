@@ -21,7 +21,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -63,7 +63,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
-    private List<TrackItem> trackItems;
+    private List<Track> tracks;
     private List<Like> likes;
 
     private PublishSubject<Void> syncSubject = PublishSubject.create();
@@ -82,15 +82,15 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiatorBridge.syncTrackLikes()).thenReturn(syncSubject);
 
-        trackItems = ModelFixtures.trackItems(2);
+        tracks = ModelFixtures.tracks(2);
 
         likes = asList(
-                Like.create(trackItems.get(0).getUrn(), new Date(100)),
-                Like.create(trackItems.get(1).getUrn(), new Date(100)));
+                Like.create(tracks.get(0).urn(), new Date(100)),
+                Like.create(tracks.get(1).urn(), new Date(100)));
 
         likeWithTracks = asList(
-                LikeWithTrack.create(likes.get(0), trackItems.get(0)),
-                LikeWithTrack.create(likes.get(1), trackItems.get(1)));
+                LikeWithTrack.create(likes.get(0), TrackItem.from(tracks.get(0))),
+                LikeWithTrack.create(likes.get(1), TrackItem.from(tracks.get(1))));
 
         when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE)))).thenReturn(
                 Observable.just(likes));
@@ -100,8 +100,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void syncAndLoadTrackLikesWhenHasNotSyncedBefore() {
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(false));
-        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(trackItems)));
+        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+                .thenReturn(Observable.just(urnToTrackMap(tracks)));
 
         operations.likedTracks().subscribe(observer);
 
@@ -117,16 +117,16 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void loadTrackLikesWhenHasSyncedBefore() {
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
-        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(trackItems)));
+        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+                .thenReturn(Observable.just(urnToTrackMap(tracks)));
 
         operations.likedTracks().subscribe(observer);
 
         assertThat(syncSubject.hasObservers()).isFalse();
 
         verify(observer).onNext(asList(
-                LikeWithTrack.create(likes.get(0), trackItems.get(0)),
-                LikeWithTrack.create(likes.get(1), trackItems.get(1))));
+                LikeWithTrack.create(likes.get(0), TrackItem.from(tracks.get(0))),
+                LikeWithTrack.create(likes.get(1), TrackItem.from(tracks.get(1)))));
         verify(observer).onCompleted();
     }
 
@@ -134,6 +134,10 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void loadEmptyTrackLikesWhenHasSyncedBefore() {
         when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
                 .thenReturn(Observable.just(Collections.emptyList()));
+
+        when(trackRepository.fromUrns(emptyList()))
+                .thenReturn(Observable.just(Collections.emptyMap()));
+
 
         operations.likedTracks().subscribe(observer);
 
@@ -146,8 +150,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void loadTrackLikesRequestsUpdatesFromSyncerOnWifi() {
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
-        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(trackItems)));
+        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+                .thenReturn(Observable.just(urnToTrackMap(tracks)));
 
         operations.likedTracks().subscribe(observer);
 
@@ -157,8 +161,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void loadTrackLikesDoesNotRequestUpdatesFromSyncerOffWifi() {
         when(networkConnectionHelper.isWifiConnected()).thenReturn(false);
-        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(trackItems)));
+        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+                .thenReturn(Observable.just(urnToTrackMap(tracks)));
 
         operations.likedTracks().subscribe(observer);
 
@@ -178,8 +182,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
-        when(trackRepository.trackItemsFromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(trackItems)));
+        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
+                .thenReturn(Observable.just(urnToTrackMap(tracks)));
 
         operations.updatedLikedTracks().subscribe(observer);
 
@@ -189,8 +193,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         syncSubject.onCompleted();
 
         verify(observer).onNext(asList(
-                LikeWithTrack.create(likes.get(0), trackItems.get(0)),
-                LikeWithTrack.create(likes.get(1), trackItems.get(1))));
+                LikeWithTrack.create(likes.get(0), TrackItem.from(tracks.get(0))),
+                LikeWithTrack.create(likes.get(1), TrackItem.from(tracks.get(1)))));
         verify(observer).onCompleted();
     }
 
@@ -198,6 +202,9 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void updatedLikedTracksReloadsEmptyLikedTracksAfterSyncWithChange() {
         when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
                 .thenReturn(Observable.just(Collections.emptyList()));
+
+        when(trackRepository.fromUrns(emptyList()))
+                .thenReturn(Observable.just(Collections.emptyMap()));
 
         operations.updatedLikedTracks().subscribe(observer);
 
@@ -212,14 +219,14 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void onTrackLikedEventReturnsTrackInfoFromLike() throws Exception {
-        TrackItem trackItem = TestPropertySets.expectedLikedTrackForLikesScreen();
-        when(trackRepository.trackItem(trackItem.getUrn())).thenReturn(Observable.just(trackItem));
+        Track track = ModelFixtures.expectedLikedTrackForLikesScreen();
+        when(trackRepository.track(track.urn())).thenReturn(Observable.just(track));
 
-        final TestSubscriber<TrackItem> observer = new TestSubscriber<>();
+        final TestSubscriber<Track> observer = new TestSubscriber<>();
         operations.onTrackLiked().subscribe(observer);
-        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(trackItem.getUrn(), true, 5));
+        eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(track.urn(), true, 5));
 
-        assertThat(observer.getOnNextEvents()).containsExactly(trackItem);
+        assertThat(observer.getOnNextEvents()).containsExactly(track);
     }
 
     @Test
@@ -233,10 +240,10 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         assertThat(observer.getOnNextEvents()).containsExactly(unlikedTrackUrn);
     }
 
-    private Map<Urn,TrackItem> urnToTrackMap(List<TrackItem> trackItems){
-        Map<Urn,TrackItem> map = new HashMap<>(trackItems.size());
-        for (TrackItem trackItem : trackItems) {
-            map.put(trackItem.getUrn(), trackItem);
+    private Map<Urn, Track> urnToTrackMap(List<Track> tracks) {
+        Map<Urn, Track> map = new HashMap<>(tracks.size());
+        for (Track trackItem : tracks) {
+            map.put(trackItem.urn(), trackItem);
         }
         return map;
     }

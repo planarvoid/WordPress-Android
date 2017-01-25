@@ -10,10 +10,12 @@ public class NotificationTrack {
 
     private final Resources resources;
     private final TrackItem source;
+    private final boolean isAd;
 
-    public NotificationTrack(Resources resources, TrackItem source) {
+    public NotificationTrack(Resources resources, TrackItem source, boolean isAd) {
         this.resources = resources;
         this.source = source;
+        this.isAd = isAd;
     }
 
     public String getTitle() {
@@ -29,7 +31,7 @@ public class NotificationTrack {
     }
 
     public boolean isAudioAd() {
-        return source.isAd();
+        return isAd;
     }
 
     public long getDuration() {

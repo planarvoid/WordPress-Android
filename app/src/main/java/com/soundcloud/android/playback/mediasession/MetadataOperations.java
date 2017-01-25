@@ -13,6 +13,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.NotificationTrack;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
@@ -51,11 +52,10 @@ class MetadataOperations {
                                              Optional<MediaMetadataCompat> existingMetadata) {
         if (urn.isTrack()) {
             return trackRepository
-                    .trackItem(urn)
+                    .track(urn)
                     .filter(track -> track != null)
-                    .doOnNext(trackItem -> trackItem.setAd(isAd))
                     .flatMap(toTrackWithBitmap(existingMetadata))
-                    .map(toMediaMetadata())
+                    .map(toMediaMetadata(isAd))
                     .subscribeOn(scheduler);
         } else if (isAd) {
             return adMediaMetadata();
@@ -80,7 +80,7 @@ class MetadataOperations {
         return imageOperations.decodeResource(resources, R.drawable.notification_loading);
     }
 
-    private Func1<TrackItem, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
+    private Func1<Track, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
         return track -> {
             final SimpleImageResource imageResource = SimpleImageResource.create(track);
             final Bitmap cachedBitmap = getCachedBitmap(imageResource);
@@ -101,7 +101,7 @@ class MetadataOperations {
         return imageOperations.getCachedBitmap(imageResource, getImageSize(), targetSize, targetSize);
     }
 
-    private Observable<TrackAndBitmap> loadArtwork(final TrackItem track, final SimpleImageResource imageResource) {
+    private Observable<TrackAndBitmap> loadArtwork(final Track track, final SimpleImageResource imageResource) {
         final int targetSize = getTargetImageSize();
 
         return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
@@ -127,10 +127,10 @@ class MetadataOperations {
         return ApiImageSize.getNotificationLargeIconImageSize(resources);
     }
 
-    private Func1<TrackAndBitmap, MediaMetadataCompat> toMediaMetadata() {
+    private Func1<TrackAndBitmap, MediaMetadataCompat> toMediaMetadata(boolean isAd) {
         return trackAndBitmap -> {
             NotificationTrack notificationTrack =
-                    new NotificationTrack(resources, trackAndBitmap.track);
+                    new NotificationTrack(resources, TrackItem.from(trackAndBitmap.track), isAd);
 
             Bitmap bitmap = notificationTrack.isAudioAd()
                             ? getAdArtwork()
@@ -141,7 +141,7 @@ class MetadataOperations {
                     .putString(METADATA_KEY_ARTIST, notificationTrack.getCreatorName())
                     .putBitmap(METADATA_KEY_ART, bitmap);
 
-            if (!notificationTrack.isAudioAd()) {
+            if (!isAd) {
                 builder.putLong(METADATA_KEY_DURATION, notificationTrack.getDuration());
             }
 
@@ -150,10 +150,10 @@ class MetadataOperations {
     }
 
     private final class TrackAndBitmap {
-        private final TrackItem track;
+        private final Track track;
         private final Optional<Bitmap> bitmap;
 
-        private TrackAndBitmap(TrackItem track, Optional<Bitmap> bitmap) {
+        private TrackAndBitmap(Track track, Optional<Bitmap> bitmap) {
             this.track = track;
             this.bitmap = bitmap;
         }

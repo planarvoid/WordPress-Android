@@ -9,6 +9,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.UuidProvider;
@@ -37,7 +38,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private Optional<PlaybackSessionEvent> lastPlaySessionEvent = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
-    private ReplaySubject<TrackItem> trackObservable;
+    private ReplaySubject<Track> trackObservable;
 
     @Inject
     public TrackSessionAnalyticsDispatcher(EventBus eventBus,
@@ -81,7 +82,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent,
                                      final PlaybackProgressEvent progressEvent) {
         trackObservable
-                .filter(trackItem -> isForPlayingTrack(progressEvent))
+                .filter(track -> isForPlayingTrack(progressEvent))
                 .map(stateTransitionToCheckpointEvent(previousPlayStateEvent, progressEvent))
                 .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
@@ -89,7 +90,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private void loadTrackIfChanged(PlayStateEvent playStateEvent, boolean isNewItem) {
         if (isNewItem) {
             trackObservable = ReplaySubject.createWithSize(1);
-            trackRepository.trackItem(playStateEvent.getPlayingItemUrn()).filter(track -> track != null).subscribe(trackObservable);
+            trackRepository.track(playStateEvent.getPlayingItemUrn()).filter(track -> track != null).subscribe(trackObservable);
         }
     }
 
@@ -106,7 +107,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         return !(lastPlaySessionEvent.isPresent() && lastPlaySessionEvent.get().isPlayOrPlayStartEvent());
     }
 
-    private Func1<TrackItem, PlaybackSessionEvent> playStateToSessionPlayEvent(final PlayStateEvent playStateEvent) {
+    private Func1<Track, PlaybackSessionEvent> playStateToSessionPlayEvent(final PlayStateEvent playStateEvent) {
         return track -> {
             final String playId = playStateEvent.getPlayId();
             PlaybackSessionEvent playSessionEvent = playStateEvent.isFirstPlay() ?
@@ -153,7 +154,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         }
     }
 
-    private Func1<TrackItem, TrackingEvent> stateTransitionToCheckpointEvent(final PlayStateEvent playStateEvent,
+    private Func1<Track, TrackingEvent> stateTransitionToCheckpointEvent(final PlayStateEvent playStateEvent,
                                                                              final PlaybackProgressEvent progressEvent) {
         return track -> PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
                                                                   progressEvent.getPlaybackProgress(),
@@ -169,16 +170,16 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @NonNull
-    private PlaybackSessionEventArgs buildEventArgs(TrackItem track, PlayStateEvent playStateEvent, String clientId, String playId) {
+    private PlaybackSessionEventArgs buildEventArgs(Track track, PlayStateEvent playStateEvent, String clientId, String playId) {
         return buildEventArgs(track, playStateEvent.getProgress(), playStateEvent, clientId, playId);
     }
 
-    private PlaybackSessionEventArgs buildEventArgs(TrackItem track,
+    private PlaybackSessionEventArgs buildEventArgs(Track track,
                                                     PlaybackProgress progress,
                                                     PlayStateEvent playStateEvent,
                                                     String clientId,
                                                     String playId) {
-        return PlaybackSessionEventArgs.createWithProgress(track,
+        return PlaybackSessionEventArgs.createWithProgress(TrackItem.from(track),
                                                            currentTrackSourceInfo.get(),
                                                            progress,
                                                            playStateEvent.getTransition(),

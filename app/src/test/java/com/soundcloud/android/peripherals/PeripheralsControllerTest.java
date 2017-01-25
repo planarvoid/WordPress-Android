@@ -16,7 +16,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
         assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.urn().getNumericId());
-        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.creatorName().get());
+        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.creatorName());
         assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.title());
         assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.fullDuration());
     }
@@ -108,7 +108,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotifyWithAnEmptyArtistName() {
-        final Track track = ModelFixtures.trackBuilder().creatorName(Optional.absent()).build();
+        final Track track = ModelFixtures.trackBuilder().creatorName(Strings.EMPTY).build();
         final Urn trackUrn = track.urn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 

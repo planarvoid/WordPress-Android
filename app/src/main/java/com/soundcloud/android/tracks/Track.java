@@ -55,13 +55,13 @@ public abstract class Track {
 
     public abstract Optional<String> imageUrlTemplate();
 
-    public abstract Optional<String> policy();
+    public abstract String policy();
 
-    public abstract Optional<String> waveformUrl();
+    public abstract String waveformUrl();
 
-    public abstract Optional<String> creatorName();
+    public abstract String creatorName();
 
-    public abstract Optional<Urn> creatorUrn();
+    public abstract Urn creatorUrn();
 
     public abstract OfflineState offlineState();
 
@@ -92,20 +92,20 @@ public abstract class Track {
                 .snippetDuration(apiTrack.getSnippetDuration())
                 .fullDuration(apiTrack.getFullDuration())
                 .isPrivate(apiTrack.isPrivate())
-                .waveformUrl(Optional.fromNullable(apiTrack.getWaveformUrl()))
+                .waveformUrl(Optional.fromNullable(apiTrack.getWaveformUrl()).or(Strings.EMPTY))
                 .permalinkUrl(apiTrack.getPermalinkUrl())
                 .monetizable(apiTrack.isMonetizable())
                 .blocked(apiTrack.isBlocked())
                 .snipped(apiTrack.isSnipped())
-                .policy(Optional.of(apiTrack.getPolicy()))
+                .policy(apiTrack.getPolicy())
                 .subHighTier(subHighTier.isPresent() ? subHighTier.get() : false)
                 .subMidTier(subMidTier.isPresent() ? subMidTier.get() : false)
                 .playCount(apiTrack.getStats().getPlaybackCount())
                 .commentsCount(apiTrack.getStats().getCommentsCount())
                 .likesCount(apiTrack.getStats().getLikesCount())
                 .repostsCount(apiTrack.getStats().getRepostsCount())
-                .creatorName(apiTrack.getUser() != null ? Optional.of(apiTrack.getUser().getUsername()) : Optional.absent())
-                .creatorUrn(apiTrack.getUser() != null ? Optional.of(apiTrack.getUser().getUrn()) : Optional.absent())
+                .creatorName(apiTrack.getUser() != null ? apiTrack.getUser().getUsername() : Strings.EMPTY)
+                .creatorUrn(apiTrack.getUser() != null ? apiTrack.getUser().getUrn() : Urn.NOT_SET)
                 .imageUrlTemplate(apiTrack.getImageUrlTemplate())
                 .genre(Optional.fromNullable(apiTrack.getGenre()))
                 .monetizationModel(apiTrack.getMonetizationModel().or(Strings.EMPTY))
@@ -164,13 +164,13 @@ public abstract class Track {
 
         public abstract Builder imageUrlTemplate(Optional<String> imageUrlTemplate);
 
-        public abstract Builder policy(Optional<String> policy);
+        public abstract Builder policy(String policy);
 
-        public abstract Builder waveformUrl(Optional<String> waveformUrl);
+        public abstract Builder waveformUrl(String waveformUrl);
 
-        public abstract Builder creatorName(Optional<String> creatorName);
+        public abstract Builder creatorName(String creatorName);
 
-        public abstract Builder creatorUrn(Optional<Urn> creatorUrn);
+        public abstract Builder creatorUrn(Urn creatorUrn);
 
         public abstract Builder offlineState(OfflineState offlineState);
 

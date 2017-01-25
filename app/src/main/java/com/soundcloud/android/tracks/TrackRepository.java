@@ -19,7 +19,6 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,11 +50,6 @@ public class TrackRepository {
         });
     }
 
-    public Observable<TrackItem> trackItem(final Urn trackUrn) {
-        return track(trackUrn).map(TrackItem::from);
-    }
-
-    // TODO : should we return a Map<Urn, TrackItem>
     public Observable<Map<Urn, Track>> fromUrns(final List<Urn> requestedTracks) {
         checkTracksUrn(requestedTracks);
         return trackStorage
@@ -64,17 +58,8 @@ public class TrackRepository {
                 .flatMap(continueWith(trackStorage.loadTracks(requestedTracks)))
                 .subscribeOn(scheduler);
     }
-    public Observable<Map<Urn, TrackItem>> trackItemsFromUrns(final List<Urn> requestedTracks) {
-        return fromUrns(requestedTracks).map(map -> {
-            final Map<Urn, TrackItem> result = new HashMap<>(map.size());
-            for (Track track : map.values()) {
-                result.put(track.urn(), TrackItem.from(track));
-            }
-            return result;
-        });
-    }
 
-    public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn) {
+    public Observable<List<Track>> forPlaylist(Urn playlistUrn) {
         return loadPlaylistTracksCommand
                 .toObservable(playlistUrn)
                 .filter(tracks -> !tracks.isEmpty())

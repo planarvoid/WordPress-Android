@@ -11,9 +11,8 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -70,11 +69,11 @@ public class PlayQueueHelper {
         }
     }
 
-    private class InsertSubscriber extends DefaultSubscriber<List<TrackItem>> {
+    private class InsertSubscriber extends DefaultSubscriber<List<Track>> {
 
         @Override
-        public void onNext(List<TrackItem> trackItems) {
-            playQueueManager.insertNext(transform(trackItems, PlayableItem::getUrn));
+        public void onNext(List<Track> trackItems) {
+            playQueueManager.insertNext(transform(trackItems, Track::urn));
         }
     }
 

@@ -100,6 +100,16 @@ public class DatabaseFixtures {
         insertPolicy(track);
     }
 
+    public List<Urn> insertTracks(int count) {
+        List<Urn> trackUrns = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+            insertTrack(apiTrack);
+            trackUrns.add(apiTrack.getUrn());
+        }
+        return trackUrns;
+    }
+
     public void insertFollowing(Urn followedUrn, int position) {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(Tables.UserAssociations.ASSOCIATION_TYPE, Tables.UserAssociations.TYPE_FOLLOWING);

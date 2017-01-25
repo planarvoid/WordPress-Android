@@ -33,6 +33,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
@@ -103,7 +104,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private final FeatureFlags featureFlags;
 
-    private final LruCache<Urn, ReplaySubject<TrackItem>> trackObservableCache =
+    private final LruCache<Urn, ReplaySubject<Track>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentPlayQueueItemFilter = new Func1<PlaybackProgressEvent, Boolean>() {
@@ -500,17 +501,17 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private Observable<TrackItem> getTrackObservable(Urn urn, final Optional<AdData> adOverlayData) {
         return getTrackObservable(urn).doOnNext(track -> {
             if (adOverlayData.isPresent() && adOverlayData.get() instanceof OverlayAdData) {
-                adOverlayData.get().setMonetizableTitle(track.getTitle());
-                adOverlayData.get().setMonetizableCreator(track.getCreatorName());
+                adOverlayData.get().setMonetizableTitle(track.title());
+                adOverlayData.get().setMonetizableCreator(track.creatorName());
             }
-        });
+        }).map(TrackItem::from);
     }
 
     private Observable<PlayerItem> getAdObservable(final AdData adData) {
         return getTrackObservable(adData.getMonetizableTrackUrn()).map(
                 monetizableTrack -> {
-                    adData.setMonetizableTitle(monetizableTrack.getTitle());
-                    adData.setMonetizableCreator(monetizableTrack.getCreatorName());
+                    adData.setMonetizableTitle(monetizableTrack.title());
+                    adData.setMonetizableCreator(monetizableTrack.creatorName());
                     return adData;
                 }).map(adData1 -> adData1 instanceof VideoAd ? new VideoPlayerAd((VideoAd) adData1) : new AudioPlayerAd((AudioAd) adData1));
     }
@@ -539,12 +540,12 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    private Observable<TrackItem> getTrackObservable(Urn urn) {
-        ReplaySubject<TrackItem> trackSubject = trackObservableCache.get(urn);
+    private Observable<Track> getTrackObservable(Urn urn) {
+        ReplaySubject<Track> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
             trackRepository
-                    .trackItem(urn)
+                    .track(urn)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackSubject);
             trackObservableCache.put(urn, trackSubject);

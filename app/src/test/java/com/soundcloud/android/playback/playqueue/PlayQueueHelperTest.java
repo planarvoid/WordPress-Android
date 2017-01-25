@@ -21,7 +21,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -75,14 +75,14 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
 
     @Test
     public void shouldInsertIntoPlayQueue() {
-        final List<TrackItem> trackItemsList = ModelFixtures.trackItems(2);
+        final List<Track> tracks = ModelFixtures.tracks(2);
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(Observable.just(trackItemsList));
+        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(Observable.just(tracks));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
         playQueueHelper.playNext(playlistUrn);
 
-        verify(playQueueManager, times(1)).insertNext(transform(trackItemsList, TrackItem::getUrn));
+        verify(playQueueManager, times(1)).insertNext(transform(tracks, Track::urn));
     }
 
 }
