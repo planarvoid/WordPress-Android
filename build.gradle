@@ -39,6 +39,14 @@ allprojects {
     mavenLocal()
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
+
+  // Allow 1000 errors instead of default, as errors from failure to generate code can bury real errors
+  gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+      options.compilerArgs << "-Xmaxerrs" << "1000"
+    }
+  }
+
 }
 
 task deployDevDebug(type: Exec, dependsOn: 'app:installDevDebug') {
