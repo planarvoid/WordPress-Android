@@ -8,13 +8,13 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import javax.inject.Inject;
 
-public class PlanChoiceActivity extends LoggedInActivity {
+public class ProductChoiceActivity extends LoggedInActivity {
 
     static final String AVAILABLE_PRODUCTS = "available_products";
 
-    @Inject @LightCycle PlanChoicePresenter presenter;
+    @Inject @LightCycle ProductChoicePresenter presenter;
 
-    public PlanChoiceActivity() {
+    public ProductChoiceActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -26,7 +26,7 @@ public class PlanChoiceActivity extends LoggedInActivity {
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.plan_choice_activity);
+        super.setContentView(R.layout.product_choice_activity);
     }
 
     @Override

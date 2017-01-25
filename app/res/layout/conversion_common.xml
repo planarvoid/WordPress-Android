@@ -15,13 +15,6 @@
         android:layout_marginTop="48dp"
         android:layout_below="@id/status_place_holder" />
 
-    <ImageView
-        android:id="@+id/conversion_close"
-        style="@style/ConversionClose"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="40dp"
-        android:layout_below="@id/status_place_holder" />
-
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/conversion_title"
         style="@style/ConversionText.Title"

@@ -109,7 +109,7 @@
     </style>
 
     <style name="Theme.ScAuth" parent="Theme.SoundCloud.NoActionBar">
-        <item name="android:buttonStyle">@style/btn_default</item>
+        <item name="android:buttonStyle">@style/AuthButton</item>
         <item name="android:windowBackground">@color/dark_bg</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>

@@ -160,18 +160,8 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
         Assertions.assertThat(activity)
                 .nextStartedIntent()
-                .containsExtra(PlanChoiceActivity.AVAILABLE_PRODUCTS, DEFAULT)
-                .opensActivity(PlanChoiceActivity.class);
-    }
-
-    @Test
-    public void closeCallbackFinishesActivity() {
-        when(paymentOperations.products()).thenReturn(Observable.empty());
-        presenter.onCreate(activity, null);
-
-        presenter.onClose();
-
-        assertThat(activity.isFinishing()).isTrue();
+                .containsExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, DEFAULT)
+                .opensActivity(ProductChoiceActivity.class);
     }
 
 }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/status_place_holder"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/translucent_status_height" />
+    
+    <View
+        android:id="@+id/header_background"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:background="@drawable/go_gradient" />
+
+    <ImageView
+        android:id="@+id/conversion_cloud"
+        style="@style/ConversionCloud"
+        android:layout_marginLeft="@dimen/conversion_margin"
+        android:layout_marginTop="28dp"
+        android:layout_below="@id/status_place_holder" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/product_choice_title"
+        style="@style/ConversionText.ProductsHeader"
+        android:layout_marginLeft="@dimen/conversion_margin"
+        android:layout_below="@id/conversion_cloud"
+        android:layout_marginTop="8dp"
+        android:text="@string/product_choice_title" />
+
+    <com.soundcloud.android.view.SafeViewPager
+        android:id="@+id/product_choice_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header_background"
+        android:layout_above="@+id/buy" />
+
+    <com.soundcloud.android.view.CustomFontButton
+        android:id="@+id/buy"
+        style="@style/ConversionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/conversion_margin"
+        android:layout_marginLeft="@dimen/conversion_margin"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:layout_above="@+id/product_choice_terms" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/product_choice_terms"
+        style="@style/ProductChoiceRestrictions"
+        android:layout_above="@+id/page_indicator"
+        android:layout_centerHorizontal="true"
+        android:text="@string/product_choice_mini_terms" />
+
+    <com.soundcloud.android.view.pageindicator.CirclePageIndicator
+        android:id="@+id/page_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/ProductChoicePageIndicator"
+        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

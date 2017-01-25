@@ -50,7 +50,7 @@
         <item name="android:background">?android:attr/listDivider</item>
     </style>
 
-    <style name="btn_default" parent="@android:style/Widget.Button">
+    <style name="AuthButton" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">@drawable/txt_btn_light_states</item>
         <item name="android:shadowColor">#4DFFFFFF</item>
@@ -59,6 +59,10 @@
         <item name="android:shadowRadius">1</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
+    </style>
+
+    <style name="FlatButton" parent="TextAppearance.SoundCloudLightFont">
+        <!-- See values-v21 -->
     </style>
 
     <!-- misc -->

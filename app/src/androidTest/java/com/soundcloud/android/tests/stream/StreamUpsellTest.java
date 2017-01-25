@@ -42,7 +42,7 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
         final UpgradeScreen upgradeScreen = player.clickUpgrade();
         assertThat(upgradeScreen, is(visible()));
 
-        upgradeScreen.clickClose();
+        solo.goBack();
         player.pressBackToCollapse();
 
         startEventTracking();

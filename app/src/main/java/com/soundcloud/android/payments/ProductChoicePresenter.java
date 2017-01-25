@@ -9,15 +9,14 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class PlanChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity> implements PlanChoiceView.Listener {
+class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ProductChoiceView.Listener {
 
-    private final PlanChoiceView view;
+    private final ProductChoiceView view;
 
     private Activity activity;
-    private AvailableWebProducts products;
 
     @Inject
-    PlanChoicePresenter(PlanChoiceView view) {
+    ProductChoicePresenter(ProductChoiceView view) {
         this.view = view;
     }
 
@@ -25,9 +24,9 @@ class PlanChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
         view.setupContentView(activity, this);
-        if (activity.getIntent().hasExtra(PlanChoiceActivity.AVAILABLE_PRODUCTS)) {
-            products = activity.getIntent().getParcelableExtra(PlanChoiceActivity.AVAILABLE_PRODUCTS);
-            displayProducts();
+        if (activity.getIntent().hasExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS)) {
+            AvailableWebProducts products = activity.getIntent().getParcelableExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS);
+            view.displayOptions(products);
         } else {
             activity.finish();
         }
@@ -38,19 +37,9 @@ class PlanChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         this.activity = null;
     }
 
-    private void displayProducts() {
-        view.displayChoices(products);
-    }
-
     @Override
-    public void onPurchaseMidTier() {
-        startWebCheckout(products.midTier().get());
-        activity.finish();
-    }
-
-    @Override
-    public void onPurchaseHighTier() {
-        startWebCheckout(products.highTier().get());
+    public void onPurchaseProduct(WebProduct product) {
+        startWebCheckout(product);
         activity.finish();
     }
 

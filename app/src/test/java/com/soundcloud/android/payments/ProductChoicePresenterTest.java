@@ -13,49 +13,38 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.util.Arrays;
 
-public class PlanChoicePresenterTest extends AndroidUnitTest {
+public class ProductChoicePresenterTest extends AndroidUnitTest {
 
     private static final AvailableWebProducts BOTH_PLANS = new AvailableWebProducts(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
 
-    @Mock PlanChoiceView view;
+    @Mock ProductChoiceView view;
 
     private AppCompatActivity activity = activity();
-    private PlanChoicePresenter presenter;
+    private ProductChoicePresenter presenter;
 
     @Before
     public void setUp() {
-        activity.setIntent(new Intent().putExtra(PlanChoiceActivity.AVAILABLE_PRODUCTS, BOTH_PLANS));
-        presenter = new PlanChoicePresenter(view);
+        activity.setIntent(new Intent().putExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, BOTH_PLANS));
+        presenter = new ProductChoicePresenter(view);
     }
 
     @Test
     public void displaysProductsFromIntent() {
         presenter.onCreate(activity, null);
 
-        verify(view).displayChoices(BOTH_PLANS);
+        verify(view).displayOptions(BOTH_PLANS);
     }
 
     @Test
-    public void purchaseMidTierPassesProductInfoToCheckout() {
+    public void purchasePassesProductInfoToCheckout() {
+        WebProduct product = BOTH_PLANS.midTier().get();
         presenter.onCreate(activity, null);
 
-        presenter.onPurchaseMidTier();
+        presenter.onPurchaseProduct(product);
 
         Assertions.assertThat(activity)
                 .nextStartedIntent()
-                .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, BOTH_PLANS.midTier().get())
-                .opensActivity(WebCheckoutActivity.class);
-    }
-
-    @Test
-    public void purchaseHighTierPassesProductInfoToCheckout() {
-        presenter.onCreate(activity, null);
-
-        presenter.onPurchaseHighTier();
-
-        Assertions.assertThat(activity)
-                .nextStartedIntent()
-                .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, BOTH_PLANS.highTier().get())
+                .containsExtra(WebCheckoutPresenter.PRODUCT_INFO, product)
                 .opensActivity(WebCheckoutActivity.class);
     }
 

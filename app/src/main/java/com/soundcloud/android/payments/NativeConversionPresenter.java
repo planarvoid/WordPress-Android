@@ -69,11 +69,6 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         // No-op for this presenter!
     }
 
-    @Override
-    public void onClose() {
-        activity.finish();
-    }
-
     private void initConnection() {
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
     }

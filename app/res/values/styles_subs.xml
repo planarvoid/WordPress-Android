@@ -14,8 +14,22 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="ProductText" parent="ConversionText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/ak_almost_black</item>
+    </style>
+
+    <style name="ProductText.Disabled">
+        <item name="android:textColor">@color/ak_medium_dark_gray</item>
+    </style>
+
     <style name="ConversionText.Title">
         <item name="android:textSize">@dimen/conversion_title_text</item>
+    </style>
+
+    <style name="ConversionText.ProductsHeader">
+        <item name="android:textSize">24sp</item>
     </style>
 
     <style name="ConversionText.Headline">
@@ -24,18 +38,20 @@
         <item name="android:lineSpacingMultiplier">0.9</item>
     </style>
 
+    <style name="ProductText.Title">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
+    </style>
+
+    <style name="ProductText.Price">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/ak_almost_black</item>
+    </style>
+
     <style name="ConversionCloud">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:src">@drawable/conversion_cloud</item>
-    </style>
-
-    <style name="ConversionClose">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">4dp</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:src">@drawable/conversion_close</item>
     </style>
 
     <style name="ConversionText.Price">
@@ -49,12 +65,27 @@
         <item name="android:background">@color/white</item>
     </style>
 
+    <style name="ProductPageDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/ak_medium_dark_gray</item>
+    </style>
+
     <style name="ConversionCheck">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:src">@drawable/conversion_check</item>
         <item name="android:layout_marginTop">@dimen/conversion_check_margin</item>
         <item name="android:layout_marginRight">@dimen/conversion_check_margin</item>
+    </style>
+
+    <style name="ProductPageCheck" parent="ConversionCheck">
+        <item name="android:src">@drawable/product_choice_check</item>
+        <item name="android:paddingTop">4dp</item>
+    </style>
+
+    <style name="ProductPageCheck.Disabled">
+        <item name="android:visibility">invisible</item>
     </style>
 
     <style name="ConversionText.Feature">
@@ -74,13 +105,20 @@
         <item name="android:visibility">invisible</item>
     </style>
 
+    <style name="ProductChoiceRestrictions" parent="ConversionText.Restrictions">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clickable">false</item>
+        <item name="android:textColor">@color/ak_medium_dark_gray</item>
+        <item name="android:visibility">visible</item>
+    </style>
+
     <style name="ConversionButtons">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="ConversionButton" parent="TextAppearance.SoundCloudLightFont">
+    <style name="ConversionButton" parent="FlatButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:background">@drawable/btn_primary</item>

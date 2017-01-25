@@ -286,7 +286,7 @@
         <!-- payments -->
         <activity android:name=".payments.NativeConversionActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
         <activity android:name=".payments.ConversionActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
-        <activity android:name=".payments.PlanChoiceActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
+        <activity android:name=".payments.ProductChoiceActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
         <activity android:name=".payments.WebCheckoutActivity" android:label="@string/conversion_page_title" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
 
         <!-- discovery -->

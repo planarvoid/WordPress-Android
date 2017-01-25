@@ -20,4 +20,13 @@
         <item name="centered">true</item>
     </style>
 
+    <style name="ProductChoicePageIndicator">
+        <item name="fillColor">@color/ak_sc_orange</item>
+        <item name="pageColor">@color/ak_medium_gray</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="radius">4dp</item>
+        <item name="spacing">10dp</item>
+        <item name="centered">true</item>
+    </style>
+
 </resources>

@@ -22,4 +22,8 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="FlatButton" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
 </resources>

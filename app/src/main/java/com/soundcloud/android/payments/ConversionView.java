@@ -8,12 +8,10 @@ import com.soundcloud.android.utils.images.BackgroundDecoder;
 import com.soundcloud.android.view.LoadingButton;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -29,14 +27,8 @@ class ConversionView {
     private static final int BACKGROUND_ID = R.drawable.conversion_background;
 
     private final Resources resources;
+    private final ProductInfoFormatter formatter;
     private final BackgroundDecoder backgroundDecoder;
-
-    private final Func0<Bitmap> loadBackground = new Func0<Bitmap>() {
-        @Override
-        public Bitmap call() {
-            return backgroundDecoder.decode(BACKGROUND_ID);
-        }
-    };
 
     private FragmentManager fragmentManager;
 
@@ -45,18 +37,17 @@ class ConversionView {
     @BindView(R.id.conversion_price) TextView priceView;
     @BindView(R.id.conversion_restrictions) TextView restrictionsView;
     @BindView(R.id.conversion_more_products) Button moreButton;
-    @BindView(R.id.conversion_close) View closeButton;
 
     @Inject
-    ConversionView(Resources resources, BackgroundDecoder backgroundDecoder) {
+    ConversionView(Resources resources, ProductInfoFormatter formatter, BackgroundDecoder backgroundDecoder) {
         this.resources = resources;
+        this.formatter = formatter;
         this.backgroundDecoder = backgroundDecoder;
     }
 
     interface Listener {
         void onPurchasePrimary();
         void onMoreProducts();
-        void onClose();
     }
 
     void setupContentView(AppCompatActivity activity, Listener listener) {
@@ -67,7 +58,7 @@ class ConversionView {
     }
 
     private void loadBackground() {
-        Observable.fromCallable(loadBackground)
+        Observable.fromCallable(() -> backgroundDecoder.decode(BACKGROUND_ID))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BackgroundSubscriber());
@@ -79,9 +70,6 @@ class ConversionView {
                 case R.id.conversion_buy:
                     listener.onPurchasePrimary();
                     break;
-                case R.id.conversion_close:
-                    listener.onClose();
-                    break;
                 case R.id.conversion_more_products:
                     listener.onMoreProducts();
                     break;
@@ -90,7 +78,6 @@ class ConversionView {
             }
         };
         buyButton.setOnClickListener(clickListener);
-        closeButton.setOnClickListener(clickListener);
         moreButton.setOnClickListener(clickListener);
     }
 
@@ -106,34 +93,21 @@ class ConversionView {
     }
 
     private void showPrice(String price) {
-        priceView.setText(resources.getString(R.string.conversion_price, price));
+        priceView.setText(formatter.monthlyPricing(price));
         priceView.setVisibility(View.VISIBLE);
     }
 
     void showPromo(String promoPrice, int promoDays, String regularPrice) {
-        String duration = formatPromoDuration(promoDays);
-        priceView.setText(resources.getString(R.string.conversion_price_promo, duration, promoPrice));
+        priceView.setText(formatter.promoPricing(promoDays, promoPrice));
         priceView.setVisibility(View.VISIBLE);
         buyButton.setActionText(resources.getString(R.string.conversion_buy_promo));
-        setupPromoRestrictions(duration, promoPrice, regularPrice);
+        setupPromoRestrictions(formatter.promoDuration(promoDays), promoPrice, regularPrice);
         enableBuyButton();
     }
 
     private void showTrialDays(final int trialDays) {
-        buyButton.setActionText(trialDays > 0
-                ? resources.getString(R.string.conversion_buy_trial, trialDays)
-                : resources.getString(R.string.conversion_buy_no_trial));
+        buyButton.setActionText(formatter.buyButton(trialDays));
         setupRestrictions(trialDays);
-    }
-
-    @VisibleForTesting
-    String formatPromoDuration(int promoDays) {
-        if (promoDays >= 30) {
-            int months = promoDays / 30;
-            return resources.getQuantityString(R.plurals.elapsed_months, months, months);
-        } else {
-            return resources.getQuantityString(R.plurals.elapsed_days, promoDays, promoDays);
-        }
     }
 
     private void setupRestrictions(final int trialDays) {
