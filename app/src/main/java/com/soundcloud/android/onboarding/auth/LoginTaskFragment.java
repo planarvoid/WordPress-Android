@@ -32,7 +32,8 @@ public class LoginTaskFragment extends AuthTaskFragment {
     @Override
     AuthTask createAuthTask() {
         return new LoginTask((SoundCloudApplication) getActivity().getApplication(), tokenUtils, storeUsersCommand,
-                             configurationOperations, eventBus, accountOperations, apiClient, syncInitiatorBridge);
+                             configurationOperations, eventBus, accountOperations, apiClient, syncInitiatorBridge,
+                             featureFlags, signInOperations);
     }
 
     @Override

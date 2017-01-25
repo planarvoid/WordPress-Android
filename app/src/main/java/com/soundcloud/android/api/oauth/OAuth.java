@@ -1,6 +1,8 @@
 package com.soundcloud.android.api.oauth;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
@@ -38,17 +40,19 @@ public class OAuth {
     private final String clientId;
     private final String clientSecret;
     private final AccountOperations accountOperations;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public OAuth(AccountOperations accountOperations) {
-        this(CLIENT_ID, deobfuscate(CLIENT_SECRET), accountOperations);
+    public OAuth(AccountOperations accountOperations, FeatureFlags featureFlags) {
+        this(CLIENT_ID, deobfuscate(CLIENT_SECRET), accountOperations, featureFlags);
     }
 
     @VisibleForTesting
-    public OAuth(String clientId, String clientSecret, AccountOperations accountOperations) {
+    public OAuth(String clientId, String clientSecret, AccountOperations accountOperations, FeatureFlags featureFlags) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.accountOperations = accountOperations;
+        this.featureFlags = featureFlags;
     }
 
     public String getClientId() {
@@ -59,12 +63,22 @@ public class OAuth {
         return clientSecret;
     }
 
-    public static String createOAuthHeaderValue(Token token) {
-        return "OAuth " + (token == null || !token.valid() ? "invalidated" : token.getAccessToken());
+    public static String createOAuthHeaderValue(FeatureFlags featureFlags, Token token) {
+        boolean valid = token != null && isTokenValid(featureFlags, token);
+        String tokenString = valid ? token.getAccessToken() : "invalidated";
+        return "OAuth " + tokenString;
+    }
+
+    private static boolean isTokenValid(FeatureFlags featureFlags, Token token) {
+        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
+            return token.valid();
+        } else {
+            return token.legacyValid();
+        }
     }
 
     public String getAuthorizationHeaderValue() {
-        return createOAuthHeaderValue(accountOperations.getSoundCloudToken());
+        return createOAuthHeaderValue(featureFlags, accountOperations.getSoundCloudToken());
     }
 
     public Map<String, String> getTokenRequestParamsFromUserCredentials(String username, String password) {

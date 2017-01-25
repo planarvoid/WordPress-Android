@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
@@ -19,8 +20,12 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.onboarding.auth.response.AuthResponse;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -45,6 +50,8 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ApiClient apiClient;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private SignInOperations signInOperations;
     private ApiUser user = ModelFixtures.create(ApiUser.class);
     private Bundle bundle;
 
@@ -55,8 +62,9 @@ public class LoginTaskTest extends AndroidUnitTest {
         bundle = new Bundle();
         loginTask = new LoginTask(application, tokenInformationGenerator, storeUsersCommand,
                                   configurationOperations, new TestEventBus(), accountOperations,
-                                  apiClient, syncInitiatorBridge);
+                                  apiClient, syncInitiatorBridge, featureFlags, signInOperations);
 
+        when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(false);
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
                 .thenReturn(Me.create(user));
@@ -172,6 +180,14 @@ public class LoginTaskTest extends AndroidUnitTest {
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
 
         assertThat(loginTask.doInBackground(bundle).wasSuccess()).isTrue();
+    }
+
+    @Test
+    public void callsOperationsWhenFeatureFlagEnabled() throws Exception {
+        when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(true);
+        when(signInOperations.signIn(eq(bundle), any())).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user)), SignupVia.API));
+        loginTask.doInBackground(bundle);
+        verify(signInOperations).signIn(eq(bundle), any());
     }
 
     private void setupMocksToReturnToken() throws Exception {

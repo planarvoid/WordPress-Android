@@ -15,6 +15,8 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -38,6 +40,7 @@ public class CastProtocolTest extends AndroidUnitTest {
     @Mock private CastProtocol.Listener listener;
     @Mock private RemoteMediaClient remoteMediaClient;
     @Mock private CastPlayQueue castPlayQueue;
+    @Mock private FeatureFlags featureFlags;
     @Captor private ArgumentCaptor<String> jsonCaptor;
     @Captor private ArgumentCaptor<MediaInfo> mediaInfoCaptor;
     @Captor private ArgumentCaptor<CastCredentials> credentialsCaptor;
@@ -47,12 +50,13 @@ public class CastProtocolTest extends AndroidUnitTest {
     @Before
     public void setUp() throws IOException {
         when(token.getAccessToken()).thenReturn(TOKEN);
-        when(token.valid()).thenReturn(true);
+        when(token.legacyValid()).thenReturn(true);
         when(castSession.getRemoteMediaClient()).thenReturn(remoteMediaClient);
         when(castSession.isConnected()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
+        when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(false);
 
-        castProtocol = new CastProtocol(castJsonHandler, accountOperations);
+        castProtocol = new CastProtocol(castJsonHandler, accountOperations, featureFlags);
         castProtocol.registerCastSession(castSession);
     }
 

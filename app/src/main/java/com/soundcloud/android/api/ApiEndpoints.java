@@ -12,6 +12,7 @@ import java.util.Locale;
 public enum ApiEndpoints {
 
     // auth
+    SIGN_IN("/sign_in"),
     SIGN_UP("/sign_up"),
     RESET_PASSWORD("/users/passwords/reset"),
 

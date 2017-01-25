@@ -39,6 +39,7 @@ import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.onboarding.auth.LoginLayout;
 import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.SignupBasicsLayout;
 import com.soundcloud.android.onboarding.auth.SignupDetailsLayout;
 import com.soundcloud.android.onboarding.auth.SignupLog;
@@ -48,6 +49,8 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
@@ -184,6 +187,7 @@ public class OnboardActivity extends FragmentActivity
     @Inject ApplicationProperties applicationProperties;
     @Inject BugReporter bugReporter;
     @Inject EventBus eventBus;
+    @Inject FeatureFlags featureFlags;
     @Inject TokenInformationGenerator tokenUtils;
     @Inject Navigator navigator;
     @Inject OAuth oauth;
@@ -854,7 +858,11 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void loginWithFacebook(String facebookToken) {
-        login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, facebookToken));
+        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
+            login(SignInOperations.getFacebookTokenBundle(facebookToken));
+        } else {
+            login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, facebookToken));
+        }
     }
 
     public void requestFacebookEmail() {

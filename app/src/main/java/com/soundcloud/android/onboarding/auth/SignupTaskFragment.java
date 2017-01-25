@@ -73,7 +73,9 @@ public class SignupTaskFragment extends AuthTaskFragment {
                                                   eventBus,
                                                   accountOperations,
                                                   apiClient,
-                                                  syncInitiatorBridge);
+                                                  syncInitiatorBridge,
+                                                  featureFlags,
+                                                  signInOperations);
         loginTask.setTaskOwner(this);
         return loginTask;
     }

@@ -24,6 +24,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageConfigurationStorage;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
@@ -53,6 +54,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
     @Mock private ImageConfigurationStorage imageConfigurationStorage;
     @Mock private Sleeper sleeper;
+    @Mock private FeatureFlags featureFlags;
 
     private ConfigurationOperations operations;
     private Configuration configuration;
@@ -75,7 +77,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
                                                  configurationSettingsStorage,
                                                  imageConfigurationStorage,
                                                  factory.create(0, TimeUnit.SECONDS, 0, 1),
-                                                 scheduler);
+                                                 scheduler,
+                                                 featureFlags);
 
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(configuration);

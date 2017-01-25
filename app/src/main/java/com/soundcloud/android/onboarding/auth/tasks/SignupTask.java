@@ -87,7 +87,7 @@ public class SignupTask extends AuthTask {
             final ApiRequest request = ApiRequest.post(ApiEndpoints.LEGACY_USERS.path())
                                                  .forPublicApi()
                                                  .withFormMap(signupParameters(parameters))
-                                                 .withToken(tokenUtils.verifyScopes(Token.SCOPE_SIGNUP))
+                                                 .withToken(featureFlags, tokenUtils.verifyScopes(Token.SCOPE_SIGNUP))
                                                  .build();
 
             ApiUser user = apiClient.fetchMappedResponse(request, PublicApiUser.class).toApiMobileUser();

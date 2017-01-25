@@ -46,6 +46,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject StoreUsersCommand storeUsersCommand;
     @Inject SyncInitiatorBridge syncInitiatorBridge;
     @Inject FeatureFlags featureFlags;
+    @Inject SignInOperations signInOperations;
     @Inject SignUpOperations signUpOperations;
 
     public interface OnAuthResultListener {

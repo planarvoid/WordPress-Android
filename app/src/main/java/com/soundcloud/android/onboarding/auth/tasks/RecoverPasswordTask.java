@@ -62,7 +62,7 @@ public class RecoverPasswordTask extends AsyncTask<String, Void, Boolean> {
             ApiResponse apiResponse = apiClient.fetchResponse(ApiRequest.post(ApiEndpoints.LEGACY_RESET_PASSWORD.path())
                                                                         .forPublicApi()
                                                                         .addQueryParam("email", email)
-                                                                        .withToken(signup)
+                                                                        .withToken(featureFlags, signup)
                                                                         .build());
             failure = apiResponse.getFailure();
         } catch (ApiRequestException e) {

@@ -18,10 +18,13 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.AddAccountException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.reflect.TypeToken;
@@ -41,16 +44,21 @@ public class LoginTask extends AuthTask {
     private final ConfigurationOperations configurationOperations;
     private final EventBus eventBus;
     private final ApiClient apiClient;
+    private final FeatureFlags featureFlags;
+    private final SignInOperations signInOperations;
 
     public LoginTask(@NotNull SoundCloudApplication application, TokenInformationGenerator tokenUtils,
                      StoreUsersCommand storeUsersCommand, ConfigurationOperations configurationOperations,
-                     EventBus eventBus, AccountOperations accountOperations, ApiClient apiClient, SyncInitiatorBridge syncInitiatorBridge) {
+                     EventBus eventBus, AccountOperations accountOperations, ApiClient apiClient, SyncInitiatorBridge syncInitiatorBridge,
+                     FeatureFlags featureFlags, SignInOperations signInOperations) {
         super(application, storeUsersCommand, syncInitiatorBridge);
         this.tokenUtils = tokenUtils;
         this.configurationOperations = configurationOperations;
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.apiClient = apiClient;
+        this.featureFlags = featureFlags;
+        this.signInOperations = signInOperations;
     }
 
     @Override
@@ -59,7 +67,12 @@ public class LoginTask extends AuthTask {
     }
 
     protected LegacyAuthTaskResult login(Bundle data) {
-        return legacyLogin(data);
+        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
+            AuthTaskResult result = signInOperations.signIn(data, this::addAccount);
+            return LegacyAuthTaskResult.fromAuthTaskResult(result);
+        } else {
+            return legacyLogin(data);
+        }
     }
 
     @Deprecated

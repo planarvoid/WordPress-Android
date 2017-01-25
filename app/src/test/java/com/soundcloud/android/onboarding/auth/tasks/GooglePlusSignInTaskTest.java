@@ -24,9 +24,12 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -54,6 +57,8 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Mock private Token token;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private SignInOperations signInOperations;
 
     private final Bundle bundle = new Bundle();
     private ApiUser user = ModelFixtures.create(ApiUser.class);
@@ -65,8 +70,10 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
         when(app.getAccountOperations()).thenReturn(accountOperations);
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
+        when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(false);
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, storeUsersCommand,
-                                        accountOperations, configurationOperations, new TestEventBus(), apiClient, syncInitiatorBridge);
+                                        accountOperations, configurationOperations, new TestEventBus(), apiClient, syncInitiatorBridge,
+                                        featureFlags, signInOperations);
 
         when(tokenInformationGenerator.getGrantBundle(anyString(), anyString())).thenReturn(bundle);
     }
