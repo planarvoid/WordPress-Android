@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.net.Uri;
@@ -79,8 +80,10 @@ class OldUserDetailsView {
         descriptionText.setVisibility(View.GONE);
     }
 
-    void showWebsite(final String websiteUrl, String websiteName) {
-        websiteText.setText(Strings.isBlank(websiteName) ? websiteUrl : websiteName);
+    void showWebsite(final String websiteUrl, Optional<String> websiteName) {
+        boolean hasName = websiteName.isPresent() && Strings.isNotBlank(websiteName.get());
+
+        websiteText.setText(hasName ? websiteName.get() : websiteUrl);
         websiteText.setVisibility(View.VISIBLE);
         websiteText.setOnClickListener(v -> {
             if (listener != null) {

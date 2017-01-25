@@ -128,7 +128,7 @@ class OldUserDetailsPresenter extends DefaultSupportFragmentLightCycle<Scrollabl
 
     private void setupWebsite(final User user) {
         if (hasWebsite(user)) {
-            oldUserDetailsView.showWebsite(user.websiteUrl().get(), user.websiteName().get());
+            oldUserDetailsView.showWebsite(user.websiteUrl().get(), user.websiteName());
         } else {
             oldUserDetailsView.hideWebsite();
         }

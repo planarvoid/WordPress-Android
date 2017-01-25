@@ -15,6 +15,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -32,8 +33,8 @@ import android.view.View;
 public class OldUserDetailsPresenterTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
-    private static final String DESCRIPTION = "desciption";
-    private static final String WEBSITE_NAME = "website-name";
+    private static final String DESCRIPTION = "description";
+    private static final Optional<String> WEBSITE_NAME = Optional.of("website-name");
     private static final String WEBSITE_URL = "website-url";
     private static final String DISCOGS_NAME = "discogs-name";
     private static final String MYSPACE_NAME = "myspace-name";
@@ -269,11 +270,11 @@ public class OldUserDetailsPresenterTest extends AndroidUnitTest {
 
     private User userWithFullDetails() {
         return ModelFixtures.userBuilder(false)
-                .description(of(DESCRIPTION))
-                .websiteName(of(WEBSITE_NAME))
-                .websiteUrl(of(WEBSITE_URL))
-                .discogsName(of(DISCOGS_NAME))
-                .mySpaceName(of(MYSPACE_NAME))
-                .build();
+                            .description(of(DESCRIPTION))
+                            .websiteName(WEBSITE_NAME)
+                            .websiteUrl(of(WEBSITE_URL))
+                            .discogsName(of(DISCOGS_NAME))
+                            .mySpaceName(of(MYSPACE_NAME))
+                            .build();
     }
 }
