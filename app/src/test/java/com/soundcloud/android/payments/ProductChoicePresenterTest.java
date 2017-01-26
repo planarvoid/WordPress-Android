@@ -1,7 +1,11 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import org.junit.Before;
@@ -10,6 +14,7 @@ import org.mockito.Mock;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import java.util.Arrays;
 
@@ -17,7 +22,8 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
 
     private static final AvailableWebProducts BOTH_PLANS = new AvailableWebProducts(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
 
-    @Mock ProductChoiceView view;
+    @Mock ProductChoicePagerView pagerView;
+    @Mock ProductChoiceScrollView scrollView;
 
     private AppCompatActivity activity = activity();
     private ProductChoicePresenter presenter;
@@ -25,15 +31,27 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         activity.setIntent(new Intent().putExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, BOTH_PLANS));
-        presenter = new ProductChoicePresenter(view);
+        presenter = new ProductChoicePresenter(lazyOf(pagerView), lazyOf(scrollView));
     }
 
     @Test
-    public void displaysProductsFromIntent() {
+    public void displaysProductsFromIntentWithPagerView() {
+        activity.setContentView(R.layout.product_choice_activity);
+
         presenter.onCreate(activity, null);
 
-        verify(view).displayOptions(BOTH_PLANS);
+        verify(pagerView).setupContent(any(View.class), eq(BOTH_PLANS), eq(presenter));
     }
+
+    @Test
+    public void displaysProductsFromIntentWithScrollView() {
+        // Not setting up content view to test other branch - in reality landscape config has no pager
+
+        presenter.onCreate(activity, null);
+
+        verify(scrollView).setupContent(any(View.class), eq(BOTH_PLANS), eq(presenter));
+    }
+
 
     @Test
     public void purchasePassesProductInfoToCheckout() {

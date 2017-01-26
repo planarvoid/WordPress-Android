@@ -1,7 +1,5 @@
 package com.soundcloud.android.payments;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 
@@ -31,9 +29,9 @@ class ProductChoiceAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         switch (position) {
             case 0:
-                return bindView(container, R.layout.product_choice_mid, getProduct(0));
+                return bindView(container, R.layout.product_page_mid, getProduct(0));
             case 1:
-                return bindView(container, R.layout.product_choice_high, getProduct(1));
+                return bindView(container, R.layout.product_page_high, getProduct(1));
             default:
                 throw new IllegalStateException("Unexpected index in " + ProductChoiceAdapter.class.getSimpleName());
         }
@@ -41,18 +39,10 @@ class ProductChoiceAdapter extends PagerAdapter {
 
     private ViewGroup bindView(ViewGroup parent, @LayoutRes int layout, WebProduct product) {
         ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-        configurePrice(product, ButterKnife.findById(view, R.id.product_choice_price));
+        TextView price = ButterKnife.findById(view, R.id.product_choice_price);
+        price.setText(formatter.configuredPrice(product));
         parent.addView(view);
         return view;
-    }
-
-    private void configurePrice(WebProduct product, TextView price) {
-        if (product.hasPromo()) {
-            checkNotNull(product.getPromoPrice());
-            price.setText(formatter.promoPricing(product.getPromoDays(), product.getPromoPrice().get()));
-        } else {
-            price.setText(formatter.monthlyPricing(product.getDiscountPrice().or(product.getPrice())));
-        }
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+
 import com.soundcloud.android.R;
 
 import android.content.res.Resources;
@@ -36,6 +38,21 @@ class ProductInfoFormatter {
         return trialDays > 0
                ? resources.getString(R.string.conversion_buy_trial, trialDays)
                : resources.getString(R.string.conversion_buy_no_trial);
+    }
+
+    String configuredPrice(WebProduct product) {
+        if (product.hasPromo()) {
+            checkNotNull(product.getPromoPrice());
+            return promoPricing(product.getPromoDays(), product.getPromoPrice().get());
+        } else {
+            return monthlyPricing(product.getDiscountPrice().or(product.getPrice()));
+        }
+    }
+
+    String configuredBuyButton(WebProduct product) {
+        return product.hasPromo()
+                ? resources.getString(R.string.conversion_buy_promo)
+                : buyButton(product.getTrialDays());
     }
 
 }
