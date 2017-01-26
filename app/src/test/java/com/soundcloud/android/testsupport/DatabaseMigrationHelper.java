@@ -102,6 +102,7 @@ public class DatabaseMigrationHelper {
         ResultSet columns = null;
 
         try {
+            Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection("jdbc:sqlite:" + url);
             tables = conn.getMetaData().getTables(null, null, null, null);
 
