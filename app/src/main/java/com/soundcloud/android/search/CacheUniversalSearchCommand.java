@@ -3,19 +3,18 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.PropellerWriteException;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class CacheUniversalSearchCommand
-        extends LegacyCommand<Iterable<ApiUniversalSearchItem>, Void, CacheUniversalSearchCommand> {
+public class CacheUniversalSearchCommand implements Action1<Iterable<ApiUniversalSearchItem>> {
 
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;
@@ -31,7 +30,7 @@ class CacheUniversalSearchCommand
     }
 
     @Override
-    public Void call() throws PropellerWriteException {
+    public void call(Iterable<ApiUniversalSearchItem> input) throws PropellerWriteException {
         List<ApiUser> users = new ArrayList<>();
         List<ApiPlaylist> playlists = new ArrayList<>();
         List<ApiTrack> tracks = new ArrayList<>();
@@ -58,7 +57,5 @@ class CacheUniversalSearchCommand
         if (!tracks.isEmpty()) {
             storeTracksCommand.call(tracks);
         }
-
-        return null;
     }
 }

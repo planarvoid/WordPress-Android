@@ -17,16 +17,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Has either a user XOR a playlist XOR a track set, as it represents a result item from a universal search.
  */
-class ApiUniversalSearchItem {
+public class ApiUniversalSearchItem {
 
     private final Optional<ApiUser> user;
     private final Optional<ApiPlaylist> playlist;
     private final Optional<ApiTrack> track;
 
     @JsonCreator
-    ApiUniversalSearchItem(@JsonProperty("user") @Nullable ApiUser user,
-                           @JsonProperty("playlist") @Nullable ApiPlaylist playlist,
-                           @JsonProperty("track") @Nullable ApiTrack track) {
+    public ApiUniversalSearchItem(@JsonProperty("user") @Nullable ApiUser user,
+                                  @JsonProperty("playlist") @Nullable ApiPlaylist playlist,
+                                  @JsonProperty("track") @Nullable ApiTrack track) {
         this.user = fromNullable(user);
         this.playlist = fromNullable(playlist);
         this.track = fromNullable(track);
