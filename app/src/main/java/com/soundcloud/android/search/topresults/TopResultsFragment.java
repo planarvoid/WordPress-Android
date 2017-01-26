@@ -8,7 +8,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
-import com.soundcloud.android.view.dragdrop.RecyclerDragDropAdapter;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -118,7 +117,7 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
 
         @Override
         protected RecyclerView.ViewHolder createViewHolder(View itemView) {
-            return new RecyclerDragDropAdapter.ViewHolder(itemView);
+            return new RecyclerItemAdapter.ViewHolder(itemView);
         }
 
         @Override

@@ -37,7 +37,6 @@ import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
-import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.Queue;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -106,7 +105,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsViewModel model = PlaylistDetailFixtures.create(resources(), playlist, tracks);
         when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(model));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
-        when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
+        when(adapterFactory.create(same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
         when(offlinePropertiesProvider.states()).thenReturn(offlinePropertiesSubject);
 
         createPresenter();

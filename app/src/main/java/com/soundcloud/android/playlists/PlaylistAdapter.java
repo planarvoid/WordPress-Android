@@ -3,11 +3,10 @@ package com.soundcloud.android.playlists;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRendererBinding;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
-import com.soundcloud.android.view.dragdrop.OnStartDragListener;
-import com.soundcloud.android.view.dragdrop.RecyclerDragDropAdapter;
 
 import android.view.View;
 
@@ -16,20 +15,16 @@ import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
 public class PlaylistAdapter
-        extends RecyclerDragDropAdapter<PlaylistDetailItem, RecyclerDragDropAdapter.ViewHolder> {
+        extends RecyclerItemAdapter<PlaylistDetailItem, RecyclerItemAdapter.ViewHolder> {
 
     private final PlaylistUpsellItemRenderer upsellItemRenderer;
 
-    PlaylistAdapter(OnStartDragListener dragListener,
-                    PlaylistHeaderPresenter playlistHeaderPresenter,
+    PlaylistAdapter(PlaylistHeaderPresenter playlistHeaderPresenter,
                     PlaylistTrackItemRenderer playlistTrackItemRenderer,
                     @Provided PlaylistDetailTrackItemRendererFactory trackItemRenderer,
-                    @Provided TrackEditItemRenderer editTrackItemRenderer,
                     @Provided PlaylistUpsellItemRenderer upsellItemRenderer,
                     @Provided PlaylistDetailOtherPlaylistsItemRenderer recommendationsItemRenderer) {
-        super(dragListener,
-              new CellRendererBinding<>(PlaylistDetailItem.Kind.TrackItem.ordinal(), trackItemRenderer.create(playlistTrackItemRenderer)),
-              new CellRendererBinding<>(PlaylistDetailItem.Kind.EditItem.ordinal(), editTrackItemRenderer),
+        super(new CellRendererBinding<>(PlaylistDetailItem.Kind.TrackItem.ordinal(), trackItemRenderer.create(playlistTrackItemRenderer)),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.UpsellItem.ordinal(), upsellItemRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistHeaderPresenter),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.OtherPlaylists.ordinal(), recommendationsItemRenderer));
