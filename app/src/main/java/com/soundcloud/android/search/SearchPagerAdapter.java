@@ -13,7 +13,8 @@ import java.util.List;
 class SearchPagerAdapter extends FragmentPagerAdapter {
 
     private final Resources resources;
-    private final String query;
+    private final String apiQuery;
+    private final String userQuery;
     private final Optional<Urn> queryUrn;
     private final Optional<Integer> queryPosition;
     private final boolean firstTime;
@@ -21,13 +22,15 @@ class SearchPagerAdapter extends FragmentPagerAdapter {
 
     SearchPagerAdapter(Resources resources,
                        FragmentManager fm,
-                       String query,
+                       String apiQuery,
+                       String userQuery,
                        Optional<Urn> queryUrn,
                        Optional<Integer> queryPosition,
                        boolean firstTime) {
         super(fm);
         this.resources = resources;
-        this.query = query;
+        this.apiQuery = apiQuery;
+        this.userQuery = userQuery;
         this.queryUrn = queryUrn;
         this.queryPosition = queryPosition;
         this.firstTime = firstTime;
@@ -38,7 +41,7 @@ class SearchPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         final SearchType itemType = tabs.get(position);
         final boolean publishSearchSubmissionEvent = itemType.shouldPublishSearchSubmissionEvent();
-        return SearchResultsFragment.create(itemType, query, queryUrn, queryPosition, firstTime && publishSearchSubmissionEvent);
+        return SearchResultsFragment.create(itemType, apiQuery, userQuery, queryUrn, queryPosition, firstTime && publishSearchSubmissionEvent);
     }
 
     @Override

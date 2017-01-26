@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 public class AutocompleteConfig {
-    private static final String NAME = "search_query_autocomplete_android";
+    private static final String NAME = "search_query_autocomplete_android2";
     static final String VARIANT_CONTROL_A = "control_a";
     static final String VARIANT_CONTROL_B = "control_b";
     static final String VARIANT_SHORTCUTS_AND_QUERIES = "shortcuts_and_queries";

@@ -33,11 +33,11 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
     public interface SuggestionListener {
         void onScrollChanged();
 
-        void onSearchClicked(String searchQuery);
+        void onSearchClicked(String apiQuery, String userQuery);
 
         void onSuggestionClicked();
 
-        void onAutocompleteClicked(String query, String output, Optional<Urn> queryUrn, int position);
+        void onAutocompleteClicked(String query, String userQuery, String output, Optional<Urn> queryUrn, int position);
     }
 
     private final SuggestionsAdapter adapter;
@@ -116,11 +116,11 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
         if (suggestionListener != null) {
             switch (item.kind()) {
                 case SearchItem:
-                    suggestionListener.onSearchClicked(item.userQuery());
+                    suggestionListener.onSearchClicked(item.userQuery(), item.userQuery());
                     break;
                 case AutocompletionItem:
                     final AutocompletionItem autocompletionItem = (AutocompletionItem) item;
-                    suggestionListener.onAutocompleteClicked(autocompletionItem.apiQuery(), autocompletionItem.output(), autocompletionItem.queryUrn(), position);
+                    suggestionListener.onAutocompleteClicked(autocompletionItem.apiQuery(), autocompletionItem.userQuery(), autocompletionItem.output(), autocompletionItem.queryUrn(), position);
                     break;
                 default:
                     onSuggestionClicked(position, item, view.getContext());

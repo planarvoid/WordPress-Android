@@ -112,7 +112,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     @Override
     public void onDeepLinkExecuted(String searchQuery) {
         searchTextView.setText(searchQuery);
-        performSearch(searchQuery);
+        performSearch(searchQuery, searchQuery);
     }
 
     @Override
@@ -131,16 +131,17 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         hideKeyboard();
     }
 
-    void performSearch(String searchQuery) {
-        performSearch(searchQuery, Optional.absent(), Optional.absent(), Optional.absent());
+    void performSearch(String apiQuery, String userQuery) {
+        performSearch(apiQuery, userQuery, Optional.absent(), Optional.absent(), Optional.absent());
     }
 
-    void performSearch(String searchQuery,
+    void performSearch(String apiQuery,
+                       String userQuery,
                        Optional<String> outputString,
                        Optional<Urn> queryUrn,
                        Optional<Integer> position) {
         deactivateSearchView();
-        showResultsFor(searchQuery, outputString, queryUrn, position);
+        showResultsFor(apiQuery, userQuery, outputString, queryUrn, position);
     }
 
     void onSuggestionClicked() {
@@ -251,11 +252,12 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
-    private void showResultsFor(String query,
+    private void showResultsFor(String apiQuery,
+                                String userQuery,
                                 Optional<String> outputText,
                                 Optional<Urn> queryUrn,
                                 Optional<Integer> queryPosition) {
-        final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(query, queryUrn, queryPosition);
+        final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
         fragmentManager
                 .beginTransaction()
                 .replace(R.id.search_results_container, searchResults, TabbedSearchFragment.TAG)
@@ -367,7 +369,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
             if (actionId == EditorInfo.IME_NULL || actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch(searchTextView.getText().toString());
+                final String query = searchTextView.getText().toString();
+                performSearch(query, query);
                 return true;
             }
             return false;

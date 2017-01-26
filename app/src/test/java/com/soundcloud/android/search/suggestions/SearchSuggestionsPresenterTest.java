@@ -41,7 +41,8 @@ import java.util.List;
 
 public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
-    private static final String SEARCH_QUERY = "query";
+    private static final String API_QUERY = "api_query";
+    private static final String USER_QUERY = "user_query";
     private static final int CLICK_POSITION = 1;
     private final Screen SCREEN = Screen.SEARCH_SUGGESTIONS;
 
@@ -74,17 +75,17 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersSearchEventOnSearchItemClicked() {
-        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(API_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(mock(View.class), CLICK_POSITION);
 
-        verify(suggestionListener).onSearchClicked(SEARCH_QUERY);
+        verify(suggestionListener).onSearchClicked(API_QUERY, USER_QUERY);
     }
 
     @Test
     public void triggersTrackClickEventOnTrackItemClicked() {
-        final SuggestionItem suggestionItem = SearchSuggestionItem.forTrack(Urn.forTrack(123), Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forTrack(Urn.forTrack(123), Optional.absent(), API_QUERY, Optional.absent(), API_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);
@@ -94,7 +95,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersUserClickEventOnUserItemClicked() {
-        final SuggestionItem suggestionItem = SearchSuggestionItem.forUser(Urn.forUser(456), Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forUser(Urn.forUser(456), Optional.absent(), API_QUERY, Optional.absent(), API_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);
@@ -105,7 +106,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersPlaylistClickEventOnUserItemClicked() {
-        final SuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(789), Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(789), Optional.absent(), API_QUERY, Optional.absent(), API_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);
@@ -115,32 +116,32 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribeSuggestionListenerWhenViewDestroyed() {
-        when(adapter.getItem(anyInt())).thenReturn(SuggestionItem.forLegacySearch(SEARCH_QUERY));
+        when(adapter.getItem(anyInt())).thenReturn(SuggestionItem.forLegacySearch(API_QUERY));
 
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
         presenter.onDestroy(fragmentRule.getFragment());
         presenter.onItemClicked(view, CLICK_POSITION);
 
-        verify(suggestionListener, never()).onSearchClicked(anyString());
+        verify(suggestionListener, never()).onSearchClicked(anyString(), anyString());
     }
 
     @Test
     public void doesNotRepeatSearchWithTheSameQuery() {
-        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.<List<SuggestionItem>>empty());
+        when(operations.suggestionsFor(API_QUERY)).thenReturn(Observable.<List<SuggestionItem>>empty());
 
-        presenter.showSuggestionsFor(SEARCH_QUERY);
+        presenter.showSuggestionsFor(API_QUERY);
         presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
-        verify(operations).suggestionsFor(SEARCH_QUERY);
+        verify(operations).suggestionsFor(API_QUERY);
         reset(operations);
 
-        presenter.showSuggestionsFor(SEARCH_QUERY);
+        presenter.showSuggestionsFor(API_QUERY);
         verifyZeroInteractions(operations);
     }
 
     @Test
     public void performsSuggestionAction() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(789);
-        final SearchSuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(playlistUrn, Optional.absent(), SEARCH_QUERY, Optional.absent(), SEARCH_QUERY);
+        final SearchSuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(playlistUrn, Optional.absent(), API_QUERY, Optional.absent(), API_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);
@@ -150,7 +151,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
         final SearchEvent capturedEvent = searchEventCaptor.getValue();
         assertThat(capturedEvent.pageName().get()).isEqualTo(SCREEN.get());
-        assertThat(capturedEvent.query().get()).isEqualTo(SEARCH_QUERY);
+        assertThat(capturedEvent.query().get()).isEqualTo(API_QUERY);
         assertThat(capturedEvent.queryPosition().get()).isEqualTo(CLICK_POSITION);
         assertThat(capturedEvent.kind().isPresent()).isFalse();
     }

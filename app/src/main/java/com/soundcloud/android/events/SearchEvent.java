@@ -161,7 +161,7 @@ public abstract class SearchEvent extends NewTrackingEvent {
                 .clickObject(optionalClickUrn)
                 .clickSource(Optional.absent())
                 .queryUrn(Optional.fromNullable(searchQuerySourceInfo.getQueryUrn()))
-                .query(Optional.absent())
+                .query(Optional.fromNullable(searchQuerySourceInfo.getQueryString()))
                 .queryPosition(optionalClickPosition);
     }
 

@@ -1,10 +1,11 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_API_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY_POSITION;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY_URN;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_USER_QUERY;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -16,8 +17,6 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -76,7 +75,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final EventBus eventBus;
     private final Navigator navigator;
     private final SearchTracker searchTracker;
-    private final FeatureFlags featureFlags;
     private final ScreenProvider screenProvider;
 
     private final Action1<SearchResult> trackSearch =
@@ -88,24 +86,22 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                     searchTracker.setTrackingData(searchType, queryUrn, searchResult.getPremiumContent().isPresent());
 
                     if (publishSearchSubmissionEvent) {
-                        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
-                            searchTracker.trackSearchFormulationEnd(screenProvider.getLastScreen(), searchQuery, autocompleteUrn(), autocompletePosition());
-                        } else {
-                            searchTracker.trackSearchSubmission(searchType, queryUrn, searchQuery);
-                        }
+                        searchTracker.trackSearchFormulationEnd(screenProvider.getLastScreen(), userQuery, autocompleteUrn(), autocompletePosition());
+                        searchTracker.trackSearchSubmission(searchType, queryUrn, userQuery);
                     }
 
                     if (publishSearchSubmissionEvent || shouldSendTrackingState) {
                         publishSearchSubmissionEvent = false;
 
                         //We need to send the event as soon as the fragment is loaded
-                        searchTracker.trackResultsScreenEvent(searchType, searchQuery);
+                        searchTracker.trackResultsScreenEvent(searchType, apiQuery);
                     }
                 }
             };
 
     private SearchType searchType;
-    private String searchQuery;
+    private String apiQuery;
+    private String userQuery;
     private Optional<Urn> autocompleteUrn = Optional.absent();
     private Optional<Integer> autocompletePosition = Optional.absent();
     private Urn queryUrn = Urn.NOT_SET;
@@ -120,7 +116,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
                            EventBus eventBus, Navigator navigator,
                            SearchTracker searchTracker,
-                           FeatureFlags featureFlags,
                            ScreenProvider screenProvider) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
@@ -129,7 +124,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.eventBus = eventBus;
         this.navigator = navigator;
         this.searchTracker = searchTracker;
-        this.featureFlags = featureFlags;
         this.screenProvider = screenProvider;
     }
 
@@ -164,7 +158,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Override
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_TYPE)).or(SearchType.ALL);
-        searchQuery = bundle.getString(EXTRA_QUERY);
+        apiQuery = bundle.getString(EXTRA_API_QUERY);
+        userQuery = bundle.getString(EXTRA_USER_QUERY);
         autocompleteUrn = Optional.fromNullable(bundle.<Urn>getParcelable(EXTRA_QUERY_URN));
         autocompletePosition = Optional.fromNullable(bundle.getInt(EXTRA_QUERY_POSITION));
         publishSearchSubmissionEvent = bundle.getBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT);
@@ -181,7 +176,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
                 .from(searchOperations
-                              .searchResult(searchQuery, autocompleteUrn(), searchType)
+                              .searchResult(apiQuery, autocompleteUrn(), searchType)
                               .doOnNext(trackSearch), toPresentationModels)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
@@ -229,7 +224,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         final Urn urn = adapter.getItem(position).getUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position,
                                                                                                     urn,
-                                                                                                    searchQuery);
+                                                                                                    apiQuery);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(),
                                     searchQuerySourceInfo).onItemClick(playQueue, view.getContext(), position);
@@ -239,7 +234,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     public void onPremiumItemClicked(View view, List<ListItem> premiumItemsList) {
         final Urn firstPremiumItemUrn = premiumItemsList.get(0).getUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo =
-                pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn, searchQuery);
+                pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn, apiQuery);
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo)
                             .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList),
@@ -256,8 +251,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Override
     public void onPremiumContentViewAllClicked(Context context, List<SearchableItem> premiumItemsSource,
                                                Optional<Link> nextHref) {
-        searchTracker.trackPremiumResultsScreenEvent(queryUrn, searchQuery);
-        navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource,
+        searchTracker.trackPremiumResultsScreenEvent(queryUrn, apiQuery);
+        navigator.openSearchPremiumContentResults(context, apiQuery, searchType, premiumItemsSource,
                                                   nextHref, queryUrn);
     }
 }
