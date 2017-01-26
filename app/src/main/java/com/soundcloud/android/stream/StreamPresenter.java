@@ -214,6 +214,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         viewLifeCycleSubscription.unsubscribe();
         adapter.unsubscribe();
         newItemsIndicator.destroy();
+        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        imagePauseOnScrollListener.resume();
         super.onDestroyView(fragment);
     }
 

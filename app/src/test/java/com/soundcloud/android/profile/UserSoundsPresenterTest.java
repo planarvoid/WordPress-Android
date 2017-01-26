@@ -99,6 +99,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         when(operations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
         when(resources.getInteger(R.integer.user_profile_card_grid_span_count)).thenReturn(1);
         when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
+        when(recyclerView.getAdapter()).thenReturn(adapter);
     }
 
     @Test
@@ -211,6 +212,17 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
                                                    any(SearchQuerySourceInfo.class),
                                                    any(Module.class));
     }
+
+    @Test
+    public void resumesImageLoadingOnViewDestroy() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(imagePauseOnScrollListener).resume();
+    }
+
 
     private LikesStatusEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {
         return LikesStatusEvent.create(apiPlaylist.getUrn(), true, apiPlaylist.getLikesCount() + 1);

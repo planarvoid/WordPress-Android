@@ -84,6 +84,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        imagePauseOnScrollListener.resume();
         adapter.detach();
         super.onDestroyView(fragment);
     }

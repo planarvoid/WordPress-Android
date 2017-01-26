@@ -513,4 +513,15 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(videoAd.getClickThroughUrl()));
     }
+
+    @Test
+    public void resumesImageLoadingOnViewDestroy() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(imagePauseOnScrollListener).resume();
+    }
+
 }

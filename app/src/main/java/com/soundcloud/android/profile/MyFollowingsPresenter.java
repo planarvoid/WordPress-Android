@@ -104,6 +104,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
     @Override
     public void onDestroyView(Fragment fragment) {
         getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        imagePauseOnScrollListener.resume();
         super.onDestroyView(fragment);
     }
 
