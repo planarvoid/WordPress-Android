@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.soundcloud.android.playback.VideoSurfaceProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 public class VideoTextureContainerTest extends AndroidUnitTest {
 
-    @Mock VideoSurfaceProvider.Listener surfaceProviderListener;
+    @Mock Listener surfaceProviderListener;
     @Mock TextureView textureView;
     @Mock TextureView textureView2;
     @Mock SurfaceTexture surfaceTexture;
@@ -27,10 +28,11 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
     private VideoTextureContainer textureContainer;
 
     private static final Urn URN = Urn.forAd("dfp", "video-ad");
+    private static final Origin ORIGIN = Origin.PLAYER;
 
     @Before
     public void setUp() {
-        textureContainer = new VideoTextureContainer(URN, textureView, Optional.of(surfaceProviderListener));
+        textureContainer = new VideoTextureContainer(URN, ORIGIN, textureView, Optional.of(surfaceProviderListener));
     }
 
     @Test
@@ -70,6 +72,11 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
     @Test
     public void getUrnReturnsUrnOfContainer() {
         assertThat(textureContainer.getUrn()).isEqualTo(URN);
+    }
+
+    @Test
+    public void getScreenReturnsScreenOfContainer() {
+        assertThat(textureContainer.getOrigin()).isEqualTo(ORIGIN);
     }
 
     @Test

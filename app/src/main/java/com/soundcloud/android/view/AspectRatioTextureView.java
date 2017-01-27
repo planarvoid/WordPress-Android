@@ -1,21 +1,19 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.R;
-
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.view.TextureView;
+
+import com.soundcloud.android.R;
 
 /*
-    Thanks Jake : https://gist.github.com/JakeWharton/2856179
+    Based on AspectRatioImageView
  */
 
-public class AspectRatioImageView extends OptimisedImageView {
+public class AspectRatioTextureView extends TextureView {
 
-    // NOTE: These must be kept in sync with the AspectRatioImageView attributes in attrs.xml.
+    // NOTE: These must be kept in sync with the AspectRatioTextureView attributes in attrs.xml.
     public static final int MEASUREMENT_WIDTH = 0;
     public static final int MEASUREMENT_HEIGHT = 1;
 
@@ -26,13 +24,12 @@ public class AspectRatioImageView extends OptimisedImageView {
     private float aspectRatio;
     private boolean aspectRatioEnabled;
     private int dominantMeasurement;
-    private Drawable foregroundDrawable;
 
-    public AspectRatioImageView(Context context) {
+    public AspectRatioTextureView(Context context) {
         this(context, null);
     }
 
-    public AspectRatioImageView(Context context, AttributeSet attrs) {
+    public AspectRatioTextureView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioView);
@@ -41,10 +38,6 @@ public class AspectRatioImageView extends OptimisedImageView {
                                           DEFAULT_ASPECT_RATIO_ENABLED);
         dominantMeasurement = a.getInt(R.styleable.AspectRatioView_ariv_dominantMeasurement,
                                        DEFAULT_DOMINANT_MEASUREMENT);
-        if (a.hasValue(R.styleable.AspectRatioView_foreground)) {
-            int resourceId = a.getResourceId(R.styleable.AspectRatioView_foreground, -1);
-            foregroundDrawable = ContextCompat.getDrawable(context, resourceId);
-        }
         a.recycle();
     }
 
@@ -75,31 +68,15 @@ public class AspectRatioImageView extends OptimisedImageView {
         setMeasuredDimension(newWidth, newHeight);
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        if (foregroundDrawable != null) {
-            foregroundDrawable.setBounds(0, 0, right - left, bottom - top);
-        }
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        if (foregroundDrawable != null) {
-            foregroundDrawable.draw(canvas);
-        }
-    }
-
     /**
-     * Get the aspect ratio for this image view.
+     * Get the aspect ratio for this texture view.
      */
     public float getAspectRatio() {
         return aspectRatio;
     }
 
     /**
-     * Set the aspect ratio for this image view. This will update the view instantly.
+     * Set the aspect ratio for this texture view. This will update the view instantly.
      */
     public void setAspectRatio(float aspectRatio) {
         this.aspectRatio = aspectRatio;

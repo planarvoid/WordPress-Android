@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.Video;
+import com.soundcloud.android.view.AspectRatioTextureView;
 
 import java.util.List;
 
@@ -16,7 +17,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
 
 public class VideoAdItemRenderer extends AdItemRenderer {
 
@@ -42,9 +42,19 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));
         holder.callToAction.setText(resources.getText(R.string.ads_call_to_action));
+        holder.videoView.setAspectRatio(getVideoProportion(videoAd));
 
         bindWhyAdsListener(holder.whyAds);
         bindClickthroughListener(holder.callToAction, videoAd);
+
+        if (listener.isPresent()) {
+            listener.get().onVideoTextureBind(holder.videoView, videoAd);
+        }
+    }
+
+    private float getVideoProportion(VideoAd videoAd) {
+        final VideoAdSource source = videoAd.getFirstSource();
+        return (float) source.getHeight() / (float) source.getWidth();
     }
 
     private Holder getHolder(View adView) {
@@ -55,6 +65,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         @BindView(R.id.ad_item) TextView headerText;
         @BindView(R.id.call_to_action) TextView callToAction;
         @BindView(R.id.why_ads) TextView whyAds;
+        @BindView(R.id.video_view) AspectRatioTextureView videoView;
 
         Holder(View view) {
             ButterKnife.bind(this, view);

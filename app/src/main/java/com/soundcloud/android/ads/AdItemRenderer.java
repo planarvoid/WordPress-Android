@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.view.TextureView;
 import android.view.View;
 
 import com.soundcloud.android.R;
@@ -16,10 +17,11 @@ public abstract class AdItemRenderer implements CellRenderer<StreamItem> {
 
     public interface Listener {
         void onAdItemClicked(Context context, AdData adData);
+        void onVideoTextureBind(TextureView textureView, VideoAd videoAd);
         void onWhyAdsClicked(Context context);
     }
 
-    private Optional<Listener> listener;
+    protected Optional<Listener> listener;
 
     public void setListener(Listener listener) {
         this.listener = Optional.of(listener);

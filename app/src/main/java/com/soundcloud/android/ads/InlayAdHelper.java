@@ -10,6 +10,7 @@ import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
@@ -73,11 +74,17 @@ class InlayAdHelper {
         minimumVisibleIndex = firstVisibleItemPosition();
         maximumVisibleIndex = lastVisibleItemPosition();
 
-        for (Pair<Integer, AppInstallAd> positionAndAd : adsOnScreenWithPosition()) {
-            final AppInstallAd ad = positionAndAd.second();
-
-            if (!ad.hasReportedImpression()) {
-                eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(positionAndAd.first(), ad, now));
+        for (Pair<Integer, AdData> positionAndAd : adsOnScreenWithPosition()) {
+            final AdData adData = positionAndAd.second();
+            if (adData instanceof AppInstallAd) {
+                final AppInstallAd ad = (AppInstallAd) adData;
+                if (!ad.hasReportedImpression()) {
+                    eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(positionAndAd.first(), ad, now));
+                }
+            } else if (adData instanceof VideoAd) {
+                // TODO: Initiate muted playback here
+                final String urn = adData.getAdUrn().toString();
+                Log.d(Log.ADS_TAG, "Video inlay " + urn +  " is on screen");
             }
         }
     }
@@ -86,24 +93,23 @@ class InlayAdHelper {
         return 0 <= minimumVisibleIndex && minimumVisibleIndex <= position && position <= maximumVisibleIndex;
     }
 
-    private List<Pair<Integer, AppInstallAd>> adsOnScreenWithPosition() {
+    private List<Pair<Integer, AdData>> adsOnScreenWithPosition() {
         return adsInRangeWithPosition(firstVisibleItemPosition(), lastVisibleItemPosition());
     }
 
-    private List<Pair<Integer, AppInstallAd>> adsInRangeWithPosition(int minInclusive, int maxInclusive) {
-        final List<Pair<Integer, AppInstallAd>> result = new ArrayList<>(3);
+    private List<Pair<Integer, AdData>> adsInRangeWithPosition(int minInclusive, int maxInclusive) {
+        final List<Pair<Integer, AdData>> result = new ArrayList<>(3);
         final int startInclusive = Math.max(minInclusive, 0);
         final int endInclusive = Math.min(maxInclusive, getNumberOfStreamItems() - 1);
 
         for (int position = startInclusive; position <= endInclusive; position++) {
             if (position != Consts.NOT_SET) {
-                final StreamItem item = adapter.getItem(position);
-                if (item.isAd() && item instanceof StreamItem.AppInstall) {
-                    result.add(Pair.of(position, ((StreamItem.AppInstall) item).appInstall()));
+                final Optional<AdData> data = adapter.getItem(position).getAdData();
+                if (data.isPresent()) {
+                    result.add(Pair.of(position, data.get()));
                 }
             }
         }
-
         return result;
     }
 

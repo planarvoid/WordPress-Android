@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -86,6 +87,16 @@ public abstract class StreamItem {
             return Optional.of(((PlaylistStreamItem) this).playlistItem());
         }
         return Optional.absent();
+    }
+
+    public Optional<AdData> getAdData() {
+        if (kind() == Kind.APP_INSTALL) {
+            return Optional.of(((StreamItem.AppInstall) this).appInstall());
+        } else if (kind() == Kind.VIDEO_AD) {
+            return Optional.of(((StreamItem.Video) this).video());
+        } else {
+            return Optional.absent();
+        }
     }
 
     public abstract Kind kind();

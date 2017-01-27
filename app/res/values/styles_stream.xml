@@ -10,6 +10,12 @@
         <item name="android:scaleType">centerCrop</item>
     </style>
 
+    <style name="StreamVideo">
+        <item name="ariv_dominantMeasurement">width</item>
+        <item name="ariv_aspectRatioEnabled">true</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
     <style name="Stream.Text.AppInstallName" parent="ListItemText">
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:textStyle">bold</item>

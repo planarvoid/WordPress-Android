@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedLikedPlaylistForPlaylistsScreen;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedTrack;
@@ -11,6 +12,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -37,6 +39,7 @@ import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
+import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -65,8 +68,11 @@ import rx.Observer;
 import rx.subjects.PublishSubject;
 
 import android.net.Uri;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.TextView;
 
@@ -103,6 +109,8 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private FollowingOperations followingOperations;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     @Mock private WhyAdsDialogPresenter whyAdsDialogPresenter;
+    @Mock private VideoSurfaceProvider videoSurfaceProvider;
+    @Mock private TextureView textureView;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
@@ -130,6 +138,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 newItemsIndicator,
                 followingOperations,
                 whyAdsDialogPresenter,
+                videoSurfaceProvider,
                 updatePlayableAdapterSubscriberFactory);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.empty());
@@ -448,6 +457,30 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldForwardStreamDestroyToVideoSurfaceProvider() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(videoSurfaceProvider).onDestroy(Origin.STREAM);
+    }
+
+    @Test
+    public void shouldForwardOrientationChangeToVideoSurfaceProvider() {
+        final Fragment fragment = mock(Fragment.class);
+        final FragmentActivity activity = mock(FragmentActivity.class);
+        when(fragment.getActivity()).thenReturn(activity);
+        when(activity.isChangingConfigurations()).thenReturn(true);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+        presenter.onDestroyView(fragment);
+
+        verify(videoSurfaceProvider).onConfigurationChange(Origin.STREAM);
+    }
+
+    @Test
     public void shouldCreatedStreamDepthPublisherOnViewCreated() {
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -524,4 +557,12 @@ public class StreamPresenterTest extends AndroidUnitTest {
         verify(imagePauseOnScrollListener).resume();
     }
 
+    @Test
+    public void shouldSetTextureViewForVideoAdUsingVideoSurfaceProvider() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(32L);
+
+        presenter.onVideoTextureBind(textureView, videoAd);
+
+        verify(videoSurfaceProvider).setTextureView(videoAd.getAdUrn(), Origin.STREAM, textureView);
+    }
 }

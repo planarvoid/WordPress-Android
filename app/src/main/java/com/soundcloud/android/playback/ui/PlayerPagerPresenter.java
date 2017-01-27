@@ -20,12 +20,14 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
+import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -324,9 +326,9 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
 
         if (playerFragment.getActivity().isChangingConfigurations()) {
-            videoSurfaceProvider.onConfigurationChange();
+            videoSurfaceProvider.onConfigurationChange(Origin.PLAYER);
         } else {
-            videoSurfaceProvider.onDestroy();
+            videoSurfaceProvider.onDestroy(Origin.PLAYER);
         }
 
         final PlayerTrackPager trackPager = playerFragment.getPlayerPager();
@@ -445,7 +447,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private void setVideoSurface(PlayQueueItem playQueueItem, PlayerPagePresenter presenter, View view) {
         final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
-        videoSurfaceProvider.setTextureView(playQueueItem.getUrn(), textureView);
+        videoSurfaceProvider.setTextureView(playQueueItem.getUrn(), Origin.PLAYER, textureView);
     }
 
     private void configureInitialPageState(final View view) {

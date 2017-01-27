@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
+import static com.soundcloud.android.playback.VideoSurfaceProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -25,12 +26,14 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.main.PlayerActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -58,6 +61,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class PlayerPagerPresenterTest extends AndroidUnitTest {
@@ -504,7 +508,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         ArgumentCaptor<VideoPlayerAd> captorPropertySet = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
-        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
 
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
@@ -632,21 +636,21 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.onResume(playerFragment);
 
-        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
     }
 
     @Test
     public void configurationChangeForwardsToOnConfigurationChangeOnVideoSurfaceProvider() {
         onDestroy(true);
 
-        verify(videoSurfaceProvider).onConfigurationChange();
+        verify(videoSurfaceProvider).onConfigurationChange(Origin.PLAYER);
     }
 
     @Test
     public void onDestroyForwardsCallToOnDestroyVideoSurfaceProvider() {
         onDestroy(false);
 
-        verify(videoSurfaceProvider).onDestroy();
+        verify(videoSurfaceProvider).onDestroy(Origin.PLAYER);
     }
 
     @Test
@@ -824,8 +828,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupVideoAd() {
-        presenter.setCurrentPlayQueue(Arrays.<PlayQueueItem>asList(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(
-                MONETIZABLE_TRACK_URN))), 0);
+        final VideoAdQueueItem video = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN));
+        presenter.setCurrentPlayQueue(Collections.singletonList(video), 0);
     }
 
     private void onDestroy(boolean isConfigurationChange) {

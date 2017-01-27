@@ -7,15 +7,18 @@ import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
 
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
 
 // Inspired by: github.com/google/grafika/blob/master/src/com/android/grafika/DoubleDecodeActivity.java
-public class VideoTextureContainer implements TextureView.SurfaceTextureListener {
+class VideoTextureContainer implements TextureView.SurfaceTextureListener {
 
     final private Urn urn;
+    final private Origin origin;
 
     @Nullable private Surface surface;
     @Nullable private SurfaceTexture surfaceTexture;
@@ -23,10 +26,12 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
 
     private Optional<VideoSurfaceProvider.Listener> listener = Optional.absent();
 
-    public VideoTextureContainer(Urn videoUrn,
-                                 TextureView textureView,
-                                 Optional<VideoSurfaceProvider.Listener> listener) {
+    VideoTextureContainer(Urn videoUrn,
+                          Origin origin,
+                          TextureView textureView,
+                          Optional<VideoSurfaceProvider.Listener> listener) {
         this.urn = videoUrn;
+        this.origin = origin;
         this.listener = listener;
         setTextureView(textureView);
     }
@@ -36,7 +41,7 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public void reattachSurfaceTexture(TextureView textureView) {
+    void reattachSurfaceTexture(TextureView textureView) {
         setTextureView(textureView);
         if (surfaceTexture != null && !surfaceTextureAlreadyAttached(textureView)) {
             textureView.setSurfaceTexture(surfaceTexture);
@@ -69,6 +74,10 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
 
     Urn getUrn() {
         return urn;
+    }
+
+    Origin getOrigin() {
+        return origin;
     }
 
     void releaseTextureView() {
@@ -115,8 +124,11 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
         @Inject
         Factory() {}
 
-        VideoTextureContainer build(Urn urn, TextureView textureView, Optional<VideoSurfaceProvider.Listener> listener) {
-            return new VideoTextureContainer(urn, textureView, listener);
+        VideoTextureContainer build(Urn urn,
+                                    Origin origin,
+                                    TextureView textureView,
+                                    Optional<VideoSurfaceProvider.Listener> listener) {
+            return new VideoTextureContainer(urn, origin, textureView, listener);
         }
     }
 }

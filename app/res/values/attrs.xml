@@ -12,7 +12,7 @@
         <attr name="custom_font" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="AspectRatioImageView">
+    <declare-styleable name="AspectRatioView">
         <attr name="ariv_aspectRatio" format="float" />
         <attr name="ariv_aspectRatioEnabled" format="boolean" />
         <attr name="ariv_dominantMeasurement">
