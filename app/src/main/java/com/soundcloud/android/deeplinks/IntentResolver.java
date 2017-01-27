@@ -1,6 +1,5 @@
 package com.soundcloud.android.deeplinks;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
@@ -18,7 +17,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -32,7 +31,6 @@ import android.provider.Settings;
 import javax.inject.Inject;
 
 public class IntentResolver {
-    private static final String TAG = "IntentResolver";
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
     private final PlaybackServiceController serviceController;
@@ -67,25 +65,19 @@ public class IntentResolver {
         this.chartsUriResolver = chartsUriResolver;
     }
 
-    public void handleIntent(Intent intent, Context context) {
-        Uri uri = intent.getData();
-        String referrer = getReferrer(context, intent);
+    void handleIntent(Intent intent, Context context) {
+        final Uri uri = intent.getData();
+        final String referrer = getReferrer(context, intent);
         if (uri == null || Strings.isBlank(uri.toString())) {
-            // fall back to home screen
             showHomeScreen(context, referrer);
         } else {
-            Urn urn = new Urn(uri.toString());
-            DeepLink deepLink = DeepLink.fromUri(uri);
-
-            if (isSupportedEntityUrn(urn)) {
-                // this is the case where we had previously resolved the link and are now
-                // coming back from the login screen with the resolved URN
-                startActivityForResource(context, urn, referrer);
-            } else if (shouldShowLogInMessage(deepLink, referrer)) {
+            final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(uri);
+            final DeepLink deepLink = DeepLink.fromUri(hierarchicalUri);
+            if (shouldShowLogInMessage(deepLink, referrer)) {
                 trackForegroundEvent(referrer);
-                showOnboardingForUrn(context, Urn.NOT_SET);
+                showOnboardingForUri(context, hierarchicalUri);
             } else {
-                handleDeepLink(context, uri, deepLink, referrer);
+                handleDeepLink(context, hierarchicalUri, deepLink, referrer);
             }
         }
     }
@@ -132,9 +124,6 @@ public class IntentResolver {
             case COLLECTION:
                 showCollectionScreen(context, referrer);
                 break;
-            case TRACK_ENTITY:
-                showTrack(context, uri, referrer);
-                break;
             case SHARE_APP:
                 shareApp(context, uri, referrer);
                 break;
@@ -170,7 +159,7 @@ public class IntentResolver {
             @Override
             public void onNext(ResolveResult resolveResult) {
                 if (resolveResult.success()) {
-                    startActivityForResource(context, resolveResult.urn().get(), referrer);
+                    startActivityForResource(context, resolveResult.urn().get(), uri, referrer);
                 } else {
                     handleError(resolveResult);
                 }
@@ -290,16 +279,6 @@ public class IntentResolver {
         navigator.openCollection(context);
     }
 
-    private void showTrack(Context context, Uri uri, String referrer) {
-        final long id = getIdFromDeeplinkUri(uri);
-        if (id != Consts.NOT_SET) {
-            startActivityForResource(context, Urn.forTrack(id), referrer);
-        } else {
-            Log.e(TAG, "Could not show track from deeplink: " + uri);
-            AndroidUtils.showToast(context, R.string.error_loading_url);
-        }
-    }
-
     private void shareApp(Context context, Uri uri, String referrer) {
         final String title = uri.getQueryParameter("title");
         final String text = uri.getQueryParameter("text");
@@ -328,15 +307,7 @@ public class IntentResolver {
         context.startActivity(intent);
     }
 
-    private long getIdFromDeeplinkUri(Uri uri) {
-        try {
-            return Long.valueOf(uri.getLastPathSegment());
-        } catch (NumberFormatException e) {
-            return Consts.NOT_SET;
-        }
-    }
-
-    private void startActivityForResource(Context context, Urn urn, String referrer) {
+    private void startActivityForResource(Context context, Urn urn, Uri uri, String referrer) {
         if (isCrawler(referrer)) {
             loginCrawler();
         }
@@ -344,7 +315,7 @@ public class IntentResolver {
         if (accountOperations.isUserLoggedIn()) {
             navigateToResource(context, urn);
         } else {
-            showOnboardingForUrn(context, urn);
+            showOnboardingForUri(context, uri);
         }
 
         trackForegroundEventForResource(urn, referrer);
@@ -382,13 +353,9 @@ public class IntentResolver {
         }
     }
 
-    private boolean isSupportedEntityUrn(Urn urn) {
-        return urn.isTrack() || urn.isUser() || urn.isPlaylist();
-    }
-
-    private void showOnboardingForUrn(Context context, Urn urn) {
+    private void showOnboardingForUri(Context context, Uri uri) {
         AndroidUtils.showToast(context, R.string.error_toast_user_not_logged_in);
-        navigator.openOnboarding(context, urn, Screen.DEEPLINK);
+        navigator.openOnboarding(context, uri, Screen.DEEPLINK);
     }
 
     private void launchApplicationWithMessage(Context context, int messageId) {

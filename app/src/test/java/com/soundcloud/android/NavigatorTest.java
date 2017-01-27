@@ -19,6 +19,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
+import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.AllGenresPresenter;
@@ -379,13 +380,26 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensOnboarding() {
-        navigator.openOnboarding(activityContext, USER_URN, Screen.DEEPLINK);
+        Uri uri = Uri.parse("soundcloud://tracks:123");
+        navigator.openOnboarding(activityContext, uri, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(OnboardActivity.EXTRA_DEEPLINK_URN, USER_URN)
+                                   .containsExtra(OnboardActivity.EXTRA_DEEP_LINK_URI, uri)
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                    .containsScreen(Screen.DEEPLINK)
                                    .opensActivity(OnboardActivity.class);
+    }
+
+    @Test
+    public void opensResolveActivity() {
+        Uri uri = Uri.parse("soundcloud://tracks:123");
+        navigator.openResolveForUri(activityContext, uri);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsAction(Intent.ACTION_VIEW)
+                                   .containsUri(uri)
+                                   .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                   .opensActivity(ResolveActivity.class);
     }
 
     @Test

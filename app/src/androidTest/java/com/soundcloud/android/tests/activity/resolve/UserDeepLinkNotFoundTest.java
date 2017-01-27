@@ -12,7 +12,7 @@ public class UserDeepLinkNotFoundTest extends ResolveBaseTest {
     }
 
     public void testResolveUnknownUrlShouldShowErrorLoadingUrl() {
-        assertTrue(waiter.expectToastWithText(toastObserver, ressourceString(R.string.error_loading_url)));
+        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(R.string.error_loading_url)));
     }
 
     @Override

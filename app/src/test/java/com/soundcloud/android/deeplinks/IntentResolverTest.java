@@ -96,17 +96,27 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchPlayerDirectlyFromPreviouslyResolvedUrn() {
+    public void shouldConvertOpaqueUriToHierarchicalAndLaunchPlayer() {
         setupIntentForUrl("soundcloud:tracks:123");
+        when(resolveOperations.resolve(any(Uri.class))).thenReturn(Observable.just(RESULT_TRACK));
 
         resolver.handleIntent(intent, context);
 
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), Screen.DEEPLINK);
-        verify(resolveOperations, never()).resolve(any(Uri.class));
     }
 
     @Test
-    public void shouldPlayTrackAfterResolvingDeepLink() throws CreateModelException {
+    public void shouldConvertOpaqueUriWithAdjustReftagQueryParamToHierarchicalAndLaunchPlayer() {
+        setupIntentForUrl("soundcloud:tracks:123?adjust_reftag=c6vlQZj4w9FOi");
+        when(resolveOperations.resolve(any(Uri.class))).thenReturn(Observable.just(RESULT_TRACK));
+
+        resolver.handleIntent(intent, context);
+
+        verify(playbackInitiator).startPlayback(Urn.forTrack(123), Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchPlayerDirectlyFromHierarchicalUriSplitByColon() throws CreateModelException {
         setupIntentForUrl("soundcloud://sounds:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
 
@@ -116,7 +126,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPlayTrackAfterResolvingTracksDeepLink() throws CreateModelException {
+    public void shouldLaunchPlayerDirectlyFromHierarchicalUriSplitBySlash() throws CreateModelException {
         setupIntentForUrl("soundcloud://tracks/123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
 
@@ -151,17 +161,17 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchPlaylistDetailsDirectlyFromPreviouslyResolvedUrn() {
+    public void shouldConvertOpaqueUriToHierarchicalAndLaunchPlaylistDetails() {
         setupIntentForUrl("soundcloud:playlists:123");
+        when(resolveOperations.resolve(any(Uri.class))).thenReturn(Observable.just(RESULT_PLAYLIST));
 
         resolver.handleIntent(intent, context);
 
         verify(navigator).legacyOpenPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
-        verify(resolveOperations, never()).resolve(any(Uri.class));
     }
 
     @Test
-    public void shouldGotoPlaylistDetailsAfterResolvingDeepLink() throws CreateModelException {
+    public void shouldLaunchPlaylistDetailsDirectlyFromHierarchicalUriSplitByColon() throws CreateModelException {
         setupIntentForUrl("soundcloud://playlists:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_PLAYLIST));
 
@@ -171,17 +181,17 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchUserProfileDirectlyFromPreviouslyResolvedUrn() {
+    public void shouldConvertOpaqueUriToHierarchicalAndLaunchUserProfile() {
         setupIntentForUrl("soundcloud:users:123");
+        when(resolveOperations.resolve(any(Uri.class))).thenReturn(Observable.just(RESULT_USER));
 
         resolver.handleIntent(intent, context);
 
         verify(navigator).legacyOpenProfile(context, Urn.forUser(123), Screen.DEEPLINK);
-        verify(resolveOperations, never()).resolve(any(Uri.class));
     }
 
     @Test
-    public void shouldGotoUserProfileAfterResolvingDeepLink() throws CreateModelException {
+    public void shouldLaunchUserProfileDirectlyFromHierarchicalUriSplitByColon() throws CreateModelException {
         setupIntentForUrl("soundcloud://users:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_USER));
 
@@ -233,14 +243,13 @@ public class IntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoginCrawler() {
-        setupIntentForUrl("soundcloud://playlists:123");
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_PLAYLIST));
+        setupIntentForUrl("soundcloud://sounds:123");
         setupReferrer(Referrer.GOOGLE_CRAWLER);
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(RESULT_TRACK));
 
         resolver.handleIntent(intent, context);
 
         verify(accountOperations).loginCrawlerUser();
-        verify(navigator).legacyOpenPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
     }
 
     @Test
@@ -267,7 +276,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         ForegroundEvent event = (ForegroundEvent) captor.getAllValues().get(0);
         verifyTrackingEvent(event, Urn.forTrack(123), Referrer.OTHER);
-        verify(navigator).openOnboarding(context, Urn.forTrack(123), Screen.DEEPLINK);
+        verify(navigator).openOnboarding(context, uri, Screen.DEEPLINK);
 
         DeeplinkReportEvent reportEvent = (DeeplinkReportEvent) captor.getAllValues().get(1);
         assertThat(reportEvent.kind()).isEqualTo(DeeplinkReportEvent.forResolvedDeeplink(Referrer.OTHER.toString()).kind());
@@ -301,7 +310,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
+        verify(navigator).openOnboarding(context, uri, Screen.DEEPLINK);
     }
 
     @Test
@@ -354,7 +363,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
+        verify(navigator).openOnboarding(context, uri, Screen.DEEPLINK);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.soundcloud.android.deeplinks;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import java.util.EnumSet;
@@ -32,17 +33,30 @@ public enum DeepLink {
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
-    private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
-            EnumSet.of(DISCOVERY,
+    @VisibleForTesting
+    static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
+            EnumSet.of(TRACK_RECOMMENDATIONS,
+                       DISCOVERY,
                        SEARCH,
                        RECORD,
                        ENTITY,
                        TRACK_ENTITY,
+                       PLAYLIST_ENTITY,
+                       USER_ENTITY,
                        SOUNDCLOUD_GO_UPSELL,
                        SOUNDCLOUD_GO_BUY,
                        NOTIFICATION_PREFERENCES,
                        COLLECTION,
-                       OFFLINE_SETTINGS);
+                       OFFLINE_SETTINGS,
+                       CHARTS,
+                       CHARTS_ALL_GENRES);
+
+    @VisibleForTesting
+    static final EnumSet<DeepLink> RESOLVE_REQUIRED =
+            EnumSet.of(ENTITY,
+                       TRACK_ENTITY,
+                       USER_ENTITY,
+                       PLAYLIST_ENTITY);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
@@ -58,15 +72,15 @@ public enum DeepLink {
     }
 
     public boolean requiresResolve() {
-        return this == ENTITY || this == TRACK_ENTITY || this == USER_ENTITY || this == PLAYLIST_ENTITY;
+        return RESOLVE_REQUIRED.contains(this);
     }
 
     @NonNull
     public static DeepLink fromUri(@Nullable Uri uri) {
         if (uri == null) {
             return HOME;
-        } else if (isSoundCloudScheme(uri)) {
-            return fromSoundCloudScheme(uri);
+        } else if (isHierarchicalSoundCloudScheme(uri)) {
+            return fromHierarchicalSoundCloudScheme(uri);
         } else if (isWebScheme(uri)) {
             return fromWebScheme(uri);
         } else {
@@ -94,11 +108,11 @@ public enum DeepLink {
         return false;
     }
 
-    public static boolean isSoundCloudScheme(Uri uri) {
+    public static boolean isHierarchicalSoundCloudScheme(Uri uri) {
         return uri.isHierarchical() && SOUNDCLOUD_SCHEME.equals(uri.getScheme());
     }
 
-    private static DeepLink fromSoundCloudScheme(Uri uri) {
+    private static DeepLink fromHierarchicalSoundCloudScheme(Uri uri) {
         String host = uri.getHost();
 
         switch (host) {
@@ -157,6 +171,7 @@ public enum DeepLink {
                 }
                 return CHARTS;
             case "tracks":
+            case "sounds":
                 return TRACK_ENTITY;
             case "users":
                 return USER_ENTITY;

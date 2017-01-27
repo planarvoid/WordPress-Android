@@ -57,6 +57,7 @@ import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -97,7 +98,7 @@ public class OnboardActivity extends FragmentActivity
         PHOTOS, LOGIN, SIGN_UP_METHOD, SIGN_UP_BASICS, SIGN_UP_DETAILS, ACCEPT_TERMS
     }
 
-    public static final String EXTRA_DEEPLINK_URN = "EXTRA_URN";
+    public static final String EXTRA_DEEP_LINK_URI = "EXTRA_DEEP_LINK_URI";
 
     private static final String BACKGROUND_IMAGE_IDX = "BACKGROUND_IMAGE_IDX";
     private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
@@ -155,7 +156,7 @@ public class OnboardActivity extends FragmentActivity
         }
     };
     @Nullable private Bundle loginBundle, signUpBasicsBundle, signUpDetailsBundle, acceptTermsBundle;
-    private Urn resourceUrn = Urn.NOT_SET;
+    private Optional<Uri> deepLinkUri = Optional.absent();
 
     private final View.OnClickListener onLoginButtonClick = new View.OnClickListener() {
         @Override
@@ -223,11 +224,11 @@ public class OnboardActivity extends FragmentActivity
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this));
 
         unpackAccountAuthenticatorResponse(getIntent());
-        unpackDeeplink(getIntent());
         setupViews(savedInstanceState);
         setButtonListeners();
         checkForDeviceConflict();
         setupFacebookCallback();
+        deepLinkUri = Optional.fromNullable(getIntent().getParcelableExtra(EXTRA_DEEP_LINK_URI));
     }
 
     private void setupFacebookCallback() {
@@ -238,12 +239,6 @@ public class OnboardActivity extends FragmentActivity
         accountAuthenticatorResponse = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
         if (accountAuthenticatorResponse != null) {
             accountAuthenticatorResponse.onRequestContinued();
-        }
-    }
-
-    private void unpackDeeplink(Intent intent) {
-        if (intent.hasExtra(EXTRA_DEEPLINK_URN)) {
-            resourceUrn = intent.getParcelableExtra(EXTRA_DEEPLINK_URN);
         }
     }
 
@@ -560,10 +555,10 @@ public class OnboardActivity extends FragmentActivity
                                   .putExtra(PublicApiUser.EXTRA_ID, user.getId())
                                   .putExtra(SignupVia.EXTRA, via.name));
 
-            if (Urn.NOT_SET.equals(resourceUrn)) {
-                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            if (deepLinkUri.isPresent()) {
+                navigator.openResolveForUri(this, deepLinkUri.get());
             } else {
-                navigator.openResolveForUrn(this, resourceUrn);
+                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
 
             finish();
@@ -579,8 +574,8 @@ public class OnboardActivity extends FragmentActivity
         outState.putParcelable(BUNDLE_USER, userUrn);
         outState.putInt(BACKGROUND_IMAGE_IDX, backgroundImageIdx);
 
-        if (!Urn.NOT_SET.equals(resourceUrn)) {
-            outState.putParcelable(EXTRA_DEEPLINK_URN, resourceUrn);
+        if (deepLinkUri.isPresent()) {
+            outState.putParcelable(EXTRA_DEEP_LINK_URI, deepLinkUri.get());
         }
 
         if (loginLayout != null) {
@@ -607,17 +602,10 @@ public class OnboardActivity extends FragmentActivity
         signUpBasicsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_BASICS);
         signUpDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
         acceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
-
-        unpackDeeplink(savedInstanceState);
+        deepLinkUri = Optional.fromNullable(savedInstanceState.getParcelable(EXTRA_DEEP_LINK_URI));
 
         final OnboardingState state = (OnboardingState) savedInstanceState.getSerializable(BUNDLE_STATE);
         setState(state, false);
-    }
-
-    private void unpackDeeplink(@NotNull Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(EXTRA_DEEPLINK_URN)) {
-            resourceUrn = savedInstanceState.getParcelable(EXTRA_DEEPLINK_URN);
-        }
     }
 
     @Override

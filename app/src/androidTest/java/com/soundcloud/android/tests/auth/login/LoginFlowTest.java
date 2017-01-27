@@ -42,7 +42,7 @@ public class LoginFlowTest extends LoginTest {
     public void testSCUserLoginFlow() {
         final StreamScreen streamScreen = homeScreen
                 .clickLogInButton()
-                .loginAs(defaultUser.getEmail(), defaultUser.getPassword());
+                .loginDefault(defaultUser.getEmail(), defaultUser.getPassword());
 
         assertThat(streamScreen, visible());
     }
@@ -135,7 +135,7 @@ public class LoginFlowTest extends LoginTest {
      */
     public void testLoginAndLogout() {
         loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
+        loginScreen.loginDefault(scAccount.getEmail(), scAccount.getPassword());
 
         assertThat(mainNavHelper.goToYou()
                                 .clickLogoutAndConfirm(), is(visible()));

@@ -188,7 +188,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         return solo;
     }
 
-    protected String ressourceString(int id) {
+    protected String resourceString(int id) {
         return getActivity().getString(id);
     }
 }

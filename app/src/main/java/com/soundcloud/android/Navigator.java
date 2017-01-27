@@ -346,8 +346,8 @@ public class Navigator {
                                          Uri.parse(context.getString(R.string.url_support))));
     }
 
-    public void openOnboarding(Context context, Urn deeplinkUrn, Screen screen) {
-        context.startActivity(createOnboardingIntent(context, screen, deeplinkUrn));
+    public void openOnboarding(Context context, Uri deepLinkUri, Screen screen) {
+        context.startActivity(createOnboardingIntent(context, screen, deepLinkUri));
     }
 
     public void openStream(Context context, Screen screen) {
@@ -379,8 +379,8 @@ public class Navigator {
         context.startActivity(createWebViewIntent(context, uri));
     }
 
-    public void openResolveForUrn(Context context, Urn urn) {
-        context.startActivity(createResolveIntent(context, urn));
+    public void openResolveForUri(Context context, Uri uri) {
+        context.startActivity(createResolveIntent(context, uri));
     }
 
     public void openViewAllRecommendations(Context context) {
@@ -466,10 +466,10 @@ public class Navigator {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
-    private Intent createResolveIntent(Context context, Urn urn) {
+    private Intent createResolveIntent(Context context, Uri uri) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(urn.toString()));
+        intent.setData(uri);
         intent.setFlags(FLAGS_TOP);
         return intent;
     }
@@ -582,9 +582,9 @@ public class Navigator {
         return new Intent(context, LauncherActivity.class);
     }
 
-    private Intent createOnboardingIntent(Context context, Screen screen, Urn deeplinkUrn) {
+    private Intent createOnboardingIntent(Context context, Screen screen, Uri deepLinkUri) {
         Intent intent = new Intent(context, OnboardActivity.class)
-                .putExtra(OnboardActivity.EXTRA_DEEPLINK_URN, deeplinkUrn)
+                .putExtra(OnboardActivity.EXTRA_DEEP_LINK_URI, deepLinkUri)
                 .setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;

@@ -32,7 +32,7 @@ public class ChartsUriResolver {
     ChartDetails resolveUri(Uri uri) {
         if (DeepLink.isWebScheme(uri)) {
             return getChartDetailsFromWebScheme(uri);
-        } else if (DeepLink.isSoundCloudScheme(uri)) {
+        } else if (DeepLink.isHierarchicalSoundCloudScheme(uri)) {
             return getChartDetailsFromSoundCloudScheme(uri);
         } else {
             throw new IllegalArgumentException("Invalid schema for charts deeplink");
