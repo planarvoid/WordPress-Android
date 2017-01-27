@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.analytics.appboy.EmptyAppboyWrapper;
 import com.soundcloud.android.analytics.appboy.RealAppboyWrapper;
+import com.soundcloud.android.analytics.firebase.FirebaseModule;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastModule;
@@ -95,7 +96,8 @@ import java.util.Locale;
                 DiscoveryModule.class,
                 AnalyticsModule.class,
                 CastModule.class,
-                PlayQueueModule.class
+                PlayQueueModule.class,
+                FirebaseModule.class
         })
 public class ApplicationModule {
 

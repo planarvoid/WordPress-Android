@@ -20,6 +20,7 @@ android {
     variant.resValue "integer","com_appboy_default_notification_accent_color", "0xFFff5500"
     variant.resValue "integer","com_appboy_session_timeout", "600"
     variant.resValue "string", "adjust_app_token", "87l2rj9gqhlj"
+    variant.resValue "string", "root_package", project.ext.rootPackage
   }
 
   buildTypes {

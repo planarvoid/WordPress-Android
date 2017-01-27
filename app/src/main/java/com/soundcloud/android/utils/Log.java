@@ -62,6 +62,10 @@ public final class Log {
         e(obj.getClass().getSimpleName(), message);
     }
 
+    public static void e(@NotNull final String message, @NotNull final Throwable throwable) {
+        e(SoundCloudApplication.TAG, message, throwable);
+    }
+
     public static void e(@NotNull final String message) {
         e(SoundCloudApplication.TAG, message);
     }
