@@ -56,8 +56,8 @@
   <string name="ads_reopen_to_continue_short">App erneut öffnen und weiterhören</string>
   <string name="ads_resume_playing_ad_to_continue">Zum Fortfahren Werbung weiter abspielen</string>
   <string name="ads_skip_in_time">Überspringen in: %s</string>
-  <string name="ads_now_playing">Läuft gerade</string>
-  <string name="ads_now_playing_tracktitle_username">Läuft jetzt: %1$s (%2$s)</string>
+  <string name="ads_now_playing">Aktueller Track</string>
+  <string name="ads_now_playing_tracktitle_username">Aktueller Track: %1$s (%2$s)</string>
   <string name="ads_app">App</string>
   <plurals name="ads_app_ratings">
     <item quantity="one">%s Bewertung</item>
@@ -148,7 +148,6 @@
   <string name="follow_age_unknown_title">Bitte bestätige dein Alter.</string>
   <string name="follow_age_unknown_content_username">Gib dein Alter ein, um %s zu folgen.</string>
   <string name="follow_age_unknown_content_long_username">Bestätige, dass du alt genug bist, um %s zu folgen.</string>
-
   <!--__IMAGES-->
   <string name="add_image">Bild\nhinzufügen</string>
   <string name="image_load_error">Beim Laden dieses Bildes ist ein Problem aufgetreten.</string>
@@ -218,7 +217,8 @@
   <string tools:ignore="UnusedResources" name="category_learning">Bildung</string>
   <!--__PLAYABLE-->
   <string name="private_indicator">Privat</string>
-  <string name="title_now_playing">Läuft jetzt</string>
+  <string name="title_now_playing">Aktueller Track</string>
+  <string name="title_paused">Angehalten</string>
   <string name="like_toast_overflow_action">Deinen Likes hinzugefügt</string>
   <string name="unlike_toast_overflow_action">Aus deinen Likes entfernt</string>
   <string name="like_error_toast_overflow_action">Like-Status wurde nicht geändert</string>
@@ -264,6 +264,7 @@
   <string name="edit_playlist">Playlist bearbeiten</string>
   <string name="delete_playlist">Löschen</string>
   <string name="search_playlists">Playlists suchen</string>
+  <string name="more_playlists_by">Weitere Playlists von %s</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Zur Playlist hinzufügen …</string>
   <string name="added_to_playlist">Zur Playlist hinzugefügt</string>
@@ -379,6 +380,8 @@
   <!--__DISCOVERY PLAYLISTS-->
   <string name="recommended_playlists_reason">Playlists zu „%s“</string>
   <!--__DISCOVERY CHARTS-->
+  <string name="charts_music">Musik</string>
+  <string name="charts_audio">Audio</string>
   <string name="charts_header">SoundCloud-Charts</string>
   <string name="charts_trending">Neu und angesagt</string>
   <string name="charts_top">Top 50</string>
@@ -535,6 +538,9 @@
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Track kann nicht übertragen werden.</string>
   <string name="media_route_menu_title">Übertragen</string>
+  <string name="cast_introductory_overlay_title">SoundCloud übertragen</string>
+  <string name="cast_introductory_overlay_description">Tippe hier, um Musik über den Fernseher und übertragungsfähige Lautsprecher abzuspielen</string>
+  <string name="cast_player_casting_to">Übertragen auf %s</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoteter Track</string>
   <string name="promoted_by_promotorname">Promoteter Track von %s</string>
@@ -543,6 +549,7 @@
   <string name="welcome_user_title_afternoon">Guten Tag, %s</string>
   <string name="welcome_user_title_evening">Guten Abend, %s</string>
   <string name="welcome_user_title_night">Gute Nacht, %s</string>
+  <string name="welcome_user_new_signup">Willkommen auf SoundCloud, %s</string>
   <string name="welcome_user_subtitle">Hör dir einige dieser neuen Songs an!</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Mach Freunde auf SoundCloud aufmerksam</string>
@@ -631,6 +638,10 @@
   <string name="stream_track">Track</string>
   <string name="stream_promoted_playable">Promotete/r %s</string>
   <string name="stream_sponsored_item">Gesponsert: %s</string>
+  <string name="stream_highlights">Highlights streamen</string>
+  <string name="stream_highlights_description_one">Mit einem Track von %s</string>
+  <string name="stream_highlights_description_two">Mit Tracks von %1$s und %2$s</string>
+  <string name="stream_highlights_description_other">Mit Tracks von %1$s, %2$s und %3$s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->
@@ -858,7 +869,7 @@
   <string name="push_notifications_product_updates">Neue SoundCloud-Funktionen</string>
   <string name="push_notifications_survey">Umfragen und Feedback</string>
   <string name="push_notifications_tips">SoundCloud-Tipps und -Angebote</string>
-  <string name="push_notifications_suggestions">Empfohlene Inhalte</string>
+  <string name="push_notifications_suggestions">Vorgeschlagene Inhalte</string>
   <string name="email_notifications_all_title">E-Mail-Benachrichtigungen</string>
   <string name="email_notifications_all_summary">Aktiviere alle E-Mail-Benachrichtigungen oder wähle aus, welche du empfangen möchtest.</string>
   <string name="email_notifications_follower">Neuer Follower</string>
@@ -871,7 +882,7 @@
   <string name="email_notifications_product_updates">Neue SoundCloud-Funktionen</string>
   <string name="email_notifications_survey">Umfragen und Feedback</string>
   <string name="email_notifications_tips">SoundCloud-Tipps und -Angebote</string>
-  <string name="email_notifications_suggestions">Empfohlene Inhalte</string>
+  <string name="email_notifications_suggestions">Vorgeschlagene Inhalte</string>
   <string name="email_notifications_newsletter">SoundCloud-Newsletter</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
@@ -903,6 +914,7 @@
   <string name="play_queue_header_charts_trending">Aus der Kategorie „Neu und angesagt“ der %1$s-Charts</string>
   <string name="play_queue_header_explicit">Von dir hinzugefügt</string>
   <string name="play_queue_header_auto_play">Automatische Wiedergabe</string>
+  <string name="play_queue_header_other">Aus einer kürzlich abgespielten Wiedergabeliste</string>
   <string name="play_queue_introductory_overlay_title">Neu! „Es folgt:“</string>
   <string name="play_queue_introductory_overlay_description">Du kannst den nächsten Track wählen sowie Shuffle oder Wiederholung einschalten</string>
   <string name="play_queue_header_magic_box_subtitle">Neue Musik anhand dessen, was du gerade hörst</string>

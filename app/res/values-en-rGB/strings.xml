@@ -82,6 +82,7 @@
   <string name="authentication_login_progress_message">Signing you in</string>
   <string name="authentication_recover_password_failure">We can’t recover your password right now. Try again soon.</string>
   <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
+  <string name="authentication_recover_password_unknown_email_address">Unknown Email Address</string>
   <string name="authentication_recover_password_success">Check your email for instructions about how to change your password.</string>
   <string name="authentication_recover_progress_message">Requesting password reset</string>
   <string name="authentication_sign_up">Create an account</string>
@@ -219,6 +220,7 @@
   <!--__PLAYABLE-->
   <string name="private_indicator">Private</string>
   <string name="title_now_playing">Now playing</string>
+  <string name="title_paused">Paused</string>
   <string name="like_toast_overflow_action">Saved to your likes</string>
   <string name="unlike_toast_overflow_action">Removed from your likes</string>
   <string name="like_error_toast_overflow_action">Like status was not changed</string>
@@ -379,6 +381,8 @@
   <!--__DISCOVERY PLAYLISTS-->
   <string name="recommended_playlists_reason">Playlists for %s</string>
   <!--__DISCOVERY CHARTS-->
+  <string name="charts_music">Music</string>
+  <string name="charts_audio">Audio</string>
   <string name="charts_header">SoundCloud charts</string>
   <string name="charts_trending">New &amp; hot</string>
   <string name="charts_top">Top 50</string>
@@ -534,10 +538,16 @@
   <string name="age_verify_button">Verify age</string>
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Unable to cast track</string>
+  <string name="media_route_menu_title">Cast</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoted</string>
   <string name="promoted_by_promotorname">Promoted by %s</string>
   <!--__USER WELCOME-->
+  <string name="welcome_user_title_morning">Good Morning, %s</string>
+  <string name="welcome_user_title_afternoon">Good Afternoon, %s</string>
+  <string name="welcome_user_title_evening">Good Evening, %s</string>
+  <string name="welcome_user_title_night">Good Night, %s</string>
+  <string name="welcome_user_subtitle">Check out some of these new songs!</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Invite friends to SoundCloud</string>
   <string name="facebook_invites_description">Sharing is caring. Invite your friends to experience SoundCloud with you.</string>
@@ -545,6 +555,11 @@
   <!--__FACEBOOK CREATOR INVITES-->
   <string name="facebook_creator_invites_title">Invite friends to listen to your latest track on SoundCloud</string>
   <!--__COLLECTION-->
+  <string name="collections_playlists_header">Playlists &amp; albums</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">Playlists &amp; albums</item>
+    <item quantity="other">%d playlists &amp; albums</item>
+  </plurals>
   <string name="collections_your_liked_tracks">Liked tracks</string>
   <string name="track_likes_title">Liked tracks</string>
   <string name="collections_options_header_filters">Filters</string>
@@ -579,6 +594,7 @@
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profile</string>
   <string name="collections_upsell_title">Get SoundCloud Go</string>
+  <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
   <string name="collections_recently_played_clear_action">Clear recently played</string>
   <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
   <string name="collections_recently_played_clear_dialog_message">Are you sure you want to clear your recently played? You won’t be able to undo this action.</string>
@@ -637,8 +653,12 @@
   <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / month</string>
   <string name="conversion_price_promo">%1$s for %2$s</string>
+  <string name="conversion_headline">Listen offline and ad‑free</string>
   <string name="conversion_plus">Plus:</string>
+  <string name="conversion_feature_1">Get 135+ million tracks - The world’s largest music and audio streaming catalogue</string>
+  <string name="conversion_feature_2">No more previews - All of every SoundCloud Go track, every time</string>
   <string name="conversion_buy_loading">Loading…</string>
+  <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Start your free %d day trial</string>
   <string name="conversion_buy_no_trial">Upgrade now</string>
   <string name="conversion_buy_promo">Get it for a limited time</string>
   <string name="conversion_more_plans">View more plans</string>
@@ -649,6 +669,10 @@
   <string name="conversion_restrictions">Restrictions apply</string>
   <string name="conversion_restrictions_promo">Restrictions apply, %s after</string>
   <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
+  <string name="conversion_restrictions_message_trial">Offer limited to one %1$d day trial per user. After the first %2$d days, subscription renews automatically unless cancelled before the end of the %3$d day trial. Subscription may be cancelled at any time on soundcloud.com. All prices include applicable local sales taxes.\n\nResidents of Quebec, Canada are not eligible for trials due to local restrictions.</string>
+  <string name="conversion_restrictions_message_no_trial">You have already used your free trial or are a resident of Quebec and are not eligible for a trial due to local restrictions.\n\nBy purchasing SoundCloud Go, you will be charged the current regular price per month (including applicable local sales taxes) unless cancelled before your next renewal date.</string>
+  <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
+  <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favourite artists with SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product unavailable</string>
   <string name="payments_error_title_no_billing">Billing unavailable</string>
@@ -690,6 +714,7 @@
   <string name="offline_no_connection">No connection</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
+  <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalogue and ad‑free offline listening.</string>
   <string name="go_onboarding_title_2">Play full tracks</string>
   <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud\u00A0Go.</string>
   <string name="go_onboarding_title_3">Listen offline</string>
@@ -707,6 +732,7 @@
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
   <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
+  <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad‑free, offline access to an expanded catalogue, don’t worry. You can come back anytime.</string>
   <string name="go_offboarding_primary_button_text">Resubscribe</string>
   <string name="go_offboarding_secondary_button_text">Continue</string>
   <!--__OFFLINE SETTINGS-->
@@ -796,7 +822,10 @@
   <string name="set_type_single_label_for_text">single</string>
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
+  <string name="upsell_remove_ads">Go ad‑free</string>
   <string name="upsell_upgrade_button">Get SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_title">Unlock previews with SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalogue, with ad‑free and offline listening.</string>
   <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
   <string name="upsell_track_preview">Preview</string>
@@ -811,6 +840,8 @@
   <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Not available in\nyour country</string>
+  <string name="playback_upsell_1">No more previews, just full tracks</string>
+  <string name="playback_upsell_2">Get full tracks, offline &amp; ad free</string>
   <string name="playback_upsell_button">Get SoundCloud Go</string>
   <string name="playback_upsell_button_trial">Try SoundCloud Go</string>
   <!--__SEARCH-->
@@ -831,7 +862,7 @@
   <string name="push_notifications_product_updates">New SoundCloud features</string>
   <string name="push_notifications_survey">Surveys and feedback</string>
   <string name="push_notifications_tips">SoundCloud tips and offers</string>
-  <string name="push_notifications_suggestions">Recommended content</string>
+  <string name="push_notifications_suggestions">Suggested content</string>
   <string name="email_notifications_all_title">Email notifications</string>
   <string name="email_notifications_all_summary">Turn on all email notifications\nor select which to receive.</string>
   <string name="email_notifications_follower">New follower</string>
@@ -844,7 +875,7 @@
   <string name="email_notifications_product_updates">New SoundCloud features</string>
   <string name="email_notifications_survey">Surveys and feedback</string>
   <string name="email_notifications_tips">SoundCloud tips and offers</string>
-  <string name="email_notifications_suggestions">Recommended content</string>
+  <string name="email_notifications_suggestions">Suggested content</string>
   <string name="email_notifications_newsletter">SoundCloud newsletter</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
@@ -876,6 +907,11 @@
   <string name="play_queue_header_charts_trending">From %1$s New &amp; Hot charts </string>
   <string name="play_queue_header_explicit">Added by you</string>
   <string name="play_queue_header_auto_play">Auto play</string>
+  <string name="play_queue_introductory_overlay_title">New! Next up</string>
+  <string name="play_queue_introductory_overlay_description">Control what plays next, shuffle or repeat</string>
+  <string name="play_queue_header_magic_box_subtitle">New music based on what’s playing</string>
+  <string name="play_queue_header_auto_play_toggle">Station Autoplay</string>
+  <string name="play_queue_header_cast">Casting</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Suggested artists</string>
   <string name="suggested_creators_blurb">Follow your favourite artists so you never miss any of their latest tracks</string>
