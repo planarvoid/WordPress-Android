@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback;
 
-public class PlaybackResult {
+import com.google.auto.value.AutoValue;
 
-    private final boolean isSuccess;
-    private final ErrorReason errorReason;
+@AutoValue
+public abstract class PlaybackResult {
 
     public enum ErrorReason {
         NONE,
@@ -13,25 +13,16 @@ public class PlaybackResult {
         MISSING_PLAYABLE_TRACKS
     }
 
+    public abstract boolean isSuccess();
+
+    public abstract ErrorReason getErrorReason();
+
     public static PlaybackResult success() {
-        return new PlaybackResult(true, ErrorReason.NONE);
+        return new AutoValue_PlaybackResult(true, ErrorReason.NONE);
     }
 
     public static PlaybackResult error(ErrorReason reason) {
-        return new PlaybackResult(false, reason);
-    }
-
-    public boolean isSuccess() {
-        return isSuccess;
-    }
-
-    public ErrorReason getErrorReason() {
-        return errorReason;
-    }
-
-    private PlaybackResult(boolean isSuccess, ErrorReason errorReason) {
-        this.isSuccess = isSuccess;
-        this.errorReason = errorReason;
+        return new AutoValue_PlaybackResult(false, reason);
     }
 
 }

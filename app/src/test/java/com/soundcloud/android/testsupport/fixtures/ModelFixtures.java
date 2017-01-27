@@ -226,6 +226,10 @@ public class ModelFixtures {
         return ModelFixtures.create(TrackItem.class);
     }
 
+    public static Track track() {
+        return Track.from(ModelFixtures.create(ApiTrack.class));
+    }
+
     public static List<TrackItem> trackItems(int count) {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }

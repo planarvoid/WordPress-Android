@@ -34,7 +34,6 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
         creator = new PlaylistDetailsViewModelCreator(resources(), featureOperations, accountOperations, upsellOperations);
     }
 
-
     @Test
     public void returnsTrackCountFromTracklistIfTracksAreThere() {
         Playlist playlist = ModelFixtures.playlistBuilder().trackCount(1).build();

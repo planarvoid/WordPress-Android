@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.java.collections.Lists.transform;
 
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
@@ -29,7 +30,15 @@ class PlaylistDetailFixtures {
 
     private static PlaylistDetailsViewModel create(Resources resources, Playlist playlist, List<TrackItem> trackItems, Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists, Optional<PlaylistDetailUpsellItem> upsellItemOptional) {
         return PlaylistDetailsViewModel.builder()
-                                       .metadata(PlaylistDetailsMetadata.from(playlist, trackItems, false, false, trackItems.size(), PlaylistDetailsMetadata.OfflineOptions.NONE, resources, false))
+                                       .metadata(PlaylistDetailsMetadata.from(playlist,
+                                                                              trackItems,
+                                                                              false,
+                                                                              false,
+                                                                              playlist.offlineState().or(OfflineState.NOT_OFFLINE),
+                                                                              trackItems.isEmpty() ? playlist.trackCount() : trackItems.size(),
+                                                                              PlaylistDetailsMetadata.OfflineOptions.NONE,
+                                                                              resources,
+                                                                              false))
                                        .tracks(transform(trackItems, PlaylistDetailTrackItem::new))
                                        .upsell(upsellItemOptional)
                                        .otherPlaylists(otherPlaylists)

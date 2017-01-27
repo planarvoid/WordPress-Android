@@ -76,7 +76,7 @@ import java.util.List;
 import java.util.Map;
 
 class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, PlaylistDetailItem>
-        implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener, PlaylistDetailsViewListener {
+        implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener, PlaylistHeaderPresenterListener {
 
     @LightCycle final PlaylistHeaderPresenter headerPresenter;
 
@@ -125,7 +125,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         this.featureFlags = featureFlags;
         this.trackRenderer = trackRendererFactory.create(this);
         this.adapter = adapterFactory.create(this, headerPresenter, trackRenderer);
-        headerPresenter.setPlaylistDetailsViewListener(this);
+        headerPresenter.setPlaylistHeaderPresenterListener(this);
         addInlineHeader = !resources.getBoolean(R.bool.split_screen_details_pages);
 
         adapter.setOnUpsellClickListener(this);

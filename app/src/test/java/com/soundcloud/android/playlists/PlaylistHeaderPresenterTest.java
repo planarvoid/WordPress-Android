@@ -63,9 +63,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -97,7 +95,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private ShareOperations shareOperations;
     @Mock private PlaylistCoverRenderer playlistCoverRenderer;
-    @Mock private PlaylistDetailsViewListener headerListener;
+    @Mock private PlaylistHeaderPresenterListener headerListener;
     @Mock private PlaylistCoverRenderer coverRenderer;
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private ScreenProvider screenProvider;
@@ -233,7 +231,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                            anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
-        presenter.onToggleRepost(true, false);
+        presenter.toggleRepost(true, false);
 
         UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.REPOST);
@@ -247,7 +245,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                            anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
-        presenter.onToggleRepost(false, false);
+        presenter.toggleRepost(false, false);
 
         UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.UNREPOST);
@@ -294,7 +292,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(any(Urn.class),
                                            anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
 
-        presenter.onToggleRepost(true, false);
+        presenter.toggleRepost(true, false);
 
         verify(repostOperations).toggleRepost(eq(headerItem.getUrn()), eq(true));
     }
@@ -315,7 +313,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldOpenUpgradeScreenWhenClickingOnUpsell() {
         setPlaylistInfo();
 
-        presenter.onUpsell(getContext());
+        presenter.onUpsell();
 
         verify(navigator).openUpgrade(getContext());
     }
@@ -324,7 +322,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldOpenUpgradeScreenWhenClickingOnOverflowUpsell() {
         setPlaylistInfo();
 
-        presenter.onOverflowUpsell(getContext());
+        presenter.onOverflowUpsell();
 
         verify(navigator).openUpgrade(getContext());
     }
@@ -373,7 +371,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.makePlaylistAvailableOffline(headerItem.getUrn())).thenReturn(
                 makePlaylistAvailableOffline);
 
-        presenter.onMakeOfflineAvailable(true);
+        presenter.onMakeOfflineAvailable();
 
         assertThat(makePlaylistAvailableOffline.hasObservers()).isTrue();
     }
@@ -385,7 +383,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.makePlaylistUnavailableOffline(headerItem.getUrn())).thenReturn(
                 makePlaylistUnavailableOffline);
 
-        presenter.onMakeOfflineAvailable(false);
+        presenter.onMakeOfflineUnavailable();
 
         assertThat(makePlaylistUnavailableOffline.hasObservers()).isTrue();
     }
@@ -487,9 +485,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldPlayNext() {
-        presenter.onPlayNext(Urn.forPlaylist(1));
+        setPlaylistInfo();
 
-        verify(playQueueHelper, times(1)).playNext(Urn.forPlaylist(1));
+        presenter.onPlayNext();
+
+        verify(playQueueHelper, times(1)).playNext(headerItem.urn());
     }
 
     private void setPlaylistInfo() {
@@ -514,7 +514,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistDetailsMetadata createPlaylistHeaderItem(Playlist playlistItem, boolean isLiked) {
-        return PlaylistDetailsMetadata.from(playlistItem, emptyList(), isLiked, false, 0, PlaylistDetailsMetadata.OfflineOptions.AVAILABLE, resources(), false);
+        return PlaylistDetailsMetadata.from(playlistItem, emptyList(), isLiked, false, OfflineState.NOT_OFFLINE, 0, PlaylistDetailsMetadata.OfflineOptions.AVAILABLE, resources(), false);
     }
 
     private Playlist.Builder createPlaylistBuilder(Sharing sharing) {

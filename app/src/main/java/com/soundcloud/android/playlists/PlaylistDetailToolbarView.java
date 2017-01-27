@@ -12,11 +12,11 @@ import android.view.MenuItem;
 @AutoFactory
 class PlaylistDetailToolbarView extends DefaultSupportFragmentLightCycle<Fragment> {
 
-    private final PlaylistDetailsViewListener listener;
+    private final PlaylistDetailsInputs listener;
     private Optional<Menu> menu = Optional.absent();
     private Optional<PlaylistDetailsMetadata> metadata = Optional.absent();
 
-    PlaylistDetailToolbarView(PlaylistDetailsViewListener listener) {
+    PlaylistDetailToolbarView(PlaylistDetailsInputs listener) {
         this.listener = listener;
     }
 

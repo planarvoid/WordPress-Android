@@ -23,4 +23,8 @@ public abstract class PlaylistChangedEvent<T> {
     public boolean isEntityChangeEvent() {
         return kind() == Kind.PLAYLIST_UPDATED || kind() == Kind.PLAYLIST_EDITED || kind() == Kind.PLAYLIST_PUSHED_TO_SERVER;
     }
+
+    public boolean isTracklistChangeEvent() {
+        return kind() == Kind.TRACK_ADDED || kind() == Kind.TRACK_REMOVED || kind() == Kind.PLAYLIST_EDITED;
+    }
 }

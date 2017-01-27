@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import butterknife.ButterKnife;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -21,7 +22,6 @@ import com.soundcloud.lightcycle.LightCycle;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -35,7 +35,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDetailTrackItem>
-        implements TrackItemMenuPresenter.RemoveTrackListener, RefreshableScreen, PlaylistEngagementsRenderer.OnEngagementListener {
+        implements TrackItemMenuPresenter.RemoveTrackListener, RefreshableScreen {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
@@ -48,6 +48,8 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     @Inject PlaylistCoverRenderer playlistCoverRenderer;
     @Inject PlaylistTrackItemRendererFactory trackItemRendererFactory;
     @Inject PlaylistDetailTrackItemRendererFactory detailTrackItemRendererFactory;
+
+    @Inject Navigator navigator;
 
     @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
     @Inject PlaylistDetailToolbarViewFactory toolbarViewFactory;
@@ -67,8 +69,17 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = playlistPresenterFactory.create(getArguments().getParcelable(EXTRA_URN));
+
+        presenter = playlistPresenterFactory.create(getArguments().getParcelable(EXTRA_URN),
+                                                    Screen.fromBundle(getArguments()).get(),
+                                                    getArguments().getParcelable(EXTRA_QUERY_SOURCE_INFO),
+                                                    getArguments().getParcelable(EXTRA_PROMOTED_SOURCE_INFO));
         presenter.connect();
+
+        presenter.goToCreator().subscribe(urn -> {
+            navigator.legacyOpenProfile(getActivity(), urn);
+        });
+
         setHasOptionsMenu(true);
     }
 
@@ -120,19 +131,11 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         return modelUpdates()
                 .doOnNext(playlistDetailsViewModelAsyncViewModel -> {
                     final PlaylistDetailsViewModel data = playlistDetailsViewModelAsyncViewModel.data();
-                    playlistCoverRenderer.bind(view, data.metadata(), this::onHeaderPlay, this::onGotoCreator);
-                    playlistEngagementsRenderer.bind(view, data.metadata(), this);
+                    playlistCoverRenderer.bind(view, data.metadata(), presenter::onHeaderPlayButtonClicked, presenter::onCreatorClicked);
+                    playlistEngagementsRenderer.bind(view, data.metadata(), presenter);
                     toolbarView.setPlaylist(data.metadata());
                 })
                 .map(viewModel -> viewModel.data().tracks());
-    }
-
-    private void onHeaderPlay() {
-
-    }
-
-    private void onGotoCreator() {
-
     }
 
     private Observable<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates() {
@@ -191,67 +194,4 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         screen.addToBundle(bundle);
         return bundle;
     }
-
-    /**
-     * TODO :
-     * - Screen Tracking
-     */
-
-
-
-    @Override
-    public void onPlayNext(Urn playlistUrn) {
-
-    }
-
-    @Override
-    public void onToggleLike(boolean isLiked) {
-
-    }
-
-    @Override
-    public void onToggleRepost(boolean isReposted, boolean showResultToast) {
-
-    }
-
-    @Override
-    public void onShare() {
-
-    }
-
-    @Override
-    public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
-
-    }
-
-    @Override
-    public void onUpsell(Context context) {
-
-    }
-
-    @Override
-    public void onOverflowUpsell(Context context) {
-
-    }
-
-    @Override
-    public void onOverflowUpsellImpression() {
-
-    }
-
-    @Override
-    public void onPlayShuffled() {
-
-    }
-
-    @Override
-    public void onDeletePlaylist() {
-
-    }
-
-    @Override
-    public void onEditPlaylist() {
-
-    }
-
 }

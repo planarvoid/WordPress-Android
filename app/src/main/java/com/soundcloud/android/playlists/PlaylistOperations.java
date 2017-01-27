@@ -23,6 +23,7 @@ import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -255,6 +256,7 @@ public class PlaylistOperations {
                                            Lists.transform(tracks, TrackItem::from),
                                            playlist.isLikedByCurrentUser().or(false),
                                            false,
+                                           playlist.offlineState().or(OfflineState.NOT_OFFLINE),
                                            playlistsItems.isEmpty() ? Optional.absent() :
                                            Optional.of(new PlaylistDetailOtherPlaylistsItem(playlist.creatorName(), playlistsItems)));
         };

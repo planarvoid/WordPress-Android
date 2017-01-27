@@ -23,6 +23,7 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
                                         List<TrackItem> trackItems,
                                         boolean isLiked,
                                         boolean isEditMode,
+                                        OfflineState offlineState,
                                         int trackCount,
                                         OfflineOptions offlineOptions,
                                         Resources resources,
@@ -40,11 +41,11 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
                 .isRepostedByUser(playlist.isRepostedByCurrentUser().or(false))
                 .isLikedByUser(isLiked)
                 .likesCount(playlist.likesCount())
-                .isMarkedForOffline(playlist.isMarkedForOffline().or(false))
+                .isMarkedForOffline(offlineState != OfflineState.NOT_OFFLINE)
                 .showOwnerOptions(isOwner)
                 .headerText(PlaylistUtils.getPlaylistInfoLabel(resources, trackCount, getDuration(playlist, trackItems)))
                 .offlineOptions(offlineOptions)
-                .offlineState(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
+                .offlineState(offlineState)
                 .label(PlaylistUtils.formatPlaylistTitle(resources, playlist.setType(), playlist.isAlbum(), playlist.releaseDate()))
                 .imageUrlTemplate(playlist.imageUrlTemplate())
                 .isInEditMode(isEditMode)

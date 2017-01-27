@@ -58,12 +58,12 @@ class PlaylistEngagementsRenderer {
         this.infoProvider = infoProvider;
     }
 
-    void bind(View view, PlaylistDetailsMetadata item, OnEngagementListener onEngagementListener) {
+    void bind(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
         bindEngagementBar(view, item, onEngagementListener);
         setInfoText(infoProvider.getPlaylistInfoLabel(item.offlineState(), item.headerText()), view);
     }
 
-    private void bindEngagementBar(View view, PlaylistDetailsMetadata item, OnEngagementListener onEngagementListener) {
+    private void bindEngagementBar(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
         configureLikeButton(view, item, onEngagementListener);
         configureOverflow(view, item, onEngagementListener);
         configureDownloadToggle(item, view, onEngagementListener);
@@ -74,7 +74,7 @@ class PlaylistEngagementsRenderer {
 
     }
 
-    private void configureLikeButton(View view, PlaylistDetailsMetadata item, OnEngagementListener onEngagementListener) {
+    private void configureLikeButton(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
         ToggleButton likeToggle = ButterKnife.findById(view, R.id.toggle_like);
         likeToggle.setOnClickListener(v -> onEngagementListener.onToggleLike(likeToggle.isChecked()));
 
@@ -86,7 +86,7 @@ class PlaylistEngagementsRenderer {
                            R.string.accessibility_stats_user_liked);
     }
 
-    private void configureOverflow(View view, PlaylistDetailsMetadata item, OnEngagementListener onEngagementListener) {
+    private void configureOverflow(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
         View overflowButton = ButterKnife.findById(view, R.id.playlist_details_overflow_button);
         overflowButton.setOnClickListener(v -> {
             PopupMenuWrapper menu = popupMenuWrapperFactory.build(view.getContext(), overflowButton);
@@ -102,7 +102,7 @@ class PlaylistEngagementsRenderer {
         });
     }
 
-    private void configureDownloadToggle(PlaylistDetailsMetadata item, View view, OnEngagementListener listener) {
+    private void configureDownloadToggle(PlaylistDetailsMetadata item, View view, PlaylistDetailsInputs listener) {
         IconToggleButton downloadToggle = ButterKnife.findById(view, R.id.toggle_download);
         switch (item.offlineOptions()) {
             case AVAILABLE:
@@ -148,18 +148,23 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void showOfflineOptions(final boolean isAvailable, IconToggleButton downloadToggle, OnEngagementListener listener) {
+    private void showOfflineOptions(final boolean isAvailable, IconToggleButton downloadToggle, PlaylistDetailsInputs listener) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isAvailable);
+
         // do not use setOnCheckedChangeListener or all hell will break loose
         downloadToggle.setOnClickListener(v -> {
             boolean changedState = ((Checkable) v).isChecked();
             downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
-            listener.onMakeOfflineAvailable(!isAvailable);
+            if (isAvailable) {
+                listener.onMakeOfflineUnavailable();
+            } else {
+                listener.onMakeOfflineAvailable();
+            }
         });
     }
 
-    private void configureOfflineAvailability(PlaylistDetailsMetadata item, PopupMenuWrapper menu, OnEngagementListener onEngagementListener) {
+    private void configureOfflineAvailability(PlaylistDetailsMetadata item, PopupMenuWrapper menu, PlaylistDetailsInputs onEngagementListener) {
         switch (item.offlineOptions()) {
             case AVAILABLE:
                 if (item.isMarkedForOffline()) {
@@ -178,11 +183,11 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void showUpsell(IconToggleButton downloadToggle, OnEngagementListener listener) {
+    private void showUpsell(IconToggleButton downloadToggle, PlaylistDetailsInputs listener) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(false);
         downloadToggle.setOnClickListener(v -> {
-            listener.onUpsell(v.getContext());
+            listener.onUpsell();
             downloadToggle.setChecked(false);
         });
     }
@@ -225,10 +230,10 @@ class PlaylistEngagementsRenderer {
 
     private static class PopupListener implements PopupMenuWrapper.PopupMenuWrapperListener {
         
-        private final OnEngagementListener listener;
+        private final PlaylistDetailsInputs listener;
         private final Urn playlistUrn;
 
-        private PopupListener(OnEngagementListener listener, Urn playlistUrn) {
+        private PopupListener(PlaylistDetailsInputs listener, Urn playlistUrn) {
             this.listener = listener;
             this.playlistUrn = playlistUrn;
         }
@@ -237,13 +242,13 @@ class PlaylistEngagementsRenderer {
         public boolean onMenuItemClick(MenuItem menuItem, Context context) {
             switch (menuItem.getItemId()) {
                 case R.id.play_next:
-                    listener.onPlayNext(playlistUrn);
+                    listener.onPlayNext();
                     return true;
                 case R.id.repost:
-                    listener.onToggleRepost(true, true);
+                    listener.onToggleRepost(true);
                     return true;
                 case R.id.unpost:
-                    listener.onToggleRepost(false, true);
+                    listener.onToggleRepost(false);
                     return true;
                 case R.id.share:
                     listener.onShare();
@@ -252,16 +257,16 @@ class PlaylistEngagementsRenderer {
                     listener.onPlayShuffled();
                     return true;
                 case R.id.edit_playlist:
-                    listener.onEditPlaylist();
+                    listener.onEnterEditMode();
                     return true;
                 case R.id.upsell_offline_content:
-                    listener.onOverflowUpsell(context);
+                    listener.onOverflowUpsell();
                     return true;
                 case R.id.make_offline_available:
-                    listener.onMakeOfflineAvailable(true);
+                    listener.onMakeOfflineAvailable();
                     return true;
                 case R.id.make_offline_unavailable:
-                    listener.onMakeOfflineAvailable(false);
+                    listener.onMakeOfflineUnavailable();
                     return true;
                 case R.id.delete_playlist:
                     listener.onDeletePlaylist();
@@ -333,28 +338,4 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    interface OnEngagementListener {
-
-        void onPlayNext(Urn playlistUrn);
-
-        void onToggleLike(boolean isLiked);
-
-        void onToggleRepost(boolean isReposted, boolean showResultToast);
-
-        void onShare();
-
-        void onMakeOfflineAvailable(boolean isMarkedForOffline);
-
-        void onUpsell(Context context);
-
-        void onOverflowUpsell(Context context);
-
-        void onOverflowUpsellImpression();
-
-        void onPlayShuffled();
-
-        void onDeletePlaylist();
-
-        void onEditPlaylist();
-    }
 }

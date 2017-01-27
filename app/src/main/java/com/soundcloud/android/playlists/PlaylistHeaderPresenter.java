@@ -35,6 +35,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -45,7 +46,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -57,7 +57,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragment>
-        implements PlaylistEngagementsRenderer.OnEngagementListener, CellRenderer<PlaylistDetailsMetadata> {
+        implements CellRenderer<PlaylistDetailsMetadata>, PlaylistDetailsInputs {
 
     private final EventBus eventBus;
     private final EventTracker eventTracker;
@@ -82,7 +82,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private Subscription offlineStateSubscription = RxUtils.invalidSubscription();
     private FragmentManager fragmentManager;
     private Activity activity;
-    private PlaylistDetailsViewListener playlistDetailsViewListener;
+    private PlaylistHeaderPresenterListener playlistHeaderPresenterListener;
     private PlaylistDetailsMetadata playlistDetailsMetadata;
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
     private Optional<View> headerView = Optional.absent();
@@ -186,8 +186,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         bindItemView();
     }
 
-    void setPlaylistDetailsViewListener(PlaylistDetailsViewListener playlistDetailsViewListener) {
-        this.playlistDetailsViewListener = playlistDetailsViewListener;
+    void setPlaylistHeaderPresenterListener(PlaylistHeaderPresenterListener playlistHeaderPresenterListener) {
+        this.playlistHeaderPresenterListener = playlistHeaderPresenterListener;
     }
 
     void setScreen(final String screen) {
@@ -208,16 +208,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void onHeaderPlay() {
-        playlistDetailsViewListener.onHeaderPlayButtonClicked();
+        playlistHeaderPresenterListener.onHeaderPlayButtonClicked();
     }
 
     private void onGoToCreator() {
-        playlistDetailsViewListener.onCreatorClicked();
-    }
-
-    @Override
-    public void onEditPlaylist() {
-        playlistDetailsViewListener.onEnterEditMode();
+        playlistHeaderPresenterListener.onCreatorClicked();
     }
 
     private void bingEngagementBars() {
@@ -244,15 +239,15 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                 .subscribe(new OfflineStateSubscriber());
     }
 
-
+    @Override
+    public void onMakeOfflineAvailable() {
+        fireAndForget(offlineOperations.makePlaylistAvailableOffline(playlistDetailsMetadata.getUrn()));
+        eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
+    }
 
     @Override
-    public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
-        if (isMarkedForOffline) {
-            fireAndForget(offlineOperations.makePlaylistAvailableOffline(playlistDetailsMetadata.getUrn()));
-            eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
-        } else if (offlineOperations.isOfflineCollectionEnabled()) {
-//            playlistEngagementsRenderer.setOfflineAvailability(true);
+    public void onMakeOfflineUnavailable() {
+        if (offlineOperations.isOfflineCollectionEnabled()) {
             ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlistDetailsMetadata.getUrn(),
                                                                playSessionSource.getPromotedSourceInfo());
         } else {
@@ -274,14 +269,14 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void onUpsell(Context context) {
-        navigator.openUpgrade(context);
+    public void onUpsell() {
+        navigator.openUpgrade(activity);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(playlistDetailsMetadata.getUrn()));
     }
 
     @Override
-    public void onOverflowUpsell(Context context) {
-        navigator.openUpgrade(context);
+    public void onOverflowUpsell() {
+        navigator.openUpgrade(activity);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(playlistDetailsMetadata.getUrn()));
     }
 
@@ -307,8 +302,28 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void onPlayNext(Urn playlistUrn) {
-        playQueueHelper.playNext(playlistUrn);
+    public void onHeaderPlayButtonClicked() {
+
+    }
+
+    @Override
+    public void onCreatorClicked() {
+
+    }
+
+    @Override
+    public void onEnterEditMode() {
+        playlistHeaderPresenterListener.onEnterEditMode();
+    }
+
+    @Override
+    public void onExitEditMode() {
+
+    }
+
+    @Override
+    public void onPlayNext() {
+        playQueueHelper.playNext(playlistDetailsMetadata.getUrn());
     }
 
     @Override
@@ -330,7 +345,12 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void onToggleRepost(boolean isReposted, boolean showResultToast) {
+    public void onToggleRepost(boolean isReposted) {
+        toggleRepost(isReposted, true);
+    }
+
+    @VisibleForTesting // horrible things being done here. Deleting this class soon
+    void toggleRepost(boolean isReposted, boolean showResultToast) {
         if (playlistDetailsMetadata != null) {
             eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
                                                                   playlistDetailsMetadata.getUrn(),
