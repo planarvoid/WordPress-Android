@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.discovery.DiscoveryItem;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -17,10 +17,9 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.tracks.TrackRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,15 +40,16 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     private static final Urn QUERY_URN = Urn.NOT_SET;
     private static final Scheduler SCHEDULER = Schedulers.immediate();
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
-    private static final List<ApiTrack> RECOMMENDED_TRACKS = ModelFixtures.create(ApiTrack.class, 2);
-    private static final ApiTrack RECOMMENDED_TRACK = RECOMMENDED_TRACKS.get(0);
+    private static final List<Track> RECOMMENDED_TRACKS = Lists.transform(ModelFixtures.create(ApiTrack.class, 2), Track::from);
+    private static final Track RECOMMENDED_TRACK = RECOMMENDED_TRACKS.get(0);
     private static final PublishSubject<Result> SYNC_SUBJECT = PublishSubject.create();
-    private static final TrackQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(RECOMMENDED_TRACK.getUrn());
+    private static final TrackQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(RECOMMENDED_TRACK.urn());
 
     @Mock private SyncOperations syncOperations;
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private TrackRepository trackRepository;
 
     private RecommendedTracksOperations operations;
     private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
@@ -60,6 +60,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                                                      recommendationsStorage,
                                                      storeRecommendationsCommand,
                                                      playQueueManager,
+                                                     trackRepository,
                                                      SCHEDULER
         );
 
@@ -68,9 +69,10 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
-                createRecommendedTrackPropertySet()));
+                Collections.singletonList(RECOMMENDED_TRACK.urn())));
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(SYNC_SUBJECT);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
+        when(trackRepository.trackListFromUrns(Collections.singletonList(RECOMMENDED_TRACK.urn()))).thenReturn(Observable.just(RECOMMENDED_TRACKS));
     }
 
     @Test
@@ -78,24 +80,24 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         final TestSubscriber<List<TrackItem>> testSubscriber = new TestSubscriber<>();
 
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
-                createRecommendedTrackPropertySet()));
+                Collections.singletonList(RECOMMENDED_TRACK.urn())));
 
         operations.tracksForSeed(SEED_ID).subscribe(testSubscriber);
 
         List<TrackItem> recommendedTracksForSeed = testSubscriber.getOnNextEvents().get(0);
         TrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
 
-        assertThat(recommendedTrackItem.getUrn()).isEqualTo(RECOMMENDED_TRACK.getUrn());
-        assertThat(recommendedTrackItem.getTitle()).isEqualTo(RECOMMENDED_TRACK.getTitle());
-        assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(RECOMMENDED_TRACK.getUserName());
-        assertThat(recommendedTrackItem.getDuration()).isEqualTo(RECOMMENDED_TRACK.getFullDuration());
+        assertThat(recommendedTrackItem.getUrn()).isEqualTo(RECOMMENDED_TRACK.urn());
+        assertThat(recommendedTrackItem.getTitle()).isEqualTo(RECOMMENDED_TRACK.title());
+        assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(RECOMMENDED_TRACK.creatorName());
+        assertThat(recommendedTrackItem.getDuration()).isEqualTo(RECOMMENDED_TRACK.fullDuration());
     }
 
     @Test
     public void returnsEmptyWhenNoRecommendationdsFromTrackSeed() {
         final TestSubscriber<List<TrackItem>> testSubscriber = new TestSubscriber<>();
 
-        when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(Collections.emptyList()));
 
         operations.tracksForSeed(SEED_ID).subscribe(testSubscriber);
 
@@ -181,9 +183,9 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         assertThat(recommendationBucket.getRecommendations()
                                        .get(0)
                                        .getTrack()
-                                       .getTitle()).isEqualTo(RECOMMENDED_TRACKS.get(0).getTitle());
+                                       .getTitle()).isEqualTo(RECOMMENDED_TRACK.title());
         assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(
-                RECOMMENDED_TRACKS.get(0).getUserName());
+                RECOMMENDED_TRACK.creatorName());
     }
 
     private RecommendationSeed createSeed() {
@@ -197,19 +199,4 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         );
     }
 
-    private List<PropertySet> createRecommendedTrackPropertySet() {
-        PropertySet trackPropertySet = TestPropertySets.mandatoryTrackProperties().merge(PropertySet.from(
-                RecommendedTrackProperty.SEED_SOUND_URN.bind(Urn.forTrack(SEED_ID)),
-                PlayableProperty.URN.bind(Urn.forTrack(RECOMMENDED_TRACK.getId())),
-                PlayableProperty.TITLE.bind(RECOMMENDED_TRACK.getTitle()),
-                PlayableProperty.CREATOR_NAME.bind(RECOMMENDED_TRACK.getUserName()),
-                TrackProperty.FULL_DURATION.bind(RECOMMENDED_TRACK.getFullDuration()),
-                TrackProperty.SNIPPET_DURATION.bind(RECOMMENDED_TRACK.getSnippetDuration()),
-                TrackProperty.SNIPPED.bind(false),
-                TrackProperty.PLAY_COUNT.bind(RECOMMENDED_TRACK.getPlaybackCount()),
-                PlayableProperty.LIKES_COUNT.bind(RECOMMENDED_TRACK.getLikesCount()),
-                PlayableProperty.CREATED_AT.bind(RECOMMENDED_TRACK.getCreatedAt())
-        ));
-        return Collections.singletonList(trackPropertySet);
-    }
 }

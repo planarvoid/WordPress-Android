@@ -1,29 +1,14 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.rx.RxResultMapper;
 import com.soundcloud.propeller.schema.Column;
 
 import android.support.annotation.NonNull;
 
 import java.util.Date;
 
-public class OfflineStateMapper extends RxResultMapper<PropertySet> {
-
-    @Override
-    public PropertySet map(CursorReader reader) {
-        return addOptionalOfflineSyncDates(reader);
-    }
-
-    private PropertySet addOptionalOfflineSyncDates(CursorReader cursorReader) {
-        final PropertySet propertySet = PropertySet.create(1);
-        propertySet.put(OfflineProperty.OFFLINE_STATE,
-                        fromDates(cursorReader, cursorReader.isNotNull(OfflineContent._ID)));
-        return propertySet;
-    }
+public class OfflineStateMapper {
 
     public static OfflineState fromDates(CursorReader cursorReader, boolean unavailableEnabled) {
         final Date defaultDate = new Date(0);
