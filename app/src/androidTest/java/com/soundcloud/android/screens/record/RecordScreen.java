@@ -10,6 +10,9 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.Screen;
+import org.jetbrains.annotations.Nullable;
+
+import android.support.annotation.NonNull;
 
 public class RecordScreen extends Screen {
     private static final Class ACTIVITY = RecordActivity.class;
@@ -95,8 +98,16 @@ public class RecordScreen extends Screen {
     }
 
     public RecordScreen startRecording() {
+        // Wait until the chronometer jumps from it's initial value (e.g. "Record") to the current recording length
+        String initialText = chronometer().getText();
         clickRecordButton();
-        waiter.waitForElement(actionBar().title(), testDriver.getString(R.string.rec_title_recording));
+        waiter.waitForElement(chronometerValueHasChanged(initialText));
+
+        // Assert that the chronometer advances
+        String preRecordingText = chronometer().getText();
+        waiter.waitForElement(chronometerValueHasChanged(preRecordingText));
+        // wait 2 more seconds to make sure we at least record a couple of seconds
+        waiter.waitTwoSeconds();
         return this;
     }
 
@@ -110,6 +121,21 @@ public class RecordScreen extends Screen {
         waiter.waitTwoSeconds();
         stopRecording();
         return this;
+    }
+
+    @NonNull
+    private With chronometerValueHasChanged(final String preRecordingText) {
+        return new With() {
+            @Override
+            public String getSelector() {
+                return "chronometer has a different value";
+            }
+
+            @Override
+            public boolean apply(@Nullable ViewElement input) {
+                return !chronometer().getText().equals(preRecordingText);
+            }
+        };
     }
 
     private boolean hasRecording() {
