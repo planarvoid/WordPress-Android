@@ -1,7 +1,5 @@
 package com.soundcloud.android.users;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -43,7 +41,7 @@ public class UserRepository {
      * Syncs a given user then returns the local user after the sync
      */
     public Observable<User> syncedUserInfo(Urn userUrn) {
-        return syncInitiator.syncUser(userUrn).flatMap(continueWith(localUserInfo(userUrn)));
+        return syncInitiator.syncUser(userUrn).flatMap(o -> localUserInfo(userUrn));
     }
 
     /***

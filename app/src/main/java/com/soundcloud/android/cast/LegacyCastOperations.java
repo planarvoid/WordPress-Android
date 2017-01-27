@@ -12,7 +12,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Log;
@@ -113,7 +112,7 @@ public class LegacyCastOperations {
 
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
-                               .flatMap(RxUtils.iterableToObservable())
+                               .flatMap(Observable::from)
                                .flatMap(loadTracks)
                                .filter(FILTER_PRIVATE_TRACKS)
                                .map(TO_URNS);

@@ -1,8 +1,6 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.events.StreamEvent.fromStreamRefresh;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -69,11 +67,11 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
     private Subscription streamRefreshSubscription() {
         return Observable
                 .interval(VERIFY_INTERVAL_MS, TimeUnit.MILLISECONDS, scheduler)
-                .flatMap(continueWith(operations.lastSyncTime()))
+                .flatMap(o1 -> operations.lastSyncTime())
                 .filter(canUpdateStream)
-                .flatMap(continueWith(operations.updatedStreamItems()))
+                .flatMap(o -> operations.updatedStreamItems())
                 .retry()
-                .map(returning(fromStreamRefresh()))
+                .map(o2 -> fromStreamRefresh())
                 .subscribe(eventBus.queue(EventQueue.STREAM));
     }
 

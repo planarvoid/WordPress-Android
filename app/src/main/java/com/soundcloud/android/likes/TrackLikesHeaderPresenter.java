@@ -2,7 +2,6 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventContextMetadata.builder;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_NULL;
-import static com.soundcloud.android.rx.RxUtils.IS_PRESENT;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static rx.Observable.combineLatest;
 
@@ -235,7 +234,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @NonNull
     private Observable<TrackLikesHeaderView> headerViewObservable() {
-        return viewSubject.filter(IS_PRESENT)
+        return viewSubject.filter(Optional::isPresent)
                           .map(EXTRACT_VIEW)
                           .filter(IS_NOT_NULL)
                           .map(toTrackLikesHeaderView);

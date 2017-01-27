@@ -144,7 +144,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                       CompositeSubscription viewLifeCycle) {
         Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
                                                                    .first()
-                                                                   .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
+                                                                   .flatMap((Func1<Object,Observable<List<Urn>>>) o -> likeOperations.likedTrackUrns())
                                                                    .observeOn(AndroidSchedulers.mainThread())
                                                                    .cache();
         collectionSubscription = allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
@@ -187,7 +187,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
         likeSubscription = eventBus.queue(EventQueue.LIKE_CHANGED)
                                    .filter(LikesStatusEvent::containsTrackChange)
-                                   .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
+                                   .flatMap(o -> likeOperations.likedTrackUrns())
                                    .observeOn(AndroidSchedulers.mainThread())
                                    .subscribe(new AllLikedTracksSubscriber());
     }

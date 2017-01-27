@@ -1,6 +1,5 @@
 package com.soundcloud.android.configuration;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.events.EventQueue;
@@ -68,7 +67,7 @@ public class PlanChangeOperations {
     private final class PlanChangedSteps implements Observable.Transformer<Object, Object> {
         @Override
         public Observable<Object> call(Observable<Object> source) {
-            return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
+            return source.flatMap(o -> policyOperations.refreshedTrackPolicies())
                          .doOnNext(urns -> eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(urns)))
                          .doOnSubscribe(playSessionController::resetPlaySession)
                          .doOnCompleted(pendingPlanOperations::clearPendingPlanChanges)

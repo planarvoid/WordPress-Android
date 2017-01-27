@@ -4,7 +4,6 @@ import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.events.UrnStateChangedEvent.fromStationsUpdated;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -76,7 +75,7 @@ public class StationsOperations {
     public Observable<StationRecord> station(Urn station) {
         return stationsStorage
                 .clearExpiredPlayQueue(station)
-                .flatMap(continueWith(getStation(station, UtilityFunctions.identity())))
+                .flatMap(o -> getStation(station, UtilityFunctions.identity()))
                 .subscribeOn(scheduler);
     }
 
@@ -87,7 +86,7 @@ public class StationsOperations {
     private Observable<StationWithTracks> stationWithTracks(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return stationsStorage
                 .clearExpiredPlayQueue(station)
-                .flatMap(continueWith(loadStationWithTracks(station, toStation)))
+                .flatMap(o -> loadStationWithTracks(station, toStation))
                 .subscribeOn(scheduler);
     }
 
@@ -104,7 +103,7 @@ public class StationsOperations {
         return Observable
                 .concat(loadStationWithTracks(station)
                                 .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.getStationInfoTracks().size() > 0),
-                        syncSingleStation(station, toStation).flatMap(continueWith(loadStationWithTracks(station))))
+                        syncSingleStation(station, toStation).flatMap(o -> loadStationWithTracks(station)))
                 .first();
     }
 
@@ -138,12 +137,12 @@ public class StationsOperations {
     }
 
     private Observable<StationRecord> syncAndLoadStationsCollection(int type) {
-        return syncStations(type).flatMap(continueWith(loadStationsCollection(type)));
+        return syncStations(type).flatMap(o -> loadStationsCollection(type));
     }
 
     public Observable<SyncJobResult> syncStations(int type) {
         if (StationsCollectionsTypes.LIKED == type) {
-            return migrateRecentToLikedIfNeeded().flatMap(continueWith(syncLikedStations()));
+            return migrateRecentToLikedIfNeeded().flatMap(o -> syncLikedStations());
         } else {
             return syncInitiator.sync(typeToSyncable(type));
         }
@@ -214,7 +213,7 @@ public class StationsOperations {
     public Observable<StreamItem> onboardingStreamItem() {
         return shouldShowOnboardingStreamItem()
                 .filter(IS_TRUE)
-                .flatMap(continueWith(Observable.just(StreamItem.forStationOnboarding())));
+                .flatMap(o -> Observable.just(StreamItem.forStationOnboarding()));
     }
 
     private Observable<Boolean> shouldShowOnboardingStreamItem() {

@@ -192,7 +192,6 @@ public class PlanChangeOperationsTest {
         final PublishSubject<Void> clearObservable = PublishSubject.create();
         when(configurationOperations.awaitConfigurationFromPendingDowngrade()).thenReturn(Observable.just(TestConfiguration.free()));
         when(offlineContentOperations.resetOfflineFeature()).thenReturn(clearObservable);
-        when(policyOperations.refreshedTrackPolicies()).thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 

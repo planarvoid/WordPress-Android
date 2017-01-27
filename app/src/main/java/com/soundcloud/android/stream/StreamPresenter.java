@@ -5,7 +5,6 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forCreatorDismi
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerClick;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDismiss;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
@@ -184,7 +183,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                 eventBus.subscribe(EventQueue.REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                                       .filter(StreamEvent::isStreamRefreshed)
-                                      .flatMap(continueWith(updateIndicatorFromMostRecent()))),
+                                      .flatMap(o -> updateIndicatorFromMostRecent())),
                 followingOperations.onUserFollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh()),
                 followingOperations.onUserUnfollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh())
         );

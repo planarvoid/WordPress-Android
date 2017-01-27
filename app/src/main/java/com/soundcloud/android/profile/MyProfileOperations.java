@@ -1,7 +1,6 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
@@ -86,8 +85,7 @@ public class MyProfileOperations {
         return loadFollowingUserAssociationsFromStorage()
                 .filter(IS_NOT_EMPTY_LIST)
                 .switchIfEmpty(Observable.defer(() -> syncInitiatorBridge.refreshFollowings()
-                                                                 .flatMap(continueWith(
-                                                  loadFollowingUserAssociationsFromStorage()))));
+                                                                         .flatMap(o -> loadFollowingUserAssociationsFromStorage())));
     }
 
     private Observable<List<UserAssociation>> loadFollowingUserAssociationsFromStorage() {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -50,7 +49,7 @@ public class PlayHistoryOperations {
         return syncOperations.lazySyncIfStale(Syncable.PLAY_HISTORY)
                              .observeOn(scheduler)
                              .onErrorResumeNext(Observable.just(Result.NO_OP))
-                             .flatMap(continueWith(tracks(limit)));
+                             .flatMap(o -> tracks(limit));
     }
 
     Observable<List<TrackItem>> refreshPlayHistory() {
@@ -60,7 +59,7 @@ public class PlayHistoryOperations {
     public Observable<List<TrackItem>> refreshPlayHistory(final int limit) {
         return syncOperations.failSafeSync(Syncable.PLAY_HISTORY)
                              .observeOn(scheduler)
-                             .flatMap(continueWith(tracks(limit)));
+                             .flatMap(o -> tracks(limit));
     }
 
     private Observable<List<TrackItem>> tracks(int limit) {

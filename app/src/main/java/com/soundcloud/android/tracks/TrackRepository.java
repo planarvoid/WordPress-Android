@@ -1,6 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.utils.DiffUtils.minus;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -55,7 +54,7 @@ public class TrackRepository {
         return trackStorage
                 .availableTracks(requestedTracks)
                 .flatMap(syncMissingTracks(requestedTracks))
-                .flatMap(continueWith(trackStorage.loadTracks(requestedTracks)))
+                .flatMap(o -> trackStorage.loadTracks(requestedTracks))
                 .subscribeOn(scheduler);
     }
 
@@ -113,7 +112,7 @@ public class TrackRepository {
 
     private Observable<Track> syncThenLoadTrack(final Urn trackUrn,
                                                       final Observable<Track> loadObservable) {
-        return syncInitiator.syncTrack(trackUrn).flatMap(continueWith(loadObservable));
+        return syncInitiator.syncTrack(trackUrn).flatMap(o -> loadObservable);
     }
 
 }

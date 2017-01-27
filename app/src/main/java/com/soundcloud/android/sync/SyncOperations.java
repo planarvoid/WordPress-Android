@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static rx.Observable.just;
 
@@ -30,7 +29,7 @@ public class SyncOperations {
     }
 
     public Observable<Result> sync(Syncable syncable) {
-        return syncInitiator.sync(syncable).map(returning(Result.SYNCED));
+        return syncInitiator.sync(syncable).map(o -> Result.SYNCED);
     }
 
     public Observable<Result> failSafeSync(Syncable syncable) {

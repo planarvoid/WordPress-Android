@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.ApplicationModule;
@@ -99,7 +98,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     Observable<List<StreamItem>> initialStreamItems() {
         return removeStalePromotedItemsCommand.toObservable(null)
                                               .subscribeOn(scheduler)
-                                              .flatMap(continueWith(initialTimelineItems(false)))
+                                              .flatMap(o -> initialTimelineItems(false))
                                               .zipWith(streamHighlightsOperations.highlights().map(Optional::of)
                                                                                  .defaultIfEmpty(Optional.absent())
                                                                                  .onErrorReturn(throwable -> Optional.absent())

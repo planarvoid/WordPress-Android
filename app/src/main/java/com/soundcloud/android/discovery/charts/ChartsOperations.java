@@ -1,7 +1,6 @@
 package com.soundcloud.android.discovery.charts;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
@@ -106,8 +105,8 @@ public class ChartsOperations {
 
     Observable<List<Chart>> genresByCategory(ChartCategory chartCategory) {
         return syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)
-                             .flatMap(continueWith(chartsStorage.genres(chartCategory)
-                                                                .subscribeOn(scheduler)))
+                             .flatMap(o -> chartsStorage.genres(chartCategory)
+                                                        .subscribeOn(scheduler))
                              .map(filterGenresByCategory(chartCategory));
     }
 

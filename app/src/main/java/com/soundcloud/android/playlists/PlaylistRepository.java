@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.utils.DiffUtils.minus;
 import static com.soundcloud.java.collections.Maps.asMap;
 import static java.util.Collections.singletonList;
@@ -40,7 +39,7 @@ public class PlaylistRepository {
         return playlistStorage
                 .availablePlaylists(requestedPlaylists)
                 .flatMap(syncMissingPlaylists(requestedPlaylists))
-                .flatMap(continueWith(playlistStorage.loadPlaylists(requestedPlaylists)))
+                .flatMap(o -> playlistStorage.loadPlaylists(requestedPlaylists))
                 .subscribeOn(scheduler)
                 .map(playlistItems -> playlistItems.get(0));
     }
@@ -49,7 +48,7 @@ public class PlaylistRepository {
         return playlistStorage
                 .availablePlaylists(requestedPlaylists)
                 .flatMap(syncMissingPlaylists(requestedPlaylists))
-                .flatMap(continueWith(playlistStorage.loadPlaylists(requestedPlaylists)))
+                .flatMap(o -> playlistStorage.loadPlaylists(requestedPlaylists))
                 .onErrorResumeNext(playlistStorage.loadPlaylists(requestedPlaylists))
                 .map(playlistItems -> asMap(playlistItems, Playlist::urn))
                 .subscribeOn(scheduler);

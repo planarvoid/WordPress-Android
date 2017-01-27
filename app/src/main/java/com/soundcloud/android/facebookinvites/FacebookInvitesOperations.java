@@ -1,7 +1,6 @@
 package com.soundcloud.android.facebookinvites;
 
 import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.profile.LastPostedTrack;
@@ -58,15 +57,15 @@ public class FacebookInvitesOperations {
     public Observable<StreamItem> creatorInvites() {
         return canShowForCreators()
                 .filter(IS_TRUE)
-                .flatMap(continueWith(myProfileOperations.lastPublicPostedTrack()
-                                                         .flatMap(toCreatorInvitesItem)
-                                                         .onErrorResumeNext(Observable.<StreamItem>empty())));
+                .flatMap(o -> myProfileOperations.lastPublicPostedTrack()
+                                                 .flatMap(toCreatorInvitesItem)
+                                                 .onErrorResumeNext(Observable.<StreamItem>empty()));
     }
 
     public Observable<StreamItem> listenerInvites() {
         return canShowForListeners()
                 .filter(IS_TRUE)
-                .flatMap(continueWith(Observable.just(StreamItem.forFacebookListenerInvites())));
+                .flatMap(o -> Observable.just(StreamItem.forFacebookListenerInvites()));
     }
 
     private Observable<Boolean> canShowForCreators() {

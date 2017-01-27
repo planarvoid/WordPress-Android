@@ -1,7 +1,5 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.android.rx.RxUtils.returning;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -45,13 +43,13 @@ public class RepostOperations {
 
     private Func1<RepostStatus, Observable<RepostStatus>> pushAddRepostAndRevertWhenFailed() {
         return repostStatus -> pushAddRepost(repostStatus.urn())
-                .map(returning(repostStatus))
+                .map(o -> repostStatus)
                 .onErrorResumeNext(removeRepostLocally(repostStatus.urn()));
     }
 
     private Func1<RepostStatus, Observable<RepostStatus>> pushRemoveAndRevertWhenFailed() {
         return repostStatus -> pushRemoveRepost(repostStatus.urn())
-                .map(returning(repostStatus))
+                .map(o -> repostStatus)
                 .onErrorResumeNext(addRepostLocally(repostStatus.urn()));
     }
 
