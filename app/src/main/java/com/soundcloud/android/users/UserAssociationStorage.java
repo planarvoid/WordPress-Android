@@ -14,7 +14,6 @@ import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.storage.Tables.UserAssociations;
 import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -166,7 +165,7 @@ public class UserAssociationStorage {
                 .orWhereNotNull(REMOVED_AT);
     }
 
-    protected Query buildFollowingsQuery(int limit, long fromPosition) {
+    private Query buildFollowingsQuery(int limit, long fromPosition) {
         return buildFollowingsBaseQuery()
                 .whereGt(POSITION, fromPosition)
                 .order(POSITION, ASC)
@@ -213,16 +212,14 @@ public class UserAssociationStorage {
 
         @Override
         public Following map(CursorReader reader) {
-            final PropertySet propertySet = PropertySet.create(reader.getColumnCount() + 1);
-            propertySet.put(UserProperty.URN, Urn.forUser(reader.getLong(Users._ID)));
-            propertySet.put(UserProperty.USERNAME, reader.getString(Users.USERNAME));
-            propertySet.put(UserProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(reader.getString(Users.AVATAR_URL)));
-            if (reader.isNotNull(Users.COUNTRY)) {
-                propertySet.put(UserProperty.COUNTRY, reader.getString(Users.COUNTRY));
-            }
-            propertySet.put(UserProperty.FOLLOWERS_COUNT, reader.getInt(Users.FOLLOWERS_COUNT));
-
-            return Following.from(UserItem.from(propertySet), UserAssociation.create(reader));
+            UserItem userItem = UserItem.create(
+                    Urn.forUser(reader.getLong(Users._ID)),
+                    reader.getString(Users.USERNAME),
+                    Optional.fromNullable(reader.getString(Users.AVATAR_URL)),
+                    Optional.fromNullable(reader.isNull(Users.COUNTRY) ? null : reader.getString(Users.COUNTRY)),
+                    reader.getInt(Users.FOLLOWERS_COUNT),
+                    false);
+            return Following.from(userItem, UserAssociation.create(reader));
         }
     }
 

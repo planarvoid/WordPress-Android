@@ -7,20 +7,10 @@ import com.soundcloud.android.presentation.FollowableItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoParcel
 public abstract class UserItem implements ListItem, FollowableItem, SearchableItem {
-
-    public static UserItem from(PropertySet source) {
-        return create(source.get(UserProperty.URN),
-                      source.get(UserProperty.USERNAME),
-                      source.get(UserProperty.IMAGE_URL_TEMPLATE),
-                      Optional.fromNullable(source.getOrElseNull(UserProperty.COUNTRY)),
-                      source.get(UserProperty.FOLLOWERS_COUNT),
-                      source.getOrElse(UserProperty.IS_FOLLOWED_BY_ME, false));
-    }
 
     public static UserItem create(Urn urn, String name, Optional<String> imageUrlTemplate, Optional<String> country, int followersCount, boolean isFollowedByMe) {
         return new AutoParcel_UserItem(imageUrlTemplate, urn, name, country, followersCount, isFollowedByMe);

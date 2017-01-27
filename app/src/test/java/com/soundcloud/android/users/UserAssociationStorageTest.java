@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.storage.Tables.UserAssociations;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import org.assertj.core.api.Assertions;
@@ -263,11 +262,12 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     }
 
     private UserItem apiUserToResultSet(ApiUser apiUser1) {
-        return UserItem.from(PropertySet.create()
-                          .put(UserProperty.URN, apiUser1.getUrn())
-                          .put(UserProperty.USERNAME, apiUser1.getUsername())
-                          .put(UserProperty.COUNTRY, apiUser1.getCountry())
-                          .put(UserProperty.FOLLOWERS_COUNT, apiUser1.getFollowersCount())
-                          .put(UserProperty.IMAGE_URL_TEMPLATE, apiUser1.getImageUrlTemplate()));
+        return UserItem.create(
+                apiUser1.getUrn(),
+                apiUser1.getUsername(),
+                apiUser1.getImageUrlTemplate(),
+                Optional.fromNullable(apiUser1.getCountry()),
+                apiUser1.getFollowersCount(),
+                false);
     }
 }
