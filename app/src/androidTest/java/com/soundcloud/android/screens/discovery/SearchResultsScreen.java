@@ -128,6 +128,11 @@ public class SearchResultsScreen extends Screen {
         );
     }
 
+    public SearchScreen clickSearch() {
+        testDriver.findOnScreenElement(With.id(R.id.search_text)).click();
+        return new SearchScreen(testDriver);
+    }
+
     private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = viewElement -> PlaylistElement.forListItem(testDriver, viewElement);
 
     private ViewPagerElement getViewPager() {

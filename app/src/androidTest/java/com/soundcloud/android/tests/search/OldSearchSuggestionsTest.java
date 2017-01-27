@@ -12,7 +12,6 @@ import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 public class OldSearchSuggestionsTest extends TrackingActivityTest<MainActivity> {
 
     private static final String SEARCH_SUGGESTIONS = "search_suggestions";
-    private static final String SEARCH_SUGGESTIONS_ITEM_NAV = "search_suggestions_item_nav";
     private DiscoveryScreen discoveryScreen;
 
     public OldSearchSuggestionsTest() {
@@ -38,16 +37,10 @@ public class OldSearchSuggestionsTest extends TrackingActivityTest<MainActivity>
 
         assertThat("Search results screen should be visible", resultsScreen.isVisible());
 
+        final ProfileScreen profileScreen = resultsScreen.clickSearch().setSearchQuery("a").clickOnUserSuggestion();
+
+        assertThat("Profile should be visible", profileScreen.isVisible());
+
         finishEventTracking(SEARCH_SUGGESTIONS);
-    }
-
-    public void testSearchSuggestionsItemNavigation() throws Exception {
-        startEventTracking();
-
-        ProfileScreen profileScreen = discoveryScreen.clickSearch().setSearchQuery("annoymouse").clickOnUserSuggestion();
-
-        assertThat("Search results screen should be visible", profileScreen.isVisible());
-
-        finishEventTracking(SEARCH_SUGGESTIONS_ITEM_NAV);
     }
 }

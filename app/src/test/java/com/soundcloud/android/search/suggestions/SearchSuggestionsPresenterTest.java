@@ -75,12 +75,12 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersSearchEventOnSearchItemClicked() {
-        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(API_QUERY);
+        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(USER_QUERY);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(mock(View.class), CLICK_POSITION);
 
-        verify(suggestionListener).onSearchClicked(API_QUERY, USER_QUERY);
+        verify(suggestionListener).onSearchClicked(USER_QUERY, USER_QUERY);
     }
 
     @Test

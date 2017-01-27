@@ -14,7 +14,6 @@ import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
 
     private static final String SEARCH_AUTOCOMPLETE = "search_autocomplete2";
-    private static final String SEARCH_AUTOCOMPLETE_ITEM_NAV = "search_autocomplete_item_nav";
     private DiscoveryScreen discoveryScreen;
     private FeatureFlagsHelper featureFlagsHelper;
 
@@ -49,16 +48,11 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
                                                            .clickOnAutocompleteSuggestion();
 
         assertThat("Search results screen should be visible", resultsScreen.isVisible());
+
+        final ProfileScreen profileScreen = resultsScreen.clickSearch().setSearchQuery("a").clickOnUserSuggestion();
+
+        assertThat("Profile should be visible", profileScreen.isVisible());
+
         finishEventTracking(SEARCH_AUTOCOMPLETE);
-    }
-
-    public void testAutocompleteItemNavigation() throws Exception {
-        startEventTracking();
-
-        ProfileScreen profileScreen = discoveryScreen.clickSearch().setSearchQuery("a").clickOnUserSuggestion();
-
-        assertThat("Search results screen should be visible", profileScreen.isVisible());
-
-        finishEventTracking(SEARCH_AUTOCOMPLETE_ITEM_NAV);
     }
 }
