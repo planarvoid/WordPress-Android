@@ -17,6 +17,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,16 @@ public class TrackRepository {
                 .flatMap(syncMissingTracks(requestedTracks))
                 .flatMap(o -> trackStorage.loadTracks(requestedTracks))
                 .subscribeOn(scheduler);
+    }
+
+    public Observable<List<Track>> trackListFromUrns(List<Urn> requestedTracks) {
+        return fromUrns(requestedTracks).map(urnTrackMap -> {
+            List<Track> tracks = new ArrayList<>(requestedTracks.size());
+            for (Urn requestedTrack : requestedTracks) {
+                tracks.add(urnTrackMap.get(requestedTrack));
+            }
+            return tracks;
+        });
     }
 
     public Observable<List<Track>> forPlaylist(Urn playlistUrn) {
