@@ -44,7 +44,7 @@ public class TrackInfoCommentClickListenerTest extends AndroidUnitTest {
     public void onCommentCLickedSendsPlayerCloseEvent() throws Exception {
         listener.onCommentsClicked();
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isCollapse()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isAutomaticCollapse()).isTrue();
     }
 
     @Test

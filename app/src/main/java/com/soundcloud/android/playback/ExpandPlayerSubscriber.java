@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
@@ -12,11 +13,13 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
 
     private final EventBus eventBus;
     private final PlaybackToastHelper playbackToastHelper;
+    private final MiniplayerExperiment miniplayerExperiment;
 
     @Inject
-    public ExpandPlayerSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
+    public ExpandPlayerSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper, MiniplayerExperiment miniplayerExperiment) {
         this.eventBus = eventBus;
         this.playbackToastHelper = playbackToastHelper;
+        this.miniplayerExperiment = miniplayerExperiment;
     }
 
     @Override
@@ -29,7 +32,9 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     }
 
     protected void expandPlayer() {
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+        if (miniplayerExperiment.canExpandPlayer()) {
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+        }
     }
 
 }

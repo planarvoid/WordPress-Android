@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -64,9 +65,10 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     @Mock private ChartsTracker chartsTracker;
     @Mock private Fragment fragment;
     @Mock private EventBus eventBus;
+    @Mock private MiniplayerExperiment miniplayerExperiment;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Spy private ExpandPlayerSubscriber expandPlayerSubscriber =
-            new ExpandPlayerSubscriber(eventBus, playbackToastHelper);
+            new ExpandPlayerSubscriber(eventBus, playbackToastHelper, miniplayerExperiment);
 
     private ChartTracksPresenter chartTracksPresenter;
     private Bundle bundle;
@@ -82,7 +84,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
         when(chartsOperations.tracks(TOP, GENRE)).thenReturn(Observable.just(API_CHART));
         bundle = getChartArguments();
         when(fragment.getArguments()).thenReturn(bundle);
-
+        when(miniplayerExperiment.canExpandPlayer()).thenReturn(true);
     }
 
     @Test

@@ -143,7 +143,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
             @Override
             public void handleMessage(Message msg) {
-                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
+                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
             }
         }
 

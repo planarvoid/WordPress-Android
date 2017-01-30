@@ -21,13 +21,12 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscriber;
 
 import android.content.Context;
 import android.net.Uri;
 
 import javax.inject.Inject;
-
-import rx.Subscriber;
 
 class AdPageListener extends PageListener {
 
@@ -107,7 +106,7 @@ class AdPageListener extends PageListener {
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
                 .subscribe(startPlaylistOrProfile(activityContext, getUrnforEntityDeepLink(deeplink, uri)));
 
-        onPlayerClose();
+        requestPlayerCollapse();
     }
 
     private Urn getUrnforEntityDeepLink(DeepLink deepLink, Uri uri) {

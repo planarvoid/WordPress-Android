@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.concurrent.TimeUnit;
+
 public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = TestPlayStates.URN;
@@ -38,9 +40,8 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = new PlaySessionStateProvider(playSessionStateStorage, uuidProvider, eventBus);
-
         dateProvider = new TestDateProvider();
+        provider = new PlaySessionStateProvider(playSessionStateStorage, uuidProvider, eventBus, dateProvider);
 
         when(playSessionStateStorage.getLastPlayId()).thenReturn(LAST_PLAY_ID);
         when(uuidProvider.getRandomUuid()).thenReturn(RANDOM_UUID);
@@ -227,6 +228,28 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
         provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
         provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(2), 34, 456), DURATION);
         verify(playSessionStateStorage).saveProgress(34);
+    }
+
+    @Test
+    public void getMillisSinceLastPlaySessionReturnsTimeSinceLastEventWhenIsNotInPlayingState() {
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        provider.onPlayStateTransition(TestPlayerTransitions.idle(), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        assertThat(provider.getMillisSinceLastPlaySession()).isEqualTo(TimeUnit.SECONDS.toMillis(10));
+    }
+
+    @Test
+    public void getMillisSinceLastPlaySessionReturnsZeroWhenStillInPlayingState() {
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(2), 34, 456), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        assertThat(provider.getMillisSinceLastPlaySession()).isEqualTo(0L);
     }
 
     private PlaybackProgress createPlaybackProcess(long position, long duration) {

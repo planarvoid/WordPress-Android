@@ -125,7 +125,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         listener.onClickThrough(context());
 
         PlayerUICommand event = eventBus.firstEventOn(EventQueue.PLAYER_COMMAND);
-        assertThat(event.isCollapse()).isTrue();
+        assertThat(event.isAutomaticCollapse()).isTrue();
     }
 
     @Test
@@ -136,7 +136,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         listener.onClickThrough(context());
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        assertThat(event.isCollapse()).isTrue();
+        assertThat(event.isAutomaticCollapse()).isTrue();
     }
 
     @Test

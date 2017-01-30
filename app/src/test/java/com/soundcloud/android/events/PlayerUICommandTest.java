@@ -20,8 +20,14 @@ public class PlayerUICommandTest {
 
     @Test
     public void createsEventForClosePlayer() {
-        PlayerUICommand event = PlayerUICommand.collapsePlayer();
-        assertThat(event.isCollapse()).isTrue();
+        PlayerUICommand event = PlayerUICommand.collapsePlayerAutomatically();
+        assertThat(event.isAutomaticCollapse()).isTrue();
+    }
+
+    @Test
+    public void createsEventForManualClosePlayer() {
+        PlayerUICommand event = PlayerUICommand.collapsePlayerManually();
+        assertThat(event.isManualCollapse()).isTrue();
     }
 
 }

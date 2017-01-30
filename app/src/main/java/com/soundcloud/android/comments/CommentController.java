@@ -24,7 +24,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 
 import javax.inject.Inject;
 
@@ -91,7 +90,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
             final Feedback feedback = Feedback.create(R.string.comment_posted,
                                                       R.string.btn_view, v -> {
                                                           subscribeToCollapsedEvent(activity);
-                                                          eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
+                                                          eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
                                                       });
             feedbackController.showFeedback(feedback);
 

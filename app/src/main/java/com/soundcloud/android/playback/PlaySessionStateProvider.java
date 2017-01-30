@@ -4,6 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -23,19 +24,25 @@ public class PlaySessionStateProvider {
     private final PlaySessionStateStorage playSessionStateStorage;
     private final UuidProvider uuidProvider;
     private final EventBus eventBus;
+    private final CurrentDateProvider dateProvider;
 
     private PlaybackProgress lastProgress = PlaybackProgress.empty();
     private PlayStateEvent lastStateEvent = PlayStateEvent.DEFAULT;
     private Urn currentPlayingUrn = Urn.NOT_SET; // the urn of the item that is currently loaded in the playback service
+    private long lastStateEventTime;
 
     @Inject
-    public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage, UuidProvider uuidProvider, EventBus eventBus) {
+    public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage,
+                                    UuidProvider uuidProvider,
+                                    EventBus eventBus,
+                                    CurrentDateProvider dateProvider) {
         this.playSessionStateStorage = playSessionStateStorage;
         this.uuidProvider = uuidProvider;
         this.eventBus = eventBus;
+        this.dateProvider = dateProvider;
     }
 
-    public PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
+    PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
         final boolean isNewTrack = !isLastPlayed(stateTransition.getUrn());
         if (isNewTrack) {
             playSessionStateStorage.savePlayInfo(stateTransition.getUrn());
@@ -48,6 +55,7 @@ public class PlaySessionStateProvider {
 
         currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : stateTransition.getUrn();
         lastStateEvent = playStateEvent;
+        lastStateEventTime = dateProvider.getCurrentTime();
         lastProgress = playStateEvent.getProgress();
 
         if (isNewTrack || playStateEvent.getTransition().isPlayerIdle()) {
@@ -118,4 +126,9 @@ public class PlaySessionStateProvider {
     public PlaybackProgress getLastProgressEvent() {
         return lastProgress;
     }
+
+    public long getMillisSinceLastPlaySession() {
+        return isPlaying() ? 0 : (dateProvider.getCurrentTime() - lastStateEventTime);
+    }
+
 }

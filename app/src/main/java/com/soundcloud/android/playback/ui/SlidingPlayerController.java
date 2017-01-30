@@ -10,6 +10,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.MiniplayerStorage;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.status.StatusBarColorController;
@@ -44,6 +45,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final StatusBarColorController statusBarColorController;
+    private final MiniplayerStorage miniplayerStorage;
 
     private SlidingUpPanelLayout slidingPanel;
     private PlayerFragment playerFragment;
@@ -58,10 +60,12 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     @Inject
     public SlidingPlayerController(PlayQueueManager playQueueManager,
                                    EventBus eventBus,
-                                   StatusBarColorController statusBarColorController) {
+                                   StatusBarColorController statusBarColorController,
+                                   MiniplayerStorage miniplayerStorage) {
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.statusBarColorController = statusBarColorController;
+        this.miniplayerStorage = miniplayerStorage;
     }
 
     @Nullable
@@ -113,6 +117,11 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         slidingPanel.setPanelState(PanelState.COLLAPSED);
     }
 
+    private void manualCollapse() {
+        miniplayerStorage.setMinimizedPlayerManually();
+        collapse();
+    }
+
     private void hide() {
         slidingPanel.setPanelState(PanelState.HIDDEN);
     }
@@ -137,7 +146,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
             return true;
         } else {
             if (!isLocked && isExpanded()) {
-                collapse();
+                manualCollapse();
                 return true;
             } else if (isLocked && isPlayQueueLocked) {
                 unlockForPlayQueue();
@@ -236,7 +245,9 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                 hide();
             } else if (event.isExpand()) {
                 expand();
-            } else if (event.isCollapse()) {
+            } else if (event.isManualCollapse()) {
+                manualCollapse();
+            } else if (event.isAutomaticCollapse()) {
                 collapse();
             } else if (event.isLockExpanded()) {
                 lockExpanded();
@@ -274,10 +285,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     @Override
-    public void onPanelStateChanged(View panel,
-                                    PanelState previousState,
-                                    PanelState newState) {
-
+    public void onPanelStateChanged(View panel, PanelState previousState, PanelState newState) {
         switch (newState) {
             case EXPANDED:
                 onPanelExpanded();
@@ -294,6 +302,11 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public void onPanelCollapsed() {
         statusBarColorController.onPlayerCollapsed();
         notifyCollapsedState();
+
+        if (wasDragged) {
+            miniplayerStorage.setMinimizedPlayerManually();
+        }
+
         trackPlayerSlide(UIEvent.fromPlayerClose(wasDragged));
     }
 

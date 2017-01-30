@@ -118,7 +118,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onGotoUser(context(), userUrn);
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        assertThat(event.isCollapse()).isTrue();
+        assertThat(event.isAutomaticCollapse()).isTrue();
     }
 
     @Test

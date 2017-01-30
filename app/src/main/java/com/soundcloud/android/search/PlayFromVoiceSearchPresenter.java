@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -42,6 +43,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final PlaybackToastHelper playbackToastHelper;
     private final Navigator navigator;
     private final EventBus eventBus;
+    private final MiniplayerExperiment miniplayerExperiment;
     private Context activityContext;
 
     private final Func1<SearchResult, Observable<PlaybackResult>> toPlayWithRecommendations = new Func1<SearchResult, Observable<PlaybackResult>>() {
@@ -69,13 +71,15 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
                                  Random random,
                                  PlaybackToastHelper playbackToastHelper,
                                  Navigator navigator,
-                                 EventBus eventBus) {
+                                 EventBus eventBus,
+                                 MiniplayerExperiment miniplayerExperiment) {
         this.searchOperations = searchOperations;
         this.playbackInitiator = playbackInitiator;
         this.random = random;
         this.playbackToastHelper = playbackToastHelper;
         this.navigator = navigator;
         this.eventBus = eventBus;
+        this.miniplayerExperiment = miniplayerExperiment;
     }
 
     @Override
@@ -136,7 +140,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         private final String query;
 
         public PlayFromQuerySubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper, String query) {
-            super(eventBus, playbackToastHelper);
+            super(eventBus, playbackToastHelper, miniplayerExperiment);
             this.query = query;
         }
 

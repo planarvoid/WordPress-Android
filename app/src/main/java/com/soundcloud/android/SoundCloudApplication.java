@@ -30,6 +30,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.performance.PerformanceEngineFactory;
 import com.soundcloud.android.performance.StopWatch;
 import com.soundcloud.android.peripherals.PeripheralsController;
+import com.soundcloud.android.playback.MiniplayerStorage;
 import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -125,6 +126,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
     @Inject PerformanceEngineFactory performanceEngineFactory;
     @Inject LikesStateProvider likesStateProvider;
+    @Inject MiniplayerStorage miniplayerStorage;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -227,6 +229,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
+
+        miniplayerStorage.clear();
     }
 
     private void configureCast() {

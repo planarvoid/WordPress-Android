@@ -16,6 +16,7 @@ public class ActiveExperiments {
                                                                                   PlaylistDiscoveryConfig.CONFIGURATION,
                                                                                   AutocompleteConfig.CONFIGURATION,
                                                                                   PlayQueueConfiguration.CONFIGURATION,
+                                                                                  MiniplayerExperiment.CONFIGURATION,
                                                                                   SuggestedStationsExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
