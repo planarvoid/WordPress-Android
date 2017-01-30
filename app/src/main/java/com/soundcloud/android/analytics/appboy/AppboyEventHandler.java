@@ -85,10 +85,10 @@ class AppboyEventHandler {
 
     void handleEvent(AttributionEvent event) {
         appboy.setAttribution(
-                event.network(),
+                event.network().or(Strings.EMPTY),
                 event.campaign().or(Strings.EMPTY),
-                event.adGroup(),
-                event.creative());
+                event.adGroup().or(Strings.EMPTY),
+                event.creative().or(Strings.EMPTY));
     }
 
     void handleEvent(SearchEvent event) {
