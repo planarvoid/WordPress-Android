@@ -32,6 +32,12 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
         featureFlagsHelper.enable(Flag.AUTOCOMPLETE);
 
         super.setUp();
+
+        // In order to guarantee the followers exist in the DB
+        mainNavHelper.goToMyProfile().touchFollowingsTab().pullToRefresh();
+
+        solo.goBack();
+
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
