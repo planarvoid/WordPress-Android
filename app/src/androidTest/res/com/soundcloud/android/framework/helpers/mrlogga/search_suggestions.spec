@@ -10,7 +10,7 @@ expected_events:
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: '3152'
-    user: soundcloud:users:18173653
+    user: soundcloud:users:285710974
     connection_type: wifi
     click_name: search_formulation_init
     page_name: search:main
@@ -22,7 +22,7 @@ expected_events:
     ts: '[0-9]+'
     client_id: '3152'
     page_name: search:main
-    user: soundcloud:users:18173653
+    user: soundcloud:users:285710974
     app_version: '[0-9]+'
     connection_type: wifi
   version: '1'
@@ -32,7 +32,7 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     client_id: '3152'
-    user: soundcloud:users:18173653
+    user: soundcloud:users:285710974
     click_name: search
     query_position: '0'
     page_name: search:main
@@ -50,7 +50,7 @@ expected_events:
     query_urn: soundcloud:search:(\w|-)+
     client_id: '3152'
     page_name: search:everything
-    user: soundcloud:users:18173653
+    user: soundcloud:users:285710974
     app_version: '[0-9]+'
     connection_type: wifi
   version: '1'
@@ -61,7 +61,7 @@ expected_events:
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: '3152'
-    user: soundcloud:users:18173653
+    user: soundcloud:users:285710974
     connection_type: wifi
     click_name: search_formulation_init
     page_name: search:everything
@@ -74,7 +74,7 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     client_id: '3152'
-    user: soundcloud:users:18173653
+    user: soundcloud:users:285710974
     click_name: search
     click_object: soundcloud:users:(\w|-)+
     query_position: '[0-9]+'
@@ -96,5 +96,5 @@ expected_events:
     connection_type: wifi
     page_urn: soundcloud:users:(\w|-)+
     page_name: users:main
-    user: soundcloud:users:18173653
+    user: soundcloud:users:285710974
   version: '1'

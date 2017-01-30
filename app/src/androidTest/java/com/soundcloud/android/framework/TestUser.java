@@ -340,4 +340,11 @@ public class TestUser {
             "1-21686-273344775-9b75d0c91573f2",
             273344775,
             false);
+    public static final TestUser autocompleteTestUser = new TestUser(
+            "user-17994038",
+            "discovery-android+test1231231231@soundcloud.com",
+            "youdontwantnoproblemwantoproblemwithme",
+            "1-21686-285710974-d3a65d5c99a130",
+            285710974,
+            false);
 }

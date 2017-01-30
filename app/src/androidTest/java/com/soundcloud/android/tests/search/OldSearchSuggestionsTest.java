@@ -20,7 +20,7 @@ public class OldSearchSuggestionsTest extends TrackingActivityTest<MainActivity>
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return TestUser.autocompleteTestUser;
     }
 
     @Override
