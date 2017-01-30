@@ -45,7 +45,13 @@ public class RecoverPasswordTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
         if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
-            return recoverPasswordOperations.recoverPassword(params[0]);
+            ApiResponse apiResponse = recoverPasswordOperations.recoverPassword(params[0]);
+
+            if (apiResponse.isNotSuccess() && apiResponse.getFailure().reason() == ApiRequestException.Reason.VALIDATION_ERROR) {
+                reason = resources.getString(R.string.authentication_recover_password_unknown_email_address);
+            }
+
+            return apiResponse.isSuccess();
         } else {
             return legacyRecoverPassword(params);
         }

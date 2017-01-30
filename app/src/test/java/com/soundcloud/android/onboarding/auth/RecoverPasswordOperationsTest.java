@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -40,6 +41,13 @@ public class RecoverPasswordOperationsTest extends AndroidUnitTest {
     @Test
     public void error() throws Exception {
         when(apiClient.fetchResponse(any())).thenReturn(new ApiResponse(request, 400, "not cool"));
-        assertThat(operations.recoverPassword("valid@email.com")).isFalse();
+        assertThat(operations.recoverPassword("valid@email.com").isSuccess()).isFalse();
+    }
+
+    @Test
+    public void unknownEmail() throws Exception {
+        when(apiClient.fetchResponse(any())).thenReturn(new ApiResponse(request, 422, "identifier_not_found"));
+        assertThat(operations.recoverPassword("unknown@email.com").isSuccess()).isFalse();
+        assertThat(operations.recoverPassword("unknown@email.com").getFailure().reason()).isEqualTo(ApiRequestException.Reason.VALIDATION_ERROR);
     }
 }

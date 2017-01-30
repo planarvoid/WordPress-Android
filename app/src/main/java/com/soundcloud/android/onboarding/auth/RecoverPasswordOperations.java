@@ -17,12 +17,10 @@ public class RecoverPasswordOperations {
         this.apiClient = apiClient;
     }
 
-    public boolean recoverPassword(String email) {
-        ApiResponse apiResponse = apiClient.fetchResponse(ApiRequest.post(ApiEndpoints.RESET_PASSWORD.path())
+    public ApiResponse recoverPassword(String email) {
+        return apiClient.fetchResponse(ApiRequest.post(ApiEndpoints.RESET_PASSWORD.path())
                                                                     .forPrivateApi()
                                                                     .withContent(ResetPasswordBody.create(email))
                                                                     .build());
-
-        return apiResponse.isSuccess();
     }
 }

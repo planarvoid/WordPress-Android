@@ -19,7 +19,7 @@ public class ApiResponse {
     private static final String PUBLIC_API_ERRORS_KEY = "errors";
     private static final String PUBLIC_API_ERROR_KEY = "error";
     private static final String PUBLIC_API_ERROR_MESSAGE_KEY = "error_message";
-    private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
+    public static final int HTTP_UNPROCESSABLE_ENTITY = 422;
     private static final int HTTP_PRECONDITION_REQUIRED = 428;
     private static final int HTTP_REQUEST_TOO_MANY_REQUESTS = 429;
 

@@ -86,6 +86,7 @@ android {
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -113,6 +114,7 @@ android {
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
     }
 
     release {
