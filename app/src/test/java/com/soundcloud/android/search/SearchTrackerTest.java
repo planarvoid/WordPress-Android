@@ -74,23 +74,6 @@ public class SearchTrackerTest {
     }
 
     @Test
-    public void mustTrackSearchSubmissionWithQueryUrn() {
-        tracker.trackSearchSubmission(SearchType.ALL, QUERY_URN, SEARCH_QUERY);
-
-        verify(eventTracker).trackSearch(searchEventCaptor.capture());
-
-        assertThat(searchEventCaptor.getValue().kind().get()).isEqualTo(SearchEvent.Kind.SUBMIT);
-        assertThat(searchEventCaptor.getValue().queryUrn().get()).isEqualTo(QUERY_URN);
-    }
-
-    @Test
-    public void mustNotTrackSearchSubmissionWithoutQueryUrn() {
-        tracker.trackSearchSubmission(SearchType.ALL, Urn.NOT_SET, SEARCH_QUERY);
-
-        verifyZeroInteractions(eventTracker);
-    }
-
-    @Test
     public void mustSetQueryUrnForScreen() {
         tracker.setTrackingData(SearchType.ALL, QUERY_URN, false);
 

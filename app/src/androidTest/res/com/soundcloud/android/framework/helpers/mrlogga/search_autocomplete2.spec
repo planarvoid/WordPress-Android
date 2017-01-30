@@ -44,22 +44,6 @@ expected_events:
           q: 'clown'
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
-  name: click
-  params:
-    anonymous_id: (\w|-)+
-    ts: '[0-9]+'
-    query_urn: soundcloud:search-autocomplete:(\w|-)+
-    client_id: '3152'
-    user: soundcloud:users:18173653
-    click_name: search
-    page_name: search:everything
-    connection_type: wifi
-    app_version: '[0-9]+'
-    click_name: search
-    click_attributes:
-          q: 'clown'
-  version: '1'
-- !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
     anonymous_id: (\w|-)+

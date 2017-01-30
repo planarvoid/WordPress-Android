@@ -143,7 +143,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupFragmentArguments(false);
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
-        verify(searchTracker, times(0)).trackSearchSubmission(any(SearchType.class), any(Urn.class), any(String.class));
         verify(searchTracker, times(0)).trackSearchFormulationEnd(eq(Screen.SEARCH_MAIN), any(String.class), any(Optional.class), any(Optional.class));
         verify(searchTracker, times(0)).trackResultsScreenEvent(any(SearchType.class), any(String.class));
     }
@@ -153,7 +152,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
-        verify(searchTracker).trackSearchSubmission(SEARCH_TAB, QUERY_URN, USER_QUERY);
         verify(searchTracker).trackSearchFormulationEnd(Screen.SEARCH_MAIN, USER_QUERY, Optional.absent(), Optional.of(0));
         verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, API_QUERY);
     }

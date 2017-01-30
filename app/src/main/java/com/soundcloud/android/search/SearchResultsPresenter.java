@@ -87,7 +87,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
 
                     if (publishSearchSubmissionEvent) {
                         searchTracker.trackSearchFormulationEnd(screenProvider.getLastScreen(), userQuery, autocompleteUrn(), autocompletePosition());
-                        searchTracker.trackSearchSubmission(searchType, queryUrn, userQuery);
                     }
 
                     if (publishSearchSubmissionEvent || shouldSendTrackingState) {
