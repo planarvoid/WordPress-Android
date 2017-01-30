@@ -225,11 +225,11 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(castQueueController.getCurrentQueue()).thenReturn(castPlayQueue);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN2));
         when(castQueueController.isCurrentlyLoadedOnRemotePlayer(TRACK_URN2)).thenReturn(false);
-        when(castQueueController.buildUpdatedCastPlayQueue(any(Urn.class))).thenReturn(CastPlayQueue.forUpdate(TRACK_URN2, castPlayQueue));
+        when(castQueueController.buildUpdatedCastPlayQueue(any(Urn.class), anyLong())).thenReturn(CastPlayQueue.forUpdate(TRACK_URN2, 0L, castPlayQueue));
 
         castPlayer.playCurrent();
 
-        verify(castQueueController).buildUpdatedCastPlayQueue(TRACK_URN2);
+        verify(castQueueController).buildUpdatedCastPlayQueue(eq(TRACK_URN2), anyLong());
         verify(castProtocol).sendUpdateQueue(any(CastPlayQueue.class));
     }
 
@@ -240,7 +240,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         Urn differentQueueTrackUrn = Urn.forTrack(5487L);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(differentQueueTrackUrn));
         when(castQueueController.isCurrentlyLoadedOnRemotePlayer(TRACK_URN2)).thenReturn(false);
-        when(castQueueController.buildCastPlayQueue(any(Urn.class), any())).thenReturn(CastPlayQueue.forUpdate(differentQueueTrackUrn, castPlayQueue));
+        when(castQueueController.buildCastPlayQueue(any(Urn.class), any())).thenReturn(CastPlayQueue.forUpdate(differentQueueTrackUrn, 0L, castPlayQueue));
 
         castPlayer.playCurrent();
 
@@ -275,7 +275,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         final List<Urn> urns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
         ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
 
-        castPlayer.setNewQueue(urns, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(TestPlayQueue.fromUrns(urns, PlaySessionSource.EMPTY), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
         verify(playQueueManager).setNewPlayQueue(playQueueCaptor.capture(), eq(PlaySessionSource.EMPTY), anyInt());
         assertThat(playQueueCaptor.getValue().getTrackItemUrns()).isEqualTo(urns);
@@ -283,7 +283,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
-        castPlayer.setNewQueue(singletonList(TRACK_URN1), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(TestPlayQueue.fromUrns(singletonList(TRACK_URN1), PlaySessionSource.EMPTY), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
@@ -293,7 +293,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotFilteredOut() {
         final List<Urn> urns = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
 
-        castPlayer.setNewQueue(urns, TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(TestPlayQueue.fromUrns(urns, PlaySessionSource.EMPTY), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
@@ -309,13 +309,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     @Test
     public void pauseCallsPauseOnRemoteMediaPlayerWithApiClient() {
         castPlayer.pause();
-
-        verify(remoteMediaClient).pause();
-    }
-
-    @Test
-    public void stopCallsPausepOnRemoteMediaPlayer() {
-        castPlayer.stop();
 
         verify(remoteMediaClient).pause();
     }
@@ -353,7 +346,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN1, PLAY_QUEUE);
         mockForPlayCurrent();
         when(castQueueController.getCurrentQueue()).thenReturn(castPlayQueue);
-        when(castQueueController.buildUpdatedCastPlayQueue(any())).thenReturn(castPlayQueue);
+        when(castQueueController.buildUpdatedCastPlayQueue(any(), anyLong())).thenReturn(castPlayQueue);
         when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(PLAY_QUEUE);
 
         castPlayer.onQueueReceived(castPlayQueue);
@@ -369,7 +362,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(PLAY_QUEUE);
         when(castQueueController.getCurrentQueue()).thenReturn(castPlayQueue);
         when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
-        when(castQueueController.buildUpdatedCastPlayQueue(any())).thenReturn(castPlayQueue);
+        when(castQueueController.buildUpdatedCastPlayQueue(any(), anyLong())).thenReturn(castPlayQueue);
 
         castPlayer.onQueueReceived(castPlayQueue);
 
@@ -385,7 +378,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(Collections.emptyList());
         PlayQueue playQueue = TestPlayQueue.fromTracks(PlaySessionSource.forCast(), emptyMap());
         when(castQueueController.buildPlayQueue(any(), any())).thenReturn(playQueue);
-        when(castQueueController.buildUpdatedCastPlayQueue(any())).thenReturn(castPlayQueue);
+        when(castQueueController.buildUpdatedCastPlayQueue(any(), anyLong())).thenReturn(castPlayQueue);
 
         castPlayer.onQueueReceived(castPlayQueue);
 
@@ -398,7 +391,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN1, PLAY_QUEUE);
         when(castQueueController.getCurrentQueue()).thenReturn(castPlayQueue);
         when(castQueueController.buildPlayQueue(any(), any())).thenReturn(TestPlayQueue.fromTracks(PlaySessionSource.forCast(), emptyMap()));
-        when(castQueueController.buildUpdatedCastPlayQueue(any())).thenReturn(castPlayQueue);
+        when(castQueueController.buildUpdatedCastPlayQueue(any(), anyLong())).thenReturn(castPlayQueue);
         mockForPlayCurrent();
 
         castPlayer.onQueueReceived(castPlayQueue);
@@ -432,6 +425,18 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
                                       anyBoolean(),
                                       anyLong(),
                                       any(CastPlayQueue.class));
+    }
+
+    @Test
+    public void seekUpdatesLocalSessionStateProvider() {
+        long progress = 456789L;
+        mockProgressAndDuration(progress, 98765567L);
+        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
+        castPlayer.seek(progress);
+
+        verify(playSessionStateProvider).onProgressEvent(playbackProgressEventArgumentCaptor.capture());
+        assertThat(playbackProgressEventArgumentCaptor.getValue().getPlaybackProgress().getPosition()).isEqualTo(progress);
     }
 
     private void mockProgressAndDuration(long progress, long duration) {

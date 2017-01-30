@@ -11,6 +11,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateReason;
@@ -30,7 +31,6 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collections;
-import java.util.List;
 
 @Singleton
 class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
@@ -161,7 +161,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     private void updateRemoteQueue(Urn currentLocalTrackUrn) {
         final CastPlayQueue castPlayQueue;
         if (castQueueController.getCurrentQueue().contains(currentLocalTrackUrn)) {
-            castPlayQueue = castQueueController.buildUpdatedCastPlayQueue(currentLocalTrackUrn);
+            castPlayQueue = castQueueController.buildUpdatedCastPlayQueue(currentLocalTrackUrn, PlaySessionController.SEEK_POSITION_RESET);
             Log.d(TAG, "updateRemoteQueue() called with: newRemoteIndex = [" + castQueueController.getCurrentQueue().getCurrentIndex() + " -> " + castPlayQueue.getCurrentIndex() + "]");
         } else {
             castPlayQueue = castQueueController.buildCastPlayQueue(currentLocalTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
@@ -171,18 +171,14 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     @Override
-    public Observable<PlaybackResult> setNewQueue(List<Urn> trackItemUrns,
+    public Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue,
                                                   final Urn initialTrackUrn,
                                                   final PlaySessionSource playSessionSource) {
-        return Observable.just(trackItemUrns)
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .map(urns -> {
-                             playStateReporter.reportPlayingReset(initialTrackUrn);
-                             PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, Collections.emptyMap());
-                             playQueueManager.setNewPlayQueue(playQueue, playSessionSource, correctInitialPosition(playQueue, 0, initialTrackUrn));
-                             return PlaybackResult.success();
-                         })
-                         .doOnError(throwable -> playStateReporter.reportPlayingError(initialTrackUrn));
+        return Observable.fromCallable(() -> {
+            playStateReporter.reportPlayingReset(initialTrackUrn);
+            playQueueManager.setNewPlayQueue(playQueue, playSessionSource, correctInitialPosition(playQueue, 0, initialTrackUrn));
+            return PlaybackResult.success();
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -237,7 +233,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
     @Override
     public long seek(long ms) {
-        getRemoteMediaClient().seek((int) ms);
+        onProgressUpdated(ms, getDuration());
+        getRemoteMediaClient().seek(ms);
         return ms;
     }
 
@@ -255,10 +252,6 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         } else {
             return playSessionStateProvider.getLastProgressEvent().getDuration();
         }
-    }
-
-    public void stop() {
-        pause(); // stop has more long-running implications in cast. pause is sufficient
     }
 
     @Nullable

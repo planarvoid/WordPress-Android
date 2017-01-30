@@ -99,8 +99,7 @@ public class PlaySessionStateProvider {
         return currentPlayingUrn.equals(urn);
     }
 
-
-    public long getLastSavedProgressPosition() {
+    private long getLastSavedProgressPosition() {
         return playSessionStateStorage.getLastStoredProgress();
     }
 

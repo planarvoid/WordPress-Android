@@ -37,7 +37,7 @@ public class PlaySessionController {
     private static final String TAG = "PlaySessionController";
 
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
-    private static final long SEEK_POSITION_RESET = 0L;
+    public static final long SEEK_POSITION_RESET = 0L;
 
     private final EventBus eventBus;
     private final AdsOperations adsOperations;

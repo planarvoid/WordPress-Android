@@ -54,7 +54,7 @@ public class CastQueueController {
         return PlayQueue.fromTrackUrnList(trackUrns, playSessionSource, blockedTracks);
     }
 
-    public CastPlayQueue buildUpdatedCastPlayQueue(Urn currentTrackUrn) {
-        return CastPlayQueue.forUpdate(currentTrackUrn, castPlayQueue);
+    public CastPlayQueue buildUpdatedCastPlayQueue(Urn currentTrackUrn, long progress) {
+        return CastPlayQueue.forUpdate(currentTrackUrn, progress, castPlayQueue);
     }
 }

@@ -180,7 +180,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
             return setNewQueue(
-                    getCurrentQueueUrnsWithoutAds(),
+                    PlayQueue.fromTrackUrnList(getCurrentQueueUrnsWithoutAds(), playQueueManager.getCurrentPlaySessionSource(), Collections.emptyMap()),
                     currentPlayQueueItem.getUrn(),
                     playQueueManager.getCurrentPlaySessionSource());
         } else {
@@ -188,11 +188,11 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
         }
     }
 
-    public Observable<PlaybackResult> setNewQueue(List<Urn> unfilteredLocalPlayQueueTracks,
+    public Observable<PlaybackResult> setNewQueue(PlayQueue playQueue,
                                                   final Urn initialTrackUrnCandidate,
                                                   final PlaySessionSource playSessionSource) {
         return castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(initialTrackUrnCandidate,
-                                                                                   unfilteredLocalPlayQueueTracks)
+                                                                                   playQueue.getTrackItemUrns())
                              .observeOn(AndroidSchedulers.mainThread())
                              .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource))
                              .doOnError(reportPlaybackError(initialTrackUrnCandidate));
