@@ -66,12 +66,15 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
     }
 
     private void assertLikeChangeUpdatesLikesScreen() {
+        likesScreen.scrollToTop();
+
         final int initialLikedTracksCount = likesScreen.getTotalLikesCount();
         final VisualPlayerElement player = likesScreen.clickFirstLongTrack();
 
         player.tapToggleLikeButton();
         player.pressCloseButton();
 
+        likesScreen.scrollToTop();
         assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount - 1));
 
         player.tapFooter();
