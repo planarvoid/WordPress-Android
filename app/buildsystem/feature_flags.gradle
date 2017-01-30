@@ -31,6 +31,7 @@ enum Feature {
   WELCOME_USER,
   OFFLINE_PROPERTIES_PROVIDER,
   FORCE_SHOW_WELCOME_USER,
+  SEARCH_PLAY_RELATED_TRACKS,
   ALIGNED_USER_INFO,
   VIDEO_INLAYS,
   AUTH_API_MOBILE,
@@ -66,6 +67,7 @@ android {
     buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DYNAMIC_LINKS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -87,6 +89,7 @@ android {
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     beta {
@@ -99,6 +102,7 @@ android {
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     debug {
@@ -115,6 +119,7 @@ android {
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     release {
@@ -123,6 +128,7 @@ android {
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     preRelease {
@@ -130,12 +136,14 @@ android {
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     releaseNonPlayStore {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
   }
 }

@@ -76,6 +76,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final Navigator navigator;
     private final SearchTracker searchTracker;
     private final ScreenProvider screenProvider;
+    private final SearchPlayQueueFilter playQueueFilter;
 
     private final Action1<SearchResult> trackSearch =
             new Action1<SearchResult>() {
@@ -115,7 +116,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
                            EventBus eventBus, Navigator navigator,
                            SearchTracker searchTracker,
-                           ScreenProvider screenProvider) {
+                           ScreenProvider screenProvider,
+                           SearchPlayQueueFilter playQueueFilter) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -124,6 +126,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.navigator = navigator;
         this.searchTracker = searchTracker;
         this.screenProvider = screenProvider;
+        this.playQueueFilter = playQueueFilter;
     }
 
     @Override
@@ -218,15 +221,13 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
 
     @Override
     protected void onItemClicked(View view, int position) {
-        final List<ListItem> playQueue = premiumItems.isPresent() ?
-                                         buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems();
+        final List<ListItem> playQueue = playQueueFilter.correctQueue((premiumItems.isPresent() ? buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems()), position);
         final Urn urn = adapter.getItem(position).getUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position,
                                                                                                     urn,
                                                                                                     apiQuery);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
-        clickListenerFactory.create(searchType.getScreen(),
-                                    searchQuerySourceInfo).onItemClick(playQueue, view.getContext(), position);
+        clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo).onItemClick(playQueue, view.getContext(), playQueueFilter.correctPosition(position));
     }
 
     @Override
@@ -236,9 +237,9 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                 pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn, apiQuery);
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo)
-                            .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList),
+                            .onItemClick(playQueueFilter.correctQueue(buildPlaylistWithPremiumContent(premiumItemsList), PREMIUM_ITEMS_POSITION),
                                          view.getContext(),
-                                         PREMIUM_ITEMS_POSITION);
+                                         playQueueFilter.correctPosition(PREMIUM_ITEMS_POSITION));
     }
 
     @Override
