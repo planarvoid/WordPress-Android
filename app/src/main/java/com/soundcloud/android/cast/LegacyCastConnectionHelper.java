@@ -122,6 +122,11 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
     }
 
     @Override
+    public boolean isCastAvailable() {
+        return isCastableDeviceAvailable;
+    }
+
+    @Override
     public String getDeviceName() {
         return videoCastManager.getDeviceName();
     }

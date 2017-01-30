@@ -59,6 +59,11 @@ class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     @Override
+    public boolean isCastAvailable() {
+        return false;
+    }
+
+    @Override
     public String getDeviceName() {
         return Strings.EMPTY;
     }

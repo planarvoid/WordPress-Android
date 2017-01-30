@@ -58,15 +58,15 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     public void onResume(AppCompatActivity activity) {
         super.onResume(activity);
         if (activity instanceof OnConnectionChangeListener) {
-            addOnConnectionChangeListener((OnConnectionChangeListener) activity);
             activity.invalidateOptionsMenu();
+            addOnConnectionChangeListener((OnConnectionChangeListener) activity);
         }
     }
 
     @Override
     public void addOnConnectionChangeListener(OnConnectionChangeListener listener) {
         connectionChangeListeners.add(listener);
-        notifyListeners(isCastableDeviceAvailable);
+        notifyListeners();
     }
 
     @Override
@@ -79,12 +79,12 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
         this.deviceName = optionalDeviceName.or(StringUtils.EMPTY_STRING);
         this.isCastableDeviceAvailable = castAvailable;
         updateMediaRouteButtonsVisibility();
-        notifyListeners(castAvailable);
+        notifyListeners();
     }
 
-    private void notifyListeners(boolean castAvailable) {
+    private void notifyListeners() {
         for (OnConnectionChangeListener listener : connectionChangeListeners) {
-            if (castAvailable) {
+            if (isCastAvailable()) {
                 listener.onCastAvailable();
             } else {
                 listener.onCastUnavailable();
@@ -147,6 +147,11 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     @Override
     public boolean isCasting() {
         return isCastableDeviceAvailable && !deviceName.isEmpty();
+    }
+
+    @Override
+    public boolean isCastAvailable() {
+        return isCastableDeviceAvailable;
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastIntroductoryOverlayPresenter;
 import com.soundcloud.android.policies.PolicyUpdateController;
-import com.soundcloud.android.cast.CastIntroductoryOverlayPresenter;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.stream.StreamRefreshController;
 import com.soundcloud.java.optional.Optional;
@@ -52,6 +51,9 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         castMenu = Optional.fromNullable(castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item));
+        if (castConnectionHelper.isCastAvailable()) {
+            showIntroductoryOverlayForCastIfNeeded();
+        }
         return true;
     }
 
@@ -120,6 +122,10 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
 
     @Override
     public void onCastAvailable() {
+        showIntroductoryOverlayForCastIfNeeded();
+    }
+
+    private void showIntroductoryOverlayForCastIfNeeded() {
         castIntroductoryOverlayPresenter.showIntroductoryOverlayForCastIfNeeded();
     }
 

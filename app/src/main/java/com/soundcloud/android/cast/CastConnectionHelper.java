@@ -35,6 +35,8 @@ public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivi
 
     boolean isCasting();
 
+    boolean isCastAvailable();
+
     String getDeviceName();
 
 }
