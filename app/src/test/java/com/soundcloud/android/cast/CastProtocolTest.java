@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -135,6 +136,19 @@ public class CastProtocolTest extends AndroidUnitTest {
     }
 
     @Test
+    public void doNotForwardEmprtyIdleStateToListenerIfStateDidNotChange() {
+        when(remoteMediaClient.getMediaInfo()).thenReturn(null);
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
+        castProtocol.setListener(listener);
+
+        castProtocol.onMetadataUpdated();
+        castProtocol.onMetadataUpdated();
+        castProtocol.onMetadataUpdated();
+
+        verify(listener, times(1)).onRemoteEmptyStateFetched();
+    }
+
+    @Test
     public void handleMulticastScenarioByForwardingTheCurrentlyRemoteQueueToListener() {
         CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN, Collections.singletonList(TRACK_URN));
         mockRemoteState(MediaStatus.PLAYER_STATE_PLAYING, castPlayQueue);
@@ -143,6 +157,19 @@ public class CastProtocolTest extends AndroidUnitTest {
         castProtocol.onMetadataUpdated();
 
         verify(listener).onQueueReceived(castPlayQueue);
+    }
+
+    @Test
+    public void doNotForwardQueueToListenerIfStateDidNotChange() {
+        CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN, Collections.singletonList(TRACK_URN));
+        mockRemoteState(MediaStatus.PLAYER_STATE_PLAYING, castPlayQueue);
+        castProtocol.setListener(listener);
+
+        castProtocol.onMetadataUpdated();
+        castProtocol.onMetadataUpdated();
+        castProtocol.onMetadataUpdated();
+
+        verify(listener, times(1)).onQueueReceived(castPlayQueue);
     }
 
     private void mockRemoteState(int playerState, CastPlayQueue queue) {

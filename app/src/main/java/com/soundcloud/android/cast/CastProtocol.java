@@ -31,6 +31,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     private Optional<CastSession> castSession = Optional.absent();
     private Listener listener;
+    private Optional<RemoteState> remoteState = Optional.absent();
     private final CastJsonHandler jsonHandler;
     private final AccountOperations accountOperations;
     private final FeatureFlags featureFlags;
@@ -139,11 +140,11 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
             try {
                 if (remoteLoadedData.isPresent()) {
                     if (playerState != MediaStatus.PLAYER_STATE_UNKNOWN) {
-                        listener.onQueueReceived(jsonHandler.parseCastPlayQueue(remoteLoadedData.get()));
+                        onNonEmptyMetadataReceived(playerState, remoteLoadedData.get());
                     }
                 } else {
                     if (playerState == MediaStatus.PLAYER_STATE_IDLE) {
-                        listener.onRemoteEmptyStateFetched();
+                        onIdleEmptyMetadataReceived();
                     }
                 }
             } catch (IOException | ApiMapperException | JSONException e) {
@@ -160,7 +161,45 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         }
     }
 
+    private void onNonEmptyMetadataReceived(int playerState, JSONObject remoteLoadedData) throws IOException, ApiMapperException, JSONException {
+        CastPlayQueue castPlayQueue = jsonHandler.parseCastPlayQueue(remoteLoadedData);
+        if (hasStateChanged(playerState, Optional.fromNullable(castPlayQueue.getRevision()))) {
+            listener.onQueueReceived(castPlayQueue);
+            updateState(playerState, castPlayQueue.getRevision());
+        } else {
+            RemoteMediaClientLogger.logState("Swallowed State", getRemoteMediaClient());
+        }
+    }
+
+    private void onIdleEmptyMetadataReceived() {
+        final int playerState = MediaStatus.PLAYER_STATE_IDLE;
+        if (hasStateChanged(playerState, Optional.absent())) {
+            listener.onRemoteEmptyStateFetched();
+            updateState(playerState, null);
+        } else {
+            RemoteMediaClientLogger.logState("Swallowed State", getRemoteMediaClient());
+        }
+    }
+
     public boolean isConnected() {
         return castSession.isPresent() && castSession.get().isConnected();
+    }
+
+    private boolean hasStateChanged(int playerState, Optional<String> revision) {
+        return !remoteState.isPresent() || playerState != remoteState.get().playerState || !revision.equals(remoteState.get().revision);
+    }
+
+    private void updateState(int playerState, String revision) {
+        this.remoteState = Optional.of(new RemoteState(playerState, revision));
+    }
+
+    private static class RemoteState {
+        private int playerState;
+        private Optional<String> revision;
+
+        RemoteState(int playerState, String revision) {
+            this.playerState = playerState;
+            this.revision = Optional.fromNullable(revision);
+        }
     }
 }

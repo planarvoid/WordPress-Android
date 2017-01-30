@@ -185,7 +185,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playCurrentLoadsPlayQueueRemotelyWithAutoplayIfRemoteQueueIsEmpty() {
+    public void playCurrentLoadsCurrentlyPlayingPlayQueueRemotelyWithAutoplayIfRemoteQueueIsEmpty() {
         long playPosition = 123L;
         boolean autoplay = true;
         List<Urn> tracks = Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3);
@@ -193,6 +193,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(tracks);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN1));
         when(castQueueController.buildCastPlayQueue(any(Urn.class), any())).thenReturn(new CastPlayQueue());
+        when(playSessionStateProvider.isPlaying()).thenReturn(autoplay);
         mockProgressAndDuration(123L, 124L);
 
         castPlayer.playCurrent();

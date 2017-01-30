@@ -135,7 +135,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         boolean isRemoteEmpty = castQueueController.getCurrentQueue() == null || castQueueController.getCurrentQueue().isEmpty();
 
         if (isRemoteEmpty) {
-            loadLocalOnRemote();
+            loadLocalOnRemote(true);
         } else {
             final Urn currentLocalTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
             if (castQueueController.isCurrentlyLoadedOnRemotePlayer(currentLocalTrackUrn)) {
@@ -146,7 +146,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         }
     }
 
-    private void loadLocalOnRemote() {
+    private void loadLocalOnRemote(boolean autoplay) {
         final Urn currentTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
         PlaybackProgress lastProgress = playSessionStateProvider.getLastProgressEvent();
         long playPosition = lastProgress.getPosition();
@@ -155,7 +155,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         playCurrentSubscription.unsubscribe();
 
         CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
-        castProtocol.sendLoad(currentTrackUrn.toString(), true, playPosition, castPlayQueue);
+        castProtocol.sendLoad(currentTrackUrn.toString(), autoplay, playPosition, castPlayQueue);
     }
 
     private void updateRemoteQueue(Urn currentLocalTrackUrn) {
@@ -188,7 +188,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     @Override
     public void onRemoteEmptyStateFetched() {
         if (!isLocalEmpty()) {
-            loadLocalOnRemote();
+            loadLocalOnRemote(playSessionStateProvider.isPlaying());
         }
     }
 
