@@ -73,6 +73,7 @@ android {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
@@ -111,6 +112,7 @@ android {
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
     }
 
     release {
@@ -118,12 +120,14 @@ android {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
     }
 
     preRelease {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
