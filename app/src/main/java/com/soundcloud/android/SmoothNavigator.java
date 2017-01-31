@@ -29,7 +29,7 @@ class SmoothNavigator extends Navigator {
         final View searchItem = activity.findViewById(R.id.search_item);
 
         // No guarantees the views are available here.
-        // https://github.com/soundcloud/android/issues/4633
+        // https://github.com/soundcloud/android-listeners/issues/4633
         if (searchItem != null && searchIcon != null) {
             final int mediumAnimTime = activity.getResources().getInteger(android.R.integer.config_mediumAnimTime);
             searchIcon.animate().alpha(0).setDuration(mediumAnimTime).start();

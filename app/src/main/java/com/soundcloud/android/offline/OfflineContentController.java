@@ -60,7 +60,7 @@ public class OfflineContentController {
                 // TODO : when shutting down the feature, some entities
                 // states change. It means, we should start the service, let it
                 // publish entities updates and then let it stop itself.
-                // https://github.com/soundcloud/android/issues/4742
+                // https://github.com/soundcloud/android-listeners/issues/4742
                 .doOnUnsubscribe(serviceInitiator.stop())
                 .subscribe(serviceInitiator.startSubscriber());
     }

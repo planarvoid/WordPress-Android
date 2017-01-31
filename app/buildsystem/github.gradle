@@ -101,11 +101,11 @@ def currentDate() {
 }
 
 def apiUrl(String path) {
-  "https://api.github.com/repos/soundcloud/android/$path?access_token=0330604618ffbc5232a62f3e96f9d3b25377b9cb"
+  "https://api.github.com/repos/soundcloud/android-listeners/$path?access_token=0330604618ffbc5232a62f3e96f9d3b25377b9cb"
 }
 
 def uploadUrl(String releaseId) {
-  "https://uploads.github.com/repos/soundcloud/android/releases/$releaseId/assets?name=soundcloud-android.apk&access_token=0330604618ffbc5232a62f3e96f9d3b25377b9cb"
+  "https://uploads.github.com/repos/soundcloud/android-listeners/releases/$releaseId/assets?name=soundcloud-android.apk&access_token=0330604618ffbc5232a62f3e96f9d3b25377b9cb"
 }
 
 class Release { String tag_name; String target_commit; String name; String body }

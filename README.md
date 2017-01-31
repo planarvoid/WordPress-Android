@@ -73,11 +73,11 @@ If you need to test against other Android Release versions, you can return to th
 
 Make sure you are on the VPN:
 
-    $ git clone git@github.com:soundcloud/android.git
+    $ git clone git@github.com:soundcloud/android-listeners.git
     $ cd android
     $ ./gradlew assembleDevDebug
 
-If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/android/wiki/Troubleshooting).
+If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/android-listeners/wiki/Troubleshooting).
 
 You can also ask questions on the `#android-newbies` Slack channel.
 
@@ -104,7 +104,7 @@ You can also ask questions on the `#android-newbies` Slack channel.
 
 ## Running tests
 
-**Note:** Read the [Wiki](https://github.com/soundcloud/android/wiki) pages on testing first!
+**Note:** Read the [Wiki](https://github.com/soundcloud/android-listeners/wiki) pages on testing first!
 
 ### Unit tests on command line
 
@@ -138,12 +138,12 @@ You can simply run unit tests by right clicking the `java` folder in `src/test/j
 [Android Studio]: http://developer.android.com/sdk/index.html
 [Genymotion]: https://www.genymotion.com
 [Jenv]: http://www.jenv.be/
-[wiki]: https://github.com/soundcloud/android/wiki/
-[releasing]: https://github.com/soundcloud/android/wiki/Releasing
-[betas]: https://github.com/soundcloud/android/wiki/Betas
-[acceptance-tests]: https://github.com/soundcloud/android/wiki/Acceptance-Tests
-[android-guide]: https://github.com/soundcloud/android/wiki/Android-Guidelines
-[java-syntax]: https://github.com/soundcloud/android/wiki/Java-Syntax-Conventions
+[wiki]: https://github.com/soundcloud/android-listeners/wiki/
+[releasing]: https://github.com/soundcloud/android-listeners/wiki/Releasing
+[betas]: https://github.com/soundcloud/android-listeners/wiki/Betas
+[acceptance-tests]: https://github.com/soundcloud/android-listeners/wiki/Acceptance-Tests
+[android-guide]: https://github.com/soundcloud/android-listeners/wiki/Android-Guidelines
+[java-syntax]: https://github.com/soundcloud/android-listeners/wiki/Java-Syntax-Conventions
 [JUnit default run config]: http://f.cl.ly/items/3q3m3v2U0C1b0w1c2D2G/default_junit_run_configuration.png
 [Android code style]: http://f.cl.ly/items/1j0U3Q0i330b3G2D3G1D/codestye_soundcloud.png
-[dev-tools]: https://github.com/soundcloud/android/wiki/Dev-Tools
+[dev-tools]: https://github.com/soundcloud/android-listeners/wiki/Dev-Tools
