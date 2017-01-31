@@ -17,6 +17,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import android.os.Build;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -49,7 +50,7 @@ class StreamPlayer implements PlayerListener {
 
     @Inject
     StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
-                 SkippyAdapter skippyAdapter,
+                 Provider<SkippyAdapter> skippyAdapterProvider,
                  Provider<FlipperAdapter> flipperAdapterProvider,
                  NetworkConnectionHelper networkConnectionHelper,
                  EventBus eventBus,
@@ -59,13 +60,23 @@ class StreamPlayer implements PlayerListener {
         this.eventBus = eventBus;
 
         this.mediaPlayerDelegate = mediaPlayerAdapter;
-        this.skippyPlayerDelegate = initSkippy(skippyAdapter);
-        this.flipperPlayerDelegate = flipperConfiguration.isEnabled() ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
-
-        this.defaultPlayer = defaultPlayer();
-        this.offlineContentPlayer = skippyPlayerDelegate;
-        this.audioAdPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;
         this.videoPlayer = mediaPlayerAdapter;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            this.skippyPlayerDelegate = initSkippy(skippyAdapterProvider.get());
+            this.flipperPlayerDelegate = flipperConfiguration.isEnabled() ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
+            this.offlineContentPlayer = skippyPlayerDelegate;
+            this.defaultPlayer = defaultPlayer();
+            this.audioAdPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;
+        } else {
+            // Neither skippy or flipper work on versions prior Jelly Bean
+            this.skippyPlayerDelegate = Optional.absent();
+            this.flipperPlayerDelegate = Optional.absent();
+            this.offlineContentPlayer = Optional.absent();
+            this.defaultPlayer = mediaPlayerAdapter;
+            this.audioAdPlayer = mediaPlayerAdapter;
+        }
+
         this.currentPlayer = defaultPlayer;
     }
 

@@ -69,7 +69,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, skippyAdapter, providerOf(flipperAdapter), networkConnectionHelper, eventBus, flipperConfiguration);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), networkConnectionHelper, eventBus, flipperConfiguration);
         streamPlayerWrapper.setListener(playerListener);
     }
 
