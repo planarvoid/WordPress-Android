@@ -1,7 +1,7 @@
 package com.soundcloud.android.tests.stations;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
@@ -36,7 +36,7 @@ public class LikedStationsTest extends ActivityTest<MainActivity> {
 
         final String title = stationsBucketElement.getFirstStation().getTitle();
         StationHomeScreen stationHome = stationsBucketElement.getFirstStation().open();
-        assertThat(stationHome.stationTitle(), is(equalTo(title)));
+        assertThat(stationHome.stationTitle(), containsString(title));
 
         boolean liked = stationHome.isStationLiked();
         if (!liked) {
