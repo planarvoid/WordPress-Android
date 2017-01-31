@@ -144,7 +144,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    @Issue(ref = "https://github.com/soundcloud/android/issues/4673")
+    @Issue(ref = "https://github.com/soundcloud/android-listeners/issues/4673")
     public void shouldNotReturnActivityPlaylistPendingRemovalSound() {
         ApiPlaylist playlist = testFixtures().insertPlaylistPendingRemoval();
         ApiPlaylistRepostActivity playlistRepostActivity = ModelFixtures.apiPlaylistRepostActivity(playlist);
@@ -158,7 +158,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    @Issue(ref = "https://github.com/soundcloud/android/issues/4673")
+    @Issue(ref = "https://github.com/soundcloud/android-listeners/issues/4673")
     public void shouldNotReturnActivityWithoutAssociatedSound() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         ApiPlaylistRepostActivity playlistRepostActivity = ModelFixtures.apiPlaylistRepostActivity(playlist);

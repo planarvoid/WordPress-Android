@@ -155,7 +155,7 @@ public class PlayQueueExtender {
             if (e instanceof IllegalArgumentException) {
                 // we should not need this, as we should never get this far with an empty queue.
                 // Just being defensive while we investigate
-                // https://github.com/soundcloud/android/issues/3938
+                // https://github.com/soundcloud/android-listeners/issues/3938
 
                 final HashMap<String, String> valuePairs = new HashMap<>(2);
                 valuePairs.put("Queue Size", String.valueOf(playQueueManager.getQueueSize()));

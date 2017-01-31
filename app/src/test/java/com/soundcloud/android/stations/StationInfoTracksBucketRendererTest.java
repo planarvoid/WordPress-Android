@@ -30,7 +30,7 @@ public class StationInfoTracksBucketRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    @Issue(ref = "https://github.com/soundcloud/android/issues/6195")
+    @Issue(ref = "https://github.com/soundcloud/android-listeners/issues/6195")
     public void scrollShouldNotAccessPositionBiggerThanTrackListSize() {
         final int lastPlayedPosition = 0;
         final StationInfoTracksBucket bucket = StationInfoTracksBucket

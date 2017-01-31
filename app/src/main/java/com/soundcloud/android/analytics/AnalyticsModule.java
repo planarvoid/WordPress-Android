@@ -28,7 +28,7 @@ public class AnalyticsModule {
     @Provides
     @Nullable
     ComScoreAnalyticsProvider provideComScoreProvider(Context context) {
-        // cf. https://github.com/soundcloud/android/issues/1811
+        // cf. https://github.com/soundcloud/android-listeners/issues/1811
         try {
             return new ComScoreAnalyticsProvider(context);
         } catch (Exception e) {

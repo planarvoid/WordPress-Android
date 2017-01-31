@@ -34,7 +34,7 @@ task slogRolloutFull {
 }
 
 def basicText(track, versionCode, prometheus_annotation) {
-  def repoUrl = "https://github.com/soundcloud/android"
+  def repoUrl = "https://github.com/soundcloud/android-listeners"
   def ciUrl = "http://mobile-jenkins.int.s-cloud.net/view/Android_Listeners_Release/"
   def commit = project.('ext').pipelineVersion.split("-")[1]
   def commitUrl = "$repoUrl/commit/$commit"

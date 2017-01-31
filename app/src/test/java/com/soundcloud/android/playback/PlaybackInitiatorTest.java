@@ -90,7 +90,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         // This issue has been here forever and we don't know the root cause.
         // This is needed to fix a crash in the context the of the new PQ explicit items feature too.
         // Don't judge me.
-        // https://github.com/soundcloud/android/issues/6706
+        // https://github.com/soundcloud/android-listeners/issues/6706
         final int wrongStartPosition = 3;
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, wrongStartPosition, new PlaySessionSource(ORIGIN_SCREEN))
                          .subscribe(observer);

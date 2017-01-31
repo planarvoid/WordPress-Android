@@ -214,7 +214,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    @Issue(ref = "https://github.com/soundcloud/android/issues/3500")
+    @Issue(ref = "https://github.com/soundcloud/android-listeners/issues/3500")
     public void ignoresCurrentDownloadEventsWhenOfflineLikesWereDisabled() {
         enableOfflineLikes();
         final OfflineContentChangedEvent downloadingEvent = downloading(Arrays.asList(TRACK1, Urn.forPlaylist(123L)),

@@ -156,7 +156,7 @@ public class ConfigurationOperations {
         // found a case where due to abnormal termination of the offboarding activity, Android launched
         // us back into it after we successfully completed the flow, so instead of throwing an error
         // here we just nod and move on.
-        // See https://github.com/soundcloud/android/issues/5024
+        // See https://github.com/soundcloud/android-listeners/issues/5024
         return Observable.empty();
     }
 

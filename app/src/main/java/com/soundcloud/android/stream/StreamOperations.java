@@ -107,7 +107,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
                                                        StreamOperations::addNotificationItemToStream)
                                               .map(this::addUpsellableItem)
                                               .doOnNext(this::promotedImpressionAction)
-                                              // Temporary workaround for https://github.com/soundcloud/android/issues/6807. We should move the below
+                                              // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below
                                               // logic to the presenter
                                               .observeOn(AndroidSchedulers.mainThread())
                                               .doOnNext(streamItems -> streamAdsController.insertAds());
@@ -139,7 +139,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
                             , StreamOperations::addNotificationItemToStream)
                     .zipWith(updatedNotificationItem(), StreamOperations::addNotificationItemToStream)
                     .doOnNext(this::promotedImpressionAction)
-                    // Temporary workaround for https://github.com/soundcloud/android/issues/6807. We should move the below
+                    // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below
                     // logic to the presenter
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnNext(streamItems -> streamAdsController.insertAds());
