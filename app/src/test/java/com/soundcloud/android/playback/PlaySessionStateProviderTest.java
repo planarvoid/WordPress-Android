@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -15,9 +16,12 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.concurrent.TimeUnit;
 
 public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
@@ -31,13 +35,13 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Mock private PlaySessionStateStorage playSessionStateStorage;
     @Mock private UuidProvider uuidProvider;
     @Mock private PlayQueueManager playQueueManager;
+    private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
-        provider = new PlaySessionStateProvider(playSessionStateStorage, uuidProvider);
-
         dateProvider = new TestDateProvider();
+        provider = new PlaySessionStateProvider(playSessionStateStorage, uuidProvider, eventBus, dateProvider);
 
         when(playSessionStateStorage.getLastPlayId()).thenReturn(LAST_PLAY_ID);
         when(uuidProvider.getRandomUuid()).thenReturn(RANDOM_UUID);
@@ -98,6 +102,13 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void wasLastStateACastDisconnectionReturnsTrueIfLastTransitionWasThat() {
+        provider.onPlayStateTransition(TestPlayerTransitions.idle(PlayStateReason.CAST_DISCONNECTED), DURATION);
+
+        assertThat(provider.wasLastStateACastDisconnection()).isTrue();
+    }
+
+    @Test
     public void isCurrentlyPlayingTrueIfReceivedEventForTrack() {
         provider.onPlayStateTransition(TestPlayerTransitions.buffering(), DURATION);
 
@@ -134,10 +145,28 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
         provider.onPlayStateTransition(TestPlayerTransitions.playing(), DURATION);
 
-        final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(createPlaybackProcess(1L, 2L),
-                                                                                         TRACK_URN);
+        final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(createPlaybackProcess(1L, 2L), TestPlayerTransitions.URN);
+
         provider.onProgressEvent(playbackProgressEvent);
-        assertThat(provider.getLastProgressForItem(TRACK_URN)).isSameAs(playbackProgressEvent.getPlaybackProgress());
+
+        assertThat(provider.getLastProgressForItem(TestPlayerTransitions.URN)).isSameAs(playbackProgressEvent.getPlaybackProgress());
+    }
+
+    @Test
+    public void publishesProgressChangeToEventBusWhenEventIsReceived() {
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(), DURATION);
+        long progress = 1L;
+        long duration = 2L;
+        Urn urn = TestPlayerTransitions.URN;
+        final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(createPlaybackProcess(progress, duration), urn);
+
+        provider.onProgressEvent(playbackProgressEvent);
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PROGRESS).size()).isEqualTo(1);
+        PlaybackProgress playbackProgress = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS).getPlaybackProgress();
+        assertThat(playbackProgress.getPosition()).isEqualTo(progress);
+        assertThat(playbackProgress.getDuration()).isEqualTo(duration);
+        assertThat(playbackProgress.getUrn()).isEqualTo(urn);
     }
 
     @Test
@@ -199,6 +228,28 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
         provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
         provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(2), 34, 456), DURATION);
         verify(playSessionStateStorage).saveProgress(34);
+    }
+
+    @Test
+    public void getMillisSinceLastPlaySessionReturnsTimeSinceLastEventWhenIsNotInPlayingState() {
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        provider.onPlayStateTransition(TestPlayerTransitions.idle(), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        assertThat(provider.getMillisSinceLastPlaySession()).isEqualTo(TimeUnit.SECONDS.toMillis(10));
+    }
+
+    @Test
+    public void getMillisSinceLastPlaySessionReturnsZeroWhenStillInPlayingState() {
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(2), 34, 456), DURATION);
+        dateProvider.advanceBy(10, TimeUnit.SECONDS);
+
+        assertThat(provider.getMillisSinceLastPlaySession()).isEqualTo(0L);
     }
 
     private PlaybackProgress createPlaybackProcess(long position, long duration) {

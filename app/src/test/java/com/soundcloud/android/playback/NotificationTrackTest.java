@@ -19,7 +19,6 @@ public class NotificationTrackTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         trackItem = TestPropertySets.expectedTrackForPlayer();
-        trackItem.setAd(true);
     }
 
     @Test
@@ -52,14 +51,12 @@ public class NotificationTrackTest extends AndroidUnitTest {
 
     @NonNull
     private NotificationTrack setupAudioAd() {
-        trackItem.setAd(true);
-        return new NotificationTrack(resources(), trackItem);
+        return new NotificationTrack(resources(), trackItem, true);
     }
 
     @NonNull
     private NotificationTrack setupNormalTrack() {
-        trackItem.setAd(false);
-        return new NotificationTrack(resources(), trackItem);
+        return new NotificationTrack(resources(), trackItem, false);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
@@ -20,6 +21,8 @@ import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.widget.ProgressBar;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for activity tests. Sets up robotium (via {@link com.soundcloud.android.framework.Han} and handles
@@ -48,9 +51,12 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         solo.setup();
         waiter = new Waiter(solo);
 
-        AccountAssistant.logOut(getInstrumentation());
+        // Wait for SoundCloudApplication.onCreate() to run so that we can be sure it has been injected.
+        // Otherwise there is a race where we might use it before injection, resulting in an NPE.
+        SoundCloudTestApplication.fromContext(getInstrumentation().getTargetContext()).awaitOnCreate(10, TimeUnit.SECONDS);
+
+        AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
         FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.APPBOY);
-        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
         networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());
 
@@ -63,6 +69,9 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         // the introductory overlay blocks interaction with the player, so disable it
         ConfigurationHelper.disableIntroductoryOverlays(getInstrumentation().getTargetContext());
+
+        // Player pager nudge onboarding interferes with player tests, so disable it
+        ConfigurationHelper.disablePagerOnboarding(getInstrumentation().getTargetContext());
 
         beforeLogIn();
         logIn();
@@ -185,7 +194,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         return solo;
     }
 
-    protected String ressourceString(int id) {
+    protected String resourceString(int id) {
         return getActivity().getString(id);
     }
 }

@@ -60,7 +60,7 @@ public class SearchTrackerTest {
 
     @Before
     public void setUp() {
-        when(trackingStateProvider.getLastEvent()).thenReturn(Optional.<ReferringEvent>absent());
+        when(trackingStateProvider.getLastEvent()).thenReturn(Optional.absent());
         tracker = new SearchTracker(eventTracker, featureOperations, trackingStateProvider);
     }
 
@@ -71,23 +71,6 @@ public class SearchTrackerTest {
         verify(eventTracker).trackScreen(screenEventCaptor.capture(), referringEventCaptor.capture());
 
         assertThat(screenEventCaptor.getValue().screen()).isEqualTo(Screen.SEARCH_MAIN.get());
-    }
-
-    @Test
-    public void mustTrackSearchSubmissionWithQueryUrn() {
-        tracker.trackSearchSubmission(SearchType.ALL, QUERY_URN, SEARCH_QUERY);
-
-        verify(eventTracker).trackSearch(searchEventCaptor.capture());
-
-        assertThat(searchEventCaptor.getValue().kind().get()).isEqualTo(SearchEvent.Kind.SUBMIT);
-        assertThat(searchEventCaptor.getValue().queryUrn().get()).isEqualTo(QUERY_URN);
-    }
-
-    @Test
-    public void mustNotTrackSearchSubmissionWithoutQueryUrn() {
-        tracker.trackSearchSubmission(SearchType.ALL, Urn.NOT_SET, SEARCH_QUERY);
-
-        verifyZeroInteractions(eventTracker);
     }
 
     @Test
@@ -295,7 +278,7 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
-        assertThat(upgradeFunnelEventCaptor.getValue().getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(upgradeFunnelEventCaptor.getValue().kind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK);
     }
 
     @Test
@@ -305,7 +288,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
         final TrackingEvent event = upgradeFunnelEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
     }
 
     @Test
@@ -315,7 +298,7 @@ public class SearchTrackerTest {
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
         final TrackingEvent event = upgradeFunnelEventCaptor.getValue();
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
     }
 
     @Test

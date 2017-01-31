@@ -72,8 +72,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private void displayProducts() {
         if (products.highTier().isPresent()) {
             displayPrimaryProduct(products.highTier().get());
-            if (featureFlags.isEnabled(Flag.MID_TIER)
-                    && products.midTier().isPresent()) {
+            if (featureFlags.isEnabled(Flag.MID_TIER) && products.midTier().isPresent()) {
                 view.enableMorePlans();
             }
         } else {
@@ -118,14 +117,9 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     @Override
     public void onMoreProducts() {
-        final Intent intent = new Intent(activity, PlanChoiceActivity.class);
-        intent.putExtra(PlanChoiceActivity.AVAILABLE_PRODUCTS, products);
+        final Intent intent = new Intent(activity, ProductChoiceActivity.class);
+        intent.putExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, products);
         activity.startActivity(intent);
-        activity.finish();
-    }
-
-    @Override
-    public void onClose() {
         activity.finish();
     }
 

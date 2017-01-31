@@ -116,7 +116,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         final List<TrackingEvent> trackingEvents = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(trackingEvents).hasSize(1);
-        assertThat(trackingEvents.get(0).getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(trackingEvents.get(0).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
     }
 
     @Test
@@ -196,7 +196,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         final List<TrackingEvent> trackingEvents = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(trackingEvents).hasSize(2);
-        assertThat(trackingEvents.get(1).getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
+        assertThat(trackingEvents.get(1).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
     }
 
     @Test

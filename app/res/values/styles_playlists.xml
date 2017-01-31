@@ -55,7 +55,7 @@
         <item name="android:textColor">@color/list_text_header</item>
     </style>
 
-    <style name="NewPlaylistActionContainer">
+    <style name="NewPlaylistActionContainer" parent="TabsTheme.Fixed.Elevated">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_left</item>

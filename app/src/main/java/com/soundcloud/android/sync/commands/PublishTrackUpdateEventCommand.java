@@ -3,7 +3,7 @@ package com.soundcloud.android.sync.commands;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackChangedEvent;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -21,7 +21,7 @@ public class PublishTrackUpdateEventCommand extends PublishUpdateEventCommand<Ap
     @Override
     public Boolean call(Collection<ApiTrack> input) {
         if (input.size() > 0) {
-            final Collection<TrackItem> trackItems = MoreCollections.transform(input, TrackItem::from);
+            final Collection<Track> trackItems = MoreCollections.transform(input, Track::from);
             eventBus.publish(EventQueue.TRACK_CHANGED, TrackChangedEvent.forUpdate(trackItems));
             return true;
         }

@@ -16,11 +16,9 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,8 +37,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
     private static final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private static final Date CURRENT_DATE = new Date();
     private static final List<AppInstallAd> APP_INSTALLS = AdFixtures.getAppInstalls();
-    private static final List<StreamItem> ITEMS = Lists.transform(APP_INSTALLS,
-                                                                  ad -> StreamItem.forAppInstall(ad));
+    private static final List<StreamItem> ITEMS = Lists.transform(APP_INSTALLS, StreamItem::forAppInstall);
 
     @Mock private Resources resources;
     @Mock private ImageOperations imageOperations;
@@ -73,7 +70,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.call_to_action).performClick();
 
-        verify(listener).onAppInstallItemClicked(adView.getContext(), APP_INSTALLS.get(0));
+        verify(listener).onAdItemClicked(adView.getContext(), APP_INSTALLS.get(0));
     }
 
     @Test
@@ -82,7 +79,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.image).performClick();
 
-        verify(listener).onAppInstallItemClicked(adView.getContext(), APP_INSTALLS.get(0));
+        verify(listener).onAdItemClicked(adView.getContext(), APP_INSTALLS.get(0));
     }
 
     @Test

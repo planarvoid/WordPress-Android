@@ -7,12 +7,13 @@ import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 
 public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
 
-    private static final String SEARCH_AUTOCOMPLETE = "search_autocomplete";
+    private static final String SEARCH_AUTOCOMPLETE = "search_autocomplete2";
     private DiscoveryScreen discoveryScreen;
     private FeatureFlagsHelper featureFlagsHelper;
 
@@ -22,7 +23,7 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return TestUser.autocompleteTestUser;
     }
 
     @Override
@@ -31,6 +32,12 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
         featureFlagsHelper.enable(Flag.AUTOCOMPLETE);
 
         super.setUp();
+
+        // In order to guarantee the followers exist in the DB
+        mainNavHelper.goToMyProfile().touchFollowingsTab().pullToRefresh();
+
+        solo.goBack();
+
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
@@ -43,10 +50,15 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
     public void testAutocompleteResults() throws Exception {
         startEventTracking();
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch()
-                .setSearchQuery("clown")
-                .clickOnAutocompleteSuggestion();
+                                                           .setSearchQuery("clown")
+                                                           .clickOnAutocompleteSuggestion();
 
         assertThat("Search results screen should be visible", resultsScreen.isVisible());
+
+        final ProfileScreen profileScreen = resultsScreen.clickSearch().setSearchQuery("a").clickOnUserSuggestion();
+
+        assertThat("Profile should be visible", profileScreen.isVisible());
+
         finishEventTracking(SEARCH_AUTOCOMPLETE);
     }
 }

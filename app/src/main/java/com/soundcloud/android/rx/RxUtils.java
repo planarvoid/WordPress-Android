@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import rx.Notification;
 import rx.Observable;
@@ -15,9 +14,7 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subscriptions.Subscriptions;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public final class RxUtils {
 
@@ -31,17 +28,14 @@ public final class RxUtils {
 
     public static final Func1<Long, Boolean> IS_VALID_TIMESTAMP = ts -> ts != Consts.NOT_SET;
 
-    public static final Func1<Optional, Boolean> IS_PRESENT = optional -> optional.isPresent();
-
     public static final Object EMPTY_VALUE = new Object();
 
     public static final Func1<List, Boolean> IS_NOT_EMPTY_LIST = list -> !list.isEmpty();
 
     public static final Func1<Object, Boolean> IS_NOT_NULL = obj -> obj != null;
 
-    public static final Func1<List, Integer> TO_SIZE = list -> list.size();
-
-    public static final Func2<Boolean, Boolean, Boolean> AT_LEAST_ONE_TRUE = (first, second) -> first || second;
+    private RxUtils() {
+    }
 
     /**
      * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality
@@ -49,40 +43,6 @@ public final class RxUtils {
      */
     public static Subscription invalidSubscription() {
         return Subscriptions.unsubscribed();
-    }
-
-    public static <T> Func1<Iterable<T>, Observable<T>> iterableToObservable() {
-        return items -> Observable.from(items);
-    }
-
-    public static <T> Func1<Object, T> returning(final T obj) {
-        return o -> obj;
-    }
-
-    public static <T> Func1<Object, Observable<T>> continueWith(final Observable<T> continuation) {
-        return o -> continuation;
-    }
-
-    public static <T> Func1<T, Optional<T>> toOptional() {
-        return t -> Optional.of(t);
-    }
-
-    public static <T, P> Func1<Map<T, P>, List<P>> toOrderedList(final List<T> list,
-                                                                 final Optional<P> defaultValue) {
-        return map -> {
-            List<P> result = new ArrayList<>(map.size());
-            for (T key : list) {
-                if (map.containsKey(key)) {
-                    result.add(map.get(key));
-                } else if (defaultValue.isPresent()) {
-                    result.add(defaultValue.get());
-                }
-            }
-            return result;
-        };
-    }
-
-    private RxUtils() {
     }
 
     public static <ItemT> Observable.Transformer<List<Observable<ItemT>>, ItemT> concatEagerIgnorePartialErrors() {

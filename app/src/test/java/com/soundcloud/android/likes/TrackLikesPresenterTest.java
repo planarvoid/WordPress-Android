@@ -2,7 +2,9 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -20,10 +22,15 @@ import com.soundcloud.android.likes.TrackLikesPresenter.TrackLikesPage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineProperties;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -55,6 +62,7 @@ import java.util.List;
 public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
+    private final PublishSubject<OfflineProperties> offlinePropertiesSubject = PublishSubject.create();
 
     private TrackLikesPresenter presenter;
 
@@ -67,6 +75,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private CollapsingScrollHelper collapsingScrollHelper;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
 
     private final PublishSubject<TrackLikesPage> likedTracksObservable = PublishSubject.create();
     private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1),
@@ -77,6 +87,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
+        when(offlinePropertiesProvider.states()).thenReturn(offlinePropertiesSubject);
         when(adapterFactory.create(headerPresenter)).thenReturn(adapter);
         presenter = new TrackLikesPresenter(likeOperations,
                                             playbackInitiator,
@@ -86,7 +97,9 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                                             expandPlayerSubscriberProvider,
                                             eventBus,
                                             swipeRefreshAttacher,
-                                            dataSource);
+                                            dataSource,
+                                            offlinePropertiesProvider,
+                                            featureFlags);
         when(dataSource.initialTrackLikes()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.empty());
@@ -123,7 +136,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(mock(View.class), 0);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
+        testSubscriber.assertReceivedOnNext(singletonList(playbackResult));
     }
 
     @Test
@@ -163,6 +176,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
+        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(false);
+
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         final OfflineContentChangedEvent downloadingEvent = downloading(singletonList(track.getUrn()), true);
 
@@ -175,6 +190,25 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         when(adapter.getItems()).thenReturn(trackLikesTrackItems);
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
+
+        verify(adapter).notifyItemChanged(0);
+    }
+
+    @Test
+    public void shouldUpdateAdapterWhenLikedTrackDownloadedWhenOfflinePropertiesProviderIsEnabled() {
+        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(true);
+
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+        reset(adapter);
+
+        final List<TrackLikesItem> trackLikesTrackItems = new ArrayList<>();
+        trackLikesTrackItems.add(new TrackLikesTrackItem(TrackItem.from(track)));
+
+        when(adapter.getItems()).thenReturn(trackLikesTrackItems);
+        offlinePropertiesSubject.onNext(OfflineProperties.from(singletonMap(track.getUrn(), OfflineState.DOWNLOADING), OfflineState.NOT_OFFLINE));
 
         verify(adapter).notifyItemChanged(0);
     }
@@ -221,25 +255,25 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void dataSourceInitialTrackLikesReturnsLikedTracksWithHeader() {
         TrackItem trackItem = ModelFixtures.trackItem();
-        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
+        final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
 
         when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
 
         dataSource = new DataSource(likeOperations);
         dataSource.initialTrackLikes().subscribe(testSubscriber);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
+        testSubscriber.assertReceivedOnNext(singletonList(TrackLikesPage.withHeader(tracks)));
     }
 
     @Test
     public void dataSourceUpdatedTrackLikesReturnsLikedTracksWithHeader() {
         TrackItem trackItem = ModelFixtures.trackItem();
-        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
+        final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
         when(likeOperations.updatedLikedTracks()).thenReturn(Observable.just(tracks));
 
         new DataSource(likeOperations).updatedTrackLikes().subscribe(testSubscriber);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
+        testSubscriber.assertReceivedOnNext(singletonList(TrackLikesPage.withHeader(tracks)));
     }
 
     @Test
@@ -255,13 +289,13 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(tracks));
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList());
+        testSubscriber.assertReceivedOnNext(emptyList());
     }
 
     @Test
     public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
         TrackItem trackItem = ModelFixtures.trackItem();
-        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
+        final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
 
         final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
 

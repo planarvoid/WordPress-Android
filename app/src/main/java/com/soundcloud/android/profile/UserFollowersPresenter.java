@@ -86,6 +86,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
     @Override
     public void onDestroyView(Fragment fragment) {
         getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        imagePauseOnScrollListener.resume();
         super.onDestroyView(fragment);
     }
 

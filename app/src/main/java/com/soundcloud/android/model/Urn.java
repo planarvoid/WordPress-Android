@@ -48,6 +48,10 @@ public final class Urn extends ContentStringHelper<Urn> {
         this.content = buildFrom(namespace, collection, id);
     }
 
+    public Urn(UrnNamespace namespace, UrnCollection collection, String stringId) {
+        this.content = buildFrom(namespace, collection, stringId);
+    }
+
     @Override
     @NonNull
     String getContent() {
@@ -91,6 +95,10 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     public static Urn forAd(String namespace, String id) {
         return new Urn(namespace + SEPARATOR + UrnCollection.ADS.value() + SEPARATOR + id);
+    }
+
+    public static Urn forGenre(String genre) {
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.GENRES, genre);
     }
 
     public boolean isPlayable() {
@@ -161,13 +169,24 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     private void setId(long id) {
         this.longId = id;
-        this.stringId = String.valueOf(id);
+        setStringId(String.valueOf(id));
+    }
+
+    private void setStringId(String stringId) {
+        this.stringId = stringId;
     }
 
     private String buildFrom(UrnNamespace namespace, UrnCollection collection, long id) {
         setNamespace(namespace);
         setCollection(collection);
         setId(id);
+        return buildContent();
+    }
+
+    private String buildFrom(UrnNamespace namespace, UrnCollection collection, String id) {
+        setNamespace(namespace);
+        setCollection(collection);
+        setStringId(id);
         return buildContent();
     }
 

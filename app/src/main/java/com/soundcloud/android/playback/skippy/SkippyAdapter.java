@@ -21,8 +21,6 @@ import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
-import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
@@ -134,10 +132,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         boolean initSuccess = skippy.init(configuration);
         if (initSuccess) {
             skippyPreloader.init();
-        }
-        if (initSuccess) {
-            eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationSucceededEvent(
-                    getInitializationErrorCount(), getAndIncrementInitilizationSuccesses()));
         }
         return initSuccess;
     }
@@ -429,7 +423,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         if (allowPerformanceMeasureEvent(metric)) {
             eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE,
-                    createPerformanceEvent(metric, value, cdnHost, format, bitRate));
+                             createPerformanceEvent(metric, value, cdnHost, format, bitRate));
         }
     }
 
@@ -619,10 +613,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void onInitializationError(Throwable throwable, String message) {
         ErrorUtils.handleSilentExceptionWithLog(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
-        eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable,
-                                                                                 message,
-                                                                                 getAndIncrementInitilizationErrors(),
-                                                                                 getInitializationSuccessCount()));
     }
 
     private int getAndIncrementInitilizationErrors() {

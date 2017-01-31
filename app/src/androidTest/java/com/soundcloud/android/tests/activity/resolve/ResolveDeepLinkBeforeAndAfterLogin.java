@@ -31,13 +31,13 @@ public class ResolveDeepLinkBeforeAndAfterLogin extends ActivityTest<ResolveActi
     public void testShouldLandOnLoginScreenForAnonymousUsers() {
         // We are not logged in
         assertThat(new HomeScreen(solo), is(visible()));
-        assertTrue(waiter.expectToastWithText(toastObserver, ressourceString(R.string.error_toast_user_not_logged_in)));
+        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(R.string.error_toast_user_not_logged_in)));
     }
 
     public void testShouldOpenPlayerFromDeeplinkAfterSignIn() {
         new HomeScreen(solo)
                 .clickLogInButton()
-                .loginAs(playerUser.getEmail(), playerUser.getPassword());
+                .loginDefault(playerUser.getEmail(), playerUser.getPassword());
 
         VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
         visualPlayer.waitForExpandedPlayer();

@@ -20,7 +20,6 @@ import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.ChartActivity;
-import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
@@ -37,6 +36,8 @@ import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.profile.FollowersActivity;
+import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -82,6 +83,7 @@ public class Navigator {
             | Intent.FLAG_ACTIVITY_TASK_ON_HOME
             | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
+    public static final String EXTRA_CHARTS_INTENT = "charts_intent";
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
 
@@ -273,6 +275,24 @@ public class Navigator {
         context.startActivity(new Intent(context, ActivitiesActivity.class));
     }
 
+    public void openFollowers(Context context,
+                              Urn userUrn,
+                              SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(new Intent(context, FollowersActivity.class)
+                                      .putExtra(FollowersActivity.EXTRA_USER_URN, userUrn)
+                                      .putExtra(FollowersActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
+        );
+    }
+
+    public void openFollowings(Context context,
+                               Urn userUrn,
+                               SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(new Intent(context, FollowingsActivity.class)
+                                      .putExtra(FollowingsActivity.EXTRA_USER_URN, userUrn)
+                                      .putExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
+        );
+    }
+
     public void openBasicSettings(Context context) {
         context.startActivity(new Intent(context, SettingsActivity.class));
     }
@@ -326,8 +346,8 @@ public class Navigator {
                                          Uri.parse(context.getString(R.string.url_support))));
     }
 
-    public void openOnboarding(Context context, Urn deeplinkUrn, Screen screen) {
-        context.startActivity(createOnboardingIntent(context, screen, deeplinkUrn));
+    public void openOnboarding(Context context, Uri deepLinkUri, Screen screen) {
+        context.startActivity(createOnboardingIntent(context, screen, deepLinkUri));
     }
 
     public void openStream(Context context, Screen screen) {
@@ -359,8 +379,8 @@ public class Navigator {
         context.startActivity(createWebViewIntent(context, uri));
     }
 
-    public void openResolveForUrn(Context context, Urn urn) {
-        context.startActivity(createResolveIntent(context, urn));
+    public void openResolveForUri(Context context, Uri uri) {
+        context.startActivity(createResolveIntent(context, uri));
     }
 
     public void openViewAllRecommendations(Context context) {
@@ -368,15 +388,15 @@ public class Navigator {
     }
 
     public void openChart(Context context, Urn genre, ChartType type, ChartCategory category, String header) {
-        context.startActivity(new Intent(context, ChartActivity.class)
-                                      .putExtra(ChartTracksFragment.EXTRA_GENRE_URN, genre)
-                                      .putExtra(ChartTracksFragment.EXTRA_TYPE, type)
-                                      .putExtra(ChartTracksFragment.EXTRA_CATEGORY, category)
-                                      .putExtra(ChartActivity.EXTRA_HEADER, header));
+        context.startActivity(ChartActivity.createIntent(context, genre, type, category, header));
     }
 
     public void openAllGenres(Context context) {
         context.startActivity(new Intent(context, AllGenresActivity.class));
+    }
+
+    public void openAllGenres(Context context, ChartCategory category) {
+        context.startActivity(AllGenresActivity.createIntent(context, category));
     }
 
     public void openLikedStations(Context context) {
@@ -446,10 +466,10 @@ public class Navigator {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
-    private Intent createResolveIntent(Context context, Urn urn) {
+    private Intent createResolveIntent(Context context, Uri uri) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(urn.toString()));
+        intent.setData(uri);
         intent.setFlags(FLAGS_TOP);
         return intent;
     }
@@ -562,9 +582,9 @@ public class Navigator {
         return new Intent(context, LauncherActivity.class);
     }
 
-    private Intent createOnboardingIntent(Context context, Screen screen, Urn deeplinkUrn) {
+    private Intent createOnboardingIntent(Context context, Screen screen, Uri deepLinkUri) {
         Intent intent = new Intent(context, OnboardActivity.class)
-                .putExtra(OnboardActivity.EXTRA_DEEPLINK_URN, deeplinkUrn)
+                .putExtra(OnboardActivity.EXTRA_DEEP_LINK_URI, deepLinkUri)
                 .setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;

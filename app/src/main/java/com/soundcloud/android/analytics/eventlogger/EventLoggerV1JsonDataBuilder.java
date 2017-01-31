@@ -125,27 +125,29 @@ class EventLoggerV1JsonDataBuilder {
     String buildForAdRequest(AdRequestEvent event) {
         EventLoggerEventData data = buildBaseEvent("ad_request", event)
                 .clientEventId(event.getId())
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .playerVisible(event.playerVisible)
-                .inForeground(event.inForeground)
-                .adsRequestSuccess(event.getKind().equals(AdRequestEvent.AD_REQUEST_SUCCESS_KIND))
-                .adsEndpoint(event.get(PlayableTrackingKeys.KEY_ADS_ENDPOINT));
+                .playerVisible(event.playerVisible())
+                .inForeground(event.inForeground())
+                .adsRequestSuccess(event.adsRequestSuccess())
+                .adsEndpoint(event.adsEndpoint());
 
-        if (event.adsReceived.isPresent()) {
-            data.adsReceived(mapToJson(event.adsReceived.get().ads));
+        if (event.monetizableTrackUrn().isPresent()) {
+            data.monetizedObject(event.monetizableTrackUrn().get().toString());
+        }
+        if (event.adsReceived().isPresent()) {
+            data.adsReceived(mapToJson(event.adsReceived().get().ads));
         }
 
         return transform(data);
     }
 
     String buildForStreamAd(InlayAdImpressionEvent event) {
-        return transform(buildBaseEvent(IMPRESSION_EVENT, event.getTimestamp())
+        return transform(buildBaseEvent(event.eventName, event.getTimestamp())
                                  .clientEventId(event.getId())
-                                 .impressionName(event.getImpressionName())
-                                 .adUrn(event.getAd().toString())
-                                 .pageName(event.getPageName())
-                                 .contextPosition(event.getContextPosition())
-                                 .monetizationType(event.getMonetizationType()));
+                                 .impressionName(event.impressionName)
+                                 .adUrn(event.ad().toString())
+                                 .pageName(event.pageName)
+                                 .contextPosition(event.contextPosition())
+                                 .monetizationType(event.monetizationType));
     }
 
     String buildForAdDelivery(AdDeliveryEvent event) {
@@ -256,14 +258,19 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForRichMediaErrorEvent(AdPlaybackErrorEvent eventData) {
-        return transform(buildBaseEvent(RICH_MEDIA_ERROR_EVENT, eventData)
-                                 .mediaType(eventData.getMediaType())
-                                 .protocol(eventData.getProtocol())
-                                 .playerType(eventData.getPlayerType())
-                                 .format(getRichMediaFormatName(eventData.getFormat()))
-                                 .bitrate(eventData.getBitrate())
-                                 .errorName(eventData.getKind())
-                                 .host(eventData.getHost()));
+        final EventLoggerEventData data = buildBaseEvent(RICH_MEDIA_ERROR_EVENT, eventData)
+                .mediaType(eventData.mediaType())
+                .format(eventData.format())
+                .bitrate(eventData.bitrate())
+                .errorName(eventData.errorName())
+                .host(eventData.host());
+        if (eventData.protocol().isPresent()) {
+            data.protocol(eventData.protocol().get());
+        }
+        if (eventData.playerType().isPresent()) {
+            data.playerType(eventData.playerType().get());
+        }
+        return transform(data);
     }
 
     private String getRichMediaFormatName(String format) {
@@ -304,46 +311,41 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForUpsell(UpgradeFunnelEvent event) {
-        switch (event.getKind()) {
-            case UpgradeFunnelEvent.KIND_UPSELL_CLICK:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                                         .clickName("clickthrough::consumer_sub_ad")
-                                         .clickObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
-                                         .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event);
 
-            case UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                                         .impressionName("consumer_sub_ad")
-                                         .impressionObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
-                                         .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
-
-            case UpgradeFunnelEvent.KIND_UPGRADE_SUCCESS:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                                         .impressionName("consumer_sub_upgrade_success"));
-
-            case UpgradeFunnelEvent.KIND_RESUBSCRIBE_CLICK:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                                         .clickName("clickthrough::consumer_sub_resubscribe")
-                                         .clickObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
-
-            case UpgradeFunnelEvent.KIND_RESUBSCRIBE_IMPRESSION:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                                         .impressionName("consumer_sub_resubscribe")
-                                         .impressionObject(getUpsellTrackingCode(event))
-                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
-
-            default:
-                throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
+        if (event.pageName().isPresent()) {
+            eventData.pageName(event.pageName().get());
         }
-    }
 
-    private String getUpsellTrackingCode(UpgradeFunnelEvent event) {
-        return TrackingCode.fromEventId(event.get(UpgradeFunnelEvent.KEY_ID));
+        if (event.pageUrn().isPresent()) {
+            eventData.pageUrn(event.pageUrn().get());
+        }
+
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get().toString());
+        }
+
+        if (event.clickCategory().isPresent()) {
+            eventData.clickCategory(event.clickCategory().get().toString());
+        }
+
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get());
+        }
+
+        if (event.impressionName().isPresent()) {
+            eventData.impressionName(event.impressionName().get().toString());
+        }
+
+        if (event.impressionCategory().isPresent()) {
+            eventData.impressionCategory(event.impressionCategory().get());
+        }
+
+        if (event.impressionObject().isPresent()) {
+            eventData.impressionObject(event.impressionObject().get());
+        }
+
+        return transform(eventData);
     }
 
     String buildForUIEvent(UIEvent event) {

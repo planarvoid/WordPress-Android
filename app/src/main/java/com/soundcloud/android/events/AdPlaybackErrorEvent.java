@@ -1,78 +1,65 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.java.optional.Optional;
 
-public class AdPlaybackErrorEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class AdPlaybackErrorEvent extends NewTrackingEvent {
+    private static final String ERROR_NAME = "failToBuffer";
 
-    public static final String KIND_FAIL_TO_BUFFER = "failToBuffer";
+    private static final String VIDEO_MEDIA_TYPE = "video";
+    private static final String AUDIO_MEDIA_TYPE = "audio";
 
-    private final String mediaType;
-    private final String protocol;
-    private final String playerType;
-    private final String host;
-    private final String format;
-    private final int bitrate;
+    public abstract String mediaType();
 
-    private AdPlaybackErrorEvent(String kind,
-                                 AdData adData,
-                                 PlaybackStateTransition stateTransition,
-                                 String format,
-                                 int bitrate,
-                                 String cdnHost) {
-        super(kind, System.currentTimeMillis());
-        this.mediaType = adData instanceof VideoAd ? "video" : "audio";
-        this.protocol = protocolForStateTransition(stateTransition);
-        this.playerType = playerTypeForStateTransition(stateTransition);
-        this.host = cdnHost;
-        this.bitrate = bitrate;
-        this.format = format;
-    }
+    public abstract String errorName();
+
+    public abstract Optional<String> protocol();
+
+    public abstract Optional<String> playerType();
+
+    public abstract String host();
+
+    public abstract String format();
+
+    public abstract int bitrate();
 
     public static AdPlaybackErrorEvent failToBuffer(AdData adData,
                                                     PlaybackStateTransition stateTransition,
                                                     VideoAdSource videoSource) {
-        final String format = videoSource.getType();
+        final String format = getRichMediaFormatName(videoSource.getType());
         final int bitrate = videoSource.getBitRateKbps();
         final String host = videoSource.getUrl();
-        return new AdPlaybackErrorEvent(KIND_FAIL_TO_BUFFER, adData, stateTransition, format, bitrate, host);
+        final String mediaType = adData instanceof VideoAd ? VIDEO_MEDIA_TYPE : AUDIO_MEDIA_TYPE;
+        final Optional<String> protocol = protocolForStateTransition(stateTransition);
+        final Optional<String> playerType = playerTypeForStateTransition(stateTransition);
+        return new AutoValue_AdPlaybackErrorEvent(defaultId(), defaultTimestamp(), Optional.absent(), mediaType, ERROR_NAME, protocol, playerType, host, format, bitrate);
     }
 
-    public String getMediaType() {
-        return mediaType;
+    @Override
+    public AdPlaybackErrorEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_AdPlaybackErrorEvent(id(), timestamp(), Optional.of(referringEvent), mediaType(), errorName(), protocol(), playerType(), host(), format(), bitrate());
     }
 
-    public String getProtocol() {
-        return protocol;
+    private static Optional<String> playerTypeForStateTransition(PlaybackStateTransition stateTransition) {
+        return Optional.fromNullable(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE));
     }
 
-    public String getPlayerType() {
-        return playerType;
+    private static Optional<String> protocolForStateTransition(PlaybackStateTransition stateTransition) {
+        return Optional.fromNullable(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
     }
 
-    public int getBitrate() {
-        return bitrate;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    private static String playerTypeForStateTransition(PlaybackStateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE);
-    }
-
-    private static String protocolForStateTransition(PlaybackStateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL);
+    private static String getRichMediaFormatName(String format) {
+        switch (format) {
+            case PlaybackConstants.MIME_TYPE_MP4:
+                return "mp4";
+            default:
+                return format;
+        }
     }
 }

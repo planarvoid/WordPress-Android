@@ -5,7 +5,6 @@ import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateFailureEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -56,7 +55,7 @@ public class PolicyOperations {
 
     public Observable<List<Urn>> filterMonetizableTracks(Collection<Urn> urns) {
         return fetchAndStorePolicies(urns)
-                .flatMap(RxUtils.iterableToObservable())
+                .flatMap(Observable::from)
                 .filter(policy -> !policy.isMonetizable())
                 .map(ApiPolicyInfo::getUrn)
                 .toList();
@@ -77,7 +76,7 @@ public class PolicyOperations {
         return policyStorage.tracksForPolicyUpdate()
                             .doOnNext(urns -> clearTableCommand.call(Tables.TrackPolicies.TABLE))
                             .flatMap(updatePoliciesCommand.toContinuation())
-                            .flatMap(RxUtils.iterableToObservable())
+                            .flatMap(Observable::from)
                             .map(ApiPolicyInfo::getUrn)
                             .toList()
                             .doOnError(throwable -> handlePolicyUpdateFailure(throwable, false))

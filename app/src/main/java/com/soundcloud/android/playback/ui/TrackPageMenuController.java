@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
@@ -45,6 +46,7 @@ public class TrackPageMenuController
     private final PlayQueueManager playQueueManager;
     private final RepostOperations repostOperations;
     private final StartStationHandler stationHandler;
+    private final AccountOperations accountOperations;
     private final EventBus eventBus;
     private final ShareOperations shareOperations;
     private final String commentAtUnformatted;
@@ -59,6 +61,7 @@ public class TrackPageMenuController
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     StartStationHandler stationHandler,
+                                    AccountOperations accountOperations,
                                     EventBus eventBus,
                                     ShareOperations shareOperations) {
         this.playQueueManager = playQueueManager;
@@ -66,6 +69,7 @@ public class TrackPageMenuController
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
         this.stationHandler = stationHandler;
+        this.accountOperations = accountOperations;
         this.eventBus = eventBus;
         this.shareOperations = shareOperations;
         this.commentAtUnformatted = activity.getString(R.string.comment_at_time);
@@ -188,9 +192,22 @@ public class TrackPageMenuController
 
     public void setTrack(PlayerTrackState track) {
         this.track = track;
-        setIsUserRepost(track.isUserRepost());
-        setMenuPrivacy(track.isPrivate());
+        setRepostVisibility(track);
+        setShareVisibility(track.isPrivate());
         setCommentsVisibility(track.isCommentable());
+    }
+
+    private void setRepostVisibility(PlayerTrackState track) {
+        if (canRepost(track)) {
+            setUserRepostVisibility(track.isUserRepost());
+        } else {
+            popupMenuWrapper.setItemVisible(R.id.unpost, false);
+            popupMenuWrapper.setItemVisible(R.id.repost, false);
+        }
+    }
+
+    private boolean canRepost(PlayerTrackState track) {
+        return !accountOperations.isLoggedInUser(track.getUserUrn()) && !track.isPrivate();
     }
 
     private void setCommentsVisibility(boolean isCommentable) {
@@ -199,13 +216,17 @@ public class TrackPageMenuController
     }
 
     void setIsUserRepost(boolean isUserRepost) {
+        if (canRepost(track)) {
+            setUserRepostVisibility(isUserRepost);
+        }
+    }
+
+    private void setUserRepostVisibility(boolean isUserRepost) {
         popupMenuWrapper.setItemVisible(R.id.unpost, isUserRepost);
         popupMenuWrapper.setItemVisible(R.id.repost, !isUserRepost);
     }
 
-    private void setMenuPrivacy(boolean isPrivate) {
-        popupMenuWrapper.setItemEnabled(R.id.unpost, !isPrivate);
-        popupMenuWrapper.setItemEnabled(R.id.repost, !isPrivate);
+    private void setShareVisibility(boolean isPrivate) {
         popupMenuWrapper.setItemEnabled(R.id.share, !isPrivate);
     }
 
@@ -229,6 +250,7 @@ public class TrackPageMenuController
         private final PlayQueueManager playQueueManager;
         private final RepostOperations repostOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
+        private final AccountOperations accountOperations;
         private final EventBus eventBus;
         private final StartStationHandler startStationHandler;
         private final ShareOperations shareOperations;
@@ -238,12 +260,14 @@ public class TrackPageMenuController
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 StartStationHandler startStationHandler,
+                AccountOperations accountOperations,
                 EventBus eventBus,
                 ShareOperations shareOperations) {
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.startStationHandler = startStationHandler;
+            this.accountOperations = accountOperations;
             this.eventBus = eventBus;
             this.shareOperations = shareOperations;
         }
@@ -255,6 +279,7 @@ public class TrackPageMenuController
                     getFragmentActivity(anchorView),
                     popupMenuWrapperFactory.build(getFragmentActivity(anchorView), anchorView),
                     startStationHandler,
+                    accountOperations,
                     eventBus,
                     shareOperations);
         }

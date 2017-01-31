@@ -19,7 +19,8 @@ public class ApiResponse {
     private static final String PUBLIC_API_ERRORS_KEY = "errors";
     private static final String PUBLIC_API_ERROR_KEY = "error";
     private static final String PUBLIC_API_ERROR_MESSAGE_KEY = "error_message";
-    private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
+    public static final int HTTP_UNPROCESSABLE_ENTITY = 422;
+    private static final int HTTP_PRECONDITION_REQUIRED = 428;
     private static final int HTTP_REQUEST_TOO_MANY_REQUESTS = 429;
 
     private final int statusCode;
@@ -35,7 +36,9 @@ public class ApiResponse {
 
     private void determineFailure(ApiRequest request, int statusCode) {
         if (statusCode == HTTP_REQUEST_TOO_MANY_REQUESTS) {
-            failure = ApiRequestException.rateLimited(request, this);
+            failure = ApiRequestException.rateLimited(request, this, getErrorKey());
+        } else if (statusCode == HTTP_PRECONDITION_REQUIRED) {
+            failure = ApiRequestException.preconditionRequired(request, this);
         } else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
             failure = ApiRequestException.notFound(request, this);
         } else if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {

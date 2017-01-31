@@ -91,6 +91,24 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
     }
 
     @Test
+    public void withUrnEmitsEmptyObservableForUnavailablePlaylist() {
+        final Playlist playlist = ModelFixtures.playlist();
+        final List<Urn> urns = singletonList(playlist.urn());
+
+        when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
+        when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
+
+        final AssertableSubscriber<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
+        subscriber.assertNoValues();
+
+        syncSubject.onNext(TestSyncJobResults.successWithChange());
+        syncSubject.onCompleted();
+
+        subscriber.assertNoValues();
+        subscriber.assertCompleted();
+    }
+
+    @Test
     public void withUrnsLoadsPlaylistFromStorage() {
         final Playlist playlist = ModelFixtures.playlist();
         final List<Urn> urns = singletonList(playlist.urn());

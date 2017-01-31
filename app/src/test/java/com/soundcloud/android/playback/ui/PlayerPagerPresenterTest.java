@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
+import static com.soundcloud.android.playback.VideoSurfaceProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -25,26 +26,25 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.main.PlayerActivity;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +61,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class PlayerPagerPresenterTest extends AndroidUnitTest {
@@ -109,7 +110,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus;
     private PlayerPagerPresenter presenter;
-    private TrackItem track;
+    private Track track;
     private PagerAdapter adapter;
 
     private List<PlayQueueItem> playQueue = Arrays.asList(
@@ -159,26 +160,14 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.setCurrentPlayQueue(playQueue, 0);
 
-        track = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
-                                                            PlayableProperty.TITLE.bind("title"),
-                                                            PlayableProperty.CREATOR_NAME.bind("artist"),
-                                                            PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))));
+
+        track = ModelFixtures.trackBuilder().urn(TRACK1_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build();
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
-                TestPropertySets.trackWith(PropertySet.from(
-                        TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
-                        PlayableProperty.TITLE.bind("title"),
-                        PlayableProperty.CREATOR_NAME.bind("artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L))))
-        ));
+                ModelFixtures.trackBuilder().urn(MONETIZABLE_TRACK_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build()));
 
         when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
-                TestPropertySets.trackWith(PropertySet.from(
-                        TrackProperty.URN.bind(TRACK2_RELATED_URN),
-                        PlayableProperty.TITLE.bind("related title"),
-                        PlayableProperty.CREATOR_NAME.bind("related artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(234L))))
-        ));
+                ModelFixtures.trackBuilder().urn(TRACK2_RELATED_URN).title("related title").creatorName("related artist").creatorUrn(Urn.forUser(234L)).build()));
     }
 
     @Test
@@ -519,7 +508,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         ArgumentCaptor<VideoPlayerAd> captorPropertySet = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
-        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
 
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
@@ -647,21 +636,21 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.onResume(playerFragment);
 
-        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
     }
 
     @Test
     public void configurationChangeForwardsToOnConfigurationChangeOnVideoSurfaceProvider() {
         onDestroy(true);
 
-        verify(videoSurfaceProvider).onConfigurationChange();
+        verify(videoSurfaceProvider).onConfigurationChange(Origin.PLAYER);
     }
 
     @Test
     public void onDestroyForwardsCallToOnDestroyVideoSurfaceProvider() {
         onDestroy(false);
 
-        verify(videoSurfaceProvider).onDestroy();
+        verify(videoSurfaceProvider).onDestroy(Origin.PLAYER);
     }
 
     @Test
@@ -839,8 +828,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupVideoAd() {
-        presenter.setCurrentPlayQueue(Arrays.<PlayQueueItem>asList(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(
-                MONETIZABLE_TRACK_URN))), 0);
+        final VideoAdQueueItem video = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN));
+        presenter.setCurrentPlayQueue(Collections.singletonList(video), 0);
     }
 
     private void onDestroy(boolean isConfigurationChange) {

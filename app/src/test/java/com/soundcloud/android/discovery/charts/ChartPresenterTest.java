@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.deeplinks.ChartsUriResolver;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
@@ -33,6 +34,7 @@ public class ChartPresenterTest extends AndroidUnitTest {
     @Mock EnterScreenDispatcher enterScreenDispatcher;
     @Mock RootActivity rootActivity;
     @Mock private TabLayout tabLayout;
+    @Mock ChartsUriResolver chartsUriResolver;
     private ViewPager viewPager;
 
     private ChartPresenter presenter;
@@ -46,7 +48,7 @@ public class ChartPresenterTest extends AndroidUnitTest {
                 .putExtra(ChartTracksFragment.EXTRA_GENRE_URN, CHART_GENRE_URN)
                 .putExtra(ChartTracksFragment.EXTRA_TYPE, CHART_TYPE)
                 .putExtra(ChartTracksFragment.EXTRA_CATEGORY, CHART_CATEGORY)
-                .putExtra(ChartActivity.EXTRA_HEADER, "Header");
+                .putExtra(ChartTracksFragment.EXTRA_HEADER, "Header");
 
         when(rootActivity.getIntent()).thenReturn(intent);
         when(rootActivity.findViewById(R.id.pager)).thenReturn(viewPager);

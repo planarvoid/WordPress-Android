@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -32,43 +32,43 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
     private AdPlaybackSessionEventArgs eventArgs;
     private List<String> trackingUrls = Collections.emptyList();
 
-    public static AdPlaybackSessionEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+    public static AdPlaybackSessionEvent forFirstQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
         return forQuartile(adData, trackSourceInfo, FIRST_QUARTILE_TYPE);
     }
 
-    public static AdPlaybackSessionEvent forSecondQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+    public static AdPlaybackSessionEvent forSecondQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
         return forQuartile(adData, trackSourceInfo, SECOND_QUARTILE_TYPE);
     }
 
-    public static AdPlaybackSessionEvent forThirdQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+    public static AdPlaybackSessionEvent forThirdQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
         return forQuartile(adData, trackSourceInfo, THIRD_QUARTILE_TYPE);
     }
 
-    private static AdPlaybackSessionEvent forQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
+    private static AdPlaybackSessionEvent forQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo,
                                                       String quartileType) {
         return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
                 .setQuartileTrackingUrls(quartileType, adData)
                 .put(PlayableTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
     }
 
-    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+    public static AdPlaybackSessionEvent forPlay(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
         return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, eventArgs.getTrackSourceInfo())
                 .setPlaybackTrackingUrls(adData)
                 .setEventArgs(eventArgs);
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
+    public static AdPlaybackSessionEvent forStop(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
         return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, eventArgs.getTrackSourceInfo())
                 .setStopReason(stopReason)
                 .setEventArgs(eventArgs)
                 .setPlaybackTrackingUrls(adData);
     }
 
-    public static AdPlaybackSessionEvent forCheckpoint(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+    public static AdPlaybackSessionEvent forCheckpoint(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
         return new AdPlaybackSessionEvent(EVENT_KIND_CHECKPOINT, adData, eventArgs.getTrackSourceInfo()).setEventArgs(eventArgs);
     }
 
-    private AdPlaybackSessionEvent(String kind, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+    private AdPlaybackSessionEvent(String kind, PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
         super(kind);
         this.trackSourceInfo = trackSourceInfo;
 
@@ -103,7 +103,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
         return trackingUrls;
     }
 
-    private AdPlaybackSessionEvent setQuartileTrackingUrls(String quartileType, PlayerAdData adData) {
+    private AdPlaybackSessionEvent setQuartileTrackingUrls(String quartileType, PlayableAdData adData) {
         switch (quartileType) {
             case FIRST_QUARTILE_TYPE:
                 trackingUrls = adData.getFirstQuartileUrls();
@@ -118,7 +118,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
         return this;
     }
 
-    private AdPlaybackSessionEvent setPlaybackTrackingUrls(PlayerAdData adData) {
+    private AdPlaybackSessionEvent setPlaybackTrackingUrls(PlayableAdData adData) {
         shouldReportStartWithPlay = !adData.hasReportedStart();
         if (isKind(EVENT_KIND_PLAY)) {
             configurePlayEventTracking(adData);
@@ -128,7 +128,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
         return this;
     }
 
-    private void configurePlayEventTracking(PlayerAdData adData) {
+    private void configurePlayEventTracking(PlayableAdData adData) {
         if (shouldReportStartWithPlay) {
             trackingUrls = new ArrayList<>();
             trackingUrls.addAll(adData.getImpressionUrls());
@@ -138,7 +138,7 @@ public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
         }
     }
 
-    private void setStopEventTrackingUrls(PlayerAdData adData) {
+    private void setStopEventTrackingUrls(PlayableAdData adData) {
         if (hasAdFinished()) {
             trackingUrls = adData.getFinishUrls();
         } else if (wasAdPaused()) {

@@ -2,7 +2,6 @@ package com.soundcloud.android.screens;
 
 import static com.soundcloud.android.framework.with.With.text;
 
-import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
@@ -42,6 +41,13 @@ public class TrackLikesScreen extends Screen {
         VisualPlayerElement visualPlayerElement = getFirstLongTrack().click();
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    public void scrollToTop() {
+        testDriver
+                .findOnScreenElement(With.id(R.id.ak_recycler_view))
+                .toRecyclerView()
+                .scrollToTop();
     }
 
     private TrackItemElement getFirstLongTrack() {

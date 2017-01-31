@@ -2,7 +2,7 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.auth.tasks.LegacyAuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.LoginTask;
 import com.soundcloud.android.onboarding.auth.tasks.SignupTask;
 import com.soundcloud.android.profile.BirthdayInfo;
@@ -39,7 +39,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
     }
 
     @Override
-    public void onTaskResult(AuthTaskResult result) {
+    public void onTaskResult(LegacyAuthTaskResult result) {
         if (result.wasSignUpFailedToLogin()) {
             setRetryToLogin(MAX_LOGIN_RETRY);
         }
@@ -61,7 +61,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
         handler.postDelayed(loginOperation, DELAY_BEFORE_RETRY);
     }
 
-    private boolean shouldRetryLogin(AuthTaskResult result) {
+    private boolean shouldRetryLogin(LegacyAuthTaskResult result) {
         return !result.wasSuccess() && remainingLoginTries > 0;
     }
 
@@ -73,7 +73,9 @@ public class SignupTaskFragment extends AuthTaskFragment {
                                                   eventBus,
                                                   accountOperations,
                                                   apiClient,
-                                                  syncInitiatorBridge);
+                                                  syncInitiatorBridge,
+                                                  featureFlags,
+                                                  signInOperations);
         loginTask.setTaskOwner(this);
         return loginTask;
     }
@@ -85,6 +87,8 @@ public class SignupTaskFragment extends AuthTaskFragment {
                               storeUsersCommand,
                               tokenUtils,
                               apiClient,
-                              syncInitiatorBridge);
+                              syncInitiatorBridge,
+                              featureFlags,
+                              signUpOperations);
     }
 }

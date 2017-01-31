@@ -5,15 +5,17 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forCreatorDismi
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerClick;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDismiss;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdItemRenderer;
 import com.soundcloud.android.ads.AppInstallAd;
-import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.StreamAdsController;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -28,6 +30,7 @@ import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRendere
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
@@ -59,6 +62,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.TextureView;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -69,7 +73,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         StationsOnboardingStreamItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
         UpsellItemRenderer.Listener,
-        AppInstallItemRenderer.Listener,
+        AdItemRenderer.Listener,
         NewItemsIndicator.Listener, StreamHighlightsItemRenderer.Listener {
 
     private final StreamOperations streamOperations;
@@ -81,6 +85,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
+    private final VideoSurfaceProvider videoSurfaceProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final FollowingOperations followingOperations;
     private final StationsOperations stationsOperations;
@@ -108,6 +113,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     NewItemsIndicator newItemsIndicator,
                     FollowingOperations followingOperations,
                     WhyAdsDialogPresenter whyAdsDialogPresenter,
+                    VideoSurfaceProvider videoSurfaceProvider,
                     UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
               newItemsIndicator, streamOperations, adapter);
@@ -125,6 +131,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.whyAdsDialogPresenter = whyAdsDialogPresenter;
 
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
+        this.videoSurfaceProvider = videoSurfaceProvider;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
         this.followingOperations = followingOperations;
         adapter.setOnFacebookInvitesClickListener(this);
@@ -132,6 +139,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         adapter.setOnStationsOnboardingStreamClickListener(this);
         adapter.setOnUpsellClickListener(this);
         adapter.setOnAppInstallClickListener(this);
+        adapter.setOnVideoAdClickListener(this);
         adapter.setOnStreamHighlightsClickListener(this);
     }
 
@@ -181,7 +189,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                 eventBus.subscribe(EventQueue.REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                                       .filter(StreamEvent::isStreamRefreshed)
-                                      .flatMap(continueWith(updateIndicatorFromMostRecent()))),
+                                      .flatMap(o -> updateIndicatorFromMostRecent())),
                 followingOperations.onUserFollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh()),
                 followingOperations.onUserUnfollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh())
         );
@@ -204,13 +212,23 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onDestroyView(Fragment fragment) {
         streamAdsController.onDestroyView();
+
+        if (fragment.getActivity().isChangingConfigurations()) {
+            videoSurfaceProvider.onConfigurationChange(Origin.STREAM);
+        } else {
+            videoSurfaceProvider.onDestroy(Origin.STREAM);
+        }
+
         if (streamDepthPublisher.isPresent()) {
             streamDepthPublisher.get().unsubscribe();
             streamDepthPublisher = Optional.absent();
         }
+
         viewLifeCycleSubscription.unsubscribe();
         adapter.unsubscribe();
         newItemsIndicator.destroy();
+        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        imagePauseOnScrollListener.resume();
         super.onDestroyView(fragment);
     }
 
@@ -332,13 +350,23 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     }
 
     @Override
-    public void onAppInstallItemClicked(Context context, AppInstallAd appInstallAd) {
-        navigator.openAdClickthrough(context, Uri.parse(appInstallAd.getClickThroughUrl()));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAppInstallAdClickThrough(appInstallAd));
+    public void onAdItemClicked(Context context, AdData adData) {
+        final String clickthrough = adData instanceof AppInstallAd ? ((AppInstallAd) adData).getClickThroughUrl()
+                                                                   : ((VideoAd) adData).getClickThroughUrl();
+
+        navigator.openAdClickthrough(context, Uri.parse(clickthrough));
+        if (adData instanceof AppInstallAd) {
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData));
+        }
     }
 
     @Override
     public void onWhyAdsClicked(Context context) {
         whyAdsDialogPresenter.show(context);
+    }
+
+    @Override
+    public void onVideoTextureBind(TextureView textureView, VideoAd videoAd) {
+        videoSurfaceProvider.setTextureView(videoAd.getAdUrn(), Origin.STREAM, textureView);
     }
 }

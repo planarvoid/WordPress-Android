@@ -147,9 +147,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playQueueTrackChangeWhenCastingPlaysTrackWhenCurrentTrackIsDifferentAndPlaying() {
+    public void playQueueTrackChangeWhenCastingPlaysTrackWhenCurrentTrackIsDifferent() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final PlayQueueItem newPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(2));
@@ -276,6 +275,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playSessionStateProvider.isCurrentlyPlaying(trackUrn)).thenReturn(false);
         controller.togglePlayback();
 
+        verify(playbackStrategy, never()).togglePlayback();
+    }
+
+    @Test
+    public void togglePlaybackShouldPlayCurrentOnPlaybackStrategyIfJustDisconnectedFromCastSession() {
+        when(playSessionStateProvider.wasLastStateACastDisconnection()).thenReturn(true);
+
+        controller.togglePlayback();
+
+        assertThat(playCurrentSubject.hasObservers()).isTrue();
         verify(playbackStrategy, never()).togglePlayback();
     }
 

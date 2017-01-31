@@ -42,7 +42,7 @@ public class LikesStateProviderTest extends AndroidUnitTest {
         likesStateProvider.subscribe();
         likesStateProvider.likedStatuses().subscribe(subscriber);
 
-        subscriber.assertValue(new LikedStatuses(new HashSet<>(list)));
+        subscriber.assertValue(LikedStatuses.create(new HashSet<>(list)));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class LikesStateProviderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.createFromSync(urnLikeStatusMap));
         likesStateProvider.likedStatuses().subscribe(subscriber);
 
-        subscriber.assertValue(new LikedStatuses(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
+        subscriber.assertValue(LikedStatuses.create(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
     }
 
     @Test
@@ -77,6 +77,6 @@ public class LikesStateProviderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.createFromSync(urnLikeStatusMap));
         likesStateProvider.likedStatuses().subscribe(subscriber);
 
-        subscriber.assertValue(new LikedStatuses(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
+        subscriber.assertValue(LikedStatuses.create(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
     }
 }

@@ -235,12 +235,9 @@ public class PlaybackService extends Service
                                                                                                              playbackItem.getUrn()),
                                                                                         playbackItem.getUrn());
 
-            if (currentPlaybackItem.isPresent()) {
-                playSessionStateProvider.onProgressEvent(playbackProgress);
-                analyticsDispatcher.onProgressEvent(currentPlaybackItem.get(), playbackProgress);
-            }
+            playSessionStateProvider.onProgressEvent(playbackProgress);
+            analyticsDispatcher.onProgressEvent(playbackItem, playbackProgress);
 
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgress);
             mediaSessionController.onProgress(position);
             fadeOutIfNecessary(position);
         }

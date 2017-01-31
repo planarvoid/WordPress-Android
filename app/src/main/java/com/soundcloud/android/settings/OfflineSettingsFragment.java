@@ -20,18 +20,18 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -50,6 +50,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject OfflineContentOperations offlineContentOperations;
     @Inject FeatureOperations featureOperations;
     @Inject EventBus eventBus;
+    @Inject OfflinePropertiesProvider offlinePropertiesProvider;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
     @Inject ConfigurationManager configurationManager;
@@ -94,7 +95,14 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
         setupClearContent();
 
-        subscription.add(eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new CurrentDownloadSubscriber()));
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            offlinePropertiesProvider.states().subscribe(new CurrentDownloadSubscriber());
+        } else {
+            subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
+                                     .filter(event -> event.state == OfflineState.DOWNLOADED)
+                                     .observeOn(AndroidSchedulers.mainThread())
+                                     .subscribe(new CurrentDownloadSubscriber()));
+        }
     }
 
     private void setupClearContent() {
@@ -241,12 +249,10 @@ public class OfflineSettingsFragment extends PreferenceFragment
         }
     }
 
-    private final class CurrentDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
+    private final class CurrentDownloadSubscriber extends DefaultSubscriber<Object> {
         @Override
-        public void onNext(final OfflineContentChangedEvent event) {
-            if (event.state == OfflineState.DOWNLOADED) {
-                refreshStoragePreference();
-            }
+        public void onNext(final Object signal) {
+            refreshStoragePreference();
         }
     }
 

@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 
 @AutoValue
@@ -24,8 +25,8 @@ abstract class PlayHistoryItemTrack extends PlayHistoryItem implements Updatable
     }
 
     @Override
-    public PlayHistoryItemTrack updatedWithTrackItem(TrackItem trackItem) {
-        return create(trackItem);
+    public PlayHistoryItemTrack updatedWithTrackItem(Track track) {
+        return create(TrackItem.from(track));
     }
 
     @Override

@@ -26,8 +26,8 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     }
 
     private final TrackPlayQueueItemRenderer trackRenderer;
-    private PlayQueuePresenter.DragListener dragListener;
-    private List<NowPlayingListener> nowPlayingListeners = new ArrayList<>();
+    private PlayQueueView.DragListener dragListener;
+    private NowPlayingListener nowPlayingListener;
 
     @Inject
     PlayQueueAdapter(TrackPlayQueueItemRenderer trackRenderer,
@@ -131,7 +131,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     }
 
     private void notifyListeners(TrackPlayQueueUIItem item) {
-        for (NowPlayingListener nowPlayingListener : nowPlayingListeners) {
+        if (nowPlayingListener != null) {
             nowPlayingListener.onNowPlayingChanged(item);
         }
     }
@@ -141,14 +141,14 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     }
 
     void addNowPlayingChangedListener(NowPlayingListener nowPlayingListener) {
-        nowPlayingListeners.add(nowPlayingListener);
+        this.nowPlayingListener = nowPlayingListener;
     }
 
     void removeListeners() {
-        nowPlayingListeners.clear();
+        nowPlayingListener = null;
     }
 
-    void setDragListener(PlayQueuePresenter.DragListener dragListener) {
+    void setDragListener(PlayQueueView.DragListener dragListener) {
         this.dragListener = dragListener;
     }
 

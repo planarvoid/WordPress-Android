@@ -23,7 +23,7 @@ import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.AdRequestEvent;
-import com.soundcloud.android.events.AdRequestEvent.AdsReceived;
+import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
@@ -335,7 +335,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)),
+        VisualAdImpressionEvent event = VisualAdImpressionEvent.create(AdFixtures.getAudioAd(Urn.forTrack(123L)),
                                                                     Urn.forUser(456L),
                                                                     sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
@@ -620,7 +620,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackStreamAdImpressionEvents() {
         final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
-        final InlayAdImpressionEvent event = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+        final InlayAdImpressionEvent event = InlayAdImpressionEvent.create(appInstall, 42, 9876543210L);
         final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         when(dataBuilderv1.buildForStreamAd(event)).thenReturn("StreamAdImpression");

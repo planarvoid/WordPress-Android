@@ -3,7 +3,6 @@ package com.soundcloud.android.suggestedcreators;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
 import static com.soundcloud.android.rx.RxUtils.ZIP_TO_VOID;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.configuration.experiments.SuggestedCreatorsExperiment;
@@ -116,7 +115,7 @@ public class SuggestedCreatorsOperations {
     }
 
     private Observable<List<SuggestedCreator>> load(Observable<SyncOperations.Result> source) {
-        return source.flatMap(continueWith(suggestedCreatorsStorage.suggestedCreators()
-                                                                   .subscribeOn(scheduler)));
+        return source.flatMap(o -> suggestedCreatorsStorage.suggestedCreators()
+                                                           .subscribeOn(scheduler));
     }
 }

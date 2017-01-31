@@ -2,7 +2,6 @@ package com.soundcloud.android.collection.playlists;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.Urn;
@@ -100,7 +99,7 @@ public class MyPlaylistsOperations {
     public Observable<List<Playlist>> refreshAndLoadPlaylists(final PlaylistsOptions options) {
         return syncInitiatorBridge
                 .refreshMyPostedAndLikedPlaylists()
-                .flatMap(continueWith(loadPlaylists(options)));
+                .flatMap(o -> loadPlaylists(options));
     }
 
     private Observable<List<Playlist>> loadPlaylists(PlaylistsOptions options) {

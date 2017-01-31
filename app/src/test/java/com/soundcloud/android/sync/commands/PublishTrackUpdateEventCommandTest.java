@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackChangedEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class PublishTrackUpdateEventCommandTest extends AndroidUnitTest {
 
         verify(eventBus).publish(eq(EventQueue.TRACK_CHANGED), trackChangedEventArgumentCaptor.capture());
         final TrackChangedEvent changedEvent = trackChangedEventArgumentCaptor.getValue();
-        assertThat(changedEvent.changeMap().values()).containsExactly(TrackItem.from(apiTrack));
+        assertThat(changedEvent.changeMap().values()).containsExactly(Track.from(apiTrack));
     }
 
     @Test

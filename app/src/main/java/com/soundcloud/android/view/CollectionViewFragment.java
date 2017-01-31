@@ -1,25 +1,30 @@
 package com.soundcloud.android.view;
 
+import static com.soundcloud.android.view.ViewError.CONNECTION_ERROR;
+import static java.util.Collections.emptyList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-// TODO: EmptyView logic (?)
-public abstract class CollectionViewFragment<ItemT>
+public abstract class CollectionViewFragment<ViewModelT, ItemT>
         extends LightCycleSupportFragment<Fragment> {
 
     @BindView(R.id.ak_recycler_view) protected RecyclerView recyclerView;
@@ -49,24 +54,49 @@ public abstract class CollectionViewFragment<ItemT>
 
         // handle swipe to refresh
         swipeRefreshLayout.setSwipeableChildren(recyclerView, emptyView);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                CollectionViewFragment.this.onRefresh();
-            }
-        });
-        // TODO : Logic to trigger STR
+        swipeRefreshLayout.setOnRefreshListener(CollectionViewFragment.this::onRefresh);
+
 
         subscription = new CompositeSubscription(
-                isRefreshing()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnNext(aBoolean -> swipeRefreshLayout.setRefreshing(aBoolean))
-                        .subscribe(new CrashOnTerminateSubscriber<>()),
 
-                items().observeOn(AndroidSchedulers.mainThread())
-                       .doOnNext(this::replaceItemsInAdapter)
-                       .subscribe(new CrashOnTerminateSubscriber<>())
+                modelUpdates().map(AsyncViewModel::isRefreshing)
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .doOnNext(aBoolean -> swipeRefreshLayout.setRefreshing(aBoolean))
+                              .subscribe(new CrashOnTerminateSubscriber<>()),
+
+                modelUpdates().map(extractItems())
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .doOnNext(this::replaceItemsInAdapter)
+                              .subscribe(new CrashOnTerminateSubscriber<>()),
+
+                modelUpdates().doOnNext(updateEmptyView())
+                              .subscribe(new CrashOnTerminateSubscriber<>())
         );
+    }
+
+    @NonNull
+    private Func1<AsyncViewModel<ViewModelT>, Iterable<ItemT>> extractItems() {
+        return viewModelTAsyncViewModel -> viewModelTAsyncViewModel.data().isPresent()
+                                           ? viewModelToItems().call(viewModelTAsyncViewModel.data().get())
+                                           : emptyList();
+    }
+
+    @NonNull
+    private Action1<AsyncViewModel<ViewModelT>> updateEmptyView() {
+        return asyncViewModel -> {
+            Optional<ViewError> viewErrorOptional = asyncViewModel.error();
+            if (viewErrorOptional.isPresent()) {
+                if (viewErrorOptional.get() == CONNECTION_ERROR) {
+                    emptyView.setStatus(EmptyView.Status.CONNECTION_ERROR);
+                } else {
+                    emptyView.setStatus(EmptyView.Status.SERVER_ERROR);
+                }
+            } else if (asyncViewModel.data().isPresent()) {
+                emptyView.setStatus(EmptyView.Status.OK);
+            } else {
+                emptyView.setStatus(EmptyView.Status.WAITING);
+            }
+        };
     }
 
     protected abstract void onRefresh();
@@ -81,9 +111,9 @@ public abstract class CollectionViewFragment<ItemT>
 
     protected abstract RecyclerItemAdapter<ItemT, RecyclerView.ViewHolder> createAdapter();
 
-    protected abstract Observable<Iterable<ItemT>> items();
+    protected abstract Observable<AsyncViewModel<ViewModelT>> modelUpdates();
 
-    protected abstract Observable<Boolean> isRefreshing();
+    protected abstract Func1<ViewModelT, Iterable<ItemT>> viewModelToItems();
 
     @Override
     public void onDestroyView() {

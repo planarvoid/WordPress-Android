@@ -1,60 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- frameLayout required because of https://github.com/soundcloud/android/issues/2988 -->
-<com.soundcloud.android.view.MultiSwipeRefreshLayout
-    android:id="@+id/str_layout"
+<com.soundcloud.android.view.MultiSwipeRefreshLayout android:id="@+id/str_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/user_details_holder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_vertical"
+        android:background="@color/page_background">
 
-        <com.soundcloud.android.view.EmptyView
-            android:id="@android:id/empty"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical">
 
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/user_details_holder"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="fill_vertical">
+            <View style="@style/Divider.Background" />
+
+            <View style="@style/Divider.Section" />
 
             <LinearLayout
+                android:id="@+id/view_followers"
+                style="@style/Profile.InfoTab.ViewFollows"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/Profile.InfoTab.ViewFollowsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:text="@string/profile_followers" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/followers_count"
+                    style="@style/Profile.InfoTab.ViewFollowsNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right" />
+            </LinearLayout>
+
+            <View style="@style/Divider.Section" />
+
+            <LinearLayout
+                android:id="@+id/view_following"
+                style="@style/Profile.InfoTab.ViewFollows"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/Profile.InfoTab.ViewFollowsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:text="@string/profile_following" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/followings_count"
+                    style="@style/Profile.InfoTab.ViewFollowsNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right" />
+            </LinearLayout>
+
+            <View style="@style/Divider.Section" />
+
+            <LinearLayout
+                android:id="@+id/bio_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:visibility="gone">
+
+                <View style="@style/Divider.Background" />
+
+                <View style="@style/Divider.Section" />
 
                 <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/website"
-                    style="@style/Profile.Info.Link"
-                    android:drawableLeft="@drawable/favicon_website"
-                    android:text="@string/website"
-                    android:visibility="gone" />
+                    style="@style/Profile.InfoTab.HeadingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="@string/profile_bio" />
 
                 <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/discogs_name"
-                    style="@style/Profile.Info.Link"
-                    android:drawableLeft="@drawable/favicon_discogs"
-                    android:text="@string/discogs"
-                    android:visibility="gone" />
+                    android:id="@+id/bio_text"
+                    style="@style/Profile.InfoTab.ContentText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
-                <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/myspace_name"
-                    style="@style/Profile.Info.Link"
-                    android:drawableLeft="@drawable/favicon_myspace"
-                    android:text="@string/myspace"
-                    android:visibility="gone" />
+                <View style="@style/Divider.Section" />
 
-                <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/description"
-                    style="@style/Profile.Info"
-                    android:padding="4dp"
-                    android:visibility="gone" />
             </LinearLayout>
-        </android.support.v4.widget.NestedScrollView>
-    </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/links_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <View style="@style/Divider.Background" />
+
+                <View style="@style/Divider.Section" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/Profile.InfoTab.HeadingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="@string/profile_links" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/links_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@drawable/ak_list_divider_section_with_height"
+                android:orientation="vertical"
+                android:showDividers="middle|end"
+                android:visibility="gone" />
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 </com.soundcloud.android.view.MultiSwipeRefreshLayout>

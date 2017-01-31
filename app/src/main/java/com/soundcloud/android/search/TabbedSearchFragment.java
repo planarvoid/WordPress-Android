@@ -8,7 +8,6 @@ import com.soundcloud.java.optional.Optional;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -24,7 +23,9 @@ public class TabbedSearchFragment extends Fragment {
 
     public static final String TAG = "tabbed_search";
 
-    private static final String KEY_QUERY = "query";
+    private static final String KEY_API_QUERY = "query";
+    private static final String KEY_USER_QUERY = "userQuery";
+
     private static final String KEY_QUERY_URN = "queryUrn";
     private static final String KEY_QUERY_POSITION = "queryPosition";
 
@@ -33,11 +34,13 @@ public class TabbedSearchFragment extends Fragment {
 
     private ViewPager pager;
 
-    public static TabbedSearchFragment newInstance(String query,
+    public static TabbedSearchFragment newInstance(String apiQuery,
+                                                   String userQuery,
                                                    Optional<Urn> queryUrn,
                                                    Optional<Integer> queryPosition) {
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_QUERY, query);
+        bundle.putString(KEY_API_QUERY, apiQuery);
+        bundle.putString(KEY_USER_QUERY, userQuery);
         if (queryUrn.isPresent()) {
             bundle.putParcelable(KEY_QUERY_URN, queryUrn.get());
         }
@@ -66,7 +69,7 @@ public class TabbedSearchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         searchTracker.init();
-        searchTracker.trackResultsScreenEvent(SearchType.ALL, getSearchQuery());
+        searchTracker.trackResultsScreenEvent(SearchType.ALL, getApiQuery());
     }
 
     @Override
@@ -85,7 +88,8 @@ public class TabbedSearchFragment extends Fragment {
         SearchPagerAdapter searchPagerAdapter =
                 new SearchPagerAdapter(resources,
                                        this.getChildFragmentManager(),
-                                       getSearchQuery(),
+                                       getApiQuery(),
+                                       getUserQuery(),
                                        getSearchQueryUrn(),
                                        getSearchQueryPosition(),
                                        firstTime);
@@ -97,11 +101,15 @@ public class TabbedSearchFragment extends Fragment {
 
         TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
-        pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker, getSearchQuery()));
+        pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker, getApiQuery()));
     }
 
-    private String getSearchQuery() {
-        return getArguments().getString(KEY_QUERY);
+    private String getApiQuery() {
+        return getArguments().getString(KEY_API_QUERY);
+    }
+
+    private String getUserQuery() {
+        return getArguments().getString(KEY_USER_QUERY);
     }
 
     private Optional<Urn> getSearchQueryUrn() {

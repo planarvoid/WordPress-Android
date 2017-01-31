@@ -38,29 +38,43 @@ public class DeepLinkTest extends AndroidUnitTest {
 
     @Test
     public void shouldRequireResolve() {
-        assertThat(DeepLink.ENTITY.requiresResolve()).isTrue();
+        for (DeepLink deepLink : DeepLink.RESOLVE_REQUIRED) {
+            assertThat(deepLink.requiresResolve()).isTrue();
+        }
+
+        assertThat(DeepLink.TRACK_RECOMMENDATIONS.requiresResolve()).isFalse();
+        assertThat(DeepLink.DISCOVERY.requiresResolve()).isFalse();
         assertThat(DeepLink.SEARCH.requiresResolve()).isFalse();
         assertThat(DeepLink.RECORD.requiresResolve()).isFalse();
+        assertThat(DeepLink.SOUNDCLOUD_GO_UPSELL.requiresResolve()).isFalse();
+        assertThat(DeepLink.SOUNDCLOUD_GO_BUY.requiresResolve()).isFalse();
+        assertThat(DeepLink.NOTIFICATION_PREFERENCES.requiresResolve()).isFalse();
+        assertThat(DeepLink.COLLECTION.requiresResolve()).isFalse();
+        assertThat(DeepLink.OFFLINE_SETTINGS.requiresResolve()).isFalse();
+        assertThat(DeepLink.CHARTS.requiresResolve()).isFalse();
+        assertThat(DeepLink.CHARTS_ALL_GENRES.requiresResolve()).isFalse();
         assertThat(DeepLink.HOME.requiresResolve()).isFalse();
         assertThat(DeepLink.STREAM.requiresResolve()).isFalse();
         assertThat(DeepLink.WEB_VIEW.requiresResolve()).isFalse();
-        assertThat(DeepLink.NOTIFICATION_PREFERENCES.requiresResolve()).isFalse();
+        assertThat(DeepLink.SHARE_APP.requiresResolve()).isFalse();
+        assertThat(DeepLink.SYSTEM_SETTINGS.requiresResolve()).isFalse();
     }
 
     @Test
     public void shouldRequireLoggedIn() {
-        assertThat(DeepLink.ENTITY.requiresLoggedInUser()).isTrue();
-        assertThat(DeepLink.SEARCH.requiresLoggedInUser()).isTrue();
-        assertThat(DeepLink.RECORD.requiresLoggedInUser()).isTrue();
-        assertThat(DeepLink.NOTIFICATION_PREFERENCES.requiresLoggedInUser()).isTrue();
+        for (DeepLink deepLink : DeepLink.LOGGED_IN_REQUIRED) {
+            assertThat(deepLink.requiresLoggedInUser()).isTrue();
+        }
 
         assertThat(DeepLink.HOME.requiresLoggedInUser()).isFalse();
         assertThat(DeepLink.STREAM.requiresLoggedInUser()).isFalse();
         assertThat(DeepLink.WEB_VIEW.requiresLoggedInUser()).isFalse();
+        assertThat(DeepLink.SHARE_APP.requiresLoggedInUser()).isFalse();
+        assertThat(DeepLink.SYSTEM_SETTINGS.requiresLoggedInUser()).isFalse();
     }
 
     @Test
-    public void shouldHandleSoundcloudScheme() {
+    public void shouldHandleHierarchicalSoundcloudScheme() {
         assertDeeplink(DeepLink.HOME, "soundcloud://home");
         assertDeeplink(DeepLink.STREAM, "soundcloud://stream");
         assertDeeplink(DeepLink.SEARCH, "soundcloud://search");
@@ -141,6 +155,25 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://soundcloud.com/soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://m.soundcloud.com/soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://m.soundcloud.com/soundcloudgo");
+    }
+
+    @Test
+    public void shouldHandleChartsDeeplinks() throws Exception {
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/top");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:top:all");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/new?genre=all-music");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:new:all");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/top?genre=electronic");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:top:electronic");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/new?genre=electronic");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:new:electronic");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/top?genre=hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:top:hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/new?genre=hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:new:hiphoprap");
+
+        assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:music");
+        assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:audio");
     }
 
     private void assertDeeplink(DeepLink deepLink, String url) {

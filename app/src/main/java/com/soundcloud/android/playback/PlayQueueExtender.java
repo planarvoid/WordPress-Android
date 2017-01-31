@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -36,6 +37,7 @@ public class PlayQueueExtender {
     private final StationsOperations stationsOperations;
     private final SharedPreferences sharedPreferences;
     private final EventBus eventBus;
+    private final CastConnectionHelper castConnectionHelper;
     private final FeatureFlags featureFlags;
 
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
@@ -46,12 +48,14 @@ public class PlayQueueExtender {
                       StationsOperations stationsOperations,
                       SharedPreferences sharedPreferences,
                       EventBus eventBus,
+                      CastConnectionHelper castConnectionHelper,
                       FeatureFlags featureFlags) {
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.stationsOperations = stationsOperations;
         this.sharedPreferences = sharedPreferences;
         this.eventBus = eventBus;
+        this.castConnectionHelper = castConnectionHelper;
         this.featureFlags = featureFlags;
     }
 
@@ -88,20 +92,22 @@ public class PlayQueueExtender {
     private void extendPlayQueue(Urn collectionUrn) {
         final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
 
-        if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
-            loadRecommendedSubscription = playQueueOperations
-                    .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(),
-                                            fromContinuousPlay(),
-                                            playQueueManager.getCurrentPlaySessionSource())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new UpcomingTracksSubscriber());
-        } else if (collectionUrn.isStation()) {
-            loadRecommendedSubscription = stationsOperations
-                    .fetchUpcomingTracks(collectionUrn,
-                                         playQueueManager.getQueueSize(),
-                                         playQueueManager.getCurrentPlaySessionSource())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new UpcomingTracksSubscriber());
+        if (!castConnectionHelper.isCasting()) {
+            if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
+                loadRecommendedSubscription = playQueueOperations
+                        .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(),
+                                                fromContinuousPlay(),
+                                                playQueueManager.getCurrentPlaySessionSource())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new UpcomingTracksSubscriber());
+            } else if (collectionUrn.isStation()) {
+                loadRecommendedSubscription = stationsOperations
+                        .fetchUpcomingTracks(collectionUrn,
+                                             playQueueManager.getQueueSize(),
+                                             playQueueManager.getCurrentPlaySessionSource())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new UpcomingTracksSubscriber());
+            }
         }
     }
 

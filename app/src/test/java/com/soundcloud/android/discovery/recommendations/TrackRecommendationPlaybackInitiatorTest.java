@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery.recommendations;
 
+import static com.soundcloud.android.Consts.NOT_SET;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
@@ -20,7 +21,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -109,12 +110,8 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
                 PlaySessionSource.forRecommendations(Screen.RECOMMENDATIONS_MAIN, SECOND_QUERY_POSITION, QUERY_URN));
     }
 
-    private static PropertySet createSeed(Urn urn, int seedQueryPosition) {
-        PropertySet seed = PropertySet.create();
-        seed.put(RecommendationProperty.SEED_TRACK_URN, urn);
-        seed.put(RecommendationProperty.QUERY_POSITION, seedQueryPosition);
-        seed.put(RecommendationProperty.QUERY_URN, QUERY_URN);
-        return seed;
+    private static RecommendationSeed createSeed(Urn urn, int seedQueryPosition) {
+        return RecommendationSeed.create(NOT_SET, urn, Strings.EMPTY, RecommendationReason.LIKED, seedQueryPosition, QUERY_URN);
     }
 
     private static Recommendation createRecommendation(Urn seedUrn, Urn recommendationUrn, int queryPosition) {

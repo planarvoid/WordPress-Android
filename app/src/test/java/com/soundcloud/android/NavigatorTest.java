@@ -1,9 +1,11 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -17,8 +19,10 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
+import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
+import com.soundcloud.android.discovery.charts.AllGenresPresenter;
 import com.soundcloud.android.discovery.charts.ChartActivity;
 import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
@@ -39,6 +43,8 @@ import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.profile.FollowersActivity;
+import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -374,13 +380,26 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensOnboarding() {
-        navigator.openOnboarding(activityContext, USER_URN, Screen.DEEPLINK);
+        Uri uri = Uri.parse("soundcloud://tracks:123");
+        navigator.openOnboarding(activityContext, uri, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(OnboardActivity.EXTRA_DEEPLINK_URN, USER_URN)
+                                   .containsExtra(OnboardActivity.EXTRA_DEEP_LINK_URI, uri)
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                    .containsScreen(Screen.DEEPLINK)
                                    .opensActivity(OnboardActivity.class);
+    }
+
+    @Test
+    public void opensResolveActivity() {
+        Uri uri = Uri.parse("soundcloud://tracks:123");
+        navigator.openResolveForUri(activityContext, uri);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsAction(Intent.ACTION_VIEW)
+                                   .containsUri(uri)
+                                   .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                   .opensActivity(ResolveActivity.class);
     }
 
     @Test
@@ -617,7 +636,7 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn)
                                    .containsExtra(ChartTracksFragment.EXTRA_TYPE, chartType)
-                                   .containsExtra(ChartActivity.EXTRA_HEADER, header)
+                                   .containsExtra(ChartTracksFragment.EXTRA_HEADER, header)
                                    .opensActivity(ChartActivity.class);
     }
 
@@ -626,6 +645,15 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openAllGenres(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(AllGenresActivity.class);
+    }
+
+    @Test
+    public void opensAllGenresFromDeeplink() throws Exception {
+        navigator.openAllGenres(activityContext, ChartCategory.MUSIC);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(AllGenresPresenter.EXTRA_CATEGORY, ChartCategory.MUSIC)
                                    .opensActivity(AllGenresActivity.class);
     }
 
@@ -656,4 +684,34 @@ public class NavigatorTest extends AndroidUnitTest {
 
         verify(eventTracker).trackNavigation(navigationEvent);
     }
+
+    @Test
+    public void openActivities() {
+        navigator.openActivities(activityContext);
+        assertThat(activityContext).nextStartedIntent().opensActivity(ActivitiesActivity.class);
+    }
+
+    @Test
+    public void openFollowers() {
+        Urn userUrn = Urn.forUser(123L);
+        SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
+        navigator.openFollowers(activityContext, userUrn, searchQuerySourceInfo);
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(FollowersActivity.class)
+                                   .containsExtra(FollowersActivity.EXTRA_USER_URN, userUrn)
+                                   .containsExtra(FollowersActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+    }
+
+
+    @Test
+    public void openFollowings() {
+        Urn userUrn = Urn.forUser(123L);
+        SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
+        navigator.openFollowings(activityContext, userUrn, searchQuerySourceInfo);
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(FollowingsActivity.class)
+                                   .containsExtra(FollowingsActivity.EXTRA_USER_URN, userUrn)
+                                   .containsExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+    }
+
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE;
-import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
@@ -151,7 +150,7 @@ class PlaylistTracksStorage {
                 step(propeller.insert(Table.PlaylistTracks,
                                       getContentValuesForPlaylistTrack(playlist, firstTrackUrn)));
             }
-        }).map(returning(playlist));
+        }).map(o -> playlist);
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadAddTrackToPlaylistItems(Urn trackUrn) {

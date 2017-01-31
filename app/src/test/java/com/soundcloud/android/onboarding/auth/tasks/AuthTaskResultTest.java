@@ -2,11 +2,14 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.accounts.Me;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -22,13 +25,14 @@ public class AuthTaskResultTest {
 
     @Test
     public void shouldCreateSuccessResult() throws CreateModelException {
+        Token token = Token.EMPTY;
         ApiUser user = ModelFixtures.create(ApiUser.class);
         SignupVia signupVia = SignupVia.NONE;
 
-        AuthTaskResult result = AuthTaskResult.success(user, signupVia, false);
+        AuthTaskResult result = AuthTaskResult.success(new AuthResponse(token, Me.create(user)), signupVia);
 
         assertThat(result.wasSuccess()).isTrue();
-        assertThat(result.getUser()).isEqualTo(user);
+        assertThat(result.getAuthResponse().me.getUser()).isEqualTo(user);
         assertThat(result.getSignupVia()).isEqualTo(signupVia);
     }
 
@@ -91,7 +95,7 @@ public class AuthTaskResultTest {
         final AuthTaskResult result = AuthTaskResult.failure(failure);
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.wasValidationError()).isTrue();
-        assertThat(result.getServerErrorMessage()).isEqualTo(failure.errorKey());
+        assertThat(result.getErrorMessage()).isEqualTo(failure.errorKey());
     }
 
     @Test

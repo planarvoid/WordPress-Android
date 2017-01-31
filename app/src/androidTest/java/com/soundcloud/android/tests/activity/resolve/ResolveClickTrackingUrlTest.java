@@ -10,7 +10,6 @@ import com.soundcloud.android.tests.TestConsts;
 import android.net.Uri;
 
 public class ResolveClickTrackingUrlTest extends ResolveBaseTest {
-
     @Override
     protected Uri getUri() {
         return Uri.parse("http://soundcloud.com/-/t/click/postman-email-follower?url=" + TestConsts.STEVE_ANGELLO_PERMALINK);

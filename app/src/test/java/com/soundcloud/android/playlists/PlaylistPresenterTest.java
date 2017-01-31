@@ -10,8 +10,9 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -20,10 +21,14 @@ import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.offline.OfflineProperties;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -55,17 +60,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class PlaylistPresenterTest extends AndroidUnitTest {
 
     private static final Urn UPDATED_PLAYLIST_URN = Urn.forPlaylist(456);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
-    private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     private final TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
     private final TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_details_fragment, new Bundle());
+    private final PublishSubject<OfflineProperties> offlinePropertiesSubject = PublishSubject.create();
 
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = providerOf(mock(ExpandPlayerSubscriber.class));
     @Mock private PlaylistOperations operations;
@@ -73,7 +79,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeAttacher;
     @Mock private CollapsingScrollHelper profileScrollHelper;
     @Mock private PlaylistHeaderPresenter headerPresenter;
-    @Mock private PlaylistContentPresenter playlistContentPresenter;
     @Mock private PlaylistAdapterFactory adapterFactory;
     @Mock private PlaylistAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
@@ -81,42 +86,46 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private PlaylistTrackItemRendererFactory trackRendererFactory;
     @Mock private PlaylistTrackItemRenderer trackItemRenderer;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private FeatureOperations featureOperations;
+    @Mock private AccountOperations accountOperations;
     @Captor private ArgumentCaptor<List<PlaylistDetailItem>> trackItemCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
     private PlaylistPresenter presenter;
-    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2));
-    private List<PlaylistDetailItem> itemList;
-
+    private Playlist playlist = ModelFixtures.playlist();
+    private List<TrackItem> tracks = Arrays.asList(track1, track2);
 
     @Before
     public void setUp() throws Exception {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        itemList = Arrays.asList(new PlaylistDetailHeaderItem(), new PlaylistDetailTrackItem(track1), new PlaylistDetailTrackItem(track2));
-        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(PlaylistDetailsViewModel.create(playlistWithTracks,
-                                                                                                                                          itemList)));
+        final PlaylistDetailsViewModel model = PlaylistDetailFixtures.create(resources(), playlist, tracks);
+        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(model));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
         when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
+        when(offlinePropertiesProvider.states()).thenReturn(offlinePropertiesSubject);
 
         createPresenter();
     }
 
     private void createPresenter() {
         presenter = new PlaylistPresenter(operations,
-                upsellOperations,
-                swipeAttacher,
-                headerPresenter,
-                playlistContentPresenter,
-                adapterFactory,
-                playbackInitiator,
-                expandPlayerSubscriberProvider,
-                navigator,
-                eventBus,
-                resources,
-                                          trackRendererFactory);
+                                          upsellOperations,
+                                          swipeAttacher,
+                                          headerPresenter,
+                                          adapterFactory,
+                                          playbackInitiator,
+                                          expandPlayerSubscriberProvider,
+                                          navigator,
+                                          eventBus,
+                                          resources,
+                                          trackRendererFactory,
+                                          offlinePropertiesProvider,
+                                          featureFlags);
     }
 
     @Test
@@ -125,9 +134,9 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         verify(adapter).onNext(trackItemCaptor.capture());
         List<PlaylistDetailItem> itemList = trackItemCaptor.getValue();
-        assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailHeaderItem.class);
-        assertThat(((PlaylistDetailTrackItem)  itemList.get(1)).getTrackItem()).isEqualTo(track1);
-        assertThat(((PlaylistDetailTrackItem)  itemList.get(2)).getTrackItem()).isEqualTo(track2);
+        assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailsMetadata.class);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(1)).getTrackItem()).isEqualTo(track1);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(2)).getTrackItem()).isEqualTo(track2);
     }
 
     @Test
@@ -154,13 +163,33 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdateCurrentDownloadWhenEventReceived() {
+    public void shouldUpdateCurrentDownloadWhenEventReceivedWhenOfflinePropertiesProviderIsEnabled() {
+        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(true);
+
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
         when(adapter.getItems()).thenReturn(listItems());
 
-        final Urn urn = track1.getUrn();
+        Urn urn = track1.getUrn();
+        final Map<Urn, OfflineState> states = Collections.singletonMap(urn, OfflineState.DOWNLOADING);
+        offlinePropertiesSubject.onNext(OfflineProperties.from(states, OfflineState.NOT_OFFLINE));
+
+        assertThat(track1.getOfflineState()).isEqualTo(OfflineState.DOWNLOADING);
+
+        verify(adapter).notifyItemChanged(0);
+    }
+
+    @Test
+    public void shouldUpdateCurrentDownloadWhenEventReceivedWhenOfflinePropertiesProviderIsDisabled() {
+        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(false);
+
+        presenter.onCreate(fragmentRule.getFragment(), args);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
+
+        when(adapter.getItems()).thenReturn(listItems());
+
+        Urn urn = track1.getUrn();
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          OfflineContentChangedEvent.downloading(Collections.singletonList(urn), false));
 
@@ -205,13 +234,12 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Test
     public void savePlaylist() {
         final PublishSubject<Playlist> editPlaylistOperation = PublishSubject.create();
-        final List<Urn> tracks = Arrays.asList(track1.getUrn(), track2.getUrn());
-        final List<TrackItem> trackItems = Arrays.asList(track1, track2);
-        when(adapter.getTracks()).thenReturn(trackItems);
-        when(operations.editPlaylist(playlistWithTracks.getUrn(),
-                                     playlistWithTracks.getTitle(),
-                                     playlistWithTracks.isPrivate(),
-                                     tracks)).thenReturn(editPlaylistOperation);
+        final List<Urn> trackUrns = Arrays.asList(track1.getUrn(), track2.getUrn());
+        when(adapter.getTracks()).thenReturn(tracks);
+        when(operations.editPlaylist(playlist.urn(),
+                                     playlist.title(),
+                                     playlist.isPrivate(),
+                                     trackUrns)).thenReturn(editPlaylistOperation);
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -231,7 +259,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setsTitleForActivityAsAlbumTypeWithReleaseDateWhenPlaylistIsAnAlbumAndReleaseDateIsAvailable() {
-        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN, true)).thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
+        when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -257,7 +285,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemCreatedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(apiPlaylist.getUrn());
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(playlist.urn());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -265,12 +293,11 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
     public void onUpsellItemClickedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick(apiPlaylist.getUrn());
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick(playlist.urn());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -278,7 +305,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     private List<PlaylistDetailItem> listItems() {
@@ -289,11 +315,14 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistDetailsViewModel createAlbumPlaylist(String type, String releaseDate) {
-        apiPlaylist.setIsAlbum(true);
-        apiPlaylist.setSetType(type);
-        apiPlaylist.setReleaseDate(releaseDate);
+        final Playlist playlist = this.playlist
+                .toBuilder()
+                .isAlbum(true)
+                .setType(type)
+                .releaseDate(releaseDate)
+                .build();
 
-        return PlaylistDetailsViewModel.create(new PlaylistWithTracks(Playlist.from(apiPlaylist), Arrays.asList(track1, track2)), Collections.emptyList());
+        return PlaylistDetailFixtures.create(resources(), playlist, tracks);
     }
 
 }

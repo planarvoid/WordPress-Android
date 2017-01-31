@@ -7,13 +7,14 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastSession;
-import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.soundcloud.android.PlaybackServiceController;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.io.IOException;
 
 public class CastSessionControllerTest extends AndroidUnitTest {
 
@@ -21,22 +22,21 @@ public class CastSessionControllerTest extends AndroidUnitTest {
 
     @Mock private PlaybackServiceController serviceInitiator;
     @Mock private DefaultCastPlayer castPlayer;
-    @Mock private PlaySessionController playSessionController;
     @Mock private CastContextWrapper castContext;
     @Mock private CastSession castSession;
     @Mock private CastDevice castDevice;
     @Mock private CastConnectionHelper castConnectionHelper;
-    @Mock private RemoteMediaClient remoteMediaClient;
+    @Mock private CastProtocol castProtocol;
+    @Mock private AdsOperations adsOperations;
 
     @Before
     public void setUp() throws Exception {
         castSessionController = new DefaultCastSessionController(serviceInitiator,
-                                                                 castPlayer,
+                                                                 adsOperations, castPlayer,
                                                                  castContext,
-                                                                 playSessionController,
-                                                                 castConnectionHelper);
+                                                                 castConnectionHelper,
+                                                                 castProtocol);
         when(castSession.getCastDevice()).thenReturn(castDevice);
-        when(castSession.getRemoteMediaClient()).thenReturn(remoteMediaClient);
         when(castDevice.getFriendlyName()).thenReturn("My Cast");
     }
 
@@ -46,19 +46,8 @@ public class CastSessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onSessionStartedDoesNotReloadWhenNotPlaying() {
-        castSessionController.startListening();
-        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(false);
-
-        callOnConnectedToReceiverApp();
-
-        verify(castPlayer, never()).reloadCurrentQueue();
-    }
-
-    @Test
     public void onConnectedToReceiverAppStopsPlaybackService() {
         castSessionController.startListening();
-        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(true);
 
         callOnConnectedToReceiverApp();
 
@@ -68,21 +57,26 @@ public class CastSessionControllerTest extends AndroidUnitTest {
     @Test
     public void onConnectedToReceiverAppCastPlayerGetsConnected() {
         castSessionController.startListening();
-        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(true);
 
         callOnConnectedToReceiverApp();
 
-        verify(castPlayer).onConnected(castSession.getRemoteMediaClient());
+        verify(castPlayer).onConnected();
     }
 
     @Test
-    public void onConnectedToReceiverAppAttemptsToPlayLocalQueue() {
+    public void onConnectedToReceiverChannelIsRegistered() throws IOException {
         castSessionController.startListening();
-        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(true);
 
         callOnConnectedToReceiverApp();
 
-        verify(castPlayer).playLocalPlayQueueOnRemote();
+        verify(castProtocol).registerCastSession(castSession);
+    }
+
+    @Test
+    public void onSessionStartedClearsAllAdsFromQueue() {
+        callOnConnectedToReceiverApp();
+
+        verify(adsOperations).clearAllAdsFromQueue();
     }
 
     private void callOnConnectedToReceiverApp() {

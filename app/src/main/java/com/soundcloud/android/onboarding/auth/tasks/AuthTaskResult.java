@@ -1,29 +1,61 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
 
-import java.util.EnumSet;
-
 public final class AuthTaskResult {
 
-    private final Kind kind;
-    private final ApiUser user;
+    private static final String INCORRECT_CREDENTIALS = "incorrect_credentials";
+    private static final String EMAIL_TAKEN = "email_taken";
+    private static final String SPAMMING = "spamming";
+
+    private final TaskResultKind kind;
+    private final AuthResponse authResponse;
     private final SignupVia signupVia;
     private final Exception exception;
-
-    private final boolean showFacebookSuggestions;
     private final Bundle loginBundle;
+    private final String errorMessage;
 
-    // Can be dropped once we move away from public API for signups
-    @Deprecated private String serverErrorMessage;
+    private AuthTaskResult(AuthResponse authResponse, SignupVia signupVia) {
+        this(TaskResultKind.SUCCESS, authResponse, signupVia, null, null, null);
+    }
 
-    public static AuthTaskResult success(ApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
-        return new AuthTaskResult(user, signupVia, showFacebookSuggestions);
+    private AuthTaskResult(Exception exception) {
+        this(TaskResultKind.FAILURE, null, null, exception, null, null);
+    }
+
+    private AuthTaskResult(TaskResultKind kind, String errorMessage, ApiRequestException exception) {
+        this(kind, null, null, exception, null, errorMessage);
+    }
+
+    private AuthTaskResult(TaskResultKind kind, Exception exception) {
+        this(kind, null, null, exception, null, null);
+    }
+
+    private AuthTaskResult(TaskResultKind kind) {
+        this(kind, null, null, null, null, null);
+    }
+
+    private AuthTaskResult(@NotNull TaskResultKind kind,
+                           AuthResponse authResponse,
+                           SignupVia signupVia,
+                           Exception exception,
+                           Bundle loginBundle,
+                           String errorMessage) {
+        this.kind = kind;
+        this.authResponse = authResponse;
+        this.signupVia = signupVia;
+        this.exception = exception;
+        this.loginBundle = loginBundle;
+        this.errorMessage = errorMessage;
+    }
+
+    public static AuthTaskResult success(AuthResponse authResponse, SignupVia signupVia) {
+        return new AuthTaskResult(authResponse, signupVia);
     }
 
     public static AuthTaskResult failure(Exception exception) {
@@ -32,14 +64,29 @@ public final class AuthTaskResult {
 
     public static AuthTaskResult failure(ApiRequestException exception) {
         switch (exception.reason()) {
+            case BAD_REQUEST:
+                return badRequest(exception);
             case AUTH_ERROR:
-                return AuthTaskResult.unauthorized(exception);
+                return unauthorized(exception);
             case VALIDATION_ERROR:
-                return AuthTaskResult.validationError(exception.errorKey(), exception);
+                return validationError(exception.errorKey(), exception);
             case NETWORK_ERROR:
-                return AuthTaskResult.networkError((Exception) exception.getCause());
+                return networkError((Exception) exception.getCause());
             case SERVER_ERROR:
-                return AuthTaskResult.serverError(exception);
+                return serverError(exception);
+            default:
+                return new AuthTaskResult(exception);
+        }
+    }
+
+    private static AuthTaskResult badRequest(ApiRequestException exception) {
+        switch (exception.errorKey()) {
+            case INCORRECT_CREDENTIALS:
+                return new AuthTaskResult(TaskResultKind.UNAUTHORIZED, exception);
+            case EMAIL_TAKEN:
+                return new AuthTaskResult(TaskResultKind.EMAIL_TAKEN, exception);
+            case SPAMMING:
+                return new AuthTaskResult(TaskResultKind.SPAM, exception);
             default:
                 return new AuthTaskResult(exception);
         }
@@ -50,160 +97,107 @@ public final class AuthTaskResult {
     }
 
     public static AuthTaskResult failure(String errorMessge, ApiRequestException exception) {
-        return new AuthTaskResult(Kind.FAILURE, errorMessge, exception);
+        return new AuthTaskResult(TaskResultKind.FAILURE, errorMessge, exception);
     }
 
     public static AuthTaskResult emailTaken(ApiRequestException exception) {
-        return new AuthTaskResult(Kind.EMAIL_TAKEN, exception);
+        return new AuthTaskResult(TaskResultKind.EMAIL_TAKEN, exception);
     }
 
     public static AuthTaskResult spam(ApiRequestException exception) {
-        return new AuthTaskResult(Kind.SPAM, exception);
+        return new AuthTaskResult(TaskResultKind.SPAM, exception);
     }
 
     public static AuthTaskResult denied(ApiRequestException exception) {
-        return new AuthTaskResult(Kind.DENIED, exception);
+        return new AuthTaskResult(TaskResultKind.DENIED, exception);
     }
 
     public static AuthTaskResult emailInvalid(ApiRequestException exception) {
-        return new AuthTaskResult(Kind.EMAIL_INVALID, exception);
-    }
-
-    public static AuthTaskResult signUpFailedToLogin(ApiRequestException exception) {
-        return new AuthTaskResult(Kind.FLAKY_SIGNUP_ERROR, exception);
+        return new AuthTaskResult(TaskResultKind.EMAIL_INVALID, exception);
     }
 
     public static AuthTaskResult unauthorized(ApiRequestException exception) {
-        return new AuthTaskResult(Kind.UNAUTHORIZED, exception);
+        return new AuthTaskResult(TaskResultKind.UNAUTHORIZED, exception);
     }
 
     public static AuthTaskResult serverError(ApiRequestException exception) {
-        return new AuthTaskResult(Kind.SERVER_ERROR, exception);
+        return new AuthTaskResult(TaskResultKind.SERVER_ERROR, exception);
     }
 
     public static AuthTaskResult networkError(Exception exception) {
-        return new AuthTaskResult(Kind.NETWORK_ERROR, exception);
+        return new AuthTaskResult(TaskResultKind.NETWORK_ERROR, exception);
     }
 
     public static AuthTaskResult validationError(String errorMessage, ApiRequestException exception) {
-        return new AuthTaskResult(Kind.VALIDATION_ERROR, errorMessage, exception);
+        return new AuthTaskResult(TaskResultKind.VALIDATION_ERROR, errorMessage, exception);
     }
 
     public static AuthTaskResult deviceConflict(Bundle loginBundle) {
-        return new AuthTaskResult(Kind.DEVICE_CONFLICT, null, null, null, false, loginBundle, null);
+        return new AuthTaskResult(TaskResultKind.DEVICE_CONFLICT, null, null, null, loginBundle, null);
     }
 
     public static AuthTaskResult deviceBlock() {
-        return new AuthTaskResult(Kind.DEVICE_BLOCK);
+        return new AuthTaskResult(TaskResultKind.DEVICE_BLOCK);
     }
 
     public boolean wasUnexpectedError() {
         return kind.isUnexpectedError();
     }
 
-    private enum Kind {
-        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, DEVICE_BLOCK, UNAUTHORIZED, NETWORK_ERROR, SERVER_ERROR, VALIDATION_ERROR;
-
-        private static EnumSet<Kind> UNEXPECTED_ERRORS = EnumSet.of(FAILURE,
-                                                                    FLAKY_SIGNUP_ERROR,
-                                                                    SERVER_ERROR,
-                                                                    VALIDATION_ERROR,
-                                                                    NETWORK_ERROR,
-                                                                    SPAM,
-                                                                    DENIED,
-                                                                    UNAUTHORIZED);
-
-        public boolean isUnexpectedError() {
-            return UNEXPECTED_ERRORS.contains(this);
-        }
-    }
-
-    private AuthTaskResult(ApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
-        this(Kind.SUCCESS, user, signupVia, null, showFacebookSuggestions, null, null);
-    }
-
-    private AuthTaskResult(Exception exception) {
-        this(Kind.FAILURE, null, null, exception, false, null, null);
-    }
-
-    private AuthTaskResult(Kind kind, String serverErrorMessage, ApiRequestException exception) {
-        this(kind, null, null, exception, false, null, serverErrorMessage);
-    }
-
-    private AuthTaskResult(Kind kind, Exception exception) {
-        this(kind, null, null, exception, false, null, null);
-    }
-
-    private AuthTaskResult(Kind kind) {
-        this(kind, null, null, null, false, null, null);
-    }
-
-    private AuthTaskResult(@NotNull Kind kind, ApiUser user, SignupVia signupVia,
-                           Exception exception, boolean showFacebookSuggestions, Bundle loginBundle,
-                           String serverErrorMessage) {
-        this.kind = kind;
-        this.user = user;
-        this.signupVia = signupVia;
-        this.exception = exception;
-        this.showFacebookSuggestions = showFacebookSuggestions;
-        this.loginBundle = loginBundle;
-        this.serverErrorMessage = serverErrorMessage;
-    }
-
     public boolean wasSuccess() {
-        return kind == Kind.SUCCESS;
+        return kind == TaskResultKind.SUCCESS;
     }
 
     public boolean wasFailure() {
-        return kind == Kind.FAILURE;
+        return kind == TaskResultKind.FAILURE;
     }
 
     public boolean wasEmailTaken() {
-        return kind == Kind.EMAIL_TAKEN;
+        return kind == TaskResultKind.EMAIL_TAKEN;
     }
 
     public boolean wasSpam() {
-        return kind == Kind.SPAM;
+        return kind == TaskResultKind.SPAM;
     }
 
     public boolean wasDenied() {
-        return kind == Kind.DENIED;
+        return kind == TaskResultKind.DENIED;
     }
 
     public boolean wasUnauthorized() {
-        return kind == Kind.UNAUTHORIZED;
+        return kind == TaskResultKind.UNAUTHORIZED;
     }
 
     public boolean wasServerError() {
-        return kind == Kind.SERVER_ERROR;
+        return kind == TaskResultKind.SERVER_ERROR;
     }
 
     public boolean wasNetworkError() {
-        return kind == Kind.NETWORK_ERROR;
+        return kind == TaskResultKind.NETWORK_ERROR;
     }
 
     public boolean wasEmailInvalid() {
-        return kind == Kind.EMAIL_INVALID;
+        return kind == TaskResultKind.EMAIL_INVALID;
     }
 
     public boolean wasSignUpFailedToLogin() {
-        return kind == Kind.FLAKY_SIGNUP_ERROR;
+        return kind == TaskResultKind.FLAKY_SIGNUP_ERROR;
     }
 
     public boolean wasDeviceConflict() {
-        return kind == Kind.DEVICE_CONFLICT;
+        return kind == TaskResultKind.DEVICE_CONFLICT;
     }
 
     public boolean wasDeviceBlock() {
-        return kind == Kind.DEVICE_BLOCK;
+        return kind == TaskResultKind.DEVICE_BLOCK;
     }
 
     public boolean wasValidationError() {
-        return kind == Kind.VALIDATION_ERROR;
+        return kind == TaskResultKind.VALIDATION_ERROR;
     }
 
-    public ApiUser getUser() {
-        return user;
+    public AuthResponse getAuthResponse() {
+        return authResponse;
     }
 
     public SignupVia getSignupVia() {
@@ -214,17 +208,16 @@ public final class AuthTaskResult {
         return exception;
     }
 
-    public boolean getShowFacebookSuggestions() {
-        return showFacebookSuggestions;
-    }
-
     public Bundle getLoginBundle() {
         return loginBundle;
     }
 
-    @Deprecated
-    public String getServerErrorMessage() {
-        return serverErrorMessage;
+    public TaskResultKind getKind() {
+        return kind;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     @Override
@@ -232,11 +225,11 @@ public final class AuthTaskResult {
         return String.format(
                 "Auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n\tserver error: %s",
                 kind,
-                user != null,
+                authResponse != null,
                 signupVia,
                 exception,
                 loginBundle != null,
-                serverErrorMessage
+                errorMessage
         );
     }
 }

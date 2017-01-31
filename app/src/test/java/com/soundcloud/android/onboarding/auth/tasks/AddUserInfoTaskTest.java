@@ -45,7 +45,7 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
 
         AddUserInfoTask task = new AddUserInfoTask(
                 application, "permalink", "name", null, storeUsersCommand, apiClient, accountOperations, syncInitiatorBridge);
-        AuthTaskResult result = task.doInBackground();
+        LegacyAuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
         assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
@@ -67,7 +67,7 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 apiClient,
                 accountOperations,
                 syncInitiatorBridge);
-        AuthTaskResult result = task.doInBackground();
+        LegacyAuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
         assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
@@ -89,7 +89,7 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                                                    apiClient,
                                                    accountOperations,
                                                    syncInitiatorBridge);
-        AuthTaskResult result = task.doInBackground();
+        LegacyAuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
         assertThat(result.getUser().getPermalink()).isEqualTo(user.getPermalink());
@@ -109,7 +109,7 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                                                    apiClient,
                                                    accountOperations,
                                                    syncInitiatorBridge);
-        AuthTaskResult result = task.doInBackground();
+        LegacyAuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.wasValidationError()).isTrue();
         assertThat(result.getUser()).isNull();

@@ -1,6 +1,5 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.facebook.login.LoginManager;
@@ -214,9 +213,9 @@ public class AccountOperations {
 
         return configurationOperations.get()
                                       .deregisterDevice()
-                                      .flatMap(continueWith(Observable.create(new AccountRemovalFunction(
+                                      .flatMap(o -> Observable.create(new AccountRemovalFunction(
                                               soundCloudAccount,
-                                              accountManager))))
+                                              accountManager)))
                                       .observeOn(AndroidSchedulers.mainThread())
                                       .subscribeOn(scheduler);
     }

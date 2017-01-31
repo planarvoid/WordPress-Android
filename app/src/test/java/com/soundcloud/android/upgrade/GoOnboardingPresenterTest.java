@@ -219,7 +219,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         private boolean isErrorDialogShown;
 
         private GoOnboardingViewStub() {
-            super(new GoOnboardingAdapter(context(), mock(BackgroundDecoder.class)));
+            super(new GoOnboardingAdapter(mock(BackgroundDecoder.class)));
         }
 
         @Override

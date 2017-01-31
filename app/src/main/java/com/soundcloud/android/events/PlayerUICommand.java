@@ -4,7 +4,7 @@ public final class PlayerUICommand {
 
     private static final int SHOW_PLAYER = 0;
     private static final int EXPAND_PLAYER = 1;
-    private static final int COLLAPSE_PLAYER = 2;
+    private static final int AUTOMATIC_COLLAPSE_PLAYER = 2;
     private static final int LOCK_PLAYER_EXPANDED = 3;
     private static final int UNLOCK_PLAYER = 4;
     private static final int FORCE_PLAYER_LANDSCAPE = 5;
@@ -12,6 +12,7 @@ public final class PlayerUICommand {
     private static final int HIDE_PLAYER = 7;
     private static final int LOCK_FOR_PLAY_QUEUE = 8;
     private static final int UNLOCK_FOR_PLAY_QUEUE = 9;
+    private static final int MANUAL_COLLAPSE_PLAYER = 10;
 
     private final int kind;
 
@@ -39,8 +40,12 @@ public final class PlayerUICommand {
     /**
      * Signal any on-screen instance of the player to collapse. It will be made visible if hidden.
      */
-    public static PlayerUICommand collapsePlayer() {
-        return new PlayerUICommand(COLLAPSE_PLAYER);
+    public static PlayerUICommand collapsePlayerAutomatically() {
+        return new PlayerUICommand(AUTOMATIC_COLLAPSE_PLAYER);
+    }
+
+    public static PlayerUICommand collapsePlayerManually() {
+        return new PlayerUICommand(MANUAL_COLLAPSE_PLAYER);
     }
 
     /**
@@ -97,8 +102,12 @@ public final class PlayerUICommand {
         return kind == EXPAND_PLAYER;
     }
 
-    public boolean isCollapse() {
-        return kind == COLLAPSE_PLAYER;
+    public boolean isAutomaticCollapse() {
+        return kind == AUTOMATIC_COLLAPSE_PLAYER;
+    }
+
+    public boolean isManualCollapse() {
+        return kind == MANUAL_COLLAPSE_PLAYER;
     }
 
     public boolean isLockExpanded() {

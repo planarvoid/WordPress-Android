@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.analytics.appboy.EmptyAppboyWrapper;
 import com.soundcloud.android.analytics.appboy.RealAppboyWrapper;
+import com.soundcloud.android.analytics.firebase.FirebaseModule;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastModule;
@@ -33,6 +34,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.PlayerModule;
+import com.soundcloud.android.playback.playqueue.PlayQueueModule;
 import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
@@ -93,7 +95,9 @@ import java.util.Locale;
                 OfflineModule.class,
                 DiscoveryModule.class,
                 AnalyticsModule.class,
-                CastModule.class
+                CastModule.class,
+                PlayQueueModule.class,
+                FirebaseModule.class
         })
 public class ApplicationModule {
 
@@ -317,4 +321,5 @@ public class ApplicationModule {
     public int provideDefaultListPageSize() {
         return Consts.LIST_PAGE_SIZE;
     }
+
 }

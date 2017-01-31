@@ -8,10 +8,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.main.Screen;
@@ -44,6 +46,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private FeatureFlags featureFlags;
 
     private final Urn LAST_URN = Urn.forTrack(987);
@@ -61,16 +64,18 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(playSessionSource);
-        when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.<Urn>newArrayList());
+        when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.newArrayList());
         when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(true);
         when(playQueueOperations.relatedTracksPlayQueue(eq(LAST_URN), anyBoolean(), any(PlaySessionSource.class)))
                 .thenReturn(Observable.just(recommendedPlayQueue));
+        when(castConnectionHelper.isCasting()).thenReturn(false);
 
         PlayQueueExtender extender = new PlayQueueExtender(playQueueManager,
                                                            playQueueOperations,
                                                            stationsOperations,
                                                            sharedPreferences,
                                                            eventBus,
+                                                           castConnectionHelper,
                                                            featureFlags);
         extender.subscribe();
     }
@@ -119,6 +124,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
 
         verifyZeroInteractions(playQueueOperations);
     }
+
     @Test
     public void appendsRecommendedTracksWhenAtEndForDeeplinks() {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.DEEPLINK));
@@ -210,6 +216,16 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
+    }
+
+    @Test
+    public void doesNotAppendsRecommendedTracksWhenCasting() {
+        setWithinToleranceAtEnd();
+        when(castConnectionHelper.isCasting()).thenReturn(true);
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        verify(playQueueManager, never()).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     private void setWithinToleranceAtEnd() {

@@ -8,7 +8,7 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -24,9 +24,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -40,7 +37,7 @@ public class PlaySessionController {
     private static final String TAG = "PlaySessionController";
 
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
-    private static final long SEEK_POSITION_RESET = 0L;
+    public static final long SEEK_POSITION_RESET = 0L;
 
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
@@ -55,24 +52,6 @@ public class PlaySessionController {
     private final PlaybackServiceController playbackServiceController;
 
     private Subscription subscription = RxUtils.invalidSubscription();
-
-    private final Action0 stopLoadingPreviousTrack = () -> subscription.unsubscribe();
-
-    private final Action1<PlaybackResult> playCurrentTrack = playbackResult -> playCurrent();
-
-    private final Func1<PlayQueue, Observable<Void>> toPlayCurrent = new Func1<PlayQueue, Observable<Void>>() {
-        @Override
-        public Observable<Void> call(PlayQueue playQueueItems) {
-            return playbackStrategyProvider.get().playCurrent();
-        }
-    };
-
-    private final Action1<PlayQueue> showPlayer = new Action1<PlayQueue>() {
-        @Override
-        public void call(PlayQueue ignore) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
-        }
-    };
 
     @Inject
     public PlaySessionController(EventBus eventBus,
@@ -103,13 +82,15 @@ public class PlaySessionController {
         if (playQueueManager.isQueueEmpty()) {
             subscription.unsubscribe();
             subscription = playQueueManager.loadPlayQueueAsync()
-                                           .doOnNext(showPlayer)
-                                           .subscribe(new DefaultSubscriber<PlayQueue>());
+                                           .doOnNext(playQueue -> eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer()))
+                                           .subscribe(new DefaultSubscriber<>());
         }
     }
 
     public void togglePlayback() {
-        if (isPlayingCurrentPlayQueueItem()) {
+        if (playSessionStateProvider.wasLastStateACastDisconnection()) {
+            playCurrent();
+        } else if (isPlayingCurrentPlayQueueItem()) {
             if (playSessionStateProvider.isInErrorState()) {
                 playCurrent();
             } else {
@@ -176,7 +157,7 @@ public class PlaySessionController {
 
     private boolean shouldDisableSkipping() {
         if (adsOperations.isCurrentItemAd()) {
-            final PlayerAdData ad = (PlayerAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
+            final PlayableAdData ad = (PlayableAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
             final boolean adIsNotSkippable = !ad.isSkippable();
             final boolean waitingForAdToStart = !isPlayingCurrentPlayQueueItem();
             final boolean haveNotReachedSkippableCheckpoint = playSessionStateProvider.getLastProgressEvent()
@@ -204,8 +185,8 @@ public class PlaySessionController {
         } else {
             return playbackStrategyProvider.get()
                                            .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
-                                           .doOnSubscribe(stopLoadingPreviousTrack)
-                                           .doOnNext(playCurrentTrack);
+                                           .doOnSubscribe(() -> subscription.unsubscribe())
+                                           .doOnNext(playbackResult -> playCurrent());
         }
     }
 
@@ -213,7 +194,7 @@ public class PlaySessionController {
         final Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
         if (adsOperations.isCurrentItemAd()) {
             eventBus.publish(EventQueue.TRACKING,
-                             UIEvent.fromSkipAdClick((PlayerAdData) adData.get(),
+                             UIEvent.fromSkipAdClick((PlayableAdData) adData.get(),
                                                      playQueueManager.getCurrentTrackSourceInfo()));
         }
     }
@@ -221,7 +202,7 @@ public class PlaySessionController {
     void playCurrent() {
         subscription.unsubscribe();
         Observable<Void> playCurrentObservable = playQueueManager.isQueueEmpty()
-                                                 ? playQueueManager.loadPlayQueueAsync().flatMap(toPlayCurrent)
+                                                 ? playQueueManager.loadPlayQueueAsync().flatMap(playQueueItems -> playbackStrategyProvider.get().playCurrent())
                                                  : playbackStrategyProvider.get().playCurrent();
 
         subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
@@ -241,9 +222,7 @@ public class PlaySessionController {
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
                 if (castConnectionHelper.isCasting()) {
-                    if (shouldPlayTrack(playQueueItem.getUrn(), event)) {
-                        playCurrent();
-                    }
+                    onNextTrackWhileCasting(event, playQueueItem);
                 } else if (shouldPlayTrack(playQueueItem.getUrn(), event) || playSessionStateProvider.isInErrorState()) {
                     playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                     playCurrent();
@@ -254,6 +233,12 @@ public class PlaySessionController {
                 }
             }
             lastKnownPlayQueueTrackUrn = playQueueItem.getUrnOrNotSet();
+        }
+
+        private void onNextTrackWhileCasting(CurrentPlayQueueItemEvent event, PlayQueueItem playQueueItem) {
+            if (event.isRepeat() || !lastKnownPlayQueueTrackUrn.equals(playQueueItem.getUrn())) {
+                playCurrent();
+            }
         }
 
         private boolean shouldPlayTrack(Urn newTrack, CurrentPlayQueueItemEvent event) {

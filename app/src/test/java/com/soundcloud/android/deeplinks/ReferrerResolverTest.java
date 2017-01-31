@@ -25,19 +25,19 @@ public class ReferrerResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotDetectFacebookIntentForIntentWithoutAction() {
-        assertThat(resolver.isFacebookAction(new Intent(), resources)).isFalse();
+        assertThat(resolver.getReferrerFromIntent(new Intent(), resources)).isEqualTo(Referrer.OTHER.value());
     }
 
     @Test
     public void shouldNotDetectFacebookIntentForIntentWithIncorrectAppId() {
         Intent intent = new Intent("com.facebook.application.123");
-        assertThat(resolver.isFacebookAction(intent, resources)).isFalse();
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.OTHER.value());
     }
 
     @Test
     public void shouldDetectFacebookIntentViaAction() {
         Intent intent = new Intent("com.facebook.application.19507961798");
-        assertThat(resolver.isFacebookAction(intent, resources)).isTrue();
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.FACEBOOK.value());
     }
 
     @Test
@@ -164,6 +164,14 @@ public class ReferrerResolverTest extends AndroidUnitTest {
     @Test
     public void shouldDetectRefParams() {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://soundcloudgo?ref=t6001"));
+
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo("t6001");
+    }
+
+    @Test
+    public void shouldPrioritizeRefParamOverIntentReferrer() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://soundcloudgo?ref=t6001"));
+        Referrer.APPBOY_NOTIFICATION.addToIntent(intent);
 
         assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo("t6001");
     }

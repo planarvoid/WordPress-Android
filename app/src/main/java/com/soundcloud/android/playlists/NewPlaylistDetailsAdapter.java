@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory
-class NewPlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> {
+class NewPlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailTrackItem, RecyclerView.ViewHolder> {
 
     NewPlaylistDetailsAdapter(PlaylistDetailTrackItemRenderer playlistTrackItemRenderer) {
         super(playlistTrackItemRenderer);

@@ -1,7 +1,6 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.SyncOperations.Result;
@@ -42,7 +41,7 @@ public class RecentlyPlayedOperations {
         return syncOperations.lazySyncIfStale(Syncable.RECENTLY_PLAYED)
                              .observeOn(scheduler)
                              .onErrorResumeNext(Observable.just(Result.NO_OP))
-                             .flatMap(continueWith(recentlyPlayedItems(limit)));
+                             .flatMap(o -> recentlyPlayedItems(limit));
     }
 
     Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed() {
@@ -52,7 +51,7 @@ public class RecentlyPlayedOperations {
     public Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed(int limit) {
         return syncOperations.failSafeSync(Syncable.RECENTLY_PLAYED)
                              .observeOn(scheduler)
-                             .flatMap(continueWith(recentlyPlayedItems(limit)));
+                             .flatMap(o -> recentlyPlayedItems(limit));
     }
 
     Observable<Boolean> clearHistory() {

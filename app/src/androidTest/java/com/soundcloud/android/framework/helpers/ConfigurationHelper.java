@@ -13,6 +13,8 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.playback.ui.PlayerPagerOnboardingPresenter;
+import com.soundcloud.android.playback.ui.PlayerPagerOnboardingStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
@@ -35,6 +37,7 @@ public class ConfigurationHelper {
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
     private static final String PREFS_STATIONS = "stations";
     private static final String PREFS_INTRODUCTORY_OVERLAYS = "intro_overlays";
+    private static final String PREFS_PLAYER = "player";
 
     private static final String ONBOARDING_LIKED_STATIONS_DISABLED = "ONBOARDING_LIKED_STATIONS_DISABLED";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
@@ -165,6 +168,10 @@ public class ConfigurationHelper {
         return context.getSharedPreferences(PREFS_INTRODUCTORY_OVERLAYS, Context.MODE_PRIVATE);
     }
 
+    private static SharedPreferences getPlayerPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_PLAYER, Context.MODE_PRIVATE);
+    }
+
     public static void resetPolicyCheckTime(Context context) {
         getPolicySettingsPreferences(context)
                 .edit()
@@ -215,6 +222,12 @@ public class ConfigurationHelper {
         for (String key : IntroductoryOverlayKey.ALL_KEYS) {
             editor.putBoolean(key, true);
         }
+        editor.apply();
+    }
+
+    public static void disablePagerOnboarding(Context context) {
+        SharedPreferences.Editor editor = getPlayerPreferences(context).edit();
+        editor.putInt(PlayerPagerOnboardingStorage.NUMBER_OF_ONBOARDING_RUN, PlayerPagerOnboardingPresenter.MAX_ONBOARDING_RUN);
         editor.apply();
     }
 }

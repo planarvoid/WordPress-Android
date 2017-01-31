@@ -20,12 +20,14 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
+import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -33,6 +35,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
@@ -103,7 +106,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private final FeatureFlags featureFlags;
 
-    private final LruCache<Urn, ReplaySubject<TrackItem>> trackObservableCache =
+    private final LruCache<Urn, ReplaySubject<Track>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentPlayQueueItemFilter = new Func1<PlaybackProgressEvent, Boolean>() {
@@ -323,9 +326,9 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
 
         if (playerFragment.getActivity().isChangingConfigurations()) {
-            videoSurfaceProvider.onConfigurationChange();
+            videoSurfaceProvider.onConfigurationChange(Origin.PLAYER);
         } else {
-            videoSurfaceProvider.onDestroy();
+            videoSurfaceProvider.onDestroy(Origin.PLAYER);
         }
 
         final PlayerTrackPager trackPager = playerFragment.getPlayerPager();
@@ -444,7 +447,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private void setVideoSurface(PlayQueueItem playQueueItem, PlayerPagePresenter presenter, View view) {
         final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
-        videoSurfaceProvider.setTextureView(playQueueItem.getUrn(), textureView);
+        videoSurfaceProvider.setTextureView(playQueueItem.getUrn(), Origin.PLAYER, textureView);
     }
 
     private void configureInitialPageState(final View view) {
@@ -500,17 +503,17 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private Observable<TrackItem> getTrackObservable(Urn urn, final Optional<AdData> adOverlayData) {
         return getTrackObservable(urn).doOnNext(track -> {
             if (adOverlayData.isPresent() && adOverlayData.get() instanceof OverlayAdData) {
-                adOverlayData.get().setMonetizableTitle(track.getTitle());
-                adOverlayData.get().setMonetizableCreator(track.getCreatorName());
+                adOverlayData.get().setMonetizableTitle(track.title());
+                adOverlayData.get().setMonetizableCreator(track.creatorName());
             }
-        });
+        }).map(TrackItem::from);
     }
 
     private Observable<PlayerItem> getAdObservable(final AdData adData) {
         return getTrackObservable(adData.getMonetizableTrackUrn()).map(
                 monetizableTrack -> {
-                    adData.setMonetizableTitle(monetizableTrack.getTitle());
-                    adData.setMonetizableCreator(monetizableTrack.getCreatorName());
+                    adData.setMonetizableTitle(monetizableTrack.title());
+                    adData.setMonetizableCreator(monetizableTrack.creatorName());
                     return adData;
                 }).map(adData1 -> adData1 instanceof VideoAd ? new VideoPlayerAd((VideoAd) adData1) : new AudioPlayerAd((AudioAd) adData1));
     }
@@ -539,8 +542,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    private Observable<TrackItem> getTrackObservable(Urn urn) {
-        ReplaySubject<TrackItem> trackSubject = trackObservableCache.get(urn);
+    private Observable<Track> getTrackObservable(Urn urn) {
+        ReplaySubject<Track> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
             trackRepository

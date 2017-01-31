@@ -5,7 +5,6 @@ import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_HISTORY;
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_CHANGE;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
@@ -228,7 +227,7 @@ public class CollectionOperations {
     }
 
     private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
-        return syncInitiator.refreshLikedTracks().flatMap(continueWith(likedTrackPreviews()));
+        return syncInitiator.refreshLikedTracks().flatMap(o -> likedTrackPreviews());
     }
 
     private Observable<List<LikedTrackPreview>> likedTrackPreviews() {
@@ -236,7 +235,7 @@ public class CollectionOperations {
     }
 
     private Observable<List<StationRecord>> refreshStationsAndLoad() {
-        return syncStations().flatMap(continueWith(loadStations()));
+        return syncStations().flatMap(o -> loadStations());
     }
 
     private Observable<SyncJobResult> syncStations() {

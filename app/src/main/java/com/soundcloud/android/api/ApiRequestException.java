@@ -6,6 +6,7 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.MALFORMED_IN
 import static com.soundcloud.android.api.ApiRequestException.Reason.NETWORK_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
+import static com.soundcloud.android.api.ApiRequestException.Reason.PRECONDITION_REQUIRED;
 import static com.soundcloud.android.api.ApiRequestException.Reason.RATE_LIMITED;
 import static com.soundcloud.android.api.ApiRequestException.Reason.SERVER_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
@@ -36,6 +37,7 @@ public final class ApiRequestException extends Exception {
         BAD_REQUEST,
         VALIDATION_ERROR,
         MALFORMED_INPUT,
+        PRECONDITION_REQUIRED,
         SERVER_ERROR
     }
 
@@ -62,8 +64,12 @@ public final class ApiRequestException extends Exception {
         return new ApiRequestException(NOT_FOUND, request, response);
     }
 
-    public static ApiRequestException rateLimited(ApiRequest request, ApiResponse response) {
-        return new ApiRequestException(RATE_LIMITED, request, response);
+    public static ApiRequestException rateLimited(ApiRequest request, ApiResponse response, String errorKey) {
+        return new ApiRequestException(RATE_LIMITED, request, response, errorKey);
+    }
+
+    public static ApiRequestException preconditionRequired(ApiRequest request, ApiResponse response) {
+        return new ApiRequestException(PRECONDITION_REQUIRED, request, response);
     }
 
     public static ApiRequestException authError(ApiRequest request, ApiResponse response) {

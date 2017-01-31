@@ -48,11 +48,19 @@ public class PageListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onPlayerClosePostsEventToClosePlayer() {
+    public void onPlayerClosePostsEventToClosePlayerManually() {
         listener.onPlayerClose();
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        assertThat(event.isCollapse()).isTrue();
+        assertThat(event.isManualCollapse()).isTrue();
+    }
+
+    @Test
+    public void requestPlayerCollapsePostsEventToClosePlayerAutomatically() {
+        listener.requestPlayerCollapse();
+
+        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
+        assertThat(event.isAutomaticCollapse()).isTrue();
     }
 
 }

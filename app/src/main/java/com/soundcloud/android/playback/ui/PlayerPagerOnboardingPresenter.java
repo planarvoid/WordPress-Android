@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.utils.ViewUtils.dpToPx;
 
-import com.soundcloud.android.configuration.experiments.PlayerSwipeToSkipExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -20,16 +19,15 @@ import android.view.animation.AccelerateInterpolator;
 
 import javax.inject.Inject;
 
-class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<PlayerFragment> {
+public class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<PlayerFragment> {
     private static final String TAG = "PlayerPagerOnboardingPresenter";
 
-    private static final int MAX_ONBOARDING_RUN = 3;
+    public static final int MAX_ONBOARDING_RUN = 3;
     private static final int ANIMATION_IN_DURATION_MS = 350;
     private static final int ANIMATION_DISTANCE_DP = 70;
     private static final float ANIMATION_IN_ACCELERATION_FACTOR = 0.88f;
     private static final int HOLD_ON_TIME_BEFORE_RELEASING = 350;
 
-    private final PlayerSwipeToSkipExperiment experiment;
     private final PlayerPagerOnboardingStorage storage;
     private final EventBus eventBus;
     private final Handler handler;
@@ -37,10 +35,8 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    PlayerPagerOnboardingPresenter(PlayerSwipeToSkipExperiment experiment,
-                                   PlayerPagerOnboardingStorage storage,
+    PlayerPagerOnboardingPresenter(PlayerPagerOnboardingStorage storage,
                                    EventBus eventBus) {
-        this.experiment = experiment;
         this.storage = storage;
         this.eventBus = eventBus;
         this.handler = new Handler();
@@ -48,7 +44,7 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
 
     @Override
     public void onResume(PlayerFragment fragment) {
-        if (experiment.isEnabled() && !hasReachedMaxOnboardingRun()) {
+        if (!hasReachedMaxOnboardingRun()) {
             final PlayerTrackPager pager = fragment.getPlayerPager();
 
             subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new ShowOnboardingSubscriber(pager));
@@ -83,14 +79,14 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
         valueAnimator.start();
     }
 
-    void onOnboardingShown() {
+    private void onOnboardingShown() {
         storage.increaseNumberOfOnboardingRun();
         if (hasReachedMaxOnboardingRun()) {
             subscription.unsubscribe();
         }
     }
 
-    class ShowOnboardingSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private class ShowOnboardingSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         private final PlayerTrackPager playerPager;
 
         ShowOnboardingSubscriber(PlayerTrackPager playerPager) {
@@ -114,7 +110,7 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
         }
     }
 
-    static class DragPagerListener implements ValueAnimator.AnimatorUpdateListener {
+    private static class DragPagerListener implements ValueAnimator.AnimatorUpdateListener {
         private final PlayerTrackPager pager;
         private float lastPositionPx;
 
@@ -135,7 +131,7 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
         }
     }
 
-    static class AnimationListener implements Animator.AnimatorListener {
+    private static class AnimationListener implements Animator.AnimatorListener {
         private final PlayerTrackPager pager;
         private final int timeBeforeDeceleration;
         private final Handler handler;
@@ -148,7 +144,7 @@ class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightCycle<Pl
 
         @Override
         public void onAnimationEnd(Animator animator) {
-            handler.postDelayed(() -> pager.endFakeDrag(), timeBeforeDeceleration);
+            handler.postDelayed(pager::endFakeDrag, timeBeforeDeceleration);
         }
 
         @Override

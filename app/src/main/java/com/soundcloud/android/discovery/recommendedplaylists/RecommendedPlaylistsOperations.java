@@ -1,7 +1,5 @@
 package com.soundcloud.android.discovery.recommendedplaylists;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
@@ -36,12 +34,12 @@ public class RecommendedPlaylistsOperations {
 
     public Observable<DiscoveryItem> recommendedPlaylists() {
         return syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_PLAYLISTS)
-                             .flatMap(continueWith(readRecommendedPlaylistsFromStorage()));
+                             .flatMap(o -> readRecommendedPlaylistsFromStorage());
     }
 
     public Observable<DiscoveryItem> refreshRecommendedPlaylists() {
         return syncOperations.failSafeSync(Syncable.RECOMMENDED_PLAYLISTS)
-                             .flatMap(continueWith(readRecommendedPlaylistsFromStorage()));
+                             .flatMap(o -> readRecommendedPlaylistsFromStorage());
     }
 
     private Observable<RecommendedPlaylistsBucketItem> fromEntities(final List<RecommendedPlaylistsEntity> buckets) {

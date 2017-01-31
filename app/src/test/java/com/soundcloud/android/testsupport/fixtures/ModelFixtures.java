@@ -44,6 +44,7 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
 import com.soundcloud.android.users.User;
@@ -103,6 +104,18 @@ public class ModelFixtures {
             models.add(create(target));
         }
         return models;
+    }
+
+    public static ApiTrack apiTrack() {
+        return create(ApiTrack.class);
+    }
+
+    public static ApiUser apiUser() {
+        return create(ApiUser.class);
+    }
+
+    public static ApiPlaylist apiPlaylist() {
+        return create(ApiPlaylist.class);
     }
 
     public static Playlist playlist() {
@@ -169,6 +182,7 @@ public class ModelFixtures {
                    .country(of("country"))
                    .city(of("city"))
                    .followersCount(2)
+                   .followingsCount(6)
                    .isFollowing(isFollowing)
                    .avatarUrl(of("avatar-url"))
                    .visualUrl(of("visual-url"));
@@ -224,8 +238,19 @@ public class ModelFixtures {
         return ModelFixtures.create(TrackItem.class);
     }
 
+    public static Track track() {
+        return Track.from(ModelFixtures.create(ApiTrack.class));
+    }
+
     public static List<TrackItem> trackItems(int count) {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
+    }
+    public static List<Track> tracks(int count) {
+        final List<Track> result = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            result.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        }
+        return result;
     }
 
     public static PlaylistItem playlistItem() {
@@ -392,27 +417,48 @@ public class ModelFixtures {
                          .build();
     }
 
-    public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
-        final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        trackItem.setUrn(trackUrn);
-        trackItem.setOfflineState(state);
-        return trackItem;
+    public static Track trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
+        final Track.Builder builder = ModelFixtures.trackBuilder();
+        builder.urn(trackUrn);
+        builder.offlineState(state);
+        return builder.build();
     }
 
-    public static TrackItem trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
-        final TrackItem trackItem = TestPropertySets.fromApiTrack(apiTrack);
-        trackItem.setOfflineState(state);
-        return trackItem;
+    public static Track trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
+        final Track.Builder builder = ModelFixtures.trackBuilder(apiTrack);
+        builder.offlineState(state);
+        return builder.build();
     }
 
-    public static TrackItem trackItem(ApiTrack apiTrack) {
-        return TestPropertySets.fromApiTrack(apiTrack);
+    public static Track.Builder trackBuilder() {
+        return Track.builder(Track.from(create(ApiTrack.class)));
     }
 
-    public static TrackItem highTierMonetizableTrack(ApiTrack track) {
-        final TrackItem trackItem = TestPropertySets.fromApiTrack(track);
-        trackItem.setSubMidTier(false);
-        trackItem.setSubHighTier(true);
-        return trackItem;
+    public static Track.Builder trackBuilder(ApiTrack apiTrack) {
+        return Track.builder(Track.from(apiTrack));
+    }
+
+    public static Track trackWithUrnAndMonetizable(Urn currentTrackUrn, boolean monetizable) {
+        return trackBuilder().urn(currentTrackUrn).monetizable(monetizable).build();
+    }
+
+    public static Track expectedTrackEntityForWidget() {
+        return trackBuilder().imageUrlTemplate(of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build();
+    }
+
+    public static Track expectedLikedTrackForLikesScreen() {
+        return trackBuilder().likesCount(2).createdAt(new Date()).build();
+    }
+
+    public static Track expectedTrackEntityForAnalytics(Urn trackUrn, Urn creatorUrn, String policy, long duration) {
+        return trackBuilder()
+                .urn(trackUrn)
+                .creatorUrn(creatorUrn)
+                .policy(policy)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
+                .snippetDuration(duration)
+                .fullDuration(duration)
+                .snipped(false)
+                .build();
     }
 }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
@@ -22,6 +23,7 @@ import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
@@ -29,6 +31,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
@@ -40,6 +43,8 @@ import android.support.v4.app.Fragment;
 import java.util.List;
 
 public class DiscoveryPresenterTest extends AndroidUnitTest {
+
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
     private static final Urn SEED_URN = new Urn("soundcloud:tracks:seed");
     private static final Urn TRACK_URN = Urn.forTrack(123L);
@@ -148,5 +153,14 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                                                                             TRACK_URN,
                                                                             Screen.SEARCH_MAIN,
                                                                             discoveryItems);
+    }
+
+    @Test
+    public void resumesImageLoadingOnViewDestroy() {
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(imagePauseOnScrollListener).resume();
     }
 }

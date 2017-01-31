@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
+import com.soundcloud.android.cast.CastMediaIntentReceiver;
 import com.soundcloud.android.cast.CastOptionsProvider;
 import com.soundcloud.android.cast.CastRedirectActivity;
 import com.soundcloud.android.collection.CollectionFragment;
@@ -70,7 +71,7 @@ import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.NativeConversionActivity;
-import com.soundcloud.android.payments.PlanChoiceActivity;
+import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
@@ -86,7 +87,10 @@ import com.soundcloud.android.playlists.NewPlaylistDetailFragment;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.policies.DailyUpdateService;
+import com.soundcloud.android.profile.FollowersActivity;
+import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.MyFollowingsFragment;
+import com.soundcloud.android.profile.OldUserDetailsFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserAlbumsFragment;
@@ -110,6 +114,7 @@ import com.soundcloud.android.search.SearchPremiumResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
+import com.soundcloud.android.search.topresults.TopResultsFragment;
 import com.soundcloud.android.settings.ClearCacheDialog;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.LegalFragment;
@@ -194,6 +199,7 @@ public interface ApplicationComponent {
     //Cast
     void inject(CastRedirectActivity castRedirectActivity);
     void inject(CastOptionsProvider castOptionsProvider);
+    void inject(CastMediaIntentReceiver castMediaIntentReceiver);
 
     //PlayerModule
     void inject(PlayerFragment playerFragment);
@@ -223,6 +229,7 @@ public interface ApplicationComponent {
     void inject(UserFollowingsFragment userFollowingsFragment);
     void inject(UserFollowersFragment userFollowersFragment);
     void inject(UserSoundsFragment userSoundsFragment);
+    void inject(OldUserDetailsFragment oldUserDetailsFragment);
     void inject(UserDetailsFragment userDetailsFragment);
     void inject(VerifyAgeActivity verifyAgeActivity);
     void inject(UserRepostsActivity userRepostsActivity);
@@ -231,6 +238,8 @@ public interface ApplicationComponent {
     void inject(UserTracksFragment userTracksFragment);
     void inject(UserAlbumsActivity userAlbumsActivity);
     void inject(UserAlbumsFragment userAlbumsFragment);
+    void inject(FollowersActivity followersActivity);
+    void inject(FollowingsActivity followingsActivity);
 
     //StreamModule
     void inject(StreamFragment streamFragment);
@@ -248,7 +257,7 @@ public interface ApplicationComponent {
     //PaymentsModule
     void inject(NativeConversionActivity nativeConversionActivity);
     void inject(ConversionActivity conversionActivity);
-    void inject(PlanChoiceActivity planChoiceActivity);
+    void inject(ProductChoiceActivity productChoiceActivity);
     void inject(WebCheckoutActivity webCheckoutActivity);
 
     //OfflineModule
@@ -309,6 +318,7 @@ public interface ApplicationComponent {
     void inject(ViewAllRecommendedTracksActivity viewAllRecommendedTracksActivity);
     void inject(ViewAllRecommendedTracksFragment viewAllRecommendedTracksFragment);
     void inject(SearchActivity searchActivity);
+    void inject(TopResultsFragment topResultsFragment);
     void inject(SearchPremiumResultsActivity searchPremiumResultsActivity);
     void inject(PlaylistDiscoveryActivity playlistDiscoveryActivity);
     void inject(TabbedSearchFragment tabbedSearchFragment);

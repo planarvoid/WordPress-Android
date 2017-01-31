@@ -59,6 +59,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Mock private SearchTracker searchTracker;
+    @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -80,7 +81,8 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
                                                       featureOperations,
                                                       navigator,
                                                       eventBus,
-                                                      searchTracker);
+                                                      searchTracker,
+                                                      searchPlayQueueFilter);
 
         when(searchTracker.getPremiumTrackingScreen()).thenReturn(Screen.SEARCH_PREMIUM_CONTENT);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class), anyString())).thenReturn(searchQuerySourceInfo);
@@ -94,10 +96,14 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     public void itemClickDelegatesToClickListener() {
         final List<ListItem> listItems = setupAdapter();
         when(clickListenerFactory.create(Screen.SEARCH_PREMIUM_CONTENT, null)).thenReturn(clickListener);
+        when(searchPlayQueueFilter.correctQueue(listItems, 0)).thenReturn(listItems);
+        when(searchPlayQueueFilter.correctPosition(0)).thenReturn(0);
 
         presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
+        verify(searchPlayQueueFilter).correctQueue(listItems, 0);
+        verify(searchPlayQueueFilter).correctPosition(0);
         verify(clickListener).onItemClick(listItems, fragmentRule.getActivity(), 0);
     }
 

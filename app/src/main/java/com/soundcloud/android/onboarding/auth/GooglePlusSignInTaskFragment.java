@@ -8,7 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.auth.tasks.LegacyAuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
 import com.soundcloud.android.utils.ErrorUtils;
 import org.jetbrains.annotations.NotNull;
@@ -45,11 +45,12 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
                 (SoundCloudApplication) getActivity().getApplication(),
                 getArguments().getString(ARG_ACCT_NAME),
                 GOOGLE_PLUS_SCOPE, tokenUtils, storeUsersCommand,
-                accountOperations, configurationOperations, eventBus, apiClient, syncInitiatorBridge);
+                accountOperations, configurationOperations, eventBus, apiClient, syncInitiatorBridge,
+                featureFlags, signInOperations);
     }
 
     @Override
-    protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
+    protected String getErrorFromResult(Activity activity, LegacyAuthTaskResult result) {
         Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
 
         if (rootException instanceof GooglePlayServicesAvailabilityException) {

@@ -8,6 +8,7 @@ import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,11 +18,12 @@ import rx.Scheduler;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayHistoryOperationsTest extends AndroidUnitTest {
 
-    private static final List<TrackItem> TRACK_ITEMS = ModelFixtures.trackItems(10);
+    private static final List<Track> TRACKS= ModelFixtures.tracks(10);
 
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlayHistoryStorage playHistoryStorage;
@@ -31,12 +33,17 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
     private Scheduler scheduler = Schedulers.immediate();
     private TestSubscriber<List<TrackItem>> trackSubscriber;
     private TestSubscriber<Boolean> clearSubscriber;
+    private List<TrackItem> trackItems;
 
     private PlayHistoryOperations operations;
 
     @Before
     public void setUp() throws Exception {
-        when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Observable.from(TRACK_ITEMS));
+        when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Observable.from(TRACKS));
+        trackItems = new ArrayList<>(TRACKS.size());
+        for (Track track : TRACKS) {
+            trackItems.add(TrackItem.from(track));
+        }
         trackSubscriber = new TestSubscriber<>();
         clearSubscriber = new TestSubscriber<>();
         operations = new PlayHistoryOperations(playbackInitiator, playHistoryStorage, scheduler,
@@ -50,7 +57,7 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
 
         operations.playHistory().subscribe(trackSubscriber);
 
-        trackSubscriber.assertValue(TRACK_ITEMS);
+        trackSubscriber.assertValue(trackItems);
         trackSubscriber.assertCompleted();
     }
 
@@ -61,7 +68,7 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
 
         operations.refreshPlayHistory().subscribe(trackSubscriber);
 
-        trackSubscriber.assertValue(TRACK_ITEMS);
+        trackSubscriber.assertValue(trackItems);
         trackSubscriber.assertCompleted();
     }
 

@@ -30,5 +30,9 @@ public class ImagePauseOnScrollListener extends RecyclerView.OnScrollListener {
                 break;
         }
     }
+
+    public void resume() {
+        imageOperations.resume();
+    }
 }
 

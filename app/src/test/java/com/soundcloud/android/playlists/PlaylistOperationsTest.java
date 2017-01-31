@@ -4,10 +4,11 @@ import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrac
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -37,8 +39,10 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,10 +55,7 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
-import android.support.annotation.NonNull;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PlaylistOperationsTest extends AndroidUnitTest {
@@ -80,18 +81,22 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private MyPlaylistsOperations myPlaylistsOperations;
     @Mock private AccountOperations accountOperations;
+    @Mock private FeatureOperations featureOperations;
 
     @Captor private ArgumentCaptor<AddTrackToPlaylistParams> addTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<EditPlaylistCommandParams> editPlaylistCommandParamsCaptor;
 
     private final Playlist playlist = ModelFixtures.playlist();
-    private final TrackItem track1 = ModelFixtures.trackItem();
-    private final TrackItem track2 = ModelFixtures.trackItem();
+    private final Track track1 = ModelFixtures.trackBuilder().build();
+    private final Track track2 = ModelFixtures.trackBuilder().build();
+    private final TrackItem trackItem1 = TrackItem.from(track1);
+    private final TrackItem trackItem2 = TrackItem.from(track2);
+
     private final Urn trackUrn = Urn.forTrack(123L);
     private final List<Urn> newTrackList = asList(trackUrn);
     private TestEventBus eventBus;
-    private TestSubscriber<PlaylistWithTracks> playlistSubscriber = new TestSubscriber<>();
+    private TestSubscriber<Playlist> playlistSubscriber = new TestSubscriber<>();
     private TestSubscriber<PlaylistDetailsViewModel> viewModelSubscriber = new TestSubscriber<>();
     private PublishSubject<SyncJobResult> playlistSyncSubject = PublishSubject.create();
 
@@ -100,8 +105,16 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
             newArrayList(playlistPost),
             "next-href");
 
+    private PlaylistDetailsViewModelCreator viewModelCreator;
+
+
     @Before
     public void setUp() {
+        viewModelCreator = new PlaylistDetailsViewModelCreator(resources(), featureOperations, accountOperations, upsellOperations);
+        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(Optional.absent());
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
+
         eventBus = new TestEventBus();
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
         operations = new PlaylistOperations(Schedulers.immediate(),
@@ -118,8 +131,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             profileApiMobile,
                                             myPlaylistsOperations,
                                             accountOperations,
-                                            upsellOperations,
-                                            featureFlags);
+                                            featureFlags,
+                                            viewModelCreator);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiator.syncPlaylist(any(Urn.class))).thenReturn(playlistSyncSubject);
     }
@@ -144,68 +157,57 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
 
-        playlistSubscriber.assertReceivedOnNext(singletonList(playlistWithTracks()));
+        playlistSubscriber.assertReceivedOnNext(singletonList(playlist));
         playlistSubscriber.assertCompleted();
     }
 
     @Test
     public void playlistWithTracksAndRecosLoadsFromStorageAndOthersApi() {
-        PlaylistWithTracks playlistWithTracks = playlistWithTracks();
-        List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>(asList(new PlaylistDetailTrackItem(track1),
-                                                                              new PlaylistDetailTrackItem(track2)));
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(just(this.playlist));
+        when(profileApiMobile.userPlaylists(this.playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
+        when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
-        when(profileApiMobile.userPlaylists(playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
-        when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(playlistDetailItems);
+        operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
-        operations.playlistWithTracksAndRecommendations(playlist.urn(), false).subscribe(viewModelSubscriber);
+        final PlaylistDetailsViewModel initialModel = PlaylistDetailFixtures.create(resources(), playlist, asList(trackItem1, trackItem2));
+        final PlaylistDetailsViewModel updatedModel = initialModel.toBuilder().otherPlaylists(createOtherPlaylistItem()).build();
 
-        List<PlaylistDetailItem> itemsWithOthers = asList(new PlaylistDetailTrackItem(track1), new PlaylistDetailTrackItem(track2),
-                                                          createOtherPlaylistItem());
-
-        viewModelSubscriber.assertReceivedOnNext(asList(createViewModel(playlistWithTracks, playlistDetailItems),
-                                                        createViewModel(playlistWithTracks, itemsWithOthers)));
+        viewModelSubscriber.assertValues(initialModel, updatedModel);
         viewModelSubscriber.assertCompleted();
     }
 
     @Test
     public void playlistWithTracksAndRecosLoadsFromStorageAndOthersByLoggedInUserFromStorage() {
-        PlaylistWithTracks playlistWithTracks = playlistWithTracks();
         Playlist playlistPostItem = Playlist.from(playlistPost.getApiPlaylist());
 
-        when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
-        List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>(asList(new PlaylistDetailTrackItem(track1),
-                                                                              new PlaylistDetailTrackItem(track2)));
-
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
-        when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(playlistDetailItems);
+        when(accountOperations.isLoggedInUser(this.playlist.creatorUrn())).thenReturn(true);
+        final List<Track> tracks = newArrayList(track1, track2);
+        final List<TrackItem> trackItems = newArrayList(trackItem1, trackItem2);
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(tracks));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(just(this.playlist));
+        when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()))
                 .thenReturn(just(singletonList(playlistPostItem)));
 
-        operations.playlistWithTracksAndRecommendations(playlist.urn(), false).subscribe(viewModelSubscriber);
+        operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
-        List<PlaylistDetailItem> itemsWithOthers = asList(new PlaylistDetailTrackItem(track1), new PlaylistDetailTrackItem(track2),
-                                                          createOtherPlaylistItem());
+        PlaylistDetailsViewModel expected = PlaylistDetailFixtures
+                .createWithOtherMyPlaylists(resources(), playlist, asList(trackItem1, trackItem2), of(createOtherPlaylistItem()));
 
-        viewModelSubscriber.assertReceivedOnNext(asList(createViewModel(playlistWithTracks, itemsWithOthers)));
+        viewModelSubscriber.assertValue(expected);
         viewModelSubscriber.assertCompleted();
     }
 
     @Test
     public void playlistWithTracksAndRecosLoadsFromStorageAndEmitsExceptionIfStillMissingMetadata() {
-        PlaylistWithTracks playlistWithTracks = playlistWithTracks();
-        List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>(asList(new PlaylistDetailTrackItem(track1),
-                                                                              new PlaylistDetailTrackItem(track2)));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(empty(), empty());
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
+        when(profileApiMobile.userPlaylists(this.playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
+        when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(empty(), empty());
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
-        when(profileApiMobile.userPlaylists(playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
-        when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(playlistDetailItems);
-
-        operations.playlistWithTracksAndRecommendations(playlist.urn(), false).subscribe(viewModelSubscriber);
+        operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
         playlistSubscriber.assertNoValues();
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
@@ -213,56 +215,24 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playlistWithTracksAndRecosLoadsFromStorageAndBackfillsTracksFromApiIfTracksMissing() {
-        PlaylistWithTracks playlistWithTracks = playlistWithTracks();
-        List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>(asList(new PlaylistDetailTrackItem(track1),
-                                                                              new PlaylistDetailTrackItem(track2)));
-
-        List<TrackItem> emptyTrackList = emptyList();
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Observable.just(emptyTrackList), Observable.just(newArrayList(track1, track2)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
-        when(profileApiMobile.userPlaylists(playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
-        when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(playlistDetailItems);
-
-        operations.playlistWithTracksAndRecommendations(playlist.urn(), false).subscribe(viewModelSubscriber);
-
-        viewModelSubscriber.assertReceivedOnNext(singletonList(createViewModel(new PlaylistWithTracks(playlist, emptyTrackList), emptyList())));
-
-        playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
-        playlistSyncSubject.onCompleted();
-
-        List<PlaylistDetailItem> itemsWithOthers = asList(new PlaylistDetailTrackItem(track1), new PlaylistDetailTrackItem(track2),
-                                                          createOtherPlaylistItem());
-
-        viewModelSubscriber.assertReceivedOnNext(asList(createViewModel(new PlaylistWithTracks(playlist,emptyTrackList), emptyList()),
-                                                        createViewModel(playlistWithTracks, playlistDetailItems),
-                                                        createViewModel(playlistWithTracks, itemsWithOthers)));
-        viewModelSubscriber.assertCompleted();
-    }
-
-    @Test
     public void updatedPlaylistSyncsThenLoadsFromStorage() {
-        PlaylistWithTracks playlistWithTracks = playlistWithTracks();
-        List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>(asList(new PlaylistDetailTrackItem(track1),
-                                                                            new PlaylistDetailTrackItem(track2)));
+        final ArrayList<Track> tracks = newArrayList(track1, track2);
+        final ArrayList<TrackItem> trackItems = newArrayList(trackItem1, trackItem2);
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(tracks));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(just(playlist));
+        when(profileApiMobile.userPlaylists(this.playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
+        when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
-        when(profileApiMobile.userPlaylists(playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
-        when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(playlistDetailItems);
-
-        operations.updatedPlaylistWithTracksAndRecommendations(playlist.urn(), false).subscribe(viewModelSubscriber);
+        operations.updatedPlaylistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 
         viewModelSubscriber.assertNoValues();
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
         playlistSyncSubject.onCompleted();
 
-        final List<PlaylistDetailItem> itemsWithOthers = asList(new PlaylistDetailTrackItem(track1),
-                                                                new PlaylistDetailTrackItem(track2),
-                                                                createOtherPlaylistItem());
+        final PlaylistDetailsViewModel initialModel = PlaylistDetailFixtures.create(resources(), playlist, asList(trackItem1, trackItem2));
+        final PlaylistDetailsViewModel updatedModel = initialModel.toBuilder().otherPlaylists(createOtherPlaylistItem()).build();
 
-        viewModelSubscriber.assertReceivedOnNext(asList(createViewModel(playlistWithTracks, playlistDetailItems),
-                                                        createViewModel(playlistWithTracks, itemsWithOthers)));
+        viewModelSubscriber.assertValues(initialModel, updatedModel);
         viewModelSubscriber.assertCompleted();
     }
 
@@ -278,7 +248,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         playlistSubscriber.assertNoValues();
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
         playlistSyncSubject.onCompleted();
-        playlistSubscriber.assertReceivedOnNext(singletonList(playlistWithTracks()));
+        playlistSubscriber.assertReceivedOnNext(singletonList(playlist));
         playlistSubscriber.assertCompleted();
     }
 
@@ -300,41 +270,18 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadsPlaylistAndEmitsAgainAfterSyncIfNoTracksAvailable() {
-        final List<TrackItem> emptyTrackList = Collections.emptyList();
-        final List<TrackItem> trackList = asList(track1, track2);
-        PublishSubject<SyncJobResult> syncSubject = PublishSubject.create();
-        when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(syncSubject);
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(just(emptyTrackList), just(trackList));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
-
-        operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
-
-        playlistSubscriber.assertReceivedOnNext(singletonList(new PlaylistWithTracks(playlist,
-                                                                                     emptyTrackList)));
-
-        syncSubject.onNext(TestSyncJobResults.successWithChange());
-
-        playlistSubscriber.assertReceivedOnNext(asList(new PlaylistWithTracks(playlist,
-                                                                              emptyTrackList),
-                                                       new PlaylistWithTracks(playlist,
-                                                                          trackList)));
-    }
-
-    @Test
     public void loadsLocalPlaylistAndRequestsMyPlaylistSyncWhenEmitting() {
-        final List<TrackItem> trackList = asList(track1, track2);
+        final List<Track> trackList = asList(track1, track2);
         final Playlist localPlaylist = ModelFixtures.playlistBuilder().urn(Urn.forTrack(-123L)).build();
 
         PublishSubject<Void> myPlaylistSyncSubject = PublishSubject.create();
         when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(myPlaylistSyncSubject);
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(just(trackList));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(localPlaylist));
+        when(trackRepository.forPlaylist(localPlaylist.urn())).thenReturn(just(trackList));
+        when(playlistRepository.withUrn(localPlaylist.urn())).thenReturn(just(localPlaylist));
 
-        operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
+        operations.playlist(localPlaylist.urn()).subscribe(playlistSubscriber);
 
-        PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(localPlaylist, trackList);
-        playlistSubscriber.assertReceivedOnNext(singletonList(playlistWithTracks));
+        playlistSubscriber.assertReceivedOnNext(singletonList(localPlaylist));
         playlistSubscriber.assertCompleted();
 
         assertThat(myPlaylistSyncSubject.hasObservers()).isTrue();
@@ -495,7 +442,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     }
 
     private List<TrackItem> trackItems() {
-        return asList(track1, track2);
+        return asList(trackItem1, trackItem2);
     }
 
     private void verifyAddToPlaylistParams() {
@@ -518,20 +465,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         assertThat(editPlaylistCommandParamsCaptor.getValue().playlistTitle).isEqualTo(NEW_TITLE);
     }
 
-    @NonNull
-    PlaylistDetailsViewModel createViewModel(PlaylistWithTracks playlistWithTracks,
-                                             List<PlaylistDetailItem> playlistDetailItems) {
-        return PlaylistDetailsViewModel.create(playlistWithTracks, playlistDetailItems);
-    }
-
-    @NonNull
-    PlaylistDetailOtherPlaylistsItem createOtherPlaylistItem() {
+    private PlaylistDetailOtherPlaylistsItem createOtherPlaylistItem() {
         return new PlaylistDetailOtherPlaylistsItem(
                 playlist.creatorName(), singletonList(PlaylistItem.from(playlistPost.getApiPlaylist())));
-    }
-
-    @NonNull
-    PlaylistWithTracks playlistWithTracks() {
-        return new PlaylistWithTracks(playlist, trackItems());
     }
 }

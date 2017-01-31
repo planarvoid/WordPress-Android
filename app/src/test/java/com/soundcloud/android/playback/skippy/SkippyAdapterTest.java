@@ -32,8 +32,6 @@ import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
-import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
@@ -77,7 +75,6 @@ import android.os.Message;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import java.io.IOException;
 import java.util.List;
 
 public class SkippyAdapterTest extends AndroidUnitTest {
@@ -856,46 +853,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         when(skippy.init(configuration)).thenReturn(false);
 
         assertThat(skippyAdapter.init()).isFalse();
-    }
-
-    @Test
-    public void initilizationSuccessPublishesSkippyInitSuccessEvent() {
-        when(skippy.init(configuration)).thenReturn(true);
-        skippyAdapter.init();
-
-        final SkippyInitilizationSucceededEvent event = (SkippyInitilizationSucceededEvent) eventBus.lastEventOn(
-                EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("failure_count")).isEqualTo("0");
-        assertThat(event.getAttributes().get("success_count")).isEqualTo("1");
-        assertThat(event.getAttributes().get("has_failed")).isEqualTo("false");
-    }
-
-    @Test
-    public void initilizationSuccessIncrementsSuccessCount() {
-        when(skippyFactory.createConfiguration()).thenReturn(configuration);
-        when(skippy.init(configuration)).thenReturn(true);
-        skippyAdapter.init();
-        verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
-        verify(sharedPreferencesEditor).apply();
-    }
-
-    @Test
-    public void initilizationErrorPublishesSkippyInitErrorEvent() {
-        skippyAdapter.onInitializationError(new IOException("because"), "some error message");
-
-        final SkippyInitilizationFailedEvent event = (SkippyInitilizationFailedEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("throwable")).isEqualTo("java.io.IOException: because");
-        assertThat(event.getAttributes().get("message")).isEqualTo("some error message");
-        assertThat(event.getAttributes().get("failure_count")).isEqualTo("1");
-        assertThat(event.getAttributes().get("success_count")).isEqualTo("0");
-        assertThat(event.getAttributes().get("has_succeeded")).isEqualTo("false");
-    }
-
-    @Test
-    public void initilizationErrorIncrementsFailureCount() {
-        skippyAdapter.onInitializationError(new IOException(), "some error message");
-        verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_ERROR_COUNT_KEY, 1);
-        verify(sharedPreferencesEditor).apply();
     }
 
     @Test

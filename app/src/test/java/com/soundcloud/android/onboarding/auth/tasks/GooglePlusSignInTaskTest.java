@@ -24,9 +24,12 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -49,13 +52,15 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Mock private SoundCloudApplication app;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private StoreUsersCommand storeUsersCommand;
-    @Mock private Bundle bundle;
     @Mock private AccountOperations accountOperations;
     @Mock private ApiClient apiClient;
     @Mock private Token token;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private SignInOperations signInOperations;
 
+    private final Bundle bundle = new Bundle();
     private ApiUser user = ModelFixtures.create(ApiUser.class);
 
     private GooglePlusSignInTask task;
@@ -65,8 +70,10 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
         when(app.getAccountOperations()).thenReturn(accountOperations);
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
+        when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(false);
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, storeUsersCommand,
-                                        accountOperations, configurationOperations, new TestEventBus(), apiClient, syncInitiatorBridge);
+                                        accountOperations, configurationOperations, new TestEventBus(), apiClient, syncInitiatorBridge,
+                                        featureFlags, signInOperations);
 
         when(tokenInformationGenerator.getGrantBundle(anyString(), anyString())).thenReturn(bundle);
     }
@@ -109,7 +116,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Test
     public void shouldRequestSpecificVisibleActivities() throws Exception {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
-        task.doInBackground(null);
+        task.doInBackground(bundle);
 
         ArgumentCaptor<Bundle> argumentCaptor = ArgumentCaptor.forClass(Bundle.class);
 
@@ -120,5 +127,4 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
                                    "http://schemas.google.com/ListenActivity");
 
     }
-
 }

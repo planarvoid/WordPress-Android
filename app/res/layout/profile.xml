@@ -44,21 +44,12 @@
                     android:background="@color/white"
                     android:fitsSystemWindows="true" />
 
-                <View
-                    android:id="@+id/top_gradient"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/profile_banner_gradient_height"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/player_gradient_top"
-                    android:fitsSystemWindows="true"
-                    app:layout_collapseMode="pin" />
-
-                <include layout="@layout/toolbar_transparent" />
+                <include layout="@layout/transparent_toolbar_with_gradient" />
 
             </android.support.design.widget.CollapsingToolbarLayout>
 
             <com.soundcloud.android.view.CustomFontTabLayout
-                android:id="@+id/tab_indicator"
+                android:id="@+id/tab_indicator_scrollable"
                 style="@style/TabsTheme.Scrollable"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -66,7 +57,19 @@
                 android:clipToPadding="false"
                 android:foregroundGravity="bottom"
                 android:paddingLeft="@dimen/profile_tabs_padding"
-                app:layout_collapseMode="pin" />
+                app:layout_collapseMode="pin"
+                android:visibility="gone"/>
+
+            <com.soundcloud.android.view.CustomFontTabLayout
+                android:id="@+id/tab_indicator_fixed"
+                style="@style/TabsTheme.Fixed.Elevated"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:clipToPadding="false"
+                android:foregroundGravity="bottom"
+                app:layout_collapseMode="pin"
+                android:visibility="gone"/>
 
         </android.support.design.widget.AppBarLayout>
 

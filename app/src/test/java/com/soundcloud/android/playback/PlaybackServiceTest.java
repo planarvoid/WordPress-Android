@@ -28,6 +28,7 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -70,6 +71,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Mock private MediaSessionController mediaSessionController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayStatePublisher playStatePublisher;
+    @Captor private ArgumentCaptor<PlaybackProgressEvent> playbackProgressEventCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -82,7 +84,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
                                               volumeControllerFactory,
                                               mediaSessionControllerFactory,
                                               playSessionStateProvider,
-                                              playStatePublisher){
+                                              playStatePublisher) {
             /**
              * This is a huge hack to not crash the unit tests, as we are not using RL properly, because of the
              * way we do constructor injection of mocks. Hopefully, this does not live too long :-/
@@ -276,13 +278,24 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onProgressForwardsProgressToMediaSession() {
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+
+        playbackService.onProgressEvent(25, 50);
+
+        verify(mediaSessionController).onProgress(25L);
+    }
+
+    @Test
     public void onProgressPublishesAProgressEventForTrack() throws Exception {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
         playbackService.onProgressEvent(123L, 456L);
 
-        PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
+        verify(playSessionStateProvider).onProgressEvent(playbackProgressEventCaptor.capture());
+        PlaybackProgressEvent broadcasted = playbackProgressEventCaptor.getValue();
         assertThat(broadcasted.getUrn().isTrack()).isTrue();
         assertThat(broadcasted.getUrn()).isEqualTo(track);
         assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
@@ -297,23 +310,13 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
         playbackService.onProgressEvent(123L, 456L);
 
-        PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
+        verify(playSessionStateProvider).onProgressEvent(playbackProgressEventCaptor.capture());
+        PlaybackProgressEvent broadcasted = playbackProgressEventCaptor.getValue();
         assertThat(broadcasted.getUrn().isAd()).isTrue();
         assertThat(broadcasted.getUrn()).isEqualTo(Urn.forAd("dfp", "905"));
         assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
         assertThat(broadcasted.getPlaybackProgress().getDuration()).isEqualTo(456L);
     }
-
-    @Test
-    public void onProgressForwardsProgressToMediaSession() {
-        playbackService.onCreate();
-        playbackService.play(playbackItem);
-
-        playbackService.onProgressEvent(25, 50);
-
-        verify(mediaSessionController).onProgress(25L);
-    }
-
 
     @Test
     public void openCurrentWithStreamableTrackCallsPlayOnStreamPlayer() throws Exception {

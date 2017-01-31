@@ -16,9 +16,9 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.StopReasonProvider.StopReason;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.optional.Optional;
@@ -53,7 +53,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        TrackItem track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
+        Track track = ModelFixtures.expectedTrackEntityForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);

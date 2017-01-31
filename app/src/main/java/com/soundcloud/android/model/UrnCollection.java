@@ -13,6 +13,7 @@ enum UrnCollection {
     DAY_ZERO("dayzero"),
     ADS("ads"),
     SOUNDS("sounds"),
+    GENRES("genres"),
     UNKNOWN("unknown");
 
     private static final String STATIONS_REGEX = "[\\w-]+-stations";

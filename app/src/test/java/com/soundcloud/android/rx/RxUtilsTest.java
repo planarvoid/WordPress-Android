@@ -1,13 +1,12 @@
 package com.soundcloud.android.rx;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.rx.RxUtils.returning;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import rx.Observable;
+import rx.functions.Func1;
 import rx.observers.TestSubscriber;
 
 public class RxUtilsTest {
@@ -15,7 +14,7 @@ public class RxUtilsTest {
     @Test
     public void returningShouldIgnoreSequenceResultAndEmitGivenConstant() throws Exception {
         TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
-        Observable.just("string").map(returning(true)).subscribe(subscriber);
+        Observable.just("string").map(o -> (Boolean) true).subscribe(subscriber);
 
         subscriber.assertValue(true);
     }
@@ -23,7 +22,7 @@ public class RxUtilsTest {
     @Test
     public void continueWithShouldIgnoreSequenceResultAndRedirectToContinuation() throws Exception {
         TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
-        Observable.just("string").flatMap(continueWith(Observable.just(true))).subscribe(subscriber);
+        Observable.just("string").flatMap(o -> Observable.just(true)).subscribe(subscriber);
 
         subscriber.assertValue(true);
     }
@@ -68,6 +67,6 @@ public class RxUtilsTest {
     @Test
     public void optionalOfWrapsObjectInAnOptional() {
         String object = "foo";
-        assertThat(RxUtils.toOptional().call(object)).isEqualTo(Optional.of(object));
+        assertThat(((Func1<Object, Optional<Object>>) Optional::of).call(object)).isEqualTo(Optional.of(object));
     }
 }

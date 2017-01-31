@@ -86,6 +86,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         when(resources.getDrawable(R.drawable.ak_list_divider_item)).thenReturn(divider);
         when(recyclerView.getResources()).thenReturn(resources);
         when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
+        when(recyclerView.getAdapter()).thenReturn(adapter);
         when(fragment.getArguments()).thenReturn(arguments);
         when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
@@ -125,6 +126,15 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, fragmentView, null);
 
         verify(emptyViewBuilder).configure(emptyView);
+    }
+
+    @Test
+    public void resumesImageLoadingOnViewDestroy() {
+        presenter.onViewCreated(fragment, fragmentView, null);
+
+        presenter.onDestroyView(fragment);
+
+        verify(imagePauseOnScrollListener).resume();
     }
 
     private void createPresenter() {

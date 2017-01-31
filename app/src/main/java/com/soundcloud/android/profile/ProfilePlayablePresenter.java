@@ -66,6 +66,7 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PlayableItem>>
     @Override
     public void onDestroyView(Fragment fragment) {
         getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        imagePauseOnScrollListener.resume();
         super.onDestroyView(fragment);
     }
 

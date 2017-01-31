@@ -13,10 +13,16 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperties;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -25,6 +31,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -33,6 +40,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -87,6 +95,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final FeatureOperations featureOperations;
     private final Navigator navigator;
+    private final OfflinePropertiesProvider offlinePropertiesProvider;
+    private final FeatureFlags featureFlags;
     private final CollectionOperations collectionOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
@@ -103,7 +113,9 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                         PlayHistoryOperations playHistoryOperations,
                         FeatureOperations featureOperations,
-                        Navigator navigator) {
+                        Navigator navigator,
+                        OfflinePropertiesProvider offlinePropertiesProvider,
+                        FeatureFlags featureFlags) {
         super(swipeRefreshAttacher);
         this.collectionOperations = collectionOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -115,6 +127,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         this.collectionOptionsStorage = collectionOptionsStorage;
         this.featureOperations = featureOperations;
         this.navigator = navigator;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
+        this.featureFlags = featureFlags;
 
         adapter.setTrackClickListener(this);
         adapter.setOnboardingListener(this);
@@ -237,12 +251,22 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private void subscribeForUpdates() {
         eventSubscriptions.unsubscribe();
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter)),
+                subscribeToOfflineContent(),
                 collectionOperations.onCollectionChanged()
                                     .filter(isNotRefreshing)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(new RefreshCollectionsSubscriber())
         );
+    }
+
+    private Subscription subscribeToOfflineContent() {
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            return offlinePropertiesProvider.states()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(new OfflinePropertiesSubscriber(adapter));
+        } else {
+            return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter));
+        }
     }
 
     private class RefreshCollectionsSubscriber extends DefaultSubscriber<Object> {
@@ -317,4 +341,55 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     }
 
 
+    private static class OfflinePropertiesSubscriber extends DefaultSubscriber<OfflineProperties> {
+
+        private final CollectionAdapter adapter;
+
+        public OfflinePropertiesSubscriber(CollectionAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        public void onNext(OfflineProperties states) {
+            final List<CollectionItem> items = adapter.getItems();
+
+            for (int position = 0; position < items.size(); position++) {
+                final CollectionItem collectionItem = items.get(position);
+                final CollectionItem updateItem = updateItem(states, position, collectionItem);
+
+                if (updateItem != null) {
+                    adapter.setItem(position, updateItem);
+                }
+            }
+            // TODO move getRecentlyPlayedBucketRenderer().update(states) in the same loop
+            adapter.getRecentlyPlayedBucketRenderer().update(states);
+        }
+
+        @Nullable
+        private CollectionItem updateItem(OfflineProperties states, int position, CollectionItem collectionItem) {
+            if (collectionItem.getType() == CollectionItem.TYPE_PREVIEW && adapter.getItems().size() > position) {
+                return updateTrackLikedPreviewItem(states, (PreviewCollectionItem) collectionItem);
+            } else if (collectionItem instanceof OfflineItem) {
+                return updateOfflineItem(states, collectionItem);
+            } else {
+                return null;
+            }
+        }
+
+        private CollectionItem updateOfflineItem(OfflineProperties states, CollectionItem collectionItem) {
+            CollectionItem updateItem;
+            final OfflineItem offlineItem = (OfflineItem) collectionItem;
+            final OfflineState offlineState = states.state(collectionItem.getUrn());
+            updateItem = (CollectionItem) offlineItem.updatedWithOfflineState(offlineState);
+            return updateItem;
+        }
+
+        private CollectionItem updateTrackLikedPreviewItem(OfflineProperties states, PreviewCollectionItem collectionItem) {
+            CollectionItem updateItem;
+            final PreviewCollectionItem previewCollectionItem = collectionItem;
+            updateItem = previewCollectionItem.updatedWithOfflineState(states.likedTracksState());
+            return updateItem;
+        }
+
+    }
 }

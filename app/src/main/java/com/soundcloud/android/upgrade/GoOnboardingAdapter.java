@@ -10,7 +10,6 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func0;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
@@ -32,15 +31,13 @@ import java.util.WeakHashMap;
 
 class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
-    private final Context context;
     private final BackgroundDecoder backgroundDecoder;
 
     private WeakHashMap<Integer, AnimationDrawable> pendingAnimationMap =
             new WeakHashMap<>(OnboardingPage.values().length - 1); // No animation on title page
 
     @Inject
-    GoOnboardingAdapter(Context context, BackgroundDecoder backgroundDecoder) {
-        this.context = context;
+    GoOnboardingAdapter(BackgroundDecoder backgroundDecoder) {
         this.backgroundDecoder = backgroundDecoder;
     }
 
@@ -61,7 +58,7 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
     }
 
     private ViewGroup bindView(int position, ViewGroup parent, @LayoutRes int layout, OnboardingPage page) {
-        ViewGroup view = (ViewGroup) LayoutInflater.from(context).inflate(layout, parent, false);
+        ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         bindBasicViews(position, page, view);
         bindBackground(page, view);
         parent.addView(view);

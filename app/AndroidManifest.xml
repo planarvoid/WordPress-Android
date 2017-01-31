@@ -179,6 +179,20 @@
             </intent-filter>
         </activity>
 
+        <activity android:label="@string/profile_followers" android:name=".profile.FollowersActivity">
+            <intent-filter>
+                <action android:name="${applicationId}.profile.FOLLOWERS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:label="@string/profile_following" android:name=".profile.FollowingsActivity">
+            <intent-filter>
+                <action android:name="${applicationId}.profile.FOLLOWINGS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <activity android:exported="true" android:label="@string/app_name" android:name=".onboarding.OnboardActivity" android:theme="@style/Theme.ScAuth" android:windowSoftInputMode="adjustResize"/>
         <activity android:configChanges="orientation" android:label="@string/app_name" android:name=".onboarding.auth.RecoverActivity" android:theme="@style/Theme.ScAuth"/>
 
@@ -246,7 +260,7 @@
             </intent-filter>
         </activity>
         <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
-        <activity android:name=".playlists.PlaylistDetailActivity">
+        <activity android:name=".playlists.PlaylistDetailActivity" android:label="">
             <intent-filter>
                 <action android:name="${applicationId}.action.PLAYLIST"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -272,7 +286,7 @@
         <!-- payments -->
         <activity android:name=".payments.NativeConversionActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
         <activity android:name=".payments.ConversionActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
-        <activity android:name=".payments.PlanChoiceActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
+        <activity android:name=".payments.ProductChoiceActivity" android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
         <activity android:name=".payments.WebCheckoutActivity" android:label="@string/conversion_page_title" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
 
         <!-- discovery -->
@@ -427,6 +441,8 @@
             android:name=".gcm.GcmRegistrationService"
             android:exported="false">
         </service>
+
+        <receiver android:name=".cast.CastMediaIntentReceiver"/>
 
         <!-- Legacy Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">

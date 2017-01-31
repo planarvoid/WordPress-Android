@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.MultiMap;
+import com.soundcloud.java.strings.Strings;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -13,6 +14,16 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class UriUtils {
+    private static final String HIERARCHICAL_URI_SCHEME_SEPARATOR = "://";
+
+    public static Uri convertToHierarchicalUri(Uri uri) {
+        if(uri.isHierarchical()) {
+            return uri;
+        }
+
+        return Uri.parse(uri.getScheme() + HIERARCHICAL_URI_SCHEME_SEPARATOR + uri.getSchemeSpecificPart());
+    }
+
     public static long getLastSegmentAsLong(Uri uri) {
         try {
             return Long.parseLong(uri.getLastPathSegment());

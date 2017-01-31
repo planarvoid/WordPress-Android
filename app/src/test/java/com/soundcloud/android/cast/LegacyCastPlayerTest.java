@@ -391,7 +391,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
                                                                                  anyListOf(Urn.class))).thenReturn(
                 Observable.just(filteredLocalPlayQueue));
 
-        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(TestPlayQueue.fromUrns(Arrays.asList(TRACK_URN1), PlaySessionSource.EMPTY), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
@@ -408,7 +408,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
                                                                                  anyListOf(Urn.class))).thenReturn(
                 Observable.just(filteredLocalPlayQueue));
 
-        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(TestPlayQueue.fromUrns(Arrays.asList(TRACK_URN1), PlaySessionSource.EMPTY), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
@@ -424,7 +424,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
                                                                                  anyListOf(Urn.class))).thenReturn(
                 Observable.just(filteredLocalPlayQueue));
 
-        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1, TRACK_URN2), TRACK_URN1, PlaySessionSource.EMPTY)
+        castPlayer.setNewQueue(TestPlayQueue.fromUrns(Arrays.asList(TRACK_URN1, TRACK_URN2), PlaySessionSource.EMPTY), TRACK_URN1, PlaySessionSource.EMPTY)
                   .subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
@@ -440,7 +440,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
                                                                                  anyListOf(Urn.class))).thenReturn(
                 Observable.just(LocalPlayQueue.empty()));
 
-        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(TestPlayQueue.fromUrns(Arrays.asList(TRACK_URN1), PlaySessionSource.EMPTY), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();

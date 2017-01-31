@@ -14,7 +14,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -42,7 +41,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     @Inject TrackInfoPresenter presenter;
     @Inject Navigator navigator;
 
-    private Observable<PropertySet> loadTrack;
+    private Observable<TrackItem> loadTrack;
     private Subscription subscription;
 
     public static TrackInfoFragment create(Urn trackUrn) {
@@ -67,6 +66,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
         loadTrack = trackRepository.fullTrackWithUpdate(getArguments().getParcelable(EXTRA_URN))
+                                   .map(TrackItem::from)
                                    .observeOn(mainThread())
                                    .cache();
     }
@@ -103,17 +103,17 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         dismiss();
     }
 
-    private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
+    private class TrackSubscriber extends DefaultSubscriber<TrackItem> {
         @Override
-        public void onNext(final PropertySet propertySet) {
+        public void onNext(final TrackItem trackItem) {
             final View view = getView();
-            final Urn trackUrn = propertySet.get(TrackProperty.URN);
+            final Urn trackUrn = trackItem.getUrn();
             final TrackInfoCommentClickListener commentClickListener =
                     new TrackInfoCommentClickListener(TrackInfoFragment.this, eventBus, trackUrn, navigator);
-            presenter.bind(view, propertySet, commentClickListener);
+            presenter.bind(view, trackItem, commentClickListener);
 
-            if (propertySet.contains(TrackProperty.DESCRIPTION)) {
-                presenter.bindDescription(view, propertySet);
+            if (trackItem.hasDescription()) {
+                presenter.bindDescription(view, trackItem);
             } else {
                 presenter.showSpinner(view);
             }
@@ -143,7 +143,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
             @Override
             public void handleMessage(Message msg) {
-                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
+                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
             }
         }
 

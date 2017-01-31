@@ -1,16 +1,18 @@
 package com.soundcloud.android.profile;
 
 import static android.os.Build.VERSION_CODES.M;
-import static com.soundcloud.android.view.status.StatusBarUtils.getStatusBarHeight;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.CustomFontTitleToolbar;
-import com.soundcloud.android.view.status.StatusBarColorController;
+import com.soundcloud.android.view.CollapsingToolbarStyleHelper;
+import com.soundcloud.android.view.CollapsingToolbarStyleHelperFactory;
+import com.soundcloud.android.view.status.StatusBarUtils;
+import com.soundcloud.java.collections.Pair;
 
 import android.annotation.TargetApi;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -21,20 +23,19 @@ import javax.inject.Inject;
 
 @TargetApi(M)
 class BannerProfileScrollHelper
-        extends ProfileScrollHelper {
+        extends ProfileScrollHelper implements CollapsingToolbarStyleHelper.PositionProvider {
 
-    private final StatusBarColorController statusBarColorController;
     @Nullable @BindView(R.id.top_gradient) View topGradient;
     @Nullable @BindView(R.id.header_scrim) View scrim;
 
     private int statusBarHeight;
     private int changeArrowPosition;
     private int changeStatusPosition;
-    private boolean lightStatus;
+    private CollapsingToolbarStyleHelperFactory helperFactory;
 
     @Inject
-    BannerProfileScrollHelper(StatusBarColorController statusBarColorController) {
-        this.statusBarColorController = statusBarColorController;
+    BannerProfileScrollHelper(CollapsingToolbarStyleHelperFactory helperFactory) {
+        this.helperFactory = helperFactory;
     }
 
     @Override
@@ -55,11 +56,41 @@ class BannerProfileScrollHelper
         });
     }
 
+    @Override
+    public int getStatusBarHeight() {
+        return statusBarHeight;
+    }
+
+    @Override
+    public int changeStatusPosition() {
+        return changeStatusPosition;
+    }
+
+    @Override
+    public int changeToolbarStylePosition() {
+        return changeArrowPosition;
+    }
+
+    @Override
+    public Pair<Float, Float> scrimAnimateBounds() {
+        return Pair.of(.2f, 1f);
+    }
+
+    @Override
+    public Pair<Float, Float> toolbarAnimateBounds() {
+        return Pair.of(.1f, .3f);
+    }
+
+    @Override
+    public Pair<Float, Float> toolbarGradientAnimateBounds() {
+        return Pair.of(1f, .7f);
+    }
+
     private void doMeasurements(AppCompatActivity activity) {
         View banner = activity.findViewById(R.id.profile_banner);
         if (banner != null) {
             int bannerHeight = banner.getHeight();
-            statusBarHeight = getStatusBarHeight(activity);
+            statusBarHeight = StatusBarUtils.getStatusBarHeight(activity);
             changeStatusPosition = -bannerHeight + statusBarHeight / 2;
             changeArrowPosition = -bannerHeight + statusBarHeight + toolbar.getHeight() / 2;
         }
@@ -74,44 +105,13 @@ class BannerProfileScrollHelper
     }
 
     private void listenForOffsetChanges() {
-        appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
-            final float fullRange = scrim.getHeight() - BannerProfileScrollHelper.this.toolbar.getHeight() - statusBarHeight;
-            scrim.setAlpha(getCurrentAlpha(verticalOffset, fullRange, .2f, 1f));
-            toolbar.setTitleAlpha(getCurrentAlpha(verticalOffset, fullRange, .0f, .3f));
-            float currentAlpha = getCurrentAlpha(verticalOffset, fullRange, 1f, .7f);
-            topGradient.setAlpha(currentAlpha);
-            setStatusBarColor(verticalOffset);
-            setToolBarColor(toolbar, verticalOffset);
-        });
+        appBarLayout.addOnOffsetChangedListener(getOnOffsetChangedListener());
     }
 
-    private void setStatusBarColor(int verticalOffset) {
-        if (lightStatus && verticalOffset > changeStatusPosition) {
-            lightStatus = false;
-            statusBarColorController.clearLightStatusBar();
-        } else if (!lightStatus && verticalOffset < changeStatusPosition) {
-            lightStatus = true;
-            statusBarColorController.setLightStatusBar();
-        }
+    @NonNull
+    private CollapsingToolbarStyleHelper getOnOffsetChangedListener() {
+        return helperFactory.create(toolbar, scrim, topGradient, this);
     }
 
-    private void setToolBarColor(CustomFontTitleToolbar toolbar, int verticalOffset) {
-        if (verticalOffset > changeArrowPosition) {
-            toolbar.setDarkMode();
-        } else if (verticalOffset < changeArrowPosition) {
-            toolbar.setLightMode();
-        }
-    }
 
-    private float getCurrentAlpha(int verticalOffset, float fullRange, float start, float end) {
-        final float currentPosition = (fullRange + verticalOffset);
-        final float startPosition = (start * fullRange);
-        final float range = (end - start) * fullRange;
-        final float endPosition = startPosition + range;
-        final float adjustedPosition = end > start ?
-                           Math.min(endPosition, Math.max(currentPosition, startPosition)) :
-                           Math.max(endPosition, Math.min(currentPosition, startPosition));
-        return 1 - Math.abs(adjustedPosition - startPosition) / Math.abs(range);
-
-    }
 }

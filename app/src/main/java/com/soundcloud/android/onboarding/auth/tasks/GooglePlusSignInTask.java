@@ -8,8 +8,11 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -31,14 +34,16 @@ public class GooglePlusSignInTask extends LoginTask {
     private static final String LISTEN_ACTIVITY = "http://schemas.google.com/ListenActivity";
 
     private static final String[] REQUEST_ACTIVITIES = {ADD_ACTIVITY, CREATE_ACTIVITY, LISTEN_ACTIVITY};
-
+    private final FeatureFlags featureFlags;
+    protected String accountName;
+    protected String scope;
     private Bundle extras;
-    protected String accountName, scope;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
                                 TokenInformationGenerator tokenInformationGenerator, StoreUsersCommand userStorage,
                                 AccountOperations accountOperations, ConfigurationOperations configurationOperations,
-                                EventBus eventBus, ApiClient apiClient, SyncInitiatorBridge syncInitiatorBridge) {
+                                EventBus eventBus, ApiClient apiClient, SyncInitiatorBridge syncInitiatorBridge,
+                                FeatureFlags featureFlags, SignInOperations signInOperations) {
         super(application,
               tokenInformationGenerator,
               userStorage,
@@ -46,16 +51,19 @@ public class GooglePlusSignInTask extends LoginTask {
               eventBus,
               accountOperations,
               apiClient,
-              syncInitiatorBridge);
+              syncInitiatorBridge,
+              featureFlags,
+              signInOperations);
         this.accountName = accountName;
         this.scope = scope;
+        this.featureFlags = featureFlags;
         extras = new Bundle();
         extras.putString(KEY_REQUEST_VISIBLE_ACTIVITIES, TextUtils.join(" ", REQUEST_ACTIVITIES));
     }
 
     @Override
-    protected AuthTaskResult doInBackground(Bundle... params) {
-        AuthTaskResult result = null;
+    protected LegacyAuthTaskResult doInBackground(Bundle... params) {
+        LegacyAuthTaskResult result = null;
         boolean googleTokenValid = false;
         for (int triesLeft = 2; triesLeft > 0 && !googleTokenValid; triesLeft--) {
             try {
@@ -69,18 +77,22 @@ public class GooglePlusSignInTask extends LoginTask {
                 }
             } catch (IOException e) {
                 Log.e(TAG, "error retrieving google token", e);
-                result = AuthTaskResult.networkError(e);
+                result = LegacyAuthTaskResult.networkError(e);
                 triesLeft = 0;
             } catch (Exception e) {
                 Log.e(TAG, "error retrieving google token", e);
-                result = AuthTaskResult.failure(e);
+                result = LegacyAuthTaskResult.failure(e);
                 triesLeft = 0;
             }
         }
         return result;
     }
 
-    protected AuthTaskResult login(String token) {
-        return login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_GOOGLE_PLUS, token));
+    protected LegacyAuthTaskResult login(String token) {
+        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
+            return login(SignInOperations.getGoogleTokenBundle(token));
+        } else {
+            return login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_GOOGLE_PLUS, token));
+        }
     }
 }

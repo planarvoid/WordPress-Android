@@ -1,222 +1,476 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.events.UpgradeFunnelEvent.ClickCategory.CONSUMER_SUBS;
+import static com.soundcloud.android.events.UpgradeFunnelEvent.EventName.CLICK;
+import static com.soundcloud.android.events.UpgradeFunnelEvent.EventName.IMPRESSION;
+import static com.soundcloud.android.events.UpgradeFunnelEvent.Kind.RESUBSCRIBE_CLICK;
+import static com.soundcloud.android.events.UpgradeFunnelEvent.Kind.RESUBSCRIBE_IMPRESSION;
+import static com.soundcloud.android.events.UpgradeFunnelEvent.Kind.UPGRADE_SUCCESS;
+import static com.soundcloud.android.events.UpgradeFunnelEvent.Kind.UPSELL_CLICK;
+import static com.soundcloud.android.events.UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION;
+
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
-public final class UpgradeFunnelEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
+    public enum EventName {
+        IMPRESSION("impression"),
+        CLICK("click");
 
-    public static final String KIND_UPSELL_IMPRESSION = "upsell_impression";
-    public static final String KIND_RESUBSCRIBE_IMPRESSION = "resub_impression";
-    public static final String KIND_UPSELL_CLICK = "upsell_click";
-    public static final String KIND_RESUBSCRIBE_CLICK = "resub_click";
-    public static final String KIND_UPGRADE_SUCCESS = "upgrade_complete";
+        final String name;
 
-    public static final String ID_WHY_ADS = "why_ads";
-    public static final String ID_PLAYER = "player";
-    public static final String ID_SETTINGS = "settings";
-    public static final String ID_SETTINGS_UPGRADE = "upgrade";
-    public static final String ID_LIKES = "likes";
-    public static final String ID_SEARCH_RESULTS = "search_results";
-    public static final String ID_SEARCH_RESULTS_GO = "search_go";
-    public static final String ID_PLAYLIST_ITEM = "playlist_item";
-    public static final String ID_PLAYLIST_PAGE = "playlist_page";
-    public static final String ID_PLAYLIST_OVERFLOW = "playlist_overflow";
-    public static final String ID_STREAM = "stream";
-    public static final String ID_COLLECTION = "collection";
-    public static final String ID_PLAYLIST_TRACKS = "playlist_tracks";
-    public static final String ID_UPGRADE_BUTTON = "upgrade_button";
-    public static final String ID_UPGRADE_PROMO = "upgrade_promo";
-    public static final String ID_RESUBSCRIBE_BUTTON = "resubscribe_button";
+        EventName(String name) {
+            this.name = name;
+        }
 
-    public static final String KEY_ID = "upgrade_funnel_id";
-    public static final String KEY_PAGE_NAME = "page_name";
-    public static final String KEY_PAGE_URN = "page_urn";
-
-    private UpgradeFunnelEvent(@NotNull String kind) {
-        super(kind);
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
-    private UpgradeFunnelEvent(@NotNull String kind, String id) {
-        this(kind);
-        put(KEY_ID, id);
+    public enum Kind {
+        UPSELL_IMPRESSION("upsell_impression"),
+        RESUBSCRIBE_IMPRESSION("resub_impression"),
+        UPGRADE_SUCCESS("upgrade_complete"),
+        UPSELL_CLICK("upsell_click"),
+        RESUBSCRIBE_CLICK("resub_click");
+
+        final String key;
+
+        Kind(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public String toString() {
+            return key;
+        }
+    }
+
+    public enum ClickCategory {
+        CONSUMER_SUBS("consumer_subs");
+
+        private final String name;
+
+        ClickCategory(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    public enum ImpressionName {
+        CONSUMER_SUB_AD("consumer_sub_ad"),
+        CONSUMER_SUB_UPGRADE_SUCCESS("consumer_sub_upgrade_success"),
+        CONSUMER_SUB_RESUBSCRIBE("consumer_sub_resubscribe");
+
+        private final String name;
+
+        ImpressionName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    public enum ClickName {
+        CONSUMER_SUB_AD("clickthrough::consumer_sub_ad"),
+        CONSUMER_SUB_RESUBSCRIBE("clickthrough::consumer_sub_resubscribe");
+
+        private final String name;
+
+        ClickName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    public enum Tcode {
+        WHY_ADS(1006),
+        PLAYER(1017),
+        SETTINGS(1007),
+        SETTINGS_UPGRADE(1008),
+        LIKES(1009),
+        SEARCH_RESULTS(1025),
+        SEARCH_RESULTS_GO(1026),
+        PLAYLIST_ITEM(1011),
+        PLAYLIST_PAGE(1012),
+        PLAYLIST_OVERFLOW(1048),
+        STREAM(1027),
+        COLLECTION(1052),
+        PLAYLIST_TRACKS(1042),
+        UPGRADE_BUTTON(3002),
+        UPGRADE_PROMO(4007),
+        RESUBSCRIBE_BUTTON(4002);
+
+        private final int code;
+
+        Tcode(int code) {
+            this.code = code;
+        }
+
+        @Override
+        public String toString() {
+            return "soundcloud:tcode:" + code;
+        }
+    }
+
+    public enum AdjustToken {
+        WHY_ADS("1jourb"),
+        CONVERSION("b4r6to"),
+        PROMO("355p3s"),
+        HIGH_TIER_TRACK_PLAYED("lfydid"),
+        HIGH_TIER_SEARCH_RESULTS("n3mdeg"),
+        STREAM_UPSELL("a7r5gy"),
+        OFFLINE_SETTINGS("396cnm"),
+        PLAYLIST_TRACKS_UPSELL("8a8hir"),
+        PLAN_DOWNGRADED("ik01gn");
+
+        private final String adjustToken;
+
+        AdjustToken(String adjustToken) {
+            this.adjustToken = adjustToken;
+        }
+
+        @Override
+        public String toString() {
+            return adjustToken;
+        }
+    }
+
+    public abstract Kind kind();
+
+    public abstract EventName eventName();
+
+    public abstract Optional<String> pageName();
+
+    public abstract Optional<String> pageUrn();
+
+    public abstract Optional<ClickName> clickName();
+
+    public abstract Optional<ClickCategory> clickCategory();
+
+    public abstract Optional<String> clickObject();
+
+    public abstract Optional<ImpressionName> impressionName();
+
+    public abstract Optional<String> impressionCategory();
+
+    public abstract Optional<String> impressionObject();
+
+    public abstract Optional<AdjustToken> adjustToken();
+
+    @NotNull
+    @Override
+    public String getKind() {
+        return kind().toString();
+    }
+
+    private static Builder from(Kind kind) {
+        return new AutoValue_UpgradeFunnelEvent.Builder()
+                .id(defaultId())
+                .timestamp(defaultTimestamp())
+                .referringEvent(Optional.absent())
+                .kind(kind)
+                .pageName(Optional.absent())
+                .pageUrn(Optional.absent())
+                .clickName(Optional.absent())
+                .clickCategory(Optional.absent())
+                .clickObject(Optional.absent())
+                .impressionName(Optional.absent())
+                .impressionCategory(Optional.absent())
+                .impressionObject(Optional.absent())
+                .adjustToken(Optional.absent());
+    }
+
+    private static Builder fromUpsellImpression(Tcode tcode) {
+        return from(UPSELL_IMPRESSION)
+                .eventName(IMPRESSION)
+                .impressionName(Optional.of(ImpressionName.CONSUMER_SUB_AD))
+                .impressionObject(Optional.of(tcode.toString()));
+    }
+
+    private static Builder fromUpsellClick(Tcode tcode) {
+        return from(UPSELL_CLICK)
+                .eventName(CLICK)
+                .clickName(Optional.of(ClickName.CONSUMER_SUB_AD))
+                .clickCategory(Optional.of(CONSUMER_SUBS))
+                .clickObject(Optional.of(tcode.toString()));
     }
 
     public static UpgradeFunnelEvent forWhyAdsImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_WHY_ADS);
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.WHY_ADS)
+                                 .adjustToken(Optional.of(AdjustToken.WHY_ADS))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forWhyAdsClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_WHY_ADS);
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.WHY_ADS)
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlayerImpression(Urn trackUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYER)
-                .put(KEY_PAGE_NAME, Screen.PLAYER_MAIN.get())
-                .put(KEY_PAGE_URN, trackUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.PLAYER)
+                                 .adjustToken(Optional.of(AdjustToken.HIGH_TIER_TRACK_PLAYED))
+                                 .pageName(Optional.of(Screen.PLAYER_MAIN.get()))
+                                 .pageUrn(Optional.of(trackUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlayerClick(Urn trackUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYER)
-                .put(KEY_PAGE_NAME, Screen.PLAYER_MAIN.get())
-                .put(KEY_PAGE_URN, trackUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.PLAYER)
+                                 .pageName(Optional.of(Screen.PLAYER_MAIN.get()))
+                                 .pageUrn(Optional.of(trackUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forSettingsClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_SETTINGS)
-                .put(KEY_PAGE_NAME, Screen.SETTINGS_MAIN.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.SETTINGS)
+                                 .pageName(Optional.of(Screen.SETTINGS_MAIN.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forSettingsImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_SETTINGS)
-                .put(KEY_PAGE_NAME, Screen.SETTINGS_MAIN.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.SETTINGS)
+                                 .pageName(Optional.of(Screen.SETTINGS_MAIN.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forUpgradeFromSettingsClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_SETTINGS_UPGRADE)
-                .put(KEY_PAGE_NAME, Screen.SETTINGS_OFFLINE.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.SETTINGS_UPGRADE)
+                                 .pageName(Optional.of(Screen.SETTINGS_OFFLINE.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forUpgradeFromSettingsImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_SETTINGS_UPGRADE)
-                .put(KEY_PAGE_NAME, Screen.SETTINGS_OFFLINE.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.SETTINGS_UPGRADE)
+                                 .adjustToken(Optional.of(AdjustToken.OFFLINE_SETTINGS))
+                                 .pageName(Optional.of(Screen.SETTINGS_OFFLINE.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forLikesImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_LIKES)
-                .put(KEY_PAGE_NAME, Screen.LIKES.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.LIKES)
+                                 .pageName(Optional.of(Screen.LIKES.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forLikesClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_LIKES)
-                .put(KEY_PAGE_NAME, Screen.LIKES.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.LIKES)
+                                 .pageName(Optional.of(Screen.LIKES.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forSearchResultsImpression(Screen screen) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_SEARCH_RESULTS)
-                .put(KEY_PAGE_NAME, screen.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.SEARCH_RESULTS)
+                                 .pageName(Optional.of(screen.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forSearchResultsClick(Screen screen) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_SEARCH_RESULTS)
-                .put(KEY_PAGE_NAME, screen.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.SEARCH_RESULTS)
+                                 .pageName(Optional.of(screen.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forSearchPremiumResultsImpression(Screen screen) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_SEARCH_RESULTS_GO)
-                .put(KEY_PAGE_NAME, screen.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.SEARCH_RESULTS_GO)
+                                 .adjustToken(Optional.of(AdjustToken.HIGH_TIER_SEARCH_RESULTS))
+                                 .pageName(Optional.of(screen.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forSearchPremiumResultsClick(Screen screen) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_SEARCH_RESULTS_GO)
-                .put(KEY_PAGE_NAME, screen.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.SEARCH_RESULTS_GO)
+                                 .pageName(Optional.of(screen.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistItemImpression(String screen, Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYLIST_ITEM)
-                .put(KEY_PAGE_NAME, screen)
-                .put(KEY_PAGE_URN, playlistUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.PLAYLIST_ITEM)
+                                 .pageName(Optional.of(screen))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistItemClick(String screen, Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_ITEM)
-                .put(KEY_PAGE_NAME, screen)
-                .put(KEY_PAGE_URN, playlistUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.PLAYLIST_ITEM)
+                                 .pageName(Optional.of(screen))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistPageImpression(Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYLIST_PAGE)
-                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get())
-                .put(KEY_PAGE_URN, playlistUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.PLAYLIST_PAGE)
+                                 .pageName(Optional.of(Screen.PLAYLIST_DETAILS.get()))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistPageClick(Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_PAGE)
-                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get())
-                .put(KEY_PAGE_URN, playlistUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.PLAYLIST_PAGE)
+                                 .pageName(Optional.of(Screen.PLAYLIST_DETAILS.get()))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistOverflowImpression(Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYLIST_OVERFLOW)
-                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get())
-                .put(KEY_PAGE_URN, playlistUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.PLAYLIST_OVERFLOW)
+                                 .pageName(Optional.of(Screen.PLAYLIST_DETAILS.get()))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistOverflowClick(Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_OVERFLOW)
-                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get())
-                .put(KEY_PAGE_URN, playlistUrn.toString());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.PLAYLIST_OVERFLOW)
+                                 .pageName(Optional.of(Screen.PLAYLIST_DETAILS.get()))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forStreamImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_STREAM)
-                .put(KEY_PAGE_NAME, Screen.STREAM.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.STREAM)
+                                 .adjustToken(Optional.of(AdjustToken.STREAM_UPSELL))
+                                 .pageName(Optional.of(Screen.STREAM.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forStreamClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_STREAM)
-                .put(KEY_PAGE_NAME, Screen.STREAM.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.STREAM)
+                                 .pageName(Optional.of(Screen.STREAM.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forCollectionImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_COLLECTION)
-                .put(KEY_PAGE_NAME, Screen.COLLECTIONS.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.COLLECTION)
+                                 .pageName(Optional.of(Screen.COLLECTIONS.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forCollectionClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_COLLECTION)
-                .put(KEY_PAGE_NAME, Screen.COLLECTIONS.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.COLLECTION)
+                                 .pageName(Optional.of(Screen.COLLECTIONS.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistTracksImpression(Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYLIST_TRACKS)
-                .put(KEY_PAGE_URN, playlistUrn.toString())
-                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.PLAYLIST_TRACKS)
+                                 .adjustToken(Optional.of(AdjustToken.PLAYLIST_TRACKS_UPSELL))
+                                 .pageName(Optional.of(Screen.PLAYLIST_DETAILS.get()))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forPlaylistTracksClick(Urn playlistUrn) {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_TRACKS)
-                .put(KEY_PAGE_URN, playlistUrn.toString())
-                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.PLAYLIST_TRACKS)
+                                 .pageName(Optional.of(Screen.PLAYLIST_DETAILS.get()))
+                                 .pageUrn(Optional.of(playlistUrn.toString()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forUpgradeButtonImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_UPGRADE_BUTTON)
-                .put(KEY_PAGE_NAME, Screen.CONVERSION.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.UPGRADE_BUTTON)
+                                 .adjustToken(Optional.of(AdjustToken.CONVERSION))
+                                 .pageName(Optional.of(Screen.CONVERSION.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forUpgradeButtonClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_UPGRADE_BUTTON)
-                .put(KEY_PAGE_NAME, Screen.CONVERSION.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.UPGRADE_BUTTON)
+                                 .pageName(Optional.of(Screen.CONVERSION.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forUpgradePromoImpression() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_UPGRADE_PROMO)
-                .put(KEY_PAGE_NAME, Screen.CONVERSION.get());
+        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.UPGRADE_PROMO)
+                                 .adjustToken(Optional.of(AdjustToken.PROMO))
+                                 .pageName(Optional.of(Screen.CONVERSION.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forUpgradePromoClick() {
-        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_UPGRADE_PROMO)
-                .put(KEY_PAGE_NAME, Screen.CONVERSION.get());
+        return UpgradeFunnelEvent.fromUpsellClick(Tcode.UPGRADE_PROMO)
+                                 .pageName(Optional.of(Screen.CONVERSION.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forUpgradeSuccess() {
-        return new UpgradeFunnelEvent(KIND_UPGRADE_SUCCESS);
+        return UpgradeFunnelEvent.from(UPGRADE_SUCCESS)
+                                 .eventName(EventName.IMPRESSION)
+                                 .impressionName(Optional.of(ImpressionName.CONSUMER_SUB_UPGRADE_SUCCESS))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forResubscribeImpression() {
-        return new UpgradeFunnelEvent(KIND_RESUBSCRIBE_IMPRESSION, ID_RESUBSCRIBE_BUTTON)
-                .put(KEY_PAGE_NAME, Screen.OFFLINE_OFFBOARDING.get());
+        return UpgradeFunnelEvent.from(RESUBSCRIBE_IMPRESSION)
+                                 .eventName(EventName.IMPRESSION)
+                                 .impressionName(Optional.of(ImpressionName.CONSUMER_SUB_RESUBSCRIBE))
+                                 .impressionObject(Optional.of(Tcode.RESUBSCRIBE_BUTTON.toString()))
+                                 .adjustToken(Optional.of(AdjustToken.PLAN_DOWNGRADED))
+                                 .pageName(Optional.of(Screen.OFFLINE_OFFBOARDING.get()))
+                                 .build();
     }
 
     public static UpgradeFunnelEvent forResubscribeClick() {
-        return new UpgradeFunnelEvent(KIND_RESUBSCRIBE_CLICK, ID_RESUBSCRIBE_BUTTON)
-                .put(KEY_PAGE_NAME, Screen.OFFLINE_OFFBOARDING.get());
+        return UpgradeFunnelEvent.from(RESUBSCRIBE_CLICK)
+                                 .eventName(CLICK)
+                                 .clickCategory(Optional.of(ClickCategory.CONSUMER_SUBS))
+                                 .clickName(Optional.of(ClickName.CONSUMER_SUB_RESUBSCRIBE))
+                                 .clickObject(Optional.of(Tcode.RESUBSCRIBE_BUTTON.toString()))
+                                 .pageName(Optional.of(Screen.OFFLINE_OFFBOARDING.get()))
+                                 .build();
     }
 
-    public boolean isImpression() {
-        return kind.equals(KIND_UPSELL_IMPRESSION)
-                || kind.equals(KIND_RESUBSCRIBE_IMPRESSION);
+    @Override
+    public UpgradeFunnelEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_UpgradeFunnelEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
+    @AutoValue.Builder
+    abstract static class Builder {
+        abstract Builder id(String id);
+
+        abstract Builder timestamp(long timestamp);
+
+        abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
+
+        abstract Builder kind(Kind kind);
+
+        abstract Builder eventName(EventName eventName);
+
+        abstract Builder pageName(Optional<String> pageName);
+
+        abstract Builder pageUrn(Optional<String> pageUrn);
+
+        abstract Builder clickName(Optional<ClickName> clickName);
+
+        abstract Builder clickCategory(Optional<ClickCategory> clickCategory);
+
+        abstract Builder clickObject(Optional<String> clickObject);
+
+        abstract Builder impressionName(Optional<ImpressionName> impressionName);
+
+        abstract Builder impressionCategory(Optional<String> impressionCategory);
+
+        abstract Builder impressionObject(Optional<String> impressionObject);
+
+        abstract Builder adjustToken(Optional<AdjustToken> adjustToken);
+
+        abstract UpgradeFunnelEvent build();
+    }
 }

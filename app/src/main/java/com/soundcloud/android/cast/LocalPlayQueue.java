@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated
 class LocalPlayQueue {
 
     final JSONObject playQueueTracksJSON;
@@ -25,7 +26,7 @@ class LocalPlayQueue {
     }
 
     public static LocalPlayQueue empty() {
-        return new LocalPlayQueue(null, Collections.<Urn>emptyList(), null, Urn.NOT_SET);
+        return new LocalPlayQueue(null, Collections.emptyList(), null, Urn.NOT_SET);
     }
 
     public boolean isEmpty() {

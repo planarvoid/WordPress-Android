@@ -51,6 +51,10 @@ public abstract class PlayStateEvent {
         return getTransition().isPaused();
     }
 
+    public boolean isCastDisconnection() {
+        return getTransition().isCastDisconnection();
+    }
+
     public boolean isBuffering() {
         return getTransition().isBuffering();
     }

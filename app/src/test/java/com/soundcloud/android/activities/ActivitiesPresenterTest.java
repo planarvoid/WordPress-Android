@@ -12,8 +12,9 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.optional.Optional;
@@ -119,15 +120,15 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToTrackCommentsWhenClickingTrackComment() {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
-        final ActivityItem activity = TestPropertySets.activityTrackComment();
+        final Track track = ModelFixtures.trackBuilder().build();
+        final ActivityItem activity = TestPropertySets.activityTrackComment(track.urn());
         when(trackRepository.track(activity.getCommentedTrackUrn().get()))
                 .thenReturn(Observable.just(track));
         when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openTrackComments(context(), track.getUrn());
+        verify(navigator).openTrackComments(context(), track.urn());
     }
 
     @Test

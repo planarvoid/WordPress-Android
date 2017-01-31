@@ -138,7 +138,7 @@ class SearchStrategyFactory {
                 @Override
                 public void call(SearchModelCollection<ApiUniversalSearchItem> apiUniversalSearchItems) {
                     if (apiUniversalSearchItems.premiumContent().isPresent()) {
-                        cacheUniversalSearchCommand.with(apiUniversalSearchItems.premiumContent().get()).call();
+                        cacheUniversalSearchCommand.call(apiUniversalSearchItems.premiumContent().get());
                     }
                 }
             };
@@ -292,7 +292,7 @@ class SearchStrategyFactory {
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                               .subscribeOn(scheduler)
-                              .doOnNext(cacheUniversalSearchCommand.toAction())
+                              .doOnNext(cacheUniversalSearchCommand)
                               .doOnNext(cachePremiumContent)
                               .map(item -> item.transform(ApiUniversalSearchItem::toSearchableItem))
                               .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)

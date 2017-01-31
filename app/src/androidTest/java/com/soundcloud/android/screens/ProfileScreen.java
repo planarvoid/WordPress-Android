@@ -23,7 +23,6 @@ import com.soundcloud.android.screens.profile.UserPlaylistsScreen;
 import com.soundcloud.android.screens.profile.UserRepostsScreen;
 import com.soundcloud.android.screens.profile.UserTracksScreen;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
 
 import android.support.v7.widget.RecyclerView;
@@ -246,7 +245,7 @@ public class ProfileScreen extends Screen {
     }
 
     private Tabs tabs() {
-        return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).toTabs();
+        return testDriver.findOnScreenElement(With.either(With.id(R.id.tab_indicator_scrollable), With.id(R.id.tab_indicator_fixed))).toTabs();
     }
 
     private ViewElement followButton() {

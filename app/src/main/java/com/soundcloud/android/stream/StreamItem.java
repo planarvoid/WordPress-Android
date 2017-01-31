@@ -2,7 +2,9 @@ package com.soundcloud.android.stream;
 
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -28,6 +30,7 @@ public abstract class StreamItem {
         STREAM_UPSELL,
         SUGGESTED_CREATORS,
         APP_INSTALL,
+        VIDEO_AD,
         STREAM_HIGHLIGHTS
     }
 
@@ -59,6 +62,10 @@ public abstract class StreamItem {
         return AppInstall.create(ad);
     }
 
+    public static StreamItem forVideoAd(VideoAd ad) {
+        return Video.create(ad);
+    }
+
     static StreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
         if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
             return TrackStreamItem.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
@@ -82,6 +89,16 @@ public abstract class StreamItem {
         return Optional.absent();
     }
 
+    public Optional<AdData> getAdData() {
+        if (kind() == Kind.APP_INSTALL) {
+            return Optional.of(((StreamItem.AppInstall) this).appInstall());
+        } else if (kind() == Kind.VIDEO_AD) {
+            return Optional.of(((StreamItem.Video) this).video());
+        } else {
+            return Optional.absent();
+        }
+    }
+
     public abstract Kind kind();
 
     public boolean isPromoted() {
@@ -90,7 +107,7 @@ public abstract class StreamItem {
     }
 
     public boolean isAd() {
-        return kind() == Kind.APP_INSTALL;
+        return kind() == Kind.APP_INSTALL || kind() == Kind.VIDEO_AD;
     }
 
     public boolean isUpsell() {
@@ -155,8 +172,17 @@ public abstract class StreamItem {
     public abstract static class AppInstall extends StreamItem {
         public abstract AppInstallAd appInstall();
 
-        static AppInstall create(AppInstallAd appInstall) {
-            return new AutoValue_StreamItem_AppInstall(Kind.APP_INSTALL, appInstall);
+        static AppInstall create(AppInstallAd ad) {
+            return new AutoValue_StreamItem_AppInstall(Kind.APP_INSTALL, ad);
+        }
+    }
+
+    @AutoValue
+    public abstract static class Video extends StreamItem {
+        public abstract VideoAd video();
+
+        static Video create(VideoAd ad) {
+            return new AutoValue_StreamItem_Video(Kind.VIDEO_AD, ad);
         }
     }
 }

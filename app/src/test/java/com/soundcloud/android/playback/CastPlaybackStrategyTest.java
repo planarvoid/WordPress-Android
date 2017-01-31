@@ -69,7 +69,7 @@ public class CastPlaybackStrategyTest {
         final PlayQueue playQueue = TestPlayQueue.fromUrns(tracks, PlaySessionSource.EMPTY);
         strategy.setNewQueue(playQueue, track, 3, PlaySessionSource.EMPTY);
 
-        verify(castPlayer).setNewQueue(tracks, track, PlaySessionSource.EMPTY);
+        verify(castPlayer).setNewQueue(playQueue, track, PlaySessionSource.EMPTY);
     }
 
     @Test

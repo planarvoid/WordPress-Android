@@ -19,7 +19,7 @@ ext {
   findBugsVersion = '3.0.0'
   networkManager = '29'
   skippyVersion = '6.2.5'
-  flipperVersion = '0.0.75'
+  flipperVersion = '0.0.78'
 
   libraries = [
           // Annotation processors / Annotations
@@ -57,7 +57,7 @@ ext {
 
           // Utility libraries
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
-          okHttp                      : "com.squareup.okhttp3:okhttp:3.5.0",
+          okHttp                      : "com.squareup.okhttp3:okhttp:3.6.0",
           rxAndroid                   : "io.reactivex:rxandroid:1.2.1",
           rxJava                      : "io.reactivex:rxjava:1.2.4",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
@@ -73,7 +73,7 @@ ext {
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
           tSnackBar                   : "com.androidadvance:topsnackbar:0.0.9",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
-          tapTargetView               : "com.getkeepsafe.taptargetview:taptargetview:1.6.1",
+          tapTargetView               : "com.getkeepsafe.taptargetview:taptargetview:1.7.0",
 
           // Android libraries
           androidMultidex                 : "com.android.support:multidex:$androidMultiDex",

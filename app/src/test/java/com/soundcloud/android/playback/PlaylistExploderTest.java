@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.never;
@@ -52,7 +53,7 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         final List<Urn> trackUrns1 = Collections.singletonList(Urn.forTrack(123));
         final List<Urn> trackUrns2 = Collections.singletonList(Urn.forTrack(456));
         final List<Urn> trackUrns3 = Collections.singletonList(Urn.forTrack(789));
-        when(playQueueManager.getUpcomingPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKAHEAD_COUNT))
+        when(playQueueManager.getPlayQueueItems(0, PlaylistExploder.PLAYLIST_LOOKAHEAD_COUNT))
                 .thenReturn(Arrays.asList(playlistUrn1, playlistUrn2));
         when(playQueueManager.getPreviousPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKBEHIND_COUNT))
                 .thenReturn(Arrays.asList(playlistUrn3));
@@ -73,10 +74,10 @@ public class PlaylistExploderTest extends AndroidUnitTest {
     public void playlistLoadRetriesOnTrackChangeAfterError() {
         final Urn playlistUrn1 = Urn.forPlaylist(123);
         final List<Urn> trackUrns1 = Collections.singletonList(Urn.forTrack(123));
-        when(playQueueManager.getUpcomingPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKAHEAD_COUNT))
+        when(playQueueManager.getPlayQueueItems(anyInt(), anyInt()))
                 .thenReturn(Arrays.asList(playlistUrn1));
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(
-                Observable.<List<Urn>>error(new IOException()), Observable.just(trackUrns1));
+                Observable.error(new IOException()), Observable.just(trackUrns1));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
@@ -96,7 +97,7 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         final PublishSubject<List<Urn>> playlistLoad3 = PublishSubject.create();
         final PublishSubject<List<Urn>> playlistLoad4 = PublishSubject.create();
 
-        when(playQueueManager.getUpcomingPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKAHEAD_COUNT))
+        when(playQueueManager.getPlayQueueItems(anyInt(), anyInt()))
                 .thenReturn(Arrays.asList(playlistUrn1, playlistUrn2));
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(playlistLoad1);
         when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(playlistLoad2);

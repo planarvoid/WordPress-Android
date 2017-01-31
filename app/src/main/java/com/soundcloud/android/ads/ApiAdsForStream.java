@@ -1,9 +1,11 @@
 package com.soundcloud.android.ads;
 
+import android.support.annotation.NonNull;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -13,28 +15,30 @@ import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollection {
 
-    private static final Predicate<ApiAdWrapper> IS_APP_INSTALL = input -> input != null && input.getAppInstall().isPresent();
-
-    private static final class ToAppInstall implements Function<ApiAdWrapper, AppInstallAd> {
+    private static final class ToAdData implements Function<ApiAdWrapper, AdData> {
         private final DateProvider dateProvider;
 
-        private ToAppInstall(DateProvider dateProvider) {
+        private ToAdData(DateProvider dateProvider) {
             this.dateProvider = dateProvider;
         }
 
         @Override
-        public AppInstallAd apply(ApiAdWrapper input) {
-            return AppInstallAd.create(input.getAppInstall().get(), dateProvider.getCurrentTime());
+        public AdData apply(ApiAdWrapper input) {
+            if (input.getAppInstall().isPresent()) {
+                return AppInstallAd.create(input.getAppInstall().get(), dateProvider.getCurrentTime());
+            } else {
+                return VideoAd.create(input.getVideoAd().get(), dateProvider.getCurrentTime());
+            }
         }
-    };
+    }
 
     public ApiAdsForStream(@JsonProperty("collection") List<ApiAdWrapper> collection,
                            @JsonProperty("_links") Map<String, Link> links,
@@ -47,15 +51,16 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
         super(collection);
     }
 
-    public List<AppInstallAd> getAppInstalls(DateProvider dateProvider) {
-        final ArrayList<ApiAdWrapper> appInstallWrappers =
-                Lists.newArrayList(Iterables.filter(getCollection(), IS_APP_INSTALL));
+    List<AdData> getAds(DateProvider dateProvider) {
+        return Lists.transform(newArrayList(Iterables.filter(getCollection(), supportedInlayAds())), new ToAdData(dateProvider));
+    }
 
-        return Lists.transform(appInstallWrappers, new ToAppInstall(dateProvider));
+    private Predicate<ApiAdWrapper> supportedInlayAds() {
+        return ad -> ad.getAppInstall().isPresent() || ad.getVideoAd().isPresent();
     }
 
     @Override
-    public AdRequestEvent.AdsReceived toAdsReceived() {
+    public AdsReceived toAdsReceived() {
         final List<Urn> appInstalls = new ArrayList<>();
         final List<Urn> videoAds = new ArrayList<>();
 
@@ -69,7 +74,7 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
             }
         }
 
-        return AdRequestEvent.AdsReceived.forStreamAds(appInstalls, videoAds);
+        return AdsReceived.forStreamAds(appInstalls, videoAds);
     }
 
     @Override

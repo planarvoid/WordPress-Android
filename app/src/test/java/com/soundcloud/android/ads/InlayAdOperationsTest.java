@@ -1,20 +1,19 @@
 package com.soundcloud.android.ads;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
 import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 public class InlayAdOperationsTest extends AndroidUnitTest {
     private static AppInstallAd appInstall() {
@@ -67,8 +66,8 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
 
         final InlayAdImpressionEvent impression = operations.TO_IMPRESSION.call(InlayAdEvent.ImageLoaded.create(42, ad, new Date(999)));
 
-        assertThat(impression.getAd()).isEqualTo(ad.getAdUrn());
-        assertThat(impression.getContextPosition()).isEqualTo(42);
+        assertThat(impression.ad()).isEqualTo(ad.getAdUrn());
+        assertThat(impression.contextPosition()).isEqualTo(42);
         assertThat(impression.getTimestamp()).isEqualTo(999);
     }
 }

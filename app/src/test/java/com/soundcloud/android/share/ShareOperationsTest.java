@@ -2,29 +2,38 @@ package com.soundcloud.android.share;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.firebase.FirebaseDynamicLinksApi;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.app.Activity;
 import android.content.Intent;
+
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ShareOperationsTest extends AndroidUnitTest {
 
@@ -40,27 +49,21 @@ public class ShareOperationsTest extends AndroidUnitTest {
     private ShareOperations operations;
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
+    @Mock private FeatureFlags features;
     @Mock private EventTracker tracker;
+    @Mock private FirebaseDynamicLinksApi firebaseApi;
     @Captor ArgumentCaptor<UIEvent> uiEventCaptor;
 
     @Before
     public void setUp() {
         activityContext = activity();
-        operations = new ShareOperations(tracker);
+        operations = new ShareOperations(features, tracker, firebaseApi);
     }
 
     @Test
     public void sharePlayableStartsShareActivity() throws Exception {
         operations.share(activityContext, PLAYLIST, eventContext(), PROMOTED_SOURCE_INFO);
-
-        Assertions.assertThat(activityContext)
-                  .nextStartedIntent()
-                  .containsAction(Intent.ACTION_CHOOSER)
-                  .wrappedIntent()
-                  .containsAction(Intent.ACTION_SEND)
-                  .containsExtra(Intent.EXTRA_SUBJECT, "squirlex galore - SoundCloud")
-                  .containsExtra(Intent.EXTRA_TEXT,
-                                 "Listen to squirlex galore by avieciie #np on #SoundCloud\nhttp://permalink.url");
+        assertShareActivityStarted(PLAYLIST, "http://permalink.url");
     }
 
     @Test
@@ -103,6 +106,48 @@ public class ShareOperationsTest extends AndroidUnitTest {
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
+    @Test
+    public void shareStartsShareActivityWithDynamicLinkWhenFeatureEnabled() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.just("http://goo.gl/foo"));
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertShareActivityStarted(TRACK, "http://goo.gl/foo?/somepath");
+    }
+
+    @Test
+    public void shareStartsShareActivityWithNonDynamicLinkWhenFeatureDisabled() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(false);
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertShareActivityStarted(TRACK, "http://foo.com/somepath");
+    }
+
+    @Test
+    public void shareStartsShareActivityWithNonDynamicLinkWhenLookupFailsDueToNetworkIssue() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.error(new IOException()));
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertShareActivityStarted(TRACK, "http://foo.com/somepath");
+    }
+
+    @Test
+    public void shareCrashesAppWhenLookupFailsDueToAppBug() throws Exception {
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        Thread.setDefaultUncaughtExceptionHandler((t, throwable) -> error.set(throwable));
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        NullPointerException expectedException = new NullPointerException();
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.error(expectedException));
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertThat(error.get()).isNotNull();
+        assertThat(getRootCause(error.get())).isSameAs(expectedException);
+    }
+
+    private Throwable getRootCause(Throwable throwable) {
+        while (throwable.getCause() != null) {
+            throwable = throwable.getCause();
+        }
+        return throwable;
+    }
+
     private EventContextMetadata eventContext() {
         return EventContextMetadata.builder()
                                    .contextScreen(SCREEN_TAG)
@@ -110,4 +155,14 @@ public class ShareOperationsTest extends AndroidUnitTest {
                                    .pageUrn(PAGE_URN).build();
     }
 
+    private void assertShareActivityStarted(PlayableItem playable, String url) {
+        Assertions.assertThat(activityContext)
+                  .nextStartedIntent()
+                  .containsAction(Intent.ACTION_CHOOSER)
+                  .wrappedIntent()
+                  .containsAction(Intent.ACTION_SEND)
+                  .containsExtra(Intent.EXTRA_SUBJECT, playable.getTitle() + " - SoundCloud")
+                  .containsExtra(Intent.EXTRA_TEXT,
+                                 "Listen to " + playable.getTitle() + " by " + playable.getCreatorName() + " #np on #SoundCloud\n" + url);
+    }
 }

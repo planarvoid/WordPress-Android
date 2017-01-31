@@ -79,6 +79,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     private final Navigator navigator;
     private final EventBus eventBus;
     private final SearchTracker searchTracker;
+    private final SearchPlayQueueFilter playQueueFilter;
 
     private SearchOperations.SearchPagingFunction pagingFunction;
     private CompositeSubscription viewLifeCycle;
@@ -94,7 +95,8 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
                                   FeatureOperations featureOperations,
                                   Navigator navigator,
                                   EventBus eventBus,
-                                  SearchTracker searchTracker) {
+                                  SearchTracker searchTracker,
+                                  SearchPlayQueueFilter playQueueFilter) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -103,6 +105,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.searchTracker = searchTracker;
+        this.playQueueFilter = playQueueFilter;
     }
 
     @Override
@@ -142,8 +145,10 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         final Urn urn = adapter.getItem(position).getUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn, searchQuery);
         searchTracker.trackSearchPremiumItemClick(urn, searchQuerySourceInfo);
-        clickListenerFactory.create(searchTracker.getPremiumTrackingScreen(),
-                                    searchQuerySourceInfo).onItemClick(adapter.getItems(), view.getContext(), position);
+        clickListenerFactory.create(searchTracker.getPremiumTrackingScreen(), searchQuerySourceInfo)
+                            .onItemClick(playQueueFilter.correctQueue(adapter.getItems(), position),
+                                         view.getContext(),
+                                         playQueueFilter.correctPosition(position));
     }
 
     @Override

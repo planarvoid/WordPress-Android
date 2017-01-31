@@ -8,6 +8,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -40,10 +41,6 @@ public class LoginScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.txt_i_forgot_my_password));
     }
 
-    public void clickOkButton() {
-        testDriver.clickOnText(android.R.string.ok);
-    }
-
     public TermsOfUseScreen clickOnFBSignInButton() {
         facebookSignInButton().click();
         return new TermsOfUseScreen(testDriver);
@@ -65,9 +62,14 @@ public class LoginScreen extends Screen {
         return new TermsOfUseScreen(testDriver);
     }
 
-    public StreamScreen loginAs(String username, String password) {
+    public StreamScreen loginDefault(String username, String password) {
         tryToLogin(username, password);
         return new StreamScreen(testDriver);
+    }
+
+    public UpgradeScreen loginFromUpgradeDeepLink(String username, String password) {
+        tryToLogin(username, password);
+        return new UpgradeScreen(testDriver);
     }
 
     public LoginErrorScreen failToLoginAs(String username, String password) {

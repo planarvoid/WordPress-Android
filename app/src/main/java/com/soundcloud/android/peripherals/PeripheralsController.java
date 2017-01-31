@@ -7,7 +7,7 @@ import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
@@ -46,12 +46,12 @@ public class PeripheralsController {
         context.sendBroadcast(intent);
     }
 
-    private void notifyPlayQueueChanged(TrackItem track) {
+    private void notifyPlayQueueChanged(Track track) {
         Intent intent = new Intent(AVRCP_META_CHANGED);
-        intent.putExtra("id", track.getUrn().getNumericId());
-        intent.putExtra("track", ScTextUtils.getClippedString(track.getTitle(), 40));
+        intent.putExtra("id", track.urn().getNumericId());
+        intent.putExtra("track", ScTextUtils.getClippedString(track.title(), 40));
         intent.putExtra("duration", Durations.getTrackPlayDuration(track));
-        intent.putExtra("artist", getSafeClippedString(track.getCreatorName(), 30));
+        intent.putExtra("artist", getSafeClippedString(track.creatorName(), 30));
         context.sendBroadcast(intent);
     }
 
@@ -99,9 +99,9 @@ public class PeripheralsController {
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<TrackItem> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
         @Override
-        public void onNext(TrackItem track) {
+        public void onNext(Track track) {
             notifyPlayQueueChanged(track);
         }
     }

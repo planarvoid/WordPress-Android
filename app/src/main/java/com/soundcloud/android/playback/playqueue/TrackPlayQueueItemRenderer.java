@@ -126,8 +126,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE) {
             return playstate == PlayState.PLAYED;
         } else {
-            throw new IllegalStateException("New repeat mode: " + newRepeatMode.toString()
-                                                    + " cannot follow and old repeat mode: " + oldRepeatMode.toString());
+            return false;
         }
     }
 

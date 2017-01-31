@@ -21,9 +21,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -47,7 +49,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
     private static final LikesItem LIKES = LikesItem.fromTrackPreviews(singletonList(
             LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
-    private static final LikesItem NO_LIKES = LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList());
+    private static final LikesItem NO_LIKES = LikesItem.fromTrackPreviews(Collections.emptyList());
 
     private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.create(PlaylistItem.class, 2);
     private static final List<StationRecord> STATIONS = singletonList(mock(StationRecord.class));
@@ -65,14 +67,14 @@ public class CollectionPresenterTest extends AndroidUnitTest {
             LIKES,
             PLAYLISTS,
             STATIONS,
-            Collections.<TrackItem>emptyList(),
-            Collections.<RecentlyPlayedPlayableItem>emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
             false);
     private static final MyCollection MY_COLLECTION_EMPTY = MyCollection.forCollectionWithPlayHistory(NO_LIKES,
-                                                                                                      Collections.<PlaylistItem>emptyList(),
-                                                                                                      Collections.<StationRecord>emptyList(),
-                                                                                                      Collections.<TrackItem>emptyList(),
-                                                                                                      Collections.<RecentlyPlayedPlayableItem>emptyList(),
+                                                                                                      Collections.emptyList(),
+                                                                                                      Collections.emptyList(),
+                                                                                                      Collections.emptyList(),
+                                                                                                      Collections.emptyList(),
                                                                                                       false);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
@@ -89,6 +91,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private Navigator navigator;
+    @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
+    @Mock private FeatureFlags featureFlags;
 
     private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private TestEventBus eventBus = new TestEventBus();
@@ -107,7 +111,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             expandPlayerSubscriberProvider,
                                             playHistoryOperations,
                                             featureOperations,
-                                            navigator);
+                                            navigator,
+                                            offlinePropertiesProvider,
+                                            featureFlags);
     }
 
     @Test
@@ -132,8 +138,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                 PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
                                                                    myCollection.getPlaylistItems(),
                                                                    myCollection.getStations()),
-                RecentlyPlayedBucketItem.create(Collections.<RecentlyPlayedPlayableItem>emptyList()),
-                PlayHistoryBucketItem.create(Collections.<TrackItem>emptyList())
+                RecentlyPlayedBucketItem.create(Collections.emptyList()),
+                PlayHistoryBucketItem.create(Collections.emptyList())
         );
     }
 
@@ -146,8 +152,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                 PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
                                                                    myCollection.getPlaylistItems(),
                                                                    myCollection.getStations()),
-                RecentlyPlayedBucketItem.create(Collections.<RecentlyPlayedPlayableItem>emptyList()),
-                PlayHistoryBucketItem.create(Collections.<TrackItem>emptyList())
+                RecentlyPlayedBucketItem.create(Collections.emptyList()),
+                PlayHistoryBucketItem.create(Collections.emptyList())
         );
     }
 
@@ -155,7 +161,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     public void onCollectionChangedShouldNotRefreshUntilAfterFirstLoad() {
         final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
         when(collectionOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
-        when(collectionOperations.collections()).thenReturn(PublishSubject.<MyCollection>create());
+        when(collectionOperations.collections()).thenReturn(PublishSubject.create());
         presenter.onCreate(fragment, null);
         reset(collectionOperations);
 
@@ -181,7 +187,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     public void onCollectionChangedShouldNotRefreshWhenAlreadyRefreshing() {
         final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
         when(collectionOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
-        when(collectionOperations.collections()).thenReturn(PublishSubject.<MyCollection>create());
+        when(collectionOperations.collections()).thenReturn(PublishSubject.create());
         when(swipeRefreshAttacher.isRefreshing()).thenReturn(true);
         presenter.onCreate(fragment, null);
         reset(collectionOperations);
@@ -269,8 +275,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, null);
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
-        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_COLLECTION);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
     }
 
     @Test
@@ -292,8 +297,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onUpsell(context());
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
-        assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_COLLECTION);
+        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
         verify(navigator).openUpgrade(context());
     }
 }

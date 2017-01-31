@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @AutoValue
-public abstract class AppInstallAd extends AdData {
+public abstract class AppInstallAd extends AdData implements ExpirableAd {
     private State state = State.init();
 
     public static AppInstallAd create(ApiAppInstallAd apiAppInstallAd) {
@@ -29,7 +29,7 @@ public abstract class AppInstallAd extends AdData {
                                           apiAdTracking.clickUrls);
     }
 
-    public abstract Long getCreatedAt();
+    public abstract long getCreatedAt();
 
     public abstract int getExpiryInMins();
 

@@ -37,6 +37,8 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     private static final boolean SCROLLING_UP = true;
     private static final boolean SCROLLING_DOWN = false;
     private static final AppInstallAd APP_INSTALL = appInstall();
+    private static final VideoAd VIDEO_AD = AdFixtures.getVideoAd(32L);
+    private static final StreamItem VIDEO_AD_ITEM = StreamItem.forVideoAd(VIDEO_AD);
     private static final StreamItem APP_INSTALL_ITEM = StreamItem.forAppInstall(APP_INSTALL);
     private static final StreamItem GO_UPSELL_ITEM = new StreamItem() {
         @Override
@@ -242,6 +244,17 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         assertThat(inlayAdHelper.isOnScreen(7)).isTrue();
         assertThat(inlayAdHelper.isOnScreen(10)).isTrue();
         assertThat(inlayAdHelper.isOnScreen(11)).isFalse();
+    }
+
+    @Test
+    public void insertsVideoAds() {
+        setEdgeVisiblePosition(6);
+        setStreamItems(10, TRACK_ITEM);
+
+        boolean inserted = inlayAdHelper.insertAd(VIDEO_AD, SCROLLING_DOWN);
+
+        assertThat(inserted).isTrue();
+        verify(adapter).addItem(7, VIDEO_AD_ITEM);
     }
 
     private void setEdgeVisiblePosition(int position) {

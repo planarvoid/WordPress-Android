@@ -4,8 +4,6 @@ import static java.util.Arrays.asList;
 
 import com.soundcloud.android.activities.ActivityItem;
 import com.soundcloud.android.activities.ActivityKind;
-import com.soundcloud.android.activities.ActivityProperty;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -59,8 +57,7 @@ public abstract class TestPropertySets {
 
     public static TrackItem expectedTrackForWidget() {
         return TestPropertySets.trackWith(PropertySet.from(
-                TrackProperty.IMAGE_URL_TEMPLATE.bind(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")),
-                AdProperty.IS_AUDIO_AD.bind(false)
+                TrackProperty.IMAGE_URL_TEMPLATE.bind(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg"))
         ));
     }
 
@@ -160,16 +157,6 @@ public abstract class TestPropertySets {
                 PromotedItemProperty.PROMOTER_CLICKED_URLS.bind(asList("promoted7", "promoted8")));
     }
 
-    public static TrackItem expectedLikedTrackForLikesScreen() {
-        return expectedLikedTrackForLikesScreenWithDate(new Date());
-    }
-
-    public static TrackItem expectedLikedTrackForLikesScreenWithDate(Date value) {
-        final PropertySet properties = PropertySet.from(
-                TrackProperty.LIKES_COUNT.bind(2),
-                LikeProperty.CREATED_AT.bind(value));
-        return trackWith(mandatoryTrackProperties().merge(properties));
-    }
 
     public static PlaylistItem expectedLikedPlaylistForPlaylistsScreen() {
         return PlaylistItem.from(PropertySet.from(
@@ -225,14 +212,14 @@ public abstract class TestPropertySets {
 
     public static PromotedPlaylistItem expectedPromotedPlaylist() {
         return PromotedPlaylistItem.from(basePromotedPlaylist()
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud")));
+                                                 .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
+                                                 .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud")));
     }
 
     public static PromotedPlaylistItem expectedPromotedPlaylistWithoutPromoter() {
         return PromotedPlaylistItem.from(basePromotedPlaylist()
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent()));
+                                                 .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
+                                                 .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent()));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,9 +285,9 @@ public abstract class TestPropertySets {
     }
 
     public static PlaylistItem fromApiPlaylist(ApiPlaylist apiPlaylist,
-                                              boolean isLiked,
-                                              boolean isReposted,
-                                              boolean markedForOffline) {
+                                               boolean isLiked,
+                                               boolean isReposted,
+                                               boolean markedForOffline) {
         return PlaylistItem.from(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
@@ -330,56 +317,44 @@ public abstract class TestPropertySets {
     }
 
     public static ActivityItem activityTrackLike(Date createdAt) {
-        final PropertySet properties = basicActivity()
-                .put(ActivityProperty.DATE, createdAt)
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_LIKE)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
-        return ActivityItem.fromPropertySet(mandatoryTrackProperties().merge(properties));
+        return basicActivity().kind(ActivityKind.TRACK_LIKE).createdAt(createdAt).build();
     }
 
     public static ActivityItem activityTrackLike() {
-        final PropertySet properties = basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_LIKE)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
-        return ActivityItem.fromPropertySet(mandatoryTrackProperties().merge(properties));
+        return basicActivity().kind(ActivityKind.TRACK_LIKE).build();
     }
 
     public static ActivityItem activityTrackRepost() {
-        final PropertySet properties = basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_REPOST)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
-        return ActivityItem.fromPropertySet(mandatoryTrackProperties().merge(properties));
+        return basicActivity().kind(ActivityKind.TRACK_REPOST).build();
     }
 
     public static ActivityItem activityPlaylistLike() {
-        return ActivityItem.fromPropertySet(basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_LIKE)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+        return basicActivity().kind(ActivityKind.PLAYLIST_LIKE).build();
     }
 
     public static ActivityItem activityPlaylistRepost() {
-        return ActivityItem.fromPropertySet(basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_REPOST)
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+        return basicActivity().kind(ActivityKind.PLAYLIST_REPOST).build();
     }
 
     public static ActivityItem activityUserFollow() {
-        return ActivityItem.fromPropertySet(basicActivity().put(ActivityProperty.KIND, ActivityKind.USER_FOLLOW));
+        return basicActivity().kind(ActivityKind.USER_FOLLOW).build();
     }
 
-    public static ActivityItem activityTrackComment() {
-        return ActivityItem.fromPropertySet(basicActivity()
-                .put(ActivityProperty.KIND, ActivityKind.TRACK_COMMENT)
-                .put(ActivityProperty.COMMENTED_TRACK_URN, Urn.forTrack(123))
-                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz"));
+    public static ActivityItem activityTrackComment(Urn trackUrn) {
+        return basicActivity()
+                .kind(ActivityKind.TRACK_COMMENT)
+                .commentedTrackUrn(Optional.of(trackUrn))
+                .playableTitle("sounds of ze forzz")
+                .build();
     }
 
-    private static PropertySet basicActivity() {
-        return PropertySet.from(
-                ActivityProperty.DATE.bind(new Date()),
-                ActivityProperty.USER_NAME.bind("forss"),
-                ActivityProperty.USER_URN.bind(Urn.forUser(2L))
-        );
+    private static ActivityItem.Builder basicActivity() {
+        return ActivityItem.builder()
+                           .createdAt(new Date())
+                           .userName("forss")
+                           .urn(Urn.forUser(2L))
+                           .playableTitle("sounds of ze forzz");
+
     }
 
     public static TrackItem highTierTrack() {

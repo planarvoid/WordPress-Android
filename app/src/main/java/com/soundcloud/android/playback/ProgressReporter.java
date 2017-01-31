@@ -1,10 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.cast.CastOperations;
-import com.soundcloud.android.cast.DefaultCastOperations;
 import com.soundcloud.android.cast.LegacyCastOperations;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Scheduler;
@@ -15,7 +11,6 @@ import rx.schedulers.TimeInterval;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 
 /**
@@ -24,24 +19,19 @@ import java.lang.ref.WeakReference;
 @Deprecated
 public class ProgressReporter {
 
-    private final CastOperations castOperations;
+    private final LegacyCastOperations legacyCastOperations;
     private final Scheduler scheduler;
     private WeakReference<ProgressPuller> progressPullerReference;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    ProgressReporter(Provider<DefaultCastOperations> castOperations,
-                     Provider<LegacyCastOperations> legacyCastOperations,
-                     FeatureFlags featureFlags) {
-        this(castOperations, legacyCastOperations, featureFlags, AndroidSchedulers.mainThread());
+    ProgressReporter(LegacyCastOperations legacyCastOperations) {
+        this(legacyCastOperations, AndroidSchedulers.mainThread());
     }
 
-    ProgressReporter(Provider<DefaultCastOperations> castOperations,
-                     Provider<LegacyCastOperations> legacyCastOperations,
-                     FeatureFlags featureFlags,
-                     Scheduler scheduler) {
+    ProgressReporter(LegacyCastOperations legacyCastOperations, Scheduler scheduler) {
+        this.legacyCastOperations = legacyCastOperations;
         this.scheduler = scheduler;
-        this.castOperations = featureFlags.isEnabled(Flag.CAST_V3) ? castOperations.get() : legacyCastOperations.get();
     }
 
     public interface ProgressPuller {
@@ -55,7 +45,7 @@ public class ProgressReporter {
 
     public void start() {
         subscription.unsubscribe();
-        subscription = castOperations
+        subscription = legacyCastOperations
                 .intervalForProgressPull()
                 .observeOn(scheduler)
                 .subscribe(new ProgressTickSubscriber());

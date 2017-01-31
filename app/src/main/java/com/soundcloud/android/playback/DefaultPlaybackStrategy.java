@@ -9,6 +9,7 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -49,19 +50,19 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         }
     };
 
-    private final Func1<TrackItem, Observable<Void>> playPlayableTrack = new Func1<TrackItem, Observable<Void>>() {
+    private final Func1<Track, Observable<Void>> playPlayableTrack = new Func1<Track, Observable<Void>>() {
         @Override
-        public Observable<Void> call(TrackItem track) {
-            final Urn trackUrn = track.getUrn();
-            if (track.isBlocked()) {
+        public Observable<Void> call(Track track) {
+            final Urn trackUrn = track.urn();
+            if (track.blocked()) {
                 return Observable.error(new BlockedTrackException(trackUrn));
             } else {
                 if (offlinePlaybackOperations.shouldPlayOffline(track)) {
-                    serviceController.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
-                } else if (track.isSnipped()) {
-                    serviceController.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
+                    serviceController.play(AudioPlaybackItem.forOffline(TrackItem.from(track), getPosition(trackUrn)));
+                } else if (track.snipped()) {
+                    serviceController.play(AudioPlaybackItem.forSnippet(TrackItem.from(track), getPosition(trackUrn)));
                 } else {
-                    serviceController.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
+                    serviceController.play(AudioPlaybackItem.create(TrackItem.from(track), getPosition(trackUrn)));
                 }
                 return Observable.empty();
             }

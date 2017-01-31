@@ -26,7 +26,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.share.ShareOperations;
@@ -34,7 +33,6 @@ import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +88,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         when(playQueueConfiguration.isEnabled()).thenReturn(true);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
-                .thenReturn(Observable.<PlaybackResult>empty());
+                .thenReturn(Observable.empty());
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory,
                                                trackRepository,

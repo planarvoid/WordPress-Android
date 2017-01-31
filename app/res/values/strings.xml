@@ -63,6 +63,7 @@
     <string name="ads_now_playing">Now playing</string>
     <string name="ads_now_playing_tracktitle_username">Now playing: %1$s (%2$s)</string>
     <string name="ads_app">app</string>
+    <string name="ads_video">video</string>
     <plurals name="ads_app_ratings">
         <item quantity="one">%s rating</item>
         <item quantity="other">%s ratings</item>
@@ -245,7 +246,6 @@
     <string name="unposted_to_followers">Unposted</string>
     <string name="repost_error_toast_overflow_action">Repost status could not be changed</string>
 
-
     <!-- __PLAYER -->
     <string name="share">Share</string>
     <string name="repost">Repost on SoundCloud</string>
@@ -314,6 +314,10 @@
     <string name="tab_title_user_followers">FOLLOWERS</string>
     <string name="tab_title_user_followings">FOLLOWING</string>
     <string name="tab_title_user_sounds">SOUNDS</string>
+    <string name="profile_bio">Bio</string>
+    <string name="profile_followers">Followers</string>
+    <string name="profile_following">Following</string>
+    <string name="profile_links">Links</string>
     <!-- @Todo from l10n: can we get rid of these Discogs and Myspace strings? -->
    <string name="discogs">Discogs</string>
    <string name="myspace">Myspace</string>
@@ -718,6 +722,7 @@
     <!-- __CONVERSION -->
     <string name="conversion_page_title">Subscribe</string>
     <string name="conversion_title">SoundCloud Go</string>
+    <string name="conversion_title_plus">SoundCloud Go+</string>
     <string name="conversion_price">%s / month</string>
     <string name="conversion_price_promo">%1$s for %2$s</string>
     <string name="conversion_headline">Listen offline and ad‑free</string>
@@ -740,6 +745,15 @@
     <string name="conversion_restrictions_message_no_trial">You have already used your free trial or are a resident of Quebec and are not eligible for a trial due to local restrictions.\n\nBy purchasing SoundCloud Go, you will be charged the current regular price per month (including applicable local sales taxes) unless cancelled before your next renewal date.</string>
     <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
     <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favorite artists with SoundCloud Go.</string>
+
+    <!-- PRODUCT_CHOICE -->
+    <string name="product_choice_title">Something for everyone</string>
+    <string name="product_choice_mini_terms">Subscription will renew until cancelled</string>
+    <string name="product_choice_line_1">The world’s largest music and audio streaming community</string>
+    <string name="product_choice_line_2">Offline listening</string>
+    <string name="product_choice_line_3">No ads</string>
+    <string name="product_choice_line_4">No previews</string>
+    <string name="product_choice_line_5">More tracks than any other streaming service</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>

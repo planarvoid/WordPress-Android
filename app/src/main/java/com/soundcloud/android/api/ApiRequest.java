@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.net.HttpHeaders;
@@ -199,8 +200,8 @@ public class ApiRequest {
             return this;
         }
 
-        public Builder withToken(Token token) {
-            withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token));
+        public Builder withToken(FeatureFlags featureFlags, Token token) {
+            withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(featureFlags, token));
             return this;
         }
     }

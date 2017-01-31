@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -34,19 +35,22 @@ public class StartStationPresenter {
     private final EventBus eventBus;
     private final PlaybackToastHelper playbackToastHelper;
     private final ScreenProvider screenProvider;
+    private final MiniplayerExperiment miniplayerExperiment;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public StartStationPresenter(DelayedLoadingDialogPresenter.Builder dialogBuilder,
                                  StationsOperations stationsOperations, PlaybackInitiator playbackInitiator,
                                  EventBus eventBus, PlaybackToastHelper playbackToastHelper,
-                                 ScreenProvider screenProvider) {
+                                 ScreenProvider screenProvider,
+                                 MiniplayerExperiment miniplayerExperiment) {
         this.dialogBuilder = dialogBuilder;
         this.stationsOperations = stationsOperations;
         this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
         this.playbackToastHelper = playbackToastHelper;
         this.screenProvider = screenProvider;
+        this.miniplayerExperiment = miniplayerExperiment;
     }
 
     void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
@@ -67,7 +71,8 @@ public class StartStationPresenter {
         subscription = station
                 .flatMap(toPlaybackResult(discoverySource, position))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
-                                                                getLoadingDialogPresenter(context)));
+                                                                getLoadingDialogPresenter(context),
+                                                                miniplayerExperiment));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -94,7 +99,8 @@ public class StartStationPresenter {
         subscription = station
                 .flatMap(toPlaybackResult(discoverySource))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
-                                                                getLoadingDialogPresenter(context)));
+                                                                getLoadingDialogPresenter(context),
+                                                                miniplayerExperiment));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -138,8 +144,9 @@ public class StartStationPresenter {
         ExpandAndDismissDialogSubscriber(Context context,
                                          EventBus eventBus,
                                          PlaybackToastHelper playbackToastHelper,
-                                         DelayedLoadingDialogPresenter delayedLoadingDialogPresenter) {
-            super(eventBus, playbackToastHelper);
+                                         DelayedLoadingDialogPresenter delayedLoadingDialogPresenter,
+                                         MiniplayerExperiment miniplayerExperiment) {
+            super(eventBus, playbackToastHelper, miniplayerExperiment);
             this.context = context;
             this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;
         }

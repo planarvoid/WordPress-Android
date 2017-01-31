@@ -251,11 +251,11 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                 .subscribe(new PlaylistSubscriber());
     }
 
-    private final class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
+    private final class PlaylistSubscriber extends DefaultSubscriber<Playlist> {
 
         @Override
-        public void onNext(PlaylistWithTracks details) {
-            renderer.render(PlaylistItem.from(details.getPlaylist()));
+        public void onNext(Playlist playlist) {
+            renderer.render(PlaylistItem.from(playlist));
         }
     }
 

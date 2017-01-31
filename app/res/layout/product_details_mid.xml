@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/conversion_margin"
+    android:paddingRight="@dimen/conversion_margin">
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/product_choice_title"
+        style="@style/ProductText.Title"
+        android:layout_below="@id/conversion_cloud"
+        android:layout_marginTop="20dp"
+        android:text="@string/conversion_title" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/product_choice_price"
+        style="@style/ProductText.Price"
+        android:layout_below="@id/product_choice_title" />
+
+    <View
+        android:id="@+id/product_choice_divider"
+        style="@style/ProductPageDivider"
+        android:layout_below="@id/product_choice_price" />
+
+    <ImageView
+        android:id="@+id/check_1"
+        style="@style/ProductPageCheck"
+        android:layout_below="@id/product_choice_divider" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/feature_1"
+        style="@style/ProductText"
+        android:layout_toRightOf="@id/check_1"
+        android:layout_alignTop="@id/check_1"
+        android:layout_marginBottom="8dp"
+        android:text="@string/product_choice_line_1" />
+
+    <ImageView
+        android:id="@+id/check_2"
+        style="@style/ProductPageCheck"
+        android:layout_below="@id/feature_1" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/feature_2"
+        style="@style/ProductText"
+        android:layout_toRightOf="@id/check_2"
+        android:layout_alignTop="@id/check_2"
+        android:layout_marginBottom="8dp"
+        android:text="@string/product_choice_line_2" />
+
+    <ImageView
+        android:id="@+id/check_3"
+        style="@style/ProductPageCheck"
+        android:layout_below="@id/feature_2" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/feature_3"
+        style="@style/ProductText"
+        android:layout_toRightOf="@id/check_3"
+        android:layout_alignTop="@id/check_3"
+        android:layout_marginBottom="8dp"
+        android:text="@string/product_choice_line_3" />
+
+    <ImageView
+        android:id="@+id/check_4"
+        style="@style/ProductPageCheck.Disabled"
+        android:layout_below="@id/feature_3" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/feature_4"
+        style="@style/ProductText.Disabled"
+        android:layout_toRightOf="@id/check_4"
+        android:layout_alignTop="@id/check_4"
+        android:layout_marginBottom="8dp"
+        android:text="@string/product_choice_line_4" />
+
+    <ImageView
+        android:id="@+id/check_5"
+        style="@style/ProductPageCheck.Disabled"
+        android:layout_below="@id/feature_4" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/feature_5"
+        style="@style/ProductText.Disabled"
+        android:layout_toRightOf="@id/check_5"
+        android:layout_alignTop="@id/check_5"
+        android:layout_marginBottom="8dp"
+        android:text="@string/product_choice_line_5" />
+
+</RelativeLayout>

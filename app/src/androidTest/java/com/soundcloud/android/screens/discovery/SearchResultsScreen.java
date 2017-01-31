@@ -2,6 +2,7 @@ package com.soundcloud.android.screens.discovery;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.discovery.SearchPresenter;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -25,7 +26,7 @@ import java.util.List;
 public class SearchResultsScreen extends Screen {
 
     private static final Class ACTIVITY = SearchActivity.class;
-    private static final String FRAGMENT = "tabbed_search";
+    private static final String FRAGMENT = SearchPresenter.SEARCH_RESULTS_TAG;
 
     private final SearchTabs searchTabs;
 
@@ -126,6 +127,11 @@ public class SearchResultsScreen extends Screen {
                 testDriver.findOnScreenElements(With.id(withId)),
                 toPlaylistItemElement
         );
+    }
+
+    public SearchScreen clickSearch() {
+        testDriver.findOnScreenElement(With.id(R.id.search_text)).click();
+        return new SearchScreen(testDriver);
     }
 
     private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = viewElement -> PlaylistElement.forListItem(testDriver, viewElement);

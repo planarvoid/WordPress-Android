@@ -14,6 +14,14 @@ public abstract class PlaylistsOptions {
             .textFilter(Strings.EMPTY)
             .build();
 
+    public static final PlaylistsOptions OFFLINE_ONLY = new AutoValue_PlaylistsOptions.Builder()
+            .showLikes(false)
+            .showPosts(false)
+            .showOfflineOnly(true)
+            .sortByTitle(false)
+            .textFilter(Strings.EMPTY)
+            .build();
+
     public static Builder builder() {
         return new AutoValue_PlaylistsOptions
                 .Builder()

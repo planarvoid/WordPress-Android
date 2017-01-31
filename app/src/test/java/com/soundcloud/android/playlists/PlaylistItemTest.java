@@ -7,7 +7,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -110,35 +109,11 @@ public class PlaylistItemTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldProvideReleaseYearWhenReleaseDateIsAvailable() {
-        propertySet.put(PlaylistProperty.RELEASE_DATE, "2010-10-10");
-        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
-
-        assertThat(playlistItem.getReleaseYear()).isEqualTo("2010");
-    }
-
-    @Test
-    public void shouldNotProvideReleaseYearWhenReleaseDateIsNotAvailable() {
-        propertySet.put(PlaylistProperty.RELEASE_DATE, Strings.EMPTY);
-        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
-
-        assertThat(playlistItem.getReleaseYear()).isEqualTo(Strings.EMPTY);
-    }
-
-    @Test
-    public void shouldNotProvideReleaseYearWhenReleaseDateIsInvalid() {
-        propertySet.put(PlaylistProperty.RELEASE_DATE, "invalid");
-        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
-
-        assertThat(playlistItem.getReleaseYear()).isEqualTo(Strings.EMPTY);
-    }
-
-    @Test
     public void shouldReturnLabelAsPlaylistWhenPlaylistIsNotAnAlbum() {
         propertySet.put(PlaylistProperty.IS_ALBUM, false);
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getLabel(context())).isEqualTo("Playlist");
+        assertThat(playlistItem.getLabel(resources())).isEqualTo("Playlist");
     }
 
     @Test
@@ -148,7 +123,7 @@ public class PlaylistItemTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.RELEASE_DATE, "2010-10-10");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getLabel(context())).isEqualTo("EP · 2010");
+        assertThat(playlistItem.getLabel(resources())).isEqualTo("EP · 2010");
     }
 
     @Test
@@ -157,6 +132,6 @@ public class PlaylistItemTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.SET_TYPE, "ep");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getLabel(context())).isEqualTo("EP");
+        assertThat(playlistItem.getLabel(resources())).isEqualTo("EP");
     }
 }

@@ -17,20 +17,26 @@ enum Feature {
   HOLISTIC_TRACKING,
   SUGGESTED_CREATORS,
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
-  MOAT_ADS_VIEWABILITY,
   NEW_HOME,
   STREAM_HIGHLIGHTS,
   OTHER_PLAYLISTS_BY_CREATOR,
-  APP_INSTALLS,
   PROFILE_BANNER,
   CLEAR_TABLES_ON_SIGNOUT,
   AUTOCOMPLETE,
+  SEARCH_TOP_RESULTS,
   ADJUST_DEFERRED_DEEPLINKS,
   CAST_V3,
   FLIPPER,
+  FLIPPER_PRELOAD,
   APPBOY,
   WELCOME_USER,
-  FORCE_SHOW_WELCOME_USER;
+  OFFLINE_PROPERTIES_PROVIDER,
+  FORCE_SHOW_WELCOME_USER,
+  SEARCH_PLAY_RELATED_TRACKS,
+  ALIGNED_USER_INFO,
+  VIDEO_INLAYS,
+  AUTH_API_MOBILE,
+  DYNAMIC_LINKS;
 }
 
 android {
@@ -44,20 +50,26 @@ android {
     buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.APP_INSTALLS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.VIDEO_INLAYS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.APPBOY.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.DYNAMIC_LINKS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -65,74 +77,75 @@ android {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     beta {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     debug {
       buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     release {
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     preRelease {
-      buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
 
     releaseNonPlayStore {
-      buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.APP_INSTALLS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
     }
   }
 }

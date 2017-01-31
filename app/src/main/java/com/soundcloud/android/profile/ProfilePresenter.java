@@ -1,10 +1,6 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileModule.PROFILE_SCROLL_HELPER;
-import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWERS;
-import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWINGS;
-import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_INFO;
-import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -13,8 +9,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
@@ -28,6 +25,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -42,8 +40,10 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
     private final EventTracker eventTracker;
+    private final FeatureFlags featureFlags;
 
     private ViewPager pager;
+    private UserProfilePagerAdapter adapter;
     private Subscription userSubscription = RxUtils.invalidSubscription();
     private Subscription userUpdatedSubscription = RxUtils.invalidSubscription();
 
@@ -56,7 +56,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
                      EventBus eventBus,
                      AccountOperations accountOperations,
                      EventTracker eventTracker,
-                     EnterScreenDispatcher enterScreenDispatcher) {
+                     EnterScreenDispatcher enterScreenDispatcher,
+                     FeatureFlags featureFlags) {
         this.scrollHelper = scrollHelper;
         this.headerPresenter = profileHeaderPresenter;
         this.profileOperations = profileOperations;
@@ -65,6 +66,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         this.eventTracker = eventTracker;
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.enterScreenDispatcher.setListener(this);
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -77,14 +79,33 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
 
-        pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
-                                                 activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
-        pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
+        boolean alignedProfile = featureFlags.isEnabled(Flag.ALIGNED_USER_INFO);
+
+        if (alignedProfile) {
+            adapter = new ProfilePagerAdapter(activity,
+                                              user,
+                                              accountOperations.isLoggedInUser(user),
+                                              activity.getIntent()
+                                                             .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO));
+            pager.setAdapter(adapter);
+            pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
+        } else {
+            adapter = new OldProfilePagerAdapter(activity,
+                                                 user,
+                                                 accountOperations.isLoggedInUser(user),
+                                                 scrollHelper,
+                                                 activity.getIntent()
+                                                                 .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO));
+            pager.setAdapter(adapter);
+            pager.setCurrentItem(OldProfilePagerAdapter.TAB_SOUNDS);
+        }
+
         pager.addOnPageChangeListener(enterScreenDispatcher);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator);
+        TabLayout tabLayout = (TabLayout) activity.findViewById(alignedProfile ? R.id.tab_indicator_fixed : R.id.tab_indicator_scrollable);
+        tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(pager);
 
         refreshUser();
@@ -102,39 +123,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         int position = pager.getCurrentItem();
 
         if (accountOperations.isLoggedInUser(user)) {
-            eventTracker.trackScreen(ScreenEvent.create(getYourScreen(position)), activity.getReferringEvent());
+            eventTracker.trackScreen(ScreenEvent.create(adapter.getYourScreen(position)), activity.getReferringEvent());
         } else {
-            eventTracker.trackScreen(ScreenEvent.create(getOtherScreen(position), Urn.forUser(user.getNumericId())), activity.getReferringEvent());
-        }
-    }
-
-    private Screen getYourScreen(int position) {
-        switch (position) {
-            case TAB_INFO:
-                return Screen.YOUR_INFO;
-            case TAB_SOUNDS:
-                return Screen.YOUR_MAIN;
-            case TAB_FOLLOWINGS:
-                return Screen.YOUR_FOLLOWINGS;
-            case TAB_FOLLOWERS:
-                return Screen.YOUR_FOLLOWERS;
-            default:
-                return Screen.UNKNOWN;
-        }
-    }
-
-    private Screen getOtherScreen(int position) {
-        switch (position) {
-            case TAB_INFO:
-                return Screen.USER_INFO;
-            case TAB_SOUNDS:
-                return Screen.USER_MAIN;
-            case TAB_FOLLOWINGS:
-                return Screen.USER_FOLLOWINGS;
-            case TAB_FOLLOWERS:
-                return Screen.USER_FOLLOWERS;
-            default:
-                return Screen.UNKNOWN;
+            eventTracker.trackScreen(ScreenEvent.create(adapter.getOtherScreen(position), Urn.forUser(user.getNumericId())), activity.getReferringEvent());
         }
     }
 

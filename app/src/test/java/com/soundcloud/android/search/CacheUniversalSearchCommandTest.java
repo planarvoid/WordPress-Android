@@ -33,7 +33,7 @@ public class CacheUniversalSearchCommandTest {
     @Test
     public void shouldCacheTrackIfResultItemIsTrack() throws Exception {
         final ApiTrack track = new ApiTrack();
-        command.with(singletonList(new ApiUniversalSearchItem(null, null, track))).call();
+        command.call(singletonList(new ApiUniversalSearchItem(null, null, track)));
 
         verify(storeTracksCommand).call(singletonList(track));
         verifyZeroInteractions(storePlaylistsCommand);
@@ -43,7 +43,7 @@ public class CacheUniversalSearchCommandTest {
     @Test
     public void shouldCachePlaylistIfResultItemIsPlaylist() throws Exception {
         final ApiPlaylist playlist = new ApiPlaylist();
-        command.with(singletonList(new ApiUniversalSearchItem(null, playlist, null))).call();
+        command.call(singletonList(new ApiUniversalSearchItem(null, playlist, null)));
 
         verify(storePlaylistsCommand).call(singletonList(playlist));
         verifyZeroInteractions(storeTracksCommand);
@@ -53,7 +53,7 @@ public class CacheUniversalSearchCommandTest {
     @Test
     public void shouldCacheUserIfResultItemIsUser() throws Exception {
         final ApiUser user = new ApiUser();
-        command.with(singletonList(new ApiUniversalSearchItem(user, null, null))).call();
+        command.call(singletonList(new ApiUniversalSearchItem(user, null, null)));
 
         verify(storeUsersCommand).call(singletonList(user));
         verifyZeroInteractions(storeTracksCommand);

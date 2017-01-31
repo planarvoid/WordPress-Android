@@ -49,7 +49,6 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
     private final ProfileImageHelper profileImageHelper;
 
     @BindView(R.id.header_info_layout) View headerInfoLayout;
-    @BindView(R.id.tab_indicator) View tabs;
     @BindView(R.id.username) TextView username;
     @BindView(R.id.image) ImageView image;
     @Nullable @BindView(R.id.profile_banner) ImageView banner; // not present in certain configurations

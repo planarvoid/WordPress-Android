@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_U
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPositionLegacy;
 
 import com.google.android.gms.cast.MediaStatus;
-import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
@@ -87,17 +86,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     }
 
     @Override
-    public void onConnected(RemoteMediaClient remoteMediaClient) {
-        //no-op
-    }
-
-    @Override
-    public void pullRemotePlayQueueAndUpdateLocalState() {
-        //no-op
-    }
-
-    @Override
-    public void playLocalPlayQueueOnRemote() {
+    public void onConnected() {
         //no-op
     }
 
@@ -191,7 +180,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
             return setNewQueue(
-                    getCurrentQueueUrnsWithoutAds(),
+                    PlayQueue.fromTrackUrnList(getCurrentQueueUrnsWithoutAds(), playQueueManager.getCurrentPlaySessionSource(), Collections.emptyMap()),
                     currentPlayQueueItem.getUrn(),
                     playQueueManager.getCurrentPlaySessionSource());
         } else {
@@ -199,11 +188,11 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
         }
     }
 
-    public Observable<PlaybackResult> setNewQueue(List<Urn> unfilteredLocalPlayQueueTracks,
+    public Observable<PlaybackResult> setNewQueue(PlayQueue playQueue,
                                                   final Urn initialTrackUrnCandidate,
                                                   final PlaySessionSource playSessionSource) {
         return castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(initialTrackUrnCandidate,
-                                                                                   unfilteredLocalPlayQueueTracks)
+                                                                                   playQueue.getTrackItemUrns())
                              .observeOn(AndroidSchedulers.mainThread())
                              .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource))
                              .doOnError(reportPlaybackError(initialTrackUrnCandidate));

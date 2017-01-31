@@ -16,6 +16,7 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
@@ -24,11 +25,13 @@ import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.LikesStateProvider;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.performance.PerformanceEngineFactory;
 import com.soundcloud.android.performance.StopWatch;
 import com.soundcloud.android.peripherals.PeripheralsController;
+import com.soundcloud.android.playback.MiniplayerStorage;
 import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -116,6 +119,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
+    @Inject OfflinePropertiesProvider offlinePropertiesProvider;
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;
     @Inject SyncInitiator syncInitiator;
@@ -123,6 +127,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
     @Inject PerformanceEngineFactory performanceEngineFactory;
     @Inject LikesStateProvider likesStateProvider;
+    @Inject MiniplayerStorage miniplayerStorage;
+    @Inject FollowingStateProvider followingStateProvider;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -202,6 +208,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         configureCast();
 
         trackOfflineStateProvider.subscribe();
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            offlinePropertiesProvider.subscribe();
+        }
         playQueueExtender.subscribe();
         playHistoryController.subscribe();
         playlistExploder.subscribe();
@@ -215,13 +224,18 @@ public class SoundCloudApplication extends MultiDexApplication {
         streamPreloader.subscribe();
 
         configurationFeatureController.subscribe();
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
+
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2) || featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
             likesStateProvider.subscribe();
+            followingStateProvider.subscribe();
         }
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
+
+        miniplayerStorage.clear();
     }
 
     private void configureCast() {
@@ -246,7 +260,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void setupMoatAnalytics() {
-        if (applicationProperties.canUseMoatForAdViewability() && featureFlags.isEnabled(Flag.MOAT_ADS_VIEWABILITY)) {
+        if (applicationProperties.canUseMoatForAdViewability()) {
             final MoatOptions options = new MoatOptions();
             options.disableAdIdCollection = true;
             MoatAnalytics.getInstance().start(options, this);
@@ -336,16 +350,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     public void onTrimMemory(int level) {
         uncaughtExceptionHandlerController.reportMemoryTrim(level);
         super.onTrimMemory(level);
-    }
-
-    @NotNull
-    @VisibleForTesting //Also used from Public api which is deprecated
-    public static SoundCloudApplication fromContext(@NotNull Context c) {
-        if (c.getApplicationContext() instanceof SoundCloudApplication) {
-            return ((SoundCloudApplication) c.getApplicationContext());
-        } else {
-            throw new RuntimeException("can't obtain app from context");
-        }
     }
 
     @VisibleForTesting

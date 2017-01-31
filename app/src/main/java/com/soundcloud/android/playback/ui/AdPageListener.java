@@ -6,7 +6,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.deeplinks.DeepLink;
@@ -21,13 +21,12 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscriber;
 
 import android.content.Context;
 import android.net.Uri;
 
 import javax.inject.Inject;
-
-import rx.Subscriber;
 
 class AdPageListener extends PageListener {
 
@@ -70,7 +69,11 @@ class AdPageListener extends PageListener {
     }
 
     public void onClickThrough(Context activityContext) {
-        adClickThrough(activityContext, (PlayerAdData) adsOperations.getCurrentTrackAdData().get());
+        final Optional<AdData> currentTrackAdData = adsOperations.getCurrentTrackAdData();
+
+        if (currentTrackAdData.isPresent()) {
+            adClickThrough(activityContext, (PlayableAdData) currentTrackAdData.get());
+        }
 
         final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
         if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
@@ -78,7 +81,7 @@ class AdPageListener extends PageListener {
         }
     }
 
-    private void adClickThrough(Context activityContext, PlayerAdData adData) {
+    private void adClickThrough(Context activityContext, PlayableAdData adData) {
         final Uri clickThrough = Uri.parse(adData instanceof AudioAd
                                      ? ((AudioAd) adData).getClickThroughUrl().get()
                                      : ((VideoAd) adData).getClickThroughUrl());
@@ -107,7 +110,7 @@ class AdPageListener extends PageListener {
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
                 .subscribe(startPlaylistOrProfile(activityContext, getUrnforEntityDeepLink(deeplink, uri)));
 
-        onPlayerClose();
+        requestPlayerCollapse();
     }
 
     private Urn getUrnforEntityDeepLink(DeepLink deepLink, Uri uri) {

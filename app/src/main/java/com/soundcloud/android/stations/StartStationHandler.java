@@ -52,7 +52,7 @@ public class StartStationHandler {
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
                 .subscribe(new StartStationPageSubscriber(context, trackUrn, trackBlocked));
 
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
     }
 
     private class StartStationPageSubscriber extends DefaultSubscriber<PlayerUIEvent> {

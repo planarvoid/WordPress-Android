@@ -163,13 +163,12 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsImpressionJsonForCompanionDisplayToAudioAd() throws ApiMapperException {
         Urn audioAdTrackUrn = Urn.forTrack(123L);
         final AudioAd audioAd = AdFixtures.getAudioAd(audioAdTrackUrn);
+        final VisualAdImpressionEvent event = VisualAdImpressionEvent.create(audioAd,
+                                                                             LOGGED_IN_USER,
+                                                                             trackSourceInfo);
+        jsonDataBuilder.build(event);
 
-        jsonDataBuilder.build(new VisualAdImpressionEvent(audioAd,
-                                                          LOGGED_IN_USER,
-                                                          trackSourceInfo,
-                                                          TIMESTAMP));
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", event.timestamp())
                                                .adUrn(audioAd.getCompanionAdUrn().get().toString())
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("companion_display")

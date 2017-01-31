@@ -6,19 +6,28 @@ import android.view.TextureView;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+
 @Singleton
 public class VideoSurfaceProvider {
 
-    // Change size to PlayerPagerPresenter.PAGE_VIEW_POOL_SIZE to support multiple videos in PQ at once.
-    final private Map<Urn, VideoTextureContainer> videoTextureContainers = new HashMap<>(1);
+    public enum Origin {
+        STREAM,
+        PLAYER
+    }
+
+    final private static int MAX_VIDEO_CONTAINERS = 5;
+
+    final private Map<Urn, VideoTextureContainer> videoTextureContainers = new HashMap<>(MAX_VIDEO_CONTAINERS);
 
     final private VideoTextureContainer.Factory containerFactory;
     final private ApplicationProperties applicationProperties;
@@ -39,13 +48,14 @@ public class VideoSurfaceProvider {
         }
     }
 
-    public void setTextureView(Urn urn, TextureView videoTexture) {
+    public void setTextureView(Urn urn, Origin origin, TextureView videoTexture) {
         if (videoTextureContainers.containsKey(urn) && applicationProperties.canReattachSurfaceTexture()) {
             videoTextureContainers.get(urn).reattachSurfaceTexture(videoTexture);
         } else {
-            // If this texture view was used before, release & remove the old container referencing it
-            removeContainers(videoTexture);
-            videoTextureContainers.put(urn, containerFactory.build(urn, videoTexture, listener));
+            // If this texture view was used before (e.g view is recycled),
+            // release & remove any old containers referencing it
+            removeContainers(container -> container.containsTextureView(videoTexture));
+            videoTextureContainers.put(urn, containerFactory.build(urn, origin, videoTexture, listener));
         }
 
         if (listener.isPresent()) {
@@ -53,27 +63,28 @@ public class VideoSurfaceProvider {
         }
     }
 
-    private void removeContainers(TextureView videoTexture) {
-        for (VideoTextureContainer container: videoTextureContainers.values()) {
-            if (container.containsTextureView(videoTexture)) {
+    private void removeContainers(Predicate<VideoTextureContainer> predicate) {
+        Iterator<Map.Entry<Urn, VideoTextureContainer>> entryIterator = videoTextureContainers.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            final VideoTextureContainer container = entryIterator.next().getValue();
+            if (predicate.apply(container)) {
                 container.release();
-                videoTextureContainers.remove(container.getUrn());
+                entryIterator.remove();
             }
         }
     }
 
     // Only clear the TextureViews since we maintain TextureSurfaces on configuration change
-    public void onConfigurationChange() {
+    public void onConfigurationChange(Origin origin) {
         for (VideoTextureContainer container: videoTextureContainers.values()) {
-            container.releaseTextureView();
+            if (container.getOrigin() == origin) {
+                container.releaseTextureView();
+            }
         }
     }
 
-    public void onDestroy() {
-        for (VideoTextureContainer container: videoTextureContainers.values()) {
-            container.release();
-        }
-        videoTextureContainers.clear();
+    public void onDestroy(Origin origin) {
+        removeContainers(input -> input.getOrigin() == origin);
     }
 
     @Nullable

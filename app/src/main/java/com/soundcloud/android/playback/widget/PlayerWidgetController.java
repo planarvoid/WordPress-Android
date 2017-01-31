@@ -19,6 +19,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -89,6 +90,7 @@ public class PlayerWidgetController {
         } else if (item.isTrack()) {
             trackRepository.track(item.getUrn())
                            .filter(next -> next != null)
+                           .map(TrackItem::from)
                            .map(updateFunction)
                            .subscribe(new CurrentTrackSubscriber());
         } else {
@@ -158,9 +160,9 @@ public class PlayerWidgetController {
         @Override
         public void onNext(final TrackChangedEvent event) {
             if (!playQueueManager.isQueueEmpty()) {
-                for (TrackItem trackItem : event.changeMap().values()) {
-                    if (playQueueManager.isCurrentTrack(trackItem.getUrn())) {
-                        updatePlayableInformation(track -> track.updatedWithTrackItem(trackItem));
+                for (Track trackItem : event.changeMap().values()) {
+                    if (playQueueManager.isCurrentTrack(trackItem.urn())) {
+                        updatePlayableInformation(track -> TrackItem.from(trackItem));
                     }
                 }
             }

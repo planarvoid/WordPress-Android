@@ -10,6 +10,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
@@ -68,6 +69,20 @@ class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem
         if (changed) {
             notifyDataSetChanged();
         }
+    }
+
+    void updateOfflineState(OfflineProperties states) {
+        final List<RecentlyPlayedItem> items = getItems();
+        for (int i = 0, itemsSize = items.size(); i < itemsSize; i++) {
+
+            final RecentlyPlayedItem recentlyPlayedItem = items.get(i);
+            if (recentlyPlayedItem.getKind().equals(RecentlyPlayedItem.Kind.RecentlyPlayedPlaylist)) {
+                final RecentlyPlayedPlayableItem playableItem = (RecentlyPlayedPlayableItem) recentlyPlayedItem;
+                final OfflineState offlineState = states.state(playableItem.getUrn());
+                playableItem.setOfflineState(offlineState);
+            }
+        }
+        notifyDataSetChanged();
     }
 
 }

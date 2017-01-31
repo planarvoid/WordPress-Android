@@ -43,8 +43,7 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
                                                   Urn initialTrackUrn,
                                                   int initialTrackPosition,
                                                   PlaySessionSource playSessionSource) {
-        // TODO: Should eventually refactor to use the playQueue instead of a list of Urn
-        return castPlayer.setNewQueue(playQueue.getTrackItemUrns(), initialTrackUrn, playSessionSource);
+        return castPlayer.setNewQueue(playQueue, initialTrackUrn, playSessionSource);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.EventQueue;
@@ -20,14 +20,14 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     static final long CHECKPOINT_INTERVAL = TimeUnit.SECONDS.toMillis(3);
 
-    private static final Function<AdData, PlayerAdData> TO_PLAYER_AD = adData -> (PlayerAdData) adData;
+    private static final Function<AdData, PlayableAdData> TO_PLAYER_AD = adData -> (PlayableAdData) adData;
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final StopReasonProvider stopReasonProvider;
 
-    private Optional<PlayerAdData> currentPlayingAd = Optional.absent();
+    private Optional<PlayableAdData> currentPlayingAd = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
 
     @Inject
@@ -44,7 +44,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     @Override
     public void onProgressEvent(PlaybackProgressEvent progressEvent) {
         if (currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
-            final PlayerAdData adData = currentPlayingAd.get();
+            final PlayableAdData adData = currentPlayingAd.get();
             final PlaybackProgress progress = progressEvent.getPlaybackProgress();
             if (!adData.hasReportedFirstQuartile() && progress.isPastFirstQuartile()) {
                 adData.setFirstQuartileReported();
@@ -74,9 +74,9 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         }
     }
 
-    private Optional<PlayerAdData> getPlayerAdDataIfAvailable() {
+    private Optional<PlayableAdData> getPlayerAdDataIfAvailable() {
         Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
-        if (adData.isPresent() && adData.get() instanceof PlayerAdData) {
+        if (adData.isPresent() && adData.get() instanceof PlayableAdData) {
             return adData.transform(TO_PLAYER_AD);
         }
         return Optional.absent();

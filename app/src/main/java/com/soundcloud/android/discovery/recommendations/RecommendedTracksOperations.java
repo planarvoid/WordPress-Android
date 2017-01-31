@@ -1,9 +1,5 @@
 package com.soundcloud.android.discovery.recommendations;
 
-import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.QUERY_POSITION;
-import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.QUERY_URN;
-import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.SEED_TRACK_LOCAL_ID;
-import static com.soundcloud.android.discovery.recommendations.RecommendationProperty.SEED_TRACK_URN;
 import static com.soundcloud.android.sync.SyncOperations.emptyResult;
 import static com.soundcloud.android.sync.Syncable.RECOMMENDED_TRACKS;
 
@@ -14,8 +10,9 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.Scheduler;
 
@@ -30,6 +27,7 @@ public class RecommendedTracksOperations {
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final PlayQueueManager playQueueManager;
+    private final TrackRepository trackRepository;
     private final Scheduler scheduler;
 
     @Inject
@@ -37,11 +35,13 @@ public class RecommendedTracksOperations {
                                 RecommendationsStorage recommendationsStorage,
                                 StoreRecommendationsCommand storeRecommendationsCommand,
                                 PlayQueueManager playQueueManager,
+                                TrackRepository trackRepository,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.syncOperations = syncOperations;
         this.recommendationsStorage = recommendationsStorage;
         this.storeRecommendationsCommand = storeRecommendationsCommand;
         this.playQueueManager = playQueueManager;
+        this.trackRepository = trackRepository;
         this.scheduler = scheduler;
     }
 
@@ -49,7 +49,8 @@ public class RecommendedTracksOperations {
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
                                      .filter(list -> !list.isEmpty())
-                                     .map(TrackItem::fromPropertySets);
+                                     .flatMap(trackRepository::trackListFromUrns)
+                                     .map(tracks -> Lists.transform(tracks, TrackItem::from));
     }
 
     public Observable<DiscoveryItem> recommendedTracks() {
@@ -70,10 +71,10 @@ public class RecommendedTracksOperations {
         storeRecommendationsCommand.clearTables();
     }
 
-    private List<Recommendation> toRecommendations(PropertySet seed, List<TrackItem> trackItems) {
-        Urn seedUrn = seed.get(SEED_TRACK_URN);
-        int queryPosition = seed.get(QUERY_POSITION);
-        Urn queryUrn = seed.get(QUERY_URN);
+    private List<Recommendation> toRecommendations(RecommendationSeed seed, List<TrackItem> trackItems) {
+        Urn seedUrn = seed.seedTrackUrn();
+        int queryPosition = seed.queryPosition();
+        Urn queryUrn = seed.queryUrn();
         List<Recommendation> recommendations = new ArrayList<>(trackItems.size());
         PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
 
@@ -106,8 +107,8 @@ public class RecommendedTracksOperations {
 
     }
 
-    private Observable<DiscoveryItem> loadDiscoveryItem(PropertySet seed) {
-        return tracksForSeed(seed.get(SEED_TRACK_LOCAL_ID))
+    private Observable<DiscoveryItem> loadDiscoveryItem(RecommendationSeed seed) {
+        return tracksForSeed(seed.seedTrackLocalId())
                 .map(trackItems -> RecommendedTracksBucketItem.create(seed, toRecommendations(seed, trackItems)));
     }
 }

@@ -6,8 +6,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 
+import javax.inject.Inject;
+
 public class SmoothScrollLinearLayoutManager extends LinearLayoutManager {
 
+    @Inject
     public SmoothScrollLinearLayoutManager(Context context) {
         super(context);
     }

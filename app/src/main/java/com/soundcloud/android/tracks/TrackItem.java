@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -26,7 +25,9 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTrackItem {
 
@@ -63,6 +64,52 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
 
     private boolean isPlaying;
 
+    public static TrackItem from(Track track) {
+        final PropertySet propertySet = PropertySet.from(
+                TrackProperty.URN.bind(track.urn()),
+                TrackProperty.TITLE.bind(track.title()),
+                TrackProperty.CREATED_AT.bind(track.createdAt()),
+                TrackProperty.SNIPPET_DURATION.bind(track.snippetDuration()),
+                TrackProperty.FULL_DURATION.bind(track.fullDuration()),
+                TrackProperty.IS_PRIVATE.bind(track.isPrivate()),
+                TrackProperty.WAVEFORM_URL.bind(track.waveformUrl()),
+                TrackProperty.PERMALINK_URL.bind(track.permalinkUrl()),
+                TrackProperty.MONETIZABLE.bind(track.monetizable()),
+                TrackProperty.BLOCKED.bind(track.blocked()),
+                TrackProperty.SNIPPED.bind(track.snipped()),
+                TrackProperty.POLICY.bind(track.policy()),
+                TrackProperty.SUB_HIGH_TIER.bind(track.subHighTier()),
+                TrackProperty.PLAY_COUNT.bind(track.playCount()),
+                TrackProperty.COMMENTS_COUNT.bind(track.commentsCount()),
+                TrackProperty.LIKES_COUNT.bind(track.likesCount()),
+                TrackProperty.REPOSTS_COUNT.bind(track.repostsCount()),
+                TrackProperty.CREATOR_NAME.bind(track.creatorName()),
+                TrackProperty.CREATOR_URN.bind(track.creatorUrn()),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(track.imageUrlTemplate()),
+                TrackProperty.SUB_MID_TIER.bind(track.subMidTier()),
+                TrackProperty.MONETIZATION_MODEL.bind(track.monetizationModel()),
+                TrackProperty.IS_COMMENTABLE.bind(track.commentable()),
+                TrackProperty.IS_USER_LIKE.bind(track.userLike()),
+                TrackProperty.IS_USER_REPOST.bind(track.userRepost()),
+                OfflineProperty.OFFLINE_STATE.bind(track.offlineState())
+        );
+
+
+        if (track.description().isPresent()) {
+            propertySet.put(TrackProperty.DESCRIPTION, track.description().get());
+        }
+
+        return new TrackItem(propertySet);
+    }
+
+    public static Map<Urn, TrackItem> convertMap(Map<Urn, Track> map) {
+        final Map<Urn, TrackItem> result = new HashMap<>(map.size());
+        for (Track track : map.values()) {
+            result.put(track.urn(), from(track));
+        }
+        return result;
+    }
+
     public static TrackItem from(PropertySet trackState) {
         checkProperties(trackState);
 
@@ -96,7 +143,6 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
                 TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
                 TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
                 TrackProperty.SNIPPED.bind(apiTrack.isSnipped()),
-                TrackProperty.SYNCABLE.bind(apiTrack.isSyncable()),
                 TrackProperty.POLICY.bind(apiTrack.getPolicy()),
                 TrackProperty.SUB_HIGH_TIER.bind(subHighTier.isPresent() ? subHighTier.get() : false),
                 TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
@@ -120,16 +166,10 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
         return new TrackItem(propertySet);
     }
 
-    public static Func1<PropertySet, TrackItem> fromPropertySet() {
-        return bindings -> TrackItem.from(bindings);
-    }
-
-    public static List<TrackItem> fromPropertySets(List<PropertySet> bindings) {
-        List<TrackItem> trackItems = new ArrayList<>(bindings.size());
-        for (PropertySet source : bindings) {
-            trackItems.add(from(source));
-        }
-        return trackItems;
+    public static TrackItem fromLiked(ApiTrack apiTrack, boolean liked) {
+        TrackItem trackItem = from(apiTrack);
+        trackItem.setLikedByCurrentUser(liked);
+        return trackItem;
     }
 
     public static <T extends Iterable<ApiTrack>> Func1<T, List<TrackItem>> fromApiTracks() {
@@ -147,8 +187,8 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
     }
 
     @Override
-    public TrackItem updatedWithTrackItem(TrackItem trackItem) {
-        return trackItem;
+    public TrackItem updatedWithTrackItem(Track track) {
+        return TrackItem.from(track);
     }
 
     @Override
@@ -271,14 +311,6 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
         return false;
     }
 
-    public void setAd(boolean ad) {
-        source.put(AdProperty.IS_AUDIO_AD, ad);
-    }
-
-    public boolean isAd() {
-        return source.getOrElse(AdProperty.IS_AUDIO_AD, false);
-    }
-
     public long getSnippetDuration() {
         return source.get(TrackProperty.SNIPPET_DURATION);
     }
@@ -325,6 +357,10 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
 
     public String getDescription() {
         return source.getOrElse(TrackProperty.DESCRIPTION, Strings.EMPTY);
+    }
+
+    public boolean hasDescription() {
+        return source.contains(TrackProperty.DESCRIPTION);
     }
 
     public void setDescription(String description) {

@@ -3,6 +3,7 @@ package com.soundcloud.android.search;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -330,7 +331,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
 
-        verify(cacheUniversalSearchCommand).call();
+        verify(cacheUniversalSearchCommand).call(anyIterable());
     }
 
     @Test
@@ -357,7 +358,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
 
-        verify(cacheUniversalSearchCommand, times(2)).call();
+        verify(cacheUniversalSearchCommand, times(2)).call(anyIterable());
     }
 
     @Test

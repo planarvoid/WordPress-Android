@@ -78,7 +78,7 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
     }
 
     @Override
-    public void removeMediaRouterButton(MenuItem castMenu) {
+    public void removeMediaRouterButton(Context context, MenuItem castMenu) {
         // no-op
     }
 
@@ -119,6 +119,11 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
     @Override
     public boolean isCasting() {
         return videoCastManager.isConnected();
+    }
+
+    @Override
+    public boolean isCastAvailable() {
+        return isCastableDeviceAvailable;
     }
 
     @Override

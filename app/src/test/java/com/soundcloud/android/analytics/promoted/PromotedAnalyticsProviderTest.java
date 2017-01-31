@@ -123,8 +123,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksAudioAdCompanionImpressions() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(999L));
-        VisualAdImpressionEvent impressionEvent = new VisualAdImpressionEvent(
-                audioAd, Urn.forUser(777), trackSourceInfo, 333
+        VisualAdImpressionEvent impressionEvent = VisualAdImpressionEvent.create(
+                audioAd, Urn.forUser(777), trackSourceInfo
         );
 
         analyticsProvider.handleTrackingEvent(impressionEvent);
@@ -133,15 +133,15 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        assertPromotedTrackingRecord(event1, "comp_impression1", 333L);
+        assertPromotedTrackingRecord(event1, "comp_impression1", impressionEvent.timestamp());
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        assertPromotedTrackingRecord(event2, "comp_impression2", 333L);
+        assertPromotedTrackingRecord(event2, "comp_impression2", impressionEvent.timestamp());
     }
 
     @Test
     public void tracksInlayAdImpressions() {
         final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
-        final InlayAdImpressionEvent impressionEvent = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+        final InlayAdImpressionEvent impressionEvent = InlayAdImpressionEvent.create(appInstall, 42, 9876543210L);
         final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         analyticsProvider.handleTrackingEvent(impressionEvent);

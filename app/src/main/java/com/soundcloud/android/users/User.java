@@ -2,6 +2,8 @@ package com.soundcloud.android.users;
 
 import static com.soundcloud.android.model.Urn.STRING_TO_URN;
 import static com.soundcloud.android.model.Urn.forUser;
+import static com.soundcloud.java.collections.Iterables.concat;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiUser;
@@ -11,6 +13,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 
 import java.util.Date;
+import java.util.List;
 
 @AutoValue
 public abstract class User {
@@ -31,6 +34,8 @@ public abstract class User {
 
     public abstract int followersCount();
 
+    public abstract int followingsCount();
+
     public abstract Optional<String> description();
 
     public abstract Optional<String> avatarUrl();
@@ -44,6 +49,14 @@ public abstract class User {
     public abstract Optional<String> mySpaceName();
 
     public abstract Optional<String> discogsName();
+
+    @SuppressWarnings("unchecked")
+    public List<SocialMediaLink> socialMediaLinks() {
+        Optional<SocialMediaLink> website = websiteUrl().transform(url -> SocialMediaLink.create(websiteName(), "website", url));
+        Optional<SocialMediaLink> myspace = mySpaceName().transform(url -> SocialMediaLink.create(Optional.absent(), "myspace", url));
+        Optional<SocialMediaLink> discogs = discogsName().transform(url -> SocialMediaLink.create(Optional.absent(), "discogs", url));
+        return newArrayList(concat(website.asSet(), myspace.asSet(), discogs.asSet()));
+    }
 
     public abstract Optional<Urn> artistStation();
 
@@ -59,6 +72,7 @@ public abstract class User {
                 .country(Optional.fromNullable(cursorReader.getString(UsersView.COUNTRY.name())))
                 .city(Optional.fromNullable(cursorReader.getString(UsersView.CITY.name())))
                 .followersCount(cursorReader.getInt(UsersView.FOLLOWERS_COUNT.name()))
+                .followingsCount(cursorReader.getInt(UsersView.FOLLOWINGS_COUNT.name()))
                 .description(Optional.fromNullable(cursorReader.getString(UsersView.DESCRIPTION.name())))
                 .avatarUrl(Optional.fromNullable(cursorReader.getString(UsersView.AVATAR_URL.name())))
                 .visualUrl(Optional.fromNullable(cursorReader.getString(UsersView.VISUAL_URL.name())))
@@ -81,6 +95,7 @@ public abstract class User {
                 .country(Optional.fromNullable(apiUser.getCountry()))
                 .city(Optional.fromNullable(apiUser.getCity()))
                 .followersCount(apiUser.getFollowersCount())
+                .followingsCount(apiUser.getFollowersCount())
                 .description(apiUser.getDescription())
                 .avatarUrl(apiUser.getAvatarUrlTemplate())
                 .visualUrl(apiUser.getVisualUrlTemplate())
@@ -130,6 +145,8 @@ public abstract class User {
         public abstract Builder city(Optional<String> city);
 
         public abstract Builder followersCount(int followerCount);
+
+        public abstract Builder followingsCount(int followingsCount);
 
         public abstract Builder description(Optional<String> description);
 

@@ -6,7 +6,13 @@
     </style>
 
     <style name="Stream.Image.AppInstall" parent="Cards.Image">
-        <item name="ariv_aspectRatio">.50</item>
+        <item name="ariv_aspectRatio">.5625</item> <!-- 16:9 aspect ratio -->
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="StreamVideo">
+        <item name="ariv_dominantMeasurement">width</item>
+        <item name="ariv_aspectRatioEnabled">true</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
 

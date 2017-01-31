@@ -49,9 +49,10 @@ task openRegressionTasks {
     // Individual items in the template are delimited by 2 empty lines
     for (String ticket : input.split("\n\n\n")) {
       openGitHubIssue(new Issue(
-              title: ticket.readLines()[0],
+              title: ticket.readLines()[0].replace('# ', ''),
               body: ticket.substring(ticket.indexOf('\n')).trim(),
-              milestone: number))
+              milestone: number,
+              labels: []))
     }
   }
 }

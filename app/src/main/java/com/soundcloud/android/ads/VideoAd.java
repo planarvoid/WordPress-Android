@@ -8,9 +8,9 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-public abstract class VideoAd extends PlayerAdData {
+public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
 
-    private static VideoAd create(ApiVideoAd apiVideoAd) {
+    public static VideoAd create(ApiVideoAd apiVideoAd, long createdAt) {
         final ApiAdTracking videoTracking = apiVideoAd.getVideoTracking();
         return new AutoValue_VideoAd(
                 apiVideoAd.getAdUrn(),
@@ -26,6 +26,8 @@ public abstract class VideoAd extends PlayerAdData {
                 videoTracking.clickUrls,
                 apiVideoAd.isSkippable(),
                 Optional.of(VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties())),
+                createdAt,
+                apiVideoAd.getExpiryInMins(),
                 Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoAdSource),
                 apiVideoAd.getClickThroughUrl(),
                 videoTracking.fullScreenUrls,
@@ -33,11 +35,15 @@ public abstract class VideoAd extends PlayerAdData {
         );
     }
 
-    public static VideoAd create(ApiVideoAd apiVideoAd, Urn monetizableTrackUrn) {
-        VideoAd videoAd = create(apiVideoAd);
+    public static VideoAd create(ApiVideoAd apiVideoAd, long createdAt, Urn monetizableTrackUrn) {
+        VideoAd videoAd = create(apiVideoAd, createdAt);
         videoAd.setMonetizableTrackUrn(monetizableTrackUrn);
         return videoAd;
     }
+
+    public abstract long getCreatedAt();
+
+    public abstract int getExpiryInMins();
 
     public abstract List<VideoAdSource> getVideoSources();
 

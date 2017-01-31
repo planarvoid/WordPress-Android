@@ -216,6 +216,11 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     }
 
     @Override
+    public int getFollowingsCount() {
+        return followings_count;
+    }
+
+    @Override
     public Optional<String> getDescription() {
         return Optional.fromNullable(description);
     }

@@ -19,7 +19,7 @@ import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
-    private static final String ALBUMS_IN_SEARCH = "albums_in_search";
+    private static final String ALBUMS_IN_SEARCH = "albums_in_search2";
     private DiscoveryScreen discoveryScreen;
 
     public SearchResultsTest() {

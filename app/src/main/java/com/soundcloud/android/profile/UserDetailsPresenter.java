@@ -1,12 +1,13 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -15,47 +16,69 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
-class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollableProfileFragment>
+class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
         implements SwipeRefreshLayout.OnRefreshListener {
 
-    private boolean isNotEmpty;
-    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private MultiSwipeRefreshLayout refreshLayout;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private final UserProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;
+    private final CondensedNumberFormatter numberFormatter;
+    private final Navigator navigator;
 
     private Urn userUrn;
+    private SearchQuerySourceInfo searchQuerySourceInfo;
     private Observable<User> userDetailsObservable;
     private User profileUser;
 
-    UserDetailsPresenter(UserProfileOperations profileOperations, UserDetailsView userDetailsView) {
+    UserDetailsPresenter(UserProfileOperations profileOperations,
+                         UserDetailsView userDetailsView,
+                         CondensedNumberFormatter numberFormatter,
+                         Navigator navigator) {
         this.profileOperations = profileOperations;
         this.userDetailsView = userDetailsView;
+        this.numberFormatter = numberFormatter;
+        this.navigator = navigator;
     }
 
     @Override
-    public void onCreate(ScrollableProfileFragment fragment, Bundle bundle) {
+    public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
+        searchQuerySourceInfo = fragment.getArguments().getParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY);
 
         userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
                                                  .cache();
     }
 
     @Override
-    public void onViewCreated(final ScrollableProfileFragment fragment, View view, Bundle savedInstanceState) {
+    public void onViewCreated(final UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
         userDetailsView.setView(view);
-        userDetailsView.setListener(uri -> fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri)));
+        userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
+            @Override
+            public void onViewUri(Uri uri) {
+                fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            }
 
-        configureEmptyView();
+            @Override
+            public void onViewFollowersClicked() {
+                navigator.openFollowers(view.getContext(), userUrn, searchQuerySourceInfo);
+            }
+
+            @Override
+            public void onViewFollowingClicked() {
+                navigator.openFollowings(view.getContext(), userUrn, searchQuerySourceInfo);
+            }
+        });
+
         configureRefreshLayout(view);
 
         if (profileUser != null) {
@@ -80,7 +103,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
     }
 
     @Override
-    public void onDestroyView(ScrollableProfileFragment fragment) {
+    public void onDestroyView(UserDetailsFragment fragment) {
         refreshLayout = null;
         userDetailsView.setListener(null);
         userDetailsView.clearViews();
@@ -90,76 +113,35 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
 
     @Override
     public void onRefresh() {
-        userDetailsObservable = profileOperations.getSyncedProfileUser(userUrn)
-                                                 .cache();
+        userDetailsObservable = profileOperations.getSyncedProfileUser(userUrn).cache();
         loadUser();
     }
 
-    private void configureEmptyView() {
-        if (!isNotEmpty) {
-            userDetailsView.showEmptyView(emptyViewStatus);
-        } else {
-            userDetailsView.hideEmptyView();
-        }
-    }
-
     private void updateViews(User user) {
-        isNotEmpty = hasDetails(user);
-        setupWebsite(user);
-        setupDiscogs(user);
-        setupMyspace(user);
-        setupDescription(user);
+        setupFollows(user);
+        setupBio(user);
+        setupLinks(user);
     }
 
-    public boolean hasDetails(User user) {
-        return hasDescription(user)
-                || hasDiscogs(user)
-                || hasWebsite(user)
-                || hasMyspace(user);
+    private void setupFollows(User user) {
+        userDetailsView.setFollowersCount(numberFormatter.format(user.followersCount()));
+        userDetailsView.setFollowingsCount(numberFormatter.format(user.followingsCount()));
     }
 
-    private void setupDescription(User user) {
+    private void setupBio(User user) {
         if (hasDescription(user)) {
-            userDetailsView.showDescription(user.description().get());
+            userDetailsView.showBio(user.description().get());
         } else {
-            userDetailsView.hideDescription();
+            userDetailsView.hideBio();
         }
     }
 
-    private void setupWebsite(final User user) {
-        if (hasWebsite(user)) {
-            userDetailsView.showWebsite(user.websiteUrl().get(), user.websiteName().get());
+    private void setupLinks(User user) {
+        if (user.socialMediaLinks().isEmpty()) {
+            userDetailsView.hideLinks();
         } else {
-            userDetailsView.hideWebsite();
+            userDetailsView.showLinks(user.socialMediaLinks());
         }
-    }
-
-    private void setupDiscogs(final User user) {
-        if (hasDiscogs(user)) {
-            userDetailsView.showDiscogs(user.discogsName().get());
-        } else {
-            userDetailsView.hideDiscogs();
-        }
-    }
-
-    private void setupMyspace(final User user) {
-        if (hasMyspace(user)) {
-            userDetailsView.showMyspace(user.mySpaceName().get());
-        } else {
-            userDetailsView.hideMyspace();
-        }
-    }
-
-    private boolean hasMyspace(User user) {
-        return user.mySpaceName().isPresent() && Strings.isNotBlank(user.mySpaceName().get());
-    }
-
-    private boolean hasWebsite(User user) {
-        return user.websiteUrl().isPresent() && Strings.isNotBlank(user.websiteUrl().get());
-    }
-
-    private boolean hasDiscogs(User user) {
-        return user.discogsName().isPresent() && Strings.isNotBlank(user.discogsName().get());
     }
 
     private boolean hasDescription(User user) {
@@ -169,9 +151,6 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
     private class ProfileUserSubscriber extends DefaultSubscriber<User> {
         @Override
         public void onCompleted() {
-            emptyViewStatus = EmptyView.Status.OK;
-            configureEmptyView();
-
             if (refreshLayout != null) {
                 refreshLayout.setRefreshing(false);
             }
@@ -180,9 +159,6 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-
-            emptyViewStatus = ErrorUtils.emptyViewStatusFromError(e);
-            configureEmptyView();
 
             if (refreshLayout != null) {
                 refreshLayout.setRefreshing(false);
@@ -193,7 +169,6 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         public void onNext(User profileUser) {
             UserDetailsPresenter.this.profileUser = profileUser;
             updateViews(profileUser);
-            configureEmptyView();
         }
     }
 }

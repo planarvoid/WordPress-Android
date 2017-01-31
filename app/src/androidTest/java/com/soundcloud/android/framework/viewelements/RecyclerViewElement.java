@@ -24,6 +24,11 @@ public class RecyclerViewElement extends AdapterElement {
         return this;
     }
 
+    public AdapterElement scrollToTop() {
+        getTestDriver().scrollToPosition(recyclerView, 0);
+        return this;
+    }
+
     public int getItemCount() {
         return getAdapter().getItemCount();
     }

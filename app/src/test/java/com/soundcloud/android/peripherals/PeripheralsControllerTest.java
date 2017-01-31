@@ -11,11 +11,12 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,8 +77,8 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
-        final Urn trackUrn = track.getUrn();
+        final Track track = ModelFixtures.trackBuilder().build();
+        final Urn trackUrn = track.urn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -87,10 +88,10 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
-        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.getUrn().getNumericId());
-        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.getCreatorName());
-        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.getTitle());
-        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.getFullDuration());
+        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.urn().getNumericId());
+        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.creatorName());
+        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.title());
+        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.fullDuration());
     }
 
     @Test
@@ -107,9 +108,8 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotifyWithAnEmptyArtistName() {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
-        track.setCreatorName("");
-        final Urn trackUrn = track.getUrn();
+        final Track track = ModelFixtures.trackBuilder().creatorName(Strings.EMPTY).build();
+        final Urn trackUrn = track.urn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,

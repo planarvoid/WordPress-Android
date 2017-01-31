@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQ
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueuesEqual;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.EMPTY_LIST;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -1063,6 +1064,50 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                          playlistSessionSource,
                                          1);
         assertThat(playQueueManager.getUpcomingPlayQueueItems(2)).isEqualTo(TestUrns.createTrackUrns(3L, 4L));
+    }
+
+    @Test
+    public void getPlayQueueItemsWithPositionAndCount() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource),
+                                         playlistSessionSource,
+                                         1);
+
+        assertThat(playQueueManager.getPlayQueueItems(1, 3)).isEqualTo(TestUrns.createTrackUrns(2L, 3L, 4L));
+    }
+
+    @Test
+    public void returnRemainingPlayQueueItems() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource),
+                                         playlistSessionSource,
+                                         1);
+
+        assertThat(playQueueManager.getPlayQueueItems(2, 5)).isEqualTo(TestUrns.createTrackUrns(3L, 4L, 5L));
+    }
+
+    @Test
+    public void returnEmptyListIfPositionIsBiggerThanPlayQueueSize() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource),
+                                         playlistSessionSource,
+                                         1);
+
+        assertThat(playQueueManager.getPlayQueueItems(6, 5)).isEqualTo(Collections.emptyList());
+    }
+
+    @Test
+    public void returnEmptyListWhenNegtivePosition() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource),
+                                         playlistSessionSource,
+                                         1);
+
+        assertThat(playQueueManager.getPlayQueueItems(-1, 3)).isEqualTo(EMPTY_LIST);
     }
 
     @Test

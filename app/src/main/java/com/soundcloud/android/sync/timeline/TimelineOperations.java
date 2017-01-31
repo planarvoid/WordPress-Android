@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync.timeline;
 
 import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
@@ -154,7 +153,7 @@ public abstract class TimelineOperations<ViewModel, StorageModel> {
     public Observable<List<ViewModel>> updatedTimelineItemsForStart() {
         return hasSyncedBefore()
                 .filter(IS_TRUE)
-                .flatMap(continueWith(updatedTimelineItems()))
+                .flatMap(o -> updatedTimelineItems())
                 .onErrorResumeNext(Observable.<List<ViewModel>>empty())
                 .subscribeOn(scheduler);
     }

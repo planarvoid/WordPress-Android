@@ -4,6 +4,9 @@ import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 /*
@@ -23,6 +26,7 @@ public class AspectRatioImageView extends OptimisedImageView {
     private float aspectRatio;
     private boolean aspectRatioEnabled;
     private int dominantMeasurement;
+    private Drawable foregroundDrawable;
 
     public AspectRatioImageView(Context context) {
         this(context, null);
@@ -31,12 +35,16 @@ public class AspectRatioImageView extends OptimisedImageView {
     public AspectRatioImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioImageView);
-        aspectRatio = a.getFloat(R.styleable.AspectRatioImageView_ariv_aspectRatio, DEFAULT_ASPECT_RATIO);
-        aspectRatioEnabled = a.getBoolean(R.styleable.AspectRatioImageView_ariv_aspectRatioEnabled,
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioView);
+        aspectRatio = a.getFloat(R.styleable.AspectRatioView_ariv_aspectRatio, DEFAULT_ASPECT_RATIO);
+        aspectRatioEnabled = a.getBoolean(R.styleable.AspectRatioView_ariv_aspectRatioEnabled,
                                           DEFAULT_ASPECT_RATIO_ENABLED);
-        dominantMeasurement = a.getInt(R.styleable.AspectRatioImageView_ariv_dominantMeasurement,
+        dominantMeasurement = a.getInt(R.styleable.AspectRatioView_ariv_dominantMeasurement,
                                        DEFAULT_DOMINANT_MEASUREMENT);
+        if (a.hasValue(R.styleable.AspectRatioView_foreground)) {
+            int resourceId = a.getResourceId(R.styleable.AspectRatioView_foreground, -1);
+            foregroundDrawable = ContextCompat.getDrawable(context, resourceId);
+        }
         a.recycle();
     }
 
@@ -65,6 +73,22 @@ public class AspectRatioImageView extends OptimisedImageView {
         }
 
         setMeasuredDimension(newWidth, newHeight);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (foregroundDrawable != null) {
+            foregroundDrawable.setBounds(0, 0, right - left, bottom - top);
+        }
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (foregroundDrawable != null) {
+            foregroundDrawable.draw(canvas);
+        }
     }
 
     /**

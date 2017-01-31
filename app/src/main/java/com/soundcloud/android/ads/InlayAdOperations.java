@@ -5,14 +5,12 @@ import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import java.lang.ref.WeakReference;
-import java.util.Date;
-
-import javax.inject.Inject;
-
 import rx.Observable;
 import rx.functions.Func1;
+
+import javax.inject.Inject;
+import java.lang.ref.WeakReference;
+import java.util.Date;
 
 class InlayAdOperations {
 
@@ -20,7 +18,7 @@ class InlayAdOperations {
 
     final Func1<InlayAdEvent, InlayAdImpressionEvent> TO_IMPRESSION = event -> {
         event.getAd().setImpressionReported();
-        return new InlayAdImpressionEvent(event.getAd(), event.getPosition(), event.getEventTime().getTime());
+        return InlayAdImpressionEvent.create(event.getAd(), event.getPosition(), event.getEventTime().getTime());
     };
 
     @Inject
