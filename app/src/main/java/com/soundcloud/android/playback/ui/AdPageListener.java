@@ -69,7 +69,11 @@ class AdPageListener extends PageListener {
     }
 
     public void onClickThrough(Context activityContext) {
-        adClickThrough(activityContext, (PlayableAdData) adsOperations.getCurrentTrackAdData().get());
+        final Optional<AdData> currentTrackAdData = adsOperations.getCurrentTrackAdData();
+
+        if (currentTrackAdData.isPresent()) {
+            adClickThrough(activityContext, (PlayableAdData) currentTrackAdData.get());
+        }
 
         final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
         if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
