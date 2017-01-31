@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -135,7 +136,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(mock(View.class), 0);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
+        testSubscriber.assertReceivedOnNext(singletonList(playbackResult));
     }
 
     @Test
@@ -254,25 +255,25 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void dataSourceInitialTrackLikesReturnsLikedTracksWithHeader() {
         TrackItem trackItem = ModelFixtures.trackItem();
-        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
+        final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
 
         when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
 
         dataSource = new DataSource(likeOperations);
         dataSource.initialTrackLikes().subscribe(testSubscriber);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
+        testSubscriber.assertReceivedOnNext(singletonList(TrackLikesPage.withHeader(tracks)));
     }
 
     @Test
     public void dataSourceUpdatedTrackLikesReturnsLikedTracksWithHeader() {
         TrackItem trackItem = ModelFixtures.trackItem();
-        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
+        final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
         when(likeOperations.updatedLikedTracks()).thenReturn(Observable.just(tracks));
 
         new DataSource(likeOperations).updatedTrackLikes().subscribe(testSubscriber);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(TrackLikesPage.withHeader(tracks)));
+        testSubscriber.assertReceivedOnNext(singletonList(TrackLikesPage.withHeader(tracks)));
     }
 
     @Test
@@ -288,13 +289,13 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(tracks));
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList());
+        testSubscriber.assertReceivedOnNext(emptyList());
     }
 
     @Test
     public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
         TrackItem trackItem = ModelFixtures.trackItem();
-        final List<LikeWithTrack> tracks = Arrays.asList(getLikeWithTrack(trackItem, new Date()));
+        final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
 
         final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
 

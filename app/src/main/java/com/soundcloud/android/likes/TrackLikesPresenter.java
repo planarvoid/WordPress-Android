@@ -252,7 +252,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         }
 
         static TrackLikesPage withoutHeader(List<LikeWithTrack> trackLikes) {
-            return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
+            return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, false);
         }
 
         abstract List<LikeWithTrack> getTrackLikes();
