@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import butterknife.ButterKnife;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -9,18 +8,19 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
-import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -34,32 +34,28 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDetailTrackItem>
-        implements TrackItemMenuPresenter.RemoveTrackListener, RefreshableScreen {
+public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDetailsViewModel, PlaylistDetailTrackItem>
+        implements TrackItemMenuPresenter.RemoveTrackListener {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
     public static final String EXTRA_AUTOPLAY = "autoplay";
 
+    @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
     @Inject NewPlaylistDetailsPresenterFactory playlistPresenterFactory;
     @Inject NewPlaylistDetailsAdapterFactory adapterFactory;
     @Inject PlaylistEngagementsRenderer playlistEngagementsRenderer;
     @Inject PlaylistCoverRenderer playlistCoverRenderer;
     @Inject PlaylistTrackItemRendererFactory trackItemRendererFactory;
     @Inject PlaylistDetailTrackItemRendererFactory detailTrackItemRendererFactory;
-
     @Inject Navigator navigator;
-
-    @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
     @Inject PlaylistDetailToolbarViewFactory toolbarViewFactory;
-    private PlaylistDetailToolbarView toolbarView;
-
     @Inject BaseLayoutHelper baseLayoutHelper;
 
+    private PlaylistDetailToolbarView toolbarView;
     private NewPlaylistDetailsPresenter presenter;
-
-    private View view;
+    private Subscription subscription;
 
     public NewPlaylistDetailFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -86,12 +82,23 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.view = view;
         baseLayoutHelper.setupActionBar(((AppCompatActivity) getActivity()));
         toolbarView = toolbarViewFactory.create(presenter);
         bind(toolbarView);
+
+        subscription = presenter.viewModel().subscribe(asyncViewModel -> {
+            Optional<PlaylistDetailsViewModel> dataOpt = asyncViewModel.data();
+            if (dataOpt.isPresent()) {
+                bindMetadata(view, dataOpt.get());
+            }
+        });
     }
 
+    private void bindMetadata(View view, PlaylistDetailsViewModel data) {
+        playlistCoverRenderer.bind(view, data.metadata(), presenter::onHeaderPlayButtonClicked, presenter::onCreatorClicked);
+        playlistEngagementsRenderer.bind(view, data.metadata(), presenter);
+        toolbarView.setPlaylist(data.metadata());
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -102,16 +109,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         toolbarView.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public MultiSwipeRefreshLayout getRefreshLayout() {
-        return ButterKnife.findById(getView(), R.id.str_layout);
-    }
-
-    @Override
-    public View[] getRefreshableViews() {
-        return new View[]{ButterKnife.findById(getView(), R.id.ak_recycler_view)}; // revisit
     }
 
     @Override
@@ -127,33 +124,21 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     }
 
     @Override
-    protected Observable<Iterable<PlaylistDetailTrackItem>> items() {
-        return modelUpdates()
-                .doOnNext(playlistDetailsViewModelAsyncViewModel -> {
-                    final PlaylistDetailsViewModel data = playlistDetailsViewModelAsyncViewModel.data();
-                    playlistCoverRenderer.bind(view, data.metadata(), presenter::onHeaderPlayButtonClicked, presenter::onCreatorClicked);
-                    playlistEngagementsRenderer.bind(view, data.metadata(), presenter);
-                    toolbarView.setPlaylist(data.metadata());
-                })
-                .map(viewModel -> viewModel.data().tracks());
-    }
-
-    private Observable<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates() {
+    protected Observable<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates() {
         return presenter
                 .viewModel()
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
-    protected Observable<Boolean> isRefreshing() {
-        return modelUpdates()
-                .map(AsyncViewModel::isRefreshing);
+    protected Func1<PlaylistDetailsViewModel, Iterable<PlaylistDetailTrackItem>> viewModelToItems() {
+        return PlaylistDetailsViewModel::tracks;
     }
 
     @Override
     public void onDestroyView() {
-        view = null;
         toolbarView = null;
+        subscription.unsubscribe();
         super.onDestroyView();
     }
 

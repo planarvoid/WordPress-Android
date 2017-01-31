@@ -114,6 +114,7 @@ import com.soundcloud.android.search.SearchPremiumResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
+import com.soundcloud.android.search.topresults.TopResultsFragment;
 import com.soundcloud.android.settings.ClearCacheDialog;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.LegalFragment;
@@ -317,6 +318,7 @@ public interface ApplicationComponent {
     void inject(ViewAllRecommendedTracksActivity viewAllRecommendedTracksActivity);
     void inject(ViewAllRecommendedTracksFragment viewAllRecommendedTracksFragment);
     void inject(SearchActivity searchActivity);
+    void inject(TopResultsFragment topResultsFragment);
     void inject(SearchPremiumResultsActivity searchPremiumResultsActivity);
     void inject(PlaylistDiscoveryActivity playlistDiscoveryActivity);
     void inject(TabbedSearchFragment tabbedSearchFragment);

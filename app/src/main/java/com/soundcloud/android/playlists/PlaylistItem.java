@@ -76,6 +76,11 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
         playlistItem.setRepost(repost);
         return playlistItem;
     }
+    public static PlaylistItem fromLiked(ApiPlaylist apiPlaylist, boolean liked) {
+        PlaylistItem playlistItem = PlaylistItem.from(apiPlaylist);
+        playlistItem.setLikedByCurrentUser(liked);
+        return playlistItem;
+    }
 
 
     public static PlaylistItem from(Playlist playlist) {

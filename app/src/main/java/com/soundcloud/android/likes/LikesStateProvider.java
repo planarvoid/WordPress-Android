@@ -76,10 +76,14 @@ public class LikesStateProvider {
     }
 
     private void publishSnapshot() {
-        statuses.onNext(new LikedStatuses(Collections.unmodifiableSet(likes)));
+        statuses.onNext(LikedStatuses.create(Collections.unmodifiableSet(likes)));
     }
 
     public Observable<LikedStatuses> likedStatuses() {
         return statuses.asObservable();
+    }
+
+    public LikedStatuses latest() {
+        return statuses.getValue();
     }
 }

@@ -9,6 +9,8 @@ import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 
+import android.support.annotation.NonNull;
+
 @AutoParcel
 public abstract class UserItem implements ListItem, FollowableItem, SearchableItem {
 
@@ -17,7 +19,12 @@ public abstract class UserItem implements ListItem, FollowableItem, SearchableIt
     }
 
     public static UserItem from(ApiUser apiUser) {
-        return new AutoParcel_UserItem(apiUser.getAvatarUrlTemplate(), apiUser.getUrn(), apiUser.getUsername(), Optional.fromNullable(apiUser.getCountry()), apiUser.getFollowersCount(), false);
+        return from(apiUser, false);
+    }
+
+    @NonNull
+    public static AutoParcel_UserItem from(ApiUser apiUser, boolean isFollowedByMe) {
+        return new AutoParcel_UserItem(apiUser.getAvatarUrlTemplate(), apiUser.getUrn(), apiUser.getUsername(), Optional.fromNullable(apiUser.getCountry()), apiUser.getFollowersCount(), isFollowedByMe);
     }
 
     public static UserItem from(User user) {

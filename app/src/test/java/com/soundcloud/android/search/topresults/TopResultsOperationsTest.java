@@ -9,7 +9,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -32,6 +31,7 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TopResultsOperationsTest extends AndroidUnitTest {
@@ -49,7 +49,7 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
 
     private TopResultsOperations topResultsOperations;
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<List<TopResultsBucketItem>> subscriber;
+    private TestSubscriber<List<ApiTopResultsBucket>> subscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -60,17 +60,16 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
     @Test
     public void performSearchAndCacheResults() throws Exception {
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = newArrayList(UNIVERSAL_TRACK_ITEM);
-        final ApiTopResultsBucket apiTopResultsBucket = ApiTopResultsBucket.create(TRACKS_BUCKET_URN, QUERY_URN, 5, new ModelCollection<>(apiUniversalSearchItems));
-        final ModelCollection<ApiTopResultsBucket> buckets = new ModelCollection<>(newArrayList(apiTopResultsBucket));
-        final ApiTopResults apiTopResults = ApiTopResults.create(QUERY_URN, 10, buckets);
-        final List<TopResultsBucketItem> expectedResult = Lists.transform(apiTopResults.buckets().getCollection(), TopResultsBucketItem::create);
+        final ApiTopResultsBucket apiTopResultsBucket = ApiTopResultsBucket.create(TRACKS_BUCKET_URN, 5, new ModelCollection<>(apiUniversalSearchItems, Collections.emptyMap(), QUERY_URN));
+        final ModelCollection<ApiTopResultsBucket> buckets = new ModelCollection<>(newArrayList(apiTopResultsBucket), Collections.emptyMap(), QUERY_URN);
+        final ApiTopResults apiTopResults = ApiTopResults.create(10, buckets);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(TYPE_TOKEN))).thenReturn(Observable.just(apiTopResults));
 
         topResultsOperations.search(QUERY, Optional.of(QUERY_URN)).subscribe(subscriber);
 
         verify(cacheUniversalSearchCommand).call(apiUniversalSearchItems);
         subscriber.assertValueCount(1);
-        assertThat(expectedResult).isEqualTo(subscriber.getOnNextEvents().get(0));
+        assertThat(apiTopResults.buckets().getCollection()).isEqualTo(subscriber.getOnNextEvents().get(0));
     }
 
     @Test

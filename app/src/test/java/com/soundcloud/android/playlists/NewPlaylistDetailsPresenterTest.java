@@ -432,7 +432,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private void emitLikedEntities(Urn... urns) {
         final HashSet<Urn> likedEntities = new HashSet<>(asList(urns));
-        likeStatuses.onNext(new LikedStatuses(likedEntities));
+        likeStatuses.onNext(LikedStatuses.create(likedEntities));
     }
 
     private PlaySessionSource createPlaySessionSource() {

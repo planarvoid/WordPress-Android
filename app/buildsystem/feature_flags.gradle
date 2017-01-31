@@ -23,6 +23,7 @@ enum Feature {
   PROFILE_BANNER,
   CLEAR_TABLES_ON_SIGNOUT,
   AUTOCOMPLETE,
+  SEARCH_TOP_RESULTS,
   ADJUST_DEFERRED_DEEPLINKS,
   CAST_V3,
   FLIPPER,
@@ -57,6 +58,7 @@ android {
     buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT

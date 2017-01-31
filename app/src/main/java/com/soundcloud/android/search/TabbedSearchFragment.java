@@ -25,6 +25,7 @@ public class TabbedSearchFragment extends Fragment {
 
     private static final String KEY_API_QUERY = "query";
     private static final String KEY_USER_QUERY = "userQuery";
+
     private static final String KEY_QUERY_URN = "queryUrn";
     private static final String KEY_QUERY_POSITION = "queryPosition";
 

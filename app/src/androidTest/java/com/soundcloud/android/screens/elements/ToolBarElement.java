@@ -3,6 +3,7 @@ package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.discovery.SearchPresenter;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
@@ -10,7 +11,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
-import com.soundcloud.android.search.TabbedSearchFragment;
 
 import android.widget.TextView;
 
@@ -37,7 +37,7 @@ public class ToolBarElement extends Element {
         setSearchQuery(query);
         testDriver.pressSoftKeyboardSearchButton();
         waiter.waitForActivity(SearchActivity.class);
-        waiter.waitForFragmentByTag(TabbedSearchFragment.TAG);
+        waiter.waitForFragmentByTag(SearchPresenter.SEARCH_RESULTS_TAG);
         return new SearchResultsScreen(testDriver);
     }
 

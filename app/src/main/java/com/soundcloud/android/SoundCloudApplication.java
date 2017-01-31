@@ -16,6 +16,7 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
@@ -127,6 +128,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PerformanceEngineFactory performanceEngineFactory;
     @Inject LikesStateProvider likesStateProvider;
     @Inject MiniplayerStorage miniplayerStorage;
+    @Inject FollowingStateProvider followingStateProvider;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -222,9 +224,12 @@ public class SoundCloudApplication extends MultiDexApplication {
         streamPreloader.subscribe();
 
         configurationFeatureController.subscribe();
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2)) {
+
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2) || featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
             likesStateProvider.subscribe();
+            followingStateProvider.subscribe();
         }
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 

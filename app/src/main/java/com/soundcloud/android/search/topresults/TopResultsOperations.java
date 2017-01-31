@@ -6,7 +6,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.CacheUniversalSearchCommand;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
@@ -33,7 +32,7 @@ class TopResultsOperations {
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
     }
 
-    public Observable<List<TopResultsBucketItem>> search(String query, Optional<Urn> queryUrn) {
+    public Observable<List<ApiTopResultsBucket>> search(String query, Optional<Urn> queryUrn) {
         final ApiRequest.Builder requestBuilder = ApiRequest.get(ApiEndpoints.SEARCH_TOP_RESULTS.path())
                                                             .forPrivateApi()
                                                             .addQueryParam(ApiRequest.Param.PAGE_SIZE.toString(), RESULT_LIMIT)
@@ -44,7 +43,7 @@ class TopResultsOperations {
         return apiClientRx.mappedResponse(requestBuilder.build(), TYPE_TOKEN)
                           .subscribeOn(scheduler)
                           .doOnNext(this::cacheItems)
-                          .map(topResults -> Lists.transform(topResults.buckets().getCollection(), TopResultsBucketItem::create));
+                          .map(topResults -> topResults.buckets().getCollection());
 
     }
 

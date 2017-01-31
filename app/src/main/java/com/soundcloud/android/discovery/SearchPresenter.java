@@ -7,9 +7,12 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
+import com.soundcloud.android.search.topresults.TopResultsFragment;
 import com.soundcloud.android.utils.KeyboardHelper;
 import com.soundcloud.android.utils.TransitionUtils;
 import com.soundcloud.java.optional.Optional;
@@ -48,8 +51,10 @@ import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
 
-class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         implements SearchIntentResolver.DeepLinkListener {
+
+    public static final String SEARCH_RESULTS_TAG = "search_results";
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
@@ -68,6 +73,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final SearchTracker searchTracker;
     private final EventTracker eventTracker;
     private final ScreenProvider screenProvider;
+    private final FeatureFlags featureFlags;
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
@@ -79,7 +85,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper,
                     EventTracker eventTracker,
-                    ScreenProvider screenProvider) {
+                    ScreenProvider screenProvider,
+                    FeatureFlags featureFlags) {
         this.intentResolver = intentResolverFactory.create(this);
         this.searchTracker = searchTracker;
         this.resources = resources;
@@ -87,6 +94,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         this.keyboardHelper = keyboardHelper;
         this.eventTracker = eventTracker;
         this.screenProvider = screenProvider;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -257,13 +265,18 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                                 Optional<String> outputText,
                                 Optional<Urn> queryUrn,
                                 Optional<Integer> queryPosition) {
-        final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
+        final Fragment searchResults = getResultsFragment(apiQuery, userQuery, queryUrn, queryPosition);
         fragmentManager
                 .beginTransaction()
-                .replace(R.id.search_results_container, searchResults, TabbedSearchFragment.TAG)
+                .replace(R.id.search_results_container, searchResults, SEARCH_RESULTS_TAG)
                 .commit();
         showOutputText(outputText);
         displaySearchView(RESULTS_VIEW_INDEX);
+    }
+
+    private Fragment getResultsFragment(String apiQuery, String userQuery, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
+        return featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS) ? TopResultsFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition)
+                                                               :  TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
     }
 
     private void showOutputText(Optional<String> outputText) {

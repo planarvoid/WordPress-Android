@@ -106,6 +106,18 @@ public class ModelFixtures {
         return models;
     }
 
+    public static ApiTrack apiTrack() {
+        return create(ApiTrack.class);
+    }
+
+    public static ApiUser apiUser() {
+        return create(ApiUser.class);
+    }
+
+    public static ApiPlaylist apiPlaylist() {
+        return create(ApiPlaylist.class);
+    }
+
     public static Playlist playlist() {
         return playlistBuilder().build();
     }

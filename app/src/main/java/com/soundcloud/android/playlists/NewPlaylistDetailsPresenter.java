@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static java.util.Collections.singleton;
 import static rx.Observable.combineLatest;
+import static com.soundcloud.java.optional.Optional.of;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -282,12 +283,12 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                                              PlaylistWithTracks playlistWithTracks,
                                                              LikedStatuses likedStatuses,
                                                              OfflineProperties offlineProperties) {
-        return AsyncViewModel.create(viewModelCreator.create(playlistWithTracks.playlist(),
+        return AsyncViewModel.create(of(viewModelCreator.create(playlistWithTracks.playlist(),
                                                              updateTracks(playlistWithTracks, offlineProperties),
                                                              likedStatuses.isLiked(playlistWithTracks.playlist().urn()),
                                                              isEditMode,
                                                              offlineProperties.state(playlistWithTracks.playlist().urn()),
-                                                             Optional.absent()), isRefreshing);
+                                                             Optional.absent())), isRefreshing, Optional.absent());
     }
 
     private List<TrackItem> updateTracks(PlaylistWithTracks playlistWithTracks, OfflineProperties offlineProperties) {

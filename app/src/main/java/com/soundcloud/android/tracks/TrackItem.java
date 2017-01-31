@@ -166,6 +166,12 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
         return new TrackItem(propertySet);
     }
 
+    public static TrackItem fromLiked(ApiTrack apiTrack, boolean liked) {
+        TrackItem trackItem = from(apiTrack);
+        trackItem.setLikedByCurrentUser(liked);
+        return trackItem;
+    }
+
     public static <T extends Iterable<ApiTrack>> Func1<T, List<TrackItem>> fromApiTracks() {
         return trackList -> {
             List<TrackItem> trackItems = new ArrayList<>();
