@@ -411,7 +411,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUpsellEvent() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forSettingsClick();
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradeFromSettingsImpression();
         when(dataBuilderv1.buildForUpsell(event)).thenReturn("ForUpsellEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

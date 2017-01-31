@@ -4,17 +4,20 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
@@ -25,7 +28,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -34,7 +36,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragment>
-        implements MoreView.Listener, ScrollContent {
+        implements MoreView.Listener, MainPagerAdapter.ScrollContent, MainPagerAdapter.FocusListener {
 
     private final MoreViewFactory moreViewFactory;
     private final UserRepository userRepository;
@@ -48,23 +50,27 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
     private final OfflineSettingsStorage settingsStorage;
+    private final ConfigurationManager configurationManager;
+    private final FeatureFlags featureFlags;
 
     private Optional<MoreView> moreViewOpt = Optional.absent();
     private Optional<More> moreOpt = Optional.absent();
 
     @Inject
-    public MoreTabPresenter(MoreViewFactory moreViewFactory,
-                            UserRepository userRepository,
-                            AccountOperations accountOperations,
-                            ImageOperations imageOperations,
-                            Resources resources,
-                            EventBus eventBus,
-                            FeatureOperations featureOperations,
-                            OfflineContentOperations offlineContentOperations,
-                            Navigator navigator,
-                            BugReporter bugReporter,
-                            ApplicationProperties appProperties,
-                            OfflineSettingsStorage settingsStorage) {
+    MoreTabPresenter(MoreViewFactory moreViewFactory,
+                     UserRepository userRepository,
+                     AccountOperations accountOperations,
+                     ImageOperations imageOperations,
+                     Resources resources,
+                     EventBus eventBus,
+                     FeatureOperations featureOperations,
+                     OfflineContentOperations offlineContentOperations,
+                     Navigator navigator,
+                     BugReporter bugReporter,
+                     ApplicationProperties appProperties,
+                     OfflineSettingsStorage settingsStorage,
+                     ConfigurationManager configurationManager,
+                     FeatureFlags featureFlags) {
         this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -77,6 +83,8 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
         this.settingsStorage = settingsStorage;
+        this.configurationManager = configurationManager;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -93,7 +101,11 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         final MoreView moreView = moreViewFactory.create(view, this);
         moreViewOpt = Optional.of(moreView);
 
-        setupOfflineSync(moreView);
+        if (featureOperations.getCurrentPlan().isGoPlan() || featureOperations.upsellHighTier()) {
+            setupTier(moreView);
+            setupUpsell(moreView);
+        }
+        setupOfflineSyncSettings(moreView);
         setupFeedback(moreView);
         bindUserIfPresent();
     }
@@ -105,12 +117,43 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         }
     }
 
-    private void setupOfflineSync(MoreView moreView) {
-        if (featureOperations.isOfflineContentEnabled() || offlineContentOperations.hasOfflineContent()) {
+    @Override
+    public void onFocusChange(boolean hasFocus) {
+        if (hasFocus && moreViewOpt.isPresent() && moreViewOpt.get().isUpsellVisible()) {
+            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeFromSettingsImpression());
+        }
+    }
+
+    private void setupTier(MoreView moreView) {
+        // Ideally tier name resource IDs can be part of the Plan enum, but we need to flag the rename for now
+        switch (featureOperations.getCurrentPlan()) {
+            case HIGH_TIER:
+                moreView.setSubscriptionTier(resources.getString(featureFlags.isEnabled(Flag.MID_TIER)
+                                                                 ? R.string.tier_plus
+                                                                 : R.string.tier_go));
+                break;
+            case MID_TIER:
+                moreView.setSubscriptionTier(resources.getString(R.string.tier_go));
+                break;
+            default:
+                moreView.setSubscriptionTier(resources.getString(R.string.tier_free));
+        }
+    }
+
+    private void setupUpsell(MoreView moreView) {
+        if (featureOperations.upsellHighTier()) {
+            moreView.showHighTierUpsell(featureFlags.isEnabled(Flag.MID_TIER)
+                                        ? resources.getString(R.string.more_upsell)
+                                        : resources.getString(R.string.more_upsell_legacy));
+        }
+        if (!featureOperations.getCurrentPlan().isGoPlan()) {
+            moreView.showRestoreSubscription();
+        }
+    }
+
+    private void setupOfflineSyncSettings(MoreView moreView) {
+        if (featureOperations.isOfflineContentEnabled()) {
             moreView.showOfflineSettings();
-        } else if (featureOperations.upsellHighTier()) {
-            moreView.showOfflineSettings();
-            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSettingsImpression());
         } else {
             moreView.hideOfflineSettings();
         }
@@ -139,7 +182,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     private void bindUser(MoreView headerView, More more) {
         headerView.setUsername(more.getUsername());
-        headerView.showGoIndicator(featureOperations.hasGoPlan());
         imageOperations.displayCircularWithPlaceholder(more,
                                                        ApiImageSize.getFullImageSize(resources),
                                                        headerView.getProfileImageView());
@@ -180,9 +222,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         } else {
             navigator.openOfflineSettings(view.getContext());
         }
-        if (featureOperations.upsellHighTier()) {
-            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSettingsClick());
-        }
     }
 
     private boolean showOfflineSettingsOnboarding() {
@@ -218,6 +257,20 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     @Override
     public void onSignOutClicked(final View view) {
         showSignOutPrompt(view.getContext());
+    }
+
+    @Override
+    public void onUpsellClicked(View view) {
+        navigator.openUpgrade(view.getContext());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeFromSettingsClick());
+    }
+
+    @Override
+    public void onRestoreSubscriptionClicked(View view) {
+        configurationManager.forceConfigurationUpdate();
+        if (moreViewOpt.isPresent()) {
+            moreViewOpt.get().disableRestoreSubscription();
+        }
     }
 
     private void showSignOutPrompt(final Context activityContext) {

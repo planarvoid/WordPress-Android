@@ -31,12 +31,6 @@ public class OfflineSettingsScreen extends Screen {
         return new ConfirmDisableSyncCollectionScreen(testDriver, ACTIVITY);
     }
 
-    public UpgradeScreen clickSubscribe() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.clickOnText(R.string.pref_subscription_buy_title);
-        return new UpgradeScreen(testDriver);
-    }
-
     public ConfirmRemoveOfflineContentScreen clickRemoveOfflineContent() {
         testDriver.clickOnText(R.string.pref_offline_remove_all_offline_content);
         return new ConfirmRemoveOfflineContentScreen(testDriver);

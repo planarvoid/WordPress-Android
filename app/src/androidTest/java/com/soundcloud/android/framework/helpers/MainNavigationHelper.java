@@ -9,7 +9,7 @@ import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
-import com.soundcloud.android.screens.YouScreen;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.elements.MainTabs;
 import com.soundcloud.android.screens.record.RecordScreen;
 
@@ -26,7 +26,7 @@ public class MainNavigationHelper {
     }
 
     public ActivitiesScreen goToActivities() {
-        return mainTabs().clickYou().clickActivitiesLink();
+        return mainTabs().clickMore().clickActivitiesLink();
     }
 
     public CollectionScreen goToCollections() {
@@ -38,7 +38,7 @@ public class MainNavigationHelper {
     }
 
     public ProfileScreen goToMyProfile() {
-        return mainTabs().clickYou().clickMyProfileLink();
+        return mainTabs().clickMore().clickMyProfileLink();
     }
 
     public DiscoveryScreen goToDiscovery() {
@@ -54,20 +54,20 @@ public class MainNavigationHelper {
         return mainTabs.clickDiscovery();
     }
 
-    public YouScreen goToYou() {
-        return mainTabs().clickYou();
+    public MoreScreen goToMore() {
+        return mainTabs().clickMore();
     }
 
     public RecordScreen goToRecord() {
-        return mainTabs().clickYou().clickRecordLink();
+        return mainTabs().clickMore().clickRecordLink();
     }
 
     public BasicSettingsScreen goToBasicSettings() {
-        return mainTabs().clickYou().clickBasicSettingsLink();
+        return mainTabs().clickMore().clickBasicSettingsLink();
     }
 
     public OfflineSettingsScreen goToOfflineSettings() {
-        return mainTabs().clickYou().clickOfflineSettingsLink();
+        return mainTabs().clickMore().clickOfflineSettingsLink();
     }
 
     private MainTabs mainTabs() {

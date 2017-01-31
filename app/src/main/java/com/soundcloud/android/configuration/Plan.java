@@ -32,6 +32,10 @@ public enum Plan {
         return this != UNDEFINED && existingPlan != UNDEFINED && this.compareTo(existingPlan) < 0;
     }
 
+    public boolean isGoPlan() {
+        return this == MID_TIER || this == HIGH_TIER;
+    }
+
     public static Plan fromId(@Nullable String planId) {
         if (planId == null) {
             return UNDEFINED;

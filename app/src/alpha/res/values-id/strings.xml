@@ -346,10 +346,6 @@
   <string name="notification_username_reposted_tracktitle">mengirim ulang %s</string>
   <string name="notification_username_commented_on_tracktitle">berkomentar di %s</string>
   <string name="notification_username_started_following_you">mulai mengikuti Anda</string>
-  <!--__SUBS-->
-  <string name="pref_subscriptions_header">Langganan</string>
-  <string name="pref_subscription_buy_title">Upgrade</string>
-  <string name="pref_subscription_buy_summary">Upgrade akun Anda</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Berlangganan</string>
   <string name="conversion_buy_loading">Memuat…</string>

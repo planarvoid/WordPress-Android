@@ -244,7 +244,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsDownloadedStateWhenLikedTracksDownloadStateIsDownloaded() {
-        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.DOWNLOADED));
         createAndBindView();
@@ -254,7 +253,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsRequestedStateWhenLikedTracksDownloadStateIsRequested() {
-        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.REQUESTED));
         createAndBindView();
@@ -315,7 +313,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showWarningTextWhenPendingDownloadAndWifiOnly() {
-        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.REQUESTED));
         when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
@@ -328,7 +325,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showWarningTextWhenPendingDownloadAndOffline() {
-        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.REQUESTED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
@@ -339,7 +335,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowWarningTextForNonPendingStates() {
-        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.DOWNLOADED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
@@ -360,7 +355,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineDownloadOptionWhenOfflineLikesDisabled() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
         createAndBindView();
 
@@ -369,7 +363,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineRemovalOptionWhenOfflineTracksEnabled() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
         createAndBindView();
 

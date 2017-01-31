@@ -14,7 +14,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.OfflineSettingsOnboardingScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
-import com.soundcloud.android.screens.YouScreen;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -23,7 +23,7 @@ import android.content.Context;
 import java.io.IOException;
 
 public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
-    private YouScreen youScreen;
+    private MoreScreen moreScreen;
     private OfflineSettingsScreen offlineSettingsScreen;
     private Context context;
 
@@ -46,12 +46,12 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         enableOfflineContent(context);
         disableOfflineSettingsOnboarding(context);
 
-        youScreen = mainNavHelper.goToYou();
+        moreScreen = mainNavHelper.goToMore();
     }
 
     @OfflineSyncTest
     public void testDisableSyncCollectionIsCancellable() {
-        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
         OfflineSettingsScreen screen = offlineSettingsScreen.toggleSyncCollectionOn();
@@ -62,7 +62,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
 
     @OfflineSyncTest
     public void testEnableSyncCollectionTriggersSync() {
-        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
         offlineSettingsScreen.toggleSyncCollectionOn();
@@ -79,7 +79,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
 
     @OfflineSyncTest
     public void testRemoveOfflineContentDisablesOfflineCollection() {
-        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
         offlineSettingsScreen.toggleSyncCollectionOn()
@@ -90,7 +90,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testOfflineLimitSlider() {
-        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
         assertEquals("unlimited", offlineSettingsScreen.getSliderLimitText());
@@ -106,7 +106,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertNotSame("0.5 GB", legendLastValue);
 
         solo.goBack();
-        youScreen.clickOfflineSettingsLink();
+        moreScreen.clickOfflineSettingsLink();
         assertEquals(sliderLastValue, offlineSettingsScreen.getSliderLimitText());
         assertEquals(legendLastValue, offlineSettingsScreen.getLegendLimitText());
     }
@@ -114,7 +114,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
     public void testBlockOfflineLimitSliderBelowCurrentUsage() throws IOException {
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 800);
 
-        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         offlineSettingsScreen.tapOnSlider(0);
 
         assertTrue(waiter.expectToastWithText(toastObserver,
@@ -125,7 +125,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
 
     public void testOfflineSettingsOnboarding() {
         enableOfflineSettingsOnboarding(context);
-        youScreen.clickOfflineSettingsLink();
+        moreScreen.clickOfflineSettingsLink();
 
         OfflineSettingsOnboardingScreen offlineSettingsOnboardingScreen = new OfflineSettingsOnboardingScreen(solo);
         assertTrue(offlineSettingsOnboardingScreen.isVisible());

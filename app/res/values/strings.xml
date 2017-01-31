@@ -676,12 +676,15 @@
     <string name="more_notification_settings">Notification settings</string>
     <string name="more_basic_settings">Basic settings</string>
     <string name="more_report_bug">Report bug</string>
-    <string name="more_help_center">Help center</string>
+    <string name="more_help_center">Help</string>
     <string name="more_legal">Legal</string>
     <string name="more_sign_out">Sign out</string>
     <string name="more_view_public_profile">View public profile</string>
-    <string name="more_go_indicator">SOUNDCLOUD GO</string>
     <string name="more_app_version">App version %s</string>
+    <string name="more_subscription">Subscription</string>
+    <string name="more_subscription_check">Already subscribed? Check now</string>
+    <string name="more_upsell_legacy">Upgrade to SoundCloud Go</string>
+    <string name="more_upsell">Upgrade to SoundCloud Go+</string>
 
     <!-- __NEW STREAM -->
     <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
@@ -711,13 +714,6 @@
     <string name="notification_username_reposted_tracktitle">reposted %s</string>
     <string name="notification_username_commented_on_tracktitle">commented on %s</string>
     <string name="notification_username_started_following_you">started following you</string>
-
-    <!-- __SUBS -->
-    <string name="pref_subscriptions_header">Subscriptions</string>
-    <string name="pref_subscription_buy_title">Upgrade</string>
-    <string name="pref_subscription_buy_summary">Upgrade your account</string>
-    <string name="pref_subscription_restore_title">Restore</string>
-    <string name="pref_subscription_restore_summary">Restore an existing subscription</string>
 
     <!-- __CONVERSION -->
     <string name="conversion_page_title">Subscribe</string>
@@ -799,6 +795,11 @@
     <string name="offline_no_wifi">No Wi-Fi</string>
     <string name="offline_no_connection">No connection</string>
 
+    <!-- __GO TIERS -->
+    <string name="tier_free">SoundCloud Free</string>
+    <string name="tier_go">SoundCloud Go</string>
+    <string name="tier_plus">SoundCloud Go+</string>
+
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
     <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalog and ad‑free offline listening.</string>
@@ -852,12 +853,9 @@
     <string name="disable_offline_collection_body">Your new likes, playlists and albums won’t save automatically anymore and existing saved sounds will be removed from offline listening.</string>
     <string name="disable_offline_collection_from_context_title">Remove this from offline listening?</string>
     <string name="disable_offline_collection_from_context_body">You’re about to remove this from offline. Additionally, your newly created or liked playlists won’t save offline automatically anymore.</string>
-
-    <!-- offline playlist creation -->
     <string name="add_playlist_offline">Available offline</string>
-    <!-- offline settings -->
     <string name="title_offline_settings">Offline listening settings</string>
-    <string name="you_offline_sync_settings">Offline listening settings</string>
+    <string name="more_offline_sync_settings">Offline listening settings</string>
     <string name="unlimited">unlimited</string>
 
     <plurals name="downloading_track_of_tracks">

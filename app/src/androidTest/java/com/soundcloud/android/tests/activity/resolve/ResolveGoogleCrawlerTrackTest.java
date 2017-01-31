@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.YouScreen;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.TestConsts;
 
@@ -33,7 +33,7 @@ public class ResolveGoogleCrawlerTrackTest extends ResolveGoogleCrawlerBaseTest 
         playerScreen.waitForExpandedPlayer();
         playerScreen.pressCloseButton();
 
-        YouScreen youScreen = mainNavHelper.goToYou();
-        assertThat(youScreen.getUserName(), is(equalTo("")));
+        MoreScreen moreScreen = mainNavHelper.goToMore();
+        assertThat(moreScreen.getUserName(), is(equalTo("")));
     }
 }

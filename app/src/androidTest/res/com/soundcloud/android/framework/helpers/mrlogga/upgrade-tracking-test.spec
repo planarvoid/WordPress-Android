@@ -14,7 +14,7 @@ expected_events:
     connection_type: wifi
     click_name: clickthrough::consumer_sub_ad
     click_object: soundcloud:tcode:1008
-    page_name: settings:offline_sync_settings
+    page_name: settings:main
     click_category: consumer_subs
     user: soundcloud:users:147986827
   version: '1'

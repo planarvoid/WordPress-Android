@@ -8,7 +8,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.OfflineSettingsScreen;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
 public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
@@ -30,14 +30,14 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testUpgradePageEvents() {
-        OfflineSettingsScreen offlineSettingsScreen = mainNavHelper.goToOfflineSettings();
-        assertThat(offlineSettingsScreen, is(visible()));
+        MoreScreen moreScreen = mainNavHelper.goToMore();
+        assertThat(moreScreen, is(visible()));
 
         waiter.waitTwoSeconds();
 
         startEventTracking();
 
-        UpgradeScreen upgradeScreen = offlineSettingsScreen.clickSubscribe();
+        UpgradeScreen upgradeScreen = moreScreen.clickSubscribe();
         assertThat(upgradeScreen, is(visible()));
 
         waiter.waitTwoSeconds();

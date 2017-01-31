@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.matcher.view.IsVisible;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
 public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
@@ -30,10 +31,10 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testSettingsUpsellImpressionAndClick() {
+        MoreScreen moreScreen = mainNavHelper.goToMore();
         startEventTracking();
 
-        UpgradeScreen upgradeScreen = mainNavHelper.goToOfflineSettings()
-                                                   .clickSubscribe();
+        UpgradeScreen upgradeScreen = moreScreen.clickSubscribe();
 
         assertThat(upgradeScreen, is(visible()));
         assertThat(upgradeScreen.upgradeButton(), is(IsVisible.visible()));

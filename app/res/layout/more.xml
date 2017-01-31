@@ -43,10 +43,6 @@
                     style="@style/More.HeaderText.ProfileLink"
                     android:text="@string/more_view_public_profile" />
 
-                <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/more_go_indicator"
-                    style="@style/More.HeaderText.GoIndicator" />
-
             </LinearLayout>
         </LinearLayout>
 
@@ -94,12 +90,72 @@
             <com.soundcloud.android.view.CustomFontTextView
                 style="@style/More.NavItem"
                 android:duplicateParentState="true"
-                android:text="@string/you_offline_sync_settings" />
+                android:text="@string/more_offline_sync_settings" />
         </LinearLayout>
 
         <View style="@style/Divider.Section" />
         <View style="@style/Divider.Background" />
         <View style="@style/Divider.Section" />
+
+        <LinearLayout
+            android:id="@+id/more_subscription_block"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/More.NavItem"
+                    android:layout_weight="2"
+                    android:text="@string/more_subscription" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/more_subscription_tier"
+                    style="@style/More.NavItem.Right"
+                    android:layout_weight="1"
+                    android:text="@string/tier_free" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/more_upsell_block"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <View style="@style/Divider.Item" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/more_upsell"
+                    style="@style/More.NavItem.Upsell"
+                    android:text="@string/more_upsell_legacy" />
+            </LinearLayout>
+
+            <View style="@style/Divider.Section" />
+            <View style="@style/Divider.Background" />
+            <View style="@style/Divider.Section" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/more_restore_subscription_block"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/more_restore_subscription"
+                style="@style/More.NavItem"
+                android:text="@string/more_subscription_check" />
+
+            <View style="@style/Divider.Section" />
+            <View style="@style/Divider.Background" />
+            <View style="@style/Divider.Section" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/more_report_bug"

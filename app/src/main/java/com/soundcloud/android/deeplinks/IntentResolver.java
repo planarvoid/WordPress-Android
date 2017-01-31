@@ -255,7 +255,7 @@ public class IntentResolver {
     }
 
     private void showOfflineSettingsScreen(Context context, String referrer) {
-        if (featureOperations.isOfflineContentOrUpsellEnabled()) {
+        if (featureOperations.isOfflineContentEnabled()) {
             trackForegroundEvent(referrer, Screen.SETTINGS_OFFLINE);
             navigator.openOfflineSettings(context);
         } else {

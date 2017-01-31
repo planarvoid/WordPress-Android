@@ -103,7 +103,6 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
     public enum Tcode {
         WHY_ADS(1006),
         PLAYER(1017),
-        SETTINGS(1007),
         SETTINGS_UPGRADE(1008),
         LIKES(1009),
         SEARCH_RESULTS(1025),
@@ -239,28 +238,16 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
                                  .build();
     }
 
-    public static UpgradeFunnelEvent forSettingsClick() {
-        return UpgradeFunnelEvent.fromUpsellClick(Tcode.SETTINGS)
-                                 .pageName(Optional.of(Screen.SETTINGS_MAIN.get()))
-                                 .build();
-    }
-
-    public static UpgradeFunnelEvent forSettingsImpression() {
-        return UpgradeFunnelEvent.fromUpsellImpression(Tcode.SETTINGS)
-                                 .pageName(Optional.of(Screen.SETTINGS_MAIN.get()))
-                                 .build();
-    }
-
     public static UpgradeFunnelEvent forUpgradeFromSettingsClick() {
         return UpgradeFunnelEvent.fromUpsellClick(Tcode.SETTINGS_UPGRADE)
-                                 .pageName(Optional.of(Screen.SETTINGS_OFFLINE.get()))
+                                 .pageName(Optional.of(Screen.SETTINGS_MAIN.get()))
                                  .build();
     }
 
     public static UpgradeFunnelEvent forUpgradeFromSettingsImpression() {
         return UpgradeFunnelEvent.fromUpsellImpression(Tcode.SETTINGS_UPGRADE)
                                  .adjustToken(Optional.of(AdjustToken.OFFLINE_SETTINGS))
-                                 .pageName(Optional.of(Screen.SETTINGS_OFFLINE.get()))
+                                 .pageName(Optional.of(Screen.SETTINGS_MAIN.get()))
                                  .build();
     }
 

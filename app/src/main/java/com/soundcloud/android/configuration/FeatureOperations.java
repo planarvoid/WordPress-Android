@@ -44,10 +44,6 @@ public class FeatureOperations {
         return !featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false);
     }
 
-    public boolean isOfflineContentOrUpsellEnabled() {
-        return isOfflineContentEnabled() || upsellOfflineContent();
-    }
-
     public boolean isOfflineContentEnabled() {
         return featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false);
     }
@@ -60,10 +56,6 @@ public class FeatureOperations {
     public boolean upsellRemoveAudioAds() {
         return !featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)
                 && isFeatureAvailableViaUpgrade(FeatureName.REMOVE_AUDIO_ADS);
-    }
-
-    public boolean hasGoPlan() {
-        return getCurrentPlan() == Plan.HIGH_TIER || getCurrentPlan() == Plan.MID_TIER;
     }
 
     private boolean isFeatureAvailableViaUpgrade(String featureName) {

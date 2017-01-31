@@ -171,4 +171,10 @@ public class MainPagerAdapter extends PagerAdapter {
         void onFocusChange(boolean hasFocus);
 
     }
+
+    public interface ScrollContent {
+
+        void resetScroll();
+
+    }
 }

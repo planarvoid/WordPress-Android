@@ -45,22 +45,6 @@ public class UpgradeFunnelEventTest {
     }
 
     @Test
-    public void createsEventForSettingsImpression() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forSettingsImpression();
-
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
-        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.Tcode.SETTINGS.toString());
-    }
-
-    @Test
-    public void createsEventForSettingsClick() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forSettingsClick();
-
-        assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
-        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.Tcode.SETTINGS.toString());
-    }
-
-    @Test
     public void createsEventForUpgradeButtonInSettingsImpression() {
         UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradeFromSettingsImpression();
 

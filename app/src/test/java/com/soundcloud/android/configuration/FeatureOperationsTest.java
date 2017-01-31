@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,13 +34,6 @@ public class FeatureOperationsTest {
         when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(true);
 
         assertThat(featureOperations.isOfflineContentEnabled()).isTrue();
-    }
-
-    @Test
-    public void isOfflineContentOrUpsellEnabledIfOfflineContentEnabled() {
-        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(true);
-
-        assertThat(featureOperations.isOfflineContentOrUpsellEnabled()).isTrue();
     }
 
     @Test
@@ -90,11 +83,6 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void isOfflineContentOrUpsellEnabledFalseByDefault() {
-        assertThat(featureOperations.isOfflineContentOrUpsellEnabled()).isFalse();
-    }
-
-    @Test
     public void upsellHighTierDefaultsFalse() {
         assertThat(featureOperations.upsellHighTier()).isFalse();
     }
@@ -109,20 +97,10 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void isOfflineContentOrUpsellEnabledIfAvailableForHighTierAndHighTierIsAvailable() {
-        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
-        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.HIGH_TIER));
-        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER));
-
-        assertThat(featureOperations.isOfflineContentOrUpsellEnabled()).isTrue();
-    }
-
-
-    @Test
     public void doNotUpsellOfflineContentIfAvailableForHighTierButHighTierIsNotAvailable() {
         when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
         when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.HIGH_TIER));
-        when(planStorage.getUpsells()).thenReturn(new ArrayList<Plan>());
+        when(planStorage.getUpsells()).thenReturn(new ArrayList<>());
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
@@ -130,7 +108,7 @@ public class FeatureOperationsTest {
     @Test
     public void doNotUpsellOfflineContentIfUnavailableForHighTier() {
         when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
-        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(new ArrayList<Plan>());
+        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(new ArrayList<>());
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
@@ -155,7 +133,7 @@ public class FeatureOperationsTest {
     public void doNotUpsellRemoveAdsIfAvailableForHighTierButHighTierIsNotAvailable() {
         when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
         when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(Arrays.asList(Plan.HIGH_TIER));
-        when(planStorage.getUpsells()).thenReturn(new ArrayList<Plan>());
+        when(planStorage.getUpsells()).thenReturn(new ArrayList<>());
 
         assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
     }
@@ -163,7 +141,7 @@ public class FeatureOperationsTest {
     @Test
     public void doNotUpsellRemoveAdsIfUnavailableForHighTier() {
         when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
-        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(new ArrayList<Plan>());
+        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(new ArrayList<>());
 
         assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
     }
@@ -180,27 +158,6 @@ public class FeatureOperationsTest {
         when(planStorage.getPlan()).thenReturn(Plan.HIGH_TIER);
 
         assertThat(featureOperations.getCurrentPlan()).isEqualTo(Plan.HIGH_TIER);
-    }
-
-    @Test
-    public void hasGoPlanIsTrueForMidTier() {
-        when(planStorage.getPlan()).thenReturn(Plan.MID_TIER);
-
-        assertThat(featureOperations.hasGoPlan()).isTrue();
-    }
-
-    @Test
-    public void haGoPlanIsTrueForHighTier() {
-        when(planStorage.getPlan()).thenReturn(Plan.HIGH_TIER);
-
-        assertThat(featureOperations.hasGoPlan()).isTrue();
-    }
-
-    @Test
-    public void hasGoPlanIsFalseForFreeTier() {
-        when(planStorage.getPlan()).thenReturn(Plan.FREE_TIER);
-
-        assertThat(featureOperations.hasGoPlan()).isFalse();
     }
 
     @Test
@@ -246,4 +203,5 @@ public class FeatureOperationsTest {
         when(applicationProperties.isDevelopmentMode()).thenReturn(false);
         assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
     }
+
 }

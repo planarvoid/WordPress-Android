@@ -137,7 +137,7 @@ public class LoginFlowTest extends LoginTest {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginDefault(scAccount.getEmail(), scAccount.getPassword());
 
-        assertThat(mainNavHelper.goToYou()
+        assertThat(mainNavHelper.goToMore()
                                 .clickLogoutAndConfirm(), is(visible()));
     }
 

@@ -1,16 +1,20 @@
 package com.soundcloud.android.more;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
@@ -18,6 +22,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -34,8 +40,6 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.view.View;
-
-import java.util.List;
 
 public class MoreTabPresenterTest extends AndroidUnitTest {
 
@@ -58,6 +62,8 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Mock private ApplicationProperties appProperties;
     @Mock private SyncConfig syncConfig;
     @Mock private OfflineSettingsStorage storage;
+    @Mock private ConfigurationManager configurationManager;
+    @Mock private FeatureFlags flags;
 
     @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
 
@@ -76,10 +82,14 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
                                          navigator,
                                          bugReporter,
                                          appProperties,
-                                         storage);
+                                         storage,
+                                         configurationManager,
+                                         flags);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
     }
 
     @Test
@@ -92,7 +102,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedBindsLoadedUserToView() {
-        setupForegroundFragment();
+        initFragment();
 
         verifyUserBound();
     }
@@ -100,8 +110,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onViewCreatedBindsUserToViewWhenLoadedAfterViewCreated() {
         final PublishSubject<User> subject = PublishSubject.create();
-
-        setupForegroundFragment();
+        initFragment();
 
         subject.onNext(USER);
 
@@ -109,107 +118,34 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onViewCreatedSendsUpsellImpressionIfUpselling() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-
-        setupForegroundFragment();
-
-        final List<TrackingEvent> trackingEvents = eventBus.eventsOn(EventQueue.TRACKING);
-        assertThat(trackingEvents).hasSize(1);
-        assertThat(trackingEvents.get(0).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
-    }
-
-    @Test
     public void onViewCreatedSendsNoUpsellImpressionIfNotUpselling() {
-        setupForegroundFragment();
+        initFragment();
 
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
-    public void onViewCreatedShowsGoIndicatorForGoUsers() {
-        when(featureOperations.hasGoPlan()).thenReturn(true);
+    public void onTabFocusSendsUpsellImpressionIfUpselling() {
+        when(moreView.isUpsellVisible()).thenReturn(true);
+        initFragment();
 
-        setupForegroundFragment();
+        presenter.onFocusChange(true);
 
-        verify(moreView).showGoIndicator(true);
-    }
-
-    @Test
-    public void onViewCreatedDoesNotShowGoIndicatorForFreeUsers() {
-        when(featureOperations.hasGoPlan()).thenReturn(false);
-
-        setupForegroundFragment();
-
-        verify(moreView).showGoIndicator(false);
-    }
-
-    @Test
-    public void hidesOfflineSettingsWithNoOfflineContentOrAccess() {
-        setupForegroundFragment();
-
-        verify(moreView).hideOfflineSettings();
-    }
-
-    @Test
-    public void showsOfflineSettingsWithUpgrade() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-
-        setupForegroundFragment();
-
-        verify(moreView).showOfflineSettings();
-    }
-
-    @Test
-    public void showsOfflineSettingsWhenOfflineContentEnabled() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        setupForegroundFragment();
-
-        verify(moreView).showOfflineSettings();
-    }
-
-    @Test
-    public void showsOfflineSettingsWithOfflineContent() {
-        when(offlineContentOperations.hasOfflineContent()).thenReturn(true);
-
-        setupForegroundFragment();
-
-        verify(moreView).showOfflineSettings();
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).get(0).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
     }
 
     @Test
     public void showsShowsReportBugForConfiguredBuilds() {
         when(appProperties.shouldAllowFeedback()).thenReturn(true);
 
-        setupForegroundFragment();
+        initFragment();
 
         verify(moreView).showReportBug();
     }
 
     @Test
-    public void onOfflineSettingsClickSendsUpsellClickEventIfUpselling() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-
-        setupForegroundFragment();
-        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
-
-        final List<TrackingEvent> trackingEvents = eventBus.eventsOn(EventQueue.TRACKING);
-        assertThat(trackingEvents).hasSize(2);
-        assertThat(trackingEvents.get(1).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
-    }
-
-    @Test
-    public void onOfflineSettingsClickSendsNoUpsellClickEventIfNotUpselling() {
-        setupForegroundFragment();
-        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
-
-        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
-    }
-
-    @Test
     public void onActivitiesClickedNavigatesToActivities() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onActivitiesClicked(new View(context()));
 
         verify(navigator).openActivities(context());
@@ -217,7 +153,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onRecordClickedNavigatesToRecord() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onRecordClicked(new View(context()));
 
         verify(navigator).openRecord(context(), Screen.MORE);
@@ -225,7 +161,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onProfileClickedNavigatesToProfile() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onProfileClicked(new View(context()));
 
         verify(navigator).legacyOpenProfile(context(), USER_URN);
@@ -233,7 +169,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onOfflineSettingsClickedShowsOfflineSettings() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
 
         verify(navigator).openOfflineSettings(context());
@@ -241,7 +177,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onOfflineSettingsClickedShowsOnboardingWhenHasNotBeenSeenBefore() {
-        setupForegroundFragment();
+        initFragment();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(storage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
 
@@ -252,7 +188,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onOfflineSettingsClickedDoesNotShowOnboardingWhenHasBeenSeenBefore() {
-        setupForegroundFragment();
+        initFragment();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(storage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
 
@@ -263,7 +199,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onNotificationSettingsClickedShowsNotificationSettings() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onNotificationPreferencesClicked(new View(context()));
 
         verify(navigator).openNotificationPreferences(context());
@@ -271,15 +207,33 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onBasicSettingsClickedShowsSettings() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(context()));
 
         verify(navigator).openBasicSettings(context());
     }
 
     @Test
+    public void onUpsellClickedOpensUpgradeScreen() {
+        initFragment();
+        listenerArgumentCaptor.getValue().onUpsellClicked(new View(context()));
+
+        verify(navigator).openUpgrade(context());
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).get(0).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
+    }
+
+    @Test
+    public void onRestoreSubscriptionClickedUpdatesConfiguration() {
+        initFragment();
+        listenerArgumentCaptor.getValue().onRestoreSubscriptionClicked(new View(context()));
+
+        verify(configurationManager).forceConfigurationUpdate();
+        verify(moreView).disableRestoreSubscription();
+    }
+
+    @Test
     public void onBugReportClickedShowsReportDialog() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onReportBugClicked(new View(context()));
 
         verify(bugReporter).showGeneralFeedbackDialog(context());
@@ -287,7 +241,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onHelpCenterClickedShowsHelpCenter() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onHelpCenterClicked(new View(context()));
 
         verify(navigator).openHelpCenter(context());
@@ -295,7 +249,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onLegalClickedShowsLegal() {
-        setupForegroundFragment();
+        initFragment();
         listenerArgumentCaptor.getValue().onLegalClicked(new View(context()));
 
         verify(navigator).openLegal(context());
@@ -306,7 +260,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         final PublishSubject<User> subject = PublishSubject.create();
         when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(subject);
 
-        setupForegroundFragment();
+        initFragment();
         presenter.onDestroyView(fragment);
 
         verify(moreView).unbind();
@@ -321,14 +275,84 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void resetScrollResetsScrollOnView() {
-        setupForegroundFragment();
+        initFragment();
 
         presenter.resetScroll();
 
         verify(moreView).resetScroll();
     }
 
-    private void setupForegroundFragment() {
+    @Test
+    public void configureSubsSettingsForFreeUserWithNoUpsell() {
+        initFragment();
+
+        verify(moreView, never()).showRestoreSubscription();
+        verify(moreView, never()).setSubscriptionTier(anyString());
+        verify(moreView, never()).showHighTierUpsell(anyString());
+        verify(moreView, never()).showOfflineSettings();
+    }
+
+    @Test
+    public void configureSubsSettingsForFreeUserWithHighTierUpsell() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        initFragment();
+
+        verify(moreView).showRestoreSubscription();
+        verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_free));
+        verify(moreView).showHighTierUpsell(resources().getString(R.string.more_upsell));
+        verify(moreView, never()).showOfflineSettings();
+    }
+
+    @Test
+    public void configureSubsSettingsForMidTierUser() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        initFragment();
+
+        verify(moreView, never()).showRestoreSubscription();
+        verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_go));
+        verify(moreView).showHighTierUpsell(resources().getString(R.string.more_upsell));
+        verify(moreView).showOfflineSettings();
+    }
+
+    @Test
+    public void configureSubsSettingsForHighTierUser() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        initFragment();
+
+        verify(moreView, never()).showRestoreSubscription();
+        verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_plus));
+        verify(moreView, never()).showHighTierUpsell(anyString());
+        verify(moreView).showOfflineSettings();
+    }
+
+    @Test
+    public void usesLegacyHighTierLabelIfMidTierIsNotEnabled() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(false);
+
+        initFragment();
+
+        verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_go));
+    }
+
+    @Test
+    public void usesLegacyUpsellLabelIfMidTierIsNotEnabled() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(false);
+
+        initFragment();
+
+        verify(moreView).showHighTierUpsell(resources().getString(R.string.more_upsell_legacy));
+    }
+
+    private void initFragment() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, fragmentView, null);
     }

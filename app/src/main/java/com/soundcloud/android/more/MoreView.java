@@ -7,7 +7,7 @@ import butterknife.Unbinder;
 import com.google.auto.factory.AutoFactory;
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.ScrollContent;
+import com.soundcloud.android.main.MainPagerAdapter;
 
 import android.content.res.Resources;
 import android.support.v4.widget.NestedScrollView;
@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
-public class MoreView implements ScrollContent {
+class MoreView implements MainPagerAdapter.ScrollContent {
 
     private final Unbinder unbinder;
     private Listener listener;
@@ -27,23 +27,23 @@ public class MoreView implements ScrollContent {
     @BindView(R.id.more_version_text) TextView versionText;
     @BindView(R.id.more_offline_sync_settings_link) View offlineSettingsView;
     @BindView(R.id.more_report_bug) View reportBug;
+    @BindView(R.id.more_upsell_block) View upsellBlock;
+    @BindView(R.id.more_upsell) TextView upsell;
+    @BindView(R.id.more_subscription_block) View subscriptionBlock;
+    @BindView(R.id.more_subscription_tier) TextView tier;
+    @BindView(R.id.more_restore_subscription_block) View restoreBlock;
+    @BindView(R.id.more_restore_subscription) TextView restore;
     @BindView(R.id.scroll_view) NestedScrollView scrollView;
-    @BindView(R.id.more_go_indicator) View goIndicator;
 
     MoreView(View view, final Listener listener) {
         this.listener = listener;
         unbinder = ButterKnife.bind(this, view);
-
         setAppVersionString(view.getResources());
     }
 
     @Override
     public void resetScroll() {
         scrollView.smoothScrollTo(0, 0);
-    }
-
-    public void showGoIndicator(boolean showGoIndicator) {
-        goIndicator.setVisibility(showGoIndicator ? View.VISIBLE : View.GONE);
     }
 
     private void setAppVersionString(Resources resources) {
@@ -56,20 +56,43 @@ public class MoreView implements ScrollContent {
         this.listener = null;
     }
 
-    public void showOfflineSettings() {
+    void showOfflineSettings() {
         offlineSettingsView.setVisibility(View.VISIBLE);
     }
 
-    public void hideOfflineSettings() {
+    void hideOfflineSettings() {
         offlineSettingsView.setVisibility(View.GONE);
     }
 
-    public void showReportBug() {
+    void showReportBug() {
         reportBug.setVisibility(View.VISIBLE);
     }
 
     void setUsername(String username) {
         this.username.setText(username);
+    }
+
+    void setSubscriptionTier(String tier) {
+        this.tier.setText(tier);
+        subscriptionBlock.setVisibility(View.VISIBLE);
+    }
+
+    void showHighTierUpsell(String upsellText) {
+        upsellBlock.setVisibility(View.VISIBLE);
+        upsell.setText(upsellText);
+    }
+
+    boolean isUpsellVisible() {
+        return upsellBlock.getVisibility() == View.VISIBLE;
+    }
+
+    void showRestoreSubscription() {
+        restoreBlock.setVisibility(View.VISIBLE);
+    }
+
+    void disableRestoreSubscription() {
+        restore.setClickable(false);
+        restore.setTextColor(restore.getResources().getColor(R.color.ak_medium_dark_gray));
     }
 
     @OnClick(R.id.header_layout)
@@ -97,6 +120,20 @@ public class MoreView implements ScrollContent {
     void onOfflineSyncSettingsClicked(View view) {
         if (listener != null) {
             listener.onOfflineSettingsClicked(view);
+        }
+    }
+
+    @OnClick(R.id.more_upsell)
+    void onUpsellClicked(View view) {
+        if (listener != null) {
+            listener.onUpsellClicked(view);
+        }
+    }
+
+    @OnClick(R.id.more_restore_subscription)
+    void onRestoreSubscriptionClicked(View view){
+        if (listener != null) {
+            listener.onRestoreSubscriptionClicked(view);
         }
     }
 
@@ -166,6 +203,10 @@ public class MoreView implements ScrollContent {
         void onLegalClicked(View view);
 
         void onSignOutClicked(View view);
+
+        void onUpsellClicked(View view);
+
+        void onRestoreSubscriptionClicked(View view);
     }
 
 }

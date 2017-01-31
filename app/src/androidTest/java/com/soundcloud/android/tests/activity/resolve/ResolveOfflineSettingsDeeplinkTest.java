@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.activity.resolve;
 
-import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -20,12 +20,12 @@ public class ResolveOfflineSettingsDeeplinkTest extends ResolveBaseTest {
 
     @Override
     protected TestUser getUserForLogin() {
-        return upsellUser;
+        return offlineUser;
     }
 
     @Override
     protected void beforeStartActivity() {
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+        ConfigurationHelper.enableOfflineContent(getInstrumentation().getTargetContext());
     }
 
     @Override

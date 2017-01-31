@@ -598,7 +598,6 @@
   <string name="more_legal">Juridisch</string>
   <string name="more_sign_out">Uitloggen</string>
   <string name="more_view_public_profile">Openbaar profiel weergeven</string>
-  <string name="more_go_indicator">SOUNDCLOUD GO</string>
   <string name="more_app_version">App-versie %s</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s een playlist</string>
@@ -619,12 +618,6 @@
   <string name="notification_username_reposted_tracktitle">heeft %s gerepost</string>
   <string name="notification_username_commented_on_tracktitle">heeft gereageerd op %s</string>
   <string name="notification_username_started_following_you">zijn begonnen je te volgen</string>
-  <!--__SUBS-->
-  <string name="pref_subscriptions_header">Abonnementen</string>
-  <string name="pref_subscription_buy_title">Upgrade</string>
-  <string name="pref_subscription_buy_summary">Upgrade je account</string>
-  <string name="pref_subscription_restore_title">Herstellen</string>
-  <string name="pref_subscription_restore_summary">Een bestaand abonnement herstellen</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonneren</string>
   <string name="conversion_title">SoundCloud Go</string>

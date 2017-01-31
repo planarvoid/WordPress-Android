@@ -8,9 +8,9 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.record.RecordScreen;
 
-public class YouScreen extends Screen {
+public class MoreScreen extends Screen {
 
-    public YouScreen(Han solo) {
+    public MoreScreen(Han solo) {
         super(solo);
         waiter.waitForActivity(getActivity());
     }
@@ -45,6 +45,11 @@ public class YouScreen extends Screen {
         return new OfflineSettingsScreen(testDriver);
     }
 
+    public UpgradeScreen clickSubscribe() {
+        upgradeLink().click();
+        return new UpgradeScreen(testDriver);
+    }
+
     public HomeScreen clickLogoutAndConfirm() {
         signoutLink().click();
         testDriver.clickOnText(android.R.string.ok);
@@ -73,6 +78,10 @@ public class YouScreen extends Screen {
 
     private ViewElement offlineSettingsLink() {
         return testDriver.findOnScreenElement(With.id(R.id.more_offline_sync_settings_link));
+    }
+
+    private ViewElement upgradeLink() {
+        return testDriver.findOnScreenElement(With.id(R.id.more_upsell));
     }
 
     private ViewElement signoutLink() {

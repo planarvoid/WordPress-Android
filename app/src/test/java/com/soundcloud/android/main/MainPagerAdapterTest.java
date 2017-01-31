@@ -18,7 +18,7 @@ import android.support.v4.app.FragmentManager;
 public class MainPagerAdapterTest extends AndroidUnitTest {
 
     @Mock FragmentManager fragmentManager;
-    @Mock(extraInterfaces = {ScrollContent.class, MainPagerAdapter.FocusListener.class}) Fragment fragment1;
+    @Mock(extraInterfaces = {MainPagerAdapter.ScrollContent.class, MainPagerAdapter.FocusListener.class}) Fragment fragment1;
     @Mock Fragment fragment2;
 
     private MainPagerAdapter adapter;
@@ -34,7 +34,7 @@ public class MainPagerAdapterTest extends AndroidUnitTest {
 
         adapter.resetScroll(0);
 
-        verify((ScrollContent) fragment1).resetScroll();
+        verify((MainPagerAdapter.ScrollContent) fragment1).resetScroll();
     }
 
     @Test

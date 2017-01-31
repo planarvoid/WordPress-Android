@@ -5,13 +5,13 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.OfflineSettingsScreen;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.PaymentErrorScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SubscribeErrorTest extends ActivityTest<MainActivity> {
 
-    private OfflineSettingsScreen settingsScreen;
+    private MoreScreen moreScreen;
 
     public SubscribeErrorTest() {
         super(MainActivity.class);
@@ -26,7 +26,7 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
-        settingsScreen = mainNavHelper.goToOfflineSettings();
+        moreScreen = mainNavHelper.goToMore();
     }
 
     @PaymentTest
@@ -34,7 +34,7 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
         PaymentStateHelper.resetTestAccount(getActivity());
         subscribe();
         solo.goBack();
-        PaymentErrorScreen errorScreen = settingsScreen
+        PaymentErrorScreen errorScreen = moreScreen
                 .clickSubscribe()
                 .clickBuyForFailure();
         errorScreen.waitForDialog();
@@ -42,7 +42,7 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
     }
 
     private void subscribe() {
-        settingsScreen
+        moreScreen
                 .clickSubscribe()
                 .clickBuyForSuccess();
         waiter.waitTwoSeconds();
