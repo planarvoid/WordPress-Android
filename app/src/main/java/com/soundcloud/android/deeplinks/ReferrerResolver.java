@@ -39,12 +39,12 @@ class ReferrerResolver {
         // for dagger
     }
 
-    public String getReferrerFromIntent(Intent intent, Resources resources) {
+    String getReferrerFromIntent(Intent intent, Resources resources) {
         try {
-            if (Referrer.hasReferrer(intent)) {
-                return Referrer.fromIntent(intent).value();
-            } else if (containsParameter(intent, PARAM_REF)) {
+            if (containsParameter(intent, PARAM_REF)) {
                 return extractParam(intent, PARAM_REF);
+            } else if (Referrer.hasReferrer(intent)) {
+                return Referrer.fromIntent(intent).value();
             } else if (containsParameter(intent, PARAM_ORIGIN)) {
                 return referrerFromOrigin(intent).value();
             } else if (isFacebookIntent(intent, resources)) {
@@ -63,10 +63,6 @@ class ReferrerResolver {
         } catch (ClassCastException exception) {
             return Referrer.OTHER.value();
         }
-    }
-
-    public boolean isFacebookAction(Intent intent, Resources resources) {
-        return getActionForSoundCloud(resources).equals(intent.getAction());
     }
 
     private boolean containsParameter(Intent intent, String param) {
@@ -102,6 +98,10 @@ class ReferrerResolver {
         } else {
             return false;
         }
+    }
+
+    private boolean isFacebookAction(Intent intent, Resources resources) {
+        return getActionForSoundCloud(resources).equals(intent.getAction());
     }
 
     @Nullable
