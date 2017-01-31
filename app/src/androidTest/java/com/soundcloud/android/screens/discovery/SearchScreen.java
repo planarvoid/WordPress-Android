@@ -65,6 +65,7 @@ public class SearchScreen extends Screen {
 
         autocompleteResults.get(1) // item 0 would be the "local" result we always show to execute the search
                            .click();
+
         return new SearchResultsScreen(testDriver);
     }
 

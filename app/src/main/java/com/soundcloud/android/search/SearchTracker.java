@@ -61,14 +61,6 @@ public class SearchTracker {
         eventTracker.trackScreen(ScreenEvent.create(Screen.SEARCH_MAIN), trackingStateProvider.getLastEvent());
     }
 
-    void trackSearchSubmission(SearchType searchType, Urn queryUrn, String searchQuery) {
-        if (queryUrn != Urn.NOT_SET) {
-            eventTracker.trackSearch(SearchEvent.searchStart(searchType.getScreen(),
-                                                             new SearchQuerySourceInfo(queryUrn,
-                                                                                       searchQuery)));
-        }
-    }
-
     void trackSearchItemClick(SearchType searchType, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
         publishItemClickEvent(searchType.getScreen(), urn, searchQuerySourceInfo);
     }

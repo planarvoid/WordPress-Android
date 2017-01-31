@@ -43,6 +43,7 @@ public class ToolBarElement extends Element {
 
     public ToolBarElement setSearchQuery(String query) {
         waiter.waitForActivity(SearchActivity.class);
+        searchInputField().clearText();
         searchInputField().typeText(query);
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;

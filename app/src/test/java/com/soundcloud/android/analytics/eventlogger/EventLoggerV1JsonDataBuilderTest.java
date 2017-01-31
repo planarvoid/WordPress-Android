@@ -490,13 +490,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForScrollDepthEvent(event);
         verify(jsonTransformer).toJson(getEventData("list_view_interaction", BOOGALOO_VERSION, event.getTimestamp())
-                .pageName("stream:main")
-                .action("scroll_start")
-                .columnCount(1)
-                .itemDetails("earliest_item", details)
-                .itemDetails("latest_item", details)
-                .clientEventId(event.getId())
-                .referringEvent(referringEvent));
+                                               .pageName("stream:main")
+                                               .action("scroll_start")
+                                               .columnCount(1)
+                                               .itemDetails("earliest_item", details)
+                                               .itemDetails("latest_item", details)
+                                               .clientEventId(event.getId())
+                                               .referringEvent(referringEvent));
     }
 
     @Test
@@ -995,12 +995,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForStreamAd(event);
 
         verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, 9876543210L)
-                .monetizationType("mobile_inlay")
-                .adUrn("dfp:ads:1")
-                .pageName("stream:main")
-                .impressionName("app_install")
-                .contextPosition(42)
-                .clientEventId(event.getId()));
+                                               .monetizationType("mobile_inlay")
+                                               .adUrn("dfp:ads:1")
+                                               .pageName("stream:main")
+                                               .impressionName("app_install")
+                                               .contextPosition(42)
+                                               .clientEventId(event.getId()));
     }
 
     @Test
@@ -1771,9 +1771,22 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsLegacySearchEvent() throws Exception {
+        SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_MAIN, new SearchQuerySourceInfo(QUERY_URN, SEARCH_QUERY));
+
+        jsonDataBuilder.buildForSearchEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .clickName(SearchEvent.ClickName.SEARCH.key)
+                                               .searchQuery(SEARCH_QUERY)
+                                               .pageName(Screen.SEARCH_MAIN.get()));
+    }
+
+    @Test
     public void createsSearchInitJson() throws Exception {
         SearchEvent event = SearchEvent.searchFormulationInit(Screen.SEARCH_MAIN,
-                                                             SEARCH_QUERY);
+                                                              SEARCH_QUERY);
 
         jsonDataBuilder.buildForSearchEvent(event);
 

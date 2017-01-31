@@ -51,9 +51,9 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
     }
 
     @Override
-    public void onSearchClicked(String searchQuery) {
+    public void onSearchClicked(String apiQuery, String userQuery) {
         if (getActivity() instanceof SuggestionListener) {
-            ((SuggestionListener) getActivity()).onSearchClicked(searchQuery);
+            ((SuggestionListener) getActivity()).onSearchClicked(apiQuery, userQuery);
         }
     }
 
@@ -65,9 +65,9 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
     }
 
     @Override
-    public void onAutocompleteClicked(String query, String output, Optional<Urn> queryUrn, int position) {
+    public void onAutocompleteClicked(String query, String userQuery, String output, Optional<Urn> queryUrn, int position) {
         if (getActivity() instanceof SuggestionListener) {
-            ((SuggestionListener) getActivity()).onAutocompleteClicked(query, output, queryUrn, position);
+            ((SuggestionListener) getActivity()).onAutocompleteClicked(query, userQuery, output, queryUrn, position);
         }
     }
 }

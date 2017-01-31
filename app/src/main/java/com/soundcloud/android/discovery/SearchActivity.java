@@ -51,8 +51,8 @@ public class SearchActivity extends PlayerActivity implements SuggestionListener
     }
 
     @Override
-    public void onSearchClicked(String searchQuery) {
-        presenter.performSearch(searchQuery);
+    public void onSearchClicked(String apiQuery, String userQuery) {
+        presenter.performSearch(apiQuery, userQuery);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class SearchActivity extends PlayerActivity implements SuggestionListener
     }
 
     @Override
-    public void onAutocompleteClicked(String query, String output, Optional<Urn> queryUrn, int position) {
-        presenter.performSearch(query, Optional.of(output), queryUrn, Optional.of(position));
+    public void onAutocompleteClicked(String searchQuery, String userQuery, String output, Optional<Urn> queryUrn, int position) {
+        presenter.performSearch(searchQuery, userQuery, Optional.of(output), queryUrn, Optional.of(position));
     }
 }

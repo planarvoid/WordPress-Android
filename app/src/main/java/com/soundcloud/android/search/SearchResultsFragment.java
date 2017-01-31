@@ -19,7 +19,8 @@ import javax.inject.Inject;
 public class SearchResultsFragment extends LightCycleSupportFragment<SearchResultsFragment>
         implements RefreshableScreen {
 
-    static final String EXTRA_QUERY = "query";
+    static final String EXTRA_API_QUERY = "query";
+    static final String EXTRA_USER_QUERY = "userQuery";
     static final String EXTRA_QUERY_URN = "queryUrn";
     static final String EXTRA_QUERY_POSITION = "queryPosition";
     static final String EXTRA_TYPE = "type";
@@ -28,12 +29,15 @@ public class SearchResultsFragment extends LightCycleSupportFragment<SearchResul
     @Inject @LightCycle SearchResultsPresenter presenter;
 
     public static SearchResultsFragment create(SearchType type,
-                                               String query,
+                                               String apiQuery,
+                                               String userQuery,
                                                Optional<Urn> queryUrn,
                                                Optional<Integer> queryPosition, boolean publishSearchSubmissionEvent) {
         final Bundle bundle = new Bundle();
         bundle.putSerializable(EXTRA_TYPE, type);
-        bundle.putString(EXTRA_QUERY, query);
+        bundle.putString(EXTRA_API_QUERY, apiQuery);
+        bundle.putString(EXTRA_USER_QUERY, userQuery);
+
         if (queryUrn.isPresent()) {
             bundle.putParcelable(EXTRA_QUERY_URN, queryUrn.get());
         }

@@ -1,8 +1,9 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_API_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_USER_QUERY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -22,8 +23,6 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -55,7 +54,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(3L);
     private static final Urn QUERY_URN = new Urn("soundcloud:search:123");
 
-    private static final String SEARCH_QUERY = "query";
+    private static final String API_QUERY = "api_query";
+    private static final String USER_QUERY = "user_query";
     private static final SearchType SEARCH_TAB = SearchType.ALL;
 
     private SearchResultsPresenter presenter;
@@ -67,7 +67,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener.Factory clickListenerFactory;
     @Mock private MixedItemClickListener clickListener;
     @Mock private TrackItemRenderer trackItemRenderer;
-    @Mock private FeatureFlags featureFlags;
     @Mock private Navigator navigator;
     @Mock private SearchTracker searchTracker;
     @Mock private ScreenProvider screenProvider;
@@ -97,10 +96,9 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                eventBus,
                                                navigator,
                                                searchTracker,
-                                               featureFlags,
                                                screenProvider);
 
-        searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1), SEARCH_QUERY);
+        searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1), API_QUERY);
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
 
 
@@ -114,7 +112,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreen()).thenReturn(Screen.SEARCH_MAIN);
 
         bundle = new Bundle();
-        bundle.putString(EXTRA_QUERY, SEARCH_QUERY);
+        bundle.putString(EXTRA_API_QUERY, API_QUERY);
+        bundle.putString(EXTRA_USER_QUERY, USER_QUERY);
     }
 
     @Test
@@ -144,30 +143,17 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupFragmentArguments(false);
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
-        verify(searchTracker, times(0)).trackSearchSubmission(any(SearchType.class), any(Urn.class), any(String.class));
         verify(searchTracker, times(0)).trackSearchFormulationEnd(eq(Screen.SEARCH_MAIN), any(String.class), any(Optional.class), any(Optional.class));
         verify(searchTracker, times(0)).trackResultsScreenEvent(any(SearchType.class), any(String.class));
     }
 
     @Test
-    public void mustTrackSearchResultsWhenFeatureFlagOff() {
-        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(false);
+    public void mustTrackSearchResults() {
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
-        verify(searchTracker).trackSearchSubmission(SEARCH_TAB, QUERY_URN, SEARCH_QUERY);
-        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, SEARCH_QUERY);
-    }
-
-    @Test
-    public void mustTrackSearchResultsWhenFeatureFlagOn() {
-        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(true);
-
-        presenter.onCreate(fragmentRule.getFragment(), new Bundle());
-
-        verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
-        verify(searchTracker).trackSearchFormulationEnd(Screen.SEARCH_MAIN, SEARCH_QUERY, Optional.<Urn>absent(), Optional.of(0));
-        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, SEARCH_QUERY);
+        verify(searchTracker).trackSearchFormulationEnd(Screen.SEARCH_MAIN, USER_QUERY, Optional.absent(), Optional.of(0));
+        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, API_QUERY);
     }
 
     @Test
@@ -277,7 +263,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     private void setupFragmentArguments(boolean publishSearchSubmissionEvent) {
         final Bundle arguments = new Bundle();
-        arguments.putString(EXTRA_QUERY, SEARCH_QUERY);
+        arguments.putString(EXTRA_API_QUERY, API_QUERY);
+        arguments.putString(EXTRA_USER_QUERY, USER_QUERY);
         arguments.putSerializable(EXTRA_TYPE, SEARCH_TAB);
         arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
         fragmentRule.setFragmentArguments(arguments);
