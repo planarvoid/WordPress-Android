@@ -1,6 +1,8 @@
 package com.soundcloud.android.framework;
 
 import static java.lang.String.format;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.R;
@@ -14,6 +16,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tests.SoundCloudTestApplication;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -22,7 +25,6 @@ import rx.Subscription;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Log;
@@ -73,43 +75,30 @@ public final class AccountAssistant {
     }
 
     static boolean addAccountAndEnableSync(Context context, Token token, ApiUser user) {
-        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
+        final SoundCloudTestApplication application = SoundCloudTestApplication.fromContext(context);
         application.getAccountOperations().updateToken(token);
         return application.addUserAccountAndEnableSync(user, token, SignupVia.NONE);
     }
 
-    public static boolean logOut(Instrumentation instrumentation) throws Exception {
-        return logOut(instrumentation.getTargetContext());
-    }
-
-    private static boolean logOut(Context context) throws Exception {
-        Log.i(TAG, "Logging out");
-        for (Account account : getAccounts(context)) {
-            AccountManager.get(context).removeAccount(account, null, null).getResult(3, TimeUnit.SECONDS);
-        }
-
-        Account account = getAccount(context);
-        if (account == null) {
-            return false;
-        }
-
-        Log.i(TAG, format(Locale.US, "LoggedInUser: %s", getAccount(context).name));
-
-        AccountManagerFuture<Boolean> accountManagerFuture =
-                AccountManager.get(context).removeAccount(account, null, null);
-        return accountManagerFuture.getResult(3, TimeUnit.SECONDS);
-    }
-
-    public static boolean logOutWithAccountCleanup(Instrumentation instrumentation) throws Exception {
+    public static void logOutWithAccountCleanup(Instrumentation instrumentation) throws Exception {
         Context context = instrumentation.getTargetContext();
+        Account[] accounts = getAccounts(context);
+        if (accounts.length == 0) {
+            return;
+        }
         Subscription subscription = AccountAssistant.accountDataCleanup(context);
-        boolean result = AccountAssistant.logOut(context);
+        for (Account account : accounts) {
+            Log.i(TAG, format(Locale.US, "Logging out : %s", account));
+            assertTrue("Failed to log out: " + account,
+                       AccountManager.get(context).removeAccount(account, null, null).getResult(3, TimeUnit.SECONDS));
+        }
+        Account account = AccountAssistant.getAccount(context);
+        assertNull("Still logged in: " + account, account);
         AccountAssistant.waitForAccountDataCleanup(subscription);
-        return result;
     }
 
     private static Subscription accountDataCleanup(Context context) {
-        return SoundCloudApplication.fromContext(context).getEventBus().subscribe(
+        return SoundCloudTestApplication.fromContext(context).getEventBus().subscribe(
                 EventQueue.CURRENT_USER_CHANGED, new DefaultSubscriber<CurrentUserChangedEvent>() {
 
                     @Override
