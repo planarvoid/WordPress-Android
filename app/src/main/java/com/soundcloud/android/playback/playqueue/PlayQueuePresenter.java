@@ -13,6 +13,7 @@ import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.PlaybackStateProvider;
+import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -35,11 +36,13 @@ class PlayQueuePresenter {
 
     private static final Func1<TrackPlayQueueUIItem, TrackAndPlayQueueItem> TO_TRACK_AND_PLAY_QUEUE_ITEM = item ->
             new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
+    private static final int EXPLOSION_LOOK_AHEAD = 5;
 
     private final PlayQueueManager playQueueManager;
     private final PlaybackStateProvider playbackStateProvider;
     private final PlaySessionController playSessionController;
     private final PlayQueueOperations playQueueOperations;
+    private final PlaylistExploder playlistExploder;
 
     private final EventBus eventBus;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
@@ -57,12 +60,13 @@ class PlayQueuePresenter {
                        PlaybackStateProvider playbackStateProvider,
                        PlaySessionController playSessionController,
                        PlayQueueOperations playQueueOperations,
-                       EventBus eventBus,
+                       PlaylistExploder playlistExploder, EventBus eventBus,
                        PlayQueueUIItemMapper playQueueUIItemMapper) {
         this.playQueueManager = playQueueManager;
         this.playbackStateProvider = playbackStateProvider;
         this.playSessionController = playSessionController;
         this.playQueueOperations = playQueueOperations;
+        this.playlistExploder = playlistExploder;
         this.eventBus = eventBus;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
     }
@@ -245,6 +249,15 @@ class PlayQueuePresenter {
             rebuildLabels();
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE));
         }
+    }
+
+    void scrollDown(int lastVisibleItemPosition) {
+        playlistExploder.explodePlaylists(lastVisibleItemPosition, EXPLOSION_LOOK_AHEAD);
+    }
+
+    void scrollUp(int firstVisibleItemPosition) {
+        int resolvedPosition = (firstVisibleItemPosition -EXPLOSION_LOOK_AHEAD < 0) ? 0 : firstVisibleItemPosition -EXPLOSION_LOOK_AHEAD;
+        playlistExploder.explodePlaylists(resolvedPosition, EXPLOSION_LOOK_AHEAD);
     }
 
     private void rebuildLabels() {

@@ -11,7 +11,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -32,6 +31,7 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueSwipeToRemoveCallback swipeToRemoveCallback;
     private final FeedbackController feedbackController;
     private final TopPaddingDecorator topPaddingDecorator;
+    private final SmoothScrollLinearLayoutManager layoutManager;
 
     @BindView(R.id.repeat_button) ImageView repeatView;
     @BindView(R.id.shuffle_button) ToggleButton shuffleView;
@@ -45,11 +45,13 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
                          PlayQueueAdapter playQueueAdapter,
                          PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                          FeedbackController feedbackController,
-                         TopPaddingDecorator topPaddingDecorator) {
+                         TopPaddingDecorator topPaddingDecorator,
+                         SmoothScrollLinearLayoutManager layoutManager) {
         this.playQueuePresenter = playQueuePresenter;
         this.playQueueAdapter = playQueueAdapter;
         this.feedbackController = feedbackController;
         this.topPaddingDecorator = topPaddingDecorator;
+        this.layoutManager = layoutManager;
         swipeToRemoveCallback = swipeToRemoveCallbackFactory.create(playQueuePresenter);
     }
 
@@ -57,16 +59,17 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         unbinder = ButterKnife.bind(this, view);
-        initRecyclerView(view.getContext());
+        initRecyclerView();
         playQueuePresenter.attachView(this);
     }
 
-    private void initRecyclerView(Context context) {
-        recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(context));
+    private void initRecyclerView() {
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(playQueueAdapter);
         recyclerView.setHasFixedSize(false);
         recyclerView.addItemDecoration(topPaddingDecorator, 0);
         recyclerView.setItemAnimator(buildItemAnimator());
+        recyclerView.addOnScrollListener(new PositionScrollListener());
 
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeToRemoveCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -78,6 +81,7 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     @Override
     public void onDestroyView(Fragment fragment) {
         unbinder.unbind();
+        playQueueAdapter.removeListeners();
         playQueuePresenter.detachContract();
     }
 
@@ -201,6 +205,17 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
 
     interface DragListener {
         void startDrag(RecyclerView.ViewHolder viewHolder);
+    }
+
+    private class PositionScrollListener extends RecyclerView.OnScrollListener {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            if (dy > 0) {
+                playQueuePresenter.scrollDown(layoutManager.findLastVisibleItemPosition());
+            } else {
+                playQueuePresenter.scrollUp(layoutManager.findFirstVisibleItemPosition());
+            }
+        }
     }
 
 }

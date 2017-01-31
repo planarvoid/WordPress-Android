@@ -31,7 +31,7 @@ public class PlaylistExploder {
     private final PlaylistOperations playlistOperations;
     private final PlayQueueManager playQueueManager;
 
-    private Set<Urn> playlistLoads = new HashSet<>();
+    private Set<Urn> explodedPlaylists = new HashSet<>();
     private CompositeSubscription loadPlaylistsSubscription = new CompositeSubscription();
 
     @Inject
@@ -54,8 +54,8 @@ public class PlaylistExploder {
             if (event.isNewQueue()) {
                 loadPlaylistsSubscription.unsubscribe();
                 loadPlaylistsSubscription = new CompositeSubscription();
-                playlistLoads.clear();
-                loadSurroundingPlaylists();
+                explodedPlaylists.clear();
+                explodePlaylists(playQueueManager.getCurrentPosition(), PLAYLIST_LOOKAHEAD_COUNT);
             }
         }
     }
@@ -63,21 +63,21 @@ public class PlaylistExploder {
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            loadSurroundingPlaylists();
+            explodePlaylists(playQueueManager.getCurrentPosition(), PLAYLIST_LOOKAHEAD_COUNT);
         }
     }
 
-    private void loadSurroundingPlaylists() {
-        final Collection<Urn> playlists = getSurroundingPlaylists();
+    public void explodePlaylists(int position, int count) {
+        final Collection<Urn> playlists = getSurroundingPlaylists(position, count);
         for (final Urn playlist : playlists) {
-            if (!playlistLoads.contains(playlist)) {
+            if (!explodedPlaylists.contains(playlist)) {
                 loadPlaylistTracks(playlist);
             }
         }
     }
 
     private void loadPlaylistTracks(final Urn playlist) {
-        playlistLoads.add(playlist);
+        explodedPlaylists.add(playlist);
         loadPlaylistsSubscription.add(playlistOperations.trackUrnsForPlayback(playlist)
                                                         .doOnTerminate(removePlaylistLoad(playlist))
                                                         .observeOn(AndroidSchedulers.mainThread())
@@ -91,12 +91,11 @@ public class PlaylistExploder {
 
     @NonNull
     private Action0 removePlaylistLoad(final Urn playlist) {
-        return () -> playlistLoads.remove(playlist);
+        return () -> explodedPlaylists.remove(playlist);
     }
 
-    private Collection<Urn> getSurroundingPlaylists() {
-        final List<Urn> surrounding = new ArrayList<>(playQueueManager.getUpcomingPlayQueueItems(
-                PLAYLIST_LOOKAHEAD_COUNT));
+    private Collection<Urn> getSurroundingPlaylists(int position, int count) {
+        final List<Urn> surrounding = new ArrayList<>(playQueueManager.getPlayQueueItems(position, count));
         surrounding.addAll(playQueueManager.getPreviousPlayQueueItems(PLAYLIST_LOOKBEHIND_COUNT));
         return MoreCollections.filter(surrounding, input -> input.isPlaylist());
     }

@@ -26,6 +26,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.PlaybackStateProvider;
+import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -52,6 +53,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
     @Mock private PlaybackStateProvider playbackStateProvider;
     @Mock private PlayQueueUIItem item;
+    @Mock private PlaylistExploder playlistExploder;
 
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
@@ -67,6 +69,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 playbackStateProvider,
                 playSessionController,
                 playQueueOperations,
+                playlistExploder,
                 eventBus,
                 playQueueUIItemMapper);
         setCachedObservables();
@@ -356,6 +359,26 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 .isEqualTo(UIEvent.Kind.PLAY_QUEUE_TRACK_REMOVE_UNDO.toString());
     }
 
+    @Test
+    public void shouldExplodePlaylistsWhenScrollingUp() {
+        presenter.scrollUp(5);
+
+        verify(playlistExploder).explodePlaylists(0, 5);
+    }
+
+    @Test
+    public void shouldResolvePostion() {
+        presenter.scrollUp(0);
+
+        verify(playlistExploder).explodePlaylists(0, 5);
+    }
+
+    @Test
+    public void shouldExplodePlaylistsWhenScrollingDown() {
+        presenter.scrollDown(5);
+
+        verify(playlistExploder).explodePlaylists(5, 5);
+    }
 
     private void verifyRepeatModeChanged(RepeatMode mode) {
         verify(playQueueManager).setRepeatMode(mode);

@@ -206,6 +206,14 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
+    public List<Urn> getPlayQueueItems(int position, int count) {
+        if (position < 0 || playQueue.size() < position) {
+            return Collections.emptyList();
+        } else {
+            return playQueue.getItemUrns(position, count);
+        }
+    }
+
     List<Urn> getPreviousPlayQueueItems(int count) {
         if (hasPreviousItem()) {
             final int firstPosition = Math.max(0, currentPosition - count);
