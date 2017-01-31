@@ -18,6 +18,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
@@ -70,6 +71,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private SearchTracker searchTracker;
     @Mock private ScreenProvider screenProvider;
+    @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
+    @Mock private SearchPlayRelatedTracksConfig playRelatedTracksConfig;
 
     @Captor private ArgumentCaptor<List<ListItem>> listArgumentCaptor;
 
@@ -96,11 +99,11 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                eventBus,
                                                navigator,
                                                searchTracker,
-                                               screenProvider);
+                                               screenProvider,
+                                               searchPlayQueueFilter);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1), API_QUERY);
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
-
 
         when(clickListenerFactory.create(any(Screen.class),
                                          any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
@@ -119,12 +122,18 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void itemClickDelegatesToClickListener() {
         final List<ListItem> listItems = setupAdapter();
+        final int position = 0;
+
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
+        when(searchPlayQueueFilter.correctQueue(listItems, position)).thenReturn(listItems);
+        when(searchPlayQueueFilter.correctPosition(position)).thenReturn(position);
 
         presenter.onBuildBinding(bundle);
-        presenter.onItemClicked(fragmentRule.getView(), 0);
+        presenter.onItemClicked(fragmentRule.getView(), position);
 
-        verify(clickListener).onItemClick(listItems, fragmentRule.getActivity(), 0);
+        verify(searchPlayQueueFilter).correctQueue(listItems, position);
+        verify(searchPlayQueueFilter).correctPosition(position);
+        verify(clickListener).onItemClick(listItems, fragmentRule.getActivity(), position);
     }
 
     @Test
@@ -245,6 +254,16 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     }
 
     private void setupAdapterWithPremiumContent() {
+        presenter = new SearchResultsPresenter(swipeRefreshAttacher,
+                                               searchOperations,
+                                               adapter,
+                                               clickListenerFactory,
+                                               eventBus,
+                                               navigator,
+                                               searchTracker,
+                                               screenProvider,
+                                               new SearchPlayQueueFilter(playRelatedTracksConfig));
+
         PropertySet propertySet = PropertySet.create();
         propertySet.put(TrackProperty.URN, PREMIUM_TRACK_URN_ONE);
 
@@ -259,6 +278,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(listItems);
         when(adapter.getResultItems()).thenReturn(Collections.<ListItem>singletonList(trackItem));
         when(searchPagingFunction.getSearchQuerySourceInfo(eq(0), eq(TRACK_URN), any(String.class))).thenReturn(searchQuerySourceInfo);
+        when(playRelatedTracksConfig.isEnabled()).thenReturn(false);
     }
 
     private void setupFragmentArguments(boolean publishSearchSubmissionEvent) {
