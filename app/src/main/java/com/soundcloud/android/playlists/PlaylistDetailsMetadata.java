@@ -11,6 +11,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 
@@ -46,7 +47,7 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
                 .headerText(PlaylistUtils.getPlaylistInfoLabel(resources, trackCount, getDuration(playlist, trackItems)))
                 .offlineOptions(offlineOptions)
                 .offlineState(offlineState)
-                .label(PlaylistUtils.formatPlaylistTitle(resources, playlist.setType(), playlist.isAlbum(), playlist.releaseDate()))
+                .label(PlaylistUtils.formatPlaylistTitle(resources, playlist.setType().or(Strings.EMPTY), playlist.isAlbum(), playlist.releaseDate().or(Strings.EMPTY)))
                 .imageUrlTemplate(playlist.imageUrlTemplate())
                 .isInEditMode(isEditMode)
                 .build();
