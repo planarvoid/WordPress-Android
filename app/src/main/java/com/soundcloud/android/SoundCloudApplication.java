@@ -24,8 +24,8 @@ import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.likes.LikesStateProvider;
+import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.performance.PerformanceEngineFactory;
@@ -350,16 +350,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     public void onTrimMemory(int level) {
         uncaughtExceptionHandlerController.reportMemoryTrim(level);
         super.onTrimMemory(level);
-    }
-
-    @NotNull
-    @VisibleForTesting //Also used from Public api which is deprecated
-    public static SoundCloudApplication fromContext(@NotNull Context c) {
-        if (c.getApplicationContext() instanceof SoundCloudApplication) {
-            return ((SoundCloudApplication) c.getApplicationContext());
-        } else {
-            throw new RuntimeException("can't obtain app from context");
-        }
     }
 
     @VisibleForTesting
