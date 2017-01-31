@@ -72,7 +72,7 @@ public class ApiModule {
                 .addInterceptor(userPlanInterceptor);
 
         if (applicationProperties.isDevelopmentMode()) {
-            clientBuilder.addInterceptor(new StethoInterceptor());
+            clientBuilder.addNetworkInterceptor(new StethoInterceptor());
         }
 
         return clientBuilder;
