@@ -141,13 +141,13 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForStreamAd(InlayAdImpressionEvent event) {
-        return transform(buildBaseEvent(IMPRESSION_EVENT, event.getTimestamp())
+        return transform(buildBaseEvent(event.eventName, event.getTimestamp())
                                  .clientEventId(event.getId())
-                                 .impressionName(event.getImpressionName())
-                                 .adUrn(event.getAd().toString())
-                                 .pageName(event.getPageName())
-                                 .contextPosition(event.getContextPosition())
-                                 .monetizationType(event.getMonetizationType()));
+                                 .impressionName(event.impressionName)
+                                 .adUrn(event.ad().toString())
+                                 .pageName(event.pageName)
+                                 .contextPosition(event.contextPosition())
+                                 .monetizationType(event.monetizationType));
     }
 
     String buildForAdDelivery(AdDeliveryEvent event) {

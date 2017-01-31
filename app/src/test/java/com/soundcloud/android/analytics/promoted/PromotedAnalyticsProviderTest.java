@@ -141,7 +141,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksInlayAdImpressions() {
         final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
-        final InlayAdImpressionEvent impressionEvent = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+        final InlayAdImpressionEvent impressionEvent = InlayAdImpressionEvent.create(appInstall, 42, 9876543210L);
         final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         analyticsProvider.handleTrackingEvent(impressionEvent);

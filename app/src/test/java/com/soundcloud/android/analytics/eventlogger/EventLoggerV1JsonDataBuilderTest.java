@@ -990,7 +990,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createJsonForStreamAdImpressionEvent() throws ApiMapperException {
         final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
-        final InlayAdImpressionEvent event = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+        final InlayAdImpressionEvent event = InlayAdImpressionEvent.create(appInstall, 42, 9876543210L);
 
         jsonDataBuilder.buildForStreamAd(event);
 

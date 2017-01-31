@@ -620,7 +620,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackStreamAdImpressionEvents() {
         final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
-        final InlayAdImpressionEvent event = new InlayAdImpressionEvent(appInstall, 42, 9876543210L);
+        final InlayAdImpressionEvent event = InlayAdImpressionEvent.create(appInstall, 42, 9876543210L);
         final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         when(dataBuilderv1.buildForStreamAd(event)).thenReturn("StreamAdImpression");
