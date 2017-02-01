@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.BuildConfig;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
@@ -56,7 +55,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         SoundCloudTestApplication.fromContext(getInstrumentation().getTargetContext()).awaitOnCreate(10, TimeUnit.SECONDS);
 
         AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.APPBOY);
 
         networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());
 

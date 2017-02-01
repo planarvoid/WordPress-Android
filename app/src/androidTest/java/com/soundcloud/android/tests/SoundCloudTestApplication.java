@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 
 import android.content.Context;
 
@@ -14,8 +16,13 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     @Override
     public void onCreate() {
+        breforeOnCreate();
         super.onCreate();
         onCreateLatch.countDown();
+    }
+
+    private void breforeOnCreate() {
+        FeatureFlagsHelper.create(this).disable(Flag.APPBOY);
     }
 
     /**
