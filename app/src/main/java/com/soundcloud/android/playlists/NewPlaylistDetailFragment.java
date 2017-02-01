@@ -364,7 +364,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
         NewPlaylistDetailsAdapter(PlaylistTrackItemRenderer playlistTrackItemRenderer) {
             this.playlistTrackItemRenderer = playlistTrackItemRenderer;
-            this.playlistTrackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.playlist_track_list_item);
             setHasStableIds(true);
         }
 
@@ -403,11 +402,9 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         // TODO eventually move to a cell renderer
         private void renderEditMode(MyViewHolder holder, PlaylistDetailTrackItem detailTrackItem) {
             if (detailTrackItem.inEditMode()) {
-                holder.deleteIndicator().setVisibility(View.VISIBLE);
                 holder.overflow().setImageResource(R.drawable.ic_drag_handle_medium_dark_gray_24dp);
                 holder.overflow().setOnTouchListener(createDragListener(holder));
             } else {
-                holder.deleteIndicator().setVisibility(View.GONE);
                 holder.overflow().setImageResource(R.drawable.btn_list_overflow);
                 holder.overflow().setOnTouchListener(null);
             }
@@ -425,10 +422,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
             super(itemView);
         }
 
-
-        View deleteIndicator() {
-            return ButterKnife.findById(itemView, R.id.btn_delete_indicator);
-        }
 
         ImageView overflow() {
             return ButterKnife.findById(itemView, R.id.overflow_button);

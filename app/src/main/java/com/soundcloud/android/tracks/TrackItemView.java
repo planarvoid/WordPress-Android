@@ -194,10 +194,6 @@ public class TrackItemView {
             this.primaryTitleColor = primaryTitleColor;
         }
 
-        public void setLayoutId(int layoutId) {
-            this.layoutId = layoutId;
-        }
-
         public int getDisabledTitleColor() {
             return disabledTitleColor;
         }
