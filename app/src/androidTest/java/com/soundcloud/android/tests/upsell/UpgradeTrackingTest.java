@@ -13,7 +13,7 @@ import com.soundcloud.android.screens.UpgradeScreen;
 
 public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
 
-    private static final String UPGRADE_TEST_SCENARIO = "upgrade-tracking-test";
+    private static final String UPGRADE_TEST_SCENARIO = "upgrade-tracking-test2";
 
     public UpgradeTrackingTest() {
         super(MainActivity.class);

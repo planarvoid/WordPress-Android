@@ -14,7 +14,7 @@ import com.soundcloud.android.screens.UpgradeScreen;
 
 public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
 
-    private static final String SETTINGS_UPSELL_TEST_SCENARIO = "settings-upsell-tracking-test";
+    private static final String SETTINGS_UPSELL_TEST_SCENARIO = "settings-upsell-tracking-test2";
 
     public BasicUpsellTest() {
         super(MainActivity.class);
