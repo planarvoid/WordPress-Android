@@ -48,8 +48,6 @@ import com.soundcloud.android.view.adapters.OfflinePropertiesSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
-import com.soundcloud.android.view.dragdrop.OnStartDragListener;
-import com.soundcloud.android.view.dragdrop.SimpleItemTouchHelperCallback;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -65,8 +63,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -76,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 
 class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, PlaylistDetailItem>
-        implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener, PlaylistHeaderPresenterListener {
+        implements PlaylistUpsellItemRenderer.Listener, TrackItemMenuPresenter.RemoveTrackListener, PlaylistHeaderPresenterListener {
 
     @LightCycle final PlaylistHeaderPresenter headerPresenter;
 
@@ -96,7 +92,6 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     private Fragment fragment;
     private Subscription subscription = RxUtils.invalidSubscription();
     private String screen;
-    private ItemTouchHelper itemTouchHelper;
     private Optional<PlaylistDetailsMetadata> headerItemOpt;
 
     @Inject
@@ -124,7 +119,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.trackRenderer = trackRendererFactory.create(this);
-        this.adapter = adapterFactory.create(this, headerPresenter, trackRenderer);
+        this.adapter = adapterFactory.create(headerPresenter, trackRenderer);
         headerPresenter.setPlaylistHeaderPresenterListener(this);
         addInlineHeader = !resources.getBoolean(R.bool.split_screen_details_pages);
 
@@ -172,14 +167,6 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     }
 
     @Override
-    protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
-        super.onCreateCollectionView(fragment, view, savedInstanceState);
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
-        itemTouchHelper = new ItemTouchHelper(callback);
-        itemTouchHelper.attachToRecyclerView(getRecyclerView());
-    }
-
-    @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         subscription = new CompositeSubscription(
@@ -220,10 +207,6 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         super.onDestroyView(fragment);
     }
 
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        itemTouchHelper.startDrag(viewHolder);
-    }
 
     void savePlaylist() {
         checkState(headerItemOpt.isPresent(), "The playlist must be loaded to be saved");

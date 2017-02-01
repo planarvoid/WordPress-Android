@@ -27,7 +27,7 @@ public class PlaylistDetailTrackItemRenderer implements CellRenderer<PlaylistDet
     public void bindItemView(int position, View itemView, List<PlaylistDetailTrackItem> items) {
         playlistTrackItemRenderer.bindTrackView(position,
                                                 itemView,
-                                                items.get(position).getTrackItem());
+                                                items.get(position).trackItem());
     }
 
 }

@@ -54,6 +54,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.AssertableSubscriber;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
 import java.util.HashSet;
@@ -104,7 +105,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final NewPlaylistDetailsPresenter.PlaylistWithTracks initialPlaylistWithTracks = NewPlaylistDetailsPresenter.PlaylistWithTracks.create(initialPlaylist, asList(track1, track2));
     private final NewPlaylistDetailsPresenter.PlaylistWithTracks updatedPlaylistWithTracks = NewPlaylistDetailsPresenter.PlaylistWithTracks.create(updatedPlaylist, asList(track1, track2, track3));
-    private final PublishSubject<NewPlaylistDetailsPresenter.PlaylistWithTracks> dataSource = PublishSubject.create();
+    private final BehaviorSubject<NewPlaylistDetailsPresenter.PlaylistWithTracks> dataSource = BehaviorSubject.create();
 
     private NewPlaylistDetailsPresenter newPlaylistPresenter;
 
@@ -174,8 +175,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.onEnterEditMode();
 
-        final PlaylistDetailsMetadata inEditMode = initialModel.metadata().toBuilder().isInEditMode(true).build();
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(initialModel.toBuilder().metadata(inEditMode).build()));
+        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(toEditMode(initialModel)));
     }
 
     @Test
@@ -187,9 +187,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         newPlaylistPresenter.onEnterEditMode();
         newPlaylistPresenter.onExitEditMode();
 
-        final PlaylistDetailsMetadata metaInEditMode = initialModel.metadata().toBuilder().isInEditMode(true).build();
-        final PlaylistDetailsViewModel inEditMode = initialModel.toBuilder().metadata(metaInEditMode).build();
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(inEditMode), fromIdle(initialModel));
+        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(toEditMode(initialModel)), fromIdle(initialModel));
     }
 
     @Test
@@ -429,7 +427,6 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         modelUpdates.assertValues(fromIdle(initialModel));
     }
 
-
     private void emitLikedEntities(Urn... urns) {
         final HashSet<Urn> likedEntities = new HashSet<>(asList(urns));
         likeStatuses.onNext(LikedStatuses.create(likedEntities));
@@ -454,6 +451,18 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                    .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                    .pageUrn(playlistUrn)
                                    .build();
+    }
+
+    private PlaylistDetailsViewModel toEditMode(PlaylistDetailsViewModel source) {
+        final List<PlaylistDetailTrackItem> expectedTracks = transform(source.tracks(), track -> track.toBuilder().inEditMode(true).build());
+        final PlaylistDetailsMetadata expectedMetaData = source.metadata()
+                                                               .toBuilder()
+                                                               .isInEditMode(true)
+                                                               .build();
+        return source.toBuilder()
+                     .metadata(expectedMetaData)
+                     .tracks(expectedTracks)
+                     .build();
     }
 
 }

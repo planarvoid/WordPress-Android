@@ -39,7 +39,7 @@ class PlaylistDetailsViewModelCreator {
         return create(playlist, trackItems, isLiked, isEditMode, OfflineState.NOT_OFFLINE, otherPlaylists);
     }
 
-        public PlaylistDetailsViewModel create(Playlist playlist,
+    public PlaylistDetailsViewModel create(Playlist playlist,
                                            List<TrackItem> trackItems,
                                            boolean isLiked,
                                            boolean isEditMode,
@@ -47,9 +47,11 @@ class PlaylistDetailsViewModelCreator {
                                            Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists) {
 
         Optional<PlaylistDetailUpsellItem> upsell = upsellOperations.getUpsell(playlist, trackItems);
+
+        final PlaylistDetailTrackItem.Builder builder = PlaylistDetailTrackItem.builder().inEditMode(isEditMode);
         return PlaylistDetailsViewModel.builder()
                                        .metadata(createMetadata(playlist, trackItems, isLiked, isEditMode, offlineState))
-                                       .tracks(transform(trackItems, PlaylistDetailTrackItem::new))
+                                       .tracks(transform(trackItems, track -> builder.trackItem(track).build()))
                                        .upsell(upsell)
                                        .otherPlaylists(otherPlaylists)
                                        .build();

@@ -11,7 +11,6 @@ public class PlaylistDetailItem {
     public enum Kind {
         HeaderItem,
         TrackItem,
-        EditItem,
         UpsellItem,
         OtherPlaylists
     }

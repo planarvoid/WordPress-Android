@@ -94,7 +94,7 @@
     </style>
 
     <style name="ListItemOverflowButton">
-        <item name="android:background">@drawable/btn_list_overflow</item>
+        <item name="android:src">@drawable/btn_list_overflow</item>
         <item name="android:layout_marginBottom">6dp</item>
     </style>
 

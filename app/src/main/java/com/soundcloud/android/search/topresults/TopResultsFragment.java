@@ -8,7 +8,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
-import com.soundcloud.android.view.dragdrop.RecyclerDragDropAdapter;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -24,7 +23,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TopResultsFragment extends CollectionViewFragment<TopResultsViewModel, TopResultsBucketViewModel> {
+public class TopResultsFragment extends CollectionViewFragment<TopResultsViewModel, TopResultsBucketViewModel, RecyclerView.ViewHolder> {
 
     private static final String KEY_API_QUERY = "query";
     private static final String KEY_USER_QUERY = "userQuery";
@@ -91,10 +90,15 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
     }
 
     @Override
+    protected void onNewItems(List<TopResultsBucketViewModel> newItems) {
+        populateAdapter(newItems);
+        adapter().notifyDataSetChanged();
+    }
+
+    @Override
     protected RecyclerItemAdapter<TopResultsBucketViewModel, RecyclerView.ViewHolder> createAdapter() {
         return new TopResultsAdapter();
     }
-
 
     @Override
     protected Observable<AsyncViewModel<TopResultsViewModel>> modelUpdates() {
@@ -106,7 +110,7 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
     }
 
     @Override
-    protected Func1<TopResultsViewModel, Iterable<TopResultsBucketViewModel>> viewModelToItems() {
+    protected Func1<TopResultsViewModel, List<TopResultsBucketViewModel>> viewModelToItems() {
         return TopResultsViewModel::buckets;
     }
 
@@ -118,7 +122,7 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
 
         @Override
         protected RecyclerView.ViewHolder createViewHolder(View itemView) {
-            return new RecyclerDragDropAdapter.ViewHolder(itemView);
+            return new RecyclerItemAdapter.ViewHolder(itemView);
         }
 
         @Override

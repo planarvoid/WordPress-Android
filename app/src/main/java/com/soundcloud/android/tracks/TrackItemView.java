@@ -177,9 +177,9 @@ public class TrackItemView {
     }
 
     public static class Factory {
-        private final int layoutId;
         private final int disabledTitleColor;
         private final int primaryTitleColor;
+        private int layoutId;
 
         @Inject
         public Factory() {

@@ -37,7 +37,6 @@ import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
-import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.Queue;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -106,7 +105,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsViewModel model = PlaylistDetailFixtures.create(resources(), playlist, tracks);
         when(operations.playlistWithTracksAndRecommendations(PLAYLIST_URN)).thenReturn(Observable.just(model));
         when(trackRendererFactory.create(any(TrackItemMenuPresenter.RemoveTrackListener.class))).thenReturn(trackItemRenderer);
-        when(adapterFactory.create(any(OnStartDragListener.class), same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
+        when(adapterFactory.create(same(headerPresenter), same(trackItemRenderer))).thenReturn(adapter);
         when(offlinePropertiesProvider.states()).thenReturn(offlinePropertiesSubject);
 
         createPresenter();
@@ -135,8 +134,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         verify(adapter).onNext(trackItemCaptor.capture());
         List<PlaylistDetailItem> itemList = trackItemCaptor.getValue();
         assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailsMetadata.class);
-        assertThat(((PlaylistDetailTrackItem) itemList.get(1)).getTrackItem()).isEqualTo(track1);
-        assertThat(((PlaylistDetailTrackItem) itemList.get(2)).getTrackItem()).isEqualTo(track2);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(1)).trackItem()).isEqualTo(track1);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(2)).trackItem()).isEqualTo(track2);
     }
 
     @Test
@@ -309,8 +308,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     private List<PlaylistDetailItem> listItems() {
         List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>();
-        playlistDetailItems.add(new PlaylistDetailTrackItem(track1));
-        playlistDetailItems.add(new PlaylistDetailTrackItem(track2));
+        playlistDetailItems.add(PlaylistDetailTrackItem.builder().trackItem(track1).build());
+        playlistDetailItems.add(PlaylistDetailTrackItem.builder().trackItem(track2).build());
         return playlistDetailItems;
     }
 

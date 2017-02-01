@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.collections.Lists.transform;
 import static java.util.Collections.singleton;
 import static rx.Observable.combineLatest;
 import static com.soundcloud.java.optional.Optional.of;
@@ -47,7 +48,6 @@ import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.observables.ConnectableObservable;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
@@ -96,7 +96,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
     private final PublishSubject<Urn> gotoCreator = PublishSubject.create();
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
-    private final ConnectableObservable<PlaylistWithTracks> dataSource;
+    private final BehaviorSubject<PlaylistWithTracks> dataSource;
 
     NewPlaylistDetailsPresenter(Urn playlistUrn,
                                 String screen,
@@ -129,7 +129,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.eventTracker = eventTracker;
         this.likeOperations = likeOperations;
         this.viewModelCreator = viewModelCreator;
-        this.dataSource = dataSourceProviderFactory.create(playlistUrn).data().replay(1);
+        this.dataSource = dataSourceProviderFactory.create(playlistUrn).data();
     }
 
     public void connect() {
@@ -143,23 +143,31 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 actionUnlike(unlike),
                 actionPlayPlaylist(headerPlayClicked),
 
-                emitViewModel(dataSource)
+                emitViewModel()
         );
-
-        dataSource.connect();
     }
 
-    private Subscription emitViewModel(Observable<PlaylistWithTracks> playlistWithTracks) {
-        return
-                combineLatest(
-                        refresh,
-                        editMode,
-                        playlistWithTracks,
-                        likesStateProvider.likedStatuses().distinctUntilChanged(likedStatuses -> likedStatuses.isLiked(playlistUrn)),
-                        offlinePropertiesProvider.states(),
-                        this::combine)
-                        .doOnNext(viewModelSubject::onNext)
-                        .subscribe(new DefaultSubscriber<>());
+    void actionUpdateTrackList(List<PlaylistDetailTrackItem> trackItems) {
+        final PlaylistWithTracks previousState = dataSource.getValue();
+        final Playlist playlist = previousState.playlist();
+
+        fireAndForget(savePlaylist(playlist, transform(trackItems, PlaylistDetailTrackItem::getUrn)));
+    }
+
+    private Observable<Playlist> savePlaylist(Playlist playlist, List<Urn> tracks) {
+        return playlistOperations.editPlaylist(playlist, tracks);
+    }
+
+    private Subscription emitViewModel() {
+        return combineLatest(
+                refresh,
+                editMode,
+                dataSource,
+                likesStateProvider.likedStatuses().distinctUntilChanged(likedStatuses -> likedStatuses.isLiked(playlistUrn)),
+                offlinePropertiesProvider.states(),
+                this::combine)
+                .doOnNext(viewModelSubject::onNext)
+                .subscribe(new DefaultSubscriber<>());
     }
 
     private Subscription actionPlayPlaylist(PublishSubject<Void> trigger) {
@@ -452,13 +460,13 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
             dataSource().subscribe(data);
         }
 
-        public Observable<PlaylistWithTracks> data() {
+        public BehaviorSubject<PlaylistWithTracks> data() {
             return data;
         }
 
         Observable<PlaylistWithTracks> dataSource() {
             return playlistUpdates().startWith(singleton(null))
-                    .switchMap(ignored -> combineLatest(playlist(), tracks(), PlaylistWithTracks::create));
+                                    .switchMap(ignored -> combineLatest(playlist(), tracks(), PlaylistWithTracks::create));
         }
 
         private Observable<List<Track>> tracks() {

@@ -39,7 +39,7 @@ class PlaylistDetailFixtures {
                                                                               PlaylistDetailsMetadata.OfflineOptions.NONE,
                                                                               resources,
                                                                               false))
-                                       .tracks(transform(trackItems, PlaylistDetailTrackItem::new))
+                                       .tracks(transform(trackItems, trackItem -> PlaylistDetailTrackItem.builder().trackItem(trackItem).build()))
                                        .upsell(upsellItemOptional)
                                        .otherPlaylists(otherPlaylists)
                                        .build();

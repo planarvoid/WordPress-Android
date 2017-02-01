@@ -97,6 +97,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.trackItemViewFactory = trackItemViewFactory;
     }
 
+    public TrackItemView.Factory trackItemViewFactory() {
+        return trackItemViewFactory;
+    }
+
     @Override
     public View createItemView(ViewGroup parent) {
         return trackItemViewFactory.createItemView(parent);
