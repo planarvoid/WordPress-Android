@@ -34,6 +34,8 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     protected void expandPlayer() {
         if (miniplayerExperiment.canExpandPlayer()) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+        } else {
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
         }
     }
 

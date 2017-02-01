@@ -38,13 +38,13 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotExpandPlayerOnPlaybackResultSuccessAndExperimentSaysSo() {
+    public void showsPlayerOnPlaybackResultSuccessAndExperimentSaysSo() {
         when(miniplayerExperiment.canExpandPlayer()).thenReturn(false);
 
         subscriber.onNext(PlaybackResult.success());
 
         Robolectric.flushForegroundThreadScheduler();
-        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).isEmpty()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).isTrue();
     }
 
     @Test
