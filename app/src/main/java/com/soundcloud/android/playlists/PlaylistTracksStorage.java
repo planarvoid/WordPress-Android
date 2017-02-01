@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.playlists.OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
@@ -34,6 +33,7 @@ import java.util.List;
 
 class PlaylistTracksStorage {
     private static final String IS_TRACK_ALREADY_ADDED = "track_exists_in_playlist";
+    private static final String IS_MARKED_FOR_OFFLINE = "is_marked_for_offline";
 
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
