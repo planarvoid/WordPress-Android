@@ -1,13 +1,6 @@
 package com.soundcloud.android.framework;
 
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
-
-import android.content.Context;
-
-import java.io.IOException;
 
 /* *********************************************************************************************************************
 
@@ -167,6 +160,13 @@ public class TestUser {
             "som3aw3som3n3wpassword",
             "1-21686-136770909-bd6c319b73449b",
             136770909,
+            true);
+    public static final TestUser offlineUserMT = new TestUser(
+            "sctestoffline-mt",
+            "soundcloud.Android.sctestoffline-mt@tests.soundcloud",
+            "SoundCloudTest2016",
+            "1-8742-286124072-e9a876583339bf8",
+            286124072,
             true);
     public static final TestUser upsellUser = new TestUser(
             "sctestupsell",
