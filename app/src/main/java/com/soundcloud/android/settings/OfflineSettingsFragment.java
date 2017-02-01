@@ -86,7 +86,9 @@ public class OfflineSettingsFragment extends PreferenceFragment
         setupClearContent();
 
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            offlinePropertiesProvider.states().subscribe(new CurrentDownloadSubscriber());
+            offlinePropertiesProvider.states()
+                                     .observeOn(AndroidSchedulers.mainThread())
+                                     .subscribe(new CurrentDownloadSubscriber());
         } else {
             subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                                      .filter(event -> event.state == OfflineState.DOWNLOADED)
