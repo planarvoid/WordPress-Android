@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.screen;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 
 import android.support.v4.view.WindowCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -30,10 +29,6 @@ public class BaseLayoutHelper {
 
     public View setBaseLayout(AppCompatActivity activity) {
         return createActionBarLayout(activity, R.layout.base);
-    }
-
-    public View setBaseNoToolbar(AppCompatActivity activity) {
-        return createActionBarLayout(activity, R.layout.base_no_toolbar);
     }
 
     public View setBaseTabsLayout(AppCompatActivity activity) {

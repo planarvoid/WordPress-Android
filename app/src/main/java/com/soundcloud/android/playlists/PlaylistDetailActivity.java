@@ -89,12 +89,7 @@ public class PlaylistDetailActivity extends PlayerActivity {
 
     @Override
     protected void setActivityContentView() {
-        // TODO : This switch should take the config into account, as we will have no collapsing toolbar in certain configs
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2)) {
-            baseLayoutHelper.setBaseNoToolbar(this);
-        } else {
-            baseLayoutHelper.setBaseLayout(this);
-        }
+        baseLayoutHelper.setBaseLayout(this);
     }
 
     @Override

@@ -907,6 +907,7 @@
     <string name="user_likes_label">Likes</string>
 
     <!-- Set Type Labels -->
+    <string name="edit_playlist_title">Edit playlist</string>
     <string name="set_type_default_label">Playlist</string>
     <string name="set_type_album_label">Album</string>
     <string name="set_type_ep_label">EP</string>

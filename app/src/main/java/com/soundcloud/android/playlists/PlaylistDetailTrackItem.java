@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -13,53 +14,64 @@ import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
-import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
+@AutoValue
+abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
 
-    private final TrackItem trackItem;
-
-    PlaylistDetailTrackItem(TrackItem trackItem) {
+    PlaylistDetailTrackItem() {
         super(PlaylistDetailItem.Kind.TrackItem);
-        this.trackItem = trackItem;
+    }
+
+    static Builder builder() {
+        return new AutoValue_PlaylistDetailTrackItem.Builder().inEditMode(false);
+    }
+
+    abstract TrackItem trackItem();
+
+    abstract boolean inEditMode();
+
+    abstract Builder toBuilder();
+
+    private Builder toBuilder(TrackItem from) {
+        return toBuilder().trackItem(from);
     }
 
     @Override
     public Date getCreatedAt() {
-        return trackItem.getCreatedAt();
+        return trackItem().getCreatedAt();
     }
 
     @Override
     public PlaylistDetailTrackItem updatedWithTrackItem(Track track) {
-        return new PlaylistDetailTrackItem(TrackItem.from(track));
+        return toBuilder(TrackItem.from(track)).build();
     }
 
     @Override
     public PlaylistDetailTrackItem updatedWithOfflineState(OfflineState offlineState) {
-        return new PlaylistDetailTrackItem(trackItem.updatedWithOfflineState(offlineState));
+        return toBuilder(trackItem().updatedWithOfflineState(offlineState)).build();
     }
 
     @Override
     public PlaylistDetailTrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-        return new PlaylistDetailTrackItem(trackItem.updatedWithLike(likeStatus));
+        return toBuilder(trackItem().updatedWithLike(likeStatus)).build();
     }
 
     @Override
     public PlaylistDetailTrackItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
-        return new PlaylistDetailTrackItem(trackItem.updatedWithRepost(repostStatus));
+        return toBuilder(trackItem().updatedWithRepost(repostStatus)).build();
     }
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return trackItem.getImageUrlTemplate();
+        return trackItem().getImageUrlTemplate();
     }
 
     @Override
     public Urn getUrn() {
-        return trackItem.getUrn();
+        return trackItem().getUrn();
     }
 
     @Override
@@ -67,25 +79,18 @@ class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListIte
         return TypedListItem.Kind.PLAYABLE;
     }
 
-    public TrackItem getTrackItem() {
-        return trackItem;
-    }
-
     @Override
     public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
-        return trackItem.updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+        return trackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof PlaylistDetailTrackItem
-                && MoreObjects.equal(trackItem, ((PlaylistDetailTrackItem) o).trackItem);
+    @AutoValue.Builder
+    abstract static class Builder {
+
+        abstract Builder trackItem(TrackItem item);
+
+        abstract Builder inEditMode(boolean inEditMode);
+
+        abstract PlaylistDetailTrackItem build();
     }
-
-    @Override
-    public int hashCode() {
-        return MoreObjects.hashCode(trackItem);
-    }
-
-
 }

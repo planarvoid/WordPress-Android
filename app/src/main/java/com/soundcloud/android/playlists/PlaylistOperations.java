@@ -129,6 +129,10 @@ public class PlaylistOperations {
                                     .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
+    Observable<Playlist> editPlaylist(Playlist playlist, List<Urn> tracks) {
+        return editPlaylist(playlist.urn(), playlist.title(), playlist.isPrivate(), tracks);
+    }
+
     Observable<Playlist> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
         return editPlaylistCommand.toObservable(new EditPlaylistCommandParams(playlistUrn,
                                                                               title,

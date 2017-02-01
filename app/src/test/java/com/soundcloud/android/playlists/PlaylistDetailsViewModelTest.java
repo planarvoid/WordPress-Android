@@ -22,7 +22,7 @@ public class PlaylistDetailsViewModelTest extends AndroidUnitTest {
     private final List<TrackItem> trackItems = asList(defaultTrack, upsellableTrack);
 
     private final PlaylistDetailsViewModel model = PlaylistDetailFixtures.createWithUpsell(
-            resources(), playlist, trackItems, Optional.of(new PlaylistDetailUpsellItem(new PlaylistDetailTrackItem(upsellableTrack).getTrackItem())));
+            resources(), playlist, trackItems, Optional.of(new PlaylistDetailUpsellItem(PlaylistDetailTrackItem.builder().trackItem(upsellableTrack).build().trackItem())));
 
     @Test
     public void insertsUpsellAfterFirstUpsellableTrack() {

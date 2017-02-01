@@ -8,6 +8,7 @@ import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
 public class PlaylistAdapter
-        extends RecyclerItemAdapter<PlaylistDetailItem, RecyclerItemAdapter.ViewHolder> {
+        extends RecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> {
 
     private final PlaylistUpsellItemRenderer upsellItemRenderer;
 
@@ -51,7 +52,7 @@ public class PlaylistAdapter
         List<TrackItem> tracks = new ArrayList<>(getItems().size());
         for (PlaylistDetailItem item : getItems()) {
             if (item instanceof PlaylistDetailTrackItem) {
-                tracks.add(((PlaylistDetailTrackItem) item).getTrackItem());
+                tracks.add(((PlaylistDetailTrackItem) item).trackItem());
             }
         }
         return tracks;

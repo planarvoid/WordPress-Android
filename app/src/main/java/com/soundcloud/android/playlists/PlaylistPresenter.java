@@ -207,6 +207,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         super.onDestroyView(fragment);
     }
 
+
     void savePlaylist() {
         checkState(headerItemOpt.isPresent(), "The playlist must be loaded to be saved");
 

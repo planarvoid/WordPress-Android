@@ -1,8 +1,7 @@
-package com.soundcloud.android.playback.playqueue;
+package com.soundcloud.android.playlists;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.SwipeToRemoveStyleAttributes;
 import com.soundcloud.java.optional.Optional;
@@ -15,33 +14,34 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
-@AutoFactory(allowSubclasses = true)
-class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
+@AutoFactory
+class PlaylistEditionItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 
     private final Paint textPaint;
     private final Paint backgroundPaint;
     private final Rect textBounds;
     private final SwipeToRemoveStyleAttributes styleAttributes;
-    private final PlayQueuePresenter presenter;
 
-    private int draggedFromPosition = Consts.NOT_SET;
-    private int draggedToPosition = Consts.NOT_SET;
+    private final NewPlaylistDetailFragment view;
+    private boolean isDragging;
 
-    public PlayQueueSwipeToRemoveCallback(@Provided Context context, PlayQueuePresenter presenter) {
-        super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT);
-        this.presenter = presenter;
+    PlaylistEditionItemTouchCallback(@Provided Context context, NewPlaylistDetailFragment view) {
+        super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
 
-        styleAttributes = SwipeToRemoveStyleAttributes.from(context);
+        // TODO: Do we want the same style than the PQ?
+        this.styleAttributes = SwipeToRemoveStyleAttributes.from(context);
+        this.isDragging = false;
+        this.view = view;
 
-        backgroundPaint = new Paint();
-        backgroundPaint.setColor(styleAttributes.backgroundColor);
+        this.backgroundPaint = new Paint();
+        this.backgroundPaint.setColor(styleAttributes.backgroundColor);
 
-        textPaint = new Paint();
-        textPaint.setTextSize(styleAttributes.textSize);
-        textPaint.setColor(styleAttributes.textColor);
-        textPaint.setTypeface(styleAttributes.font);
+        this.textPaint = new Paint();
+        this.textPaint.setTextSize(styleAttributes.textSize);
+        this.textPaint.setColor(styleAttributes.textColor);
+        this.textPaint.setTypeface(styleAttributes.font);
 
-        textBounds = new Rect();
+        this.textBounds = new Rect();
         if (styleAttributes.removeText.isPresent()) {
             final String removeText = styleAttributes.removeText.get();
             textPaint.getTextBounds(removeText, 0, removeText.length(), textBounds);
@@ -52,27 +52,15 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
     public boolean onMove(RecyclerView recyclerView,
                           RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target) {
-        if (presenter.isRemovable(target.getAdapterPosition())) {
-            draggedToPosition = target.getAdapterPosition();
-            presenter.switchItems(viewHolder.getAdapterPosition(), target.getAdapterPosition());
-            return true;
-        } else {
-            return false;
-        }
+        isDragging = true;
+        view.dragItem(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+        return true;
     }
 
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
         viewHolder.itemView.setBackgroundResource(R.drawable.queue_item_background);
-    }
-
-    @Override
-    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        if (presenter.isRemovable(viewHolder.getAdapterPosition())) {
-            return super.getMovementFlags(recyclerView, viewHolder);
-        }
-        return ItemTouchHelper.ACTION_STATE_IDLE;
     }
 
     @Override
@@ -108,7 +96,7 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-        presenter.remove(viewHolder.getAdapterPosition());
+        view.removeItem(viewHolder.getAdapterPosition());
     }
 
     @Override
@@ -120,15 +108,13 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
         super.onSelectedChanged(viewHolder, actionState);
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-            draggedFromPosition = viewHolder.getAdapterPosition();
             viewHolder.itemView.setBackgroundResource(R.color.play_queue_higlighted_background);
+            view.onDragStarted();
         } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-            if (draggedFromPosition != Consts.NOT_SET && draggedToPosition != Consts.NOT_SET) {
-                presenter.moveItems(draggedFromPosition, draggedToPosition);
-                draggedFromPosition = Consts.NOT_SET;
-                draggedToPosition = Consts.NOT_SET;
+            if (isDragging) {
+                isDragging = false;
+                view.onDragStopped();
             }
         }
     }
-
 }

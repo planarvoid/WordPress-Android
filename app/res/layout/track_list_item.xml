@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout android:id="@+id/track_list_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/track_list_item"
+    android:animateLayoutChanges="true"
     tools:ignore="UnknownIdInLayout">
 
     <LinearLayout
@@ -28,76 +29,76 @@
 
         <RelativeLayout
             style="@style/ListItemLayout"
-            android:paddingLeft="0dp"
-            android:paddingTop="0dp"
             android:clipChildren="false"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            android:paddingLeft="0dp"
+            android:paddingTop="0dp">
 
             <include layout="@layout/sound_list_item_views" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/list_item_counter"
                 style="@style/ListItemText.Numeric.Stats"
-                android:layout_toRightOf="@id/image"
                 android:layout_below="@id/list_item_subheader"
+                android:layout_toRightOf="@id/image"
                 android:drawableLeft="@drawable/stats_play" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/promoted_track"
                 style="@style/ListItemText.TertiaryText"
-                android:layout_toRightOf="@id/image"
                 android:layout_below="@id/list_item_subheader"
+                android:layout_toRightOf="@id/image"
                 android:drawableLeft="@drawable/promoted_icon"
                 android:visibility="gone" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/posted_time"
                 style="@style/ListItemText.TertiaryText.Posted"
-                android:layout_toRightOf="@id/image"
                 android:layout_below="@id/list_item_subheader"
+                android:layout_toRightOf="@id/image"
                 android:visibility="gone" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/now_playing"
                 style="@style/ListItemText.TertiaryText"
-                android:layout_toRightOf="@id/image"
                 android:layout_below="@id/list_item_subheader"
-                android:textColor="@color/ak_sc_orange"
+                android:layout_toRightOf="@id/image"
                 android:text="@string/title_now_playing"
+                android:textColor="@color/ak_sc_orange"
                 android:visibility="invisible" />
 
             <com.soundcloud.android.view.CustomFontTextView
-               android:id="@+id/not_available_offline"
-               style="@style/ListItemText.TertiaryText"
-               android:layout_toRightOf="@id/image"
-               android:layout_below="@id/list_item_subheader"
-               android:text="@string/offline_not_available_offline"
-               android:visibility="gone" />
+                android:id="@+id/not_available_offline"
+                style="@style/ListItemText.TertiaryText"
+                android:layout_below="@id/list_item_subheader"
+                android:layout_toRightOf="@id/image"
+                android:text="@string/offline_not_available_offline"
+                android:visibility="gone" />
 
             <com.soundcloud.android.view.CustomFontTextView
-               android:id="@+id/track_list_item_geo_blocked_text"
-               style="@style/ListItemText.TertiaryText"
-               android:layout_toRightOf="@id/image"
-               android:layout_below="@id/list_item_subheader"
-               android:text="@string/upsell_track_geo_blocked"
-               android:drawableLeft="@drawable/geo_list_item"
-               android:drawablePadding="6dp"
-               android:visibility="gone" />
+                android:id="@+id/track_list_item_geo_blocked_text"
+                style="@style/ListItemText.TertiaryText"
+                android:layout_below="@id/list_item_subheader"
+                android:layout_toRightOf="@id/image"
+                android:drawableLeft="@drawable/geo_list_item"
+                android:drawablePadding="6dp"
+                android:text="@string/upsell_track_geo_blocked"
+                android:visibility="gone" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/list_item_right_info"
                 style="@style/ListItemText.Numeric"
-                android:layout_marginTop="3dp"
+                android:layout_alignParentRight="true"
                 android:layout_alignTop="@id/image"
-                android:layout_alignParentRight="true" />
+                android:layout_marginTop="3dp" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/preview_indicator"
                 style="@style/PreviewIndicator"
-                android:paddingBottom="2dp"
-                android:paddingTop="1dp"
+                android:layout_alignParentRight="true"
                 android:layout_alignTop="@+id/image"
-                android:layout_alignParentRight="true" />
+                android:paddingBottom="2dp"
+                android:paddingTop="1dp" />
 
             <View
                 android:id="@+id/go_indicator"
@@ -110,9 +111,9 @@
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/private_indicator"
                 style="@style/ListItemText.Private"
-                android:layout_marginTop="2dp"
-                android:layout_marginRight="5dp"
                 android:layout_alignBaseline="@id/list_item_right_info"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="2dp"
                 android:layout_toLeftOf="@id/list_item_right_info"
                 android:visibility="gone" />
 
@@ -120,11 +121,14 @@
     </LinearLayout>
 
     <com.soundcloud.android.view.OverflowAnchorImageView
-            android:id="@+id/overflow_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/ListItemOverflowButton"
-            android:layout_gravity="bottom|right" />
+        android:id="@+id/overflow_button"
+        style="@style/ListItemOverflowButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="bottom|right"
+        android:scaleType="centerInside" />
 
-</FrameLayout>
+</RelativeLayout>
 

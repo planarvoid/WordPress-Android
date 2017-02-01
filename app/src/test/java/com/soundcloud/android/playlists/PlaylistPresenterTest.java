@@ -134,8 +134,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         verify(adapter).onNext(trackItemCaptor.capture());
         List<PlaylistDetailItem> itemList = trackItemCaptor.getValue();
         assertThat(itemList.get(0)).isInstanceOf(PlaylistDetailsMetadata.class);
-        assertThat(((PlaylistDetailTrackItem) itemList.get(1)).getTrackItem()).isEqualTo(track1);
-        assertThat(((PlaylistDetailTrackItem) itemList.get(2)).getTrackItem()).isEqualTo(track2);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(1)).trackItem()).isEqualTo(track1);
+        assertThat(((PlaylistDetailTrackItem) itemList.get(2)).trackItem()).isEqualTo(track2);
     }
 
     @Test
@@ -308,8 +308,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     private List<PlaylistDetailItem> listItems() {
         List<PlaylistDetailItem> playlistDetailItems = new ArrayList<>();
-        playlistDetailItems.add(new PlaylistDetailTrackItem(track1));
-        playlistDetailItems.add(new PlaylistDetailTrackItem(track2));
+        playlistDetailItems.add(PlaylistDetailTrackItem.builder().trackItem(track1).build());
+        playlistDetailItems.add(PlaylistDetailTrackItem.builder().trackItem(track2).build());
         return playlistDetailItems;
     }
 

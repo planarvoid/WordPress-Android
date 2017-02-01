@@ -24,14 +24,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-public abstract class CollectionViewFragment<ViewModelT, ItemT>
+import java.util.List;
+
+public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends RecyclerView.ViewHolder>
         extends LightCycleSupportFragment<Fragment> {
 
     @BindView(R.id.ak_recycler_view) protected RecyclerView recyclerView;
     @BindView(android.R.id.empty) protected EmptyView emptyView;
     @BindView(R.id.str_layout) protected MultiSwipeRefreshLayout swipeRefreshLayout;
 
-    private RecyclerItemAdapter<ItemT, RecyclerView.ViewHolder> adapter;
+    private RecyclerItemAdapter<ItemT, VH> adapter;
     private Unbinder unbinder;
 
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
@@ -66,7 +68,7 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT>
 
                 modelUpdates().map(extractItems())
                               .observeOn(AndroidSchedulers.mainThread())
-                              .doOnNext(this::replaceItemsInAdapter)
+                              .doOnNext(data -> onNewItems(data))
                               .subscribe(new CrashOnTerminateSubscriber<>()),
 
                 modelUpdates().doOnNext(updateEmptyView())
@@ -75,7 +77,7 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT>
     }
 
     @NonNull
-    private Func1<AsyncViewModel<ViewModelT>, Iterable<ItemT>> extractItems() {
+    private Func1<AsyncViewModel<ViewModelT>, List<ItemT>> extractItems() {
         return viewModelTAsyncViewModel -> viewModelTAsyncViewModel.data().isPresent()
                                            ? viewModelToItems().call(viewModelTAsyncViewModel.data().get())
                                            : emptyList();
@@ -99,21 +101,26 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT>
         };
     }
 
-    protected abstract void onRefresh();
-
-    private void replaceItemsInAdapter(Iterable<ItemT> itemTs) {
-        adapter.clear();
-        for (ItemT item : itemTs) {
-            adapter.addItem(item);
-        }
-        adapter.notifyDataSetChanged();
+    public RecyclerItemAdapter<ItemT, VH> adapter() {
+        return adapter;
     }
 
-    protected abstract RecyclerItemAdapter<ItemT, RecyclerView.ViewHolder> createAdapter();
+    protected abstract void onRefresh();
+
+    protected abstract void onNewItems(List<ItemT> newItems);
+
+    protected void populateAdapter(List<ItemT> newItems) {
+        adapter.clear();
+        for (ItemT item : newItems) {
+            adapter.addItem(item);
+        }
+    }
+
+    protected abstract RecyclerItemAdapter<ItemT, VH> createAdapter();
 
     protected abstract Observable<AsyncViewModel<ViewModelT>> modelUpdates();
 
-    protected abstract Func1<ViewModelT, Iterable<ItemT>> viewModelToItems();
+    protected abstract Func1<ViewModelT, List<ItemT>> viewModelToItems();
 
     @Override
     public void onDestroyView() {

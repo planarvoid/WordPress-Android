@@ -177,9 +177,9 @@ public class TrackItemView {
     }
 
     public static class Factory {
-        private final int layoutId;
         private final int disabledTitleColor;
         private final int primaryTitleColor;
+        private int layoutId;
 
         @Inject
         public Factory() {
@@ -192,6 +192,10 @@ public class TrackItemView {
             this.layoutId = layoutId;
             this.disabledTitleColor = disabledTitleColor;
             this.primaryTitleColor = primaryTitleColor;
+        }
+
+        public void setLayoutId(int layoutId) {
+            this.layoutId = layoutId;
         }
 
         public int getDisabledTitleColor() {
