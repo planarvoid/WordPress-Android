@@ -169,6 +169,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     public void onDestroyView(MoreFragment fragment) {
         if (moreViewOpt.isPresent()) {
             moreViewOpt.get().unbind();
+            moreViewOpt = Optional.absent();
         }
         super.onDestroyView(fragment);
     }
