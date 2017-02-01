@@ -226,6 +226,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
             offlineState = offlinePropertiesProvider
                     .states()
+                    .filter(event -> playlistDetailsMetadata != null)
                     .map(properties -> properties.state(playlistDetailsMetadata.getUrn()));
         } else {
             offlineState = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
