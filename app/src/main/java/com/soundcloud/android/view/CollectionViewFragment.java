@@ -41,7 +41,7 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
     private RecyclerView.AdapterDataObserver emptyViewObserver;
     private CompositeSubscription subscription;
 
-    protected PublishSubject<Void> onRefresh;
+    protected final PublishSubject<Void> onRefresh = PublishSubject.create();
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
