@@ -85,7 +85,7 @@ public class TrackStorage {
     };
 
     @Inject
-    TrackStorage(PropellerRx propeller) {
+    public TrackStorage(PropellerRx propeller) {
         this.propeller = propeller;
     }
 

@@ -2,9 +2,10 @@ package com.soundcloud.android.discovery.welcomeuser;
 
 import android.content.SharedPreferences;
 
-import javax.inject.Inject;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 public class WelcomeUserStorage {
 

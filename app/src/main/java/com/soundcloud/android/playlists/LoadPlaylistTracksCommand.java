@@ -20,7 +20,7 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<Track>> {
     private final PropellerDatabase propeller;
 
     @Inject
-    LoadPlaylistTracksCommand(PropellerDatabase propeller) {
+    public LoadPlaylistTracksCommand(PropellerDatabase propeller) {
         this.propeller = propeller;
     }
 

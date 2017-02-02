@@ -3,7 +3,6 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
-import rx.Subscriber;
 import rx.functions.Action0;
 
 import android.accounts.Account;
@@ -107,13 +106,10 @@ public class SyncInitiator {
     @NonNull
     private Observable<SyncJobResult> getSyncObservable(final Intent intent) {
         return Observable
-                .create(new Observable.OnSubscribe<SyncJobResult>() {
-                    @Override
-                    public void call(Subscriber<? super SyncJobResult> subscriber) {
-                        final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber,
-                                                                                                Looper.getMainLooper());
-                        context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
-                    }
+                .create(subscriber -> {
+                    final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber,
+                                                                                            Looper.getMainLooper());
+                    context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
                 });
     }
 

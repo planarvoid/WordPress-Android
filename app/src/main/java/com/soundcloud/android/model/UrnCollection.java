@@ -14,6 +14,7 @@ enum UrnCollection {
     ADS("ads"),
     SOUNDS("sounds"),
     GENRES("genres"),
+    NEW_FOR_YOU("newforyou"),
     UNKNOWN("unknown");
 
     private static final String STATIONS_REGEX = "[\\w-]+-stations";

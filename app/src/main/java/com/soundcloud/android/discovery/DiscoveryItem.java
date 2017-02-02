@@ -18,6 +18,7 @@ public abstract class DiscoveryItem {
     }
 
     public enum Kind {
+        NewForYouItem,
         RecommendedStationsItem,
         RecommendedTracksItem,
         RecommendedTracksFooterItem,

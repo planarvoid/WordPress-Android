@@ -57,6 +57,7 @@ public enum ApiEndpoints {
 
     // suggested creators
     SUGGESTED_CREATORS("/you/suggested-creators"),
+    NEW_FOR_YOU("/you/new-for-you"),
 
     // ads + monetization
     ADS("/tracks/%s/ads"),

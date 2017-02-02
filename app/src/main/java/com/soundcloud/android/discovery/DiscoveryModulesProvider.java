@@ -2,6 +2,9 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
+import com.soundcloud.android.discovery.newforyou.NewForYou;
+import com.soundcloud.android.discovery.newforyou.NewForYouDiscoveryItem;
+import com.soundcloud.android.discovery.newforyou.NewForYouOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
 import com.soundcloud.android.discovery.welcomeuser.WelcomeUserOperations;
@@ -27,6 +30,7 @@ class DiscoveryModulesProvider {
     private final ChartsOperations chartsOperations;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
     private final WelcomeUserOperations welcomeUserOperations;
+    private final NewForYouOperations newForYouOperations;
 
     @Inject
     DiscoveryModulesProvider(PlaylistDiscoveryConfig playlistDiscoveryConfig,
@@ -36,7 +40,8 @@ class DiscoveryModulesProvider {
                              RecommendedPlaylistsOperations recommendedPlaylistsOperations,
                              ChartsOperations chartsOperations,
                              PlaylistDiscoveryOperations playlistDiscoveryOperations,
-                             WelcomeUserOperations welcomeUserOperations) {
+                             WelcomeUserOperations welcomeUserOperations,
+                             NewForYouOperations newForYouOperations) {
         this.playlistDiscoveryConfig = playlistDiscoveryConfig;
         this.featureFlags = featureFlags;
         this.recommendedTracksOperations = recommendedTracksOperations;
@@ -45,6 +50,7 @@ class DiscoveryModulesProvider {
         this.chartsOperations = chartsOperations;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
         this.welcomeUserOperations = welcomeUserOperations;
+        this.newForYouOperations = newForYouOperations;
     }
 
     Observable<List<DiscoveryItem>> discoveryItems() {
@@ -69,6 +75,7 @@ class DiscoveryModulesProvider {
         if (playlistDiscoveryConfig.isPlaylistDiscoveryFirst()) {
             return Arrays.asList(
                     userWelcome(isRefresh),
+                    newForYou(isRefresh),
                     recommendedTracks(isRefresh),
                     recommendedPlaylists(isRefresh),
                     recommendedStations(isRefresh),
@@ -77,6 +84,7 @@ class DiscoveryModulesProvider {
         }
         return Arrays.asList(
                 userWelcome(isRefresh),
+                newForYou(isRefresh),
                 recommendedTracks(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
@@ -87,6 +95,7 @@ class DiscoveryModulesProvider {
     private List<Observable<DiscoveryItem>> itemsForDefault(boolean isRefresh) {
         return Arrays.asList(
                 userWelcome(isRefresh),
+                newForYou(isRefresh),
                 recommendedTracks(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
@@ -117,7 +126,18 @@ class DiscoveryModulesProvider {
         return isRefresh ?
                chartsOperations.refreshFeaturedCharts() :
                chartsOperations.featuredCharts();
+    }
 
+    private Observable<DiscoveryItem> newForYou(boolean isRefresh) {
+        if (featureFlags.isDisabled(Flag.NEW_FOR_YOU)) {
+            return Observable.empty();
+        }
+
+        final Observable<NewForYou> newForYouObservable = isRefresh ?
+                                                          newForYouOperations.refreshNewForYou() :
+                                                          newForYouOperations.newForYou();
+
+        return newForYouObservable.map(NewForYouDiscoveryItem::create);
     }
 
     private Observable<DiscoveryItem> recommendedPlaylists(boolean isRefresh) {

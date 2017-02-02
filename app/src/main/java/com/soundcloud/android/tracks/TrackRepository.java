@@ -4,17 +4,24 @@ import static com.soundcloud.android.utils.DiffUtils.minus;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 
+import static com.soundcloud.android.utils.DiffUtils.minus;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static java.util.Collections.singletonList;
+
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Iterators;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
@@ -60,13 +67,8 @@ public class TrackRepository {
     }
 
     public Observable<List<Track>> trackListFromUrns(List<Urn> requestedTracks) {
-        return fromUrns(requestedTracks).map(urnTrackMap -> {
-            List<Track> tracks = new ArrayList<>(requestedTracks.size());
-            for (Urn requestedTrack : requestedTracks) {
-                tracks.add(urnTrackMap.get(requestedTrack));
-            }
-            return tracks;
-        });
+        return fromUrns(requestedTracks)
+                .map(urnTrackMap -> Lists.transform(requestedTracks, urnTrackMap::get));
     }
 
     public Observable<List<Track>> forPlaylist(Urn playlistUrn) {

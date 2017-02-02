@@ -1,13 +1,13 @@
 package com.soundcloud.android.model;
 
+import android.os.Parcel;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
-
-import android.os.Parcel;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.Arrays;
 
@@ -99,6 +99,10 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     public static Urn forGenre(String genre) {
         return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.GENRES, genre);
+    }
+
+    public static Urn forNewForYou(String id) {
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.NEW_FOR_YOU, id);
     }
 
     public boolean isPlayable() {
@@ -266,5 +270,4 @@ public final class Urn extends ContentStringHelper<Urn> {
     public int hashCode() {
         return content.hashCode();
     }
-
 }
