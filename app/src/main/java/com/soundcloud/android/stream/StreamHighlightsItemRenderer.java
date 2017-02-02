@@ -78,7 +78,7 @@ class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
 
     private List<String> getTopCreators(List<TrackItem> trackItems) {
         HashSet<String> strings = new HashSet<>(Lists.transform(trackItems, PlayableItem::getCreatorName));
-        return Lists.newArrayList(strings).subList(0, Math.max(strings.size(), 3));
+        return Lists.newArrayList(strings).subList(0, Math.min(strings.size(), 3));
     }
 
     private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {
