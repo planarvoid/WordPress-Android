@@ -42,7 +42,7 @@ class PlaylistCoverRenderer {
         if (item.canBePlayed()) {
             AnimUtils.showView(playButton, true);
         } else {
-            playButton.setVisibility(View.GONE);
+            AnimUtils.hideView(playButton, true);
         }
     }
 

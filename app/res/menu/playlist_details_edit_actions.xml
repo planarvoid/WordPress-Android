@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/edit_validate"
-        android:icon="@drawable/close_icon"
+        android:icon="@drawable/edit_playlist_done"
         android:title="@string/edit_validate"
         app:showAsAction="always" />
 </menu>

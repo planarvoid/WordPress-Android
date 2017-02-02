@@ -23,7 +23,7 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
     static PlaylistDetailsMetadata from(Playlist playlist,
                                         List<TrackItem> trackItems,
                                         boolean isLiked,
-                                        boolean isEditMode,
+                                        boolean isInEditMode,
                                         OfflineState offlineState,
                                         int trackCount,
                                         OfflineOptions offlineOptions,
@@ -35,7 +35,6 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
                 .permalinkUrl(playlist.permalinkUrl())
                 .creatorUrn(playlist.creatorUrn())
                 .creatorName(playlist.creatorName())
-                .canBePlayed(!trackItems.isEmpty())
                 .canShuffle(trackItems.size() > 1)
                 .trackCount(trackCount)
                 .isPrivate(playlist.isPrivate())
@@ -49,7 +48,7 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
                 .offlineState(offlineState)
                 .label(PlaylistUtils.formatPlaylistTitle(resources, playlist.setType().or(Strings.EMPTY), playlist.isAlbum(), playlist.releaseDate().or(Strings.EMPTY)))
                 .imageUrlTemplate(playlist.imageUrlTemplate())
-                .isInEditMode(isEditMode)
+                .isInEditMode(isInEditMode)
                 .build();
     }
 
@@ -72,7 +71,9 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
 
     abstract public String creatorName();
 
-    abstract public boolean canBePlayed();
+    public boolean canBePlayed() {
+        return trackCount() > 0 && !isInEditMode();
+    }
 
     abstract public boolean canShuffle();
 
@@ -164,8 +165,6 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
         abstract Builder creatorUrn(Urn value);
 
         abstract Builder creatorName(String value);
-
-        abstract Builder canBePlayed(boolean value);
 
         abstract Builder canShuffle(boolean value);
 

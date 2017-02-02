@@ -36,7 +36,7 @@ public class TrackItemView {
     private final TextView geoBlocked;
     private final View leftSpacer;
     private final TextView position;
-    private OverflowListener overflowListener;
+    private final View overflowButton;
 
     public TrackItemView(View view) {
         creator = (TextView) view.findViewById(R.id.list_item_header);
@@ -55,16 +55,20 @@ public class TrackItemView {
         geoBlocked = (TextView) view.findViewById(R.id.track_list_item_geo_blocked_text);
         leftSpacer = view.findViewById(R.id.left_spacer);
         position = (TextView) view.findViewById(R.id.position);
+        overflowButton = view.findViewById(R.id.overflow_button);
+    }
 
-        view.findViewById(R.id.overflow_button).setOnClickListener(v -> {
+    public void showOverflow(OverflowListener overflowListener) {
+        overflowButton.setVisibility(View.VISIBLE);
+        setUpOverflowListener(overflowListener);
+    }
+
+    public void setUpOverflowListener(OverflowListener overflowListener) {
+        overflowButton.setOnClickListener(v -> {
             if (overflowListener != null) {
                 overflowListener.onOverflow(v);
             }
         });
-    }
-
-    public void setOverflowListener(OverflowListener overflowListener) {
-        this.overflowListener = overflowListener;
     }
 
     public void setCreator(String name) {
@@ -89,6 +93,10 @@ public class TrackItemView {
     public void showDuration(String duration) {
         this.duration.setText(duration);
         this.duration.setVisibility(View.VISIBLE);
+    }
+
+    public void hideDuration() {
+        this.duration.setVisibility(View.GONE);
     }
 
     public void showPromotedTrack(String text) {
@@ -186,6 +194,11 @@ public class TrackItemView {
             this.layoutId = R.layout.track_list_item;
             this.disabledTitleColor = R.color.list_disabled;
             this.primaryTitleColor = R.color.list_primary;
+        }
+
+
+        public void setLayoutId(int layoutId) {
+            this.layoutId = layoutId;
         }
 
         public Factory(@LayoutRes int layoutId, @ColorRes int disabledTitleColor, @ColorRes int primaryTitleColor) {

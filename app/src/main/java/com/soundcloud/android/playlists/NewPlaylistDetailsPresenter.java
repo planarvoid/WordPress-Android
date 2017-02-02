@@ -2,9 +2,9 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Lists.transform;
+import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Collections.singleton;
 import static rx.Observable.combineLatest;
-import static com.soundcloud.java.optional.Optional.of;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -89,12 +89,14 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PublishSubject<Void> offlineUnavailable = PublishSubject.create();
     private final PublishSubject<Void> onCreatorClicked = PublishSubject.create();
     private final PublishSubject<Void> headerPlayClicked = PublishSubject.create();
+    private final PublishSubject<Integer> trackPlayClicked = PublishSubject.create();
     private final PublishSubject<Void> like = PublishSubject.create();
     private final PublishSubject<Void> unlike = PublishSubject.create();
 
     // outputs
     private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
     private final PublishSubject<Urn> gotoCreator = PublishSubject.create();
+    private final PublishSubject<Urn> playTrack = PublishSubject.create();
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
     private final BehaviorSubject<PlaylistWithTracks> dataSource;
 
@@ -142,6 +144,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 actionLike(like),
                 actionUnlike(unlike),
                 actionPlayPlaylist(headerPlayClicked),
+                actionPlayPlaylistAtPosition(trackPlayClicked),
 
                 emitViewModel()
         );
@@ -177,6 +180,26 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                          .withLatestFrom(playSessionSource(), Pair::of)
                          .flatMap(pair -> playbackInitiator.playTracks(pair.first(), 0, pair.second()))
                          .subscribe(showPlaybackResult());
+    }
+
+    private Subscription actionPlayPlaylistAtPosition(PublishSubject<Integer> trigger) {
+        return dataSource
+                .compose(Transformers.takePairWhen(trigger))
+                .withLatestFrom(playSessionSource(), (playlistWithTracksIntegerPair, playSessionSource) -> {
+                    final List<Track> tracks = playlistWithTracksIntegerPair.first.tracks();
+                    final Integer position = playlistWithTracksIntegerPair.second;
+                    return playTracksFromPosition(tracks, position, playSessionSource);
+                })
+                .flatMap(x -> x)
+                .subscribe(showPlaybackResult());
+    }
+
+    private Observable<PlaybackResult> playTracksFromPosition(List<Track> tracks, Integer position, PlaySessionSource playSessionSource) {
+        return playbackInitiator.playTracks(
+                transform(tracks, Track::urn),
+                position,
+                playSessionSource
+        );
     }
 
     private Subscription actionUnlike(PublishSubject<Void> trigger) {
@@ -261,13 +284,13 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private Func1<PlaylistWithTracks, PlaySessionSource> createPlaySessionSource() {
         return playlistWithTracks -> {
             final Playlist playlist = playlistWithTracks.playlist();
-            PlaySessionSource playSessionSource1 = PlaySessionSource.forPlaylist(screen, playlist.urn(), playlist.creatorUrn(), playlist.trackCount());
+            PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(screen, playlist.urn(), playlist.creatorUrn(), playlist.trackCount());
             if (promotedSourceInfo != null) {
-                playSessionSource1.setPromotedSourceInfo(promotedSourceInfo);
+                playSessionSource.setPromotedSourceInfo(promotedSourceInfo);
             } else if (searchQuerySourceInfo != null) {
-                playSessionSource1.setSearchQuerySourceInfo(searchQuerySourceInfo);
+                playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
             }
-            return playSessionSource1;
+            return playSessionSource;
         };
     }
 
@@ -292,11 +315,11 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                                              LikedStatuses likedStatuses,
                                                              OfflineProperties offlineProperties) {
         return AsyncViewModel.create(of(viewModelCreator.create(playlistWithTracks.playlist(),
-                                                             updateTracks(playlistWithTracks, offlineProperties),
-                                                             likedStatuses.isLiked(playlistWithTracks.playlist().urn()),
-                                                             isEditMode,
-                                                             offlineProperties.state(playlistWithTracks.playlist().urn()),
-                                                             Optional.absent())), isRefreshing, Optional.absent());
+                                                                updateTracks(playlistWithTracks, offlineProperties),
+                                                                likedStatuses.isLiked(playlistWithTracks.playlist().urn()),
+                                                                isEditMode,
+                                                                offlineProperties.state(playlistWithTracks.playlist().urn()),
+                                                                Optional.absent())), isRefreshing, Optional.absent());
     }
 
     private List<TrackItem> updateTracks(PlaylistWithTracks playlistWithTracks, OfflineProperties offlineProperties) {
@@ -328,6 +351,11 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     @Override
     public void onCreatorClicked() {
         onCreatorClicked.onNext(null);
+    }
+
+    @Override
+    public void onPlayAtPosition(Integer position) {
+        trackPlayClicked.onNext(position);
     }
 
     @Override

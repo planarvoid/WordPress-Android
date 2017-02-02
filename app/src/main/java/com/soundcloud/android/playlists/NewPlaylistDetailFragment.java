@@ -16,6 +16,7 @@ import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
+import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -147,8 +148,7 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         );
     }
 
-    // Chief, you wan't this to get the animation when entering edit node.
-    // The `animateLayoutChanges` on tracks will catch up.
+    // Let the layout for tracks animates itself
     private void animateLayoutChangesInAdapterCells() {
         ((SimpleItemAnimator) recyclerView().getItemAnimator()).setSupportsChangeAnimations(false);
     }
@@ -365,6 +365,7 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
         NewPlaylistDetailsAdapter(PlaylistTrackItemRenderer playlistTrackItemRenderer) {
             this.playlistTrackItemRenderer = playlistTrackItemRenderer;
+            this.playlistTrackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.edit_playlist_track_item);
             setHasStableIds(true);
         }
 
@@ -397,18 +398,29 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
             final PlaylistDetailTrackItem detailTrackItem = items.get(position);
             final View itemView = holder.itemView;
             playlistTrackItemRenderer.bindTrackView(position, itemView, detailTrackItem.trackItem());
-            renderEditMode(holder, detailTrackItem);
+            itemView.setOnClickListener(view -> {
+                if (!detailTrackItem.inEditMode()) {
+                    presenter.onPlayAtPosition(position);
+                }
+            });
+            bindEditMode(holder, detailTrackItem, position);
         }
 
         // TODO eventually move to a cell renderer
-        private void renderEditMode(MyViewHolder holder, PlaylistDetailTrackItem detailTrackItem) {
+        private void bindEditMode(MyViewHolder holder, PlaylistDetailTrackItem detailTrackItem, int position) {
             if (detailTrackItem.inEditMode()) {
-                holder.overflow().setImageResource(R.drawable.ic_drag_handle_medium_dark_gray_24dp);
-                holder.overflow().setOnTouchListener(createDragListener(holder));
+                bindHandle(holder);
             } else {
-                holder.overflow().setImageResource(R.drawable.btn_list_overflow);
-                holder.overflow().setOnTouchListener(null);
+                holder.handle().setVisibility(View.GONE);
             }
+        }
+
+        private void bindHandle(MyViewHolder holder) {
+            holder.handle().setOnTouchListener(createDragListener(holder));
+            holder.handle().setVisibility(View.VISIBLE);
+            holder.overflow().setVisibility(View.GONE);
+            holder.preview().setVisibility(View.GONE);
+            holder.hideDuration();
         }
 
         @Override
@@ -423,9 +435,25 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
             super(itemView);
         }
 
+        public View preview() {
+            return ButterKnife.findById(itemView, R.id.preview_indicator);
+        }
+
 
         ImageView overflow() {
             return ButterKnife.findById(itemView, R.id.overflow_button);
+        }
+
+        ImageView handle() {
+            return ButterKnife.findById(itemView, R.id.drag_handle);
+        }
+
+        void hideDuration() {
+            trackItemView().hideDuration();
+        }
+
+        private TrackItemView trackItemView() {
+            return (TrackItemView) itemView.getTag();
         }
 
     }

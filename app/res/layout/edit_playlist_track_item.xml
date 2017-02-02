@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/play_queue_item_track"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:longClickable="false">
+
+    <include layout="@layout/track_list_item" />
+
+    <com.soundcloud.android.view.OverflowAnchorImageView
+        android:id="@+id/drag_handle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="16dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_drag_handle_medium_dark_gray_24dp" />
+
+</RelativeLayout>

@@ -28,7 +28,6 @@ class PlaylistEditionItemTouchCallback extends ItemTouchHelper.SimpleCallback {
     PlaylistEditionItemTouchCallback(@Provided Context context, NewPlaylistDetailFragment view) {
         super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
 
-        // TODO: Do we want the same style than the PQ?
         this.styleAttributes = SwipeToRemoveStyleAttributes.from(context);
         this.isDragging = false;
         this.view = view;
@@ -77,17 +76,33 @@ class PlaylistEditionItemTouchCallback extends ItemTouchHelper.SimpleCallback {
     }
 
     private void drawRemoveText(Canvas canvas, float dX, float dY, View itemView) {
-        final Optional<String> removeText = styleAttributes.removeText;
-        if (removeText.isPresent()) {
-            final float x = itemView.getLeft() + dX - textBounds.width() - styleAttributes.textPaddingRight;
+        final Optional<String> removeTextOpt = styleAttributes.removeText;
+        if (removeTextOpt.isPresent()) {
+            final String removeText = removeTextOpt.get();
+            final float x = textX(dX, itemView);
             final float y = itemView.getBottom() + dY - (itemView.getHeight() - textBounds.height()) / 2;
-            canvas.drawText(removeText.get(), x, y, textPaint);
+            canvas.drawText(removeText, x, y, textPaint);
+        }
+    }
+
+    private float textX(float dX, View itemView) {
+        if (dX < 0) {
+            return itemView.getRight() + dX + styleAttributes.textPaddingRight;
+        } else {
+            return itemView.getLeft() + dX - textBounds.width() - styleAttributes.textPaddingRight;
         }
     }
 
     private void drawBackground(Canvas canvas, float dX, View itemView) {
-        backgroundPaint.setAlpha(backgroundAlphaForPosition(dX, itemView));
-        canvas.drawRect(0, itemView.getTop(), dX, itemView.getBottom(), backgroundPaint);
+        backgroundPaint.setAlpha(backgroundAlphaForPosition(Math.abs(dX), itemView));
+
+        if (dX < 0) {
+            final int itemRight = itemView.getRight();
+            final float removeBackgroundLeft = itemRight + dX;
+            canvas.drawRect(removeBackgroundLeft, itemView.getTop(), itemRight, itemView.getBottom(), backgroundPaint);
+        } else {
+            canvas.drawRect(0, itemView.getTop(), dX, itemView.getBottom(), backgroundPaint);
+        }
     }
 
     private int backgroundAlphaForPosition(float dX, View itemView) {

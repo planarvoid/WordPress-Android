@@ -1,12 +1,12 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.model.Urn;
-
 interface PlaylistDetailsInputs /* remove after new fragment live */ {
 
     void onHeaderPlayButtonClicked();
 
     void onCreatorClicked();
+
+    void onPlayAtPosition(Integer position);
 
     void onEnterEditMode();
 

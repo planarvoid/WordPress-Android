@@ -313,6 +313,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
+    public void onPlayAtPosition(Integer position) {
+
+    }
+
+    @Override
     public void onEnterEditMode() {
         playlistHeaderPresenterListener.onEnterEditMode();
     }

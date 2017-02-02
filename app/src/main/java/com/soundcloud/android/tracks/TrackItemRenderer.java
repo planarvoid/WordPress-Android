@@ -116,7 +116,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       itemView,
                       position,
                       Optional.absent(),
-                      moduleName.transform(input -> Module.create(input, position)));
+                      createModule(position));
     }
 
     public void bindTrackView(final TrackItem track,
@@ -158,7 +158,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         bindExtraInfoBottom(trackItemView, track, showPostedTime);
 
         bindArtwork(trackItemView, track);
-        setupOverFlow(trackItemView, track, position, trackSourceInfo, module);
+        bindOverFlow(trackItemView, track, position, trackSourceInfo, module);
     }
 
 
@@ -174,12 +174,16 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void setupOverFlow(final TrackItemView itemView,
-                               final TrackItem track,
-                               final int position,
-                               final Optional<TrackSourceInfo> trackSourceInfo,
-                               final Optional<Module> module) {
-        itemView.setOverflowListener(overflowButton -> showTrackItemMenu(overflowButton, track, position, trackSourceInfo, module));
+    public void bindOverFlow(final TrackItemView itemView,
+                             final TrackItem track,
+                             final int position,
+                             final Optional<TrackSourceInfo> trackSourceInfo,
+                             final Optional<Module> module) {
+        itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, position, trackSourceInfo, module));
+    }
+
+    private Optional<Module> createModule(int position) {
+        return moduleName.transform(input -> Module.create(input, position));
     }
 
     protected void showTrackItemMenu(View button,
