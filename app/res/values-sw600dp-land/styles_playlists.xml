@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- this uses a different base style in other views -->
+    <style name="NewPlaylistActionContainerBase" />
+
+</resources>
