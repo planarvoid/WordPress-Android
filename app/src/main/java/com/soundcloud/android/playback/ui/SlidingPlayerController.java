@@ -197,9 +197,12 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private void restorePlayerState() {
         final boolean isRestoringVideoAd = playQueueManager.getCurrentPlayQueueItem().isVideoAd();
-        showPanelAsCollapsedIfNeeded();
-        if (expandOnResume || isRestoringVideoAd || isPlayQueueLocked) {
-            restoreExpanded(isRestoringVideoAd || isPlayQueueLocked);
+        final boolean shouldLockPlayer = isRestoringVideoAd || isPlayQueueLocked;
+
+        if (expandOnResume || shouldLockPlayer) {
+            restoreExpanded(shouldLockPlayer);
+        } else {
+            restoreCollapsed();
         }
     }
 
@@ -211,6 +214,13 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         if (shouldLockPlayer) {
             lockExpanded();
         }
+    }
+
+    private void restoreCollapsed() {
+        statusBarColorController.onPlayerCollapsed();
+
+        collapse();
+        notifyCollapsedState();
     }
 
     private void showPanelAsCollapsedIfNeeded() {

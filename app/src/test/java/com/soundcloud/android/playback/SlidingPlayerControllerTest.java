@@ -104,13 +104,13 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doNotShowPanelIfItIsNotHidden() {
+    public void restoreCollapsedPlayerStateOnResume() {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);
 
         controller.onResume(activity);
 
-        verify(slidingPanel, never()).setPanelState(PanelState.COLLAPSED);
+        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
         verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
     }
 
@@ -216,7 +216,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
 
-        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
+        verify(slidingPanel, times(2)).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerManually());
 
-        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
+        verify(slidingPanel, times(2)).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
