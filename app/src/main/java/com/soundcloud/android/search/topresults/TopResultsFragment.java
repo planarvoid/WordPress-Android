@@ -5,9 +5,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -23,7 +23,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TopResultsFragment extends CollectionViewFragment<TopResultsViewModel, TopResultsBucketViewModel, RecyclerView.ViewHolder> {
+public class TopResultsFragment extends CollectionViewFragment<TopResultsViewModel, TopResultsBucketViewModel, RecyclerView.ViewHolder>  implements TopResultsPresenter.TopResultsView {
 
     private static final String KEY_API_QUERY = "query";
     private static final String KEY_USER_QUERY = "userQuery";
@@ -61,9 +61,24 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter.search(getApiQuery(), getSearchQueryUrn());
-        presenter.connect();
+        presenter.attachView(this);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onDestroy() {
+        presenter.detachView();
+        super.onDestroy();
+    }
+
+    @Override
+    public Observable<Pair<String, Optional<Urn>>> searchIntent() {
+        return Observable.just(Pair.of(getApiQuery(), getSearchQueryUrn()));
+    }
+
+    @Override
+    public Observable<Void> refreshIntent() {
+        return onRefresh;
     }
 
     private String getApiQuery() {
@@ -85,11 +100,6 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
     }
 
     @Override
-    protected void onRefresh() {
-        presenter.refresh();
-    }
-
-    @Override
     protected void onNewItems(List<TopResultsBucketViewModel> newItems) {
         populateAdapter(newItems);
         adapter().notifyDataSetChanged();
@@ -104,9 +114,7 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
     protected Observable<AsyncViewModel<TopResultsViewModel>> modelUpdates() {
         return presenter
                 .viewModel()
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(viewModel -> Log.i("asdf", String.valueOf(viewModel)))
-                .doOnError(error -> Log.e("asdf", "error emitted " , error));
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

@@ -15,6 +15,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
@@ -40,6 +41,8 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
     private RecyclerView.AdapterDataObserver emptyViewObserver;
     private CompositeSubscription subscription;
 
+    protected PublishSubject<Void> onRefresh;
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -56,8 +59,7 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
 
         // handle swipe to refresh
         swipeRefreshLayout.setSwipeableChildren(recyclerView, emptyView);
-        swipeRefreshLayout.setOnRefreshListener(CollectionViewFragment.this::onRefresh);
-
+        swipeRefreshLayout.setOnRefreshListener(() -> onRefresh.onNext(null));
 
         subscription = new CompositeSubscription(
 
@@ -75,6 +77,8 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
                               .subscribe(new CrashOnTerminateSubscriber<>())
         );
     }
+
+
 
     @NonNull
     private Func1<AsyncViewModel<ViewModelT>, List<ItemT>> extractItems() {
@@ -104,8 +108,6 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
     public RecyclerItemAdapter<ItemT, VH> adapter() {
         return adapter;
     }
-
-    protected abstract void onRefresh();
 
     protected abstract void onNewItems(List<ItemT> newItems);
 

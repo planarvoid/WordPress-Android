@@ -21,9 +21,9 @@ import com.soundcloud.android.view.CollectionViewFragment;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.animation.LayoutTransition;
 import android.os.Bundle;
@@ -69,7 +69,7 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
     private boolean skipModelUpdates;
     private View view;
-    private Subscription subscription;
+    private CompositeSubscription subscription;
 
 
     public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
@@ -133,12 +133,18 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         animateLayoutChangesInAdapterCells();
         doNotPropagateAnimationsToTheAppBar();
 
-        subscription = modelUpdates().subscribe(asyncViewModel -> {
-            Optional<PlaylistDetailsViewModel> dataOpt = asyncViewModel.data();
-            if (dataOpt.isPresent()) {
-                bindViews(dataOpt.get());
-            }
-        });
+        subscription = new CompositeSubscription();
+        subscription.addAll(
+                modelUpdates().subscribe(asyncViewModel -> {
+                    Optional<PlaylistDetailsViewModel> dataOpt = asyncViewModel.data();
+                    if (dataOpt.isPresent()) {
+                        bindViews(dataOpt.get());
+                    }
+                }),
+                onRefresh.subscribe(aVoid -> {
+                    presenter.refresh();
+                })
+        );
     }
 
     // Chief, you wan't this to get the animation when entering edit node.
@@ -217,11 +223,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     protected RecyclerItemAdapter<PlaylistDetailTrackItem, MyViewHolder> createAdapter() {
         final PlaylistTrackItemRenderer trackItemRenderer = trackItemRendererFactory.create(this);
         return new NewPlaylistDetailsAdapter(trackItemRenderer);
-    }
-
-    @Override
-    protected void onRefresh() {
-        presenter.refresh();
     }
 
     @Override

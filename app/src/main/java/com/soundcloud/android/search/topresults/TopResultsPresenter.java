@@ -17,8 +17,13 @@ import java.util.Collections;
 
 public class TopResultsPresenter {
 
-    private final BehaviorSubject<Pair<String, Optional<Urn>>> searchQuery = BehaviorSubject.create();
-    private final BehaviorSubject<Void> refreshSubject = BehaviorSubject.create();
+    interface TopResultsView {
+
+        Observable<Pair<String, Optional<Urn>>> searchIntent();
+
+        Observable<Void> refreshIntent();
+    }
+
     private final BehaviorSubject<AsyncViewModel<TopResultsViewModel>> viewModel = BehaviorSubject.create();
 
     private final TopResultsLoader topResultsLoader;
@@ -30,18 +35,23 @@ public class TopResultsPresenter {
         this.topResultsLoader = topResultsLoader;
     }
 
-    void connect() {
+    void attachView(TopResultsView topResultsView) {
         AsyncViewModel<TopResultsViewModel> initialState = AsyncViewModel.fromIdle(TopResultsViewModel.create(Collections.emptyList()));
         subscription = new CompositeSubscription();
+
+        Observable<PartialState<TopResultsViewModel>> searchIntent = topResultsView.searchIntent().cache().flatMap(this::doSearch);
+        Observable<PartialState<TopResultsViewModel>> refreshIntent = topResultsView.refreshIntent()
+                                                                                    .flatMap(ignored -> searchIntent.startWith(new PartialState.RefreshStarted<>()));
+
         subscription.add(
                 Observable.merge(
-                        searchIntent(),
-                        refreshIntent()
+                        searchIntent,
+                        refreshIntent
                 ).scan(initialState, reduceStates()).subscribe(viewModel)
         );
     }
 
-    void disconnect() {
+    void detachView() {
         subscription.unsubscribe();
     }
 
@@ -49,35 +59,11 @@ public class TopResultsPresenter {
         return viewModel;
     }
 
-    void search(String query, Optional<Urn> queryUrn) {
-        searchQuery.onNext(Pair.of(query, queryUrn));
-    }
-
-    void refresh() {
-        refreshSubject.onNext(null);
-    }
-
-    @NonNull
-    private Observable<PartialState<TopResultsViewModel>> searchIntent() {
-        return searchQuery.flatMap(this::doSearch);
-    }
-
-    @NonNull
-    private Observable<PartialState<TopResultsViewModel>> refreshIntent() {
-        return refreshSubject.flatMap(aVoid -> searchQuery.hasValue() ? doRefresh(searchQuery.getValue()) : Observable.empty());
-    }
-
     @NonNull
     private Observable<PartialState<TopResultsViewModel>> doSearch(Pair<String, Optional<Urn>> searchParams) {
         return topResultsLoader.getTopSearchResults(searchParams)
                 .<PartialState<TopResultsViewModel>>map(UpdatedResults::new)
                 .onErrorReturn(PartialState.Error::new);
-    }
-
-    @NonNull
-    private Observable<PartialState<TopResultsViewModel>> doRefresh(Pair<String, Optional<Urn>> searchParams) {
-        return doSearch(searchParams)
-                .startWith(new PartialState.RefreshStarted<>());
     }
 
     @NonNull
