@@ -27,4 +27,9 @@ public abstract class PlaylistChangedEvent<T> {
     public boolean isTracklistChangeEvent() {
         return kind() == Kind.TRACK_ADDED || kind() == Kind.TRACK_REMOVED || kind() == Kind.PLAYLIST_EDITED;
     }
+
+    public boolean isPlaylistEdited() {
+        return kind() == Kind.PLAYLIST_EDITED;
+    }
+
 }

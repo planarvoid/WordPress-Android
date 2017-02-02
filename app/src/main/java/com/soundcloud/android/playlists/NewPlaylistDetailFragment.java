@@ -366,12 +366,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         NewPlaylistDetailsAdapter(PlaylistTrackItemRenderer playlistTrackItemRenderer) {
             this.playlistTrackItemRenderer = playlistTrackItemRenderer;
             this.playlistTrackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.edit_playlist_track_item);
-            setHasStableIds(true);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return getItem(position).getUrn().getNumericId();
         }
 
         @Override

@@ -59,6 +59,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @AutoFactory
 class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
@@ -96,7 +97,6 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     // outputs
     private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
     private final PublishSubject<Urn> gotoCreator = PublishSubject.create();
-    private final PublishSubject<Urn> playTrack = PublishSubject.create();
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
     private final BehaviorSubject<PlaylistWithTracks> dataSource;
 
@@ -499,7 +499,8 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
         private Observable<List<Track>> tracks() {
             return trackRepository.forPlaylist(playlistUrn)
-                                  .startWith(Collections.<Track>emptyList());
+                                  .startWith(Collections.<Track>emptyList())
+                                  .debounce(100, TimeUnit.MILLISECONDS);
         }
 
         private Observable<Playlist> playlist() {
@@ -509,7 +510,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         private Observable<PlaylistChangedEvent> playlistUpdates() {
             return eventBus.queue(EventQueue.PLAYLIST_CHANGED)
                            .filter(event -> event.changeMap().containsKey(playlistUrn))
-                           .filter(event -> event.isEntityChangeEvent() || event.isTracklistChangeEvent())
+                           .filter(event -> !event.isPlaylistEdited() || event.isEntityChangeEvent() || event.isTracklistChangeEvent())
                            .doOnNext(this::storeUpdatedUrn);
         }
 
