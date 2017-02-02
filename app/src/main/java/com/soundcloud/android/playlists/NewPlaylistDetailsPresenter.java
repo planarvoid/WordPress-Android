@@ -9,6 +9,7 @@ import static rx.Observable.combineLatest;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -45,6 +46,7 @@ import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -56,6 +58,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -475,12 +478,15 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         private Urn playlistUrn;
 
         private final BehaviorSubject<PlaylistWithTracks> data = BehaviorSubject.create();
+        private final Scheduler scheduler;
 
         @Inject
         DataSourceProvider(Urn initialUrn,
+                           @Provided @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler,
                            @Provided PlaylistRepository playlistRepository,
                            @Provided TrackRepository trackRepository,
                            @Provided EventBus eventBus) {
+            this.scheduler = scheduler;
             this.playlistRepository = playlistRepository;
             this.trackRepository = trackRepository;
             this.eventBus = eventBus;
@@ -500,7 +506,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         private Observable<List<Track>> tracks() {
             return trackRepository.forPlaylist(playlistUrn)
                                   .startWith(Collections.<Track>emptyList())
-                                  .debounce(100, TimeUnit.MILLISECONDS);
+                                  .debounce(100, TimeUnit.MILLISECONDS, scheduler);
         }
 
         private Observable<Playlist> playlist() {
@@ -510,7 +516,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         private Observable<PlaylistChangedEvent> playlistUpdates() {
             return eventBus.queue(EventQueue.PLAYLIST_CHANGED)
                            .filter(event -> event.changeMap().containsKey(playlistUrn))
-                           .filter(event -> !event.isPlaylistEdited() || event.isEntityChangeEvent() || event.isTracklistChangeEvent())
+                           .filter(event -> !event.isPlaylistEdited() && (event.isEntityChangeEvent() || event.isTracklistChangeEvent()))
                            .doOnNext(this::storeUpdatedUrn);
         }
 

@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.AssertableSubscriber;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.Collections;
@@ -27,7 +28,7 @@ import java.util.List;
 
 public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
-    NewPlaylistDetailsPresenter.DataSourceProvider dataSourceProvider;
+    private NewPlaylistDetailsPresenter.DataSourceProvider dataSourceProvider;
 
     @Mock private PlaylistRepository playlistRepository;
     @Mock private TrackRepository trackRepository;
@@ -59,7 +60,7 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
         when(playlistRepository.withUrn(pushedPlaylist.urn())).thenReturn(just(pushedPlaylist));
         when(trackRepository.forPlaylist(pushedPlaylist.urn())).thenReturn(just(updatedTrackItems));
 
-        dataSourceProvider = new NewPlaylistDetailsPresenter.DataSourceProvider(playlist.urn(), playlistRepository, trackRepository, eventBus);
+        dataSourceProvider = new NewPlaylistDetailsPresenter.DataSourceProvider(playlist.urn(), Schedulers.immediate(), playlistRepository, trackRepository, eventBus);
     }
 
     @Test
@@ -107,6 +108,16 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
         tracklistSubject.onNext(trackItems);
 
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsUnmarkedForDownload(singletonList(updatedPlaylist.urn())));
+
+        assertInitialValues(test);
+    }
+
+    @Test
+    public void doesNotEmitAgainOnPlaylistEdited() throws Exception {
+        AssertableSubscriber<NewPlaylistDetailsPresenter.PlaylistWithTracks> test = dataSourceProvider.data().test();
+        tracklistSubject.onNext(trackItems);
+
+        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistEdited(updatedPlaylist));
 
         assertInitialValues(test);
     }
