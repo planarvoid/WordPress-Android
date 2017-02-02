@@ -16,8 +16,10 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackContext;
@@ -37,7 +39,7 @@ import rx.Observable;
 
 public class ArtworkPresenterTest extends AndroidUnitTest {
 
-    private final Track track = ModelFixtures.trackBuilder().build();
+    private final Track track = ModelFixtures.trackItemWithOfflineState(Urn.NOT_SET, OfflineState.DOWNLOADED);
     private final PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(1L))
             .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
             .build();
@@ -47,17 +49,19 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
     @Mock private ArtworkView artworkView;
     @Mock private TrackRepository trackRepository;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     private ArtworkPresenter artworkPresenter;
 
     @Before
     public void setUp() {
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(PlaybackProgress.empty());
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(new TrackQueueItem.Builder(Urn.forTrack(1L))
                                                                             .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY))
                                                                             .build());
         when(trackRepository.track(any())).thenReturn(Observable.just(track));
 
-        artworkPresenter = new ArtworkPresenter(eventBus, trackRepository, playQueueManager);
+        artworkPresenter = new ArtworkPresenter(eventBus, trackRepository, playQueueManager, playSessionStateProvider);
         artworkPresenter.attachView(artworkView);
     }
 
@@ -142,6 +146,23 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
         artworkPresenter.attachView(artworkView);
 
         verify(artworkView, times(2)).setImage(any());
+    }
+
+    @Test
+    public void doNotInitialSetProgressIfDifferentUrn() {
+        verify(artworkView, never()).setPlaybackProgress(any(), anyInt());
+    }
+
+    @Test
+    public void setInitialProgressIfSameUrn() {
+        artworkPresenter.detachView();
+
+        PlaybackProgress playbackProgress = new PlaybackProgress(0, 100, Urn.NOT_SET);
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(playbackProgress);
+
+        artworkPresenter.attachView(artworkView);
+
+        verify(artworkView).setPlaybackProgress(playbackProgress, playbackProgress.getDuration());
     }
 
 }

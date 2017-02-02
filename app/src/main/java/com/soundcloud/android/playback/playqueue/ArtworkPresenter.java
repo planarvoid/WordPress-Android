@@ -7,6 +7,7 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -25,16 +26,18 @@ public class ArtworkPresenter {
     private final EventBus eventBus;
     private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private Optional<ArtworkView> artworkViewContract = Optional.absent();
     private Urn lastUrn = Urn.NOT_SET;
 
     @Inject
-    public ArtworkPresenter(EventBus eventBus, TrackRepository trackRepository, PlayQueueManager playQueueManager) {
+    public ArtworkPresenter(EventBus eventBus, TrackRepository trackRepository, PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
+        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     void attachView(ArtworkView artworkView) {
@@ -112,9 +115,12 @@ public class ArtworkPresenter {
         @Override
         public void onNext(Track track) {
             artworkViewContract.get().setImage(SimpleImageResource.create(track.urn(), track.imageUrlTemplate()));
+            PlaybackProgress progressEvent = playSessionStateProvider.getLastProgressEvent();
+            if (progressEvent.getUrn().equals(track.urn())) {
+                artworkViewContract.get().setPlaybackProgress(progressEvent, progressEvent.getDuration());
+            }
             lastUrn = track.urn();
         }
     }
-
 
 }
