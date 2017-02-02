@@ -12,11 +12,10 @@
         android:layout_marginBottom="12dp" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/product_choice_terms"
+        android:id="@+id/product_choice_restrictions"
         style="@style/ProductChoiceRestrictions"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="28dp"
-        android:text="@string/product_choice_mini_terms" />
+        android:layout_marginBottom="28dp" />
 
     <View
         android:layout_width="match_parent"

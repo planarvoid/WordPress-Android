@@ -24,6 +24,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
 
     @Mock ProductChoicePagerView pagerView;
     @Mock ProductChoiceScrollView scrollView;
+    @Mock ProductInfoFormatter formatter;
 
     private AppCompatActivity activity = activity();
     private ProductChoicePresenter presenter;
@@ -31,7 +32,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         activity.setIntent(new Intent().putExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, BOTH_PLANS));
-        presenter = new ProductChoicePresenter(lazyOf(pagerView), lazyOf(scrollView));
+        presenter = new ProductChoicePresenter(lazyOf(pagerView), lazyOf(scrollView), formatter);
     }
 
     @Test

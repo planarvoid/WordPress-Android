@@ -8,6 +8,7 @@ abstract class ProductChoiceView {
 
     interface Listener {
         void onPurchaseProduct(WebProduct product);
+        void onRestrictionsClick(WebProduct product);
     }
 
 }

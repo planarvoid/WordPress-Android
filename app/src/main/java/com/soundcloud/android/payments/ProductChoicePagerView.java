@@ -8,6 +8,7 @@ import com.soundcloud.android.view.pageindicator.CirclePageIndicator;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -19,6 +20,7 @@ class ProductChoicePagerView extends ProductChoiceView implements ViewPager.OnPa
     private Listener listener;
 
     @BindView(R.id.buy) Button buyButton;
+    @BindView(R.id.product_choice_restrictions) TextView restrictions;
     @BindView(R.id.product_choice_pager) ViewPager pager;
     @BindView(R.id.page_indicator) CirclePageIndicator indicator;
 
@@ -40,17 +42,19 @@ class ProductChoicePagerView extends ProductChoiceView implements ViewPager.OnPa
 
     private void displayProducts(AvailableWebProducts products) {
         productChoiceAdapter.setProducts(products);
-        configureBuyButton(productChoiceAdapter.getProduct(0));
+        configureButtons(productChoiceAdapter.getProduct(0));
     }
 
     @Override
     public void onPageSelected(int position) {
-        configureBuyButton(productChoiceAdapter.getProduct(position));
+        configureButtons(productChoiceAdapter.getProduct(position));
     }
 
-    private void configureBuyButton(WebProduct product) {
+    private void configureButtons(WebProduct product) {
         buyButton.setText(formatter.configuredBuyButton(product));
         buyButton.setOnClickListener(v -> listener.onPurchaseProduct(product));
+        restrictions.setText(formatter.configuredRestrictionsText(product));
+        restrictions.setOnClickListener(v -> listener.onRestrictionsClick(product));
     }
 
     @Override

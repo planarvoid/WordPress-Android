@@ -33,4 +33,16 @@ public class ProductInfoFormatterTest extends AndroidUnitTest{
         assertThat(formatter.promoDuration(123)).isEqualTo("4 months");
     }
 
+    @Test
+    public void configuresDefaultRestrictionsTextWithNoPromo() {
+        assertThat(formatter.configuredRestrictionsText(TestProduct.highTier()))
+                .isEqualTo("Restrictions apply");
+    }
+
+    @Test
+    public void configuresPromoRestrictionsTextWithPromo() {
+        assertThat(formatter.configuredRestrictionsText(TestProduct.highTierPromo()))
+                .isEqualTo("Restrictions apply, $2 after");
+    }
+
 }

@@ -28,11 +28,17 @@ class ProductChoiceScrollView extends ProductChoiceView {
         TextView price = ButterKnife.findById(view, R.id.product_choice_price);
         price.setText(formatter.configuredPrice(product));
         configureBuyButton(product, ButterKnife.findById(view, R.id.buy), listener);
+        configureRestrictions(product, ButterKnife.findById(view, R.id.product_choice_restrictions), listener);
     }
 
     private void configureBuyButton(WebProduct product, Button buyButton, Listener listener) {
         buyButton.setText(formatter.configuredBuyButton(product));
         buyButton.setOnClickListener(v -> listener.onPurchaseProduct(product));
+    }
+
+    private void configureRestrictions(WebProduct product, TextView restrictions, Listener listener) {
+        restrictions.setText(formatter.configuredRestrictionsText(product));
+        restrictions.setOnClickListener(v -> listener.onRestrictionsClick(product));
     }
 
 }

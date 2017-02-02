@@ -23,7 +23,7 @@ import javax.inject.Inject;
 
 class ConversionView {
 
-    private static final String RESTRICTIONS_DIALOG_TAG = "product_info";
+    private static final String RESTRICTIONS_DIALOG_TAG = "restrictions_dialog";
     private static final int BACKGROUND_ID = R.drawable.conversion_background;
 
     private final Resources resources;

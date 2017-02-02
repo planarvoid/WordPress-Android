@@ -744,7 +744,6 @@
 
     <!-- PRODUCT_CHOICE -->
     <string name="product_choice_title">Something for everyone</string>
-    <string name="product_choice_mini_terms">Subscription will renew until cancelled</string>
     <string name="product_choice_line_1">The world’s largest music and audio streaming community</string>
     <string name="product_choice_line_2">Offline listening</string>
     <string name="product_choice_line_3">No ads</string>

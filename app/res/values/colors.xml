@@ -186,7 +186,7 @@
     <color name="search_suggestion_unhighlighted_text">@color/ak_medium_dark_gray</color>
 
     <!-- Upsell -->
-    <color name="conversion_restrictions_text">#80ffffff</color>
+    <color name="conversion_restrictions_text_default">#80ffffff</color>
     <color name="conversion_restrictions_text_focused">#bbffffff</color>
     <color name="conversion_restrictions_text_pressed">#ffffffff</color>
     <color name="go_gradient_start">#7d02a1</color>

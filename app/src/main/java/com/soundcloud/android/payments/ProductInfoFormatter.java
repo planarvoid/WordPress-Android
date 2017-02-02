@@ -55,4 +55,12 @@ class ProductInfoFormatter {
                 : buyButton(product.getTrialDays());
     }
 
+    String configuredRestrictionsText(WebProduct product) {
+        if (product.hasPromo()) {
+            return resources.getString(R.string.conversion_restrictions_promo, product.getPrice());
+        } else {
+            return resources.getString(R.string.conversion_restrictions);
+        }
+    }
+
 }

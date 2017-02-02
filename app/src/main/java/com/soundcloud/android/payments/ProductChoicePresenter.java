@@ -4,25 +4,29 @@ import com.soundcloud.android.R;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import dagger.Lazy;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.view.View;
 
 import javax.inject.Inject;
 
 class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ProductChoicePagerView.Listener {
 
+    private static final String RESTRICTIONS_DIALOG_TAG = "restrictions_dialog";
+
     private final Lazy<ProductChoicePagerView> pagerView;
     private final Lazy<ProductChoiceScrollView> scrollView;
+    private final ProductInfoFormatter formatter;
 
-    private Activity activity;
+    private AppCompatActivity activity;
 
     @Inject
-    ProductChoicePresenter(Lazy<ProductChoicePagerView> pagerView, Lazy<ProductChoiceScrollView> scrollView) {
+    ProductChoicePresenter(Lazy<ProductChoicePagerView> pagerView, Lazy<ProductChoiceScrollView> scrollView, ProductInfoFormatter formatter) {
         this.pagerView = pagerView;
         this.scrollView = scrollView;
+        this.formatter = formatter;
     }
 
     @Override
@@ -50,6 +54,21 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     public void onPurchaseProduct(WebProduct product) {
         startWebCheckout(product);
         activity.finish();
+    }
+
+    @Override
+    public void onRestrictionsClick(WebProduct product) {
+        if (product.hasPromo()) {
+            showDialog(ConversionRestrictionsDialog.createForPromo(formatter.promoDuration(product.getPromoDays()), product.getPromoPrice().get(), product.getPrice()));
+        } else if (product.getTrialDays() > 0) {
+            showDialog(ConversionRestrictionsDialog.createForTrial(product.getTrialDays()));
+        } else {
+            showDialog(ConversionRestrictionsDialog.createForNoTrial());
+        }
+    }
+
+    private void showDialog(AppCompatDialogFragment dialogFragment) {
+        dialogFragment.show(activity.getSupportFragmentManager(), RESTRICTIONS_DIALOG_TAG);
     }
 
     private void startWebCheckout(WebProduct product) {
