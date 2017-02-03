@@ -31,20 +31,18 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testUserCanNavigateToSubscribePageFromUpsell() {
-        final StreamScreen streamScreen = mainNavHelper.goToStream();
 
-        VisualPlayerElement player = mainNavHelper
-                .goToStream()
-                .scrollToFirstSnippedTrack()
-                .clickToPlay()
-                .clickArtwork();
+        VisualPlayerElement player = mainNavHelper.goToStream()
+                                                  .scrollToFirstSnippedTrack()
+                                                  .clickToPlay()
+                                                  .clickArtwork();
 
         final UpgradeScreen upgradeScreen = player.clickUpgrade();
         assertThat(upgradeScreen, is(visible()));
 
         solo.goBack();
-        player.pressBackToCollapse();
 
+        final StreamScreen streamScreen = mainNavHelper.goToStream();
         startEventTracking();
 
         assertThat(streamScreen
