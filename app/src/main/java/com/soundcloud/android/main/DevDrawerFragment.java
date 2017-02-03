@@ -137,23 +137,27 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
                   return true;
               });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_ht_key))
               .setOnPreferenceClickListener(preference -> {
-                  getActivity().getSharedPreferences("device_config_settings", Context.MODE_PRIVATE)
-                               .edit()
-                               .putString("pending_plan_upgrade", Plan.HIGH_TIER.planId)
-                               .apply();
-                  navigator.resetForAccountUpgrade(getActivity());
+                  launchFakeUpgrade(Plan.HIGH_TIER);
                   return true;
               });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_flow_key))
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_mt_key))
               .setOnPreferenceClickListener(preference -> {
-                  getActivity().getSharedPreferences("device_config_settings", Context.MODE_PRIVATE)
-                               .edit()
-                               .putString("pending_plan_downgrade", Plan.FREE_TIER.planId)
-                               .apply();
-                  navigator.resetForAccountDowngrade(getActivity());
+                  launchFakeUpgrade(Plan.MID_TIER);
+                  return true;
+              });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_mt_key))
+              .setOnPreferenceClickListener(preference -> {
+                  launchFakeDowngrade(Plan.MID_TIER);
+                  return true;
+              });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_free_key))
+              .setOnPreferenceClickListener(preference -> {
+                  launchFakeDowngrade(Plan.FREE_TIER);
                   return true;
               });
 
@@ -191,6 +195,22 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
 
         setupForceConfigUpdatePref(screen);
         setupCastReceiverIdPref(screen);
+    }
+
+    private void launchFakeUpgrade(Plan plan) {
+        getActivity().getSharedPreferences("device_config_settings", Context.MODE_PRIVATE)
+                     .edit()
+                     .putString("pending_plan_upgrade", plan.planId)
+                     .apply();
+        navigator.resetForAccountUpgrade(getActivity());
+    }
+
+    private void launchFakeDowngrade(Plan plan) {
+        getActivity().getSharedPreferences("device_config_settings", Context.MODE_PRIVATE)
+                     .edit()
+                     .putString("pending_plan_downgrade", plan.planId)
+                     .apply();
+        navigator.resetForAccountDowngrade(getActivity());
     }
 
     private void addIntroductoryOverlaysControls() {
