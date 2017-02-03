@@ -740,12 +740,15 @@
     <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favorite artists with SoundCloud Go.</string>
 
     <!-- PRODUCT_CHOICE -->
-    <string name="product_choice_title">Something for everyone</string>
-    <string name="product_choice_line_1">The world’s largest music and audio streaming community</string>
-    <string name="product_choice_line_2">Offline listening</string>
-    <string name="product_choice_line_3">No ads</string>
-    <string name="product_choice_line_4">No previews</string>
-    <string name="product_choice_line_5">More tracks than any other streaming service</string>
+    <string name="product_choice_title">An experience for everyone</string>
+    <string name="product_choice_line_1_mid">Discover, stream and share a constantly expanding mix of music from established and emerging artists</string>
+    <string name="product_choice_line_1_high">Access the world’s largest music streaming catalog, a constantly expanding mix from established and emerging artists</string>
+    <string name="product_choice_line_2_mid">120M+ tracks</string>
+    <string name="product_choice_line_2_high">Full access to all 150M+ tracks</string>
+    <string name="product_choice_line_3_common">Offline listening</string>
+    <string name="product_choice_line_4_common">No ads</string>
+    <string name="product_choice_line_5_common">Millions of premium Go+ tracks</string>
+    <string name="product_choice_line_6_common">No previews</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>

@@ -11,7 +11,7 @@
         android:id="@+id/product_choice_title"
         style="@style/ProductText.Title"
         android:layout_below="@id/conversion_cloud"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:text="@string/tier_go" />
 
     <com.soundcloud.android.view.CustomFontTextView
@@ -35,7 +35,7 @@
         android:layout_toRightOf="@id/check_1"
         android:layout_alignTop="@id/check_1"
         android:layout_marginBottom="8dp"
-        android:text="@string/product_choice_line_1" />
+        android:text="@string/product_choice_line_1_mid" />
 
     <ImageView
         android:id="@+id/check_2"
@@ -48,7 +48,7 @@
         android:layout_toRightOf="@id/check_2"
         android:layout_alignTop="@id/check_2"
         android:layout_marginBottom="8dp"
-        android:text="@string/product_choice_line_2" />
+        android:text="@string/product_choice_line_2_mid" />
 
     <ImageView
         android:id="@+id/check_3"
@@ -61,7 +61,7 @@
         android:layout_toRightOf="@id/check_3"
         android:layout_alignTop="@id/check_3"
         android:layout_marginBottom="8dp"
-        android:text="@string/product_choice_line_3" />
+        android:text="@string/product_choice_line_3_common" />
 
     <ImageView
         android:id="@+id/check_4"
@@ -74,7 +74,7 @@
         android:layout_toRightOf="@id/check_4"
         android:layout_alignTop="@id/check_4"
         android:layout_marginBottom="8dp"
-        android:text="@string/product_choice_line_4" />
+        android:text="@string/product_choice_line_4_common" />
 
     <ImageView
         android:id="@+id/check_5"
@@ -87,6 +87,19 @@
         android:layout_toRightOf="@id/check_5"
         android:layout_alignTop="@id/check_5"
         android:layout_marginBottom="8dp"
-        android:text="@string/product_choice_line_5" />
+        android:text="@string/product_choice_line_5_common" />
+
+    <ImageView
+        android:id="@+id/check_6"
+        style="@style/ProductPageCheck.Disabled"
+        android:layout_below="@id/feature_5" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/feature_6"
+        style="@style/ProductText.Disabled"
+        android:layout_toRightOf="@id/check_6"
+        android:layout_alignTop="@id/check_6"
+        android:layout_marginBottom="8dp"
+        android:text="@string/product_choice_line_6_common" />
 
 </RelativeLayout>

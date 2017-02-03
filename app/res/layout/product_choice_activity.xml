@@ -47,13 +47,12 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/conversion_margin"
         android:layout_marginLeft="@dimen/conversion_margin"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginTop="4dp"
         android:layout_above="@+id/product_choice_restrictions" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/product_choice_restrictions"
-        style="@style/ProductChoiceRestrictions"
+        style="@style/ConversionText.Restrictions.Product"
         android:layout_above="@+id/page_indicator"
         android:layout_centerHorizontal="true" />
 
@@ -62,7 +61,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/ProductChoicePageIndicator"
-        android:layout_margin="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="16dp"
         android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
