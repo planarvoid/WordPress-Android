@@ -1,5 +1,6 @@
 package com.soundcloud.android.cast;
 
+import com.google.android.gms.cast.LaunchOptions;
 import com.google.android.gms.cast.framework.CastOptions;
 import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
@@ -14,6 +15,7 @@ import android.content.Context;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class CastOptionsProvider implements OptionsProvider {
 
@@ -30,6 +32,13 @@ public class CastOptionsProvider implements OptionsProvider {
                 .setEnableReconnectionService(true)
                 .setResumeSavedSession(true)
                 .setCastMediaOptions(castMediaOptions())
+                .setLaunchOptions(launchOptions())
+                .build();
+    }
+
+    private LaunchOptions launchOptions() {
+        return new LaunchOptions.Builder()
+                .setLocale(Locale.getDefault())
                 .build();
     }
 
