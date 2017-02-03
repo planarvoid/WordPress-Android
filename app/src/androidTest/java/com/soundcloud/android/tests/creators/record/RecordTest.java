@@ -120,6 +120,10 @@ public class RecordTest extends ActivityTest<MainActivity> {
 
         ProfileScreen profileScreen = mainNavHelper.goToMyProfile();
         assertThat(profileScreen, is(IsVisible.visible()));
+
+        if (!profileScreen.getFirstTrackTitle().equals(title)) {
+            profileScreen.pullToRefresh();
+        }
         assertThat(profileScreen.getFirstTrackTitle(), is(title));
     }
 }

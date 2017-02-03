@@ -166,6 +166,12 @@ public class ProfileScreen extends Screen {
     public String getFirstTrackTitle() {
         pullToRefresh();
         waiter.waitForContentAndRetryIfLoadingFailed();
+
+        // 01/30/17: RecordTest showed failures in which api-mobile received timeouts when getting the Profile content from okidoki after uploading a track
+        while (errorView().isOnScreen()) {
+            pullToRefresh();
+        }
+
         return getTracks().get(0).getTitle();
     }
 
